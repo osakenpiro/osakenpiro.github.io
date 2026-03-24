@@ -335,6 +335,7 @@ const SATELLITES = [
   {id:'zenodo',icon:'🔬',title:'論文 8本',desc:'Zenodo プレプリント・DOI付き',url:'https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Osada%2C%20Kenshiro%22',type:'mechanical',orbit:2,speed:0.25},
   {id:'satori',icon:'◉',title:'SATORI',desc:'AI四賢者と哲学対話',url:'https://osakenpiro.github.io/satori/',type:'mechanical',orbit:2,speed:0.3},
   {id:'tools',icon:'⚙',title:'Tools',desc:'KAGAMI / HIBIKI / MIERU',url:'https://osakenpiro.github.io',type:'mechanical',orbit:2,speed:0.2},
+  {id:'materials',icon:'🧪',title:'素材図鑑',desc:'人類の素材・元素・地理の総合ダッシュボード',url:'https://osakenpiro.github.io/materials-of-civilization/',type:'mechanical',orbit:2,speed:0.32},
     {id:'mission',icon:'🛰',title:'Mission Control',desc:'全チャット共有タスクボード',url:'https://www.notion.so/Mission-Control-Claude-3282b7e543e0815db7c0d5afdae9ae76',type:'mechanical',orbit:2,speed:0.22},
   {id:'orcid',icon:'🆔',title:'ORCID',desc:'0009-0004-9167-3186',url:'https://orcid.org/0009-0004-9167-3186',type:'mechanical',orbit:2,speed:0.28},
 
@@ -506,7 +507,7 @@ function buildListView(){
     '読む — Read': SATELLITES.filter(s=>['note','panda','kakuyomu'].includes(s.id)),
     '論文 — Papers': SATELLITES.filter(s=>['zenodo','orcid'].includes(s.id)),
     '観る — Watch': SATELLITES.filter(s=>['tiktok','ig','yt','pixiv'].includes(s.id)),
-    '触る — Interact': SATELLITES.filter(s=>['satori','tools','booth'].includes(s.id)),
+    '触る — Interact': SATELLITES.filter(s=>['satori','tools','materials','booth'].includes(s.id)),
     '聴く — Listen': SATELLITES.filter(s=>['spotify'].includes(s.id)),
     'つながる — Connect': SATELLITES.filter(s=>['x'].includes(s.id)),
   };
@@ -554,3 +555,4 @@ requestAnimationFrame(animate);
 </script>
 </body>
 </html>
+
