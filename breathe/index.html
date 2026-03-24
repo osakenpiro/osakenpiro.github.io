@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Breathe — osakenpiro</title>
+<meta property="og:title" content="Breathe — osakenpiro">
+<meta property="og:description" content="4-7-8呼吸法。吸って、止めて、吐く。それだけでいい。">
+<meta property="og:url" content="https://osakenpiro.github.io/breathe/">
+<meta property="og:type" content="website">
+<style>
+  :root {
+    --bg: #080810;
+    --text: #c8c8d8;
+    --dim: #4a4a60;
+    --inhale: #7c5bf5;
+    --hold: #f59e0b;
+    --exhale: #10b981;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Yu Gothic UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+    user-select: none;
+  }
+  h1 {
+    font-size: 1.2rem;
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    margin-bottom: 3rem;
+    color: var(--dim);
+  }
+  .circle-container {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    margin-bottom: 2rem;
+  }
+  .circle {
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #7c5bf520, transparent 70%);
+    border: 2px solid #7c5bf530;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    transition: transform 0.3s ease, border-color 0.5s ease, background 0.5s ease;
+  }
+  .circle.inhale {
+    transform: scale(1.3);
+    border-color: #7c5bf580;
+    background: radial-gradient(circle, #7c5bf530, transparent 70%);
+  }
+  .circle.hold {
+    transform: scale(1.3);
+    border-color: #f59e0b80;
+    background: radial-gradient(circle, #f59e0b20, transparent 70%);
+  }
+  .circle.exhale {
+    transform: scale(1);
+    border-color: #10b98180;
+    background: radial-gradient(circle, #10b98120, transparent 70%);
+  }
+  .phase-text {
+    font-size: 1.4rem;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    margin-bottom: 0.5rem;
+  }
+  .counter {
+    font-size: 3rem;
+    font-weight: 200;
+    font-variant-numeric: tabular-nums;
+  }
+  .instructions {
+    color: var(--dim);
+    font-size: 0.85rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    line-height: 1.8;
+  }
+  .controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  button {
+    background: transparent;
+    border: 1px solid var(--dim);
+    color: var(--text);
+    padding: 0.6rem 1.5rem;
+    border-radius: 2rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  button:hover {
+    border-color: var(--inhale);
+    color: white;
+  }
+  button.active {
+    border-color: var(--inhale);
+    background: #7c5bf520;
+  }
+  .method-selector {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+  }
+  .method-btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.75rem;
+  }
+  .method-btn.active {
+    border-color: var(--inhale);
+    background: #7c5bf520;
+  }
+  .cycle-count {
+    color: var(--dim);
+    font-size: 0.75rem;
+  }
+  footer {
+    position: fixed;
+    bottom: 1.5rem;
+    color: var(--dim);
+    font-size: 0.65rem;
+  }
+  footer a { color: var(--dim); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<h1>B R E A T H E</h1>
+
+<div class="method-selector">
+  <button class="method-btn active" data-method="478">4-7-8</button>
+  <button class="method-btn" data-method="box">Box (4-4-4-4)</button>
+  <button class="method-btn" data-method="calm">Calm (5-5)</button>
+</div>
+
+<div class="circle-container">
+  <div class="circle" id="circle">
+    <div class="phase-text" id="phase">Ready</div>
+    <div class="counter" id="counter">—</div>
+  </div>
+</div>
+
+<div class="instructions" id="instructions">
+  タップまたはスペースキーで開始
+</div>
+
+<div class="controls">
+  <button id="startBtn">Start</button>
+</div>
+
+<div class="cycle-count" id="cycleCount"></div>
+
+<footer>
+  <a href="https://osakenpiro.github.io">osakenpiro.github.io</a>
+</footer>
+
+<script>
+const methods = {
+  '478': { name: '4-7-8', phases: [
+    { name: '吸う', duration: 4, cls: 'inhale' },
+    { name: '止める', duration: 7, cls: 'hold' },
+    { name: '吐く', duration: 8, cls: 'exhale' }
+  ]},
+  'box': { name: 'Box Breathing', phases: [
+    { name: '吸う', duration: 4, cls: 'inhale' },
+    { name: '止める', duration: 4, cls: 'hold' },
+    { name: '吐く', duration: 4, cls: 'exhale' },
+    { name: '止める', duration: 4, cls: 'hold' }
+  ]},
+  'calm': { name: 'Calm', phases: [
+    { name: '吸う', duration: 5, cls: 'inhale' },
+    { name: '吐く', duration: 5, cls: 'exhale' }
+  ]}
+};
+
+let currentMethod = '478';
+let running = false;
+let timer = null;
+let cycles = 0;
+
+const circle = document.getElementById('circle');
+const phaseEl = document.getElementById('phase');
+const counterEl = document.getElementById('counter');
+const instructionsEl = document.getElementById('instructions');
+const startBtn = document.getElementById('startBtn');
+const cycleCountEl = document.getElementById('cycleCount');
+
+document.querySelectorAll('.method-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentMethod = btn.dataset.method;
+    if (running) { stop(); }
+  });
+});
+
+startBtn.addEventListener('click', toggle);
+document.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); toggle(); } });
+
+function toggle() {
+  if (running) stop(); else start();
+}
+
+function stop() {
+  running = false;
+  clearTimeout(timer);
+  circle.className = 'circle';
+  phaseEl.textContent = 'Ready';
+  counterEl.textContent = '—';
+  startBtn.textContent = 'Start';
+  instructionsEl.textContent = 'タップまたはスペースキーで開始';
+}
+
+function start() {
+  running = true;
+  cycles = 0;
+  startBtn.textContent = 'Stop';
+  instructionsEl.textContent = '';
+  cycleCountEl.textContent = '';
+  runCycle(0);
+}
+
+function runCycle(phaseIndex) {
+  if (!running) return;
+  const phases = methods[currentMethod].phases;
+  if (phaseIndex >= phases.length) {
+    cycles++;
+    cycleCountEl.textContent = cycles + ' cycle' + (cycles > 1 ? 's' : '');
+    phaseIndex = 0;
+  }
+  const phase = phases[phaseIndex];
+  circle.className = 'circle ' + phase.cls;
+  phaseEl.textContent = phase.name;
+  let remaining = phase.duration;
+  counterEl.textContent = remaining;
+
+  function tick() {
+    if (!running) return;
+    remaining--;
+    if (remaining <= 0) {
+      runCycle(phaseIndex + 1);
+    } else {
+      counterEl.textContent = remaining;
+      timer = setTimeout(tick, 1000);
+    }
+  }
+  timer = setTimeout(tick, 1000);
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shortcuts & Tools — osakenpiro</title>
+<meta property="og:title" content="Shortcuts & Tools — osakenpiro">
+<meta property="og:description" content="PowerToys, Windows, Clip Studio, Tartarus V2 ショートカット一覧">
+<meta property="og:url" content="https://osakenpiro.github.io/shortcuts/">
+<meta property="og:type" content="website">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #12121a;
+    --border: #1e1e2e;
+    --accent: #7c5bf5;
+    --accent2: #f59e0b;
+    --text: #e2e2e8;
+    --dim: #6b6b80;
+    --key-bg: #1a1a2a;
+    --key-border: #2a2a3e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', 'Yu Gothic UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 2rem;
+    line-height: 1.6;
+  }
+  h1 {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 0.3rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    text-align: center;
+    color: var(--dim);
+    font-size: 0.85rem;
+    margin-bottom: 2rem;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 1.2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2rem;
+  }
+  .card h2 {
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .card h2 .icon { font-size: 1.2rem; }
+  table { width: 100%; border-collapse: collapse; }
+  tr { border-bottom: 1px solid var(--border); }
+  tr:last-child { border-bottom: none; }
+  td { padding: 0.4rem 0; vertical-align: middle; }
+  td:first-child { width: 55%; color: var(--dim); font-size: 0.85rem; }
+  td:last-child { text-align: right; white-space: nowrap; }
+  kbd {
+    display: inline-block;
+    background: var(--key-bg);
+    border: 1px solid var(--key-border);
+    border-radius: 4px;
+    padding: 0.15rem 0.45rem;
+    font-family: 'Consolas', 'Yu Gothic UI', monospace;
+    font-size: 0.78rem;
+    color: var(--text);
+    min-width: 1.4rem;
+    text-align: center;
+  }
+  .plus { color: var(--dim); margin: 0 0.15rem; font-size: 0.7rem; }
+  .tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    margin-left: 0.4rem;
+  }
+  .tag-pt { background: #7c5bf520; color: var(--accent); border: 1px solid #7c5bf540; }
+  .tag-win { background: #3b82f620; color: #60a5fa; border: 1px solid #3b82f640; }
+  .tag-chrome { background: #f59e0b20; color: var(--accent2); border: 1px solid #f59e0b40; }
+  .section-divider {
+    max-width: 1200px;
+    margin: 2rem auto 1rem;
+    padding-left: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+  footer {
+    text-align: center;
+    color: var(--dim);
+    font-size: 0.7rem;
+    margin-top: 2.5rem;
+  }
+</style>
+</head>
+<body>
+
+<h1>Shortcuts & Tools</h1>
+<p class="subtitle">osakenpiro desktop reference — updated 2026-03-24</p>
+
+<div class="section-divider">PowerToys</div>
+<div class="grid">
+
+<div class="card">
+  <h2><span class="icon">📋</span> Advanced Paste</h2>
+  <table>
+    <tr><td>ペーストメニュー</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>V</kbd></td></tr>
+    <tr><td>プレーンテキスト貼付</td><td><kbd>Ctrl</kbd><span class="plus">+</span><kbd>Alt</kbd><span class="plus">+</span><kbd>V</kbd></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2><span class="icon">📌</span> Always On Top</h2>
+  <table>
+    <tr><td>ウィンドウを最前面固定</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>T</kbd></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2><span class="icon">🎨</span> Color Picker</h2>
+  <table>
+    <tr><td>スポイトで色を取得</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>C</kbd></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2><span class="icon">🚀</span> コマンドパレット / Run</h2>
+  <table>
+    <tr><td>ランチャーを開く</td><td><kbd>Alt</kbd><span class="plus">+</span><kbd>Space</kbd></td></tr>
+    <tr><td>コマンドパレット</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>Alt</kbd><span class="plus">+</span><kbd>Space</kbd></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2><span class="icon">🪟</span> FancyZones</h2>
+  <table>
+    <tr><td>ゾーンに配置</td><td><kbd>Shift</kbd> 押しながらドラッグ</td></tr>
+    <tr><td>レイアウトエディター</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>@</kbd></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2><span class="icon">✂️</span> トリミングとロック</h2>
+  <table>
+    <tr><td>サムネイル作成</td><td><kbd>Ctrl</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>T</kbd></td></tr>
+    <tr><td>トリミングウィンドウ</td><td><kbd>Ctrl</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>R</kbd></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2><span class="icon">🖼️</span> Image Resizer</h2>
+  <table>
+    <tr><td>画像を右クリック→リサイズ</td><td>エクスプローラー右クリック</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2><span class="icon">📝</span> Text Extractor</h2>
+  <table>
+    <tr><td>画面からテキストOCR</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>T</kbd></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2><span class="icon">📏</span> スクリーンルーラー</h2>
+  <table>
+    <tr><td>画面上の距離を測定</td><td><kbd>Ctrl</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>M</kbd></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2><span class="icon">🔍</span> マウスユーティリティ</h2>
+  <table>
+    <tr><td>マウスを見つける</td><td><kbd>Ctrl</kbd> × 2回</td></tr>
+    <tr><td>蛍光ペン ON/OFF</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>H</kbd></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2><span class="icon">⌨️</span> Shortcut Guide</h2>
+  <table>
+    <tr><td>Winキーショートカット一覧</td><td><kbd>Win</kbd> 長押し</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2><span class="icon">☕</span> Awake</h2>
+  <table>
+    <tr><td>スリープ防止（LoRA訓練中に）</td><td>タスクトレイから切替</td></tr>
+  </table>
+</div>
+
+</div>
+
+<div class="section-divider">Windows Built-in</div>
+<div class="grid">
+
+<div class="card">
+  <h2><span class="icon">📸</span> スクリーンショット</h2>
+  <table>
+    <tr><td>範囲選択スクショ</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>S</kbd></td></tr>
+    <tr><td>全画面スクショ</td><td><kbd>PrtSc</kbd></td></tr>
+    <tr><td>Snipping Tool起動</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>S</kbd></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2><span class="icon">🖥️</span> ウィンドウ操作</h2>
+  <table>
+    <tr><td>仮想デスクトップ一覧</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>Tab</kbd></td></tr>
+    <tr><td>新しい仮想デスクトップ</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>D</kbd></td></tr>
+    <tr><td>仮想デスクトップ切替</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>Ctrl</kbd><span class="plus">+</span><kbd>←</kbd><kbd>→</kbd></td></tr>
+    <tr><td>ウィンドウ左右分割</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>←</kbd> / <kbd>→</kbd></td></tr>
+    <tr><td>全ウィンドウ最小化</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>D</kbd></td></tr>
+    <tr><td>タスクバーn番目を起動</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>1</kbd>〜<kbd>9</kbd></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2><span class="icon">⚡</span> システム</h2>
+  <table>
+    <tr><td>タスクマネージャー</td><td><kbd>Ctrl</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>Esc</kbd></td></tr>
+    <tr><td>設定を開く</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>I</kbd></td></tr>
+    <tr><td>クリップボード履歴</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>V</kbd></td></tr>
+    <tr><td>絵文字パネル</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>.</kbd></td></tr>
+    <tr><td>画面録画（Xbox Bar）</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>G</kbd></td></tr>
+    <tr><td>ファイル名を指定して実行</td><td><kbd>Win</kbd><span class="plus">+</span><kbd>R</kbd></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2><span class="icon">🌐</span> Chrome</h2>
+  <table>
+    <tr><td>新しいタブ</td><td><kbd>Ctrl</kbd><span class="plus">+</span><kbd>T</kbd></td></tr>
+    <tr><td>タブを閉じる</td><td><kbd>Ctrl</kbd><span class="plus">+</span><kbd>W</kbd></td></tr>
+    <tr><td>閉じたタブを復元</td><td><kbd>Ctrl</kbd><span class="plus">+</span><kbd>Shift</kbd><span class="plus">+</span><kbd>T</kbd></td></tr>
+    <tr><td>DevTools</td><td><kbd>F12</kbd></td></tr>
+    <tr><td>アドレスバーにフォーカス</td><td><kbd>Ctrl</kbd><span class="plus">+</span><kbd>L</kbd></td></tr>
+    <tr><td>ページ内検索</td><td><kbd>Ctrl</kbd><span class="plus">+</span><kbd>F</kbd></td></tr>
+  </table>
+</div>
+
+</div>
+
+<div class="section-divider">Creative Tools</div>
+<div class="grid">
+
+<div class="card">
+  <h2><span class="icon">🎨</span> Clip Studio Paint</h2>
+  <table>
+    <tr><td>ブラシサイズ変更</td><td><kbd>[</kbd> / <kbd>]</kbd></td></tr>
+    <tr><td>スポイト（一時）</td><td><kbd>Alt</kbd> 押しながらクリック</td></tr>
+    <tr><td>消しゴム切替</td><td><kbd>E</kbd></td></tr>
+    <tr><td>ペン切替</td><td><kbd>P</kbd></td></tr>
+    <tr><td>塗りつぶし</td><td><kbd>G</kbd></td></tr>
+    <tr><td>取り消し / やり直し</td><td><kbd>Ctrl</kbd><span class="plus">+</span><kbd>Z</kbd> / <kbd>Y</kbd></td></tr>
+    <tr><td>キャンバス回転</td><td><kbd>Shift</kbd><span class="plus">+</span><kbd>Space</kbd><span class="plus">+</span>ドラッグ</td></tr>
+    <tr><td>左右反転表示</td><td><kbd>H</kbd>（表示メニュー確認）</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2><span class="icon">🤖</span> ComfyUI</h2>
+  <table>
+    <tr><td>起動</td><td><kbd>C:\AI\ComfyUI\start.bat</kbd></td></tr>
+    <tr><td>ブラウザで開く</td><td><code>localhost:8188</code></td></tr>
+    <tr><td>キュー実行</td><td><kbd>Ctrl</kbd><span class="plus">+</span><kbd>Enter</kbd></td></tr>
+    <tr><td>ノード検索</td><td>ダブルクリック or <kbd>Space</kbd></td></tr>
+  </table>
+</div>
+
+</div>
+
+<div class="section-divider">Razer Tartarus V2 — CLIPSTUDIO Profile</div>
+<div class="grid">
+
+<div class="card">
+  <h2><span class="icon">🎮</span> Keypad (01-10)</h2>
+  <table>
+    <tr><td>01: アプリのサイクル</td><td><kbd>Win</kbd> ショートカット</td></tr>
+    <tr><td>02: 新規ラスターレイヤー</td><td>マクロ</td></tr>
+    <tr><td>03: トーンレイヤー</td><td>マクロ</td></tr>
+    <tr><td>04: レイヤー削除</td><td>マクロ</td></tr>
+    <tr><td>05: ツール切替</td><td><kbd>O</kbd></td></tr>
+    <tr><td>06: ラスタライズ</td><td>マクロ</td></tr>
+    <tr><td>07: 日付時刻</td><td>マクロ</td></tr>
+    <tr><td>08: ツール切替</td><td><kbd>M</kbd></td></tr>
+    <tr><td>09: ツール切替</td><td><kbd>U</kbd></td></tr>
+    <tr><td>10: ツール切替</td><td><kbd>K</kbd></td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2><span class="icon">🎮</span> Keypad (11-20)</h2>
+  <table>
+    <tr><td>11: Backspace</td><td><kbd>BS</kbd></td></tr>
+    <tr><td>12: 書き出し</td><td>マクロ</td></tr>
+    <tr><td>13: 読み込み</td><td>マクロ</td></tr>
+    <tr><td>14: ツール切替</td><td><kbd>J</kbd></td></tr>
+    <tr><td>15: Defaultキーマップ</td><td>キーマップ変更</td></tr>
+    <tr><td>16: サウンド設定</td><td>マクロ</td></tr>
+    <tr><td>17: アプリ起動</td><td>C:\Program Files\...</td></tr>
+    <tr><td>18: アプリ起動</td><td>C:\Program Files\...</td></tr>
+    <tr><td>19: Snipping Tool</td><td>マクロ</td></tr>
+    <tr><td>20: Windows Lock</td><td>マクロ</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h2><span class="icon">🕹️</span> D-PAD & Other</h2>
+  <table>
+    <tr><td>↑ 再生/一時停止</td><td>メディア</td></tr>
+    <tr><td>↓ アプリのサイクル</td><td><kbd>Win</kbd> ショートカット</td></tr>
+    <tr><td>← 前のトラック</td><td>メディア</td></tr>
+    <tr><td>→ 次のトラック</td><td>メディア</td></tr>
+    <tr><td>Scroll Up / Down</td><td>マウススクロール</td></tr>
+    <tr><td>サムボタン</td><td>右クリック</td></tr>
+  </table>
+</div>
+
+</div>
+
+<footer>
+  <a href="https://osakenpiro.github.io" style="color:var(--dim);text-decoration:none;">osakenpiro.github.io</a> — 最終更新 2026-03-24
+</footer>
+
+</body>
+</html>
