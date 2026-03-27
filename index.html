@@ -602,29 +602,42 @@ function generateStars(title) {
   const w = window.innerWidth;
   const h = window.innerHeight;
   const stars = [];
-  const count = 24 + Math.floor(rand() * 14); // 24-38 stars
 
-  // Center around text: top ~8vh, horizontally centered
   const cx = w * 0.5;
   const cy = h * 0.13;
-  const spreadX = w * 0.45; // wide: covers most of the screen width
-  const spreadY = h * 0.14;
+  const spreadX = w * 0.42;
+  const spreadY = h * 0.13;
 
-  for (let i = 0; i < count; i++) {
-    // Alternate between left-biased and right-biased placement
-    const side = (i % 2 === 0) ? -1 : 1; // even=left, odd=right
-    const gx = rand() * 0.5 * side + (rand() - 0.5) * 0.3; // cluster on each side with some scatter
-    const gy = (rand() + rand()) / 2 - 0.5; // vertical gaussian
-    stars.push({
-      x: cx + gx * spreadX * 2,
-      y: cy + gy * spreadY * 2,
-      r: 1.0 + rand() * 2.5,
-      brightness: 0.4 + rand() * 0.6,
-      twinkleSpeed: 0.5 + rand() * 2,
-      twinklePhase: rand() * Math.PI * 2,
-    });
+  // Left cluster (8-10 stars)
+  const nLeft = 8 + Math.floor(rand() * 3);
+  for (let i = 0; i < nLeft; i++) {
+    stars.push(makeStar(cx - spreadX * (0.3 + rand() * 0.7), cy + (rand() - 0.5) * spreadY * 2, rand));
   }
+
+  // Right cluster (8-10 stars)
+  const nRight = 8 + Math.floor(rand() * 3);
+  for (let i = 0; i < nRight; i++) {
+    stars.push(makeStar(cx + spreadX * (0.3 + rand() * 0.7), cy + (rand() - 0.5) * spreadY * 2, rand));
+  }
+
+  // Bridge stars through the center (6-8 stars) — connects left and right
+  const nBridge = 6 + Math.floor(rand() * 3);
+  for (let i = 0; i < nBridge; i++) {
+    const t = i / (nBridge - 1); // 0 to 1, left to right
+    stars.push(makeStar(cx + (t - 0.5) * spreadX * 1.4, cy + (rand() - 0.5) * spreadY * 1.2, rand));
+  }
+
   return stars;
+}
+
+function makeStar(x, y, rand) {
+  return {
+    x, y,
+    r: 1.0 + rand() * 2.5,
+    brightness: 0.4 + rand() * 0.6,
+    twinkleSpeed: 0.5 + rand() * 2,
+    twinklePhase: rand() * Math.PI * 2,
+  };
 }
 
 function drawConstellationFrame(time) {
@@ -634,7 +647,7 @@ function drawConstellationFrame(time) {
   if (constellationAlpha <= 0) return;
 
   const a = constellationAlpha;
-  const maxDist = 180; // line connection distance
+  const maxDist = 220; // line connection distance — wide enough to bridge clusters
 
   // Draw lines between nearby stars
   for (let i = 0; i < constellationStars.length; i++) {
