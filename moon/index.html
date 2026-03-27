@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌙 月 — osakenpiro tools</title>
+<meta name="description" content="osakenpiroの全ツール一覧。可視化・哲学・ユーティリティ。全部ゼロ円、全部HTML1枚。">
+<meta property="og:title" content="🌙 月 — osakenpiro tools">
+<meta property="og:description" content="全部ゼロ円。全部HTML1枚。GitHub Pagesで動く。">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0f;--surface:#12121a;--border:#1e1e2a;--tx:#d4d4d8;--tx2:#71717a;--tx3:#3f3f46;--accent:#a1a1aa;--glow:rgba(200,200,220,0.06)}
+body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
+.stars{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.star{position:absolute;border-radius:50%;background:#fff}
+
+/* Moon header */
+.moon-wrap{position:relative;z-index:1;text-align:center;padding:60px 20px 20px}
+.moon-circle{width:120px;height:120px;border-radius:50%;margin:0 auto 20px;
+  background:radial-gradient(circle at 35% 35%,#e8e8e0,#b0b0a8 40%,#808078 70%,#58584f);
+  box-shadow:0 0 60px rgba(200,200,180,0.15),0 0 120px rgba(200,200,180,0.05);
+  position:relative;overflow:hidden}
+.crater{position:absolute;border-radius:50%;background:rgba(0,0,0,0.12)}
+.crater:nth-child(1){width:25px;height:25px;top:20px;left:30px}
+.crater:nth-child(2){width:15px;height:15px;top:55px;left:70px}
+.crater:nth-child(3){width:20px;height:20px;top:70px;left:25px}
+.crater:nth-child(4){width:10px;height:10px;top:35px;left:80px}
+.crater:nth-child(5){width:18px;height:18px;top:80px;left:60px}
+h1{font-size:22px;font-weight:700;letter-spacing:0.05em;color:#d4d4d8}
+.tagline{font-size:13px;color:var(--tx2);margin:6px 0 4px}
+.back{font-size:12px;color:var(--tx3);text-decoration:none;transition:color .2s}
+.back:hover{color:var(--tx)}
+
+/* Grid */
+.grid-wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:30px 20px 80px}
+.section-label{font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--tx3);margin:30px 0 14px;padding-left:4px;border-left:2px solid var(--tx3);padding-left:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;
+  text-decoration:none;color:var(--tx);transition:all .25s ease;position:relative;overflow:hidden}
+.card:hover{border-color:#52525b;transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.3)}
+.card:hover .card-glow{opacity:1}
+.card-glow{position:absolute;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(circle at center,var(--glow),transparent 60%);
+  opacity:0;transition:opacity .3s;pointer-events:none}
+.card-icon{font-size:24px;margin-bottom:8px;display:block}
+.card-title{font-size:15px;font-weight:700;margin-bottom:4px}
+.card-desc{font-size:12px;color:var(--tx2);line-height:1.5}
+.card-tag{display:inline-block;font-size:9px;padding:2px 8px;border-radius:4px;
+  background:rgba(161,161,170,0.1);color:var(--tx2);margin-top:8px;letter-spacing:0.05em}
+
+/* Footer */
+.ft{text-align:center;padding:30px 20px;font-size:11px;color:var(--tx3);position:relative;z-index:1}
+.ft a{color:var(--tx2);text-decoration:none}
+.ft a:hover{color:var(--tx)}
+
+/* Floating back-to-planet */
+.planet-link{position:fixed;bottom:20px;right:20px;width:48px;height:48px;border-radius:50%;
+  background:radial-gradient(circle at 40% 40%,#4a6fa5,#2a3f6f 60%,#1a2545);
+  box-shadow:0 0 20px rgba(74,111,165,0.3);display:flex;align-items:center;justify-content:center;
+  text-decoration:none;font-size:20px;z-index:10;transition:transform .3s}
+.planet-link:hover{transform:scale(1.15)}
+
+@media(max-width:600px){
+  .grid{grid-template-columns:1fr}
+  .moon-circle{width:90px;height:90px}
+  h1{font-size:18px}
+}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="moon-wrap">
+  <div class="moon-circle">
+    <div class="crater"></div><div class="crater"></div><div class="crater"></div>
+    <div class="crater"></div><div class="crater"></div>
+  </div>
+  <h1>月</h1>
+  <p class="tagline">全部ゼロ円。全部HTML1枚。全部GitHub Pages。</p>
+  <a href="https://osakenpiro.github.io" class="back">← 僕の惑星に戻る</a>
+</div>
+
+<div class="grid-wrap">
+
+  <div class="section-label">🏯 日本可視化列島</div>
+  <div class="grid">
+    <a href="https://osakenpiro.github.io/japan-visualization/" class="card">
+      <div class="card-glow"></div>
+      <span class="card-icon">🏯</span>
+      <div class="card-title">日本可視化列島</div>
+      <div class="card-desc">ポータル — 人口・お財布・地震の3ツールを束ねる</div>
+      <span class="card-tag">PORTAL</span>
+    </a>
+    <a href="https://osakenpiro.github.io/japan-wallet-map/" class="card">
+      <div class="card-glow"></div>
+      <span class="card-icon">🗾</span>
+      <div class="card-title">人口動態マップ</div>
+      <div class="card-desc">飛鳥時代〜2050年。人口・地理・交通・年齢構造・ロックインの5レイヤー</div>
+      <span class="card-tag">D3.js + TopoJSON</span>
+    </a>
+    <a href="https://osakenpiro.github.io/watashi-wallet/" class="card">
+      <div class="card-glow"></div>
+      <span class="card-icon">💰</span>
+      <div class="card-title">わたしのお財布</div>
+      <div class="card-desc">52都市の家計データから算出した「自由度指数」ランキング。東京は14位。</div>
+      <span class="card-tag">52都市 × 実データ</span>
+    </a>
+    <a href="https://osakenpiro.github.io/japan-earthquake-map/" class="card">
+      <div class="card-glow"></div>
+      <span class="card-icon">🌋</span>
+      <div class="card-title">地震マップ</div>
+      <div class="card-desc">プレート境界・活断層・南海トラフ将来予測</div>
+      <span class="card-tag">D3.js + リアルタイム</span>
+    </a>
+  </div>
+
+  <div class="section-label">◉ 哲学 × AI</div>
+  <div class="grid">
+    <a href="https://osakenpiro.github.io/satori/" class="card">
+      <div class="card-glow"></div>
+      <span class="card-icon">◉</span>
+      <div class="card-title">SATORI</div>
+      <div class="card-desc">AI四賢者と哲学対話。VTuber型チャットボット</div>
+      <span class="card-tag">Claude API</span>
+    </a>
+    <a href="https://osakenpiro.github.io/materials-of-civilization/" class="card">
+      <div class="card-glow"></div>
+      <span class="card-icon">🧪</span>
+      <div class="card-title">人類の素材図鑑</div>
+      <div class="card-desc">砂・鉄・プラスチック…人類の物質史をインタラクティブに</div>
+      <span class="card-tag">15セクション</span>
+    </a>
+    <a href="https://osakenpiro.github.io/godwiki/" class="card">
+      <div class="card-glow"></div>
+      <span class="card-icon">📜</span>
+      <div class="card-title">godwiki</div>
+      <div class="card-desc">ギリシャ・北欧・日本の神話エピソードDB 24件</div>
+      <span class="card-tag">創作素材DB</span>
+    </a>
+  </div>
+
+  <div class="section-label">⚙ ユーティリティ</div>
+  <div class="grid">
+    <a href="https://osakenpiro.github.io/kagami/" class="card">
+      <div class="card-glow"></div>
+      <span class="card-icon">🪞</span>
+      <div class="card-title">KAGAMI</div>
+      <div class="card-desc">毎日の問いで自分を見つめる鏡アプリ</div>
+      <span class="card-tag">localStorage</span>
+    </a>
+    <a href="https://osakenpiro.github.io/hibiki/" class="card">
+      <div class="card-glow"></div>
+      <span class="card-icon">🔊</span>
+      <div class="card-title">HIBIKI</div>
+      <div class="card-desc">ホワイトノイズ・環境音ジェネレーター</div>
+      <span class="card-tag">Web Audio API</span>
+    </a>
+    <a href="https://osakenpiro.github.io/mieru/" class="card">
+      <div class="card-glow"></div>
+      <span class="card-icon">👁</span>
+      <div class="card-title">MIERU</div>
+      <div class="card-desc">視覚化・タイマー・集中支援</div>
+      <span class="card-tag">ポモドーロ</span>
+    </a>
+    <a href="https://osakenpiro.github.io/shortcuts/" class="card">
+      <div class="card-glow"></div>
+      <span class="card-icon">⌨</span>
+      <div class="card-title">Shortcuts</div>
+      <div class="card-desc">PowerToys / Windows / Clip Studio / Tartarus V2</div>
+      <span class="card-tag">ショートカット集</span>
+    </a>
+    <a href="https://osakenpiro.github.io/breathe/" class="card">
+      <div class="card-glow"></div>
+      <span class="card-icon">🫁</span>
+      <div class="card-title">Breathe</div>
+      <div class="card-desc">4-7-8 / Box / Calm 呼吸法ガイド</div>
+      <span class="card-tag">CSS Animation</span>
+    </a>
+    <a href="https://osakenpiro.github.io/portfolio-demos/" class="card">
+      <div class="card-glow"></div>
+      <span class="card-icon">🎨</span>
+      <div class="card-title">制作デモ</div>
+      <div class="card-desc">ベーカリーLP / SaaS LP — ポートフォリオ</div>
+      <span class="card-tag">フリーランス向け</span>
+    </a>
+    <a href="https://osakenpiro.github.io/hearing-sheet/" class="card">
+      <div class="card-glow"></div>
+      <span class="card-icon">📋</span>
+      <div class="card-title">ヒアリングシート</div>
+      <div class="card-desc">Web制作案件の初回ヒアリング自動化</div>
+      <span class="card-tag">ココナラ連携</span>
+    </a>
+  </div>
+
+</div>
+
+<a href="https://osakenpiro.github.io" class="planet-link" title="僕の惑星に戻る">🌏</a>
+
+<p class="ft">
+  #全人類UX改善計画 — 自分の問題を解いて公開すると、人類のUXが改善される<br>
+  <a href="https://osakenpiro.github.io">僕の惑星</a> · <a href="https://twitter.com/kenpiro7">𝕏</a> · <a href="https://github.com/osakenpiro">GitHub</a>
+</p>
+
+<script>
+// Stars
+(function(){
+  var c=document.getElementById('stars');
+  for(var i=0;i<80;i++){
+    var s=document.createElement('div');
+    s.className='star';
+    var sz=Math.random()*2+0.5;
+    s.style.cssText='width:'+sz+'px;height:'+sz+'px;top:'+Math.random()*100+'%;left:'+Math.random()*100+'%;opacity:'+(Math.random()*0.5+0.2)+';animation:twinkle '+(2+Math.random()*4)+'s ease-in-out infinite '+(Math.random()*3)+'s';
+    c.appendChild(s);
+  }
+  var style=document.createElement('style');
+  style.textContent='@keyframes twinkle{0%,100%{opacity:0.2}50%{opacity:0.8}}';
+  document.head.appendChild(style);
+})();
+</script>
+</body>
+</html>
