@@ -602,18 +602,19 @@ function generateStars(title) {
   const w = window.innerWidth;
   const h = window.innerHeight;
   const stars = [];
-  const count = 20 + Math.floor(rand() * 14); // 20-34 stars
+  const count = 24 + Math.floor(rand() * 14); // 24-38 stars
 
   // Center around text: top ~8vh, horizontally centered
   const cx = w * 0.5;
-  const cy = h * 0.13;   // roughly where text sits
-  const spreadX = w * 0.38; // wide horizontal spread to cover long titles
-  const spreadY = h * 0.12; // moderate vertical spread
+  const cy = h * 0.13;
+  const spreadX = w * 0.45; // wide: covers most of the screen width
+  const spreadY = h * 0.14;
 
   for (let i = 0; i < count; i++) {
-    // Gaussian-ish distribution: sum of 2 randoms → clusters near center
-    const gx = (rand() + rand()) / 2 - 0.5; // -0.5 to 0.5, clustered at 0
-    const gy = (rand() + rand()) / 2 - 0.5;
+    // Alternate between left-biased and right-biased placement
+    const side = (i % 2 === 0) ? -1 : 1; // even=left, odd=right
+    const gx = rand() * 0.5 * side + (rand() - 0.5) * 0.3; // cluster on each side with some scatter
+    const gy = (rand() + rand()) / 2 - 0.5; // vertical gaussian
     stars.push({
       x: cx + gx * spreadX * 2,
       y: cy + gy * spreadY * 2,
@@ -704,12 +705,15 @@ function showConstellation(title) {
 function hideConstellation() {
   if (constellationAnim) cancelAnimationFrame(constellationAnim);
   const fadeOut = (time) => {
-    constellationAlpha = Math.max(0, constellationAlpha - 0.06);
+    constellationAlpha = Math.max(0, constellationAlpha - 0.08); // faster fade
     drawConstellationFrame(time);
     if (constellationAlpha > 0) {
       constellationAnim = requestAnimationFrame(fadeOut);
     } else {
       constellationCanvas.style.opacity = '0';
+      cCtx.clearRect(0, 0, constellationCanvas.width, constellationCanvas.height);
+      constellationStars = [];
+      constellationAnim = null;
     }
   };
   constellationAnim = requestAnimationFrame(fadeOut);
