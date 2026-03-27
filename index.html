@@ -602,38 +602,29 @@ function generateStars(title) {
   const w = window.innerWidth;
   const h = window.innerHeight;
   const stars = [];
+  const count = 28 + Math.floor(rand() * 10); // 28-38 stars
 
   const cx = w * 0.5;
   const cy = h * 0.13;
-  const spreadX = w * 0.42;
-  const spreadY = h * 0.13;
+  const spreadX = w * 0.4;
+  const spreadY = h * 0.1;
 
-  // Left cluster (8-10 stars)
-  const nLeft = 8 + Math.floor(rand() * 3);
-  for (let i = 0; i < nLeft; i++) {
-    stars.push(makeStar(cx - spreadX * (0.3 + rand() * 0.7), cy + (rand() - 0.5) * spreadY * 2, rand));
+  for (let i = 0; i < count; i++) {
+    // Uniform fill across ellipse — NOT clustered
+    const x = cx + (rand() - 0.5) * spreadX * 2;
+    const y = cy + (rand() - 0.5) * spreadY * 2;
+    stars.push(makeStar(x, y, rand));
   }
 
-  // Right cluster (8-10 stars)
-  const nRight = 8 + Math.floor(rand() * 3);
-  for (let i = 0; i < nRight; i++) {
-    stars.push(makeStar(cx + spreadX * (0.3 + rand() * 0.7), cy + (rand() - 0.5) * spreadY * 2, rand));
-  }
-
-  // Bridge stars through the center (6-8 stars) — connects left and right
-  const nBridge = 6 + Math.floor(rand() * 3);
-  for (let i = 0; i < nBridge; i++) {
-    const t = i / (nBridge - 1); // 0 to 1, left to right
-    stars.push(makeStar(cx + (t - 0.5) * spreadX * 1.4, cy + (rand() - 0.5) * spreadY * 1.2, rand));
-  }
-
+  // Sort by x so nearest-neighbor chain creates left-to-right flow
+  stars.sort((a, b) => a.x - b.x);
   return stars;
 }
 
 function makeStar(x, y, rand) {
   return {
     x, y,
-    r: 1.0 + rand() * 2.5,
+    r: 1.0 + rand() * 1.5,        // 1.0-2.5 (less variation)
     brightness: 0.4 + rand() * 0.6,
     twinkleSpeed: 0.5 + rand() * 2,
     twinklePhase: rand() * Math.PI * 2,
@@ -647,11 +638,27 @@ function drawConstellationFrame(time) {
   if (constellationAlpha <= 0) return;
 
   const a = constellationAlpha;
-  const maxDist = 220; // line connection distance — wide enough to bridge clusters
+  const maxDist = 220;
 
-  // Draw lines between nearby stars
+  // 1) Chain: always connect sorted neighbors → guarantees no breaks
+  for (let i = 0; i < constellationStars.length - 1; i++) {
+    const s1 = constellationStars[i], s2 = constellationStars[i + 1];
+    const dx = s1.x - s2.x, dy = s1.y - s2.y;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist < maxDist * 1.5) { // slightly relaxed for chain
+      const lineAlpha = Math.max(0.06, (1 - dist / (maxDist * 1.5)) * 0.3) * a;
+      cCtx.beginPath();
+      cCtx.moveTo(s1.x, s1.y);
+      cCtx.lineTo(s2.x, s2.y);
+      cCtx.strokeStyle = `rgba(200,184,160,${lineAlpha})`;
+      cCtx.lineWidth = 0.6;
+      cCtx.stroke();
+    }
+  }
+
+  // 2) Proximity: connect nearby non-neighbors for web density
   for (let i = 0; i < constellationStars.length; i++) {
-    for (let j = i + 1; j < constellationStars.length; j++) {
+    for (let j = i + 2; j < constellationStars.length; j++) {
       const s1 = constellationStars[i], s2 = constellationStars[j];
       const dx = s1.x - s2.x, dy = s1.y - s2.y;
       const dist = Math.sqrt(dx*dx + dy*dy);
@@ -675,12 +682,12 @@ function drawConstellationFrame(time) {
     const r = s.r * (0.8 + 0.2 * twinkle);
 
     // Glow
-    const grad = cCtx.createRadialGradient(s.x, s.y, 0, s.x, s.y, r * 4);
+    const grad = cCtx.createRadialGradient(s.x, s.y, 0, s.x, s.y, r * 3);
     grad.addColorStop(0, `rgba(212,168,83,${starAlpha * 0.3})`);
     grad.addColorStop(1, `rgba(212,168,83,0)`);
     cCtx.fillStyle = grad;
     cCtx.beginPath();
-    cCtx.arc(s.x, s.y, r * 4, 0, Math.PI * 2);
+    cCtx.arc(s.x, s.y, r * 3, 0, Math.PI * 2);
     cCtx.fill();
 
     // Core dot
