@@ -292,13 +292,13 @@ canvas#stars{position:fixed;inset:0;z-index:0}
 #bgLabel{
   position:fixed;top:8vh;left:50%;transform:translateX(-50%);
   font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,14vw,12rem);font-weight:300;font-style:italic;
-  color:rgba(200,184,160,0);white-space:nowrap;pointer-events:none;z-index:2;
-  transition:color 0.3s ease,letter-spacing 0.4s ease,text-shadow 0.3s ease;letter-spacing:0.02em;
+  color:rgba(200,184,160,0);white-space:nowrap;pointer-events:none;z-index:3;
+  transition:color 0.4s ease,letter-spacing 0.5s ease,text-shadow 0.4s ease;letter-spacing:0.02em;
   text-shadow:0 0 60px rgba(212,168,83,0);
 }
 #bgLabel.show{
-  color:rgba(200,184,160,0.18);letter-spacing:0.08em;
-  text-shadow:0 0 100px rgba(212,168,83,0.08);
+  color:rgba(200,184,160,0.28);letter-spacing:0.08em;
+  text-shadow:0 0 80px rgba(212,168,83,0.12), 0 0 200px rgba(212,168,83,0.05);
 }
 @media(max-width:500px){
   .core{width:110px;height:110px}
@@ -317,6 +317,7 @@ canvas#stars{position:fixed;inset:0;z-index:0}
 
 <div class="scene" id="scene">
   <div id="bgLabel"></div>
+  <canvas id="constellation" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2;opacity:0;transition:opacity 0.4s;"></canvas>
   <!-- Core -->
   <div class="core" id="core">
     <div class="core-avatar">
@@ -442,14 +443,17 @@ SATELLITES.forEach((sat,i) => {
     e.stopPropagation();
     showTooltip(sat, el);
   });
-  // Hover: show big background label
-  const bgLabel = document.getElementById('bgLabel');
+  // Hover: show big background label + constellation
   el.addEventListener('mouseenter', () => {
+    const bgLabel = document.getElementById('bgLabel');
     bgLabel.textContent = sat.title;
     bgLabel.classList.add('show');
+    showConstellation(sat.title);
   });
   el.addEventListener('mouseleave', () => {
+    const bgLabel = document.getElementById('bgLabel');
     bgLabel.classList.remove('show');
+    hideConstellation();
   });
 });
 
@@ -575,6 +579,131 @@ core.addEventListener('click', () => {
   buildListView();
   listView.classList.add('active');
 });
+
+// === CONSTELLATION EFFECT ===
+const constellationCanvas = document.getElementById('constellation');
+const cCtx = constellationCanvas.getContext('2d');
+let constellationAnim = null;
+let constellationStars = [];
+let constellationAlpha = 0;
+
+function seededRandom(str) {
+  // Simple hash → seed for deterministic star positions per title
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+  return function() {
+    h = (h * 16807 + 0) % 2147483647;
+    return (h & 0x7fffffff) / 2147483647;
+  };
+}
+
+function generateStars(title) {
+  const rand = seededRandom(title);
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const stars = [];
+  const count = 18 + Math.floor(rand() * 12); // 18-30 stars
+  // Scatter in upper 35% of screen, full width
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: w * 0.05 + rand() * w * 0.9,
+      y: h * 0.02 + rand() * h * 0.33,
+      r: 0.8 + rand() * 2.2,          // radius 0.8-3.0
+      brightness: 0.3 + rand() * 0.7,  // 0.3-1.0
+      twinkleSpeed: 0.5 + rand() * 2,  // twinkle frequency
+      twinklePhase: rand() * Math.PI * 2,
+    });
+  }
+  return stars;
+}
+
+function drawConstellationFrame(time) {
+  const w = constellationCanvas.width;
+  const h = constellationCanvas.height;
+  cCtx.clearRect(0, 0, w, h);
+  if (constellationAlpha <= 0) return;
+
+  const a = constellationAlpha;
+  const maxDist = 160; // line connection distance
+
+  // Draw lines between nearby stars
+  for (let i = 0; i < constellationStars.length; i++) {
+    for (let j = i + 1; j < constellationStars.length; j++) {
+      const s1 = constellationStars[i], s2 = constellationStars[j];
+      const dx = s1.x - s2.x, dy = s1.y - s2.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < maxDist) {
+        const lineAlpha = (1 - dist / maxDist) * 0.25 * a;
+        cCtx.beginPath();
+        cCtx.moveTo(s1.x, s1.y);
+        cCtx.lineTo(s2.x, s2.y);
+        cCtx.strokeStyle = `rgba(200,184,160,${lineAlpha})`;
+        cCtx.lineWidth = 0.6;
+        cCtx.stroke();
+      }
+    }
+  }
+
+  // Draw stars with twinkle
+  const t = time * 0.001;
+  constellationStars.forEach(s => {
+    const twinkle = 0.6 + 0.4 * Math.sin(t * s.twinkleSpeed + s.twinklePhase);
+    const starAlpha = s.brightness * twinkle * a;
+    const r = s.r * (0.8 + 0.2 * twinkle);
+
+    // Glow
+    const grad = cCtx.createRadialGradient(s.x, s.y, 0, s.x, s.y, r * 4);
+    grad.addColorStop(0, `rgba(212,168,83,${starAlpha * 0.3})`);
+    grad.addColorStop(1, `rgba(212,168,83,0)`);
+    cCtx.fillStyle = grad;
+    cCtx.beginPath();
+    cCtx.arc(s.x, s.y, r * 4, 0, Math.PI * 2);
+    cCtx.fill();
+
+    // Core dot
+    cCtx.fillStyle = `rgba(230,210,180,${starAlpha})`;
+    cCtx.beginPath();
+    cCtx.arc(s.x, s.y, r, 0, Math.PI * 2);
+    cCtx.fill();
+  });
+
+  constellationAnim = requestAnimationFrame(drawConstellationFrame);
+}
+
+function showConstellation(title) {
+  // Size canvas to viewport
+  constellationCanvas.width = window.innerWidth * devicePixelRatio;
+  constellationCanvas.height = window.innerHeight * devicePixelRatio;
+  cCtx.scale(devicePixelRatio, devicePixelRatio);
+  constellationCanvas.style.width = window.innerWidth + 'px';
+  constellationCanvas.style.height = window.innerHeight + 'px';
+
+  constellationStars = generateStars(title);
+  constellationCanvas.style.opacity = '1';
+
+  // Fade in
+  if (constellationAnim) cancelAnimationFrame(constellationAnim);
+  const fadeIn = (time) => {
+    constellationAlpha = Math.min(1, constellationAlpha + 0.04);
+    drawConstellationFrame(time);
+    if (constellationAlpha < 1) constellationAnim = requestAnimationFrame(fadeIn);
+  };
+  constellationAnim = requestAnimationFrame(fadeIn);
+}
+
+function hideConstellation() {
+  if (constellationAnim) cancelAnimationFrame(constellationAnim);
+  const fadeOut = (time) => {
+    constellationAlpha = Math.max(0, constellationAlpha - 0.06);
+    drawConstellationFrame(time);
+    if (constellationAlpha > 0) {
+      constellationAnim = requestAnimationFrame(fadeOut);
+    } else {
+      constellationCanvas.style.opacity = '0';
+    }
+  };
+  constellationAnim = requestAnimationFrame(fadeOut);
+}
 
 // === INIT ===
 initStars();
