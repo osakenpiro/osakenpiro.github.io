@@ -47,12 +47,12 @@ canvas#stars{position:fixed;inset:0;z-index:0}
 /* === CORE (The Emptyfall) === */
 .core{
   position:absolute;
-  width:120px;height:120px;
+  width:150px;height:150px;
   z-index:10;
   cursor:pointer;
 }
 .core-avatar{
-  width:120px;height:120px;
+  width:150px;height:150px;
   border-radius:50%;
   background:radial-gradient(circle at 40% 35%, #1f1a28 0%, #0c0c14 70%);
   border:1px solid rgba(200,184,160,0.15);
@@ -72,7 +72,7 @@ canvas#stars{position:fixed;inset:0;z-index:0}
 }
 .core-glyph{
   font-family:'Cormorant Garamond',serif;
-  font-size:2.8rem;font-weight:300;font-style:italic;
+  font-size:3.4rem;font-weight:300;font-style:italic;
   color:var(--gold);opacity:0.5;
   animation:breathe 6s ease-in-out infinite;
 }
@@ -91,7 +91,7 @@ canvas#stars{position:fixed;inset:0;z-index:0}
 /* === SATELLITES === */
 .satellite{
   position:absolute;
-  width:48px;height:48px;
+  width:64px;height:64px;
   transform:translate(-50%,-50%);
   cursor:pointer;
   z-index:5;
@@ -105,10 +105,10 @@ canvas#stars{position:fixed;inset:0;z-index:0}
 }
 
 .sat-body{
-  width:48px;height:48px;
+  width:64px;height:64px;
   border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  font-size:1.1rem;
+  font-size:1.4rem;
   border:1px solid rgba(200,184,160,0.12);
   transition:all 0.3s;
   position:relative;
@@ -125,13 +125,13 @@ canvas#stars{position:fixed;inset:0;z-index:0}
 }
 /* Moon — larger, lunar glow */
 .sat-body.moon{
-  width:68px;height:68px;font-size:0;
+  width:90px;height:90px;font-size:0;
   background:radial-gradient(circle at 35% 35%,#e8e8e0,#b0b0a8 40%,#808078 70%,#58584f);
   box-shadow:0 0 30px rgba(200,200,180,0.2),0 0 60px rgba(200,200,180,0.08);
   border:none;
 }
 .sat-body.moon::after{
-  content:'🌙';font-size:1.6rem;
+  content:'🌙';font-size:2.2rem;
 }
 
 .sat-label{
@@ -290,12 +290,12 @@ canvas#stars{position:fixed;inset:0;z-index:0}
 
 /* Mobile tweaks */
 @media(max-width:500px){
-  .core{width:90px;height:90px}
-  .core-avatar{width:90px;height:90px}
-  .core-glyph{font-size:2rem}
-  .satellite{width:40px;height:40px}
-  .sat-body{width:40px;height:40px;font-size:0.9rem}
-  .sat-body.moon{width:54px;height:54px}
+  .core{width:110px;height:110px}
+  .core-avatar{width:110px;height:110px}
+  .core-glyph{font-size:2.2rem}
+  .satellite{width:52px;height:52px}
+  .sat-body{width:52px;height:52px;font-size:1.1rem}
+  .sat-body.moon{width:68px;height:68px}
   .info-name{font-size:1.2rem}
 }
 </style>
@@ -360,7 +360,7 @@ const SATELLITES = [
 
 // Orbit radii
 const isMobile = window.innerWidth < 500;
-const RADII = isMobile ? [85, 140, 200] : [120, 200, 290];
+const RADII = isMobile ? [100, 170, 250] : [160, 260, 370];
 const TILT = 0.35; // orbital tilt (0 = flat, 1 = edge-on)
 
 // === STARFIELD ===
