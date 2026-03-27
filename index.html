@@ -681,9 +681,10 @@ function drawConstellationFrame(time) {
 
 function showConstellation(title) {
   // Size canvas to viewport
-  constellationCanvas.width = window.innerWidth * devicePixelRatio;
-  constellationCanvas.height = window.innerHeight * devicePixelRatio;
-  cCtx.scale(devicePixelRatio, devicePixelRatio);
+  const dpr = devicePixelRatio || 1;
+  constellationCanvas.width = window.innerWidth * dpr;
+  constellationCanvas.height = window.innerHeight * dpr;
+  cCtx.setTransform(dpr, 0, 0, dpr, 0, 0); // reset then scale — prevents accumulation
   constellationCanvas.style.width = window.innerWidth + 'px';
   constellationCanvas.style.height = window.innerHeight + 'px';
 
