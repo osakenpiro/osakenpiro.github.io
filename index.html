@@ -317,7 +317,6 @@ canvas#stars{position:fixed;inset:0;z-index:0}
 
 <div class="scene" id="scene">
   <div id="bgLabel"></div>
-  <canvas id="constellation" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2;opacity:0;transition:opacity 0.4s;"></canvas>
   <!-- Core -->
   <div class="core" id="core">
     <div class="core-avatar">
@@ -580,21 +579,15 @@ core.addEventListener('click', () => {
   listView.classList.add('active');
 });
 
-// === CONSTELLATION EFFECT ===
-const constellationCanvas = document.getElementById('constellation');
-const cCtx = constellationCanvas.getContext('2d');
-let constellationAnim = null;
+// === CONSTELLATION EFFECT (SVG-based — no DPR issues) ===
+let constellationEl = null;
 let constellationStars = [];
-let constellationAlpha = 0;
+let constellationFadeTimer = null;
 
 function seededRandom(str) {
-  // Simple hash → seed for deterministic star positions per title
   let h = 0;
   for (let i = 0; i < str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0;
-  return function() {
-    h = (h * 16807 + 0) % 2147483647;
-    return (h & 0x7fffffff) / 2147483647;
-  };
+  return function() { h = (h * 16807 + 0) % 2147483647; return (h & 0x7fffffff) / 2147483647; };
 }
 
 function generateStars(title) {
@@ -602,141 +595,81 @@ function generateStars(title) {
   const w = window.innerWidth;
   const h = window.innerHeight;
   const stars = [];
-  const count = 28 + Math.floor(rand() * 10); // 28-38 stars
+  const count = 25 + Math.floor(rand() * 10);
 
   const cx = w * 0.5;
   const cy = h * 0.13;
   const spreadX = w * 0.4;
-  const spreadY = h * 0.1;
+  const spreadY = h * 0.12;
 
   for (let i = 0; i < count; i++) {
-    // Uniform fill across ellipse — NOT clustered
-    const x = cx + (rand() - 0.5) * spreadX * 2;
-    const y = cy + (rand() - 0.5) * spreadY * 2;
-    stars.push(makeStar(x, y, rand));
+    stars.push({
+      x: cx + (rand() - 0.5) * spreadX * 2,
+      y: cy + (rand() - 0.5) * spreadY * 2,
+      r: 1.2 + rand() * 1.3,
+      brightness: 0.5 + rand() * 0.5,
+      phase: rand() * Math.PI * 2,
+    });
   }
-
-  // Sort by x so nearest-neighbor chain creates left-to-right flow
   stars.sort((a, b) => a.x - b.x);
   return stars;
 }
 
-function makeStar(x, y, rand) {
-  return {
-    x, y,
-    r: 1.0 + rand() * 1.5,        // 1.0-2.5 (less variation)
-    brightness: 0.4 + rand() * 0.6,
-    twinkleSpeed: 0.5 + rand() * 2,
-    twinklePhase: rand() * Math.PI * 2,
-  };
-}
+function buildConstellationSVG(stars) {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  let lines = '';
+  let dots = '';
+  const maxDist = 200;
 
-function drawConstellationFrame(time) {
-  const w = constellationCanvas.width;
-  const h = constellationCanvas.height;
-  cCtx.clearRect(0, 0, w, h);
-  if (constellationAlpha <= 0) return;
-
-  const a = constellationAlpha;
-  const maxDist = 220;
-
-  // 1) Chain: always connect sorted neighbors → guarantees no breaks
-  for (let i = 0; i < constellationStars.length - 1; i++) {
-    const s1 = constellationStars[i], s2 = constellationStars[i + 1];
-    const dx = s1.x - s2.x, dy = s1.y - s2.y;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    if (dist < maxDist * 1.5) { // slightly relaxed for chain
-      const lineAlpha = Math.max(0.06, (1 - dist / (maxDist * 1.5)) * 0.3) * a;
-      cCtx.beginPath();
-      cCtx.moveTo(s1.x, s1.y);
-      cCtx.lineTo(s2.x, s2.y);
-      cCtx.strokeStyle = `rgba(200,184,160,${lineAlpha})`;
-      cCtx.lineWidth = 0.6;
-      cCtx.stroke();
+  // Chain: connect sorted neighbors
+  for (let i = 0; i < stars.length - 1; i++) {
+    const s1 = stars[i], s2 = stars[i+1];
+    const dist = Math.hypot(s1.x-s2.x, s1.y-s2.y);
+    if (dist < maxDist * 1.3) {
+      const a = Math.max(0.05, (1 - dist/(maxDist*1.3)) * 0.3);
+      lines += `<line x1="${s1.x}" y1="${s1.y}" x2="${s2.x}" y2="${s2.y}" stroke="rgba(200,184,160,${a})" stroke-width="0.7"/>`;
     }
   }
-
-  // 2) Proximity: connect nearby non-neighbors for web density
-  for (let i = 0; i < constellationStars.length; i++) {
-    for (let j = i + 2; j < constellationStars.length; j++) {
-      const s1 = constellationStars[i], s2 = constellationStars[j];
-      const dx = s1.x - s2.x, dy = s1.y - s2.y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
+  // Proximity: skip-1 connections for web density
+  for (let i = 0; i < stars.length; i++) {
+    for (let j = i+2; j < Math.min(i+5, stars.length); j++) {
+      const s1 = stars[i], s2 = stars[j];
+      const dist = Math.hypot(s1.x-s2.x, s1.y-s2.y);
       if (dist < maxDist) {
-        const lineAlpha = (1 - dist / maxDist) * 0.35 * a;
-        cCtx.beginPath();
-        cCtx.moveTo(s1.x, s1.y);
-        cCtx.lineTo(s2.x, s2.y);
-        cCtx.strokeStyle = `rgba(200,184,160,${lineAlpha})`;
-        cCtx.lineWidth = 0.6;
-        cCtx.stroke();
+        const a = (1 - dist/maxDist) * 0.2;
+        lines += `<line x1="${s1.x}" y1="${s1.y}" x2="${s2.x}" y2="${s2.y}" stroke="rgba(200,184,160,${a})" stroke-width="0.5"/>`;
       }
     }
   }
-
-  // Draw stars with twinkle
-  const t = time * 0.001;
-  constellationStars.forEach(s => {
-    const twinkle = 0.6 + 0.4 * Math.sin(t * s.twinkleSpeed + s.twinklePhase);
-    const starAlpha = s.brightness * twinkle * a;
-    const r = s.r * (0.8 + 0.2 * twinkle);
-
-    // Glow
-    const grad = cCtx.createRadialGradient(s.x, s.y, 0, s.x, s.y, r * 3);
-    grad.addColorStop(0, `rgba(212,168,83,${starAlpha * 0.3})`);
-    grad.addColorStop(1, `rgba(212,168,83,0)`);
-    cCtx.fillStyle = grad;
-    cCtx.beginPath();
-    cCtx.arc(s.x, s.y, r * 3, 0, Math.PI * 2);
-    cCtx.fill();
-
-    // Core dot
-    cCtx.fillStyle = `rgba(230,210,180,${starAlpha})`;
-    cCtx.beginPath();
-    cCtx.arc(s.x, s.y, r, 0, Math.PI * 2);
-    cCtx.fill();
+  // Star dots with glow
+  stars.forEach(s => {
+    dots += `<circle cx="${s.x}" cy="${s.y}" r="${s.r*3}" fill="rgba(212,168,83,${s.brightness*0.15})" class="c-glow"/>`;
+    dots += `<circle cx="${s.x}" cy="${s.y}" r="${s.r}" fill="rgba(230,210,180,${s.brightness*0.8})" class="c-star"/>`;
   });
 
-  constellationAnim = requestAnimationFrame(drawConstellationFrame);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="position:fixed;top:0;left:0;pointer-events:none;z-index:2;">${lines}${dots}</svg>`;
 }
 
 function showConstellation(title) {
-  // Size canvas to viewport
-  const dpr = devicePixelRatio || 1;
-  constellationCanvas.width = window.innerWidth * dpr;
-  constellationCanvas.height = window.innerHeight * dpr;
-  cCtx.setTransform(dpr, 0, 0, dpr, 0, 0); // reset then scale — prevents accumulation
-  constellationCanvas.style.width = window.innerWidth + 'px';
-  constellationCanvas.style.height = window.innerHeight + 'px';
-
+  hideConstellation();
   constellationStars = generateStars(title);
-  constellationCanvas.style.opacity = '1';
-
-  // Fade in
-  if (constellationAnim) cancelAnimationFrame(constellationAnim);
-  const fadeIn = (time) => {
-    constellationAlpha = Math.min(1, constellationAlpha + 0.04);
-    drawConstellationFrame(time);
-    if (constellationAlpha < 1) constellationAnim = requestAnimationFrame(fadeIn);
-  };
-  constellationAnim = requestAnimationFrame(fadeIn);
+  const el = document.createElement('div');
+  el.id = 'constellationWrap';
+  el.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2;opacity:0;transition:opacity 0.4s ease;';
+  el.innerHTML = buildConstellationSVG(constellationStars);
+  document.body.appendChild(el);
+  constellationEl = el;
+  requestAnimationFrame(() => { el.style.opacity = '1'; });
 }
 
 function hideConstellation() {
-  if (constellationAnim) cancelAnimationFrame(constellationAnim);
-  const fadeOut = (time) => {
-    constellationAlpha = Math.max(0, constellationAlpha - 0.08); // faster fade
-    drawConstellationFrame(time);
-    if (constellationAlpha > 0) {
-      constellationAnim = requestAnimationFrame(fadeOut);
-    } else {
-      constellationCanvas.style.opacity = '0';
-      cCtx.clearRect(0, 0, constellationCanvas.width, constellationCanvas.height);
-      constellationStars = [];
-      constellationAnim = null;
-    }
-  };
-  constellationAnim = requestAnimationFrame(fadeOut);
+  if (constellationEl) {
+    constellationEl.style.opacity = '0';
+    const old = constellationEl;
+    constellationEl = null;
+    setTimeout(() => { if (old.parentNode) old.parentNode.removeChild(old); }, 500);
+  }
 }
 
 // === INIT ===
