@@ -123,6 +123,16 @@ canvas#stars{position:fixed;inset:0;z-index:0}
   border-style:dashed;
   border-color:rgba(140,160,180,0.2);
 }
+/* Moon — larger, lunar glow */
+.sat-body.moon{
+  width:68px;height:68px;font-size:0;
+  background:radial-gradient(circle at 35% 35%,#e8e8e0,#b0b0a8 40%,#808078 70%,#58584f);
+  box-shadow:0 0 30px rgba(200,200,180,0.2),0 0 60px rgba(200,200,180,0.08);
+  border:none;
+}
+.sat-body.moon::after{
+  content:'🌙';font-size:1.6rem;
+}
 
 .sat-label{
   position:absolute;
@@ -285,6 +295,7 @@ canvas#stars{position:fixed;inset:0;z-index:0}
   .core-glyph{font-size:2rem}
   .satellite{width:40px;height:40px}
   .sat-body{width:40px;height:40px;font-size:0.9rem}
+  .sat-body.moon{width:54px;height:54px}
   .info-name{font-size:1.2rem}
 }
 </style>
@@ -331,22 +342,11 @@ const SATELLITES = [
   {id:'panda',icon:'📕',title:'パンダと哲学とAI',desc:'Kindle ¥980 / KU無料 / ペーパーバック ¥1,480',url:'#',type:'organic',orbit:1,speed:0.35},
   {id:'kakuyomu',icon:'📖',title:'星は知らない',desc:'カクヨム — 8編構成SF長編',url:'https://kakuyomu.jp/users/osakenpiro',type:'organic',orbit:1,speed:0.45},
   
-  // Middle orbit — 論文 + 触る
+  // Middle orbit — 学問 + 月
   {id:'zenodo',icon:'🔬',title:'論文 8本',desc:'Zenodo プレプリント・DOI付き',url:'https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Osada%2C%20Kenshiro%22',type:'mechanical',orbit:2,speed:0.25},
-  {id:'satori',icon:'◉',title:'SATORI',desc:'AI四賢者と哲学対話',url:'https://osakenpiro.github.io/satori/',type:'mechanical',orbit:2,speed:0.3},
-  {id:'tools',icon:'⚙',title:'Tools',desc:'KAGAMI / HIBIKI / MIERU',url:'https://osakenpiro.github.io',type:'mechanical',orbit:2,speed:0.2},
-  {id:'materials',icon:'🧪',title:'素材図鑑',desc:'人類の素材・元素・地理の総合ダッシュボード',url:'https://osakenpiro.github.io/materials-of-civilization/',type:'mechanical',orbit:2,speed:0.32},
-    {id:'mission',icon:'🛰',title:'Mission Control',desc:'全チャット共有タスクボード',url:'https://www.notion.so/Mission-Control-Claude-3282b7e543e0815db7c0d5afdae9ae76',type:'mechanical',orbit:2,speed:0.22},
+  {id:'moon',icon:'🌙',title:'月',desc:'全ツール一覧 — 可視化・哲学・ユーティリティ',url:'https://osakenpiro.github.io/moon/',type:'moon',orbit:2,speed:0.12},
+  {id:'mission',icon:'🛰',title:'Mission Control',desc:'全チャット共有タスクボード',url:'https://www.notion.so/Mission-Control-Claude-3282b7e543e0815db7c0d5afdae9ae76',type:'mechanical',orbit:2,speed:0.22},
   {id:'orcid',icon:'🆔',title:'ORCID',desc:'0009-0004-9167-3186',url:'https://orcid.org/0009-0004-9167-3186',type:'mechanical',orbit:2,speed:0.28},
-  {id:'shortcuts',icon:'⌨',title:'Shortcuts',desc:'PowerToys / Windows / Clip Studio / Tartarus V2',url:'https://osakenpiro.github.io/shortcuts/',type:'mechanical',orbit:2,speed:0.26},
-  {id:'breathe',icon:'🫁',title:'Breathe',desc:'4-7-8 / Box / Calm 呼吸法',url:'https://osakenpiro.github.io/breathe/',type:'organic',orbit:2,speed:0.34},
-  {id:'rpg',icon:'⚔',title:'RPG Status',desc:'Lv.20 — 経験値ダッシュボード',url:'https://osakenpiro.github.io/rpg-status/',type:'mechanical',orbit:2,speed:0.36},
-  {id:'godwiki',icon:'📜',title:'godwiki',desc:'神話エピソードDB 24件',url:'https://osakenpiro.github.io/godwiki/',type:'organic',orbit:2,speed:0.31},
-{id:'wallet',icon:'💰',title:'わたしのお財布',desc:'日本人の自由度マップ',url:'https://osakenpiro.github.io/watashi-wallet/',type:'mechanical',orbit:2,speed:0.27},
-{id:'popmap',icon:'🗾',title:'人口動態マップ',desc:'1400年の一極集中＋年齢構造',url:'https://osakenpiro.github.io/japan-wallet-map/',type:'mechanical',orbit:2,speed:0.33},
-{id:'quake',icon:'🌋',title:'地震マップ',desc:'日本の地震・プレート・将来予測',url:'https://osakenpiro.github.io/japan-earthquake-map/',type:'mechanical',orbit:2,speed:0.24},
-{id:'japanviz',icon:'🏯',title:'日本可視化列島',desc:'人口・お財布・地震 — データで見る日本',url:'https://osakenpiro.github.io/japan-visualization/',type:'mechanical',orbit:2,speed:0.38},
-  {id:'demos',icon:'🎨',title:'制作デモ',desc:'ベーカリーLP / SaaS LP',url:'https://osakenpiro.github.io/portfolio-demos/',type:'mechanical',orbit:2,speed:0.29},
 
   // Outer orbit — 観る + 聴く + つながる
   {id:'x',icon:'𝕏',title:'X',desc:'日常哲学 / 論文告知',url:'https://twitter.com/kenpiro7',type:'mechanical',orbit:3,speed:0.18},
@@ -419,7 +419,7 @@ SATELLITES.forEach((sat,i) => {
     </div>
     <div class="sat-label">
       ${sat.title}
-      <div class="sat-sublabel">${sat.type==='organic'?'●':'◆'}</div>
+      <div class="sat-sublabel">${sat.type==='organic'?'●':sat.type==='moon'?'☽':'◆'}</div>
     </div>
   `;
   scene.appendChild(el);
