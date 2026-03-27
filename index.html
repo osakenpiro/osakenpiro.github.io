@@ -297,8 +297,8 @@ canvas#stars{position:fixed;inset:0;z-index:0}
   text-shadow:0 0 60px rgba(212,168,83,0);
 }
 #bgLabel.show{
-  color:rgba(200,184,160,0.28);letter-spacing:0.08em;
-  text-shadow:0 0 80px rgba(212,168,83,0.12), 0 0 200px rgba(212,168,83,0.05);
+  color:rgba(200,184,160,0.32);letter-spacing:0.08em;
+  text-shadow:0 0 60px rgba(212,168,83,0.15), 0 0 200px rgba(212,168,83,0.06);
 }
 @media(max-width:500px){
   .core{width:110px;height:110px}
@@ -602,15 +602,24 @@ function generateStars(title) {
   const w = window.innerWidth;
   const h = window.innerHeight;
   const stars = [];
-  const count = 18 + Math.floor(rand() * 12); // 18-30 stars
-  // Scatter in upper 35% of screen, full width
+  const count = 20 + Math.floor(rand() * 14); // 20-34 stars
+
+  // Center around text: top ~8vh, horizontally centered
+  const cx = w * 0.5;
+  const cy = h * 0.13;   // roughly where text sits
+  const spreadX = w * 0.38; // wide horizontal spread to cover long titles
+  const spreadY = h * 0.12; // moderate vertical spread
+
   for (let i = 0; i < count; i++) {
+    // Gaussian-ish distribution: sum of 2 randoms → clusters near center
+    const gx = (rand() + rand()) / 2 - 0.5; // -0.5 to 0.5, clustered at 0
+    const gy = (rand() + rand()) / 2 - 0.5;
     stars.push({
-      x: w * 0.05 + rand() * w * 0.9,
-      y: h * 0.02 + rand() * h * 0.33,
-      r: 0.8 + rand() * 2.2,          // radius 0.8-3.0
-      brightness: 0.3 + rand() * 0.7,  // 0.3-1.0
-      twinkleSpeed: 0.5 + rand() * 2,  // twinkle frequency
+      x: cx + gx * spreadX * 2,
+      y: cy + gy * spreadY * 2,
+      r: 1.0 + rand() * 2.5,
+      brightness: 0.4 + rand() * 0.6,
+      twinkleSpeed: 0.5 + rand() * 2,
       twinklePhase: rand() * Math.PI * 2,
     });
   }
@@ -624,7 +633,7 @@ function drawConstellationFrame(time) {
   if (constellationAlpha <= 0) return;
 
   const a = constellationAlpha;
-  const maxDist = 160; // line connection distance
+  const maxDist = 180; // line connection distance
 
   // Draw lines between nearby stars
   for (let i = 0; i < constellationStars.length; i++) {
@@ -633,7 +642,7 @@ function drawConstellationFrame(time) {
       const dx = s1.x - s2.x, dy = s1.y - s2.y;
       const dist = Math.sqrt(dx*dx + dy*dy);
       if (dist < maxDist) {
-        const lineAlpha = (1 - dist / maxDist) * 0.25 * a;
+        const lineAlpha = (1 - dist / maxDist) * 0.35 * a;
         cCtx.beginPath();
         cCtx.moveTo(s1.x, s1.y);
         cCtx.lineTo(s2.x, s2.y);
