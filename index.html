@@ -353,6 +353,7 @@ const SATELLITES = [
   {id:'note',icon:'📝',title:'note',desc:'エッセイ・連載・地面の言葉',url:'https://note.com/osakenpiro',type:'organic',orbit:1,speed:0.4},
   {id:'panda',icon:'📕',title:'パンダと哲学とAI',desc:'Kindle ¥980 / KU無料 / ペーパーバック ¥1,480',url:'#',type:'organic',orbit:1,speed:0.35},
   {id:'kakuyomu',icon:'📖',title:'星は知らない',desc:'カクヨム — 8編構成SF長編',url:'https://kakuyomu.jp/users/osakenpiro',type:'organic',orbit:1,speed:0.45},
+  {id:'jikoshoukai',icon:'🧬',title:'じこしょうかい',desc:'全17巻85キャラ完結 — 絵本シリーズ',url:'https://osakenpiro.github.io/jikoshoukai/',type:'organic',orbit:1,speed:0.38},
   
   // Middle orbit — 学問 + 月
   {id:'zenodo',icon:'🔬',title:'論文 8本',desc:'Zenodo プレプリント・DOI付き',url:'https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Osada%2C%20Kenshiro%22',type:'mechanical',orbit:2,speed:0.25},
@@ -537,7 +538,7 @@ const listView = document.getElementById('listView');
 
 function buildListView(){
   const sections = {
-    '読む — Read': SATELLITES.filter(s=>['note','panda','kakuyomu'].includes(s.id)),
+    '読む — Read': SATELLITES.filter(s=>['note','panda','kakuyomu','jikoshoukai'].includes(s.id)),
     '論文 — Papers': SATELLITES.filter(s=>['zenodo','orcid'].includes(s.id)),
     '観る — Watch': SATELLITES.filter(s=>['tiktok','ig','yt','pixiv'].includes(s.id)),
     '触る — Interact': SATELLITES.filter(s=>['satori','tools','materials','booth'].includes(s.id)),
