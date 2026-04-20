@@ -274,7 +274,7 @@ function DOrbit({ speed }) {
     { g: '🌙', r: 210, s: 0.18, start: 1.1,  title: '月 (moon)',       desc: '全ツール一覧ハブ',         url: 'https://osakenpiro.github.io/moon/' },
     { g: '🔬', r: 210, s: 0.18, start: 3.9,  title: '論文 × 9',        desc: 'Zenodo プレプリント',      url: 'https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Osada%2C%20Kenshiro%22' },
     { g: '𝕏',  r: 270, s: 0.25, start: 0.6,  title: 'X',               desc: '日常哲学 / 論文告知',      url: 'https://x.com/kenpiro7' },
-    { g: '♪',  r: 270, s: 0.25, start: 2.8,  title: 'Spotify',         desc: 'オリジナル作詞',           url: 'https://open.spotify.com/intl-ja/artist/6QtgEcJeDSxhatNDzxGm8v' },
+    { g: '♪',  r: 270, s: 0.25, start: 2.8,  title: 'Suno',            desc: 'オリジナル楽曲プレイリスト',  url: 'https://suno.com/playlist/036d2b6e-b3f4-4d68-ac01-df065d062ae7' },
     { g: '🐸', r: 270, s: 0.25, start: 4.8,  title: 'わっかずかん',    desc: '連続値で眺める図鑑',       url: 'https://osakenpiro.github.io/wakkazukan/' },
   ];
   const hoverSat = hover != null ? sats[hover] : null;
