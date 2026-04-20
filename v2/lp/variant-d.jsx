@@ -269,18 +269,18 @@ function DOrbit({ speed }) {
   }, []);
   // 7 planets — each linked. Radii+start kept from the original Claude Design layout.
   const sats = [
-    { g: '🧬', r: 140, s: 0.45, start: 0,    title: 'じこしょうかい',  desc: '全17巻85キャラ完結',      url: 'https://osakenpiro.github.io/jikoshoukai/' },
-    { g: '📖', r: 140, s: 0.45, start: 2.3,  title: '星は知らない',    desc: 'カクヨム · SF長編8章',     url: 'https://kakuyomu.jp/users/osakenpiro' },
-    { g: '🌙', r: 210, s: 0.18, start: 1.1,  title: '月 (moon)',       desc: '全ツール一覧ハブ',         url: 'https://osakenpiro.github.io/moon/' },
-    { g: '🔬', r: 210, s: 0.18, start: 3.9,  title: '論文 × 9',        desc: 'Zenodo プレプリント',      url: 'https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Osada%2C%20Kenshiro%22' },
-    { g: '𝕏',  r: 270, s: 0.25, start: 0.6,  title: 'X',               desc: '日常哲学 / 論文告知',      url: 'https://x.com/kenpiro7' },
-    { g: '♪',  r: 270, s: 0.25, start: 2.8,  title: 'Suno',            desc: 'オリジナル楽曲アーティストページ',  url: 'https://suno.com/@osakenpiro' },
-    { g: '🐸', r: 270, s: 0.25, start: 4.8,  title: 'わっかずかん',    desc: '連続値で眺める図鑑',       url: 'https://osakenpiro.github.io/wakkazukan/' },
+    { g: '🧬', r: 175, s: 0.45, start: 0,    title: 'じこしょうかい',  desc: '全17巻85キャラ完結',      url: 'https://osakenpiro.github.io/jikoshoukai/' },
+    { g: '📖', r: 175, s: 0.45, start: 2.3,  title: '星は知らない',    desc: 'カクヨム · SF長編8章',     url: 'https://kakuyomu.jp/users/osakenpiro' },
+    { g: '🌙', r: 260, s: 0.18, start: 1.1,  title: '月 (moon)',       desc: '全ツール一覧ハブ',         url: 'https://osakenpiro.github.io/moon/' },
+    { g: '🔬', r: 260, s: 0.18, start: 3.9,  title: '論文 × 9',        desc: 'Zenodo プレプリント',      url: 'https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Osada%2C%20Kenshiro%22' },
+    { g: '𝕏',  r: 335, s: 0.25, start: 0.6,  title: 'X',               desc: '日常哲学 / 論文告知',      url: 'https://x.com/kenpiro7' },
+    { g: '♪',  r: 335, s: 0.25, start: 2.8,  title: 'Suno',            desc: 'オリジナル楽曲アーティストページ',  url: 'https://suno.com/@osakenpiro' },
+    { g: '🐸', r: 335, s: 0.25, start: 4.8,  title: 'わっかずかん',    desc: '連続値で眺める図鑑',       url: 'https://osakenpiro.github.io/wakkazukan/' },
   ];
   const hoverSat = hover != null ? sats[hover] : null;
   return (
     <div className="vd-orbit">
-      {[140,210,270].map(r => (
+      {[175,260,335].map(r => (
         <div key={r} className="vd-orbit-ring" style={{width:r*2,height:r*2*0.35}}/>
       ))}
       <div className="vd-orbit-core">空</div>
