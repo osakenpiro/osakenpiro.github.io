@@ -52,6 +52,7 @@ window.OSK_DATA = {
     { k: 'pixiv',    handle: '@osakenpiro', url: 'https://www.pixiv.net/users/11085694',      glyph: 'P' },
     { k: 'Kakuyomu', handle: '@osakenpiro', url: 'https://kakuyomu.jp/users/osakenpiro',      glyph: '書' },
     { k: 'note',     handle: '@osakenpiro', url: 'https://note.com/osakenpiro',               glyph: 'n' },
+    { k: 'Spotify',  handle: '@osakenpiro', url: 'https://open.spotify.com/intl-ja/artist/6QtgEcJeDSxhatNDzxGm8v', glyph: '♫' },
     { k: 'GitHub',   handle: 'osakenpiro',  url: 'https://github.com/osakenpiro',             glyph: '◉' },
   ],
 };
