@@ -115,8 +115,9 @@ function VariantD({ knobs }) {
         <section id="vd-sec-papers" className="vd-papers">
           <DSectionHead idx="03" kanji="論文 × 9" en="preprints on Zenodo — Boolean → Float"/>
           <div className="vd-paper-grid">
-            {D.papers.map((p, i) => (
-              <article key={i} className={`vd-paper ${p.core?'vd-paper--core':''}`} style={{animationDelay: `${i*50}ms`}}>
+            {D.papers.map((p, i) => {
+              const inner = (
+                <>
                 <div className="vd-paper-top">
                   <span className="vd-paper-n">{p.n}</span>
                   <span className="vd-paper-yr">{p.year}</span>
@@ -129,8 +130,20 @@ function VariantD({ knobs }) {
                 </div>
                 {p.core && <div className="vd-paper-ribbon">CORE</div>}
                 {p.pending && <div className="vd-paper-pending">準備中</div>}
-              </article>
-            ))}
+                </>
+              );
+              const cls = `vd-paper ${p.core?'vd-paper--core':''} ${p.pending?'':'vd-paper--link'}`;
+              return p.pending ? (
+                <article key={i} className={cls} style={{animationDelay: `${i*50}ms`}}>{inner}</article>
+              ) : (
+                <a key={i}
+                   href={`https://doi.org/${p.doi}`}
+                   target="_blank"
+                   rel="noopener"
+                   className={cls}
+                   style={{animationDelay: `${i*50}ms`}}>{inner}</a>
+              );
+            })}
           </div>
         </section>
 
@@ -138,17 +151,27 @@ function VariantD({ knobs }) {
         <section id="vd-sec-creative" className="vd-creative">
           <DSectionHead idx="04" kanji="創作" en="manga · novels · picture books"/>
           <div className="vd-creative-grid">
-            {D.creative.slice(0,3).map((w, i) => (
-              <article key={i} className="vd-work">
+            {D.creative.slice(0,3).map((w, i) => {
+              const inner = (
+                <>
                 <div className="vd-work-kind">{w.kind.toUpperCase()}</div>
                 <div className="vd-work-ja-vertical">『{w.ja}』</div>
                 <div className="vd-work-en">{w.en}</div>
                 <div className="vd-work-meta">{w.meta}</div>
                 <div className="vd-work-detail">{w.detail}</div>
-                <div className="vd-work-arrow">↗</div>
-              </article>
-            ))}
-            <article className="vd-work vd-work--hero">
+                <div className="vd-work-arrow">{w.pending ? '準備中' : '↗'}</div>
+                </>
+              );
+              const cls = `vd-work ${w.pending?'vd-work--pending':'vd-work--link'}`;
+              return w.pending ? (
+                <article key={i} className={cls}>{inner}</article>
+              ) : (
+                <a key={i} href={w.url} target="_blank" rel="noopener" className={cls}>{inner}</a>
+              );
+            })}
+            <a className="vd-work vd-work--hero vd-work--link"
+               href="https://osakenpiro.github.io/jikoshoukai/"
+               target="_blank" rel="noopener">
               <div className="vd-work-kind">PICTURE-BOOKS · COMPLETED</div>
               <div className="vd-work-hero-ja">じこしょうかい</div>
               <div className="vd-work-hero-en">Jikoshoukai</div>
@@ -159,7 +182,7 @@ function VariantD({ knobs }) {
               </div>
               <div className="vd-work-hero-detail">自己紹介という哲学行為 — a picture-book series framing "introducing oneself" as a philosophical act. Complete.</div>
               <div className="vd-work-arrow">↗</div>
-            </article>
+            </a>
           </div>
         </section>
 
@@ -237,21 +260,24 @@ function DSectionHead({ idx, kanji, en }) {
 
 function DOrbit({ speed }) {
   const [t, setT] = useState(0);
+  const [hover, setHover] = useState(null);
   useEffect(() => {
     let raf;
     const loop = ts => { setT(ts); raf = requestAnimationFrame(loop); };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
   }, []);
+  // 7 planets — each linked. Radii+start kept from the original Claude Design layout.
   const sats = [
-    { g: '📕', r: 80,  s: 0.45, start: 0 },
-    { g: '📖', r: 80,  s: 0.45, start: 2.3 },
-    { g: '🌙', r: 120, s: 0.18, start: 1.1 },
-    { g: '🔬', r: 120, s: 0.18, start: 3.9 },
-    { g: '𝕏',  r: 160, s: 0.25, start: 0.6 },
-    { g: '♪',  r: 160, s: 0.25, start: 2.8 },
-    { g: '🧪', r: 160, s: 0.25, start: 4.8 },
+    { g: '🧬', r: 80,  s: 0.45, start: 0,    title: 'じこしょうかい',  desc: '全17巻85キャラ完結',      url: 'https://osakenpiro.github.io/jikoshoukai/' },
+    { g: '📖', r: 80,  s: 0.45, start: 2.3,  title: '星は知らない',    desc: 'カクヨム · SF長編8章',     url: 'https://kakuyomu.jp/users/osakenpiro' },
+    { g: '🌙', r: 120, s: 0.18, start: 1.1,  title: '月 (moon)',       desc: '全ツール一覧ハブ',         url: 'https://osakenpiro.github.io/moon/' },
+    { g: '🔬', r: 120, s: 0.18, start: 3.9,  title: '論文 × 9',        desc: 'Zenodo プレプリント',      url: 'https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Osada%2C%20Kenshiro%22' },
+    { g: '𝕏',  r: 160, s: 0.25, start: 0.6,  title: 'X',               desc: '日常哲学 / 論文告知',      url: 'https://x.com/kenpiro7' },
+    { g: '♪',  r: 160, s: 0.25, start: 2.8,  title: 'Spotify',         desc: 'オリジナル作詞',           url: 'https://open.spotify.com/intl-ja/artist/6QtgEcJeDSxhatNDzxGm8v' },
+    { g: '🐸', r: 160, s: 0.25, start: 4.8,  title: 'わっかずかん',    desc: '連続値で眺める図鑑',       url: 'https://osakenpiro.github.io/wakkazukan/' },
   ];
+  const hoverSat = hover != null ? sats[hover] : null;
   return (
     <div className="vd-orbit">
       {[80,120,160].map(r => (
@@ -263,12 +289,30 @@ function DOrbit({ speed }) {
         const x = Math.cos(ang)*s.r, y = Math.sin(ang)*s.r*0.35;
         const d = (Math.sin(ang)+1)/2;
         return (
-          <div key={i} className="vd-orbit-sat" style={{
-            transform: `translate(${x}px,${y}px) scale(${0.7+d*0.3})`,
-            opacity: 0.4+d*0.6, zIndex: Math.round(d*10),
-          }}>{s.g}</div>
+          <a key={i}
+             href={s.url}
+             target="_blank"
+             rel="noopener"
+             aria-label={s.title}
+             className={`vd-orbit-sat ${hover===i?'vd-orbit-sat--on':''}`}
+             style={{
+               transform: `translate(${x}px,${y}px) scale(${0.7+d*0.3})`,
+               opacity: 0.4+d*0.6, zIndex: Math.round(d*10),
+             }}
+             onMouseEnter={()=>setHover(i)}
+             onMouseLeave={()=>setHover(cur => cur===i ? null : cur)}
+             onFocus={()=>setHover(i)}
+             onBlur={()=>setHover(cur => cur===i ? null : cur)}
+          >{s.g}</a>
         );
       })}
+      {hoverSat && (
+        <div className="vd-orbit-tip" aria-hidden="true">
+          <div className="vd-orbit-tip-title">{hoverSat.title}</div>
+          <div className="vd-orbit-tip-desc">{hoverSat.desc}</div>
+          <div className="vd-orbit-tip-cta">開く →</div>
+        </div>
+      )}
     </div>
   );
 }
