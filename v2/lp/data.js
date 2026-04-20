@@ -28,9 +28,9 @@ window.OSK_DATA = {
   ],
 
   creative: [
-    { kind: 'manga',   ja: 'PEACE PIECE',  en: 'PEACE PIECE',      meta: '連載 · manga',        detail: '戦争と静寂の短篇集',      url: '#' },
-    { kind: 'novel',   ja: '星は知らない', en: 'Hoshi wa Shiranai', meta: '8章 · SF長編',        detail: '超長期的孤独のSF',        url: '#' },
-    { kind: 'novel',   ja: '0.5の魔女',     en: '0.5 no Majo',       meta: '連載中 · カクヨム',   detail: '連続値で生きる魔女',      url: '#' },
+    { kind: 'manga',   ja: 'PEACE PIECE',  en: 'PEACE PIECE',      meta: '連載 · manga',        detail: '戦争と静寂の短篇集',      url: 'https://www.pixiv.net/users/11085694' },
+    { kind: 'novel',   ja: '星は知らない', en: 'Hoshi wa Shiranai', meta: '8章 · SF長編',        detail: '超長期的孤独のSF',        url: 'https://kakuyomu.jp/users/osakenpiro' },
+    { kind: 'novel',   ja: '0.5の魔女',     en: '0.5 no Majo',       meta: '連載予定',            detail: '連続値で生きる魔女',      url: '#', pending: true },
     { kind: 'picture', ja: 'じこしょうかい',en: 'Jikoshoukai',       meta: '全17巻 · 85キャラ完結', detail: '自己紹介という哲学行為', url: 'https://osakenpiro.github.io/jikoshoukai/' },
   ],
 
