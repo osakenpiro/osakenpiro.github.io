@@ -28,7 +28,7 @@ window.OSK_DATA = {
   ],
 
   creative: [
-    { kind: 'manga',   ja: 'PEACE PIECE',  en: 'PEACE PIECE',      meta: '連載 · manga',        detail: '戦争と静寂の短篇集',      url: 'https://www.pixiv.net/users/11085694' },
+    { kind: 'manga',   ja: 'PEACE PIECE',  en: 'PEACE PIECE',      meta: '連載 · Jump Rookie!', detail: '戦争と静寂の短篇集',      url: 'https://rookie.shonenjump.com/series/zGZPbQ8SCbs' },
     { kind: 'novel',   ja: '星は知らない', en: 'Hoshi wa Shiranai', meta: '8章 · SF長編',        detail: '超長期的孤独のSF',        url: 'https://kakuyomu.jp/users/osakenpiro' },
     { kind: 'novel',   ja: '0.5の魔女',     en: '0.5 no Majo',       meta: '連載予定',            detail: '連続値で生きる魔女',      url: '#', pending: true },
     { kind: 'picture', ja: 'じこしょうかい',en: 'Jikoshoukai',       meta: '全17巻 · 85キャラ完結', detail: '自己紹介という哲学行為', url: 'https://osakenpiro.github.io/jikoshoukai/' },
@@ -48,8 +48,8 @@ window.OSK_DATA = {
 
   socials: [
     { k: 'X',        handle: '@kenpiro7',   url: 'https://x.com/kenpiro7',                    glyph: '𝕏' },
-    { k: 'TikTok',   handle: '@osakenpiro', url: 'https://www.tiktok.com/@osakenpiro',        glyph: '◈' },
-    { k: 'pixiv',    handle: '@osakenpiro', url: 'https://www.pixiv.net/users/osakenpiro',    glyph: 'P' },
+    { k: 'TikTok',   handle: '@panio54',    url: 'https://www.tiktok.com/@panio54',           glyph: '◈' },
+    { k: 'pixiv',    handle: '@osakenpiro', url: 'https://www.pixiv.net/users/11085694',      glyph: 'P' },
     { k: 'Kakuyomu', handle: '@osakenpiro', url: 'https://kakuyomu.jp/users/osakenpiro',      glyph: '書' },
     { k: 'note',     handle: '@osakenpiro', url: 'https://note.com/osakenpiro',               glyph: 'n' },
     { k: 'GitHub',   handle: 'osakenpiro',  url: 'https://github.com/osakenpiro',             glyph: '◉' },
