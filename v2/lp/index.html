@@ -37,6 +37,9 @@ function App() {
   const [orbital, setOrbital] = useState(DEFAULT_KNOBS.orbital);
   const [drama, setDrama] = useState(DEFAULT_KNOBS.drama);
   const [tweakOn, setTweakOn] = useState(false);
+  // Compare mode: show A/B/C/D tabs only when ?compare is in the URL.
+  const compareMode = typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).has('compare');
 
   // edit-mode protocol
   useEffect(() => {
@@ -63,13 +66,15 @@ function App() {
 
   return (
     <>
-      <nav className="lp-chrome" data-screen-label="chrome">
-        {['A','B','C','D'].map(k => (
-          <button key={k} onClick={()=>setV(k)} className={variant===k?'on':''}>
-            {k === 'A' ? '縦書き' : k === 'B' ? '非対称' : k === 'C' ? 'トランジション' : '統合 ★'}
-          </button>
-        ))}
-      </nav>
+      {compareMode && (
+        <nav className="lp-chrome" data-screen-label="chrome">
+          {['A','B','C','D'].map(k => (
+            <button key={k} onClick={()=>setV(k)} className={variant===k?'on':''}>
+              {k === 'A' ? '縦書き' : k === 'B' ? '非対称' : k === 'C' ? 'トランジション' : '統合 ★'}
+            </button>
+          ))}
+        </nav>
+      )}
 
       <div data-screen-label={`variant-${variant}`}>
         {variant === 'A' && <VariantA knobs={knobs} />}
