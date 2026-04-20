@@ -1,0 +1,309 @@
+/* =========================================================
+   osakenpiro Design System — colors & type tokens
+   Source: osakenpiro.github.io (main), extracted 2026-04
+   ========================================================= */
+
+/* Webfonts — linked from Google Fonts. Substitute local files
+   under ./fonts/ and rewrite these @imports if offline. */
+@import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300;1,600&display=swap');
+
+:root {
+  /* ── Color · Void + Surface ──────────────────────────── */
+  --osk-void:            #08080e;   /* primary background, hub */
+  --osk-void-alt:        #0a0a0f;   /* alt background, moon/tools */
+  --osk-surface:         #12121a;   /* cards on void */
+  --osk-surface-2:       #1a1a2a;   /* kbd chips, nested surfaces */
+  --osk-border:          #1e1e2a;   /* default card border */
+  --osk-border-2:        #1e1e2e;   /* alt border, tools */
+  --osk-border-hover:    #52525b;   /* card border on hover */
+  --osk-key-border:      #2a2a3e;   /* kbd chip border */
+
+  /* ── Color · Text (the "debris" family) ──────────────── */
+  --osk-fg-1:            #c8b8a0;   /* primary text, hub (warm parchment) */
+  --osk-fg-1-cool:       #d4d4d8;   /* primary text, tools (cool pewter) */
+  --osk-fg-2:            rgba(200,184,160,0.5);  /* secondary text */
+  --osk-fg-3:            rgba(200,184,160,0.35); /* tertiary, card descriptions */
+  --osk-fg-4:            rgba(200,184,160,0.2);  /* manifesto footer */
+  --osk-dim:             #3a3530;   /* muted, hub */
+  --osk-dim-cool:        #3f3f46;   /* muted, tools */
+  --osk-dim-2:           #6b6b80;   /* shortcuts subtitle */
+  --osk-text-soft:       #e2e2e8;   /* shortcuts body */
+
+  /* ── Color · Accent ──────────────────────────────────── */
+  --osk-gold:            #d4a853;   /* THE accent; core glyph, hover glow */
+  --osk-gold-glow:       rgba(212,168,83,0.3);
+  --osk-gold-glow-soft:  rgba(212,168,83,0.08);
+  --osk-gold-glow-far:   rgba(212,168,83,0.03);
+
+  /* ── Color · Per-tool accents (breathe 4-7-8) ────────── */
+  --osk-inhale:          #7c5bf5;   /* violet, "breathe in" */
+  --osk-hold:            #f59e0b;   /* amber, "hold" */
+  --osk-exhale:          #10b981;   /* emerald, "breathe out" */
+  --osk-accent-violet:   #a78bfa;   /* moon section accent stripe */
+
+  /* ── Color · Moon surface (radial stops) ─────────────── */
+  --osk-moon-1:          #e8e8e0;
+  --osk-moon-2:          #b0b0a8;
+  --osk-moon-3:          #808078;
+  --osk-moon-4:          #58584f;
+
+  /* ── Type · Families ─────────────────────────────────── */
+  --osk-font-sans:       'Zen Kaku Gothic New', 'Yu Gothic UI', 'Segoe UI', sans-serif;
+  --osk-font-serif:      'Cormorant Garamond', 'Times New Roman', serif;
+  --osk-font-mono:       'Consolas', 'Yu Gothic UI', monospace;
+  --osk-font-system:     'Segoe UI', 'Yu Gothic UI', -apple-system, sans-serif;
+
+  /* ── Type · Scale (rem-based, intentionally small) ───── */
+  --osk-size-hero:       3.4rem;   /* core glyph 空 */
+  --osk-size-counter:    3rem;     /* breathe counter */
+  --osk-size-h1:         1.8rem;   /* tool page H1 */
+  --osk-size-h2:         1.4rem;   /* info panel name, phase text */
+  --osk-size-h3:         1rem;     /* card h2 */
+  --osk-size-body:       0.85rem;  /* tool body */
+  --osk-size-body-sm:    0.8rem;   /* hub list item title */
+  --osk-size-label:      0.72rem;  /* info bio */
+  --osk-size-micro:      0.65rem;  /* tagline, card desc */
+  --osk-size-nano:       0.55rem;  /* manifesto footer */
+
+  /* ── Type · Weights ──────────────────────────────────── */
+  --osk-weight-thin:     200;
+  --osk-weight-light:    300;
+  --osk-weight-regular:  400;
+  --osk-weight-bold:     700;
+
+  /* ── Type · Tracking (letter-spacing) ────────────────── */
+  --osk-track-tight:     0;
+  --osk-track-normal:    0.05em;
+  --osk-track-wide:      0.1em;
+  --osk-track-wider:     0.15em;
+  --osk-track-widest:    0.25em;   /* taglines */
+  --osk-track-extreme:   0.3em;    /* list section labels */
+
+  /* ── Type · Line heights ─────────────────────────────── */
+  --osk-lh-tight:        1.4;
+  --osk-lh-body:         1.6;
+  --osk-lh-loose:        1.7;
+
+  /* ── Spacing ─────────────────────────────────────────── */
+  --osk-space-1:         4px;
+  --osk-space-2:         6px;
+  --osk-space-3:         8px;
+  --osk-space-4:         12px;
+  --osk-space-5:         16px;
+  --osk-space-6:         20px;
+  --osk-space-7:         24px;
+  --osk-space-8:         32px;
+  --osk-space-9:         48px;
+
+  /* ── Radii ───────────────────────────────────────────── */
+  --osk-radius-sm:       4px;      /* kbd, tags */
+  --osk-radius-md:       6px;      /* tooltip */
+  --osk-radius-lg:       12px;     /* tool cards */
+  --osk-radius-pill:     20px;     /* buttons */
+  --osk-radius-round:    50%;      /* planets */
+
+  /* ── Borders ─────────────────────────────────────────── */
+  --osk-border-organic:   1px solid rgba(200,184,160,0.12);
+  --osk-border-organic-2: 1px solid rgba(200,184,160,0.15);
+  --osk-border-mechanical: 1px dashed rgba(140,160,180,0.2);
+  --osk-border-ring:      1px solid rgba(200,184,160,0.04);
+
+  /* ── Shadows / Elevation ─────────────────────────────── */
+  /* Celestial aura — used on core, moon, hovering satellites */
+  --osk-elev-aura:
+    0 0 40px rgba(212,168,83,0.08),
+    0 0 80px rgba(212,168,83,0.03),
+    inset 0 0 30px rgba(0,0,0,0.5);
+  --osk-elev-aura-hover:
+    0 0 60px rgba(212,168,83,0.15),
+    0 0 120px rgba(212,168,83,0.06),
+    inset 0 0 30px rgba(0,0,0,0.5);
+  --osk-elev-moon:
+    0 0 30px rgba(200,200,180,0.2),
+    0 0 60px rgba(200,200,180,0.08);
+  /* Card rest → hover */
+  --osk-elev-card:       none;
+  --osk-elev-card-hover: 0 8px 30px rgba(0,0,0,0.3);
+  /* Button floating */
+  --osk-elev-float:      0 4px 14px rgba(0,0,0,0.25);
+  --osk-elev-float-hover: 0 6px 20px rgba(0,0,0,0.3);
+
+  /* ── Motion ─────────────────────────────────────────── */
+  --osk-ease:            ease;
+  --osk-dur-fast:        0.2s;
+  --osk-dur-base:        0.3s;
+  --osk-dur-slow:        0.5s;
+  --osk-dur-breathe:     6s;
+
+  /* ── Z-layers ───────────────────────────────────────── */
+  --osk-z-stars:         0;
+  --osk-z-scene:         1;
+  --osk-z-constellation: 2;
+  --osk-z-satellite:     5;
+  --osk-z-core:          10;
+  --osk-z-nav:           50;
+  --osk-z-panel:         80;
+  --osk-z-tooltip:       200;
+}
+
+/* =========================================================
+   Semantic styles — apply directly
+   ========================================================= */
+
+.osk-body {
+  font-family: var(--osk-font-sans);
+  background: var(--osk-void);
+  color: var(--osk-fg-1);
+  font-weight: var(--osk-weight-regular);
+  line-height: var(--osk-lh-body);
+}
+
+.osk-body--tools {
+  background: var(--osk-void-alt);
+  color: var(--osk-fg-1-cool);
+}
+
+/* Core identity glyph — kanji in serif italic */
+.osk-core-glyph {
+  font-family: var(--osk-font-serif);
+  font-size: var(--osk-size-hero);
+  font-weight: var(--osk-weight-light);
+  font-style: italic;
+  color: var(--osk-gold);
+  opacity: 0.5;
+  animation: osk-breathe var(--osk-dur-breathe) ease-in-out infinite;
+}
+
+/* Page-level H1 (tools) */
+.osk-h1 {
+  font-family: var(--osk-font-sans);
+  font-size: var(--osk-size-h1);
+  font-weight: var(--osk-weight-bold);
+  letter-spacing: var(--osk-track-normal);
+  color: var(--osk-fg-1-cool);
+  margin: 0;
+}
+
+/* Hero display — "osakenpiro" wordmark */
+.osk-hero-name {
+  font-family: var(--osk-font-serif);
+  font-size: var(--osk-size-h2);
+  font-weight: var(--osk-weight-light);
+  letter-spacing: var(--osk-track-wider);
+}
+
+/* Tagline — wide-tracked uppercase-equivalent */
+.osk-tagline {
+  font-size: var(--osk-size-micro);
+  letter-spacing: var(--osk-track-widest);
+  color: var(--osk-dim);
+  text-transform: uppercase;
+}
+
+/* Section label — wide-tracked, serif or sans */
+.osk-section-label {
+  font-family: var(--osk-font-serif);
+  font-size: var(--osk-size-micro);
+  letter-spacing: var(--osk-track-extreme);
+  text-transform: uppercase;
+  color: var(--osk-dim);
+  font-weight: var(--osk-weight-light);
+}
+
+/* Card title */
+.osk-card-title {
+  font-size: 0.95rem;
+  font-weight: var(--osk-weight-bold);
+  color: var(--osk-fg-1-cool);
+  margin: 0 0 4px 0;
+}
+
+/* Card description */
+.osk-card-desc {
+  font-size: 0.75rem;
+  color: var(--osk-fg-3);
+  line-height: var(--osk-lh-body);
+}
+
+/* Manifesto footer — the most important line, in the smallest type */
+.osk-manifesto {
+  font-family: var(--osk-font-serif);
+  font-size: var(--osk-size-nano);
+  font-style: italic;
+  color: var(--osk-fg-4);
+  letter-spacing: var(--osk-track-wide);
+  text-align: center;
+}
+
+/* Micro-tag (stack, count, etc.) */
+.osk-tag {
+  display: inline-block;
+  font-size: 0.6rem;
+  padding: 2px 8px;
+  border-radius: var(--osk-radius-sm);
+  background: rgba(161,161,170,0.1);
+  color: var(--osk-fg-2);
+  letter-spacing: var(--osk-track-normal);
+}
+
+/* Keyboard chip */
+.osk-kbd {
+  display: inline-block;
+  background: var(--osk-surface-2);
+  border: 1px solid var(--osk-key-border);
+  border-radius: var(--osk-radius-sm);
+  padding: 0.15rem 0.45rem;
+  font-family: var(--osk-font-mono);
+  font-size: 0.78rem;
+  color: var(--osk-text-soft);
+  min-width: 1.4rem;
+  text-align: center;
+}
+
+/* Pill button */
+.osk-btn {
+  background: transparent;
+  border: 1px solid var(--osk-dim-cool);
+  color: var(--osk-fg-1-cool);
+  padding: 0.4rem 1.2rem;
+  border-radius: var(--osk-radius-pill);
+  font-size: var(--osk-size-micro);
+  letter-spacing: var(--osk-track-wide);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color var(--osk-dur-base) var(--osk-ease),
+              color var(--osk-dur-fast) var(--osk-ease);
+}
+.osk-btn:hover { border-color: var(--osk-gold); }
+.osk-btn--accent:hover { border-color: var(--osk-inhale); color: #fff; }
+.osk-btn--active { border-color: var(--osk-inhale); background: rgba(124,91,245,0.12); }
+
+/* Card */
+.osk-card {
+  background: var(--osk-surface);
+  border: 1px solid var(--osk-border);
+  border-radius: var(--osk-radius-lg);
+  padding: 16px 18px;
+  transition: border-color var(--osk-dur-base) var(--osk-ease),
+              transform var(--osk-dur-base) var(--osk-ease),
+              box-shadow var(--osk-dur-base) var(--osk-ease);
+}
+.osk-card:hover {
+  border-color: var(--osk-border-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--osk-elev-card-hover);
+}
+
+/* Keyframes */
+@keyframes osk-breathe {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.7; }
+}
+@keyframes osk-twinkle {
+  0%, 100% { opacity: 0.2; }
+  50%      { opacity: 0.8; }
+}
+@keyframes osk-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(4px); }
+}
