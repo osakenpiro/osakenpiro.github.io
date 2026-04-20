@@ -43,6 +43,7 @@ window.OSK_DATA = {
     { icon: '💰', ja: 'わたしのお財布',     en: 'Watashi Wallet',         sub: '52都市の家計データ × 自由度指数',       stack: 'D3.js · real data',        url: 'https://osakenpiro.github.io/watashi-wallet/' },
     { icon: '🗾', ja: '人口動態マップ',     en: 'Japan Wallet Map',       sub: '飛鳥時代〜2050年 · 5レイヤー可視化',     stack: 'D3.js · TopoJSON',         url: 'https://osakenpiro.github.io/japan-wallet-map/' },
     { icon: '🧬', ja: 'じこしょうかい',     en: 'Jikoshoukai Portal',     sub: '全17巻85キャラの絵本ポータル',          stack: 'single html',              url: 'https://osakenpiro.github.io/jikoshoukai/' },
+    { icon: '🃏', ja: '人間図鑑',            en: 'Ningen Zukan',           sub: '人間観察カード · 4編37枚',               stack: 'React · localStorage',     url: 'https://osakenpiro.github.io/ningen-zukan/' },
     { icon: '☁', ja: '天人𦻙記',          en: 'Tenjin-ki',              sub: '準備中',                                 stack: '—',                        url: '#', pending: true },
   ],
 
