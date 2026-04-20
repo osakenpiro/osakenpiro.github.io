@@ -824,3 +824,117 @@
   .vd-tool-hero-icon { font-size: 40px; }
   .vd-tool-hero-ja { font-size: 20px; }
 }
+
+/* ============================================================
+   v2/lp overlay (added 2026-04-20) — link wiring
+   ============================================================ */
+
+/* Orbit satellites as real links */
+.vd-orbit-sat {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  margin-left: -20px;
+  margin-top: -20px;
+  font-size: 22px;
+  border-radius: 50%;
+  transition: filter 0.2s ease, transform 0.25s ease, box-shadow 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.vd-orbit-sat:hover,
+.vd-orbit-sat--on,
+.vd-orbit-sat:focus-visible {
+  filter: drop-shadow(0 0 12px var(--osk-gold, #D4A441));
+  outline: none;
+}
+
+/* Orbit tooltip */
+.vd-orbit-tip {
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  transform: translateX(-50%);
+  background: rgba(14, 20, 24, 0.94);
+  border: 1px solid var(--osk-gold-dim, #8E6F2B);
+  color: var(--osk-text, #E8EAED);
+  padding: 8px 14px;
+  border-radius: 4px;
+  min-width: 180px;
+  max-width: 260px;
+  text-align: center;
+  font-family: var(--osk-serif, 'Shippori Mincho B1', serif);
+  font-size: 13px;
+  line-height: 1.5;
+  pointer-events: none;
+  z-index: 20;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+  animation: vd-orbit-tip-in 0.18s ease-out;
+}
+.vd-orbit-tip-title {
+  color: var(--osk-gold, #D4A441);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.vd-orbit-tip-desc {
+  font-size: 11.5px;
+  color: var(--osk-dim, #9AA4AC);
+  margin-top: 2px;
+}
+.vd-orbit-tip-cta {
+  font-family: var(--osk-mono, 'JetBrains Mono', monospace);
+  font-size: 10.5px;
+  color: var(--osk-accent, #6BB0C8);
+  margin-top: 6px;
+  letter-spacing: 0.08em;
+}
+@keyframes vd-orbit-tip-in {
+  from { opacity: 0; transform: translate(-50%, 4px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* Papers & creative — <a> wrapper default reset */
+.vd-paper--link,
+.vd-work--link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease;
+}
+.vd-paper--link:hover,
+.vd-paper--link:focus-visible,
+.vd-work--link:hover,
+.vd-work--link:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--osk-gold, #D4A441);
+  box-shadow: 0 4px 14px rgba(212, 164, 65, 0.18);
+  outline: none;
+}
+
+/* Pending creative (0.5の魔女) — dimmed, non-interactive */
+.vd-work--pending {
+  opacity: 0.6;
+  cursor: default;
+}
+.vd-work--pending .vd-work-arrow {
+  color: var(--osk-dim, #9AA4AC);
+  font-family: var(--osk-mono, 'JetBrains Mono', monospace);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+}
+
+/* Mobile: shrink tooltip */
+@media (max-width: 750px) {
+  .vd-orbit-tip {
+    min-width: 140px;
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+}
