@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Design Queue · ReDesign 4案 · osakenpiro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   osakenpiro queue dashboard — ReDesign 4案
+   ============================================================ */
+:root {
+  --osk-night: #0E1418;
+  --osk-ink: #1A2329;
+  --osk-surface: #232E36;
+  --osk-line: #3A4852;
+  --osk-text: #E8EAED;
+  --osk-dim: #9AA4AC;
+  --osk-gold: #D4A441;
+  --osk-gold-dim: #8E6F2B;
+  --osk-accent: #6BB0C8;
+  --osk-accent-dim: #3E6B7A;
+  --osk-success: #8CB369;
+  --osk-warn: #E0A458;
+  --osk-progress: #CC7A4E;
+  --osk-serif: 'Shippori Mincho B1', 'Yu Mincho', serif;
+  --osk-mono: 'JetBrains Mono', 'Consolas', monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--osk-night); color: var(--osk-text); font-family: var(--osk-serif); -webkit-font-smoothing: antialiased; }
+body { min-height: 100vh; overflow-x: hidden; position: relative; }
+
+/* ─── Global vertical spine (poetic column) ────────────── */
+.global-spine {
+  position: fixed; left: 0; top: 0; bottom: 0;
+  width: 36px; z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+  border-right: 0.5px solid rgba(58,72,82,0.4);
+  background: linear-gradient(180deg, rgba(14,20,24,0.4) 0%, rgba(14,20,24,0) 50%, rgba(14,20,24,0.4) 100%);
+}
+.global-spine__text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: var(--osk-serif);
+  font-size: 14px; font-weight: 500;
+  letter-spacing: 0.45em;
+  color: var(--osk-gold);
+  opacity: 0.55;
+  text-shadow: 0 0 12px rgba(212,164,65,0.2);
+  white-space: nowrap;
+}
+.shell { padding-left: 36px; }
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; background: none; border: none; color: inherit; }
+
+/* ─── Global shell ─────────────────────────────────────── */
+.shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+}
+
+.top-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 28px; border-bottom: 1px solid var(--osk-line);
+  background: var(--osk-ink);
+  position: sticky; top: 0; z-index: 100;
+  flex-wrap: wrap; gap: 12px;
+}
+.top-bar__brand {
+  font-family: var(--osk-serif); font-size: 16px; letter-spacing: 0.15em;
+  display: flex; align-items: center; gap: 12px;
+}
+.top-bar__brand b { color: var(--osk-gold); font-weight: 600; }
+.top-bar__brand .sep { color: var(--osk-dim); opacity: 0.5; }
+.top-bar__meta {
+  display: flex; gap: 18px; align-items: center;
+  font-family: var(--osk-mono); font-size: 11px; color: var(--osk-dim);
+  letter-spacing: 0.08em;
+}
+.top-bar__meta b { color: var(--osk-gold); font-weight: 500; }
+
+.top-bar__actions { display: flex; gap: 8px; }
+.tb-btn {
+  padding: 6px 14px; font-family: var(--osk-mono); font-size: 11px;
+  border: 1px solid var(--osk-line); color: var(--osk-dim); letter-spacing: 0.12em;
+  border-radius: 2px; transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.tb-btn:hover { border-color: var(--osk-gold); color: var(--osk-gold); }
+.tb-btn--accent { color: var(--osk-accent); border-color: var(--osk-accent-dim); }
+.tb-btn--accent:hover { color: var(--osk-text); border-color: var(--osk-accent); background: rgba(107,176,200,0.1); }
+
+/* ─── Variant tabs ─────────────────────────────────────── */
+.tabs {
+  display: flex; border-bottom: 1px solid var(--osk-line);
+  background: var(--osk-night); padding: 0 28px;
+  gap: 0; overflow-x: auto;
+}
+.tab {
+  padding: 14px 24px; font-family: var(--osk-serif); font-size: 13px;
+  letter-spacing: 0.12em; color: var(--osk-dim);
+  border-bottom: 2px solid transparent; transition: all 0.3s;
+  white-space: nowrap; display: flex; align-items: baseline; gap: 10px;
+}
+.tab__key { font-family: var(--osk-mono); font-size: 10px; color: var(--osk-gold-dim); }
+.tab:hover { color: var(--osk-text); }
+.tab[aria-selected="true"] {
+  color: var(--osk-gold); border-bottom-color: var(--osk-gold);
+}
+.tab[aria-selected="true"] .tab__key { color: var(--osk-gold); }
+
+/* ─── Density slider bar (global) ──────────────────────── */
+.density-bar {
+  display: flex; align-items: center; gap: 16px;
+  padding: 12px 28px; border-bottom: 1px solid var(--osk-line);
+  background: var(--osk-ink);
+  font-family: var(--osk-mono); font-size: 11px; color: var(--osk-dim);
+  letter-spacing: 0.1em;
+}
+.density-bar__label { color: var(--osk-gold); }
+.density-bar__slider { flex: 1; max-width: 360px; }
+.density-bar__val {
+  min-width: 80px; text-align: right;
+  color: var(--osk-text); font-variant-numeric: tabular-nums;
+}
+.density-bar__val .hint { color: var(--osk-dim); margin-left: 6px; }
+input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 3px; background: var(--osk-line); border-radius: 0;
+  outline: none; cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--osk-gold); border: 2px solid var(--osk-ink);
+  box-shadow: 0 0 8px rgba(212,164,65,0.5);
+  cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--osk-gold); border: 2px solid var(--osk-ink);
+  box-shadow: 0 0 8px rgba(212,164,65,0.5);
+  cursor: pointer;
+}
+
+/* ─── Overall progress (golden line) ───────────────────── */
+.overall {
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--osk-line);
+  background: var(--osk-night);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 20px;
+  align-items: center;
+}
+.overall__num {
+  font-family: var(--osk-mono); font-size: 20px; color: var(--osk-gold);
+  letter-spacing: 0.05em; font-variant-numeric: tabular-nums;
+}
+.overall__num .small { font-size: 12px; color: var(--osk-dim); margin-left: 4px; }
+.overall__bar {
+  position: relative; height: 3px; background: rgba(212,164,65,0.12);
+  overflow: visible;
+}
+.overall__bar-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: linear-gradient(90deg, var(--osk-gold-dim), var(--osk-gold));
+  transition: width 0.6s ease;
+  box-shadow: 0 0 12px rgba(212,164,65,0.4);
+}
+.overall__bar-wave {
+  position: absolute; top: -12px; bottom: -12px; width: 2px;
+  display: flex; align-items: center; justify-content: center;
+}
+.overall__bar-wave::before {
+  content: ''; width: 1px; height: 100%; background: var(--osk-line);
+}
+.overall__bar-wave span {
+  position: absolute; bottom: -22px; font-family: var(--osk-mono);
+  font-size: 8px; color: var(--osk-dim); letter-spacing: 0.15em;
+  transform: translateX(-50%);
+}
+.overall__meta {
+  display: flex; gap: 16px; font-family: var(--osk-mono); font-size: 11px;
+  color: var(--osk-dim); letter-spacing: 0.08em;
+}
+.overall__meta .k { color: var(--osk-accent); }
+
+/* ─── Stage (variant container) ────────────────────────── */
+.stage { position: relative; min-height: 500px; padding: 32px 28px 48px; }
+.variant-panel { display: none; animation: fadeIn 0.4s ease; }
+.variant-panel[data-active="true"] { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ─── Footer ────────────────────────────────────────────── */
+.foot {
+  padding: 24px 28px; border-top: 1px solid var(--osk-line);
+  font-family: var(--osk-mono); font-size: 10px; color: var(--osk-dim);
+  letter-spacing: 0.15em; text-align: center;
+}
+.foot b { color: var(--osk-gold); }
+
+/* ============================================================
+   SHARED: status color system (float, not boolean)
+   ============================================================ */
+.st-idle   { --st: var(--osk-line);     --st-dim: rgba(58,72,82,0.3); }
+.st-prep   { --st: var(--osk-warn);     --st-dim: rgba(224,164,88,0.2); }
+.st-active { --st: var(--osk-accent);   --st-dim: rgba(107,176,200,0.2); }
+.st-done   { --st: var(--osk-success);  --st-dim: rgba(140,179,105,0.2); }
+
+.st-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--osk-mono); font-size: 9px;
+  padding: 2px 6px; color: var(--st); letter-spacing: 0.15em;
+  border: 0.5px solid var(--st); background: var(--st-dim);
+  text-transform: uppercase; border-radius: 1px;
+}
+.st-chip::before {
+  content: ''; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--st);
+  box-shadow: 0 0 5px var(--st);
+}
+
+.st-buttons { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.st-button {
+  padding: 5px 11px; font-family: var(--osk-mono); font-size: 10px;
+  border: 1px solid var(--osk-line); color: var(--osk-dim);
+  letter-spacing: 0.1em; text-transform: uppercase; border-radius: 1px;
+  transition: all 0.25s;
+}
+.st-button:hover { border-color: var(--osk-text); color: var(--osk-text); }
+.st-button--idle.st-button--current   { border-color: var(--osk-line); color: var(--osk-dim); background: rgba(58,72,82,0.15); }
+.st-button--prep.st-button--current   { border-color: var(--osk-warn); color: var(--osk-warn); background: rgba(224,164,88,0.1); }
+.st-button--active.st-button--current { border-color: var(--osk-accent); color: var(--osk-accent); background: rgba(107,176,200,0.12); }
+.st-button--done.st-button--current   { border-color: var(--osk-success); color: var(--osk-success); background: rgba(140,179,105,0.12); }
+
+.priority-stars {
+  display: inline-flex; gap: 1px;
+  font-family: var(--osk-mono); font-size: 10px;
+  color: var(--osk-gold); letter-spacing: 0.05em;
+}
+
+/* ============================================================
+   VARIANT A — ORBITAL (公転軌道型)
+   ============================================================ */
+.va-orbit {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 11;
+  max-height: 820px;
+  margin: 0 auto;
+}
+.va-orbit__sky {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(212,164,65,0.04) 0%, transparent 65%),
+    radial-gradient(1px 1px at 10% 20%, rgba(232,234,237,0.4), transparent),
+    radial-gradient(1px 1px at 85% 15%, rgba(232,234,237,0.3), transparent),
+    radial-gradient(1px 1px at 25% 80%, rgba(232,234,237,0.4), transparent),
+    radial-gradient(1px 1px at 75% 70%, rgba(232,234,237,0.3), transparent),
+    radial-gradient(1px 1px at 50% 35%, rgba(107,176,200,0.5), transparent);
+  overflow: hidden;
+  border-radius: 2px;
+}
+.va-orbit__center {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  z-index: 5; text-align: center;
+}
+.va-orbit__core {
+  width: 50px; height: 50px; border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, var(--osk-gold), var(--osk-gold-dim));
+  box-shadow: 0 0 30px rgba(212,164,65,0.5), 0 0 60px rgba(212,164,65,0.2);
+  animation: pulse 4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+.va-orbit__core-label {
+  font-family: var(--osk-mono); font-size: 9px; letter-spacing: 0.25em;
+  color: var(--osk-gold); margin-top: 6px;
+}
+.va-orbit__core-sub {
+  font-family: var(--osk-mono); font-size: 9px; color: var(--osk-dim);
+  letter-spacing: 0.15em;
+}
+
+.va-ring {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  border: 0.5px dashed rgba(107,176,200,0.15);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.va-ring__label {
+  position: absolute; top: 50%; left: 0;
+  transform: translate(-100%, -50%);
+  font-family: var(--osk-mono); font-size: 9px; color: var(--osk-dim);
+  letter-spacing: 0.18em; white-space: nowrap;
+  padding-right: 10px;
+}
+.va-ring__label b { color: var(--osk-gold); font-weight: 500; margin-right: 6px; }
+.va-ring__count {
+  position: absolute; top: 50%; right: 0;
+  transform: translate(100%, -50%);
+  font-family: var(--osk-mono); font-size: 9px; color: var(--osk-dim);
+  letter-spacing: 0.1em; padding-left: 10px; white-space: nowrap;
+}
+.va-ring__count b { color: var(--osk-success); }
+
+.va-planet {
+  position: absolute; left: 50%; top: 50%;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--st); border: 1px solid var(--st);
+  box-shadow: 0 0 8px var(--st), inset 0 0 4px rgba(0,0,0,0.4);
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.6s ease, background 0.6s ease, border-color 0.6s ease;
+  z-index: 3;
+}
+.va-planet.st-idle {
+  background: rgba(58,72,82,0.6); border-color: var(--osk-line);
+  box-shadow: 0 0 4px rgba(58,72,82,0.4);
+}
+.va-planet.st-done {
+  background: var(--osk-success);
+  box-shadow: 0 0 12px var(--osk-success), 0 0 24px rgba(140,179,105,0.3);
+}
+.va-planet.st-active::before {
+  content: ''; position: absolute; inset: -6px;
+  border: 1px solid var(--osk-accent); border-radius: 50%;
+  animation: pulseRing 2s ease-out infinite;
+}
+@keyframes pulseRing {
+  0% { opacity: 0.8; transform: scale(0.8); }
+  100% { opacity: 0; transform: scale(1.4); }
+}
+.va-planet:hover { transform: scale(1.5); z-index: 10; }
+
+.va-planet__tooltip {
+  position: absolute; left: 50%; top: calc(100% + 10px);
+  transform: translateX(-50%);
+  background: var(--osk-ink); border: 1px solid var(--osk-line);
+  padding: 8px 12px; min-width: 200px;
+  font-family: var(--osk-serif); font-size: 12px;
+  color: var(--osk-text); opacity: 0; pointer-events: none;
+  transition: opacity 0.2s; z-index: 20;
+  white-space: normal;
+}
+.va-planet:hover .va-planet__tooltip { opacity: 1; }
+.va-planet__tooltip-id {
+  font-family: var(--osk-mono); font-size: 9px; color: var(--osk-gold);
+  letter-spacing: 0.15em; margin-bottom: 3px;
+}
+
+/* A detail panel */
+.va-detail {
+  position: absolute; right: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 320px; max-width: 40vw;
+  background: var(--osk-ink); border: 1px solid var(--osk-line);
+  padding: 18px 20px; z-index: 8;
+  display: none;
+}
+.va-detail[data-open="true"] { display: block; }
+.va-detail__id {
+  font-family: var(--osk-mono); font-size: 10px; color: var(--osk-gold);
+  letter-spacing: 0.2em; margin-bottom: 6px;
+}
+.va-detail__name {
+  font-family: var(--osk-serif); font-size: 18px; color: var(--osk-text);
+  margin: 0 0 10px; line-height: 1.4;
+}
+.va-detail__meta {
+  font-family: var(--osk-mono); font-size: 10px; color: var(--osk-dim);
+  letter-spacing: 0.1em; margin-bottom: 6px; display: flex; gap: 10px;
+  flex-wrap: wrap;
+}
+.va-detail__note {
+  font-family: var(--osk-serif); font-size: 13px;
+  color: var(--osk-dim); line-height: 1.5; margin: 10px 0;
+  padding: 10px 12px; background: rgba(0,0,0,0.25);
+  border-left: 2px solid var(--osk-gold-dim);
+}
+.va-detail__close {
+  position: absolute; top: 10px; right: 12px;
+  font-family: var(--osk-mono); color: var(--osk-dim); font-size: 14px;
+}
+
+/* ============================================================
+   VARIANT B — GOLDEN STATS BARS
+   ============================================================ */
+.vb {
+  max-width: 1100px; margin: 0 auto;
+  display: flex; flex-direction: column; gap: 32px;
+}
+.vb-hero {
+  display: grid; grid-template-columns: auto 1fr auto;
+  gap: 40px; align-items: baseline;
+  padding-bottom: 24px; border-bottom: 1px solid var(--osk-line);
+}
+.vb-hero__pct {
+  font-family: var(--osk-mono); font-weight: 300;
+  font-size: 96px; line-height: 0.9; color: var(--osk-gold);
+  letter-spacing: -0.02em;
+}
+.vb-hero__pct .unit { font-size: 36px; color: var(--osk-gold-dim); margin-left: 4px; }
+.vb-hero__lede {
+  font-family: var(--osk-serif); font-size: 15px; line-height: 1.7;
+  color: var(--osk-dim); max-width: 520px;
+}
+.vb-hero__lede b { color: var(--osk-gold); font-weight: 500; }
+.vb-hero__stats {
+  display: flex; flex-direction: column; gap: 6px; text-align: right;
+  font-family: var(--osk-mono); font-size: 11px; color: var(--osk-dim);
+  letter-spacing: 0.1em;
+}
+.vb-hero__stats .big {
+  font-size: 22px; color: var(--osk-text); letter-spacing: 0.02em;
+}
+
+.vb-section {
+  display: grid; grid-template-columns: 140px 1fr auto;
+  gap: 20px; align-items: center;
+  padding: 14px 0; border-bottom: 0.5px solid rgba(58,72,82,0.4);
+}
+.vb-section__id {
+  font-family: var(--osk-mono); font-size: 22px; font-weight: 300;
+  color: var(--osk-gold-dim); letter-spacing: 0.05em;
+}
+.vb-section__title {
+  font-family: var(--osk-serif); font-size: 15px; color: var(--osk-text);
+  display: block; margin-top: 2px; letter-spacing: 0.05em;
+}
+.vb-section__bar-wrap { position: relative; }
+.vb-section__bar {
+  height: 2px; background: rgba(58,72,82,0.5);
+  position: relative;
+}
+.vb-section__bar-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: var(--osk-gold);
+  transition: width 0.6s ease;
+  box-shadow: 0 0 6px rgba(212,164,65,0.4);
+}
+.vb-section__bar-ticks {
+  display: flex; margin-top: 8px; gap: 2px;
+}
+.vb-section__tick {
+  flex: 1; height: 14px; border: 0.5px solid var(--osk-line);
+  background: transparent; transition: all 0.6s ease;
+  cursor: pointer; position: relative;
+}
+.vb-section__tick:hover { transform: translateY(-2px); }
+.vb-section__tick.st-idle   { background: rgba(58,72,82,0.3); }
+.vb-section__tick.st-prep   { background: var(--osk-warn); border-color: var(--osk-warn); box-shadow: 0 0 4px rgba(224,164,88,0.4); }
+.vb-section__tick.st-active { background: var(--osk-accent); border-color: var(--osk-accent); box-shadow: 0 0 4px rgba(107,176,200,0.4); }
+.vb-section__tick.st-done   { background: var(--osk-success); border-color: var(--osk-success); }
+.vb-section__tick-tip {
+  position: absolute; bottom: calc(100% + 6px); left: 50%;
+  transform: translateX(-50%);
+  background: var(--osk-ink); border: 1px solid var(--osk-line);
+  padding: 5px 9px; min-width: 160px;
+  font-family: var(--osk-serif); font-size: 11px;
+  color: var(--osk-text); opacity: 0; pointer-events: none;
+  transition: opacity 0.2s; z-index: 20; white-space: normal;
+  text-align: left;
+}
+.vb-section__tick:hover .vb-section__tick-tip { opacity: 1; }
+.vb-section__tick-tip-id {
+  font-family: var(--osk-mono); font-size: 9px; color: var(--osk-gold);
+  letter-spacing: 0.15em; margin-bottom: 2px;
+}
+.vb-section__frac {
+  font-family: var(--osk-mono); font-size: 14px; color: var(--osk-text);
+  letter-spacing: 0.05em; font-variant-numeric: tabular-nums;
+  min-width: 60px; text-align: right;
+}
+.vb-section__frac .dim { color: var(--osk-dim); }
+
+/* B expanded item list */
+.vb-list {
+  margin-top: 40px; padding-top: 24px;
+  border-top: 1px solid var(--osk-line);
+}
+.vb-list__head {
+  font-family: var(--osk-mono); font-size: 10px; color: var(--osk-gold);
+  letter-spacing: 0.25em; margin-bottom: 16px; text-transform: uppercase;
+}
+.vb-list__row {
+  display: grid; grid-template-columns: 50px 1fr 90px auto 40px;
+  gap: 16px; align-items: center;
+  padding: 8px 4px; border-bottom: 0.5px dashed rgba(58,72,82,0.4);
+  font-family: var(--osk-serif); font-size: 13px;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.vb-list__row:hover { background: rgba(212,164,65,0.04); }
+.vb-list__row.expanded { background: rgba(212,164,65,0.06); }
+.vb-list__id {
+  font-family: var(--osk-mono); font-size: 10px; color: var(--osk-gold-dim);
+  letter-spacing: 0.1em;
+}
+.vb-list__name { color: var(--osk-text); }
+.vb-list__name small { color: var(--osk-dim); margin-left: 8px; font-size: 10px; font-family: var(--osk-mono); letter-spacing: 0.05em; }
+.vb-list__detail {
+  grid-column: 1 / -1; padding: 10px 0 14px 70px;
+  display: none; font-family: var(--osk-serif); font-size: 12px;
+  color: var(--osk-dim); line-height: 1.6;
+}
+.vb-list__row.expanded .vb-list__detail { display: block; }
+.vb-list__row.expanded .vb-list__note {
+  background: rgba(0,0,0,0.25);
+  padding: 8px 12px;
+  border-left: 2px solid var(--osk-gold-dim);
+  margin: 4px 0 8px;
+}
+
+/* ============================================================
+   VARIANT C — COMMAND RAIL (左固定)
+   ============================================================ */
+.vc {
+  display: grid; grid-template-columns: 280px 1fr;
+  gap: 32px; min-height: 600px;
+}
+.vc-rail {
+  background: linear-gradient(180deg, var(--osk-ink) 0%, var(--osk-night) 100%);
+  border: 1px solid var(--osk-line);
+  padding: 20px 0;
+  position: sticky; top: 140px; align-self: start;
+  max-height: calc(100vh - 180px); overflow-y: auto;
+}
+.vc-rail__head {
+  padding: 0 20px 16px; border-bottom: 1px solid var(--osk-line);
+  margin-bottom: 12px;
+}
+.vc-rail__label {
+  font-family: var(--osk-mono); font-size: 9px; color: var(--osk-gold);
+  letter-spacing: 0.3em; margin-bottom: 4px;
+}
+.vc-rail__title {
+  font-family: var(--osk-serif); font-size: 16px; color: var(--osk-text);
+  letter-spacing: 0.1em;
+}
+.vc-scene {
+  padding: 12px 20px; border-left: 3px solid transparent;
+  cursor: pointer; transition: all 0.3s;
+  display: grid; grid-template-columns: 1fr auto; gap: 6px;
+  align-items: baseline;
+}
+.vc-scene:hover { background: rgba(212,164,65,0.04); }
+.vc-scene[data-selected="true"] {
+  border-left-color: var(--osk-gold);
+  background: rgba(212,164,65,0.08);
+}
+.vc-scene__id {
+  font-family: var(--osk-mono); font-size: 10px; color: var(--osk-gold-dim);
+  letter-spacing: 0.2em;
+}
+.vc-scene[data-selected="true"] .vc-scene__id { color: var(--osk-gold); }
+.vc-scene__title {
+  font-family: var(--osk-serif); font-size: 14px; color: var(--osk-text);
+  letter-spacing: 0.03em; grid-column: 1;
+}
+.vc-scene__stats {
+  grid-column: 2; text-align: right;
+  font-family: var(--osk-mono); font-size: 10px; color: var(--osk-dim);
+  letter-spacing: 0.05em; font-variant-numeric: tabular-nums;
+}
+.vc-scene__bar {
+  grid-column: 1 / -1; height: 1.5px;
+  background: rgba(58,72,82,0.5); margin-top: 6px; position: relative;
+}
+.vc-scene__bar-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: var(--osk-gold);
+  transition: width 0.6s ease;
+}
+
+.vc-pane {
+  background: var(--osk-ink);
+  border: 1px solid var(--osk-line);
+  padding: 28px 36px;
+  min-height: 500px;
+}
+.vc-pane__head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-bottom: 16px; margin-bottom: 24px;
+  border-bottom: 1px solid var(--osk-line);
+  flex-wrap: wrap; gap: 12px;
+}
+.vc-pane__scene-id {
+  font-family: var(--osk-mono); font-size: 11px; color: var(--osk-gold);
+  letter-spacing: 0.25em;
+}
+.vc-pane__scene-title {
+  font-family: var(--osk-serif); font-size: 26px; color: var(--osk-text);
+  margin: 4px 0 0; letter-spacing: 0.08em;
+}
+.vc-pane__meta {
+  font-family: var(--osk-mono); font-size: 11px; color: var(--osk-dim);
+  letter-spacing: 0.1em; text-align: right; line-height: 1.6;
+}
+.vc-pane__meta b { color: var(--osk-gold); }
+
+.vc-items { display: flex; flex-direction: column; gap: 2px; }
+.vc-item {
+  display: grid; grid-template-columns: 40px 1fr auto auto auto;
+  gap: 16px; align-items: center;
+  padding: 12px 8px; border-bottom: 0.5px dashed rgba(58,72,82,0.5);
+  cursor: pointer; transition: background 0.2s;
+  border-left: 2px solid transparent;
+}
+.vc-item:hover { background: rgba(212,164,65,0.04); }
+.vc-item.expanded { background: rgba(212,164,65,0.06); border-left-color: var(--osk-gold); }
+.vc-item__id {
+  font-family: var(--osk-mono); font-size: 10px; color: var(--osk-gold-dim);
+  letter-spacing: 0.12em;
+}
+.vc-item__name {
+  font-family: var(--osk-serif); font-size: 14px; color: var(--osk-text);
+  line-height: 1.4;
+}
+.vc-item__name small {
+  display: block; font-family: var(--osk-mono); font-size: 9px;
+  color: var(--osk-dim); margin-top: 2px; letter-spacing: 0.05em;
+}
+.vc-item__detail {
+  grid-column: 1 / -1; display: none;
+  padding: 8px 0 10px 56px; font-family: var(--osk-serif); font-size: 12px;
+  color: var(--osk-dim); line-height: 1.6;
+}
+.vc-item.expanded .vc-item__detail { display: block; }
+.vc-item__note {
+  background: rgba(0,0,0,0.25); padding: 8px 12px;
+  border-left: 2px solid var(--osk-gold-dim); margin-bottom: 8px;
+}
+
+/* ============================================================
+   VARIANT D — HYBRID (spine + rail + bar + orbit-chip)
+   ============================================================ */
+.vd {
+  display: grid;
+  grid-template-columns: 56px 240px 1fr;
+  gap: 28px; min-height: 600px;
+}
+.vd-spine {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: var(--osk-serif); font-size: 19px;
+  color: var(--osk-gold); letter-spacing: 0.4em;
+  padding: 20px 0; height: 100%;
+  border-right: 1px solid var(--osk-line);
+  display: flex; flex-direction: column; align-items: center;
+  position: sticky; top: 140px; max-height: calc(100vh - 180px);
+}
+.vd-spine__main {
+  font-weight: 500;
+  text-shadow: 0 0 8px rgba(212,164,65,0.3);
+}
+.vd-spine__sub {
+  font-family: var(--osk-mono); font-size: 10px;
+  color: var(--osk-dim); letter-spacing: 0.25em;
+  margin-top: 18px; writing-mode: vertical-rl;
+}
+
+.vd-rail {
+  position: sticky; top: 140px; align-self: start;
+  max-height: calc(100vh - 180px); overflow-y: auto;
+  padding: 8px 0;
+}
+.vd-scene {
+  padding: 10px 0; cursor: pointer;
+  display: grid; grid-template-columns: auto 1fr auto;
+  gap: 10px; align-items: baseline;
+  transition: all 0.3s;
+  border-bottom: 0.5px solid rgba(58,72,82,0.5);
+}
+.vd-scene:hover { padding-left: 4px; }
+.vd-scene[data-selected="true"] .vd-scene__id { color: var(--osk-gold); }
+.vd-scene[data-selected="true"] .vd-scene__title { color: var(--osk-text); }
+.vd-scene__id {
+  font-family: var(--osk-mono); font-size: 10px; color: var(--osk-gold-dim);
+  letter-spacing: 0.2em;
+}
+.vd-scene__title {
+  font-family: var(--osk-serif); font-size: 13px; color: var(--osk-dim);
+  letter-spacing: 0.05em;
+}
+.vd-scene__frac {
+  font-family: var(--osk-mono); font-size: 10px; color: var(--osk-dim);
+  font-variant-numeric: tabular-nums;
+}
+.vd-scene__bar {
+  grid-column: 1 / -1; height: 1.5px; margin-top: 6px;
+  background: rgba(58,72,82,0.5); position: relative;
+}
+.vd-scene__bar-fill {
+  position: absolute; inset: 0 auto 0 0;
+  background: linear-gradient(90deg, var(--osk-gold-dim), var(--osk-gold));
+  transition: width 0.6s ease;
+}
+
+.vd-main {
+  display: flex; flex-direction: column; gap: 24px;
+}
+.vd-bar {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 20px;
+  align-items: center;
+  padding-bottom: 16px; border-bottom: 1px solid var(--osk-line);
+}
+.vd-bar__pct {
+  font-family: var(--osk-mono); font-weight: 300; font-size: 56px;
+  color: var(--osk-gold); line-height: 0.9; letter-spacing: -0.02em;
+}
+.vd-bar__pct .unit { font-size: 20px; color: var(--osk-gold-dim); margin-left: 2px; }
+.vd-bar__track {
+  height: 3px; background: rgba(212,164,65,0.1);
+  position: relative;
+}
+.vd-bar__fill {
+  position: absolute; inset: 0 auto 0 0;
+  background: linear-gradient(90deg, var(--osk-gold-dim), var(--osk-gold));
+  transition: width 0.6s ease;
+  box-shadow: 0 0 8px rgba(212,164,65,0.5);
+}
+.vd-bar__stats {
+  font-family: var(--osk-mono); font-size: 11px; color: var(--osk-dim);
+  text-align: right; letter-spacing: 0.1em; line-height: 1.7;
+}
+.vd-bar__stats b { color: var(--osk-accent); }
+
+.vd-orbitchip {
+  padding: 18px 20px;
+  background: radial-gradient(ellipse at center, rgba(212,164,65,0.05), transparent 70%);
+  border: 1px solid var(--osk-line);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.vd-orbitchip__head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--osk-mono); font-size: 10px; letter-spacing: 0.2em;
+}
+.vd-orbitchip__head b { color: var(--osk-gold); }
+.vd-orbitchip__head .dim { color: var(--osk-dim); }
+.vd-orbitchip__track {
+  height: 48px; position: relative;
+  background:
+    repeating-linear-gradient(90deg, transparent 0, transparent 4.999%, rgba(58,72,82,0.5) 5%, transparent 5.05%);
+  border-top: 0.5px dashed rgba(58,72,82,0.6);
+  border-bottom: 0.5px dashed rgba(58,72,82,0.6);
+}
+.vd-chip {
+  position: absolute; top: 50%; transform: translate(-50%, -50%);
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--st); border: 1px solid var(--st);
+  box-shadow: 0 0 6px var(--st);
+  cursor: pointer;
+  transition: transform 0.3s, background 0.6s ease, box-shadow 0.6s ease, border-color 0.6s ease;
+}
+.vd-chip.st-idle {
+  background: rgba(58,72,82,0.5);
+  box-shadow: 0 0 3px rgba(58,72,82,0.4);
+}
+.vd-chip.st-active::after {
+  content: ''; position: absolute; inset: -4px;
+  border: 1px solid var(--osk-accent); border-radius: 50%;
+  animation: pulseRing 2s ease-out infinite;
+}
+.vd-chip:hover { transform: translate(-50%, -50%) scale(1.6); z-index: 10; }
+
+.vd-pane {
+  background: var(--osk-ink);
+  border: 1px solid var(--osk-line);
+  padding: 22px 24px;
+}
+.vd-pane__head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-bottom: 12px; margin-bottom: 16px;
+  border-bottom: 0.5px solid var(--osk-line);
+  flex-wrap: wrap; gap: 12px;
+}
+.vd-pane__id {
+  font-family: var(--osk-mono); font-size: 10px; color: var(--osk-gold);
+  letter-spacing: 0.25em;
+}
+.vd-pane__title {
+  font-family: var(--osk-serif); font-size: 22px; color: var(--osk-text);
+  letter-spacing: 0.08em; margin: 4px 0 0;
+}
+.vd-pane__meta {
+  font-family: var(--osk-mono); font-size: 11px; color: var(--osk-dim);
+  letter-spacing: 0.1em; text-align: right; line-height: 1.6;
+}
+
+.vd-items { display: flex; flex-direction: column; }
+.vd-item {
+  display: grid; grid-template-columns: 12px 40px 1fr auto auto;
+  gap: 14px; align-items: center;
+  padding: 10px 4px; border-bottom: 0.5px dashed rgba(58,72,82,0.4);
+  cursor: pointer; transition: background 0.2s;
+}
+.vd-item:hover { background: rgba(212,164,65,0.04); }
+.vd-item.expanded { background: rgba(212,164,65,0.06); }
+.vd-item__dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--st); box-shadow: 0 0 4px var(--st);
+  transition: background 0.6s ease, box-shadow 0.6s ease;
+}
+.vd-item__dot.st-idle { background: var(--osk-line); box-shadow: none; }
+.vd-item__id {
+  font-family: var(--osk-mono); font-size: 10px; color: var(--osk-gold-dim);
+  letter-spacing: 0.1em;
+}
+.vd-item__name {
+  font-family: var(--osk-serif); font-size: 13px; color: var(--osk-text);
+}
+.vd-item__name small {
+  display: block; font-family: var(--osk-mono); font-size: 9px;
+  color: var(--osk-dim); margin-top: 2px; letter-spacing: 0.05em;
+}
+.vd-item__detail {
+  grid-column: 1 / -1; display: none;
+  padding: 6px 0 8px 66px; font-family: var(--osk-serif); font-size: 12px;
+  color: var(--osk-dim); line-height: 1.6;
+}
+.vd-item.expanded .vd-item__detail { display: block; }
+
+/* ─── Responsive ───────────────────────────────────────── */
+@media (max-width: 750px) {
+  .global-spine { display: none; }
+  .shell { padding-left: 0; }
+  .top-bar { padding: 12px 16px; }
+  .top-bar__brand { font-size: 13px; }
+  .top-bar__meta { font-size: 10px; gap: 10px; }
+  .tabs { padding: 0 16px; }
+  .tab { padding: 12px 14px; font-size: 12px; }
+  .overall { padding: 12px 16px; grid-template-columns: 1fr; gap: 8px; }
+  .overall__bar { height: 2px; }
+  .stage { padding: 18px 16px 36px; }
+  .density-bar { padding: 10px 16px; flex-wrap: wrap; }
+  .density-bar__slider { flex: 1 1 100%; max-width: none; }
+
+  .va-orbit { aspect-ratio: auto; height: auto; padding: 10px 0 30px; }
+  .va-orbit__sky { position: relative; height: auto; min-height: 100px; display: none; }
+  .va-orbit__center { position: relative; left: auto; top: auto; transform: none; margin: 10px 0 30px; align-items: flex-start; }
+  .va-ring {
+    position: relative; left: auto; top: auto; transform: none;
+    width: 100% !important; height: auto !important;
+    border: none; border-top: 0.5px dashed rgba(107,176,200,0.2);
+    padding: 16px 0 18px; border-radius: 0; margin-bottom: 6px;
+  }
+  .va-ring__label { position: static; transform: none; display: block; padding: 0 0 10px; }
+  .va-ring__count { position: static; transform: none; display: block; padding: 8px 0 0; text-align: left; }
+  .va-planets-wrap {
+    position: relative !important; inset: auto !important;
+    display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0 0;
+  }
+  .va-planet {
+    position: relative !important; left: auto !important; top: auto !important;
+    transform: none !important;
+  }
+  .va-planet:hover { transform: scale(1.2) !important; }
+  .va-planet__tooltip { display: none; }
+  .va-detail {
+    position: fixed; left: 16px; right: 16px; top: auto; bottom: 16px;
+    transform: none; width: auto; max-width: none; z-index: 300;
+    max-height: 70vh; overflow-y: auto;
+  }
+
+  .vb-hero { grid-template-columns: 1fr; gap: 12px; }
+  .vb-hero__pct { font-size: 68px; }
+  .vb-hero__stats { text-align: left; }
+  .vb-section { grid-template-columns: 100px 1fr; row-gap: 10px; }
+  .vb-section__frac { grid-column: 1 / -1; text-align: left; }
+
+  .vc { grid-template-columns: 1fr; gap: 16px; }
+  .vc-rail { position: relative; top: auto; max-height: none; }
+  .vc-pane { padding: 18px 16px; }
+  .vc-item { grid-template-columns: 40px 1fr auto; }
+  .vc-item .priority-stars, .vc-item .st-chip { grid-column: 2; justify-self: start; }
+
+  .vd { grid-template-columns: 1fr; gap: 16px; }
+  .vd-spine {
+    writing-mode: horizontal-tb; position: relative; top: auto; max-height: none;
+    flex-direction: row; gap: 16px; padding: 12px 16px;
+    border-right: none; border-bottom: 1px solid var(--osk-line);
+    letter-spacing: 0.2em; font-size: 15px; justify-content: flex-start;
+  }
+  .vd-spine__sub { writing-mode: horizontal-tb; margin-top: 0; }
+  .vd-rail { position: relative; top: auto; max-height: none; }
+  .vd-bar { grid-template-columns: 1fr; }
+  .vd-bar__stats { text-align: left; }
+  .vd-bar__pct { font-size: 42px; }
+  .vd-item { grid-template-columns: 12px 40px 1fr auto; }
+}
+</style>
+</head>
+<body>
+
+<aside class="global-spine" aria-hidden="true">
+  <span class="global-spine__text">Re:DeSign 全人類UX改善計画</span>
+</aside>
+
+<!-- ═══════════════════════════════════════════════════════════
+     SHELL
+     ═══════════════════════════════════════════════════════════ -->
+<div class="shell">
+
+  <header class="top-bar">
+    <div class="top-bar__brand">
+      <span>osakenpiro</span>
+      <span class="sep">·</span>
+      <b>Claude Design Queue</b>
+      <span class="sep">·</span>
+      <span style="font-family:var(--osk-mono); font-size:11px; letter-spacing:0.2em; color:var(--osk-dim);">ReDesign 4案</span>
+    </div>
+    <div class="top-bar__meta">
+      <span>KICKOFF <b id="m-kickoff">2026-04-19</b></span>
+      <span>D+<b id="m-day">—</b></span>
+      <span>LS <b>v2</b></span>
+    </div>
+    <div class="top-bar__actions">
+      <button class="tb-btn" id="btn-export">Export JSON</button>
+      <button class="tb-btn" id="btn-reset">Reset</button>
+      <a class="tb-btn tb-btn--accent" href="https://claude.ai/design/p/8c0250a0-0b4a-47d1-bc29-ba1f45ae161a" target="_blank" rel="noopener">Open Claude Design ↗</a>
+    </div>
+  </header>
+
+  <!-- variant tabs -->
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="false" data-variant="A"><span class="tab__key">A</span> 公転軌道</button>
+    <button class="tab" role="tab" aria-selected="false" data-variant="B"><span class="tab__key">B</span> 金バー</button>
+    <button class="tab" role="tab" aria-selected="false" data-variant="C"><span class="tab__key">C</span> 左レール</button>
+    <button class="tab" role="tab" aria-selected="true"  data-variant="D"><span class="tab__key">D</span> ハイブリッド</button>
+  </nav>
+
+  <!-- density slider -->
+  <div class="density-bar">
+    <span class="density-bar__label">情報密度</span>
+    <span style="font-family:var(--osk-mono); font-size:11px; color:var(--osk-dim); letter-spacing:0.1em;">Boolean → Float</span>
+    <input type="range" class="density-bar__slider" id="density" min="0" max="35" step="1" value="35">
+    <span class="density-bar__val"><span id="density-val">35</span> / 35 <span class="hint">items</span></span>
+  </div>
+
+  <!-- overall progress -->
+  <div class="overall">
+    <div class="overall__num">
+      <span id="overall-pct">0</span><span class="unit">%</span>
+      <span class="small">達成率</span>
+    </div>
+    <div class="overall__bar">
+      <div class="overall__bar-fill" id="overall-fill" style="width:0%"></div>
+      <div id="overall-waves"></div>
+    </div>
+    <div class="overall__meta">
+      <span><span class="k">done</span> <b id="m-done">0</b></span>
+      <span><span class="k">active</span> <b id="m-active">0</b></span>
+      <span><span class="k">prep</span> <b id="m-prep">0</b></span>
+      <span><span class="k">idle</span> <b id="m-idle">0</b></span>
+    </div>
+  </div>
+
+  <!-- stage -->
+  <main class="stage">
+
+    <!-- A: ORBITAL -->
+    <section class="variant-panel" data-variant="A" role="tabpanel">
+      <div class="va-orbit" id="va-orbit">
+        <div class="va-orbit__sky"></div>
+        <div class="va-orbit__center">
+          <div class="va-orbit__core"></div>
+          <div class="va-orbit__core-label">CORE</div>
+          <div class="va-orbit__core-sub">osakenpiro</div>
+        </div>
+        <!-- rings + planets injected by JS -->
+        <div id="va-rings"></div>
+        <div class="va-detail" id="va-detail">
+          <button class="va-detail__close" data-close>×</button>
+          <div class="va-detail__id" id="va-d-id">—</div>
+          <h3 class="va-detail__name" id="va-d-name">—</h3>
+          <div class="va-detail__meta">
+            <span id="va-d-chip"></span>
+            <span id="va-d-prio"></span>
+            <span id="va-d-wave" style="color:var(--osk-accent);"></span>
+          </div>
+          <a class="va-detail__meta" id="va-d-url" href="#" target="_blank" rel="noopener" style="display:none;"></a>
+          <div class="va-detail__note" id="va-d-note" style="display:none;"></div>
+          <div class="st-buttons" id="va-d-btns"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- B: GOLDEN BARS -->
+    <section class="variant-panel" data-variant="B" role="tabpanel">
+      <div class="vb">
+        <div class="vb-hero">
+          <div class="vb-hero__pct"><span id="vb-pct">0</span><span class="unit">%</span></div>
+          <div class="vb-hero__lede">
+            6 波・35+ アイテムの <b>成果物の公転軌道</b>。
+            各 Wave は独立したスペクトル、全体は <b>1 本の金線</b> として収束する。<br>
+            Boolean ではなく Float で測る — 完了・進行中・準備・待機 が連続値としてここに並ぶ。
+          </div>
+          <div class="vb-hero__stats">
+            <div><span class="big" id="vb-done">0</span> / <span id="vb-total">0</span> DONE</div>
+            <div><span id="vb-act">0</span> ACTIVE · <span id="vb-prep">0</span> PREP</div>
+            <div>D+<span id="vb-day">—</span> · LS v2</div>
+          </div>
+        </div>
+        <div id="vb-sections"></div>
+        <div class="vb-list">
+          <div class="vb-list__head">▸ All items (click to expand / cycle status)</div>
+          <div id="vb-list-rows"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- C: COMMAND RAIL -->
+    <section class="variant-panel" data-variant="C" role="tabpanel">
+      <div class="vc">
+        <aside class="vc-rail">
+          <div class="vc-rail__head">
+            <div class="vc-rail__label">▸ SCENES</div>
+            <div class="vc-rail__title">Re:DeSign 計画</div>
+          </div>
+          <div id="vc-scenes"></div>
+        </aside>
+        <div class="vc-pane">
+          <div class="vc-pane__head">
+            <div>
+              <div class="vc-pane__scene-id" id="vc-p-id">SCENE — 01</div>
+              <h2 class="vc-pane__scene-title" id="vc-p-title">—</h2>
+            </div>
+            <div class="vc-pane__meta" id="vc-p-meta">—</div>
+          </div>
+          <div class="vc-items" id="vc-items"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- D: HYBRID -->
+    <section class="variant-panel" data-variant="D" data-active="true" role="tabpanel">
+      <div class="vd">
+        <aside class="vd-spine">
+          <span class="vd-spine__main">Re:DeSign 全人類UX改善計画</span>
+          <span class="vd-spine__sub">D+<span id="vd-spine-day">—</span></span>
+        </aside>
+        <aside class="vd-rail">
+          <div style="font-family:var(--osk-mono); font-size:10px; color:var(--osk-gold); letter-spacing:0.3em; padding:8px 0 14px;">▸ SCENES</div>
+          <div id="vd-scenes"></div>
+        </aside>
+        <div class="vd-main">
+          <div class="vd-bar">
+            <div class="vd-bar__pct"><span id="vd-pct">0</span><span class="unit">%</span></div>
+            <div class="vd-bar__track"><div class="vd-bar__fill" id="vd-fill"></div></div>
+            <div class="vd-bar__stats">
+              <div><b id="vd-done">0</b>/<span id="vd-total">0</span> DONE</div>
+              <div><b id="vd-act">0</b> ACT · <b id="vd-prep">0</b> PREP</div>
+            </div>
+          </div>
+
+          <div class="vd-orbitchip">
+            <div class="vd-orbitchip__head">
+              <span><b>ORBIT</b> · current scene items</span>
+              <span class="dim" id="vd-orbit-label">—</span>
+            </div>
+            <div class="vd-orbitchip__track" id="vd-orbit-track"></div>
+          </div>
+
+          <div class="vd-pane">
+            <div class="vd-pane__head">
+              <div>
+                <div class="vd-pane__id" id="vd-p-id">SCENE — 01</div>
+                <h2 class="vd-pane__title" id="vd-p-title">—</h2>
+              </div>
+              <div class="vd-pane__meta" id="vd-p-meta">—</div>
+            </div>
+            <div class="vd-items" id="vd-items"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="foot">
+    <b>osakenpiro</b> · Claude Design Queue · ReDesign v1 · Boolean → Float · <span style="font-family:var(--osk-mono);">localStorage: osakenpiro-claude-design-queue-v2</span>
+  </footer>
+
+</div>
+
+<script>
+/* =========================================================
+   DATA
+   ========================================================= */
+const WAVES = [
+  { id: "W1", title: "ブランドの顔",
+    items: [
+      { id: "1",  name: "集約LP v2", url: "(未デプロイ/ZIP受領)", priority: 3, status: "active", note: "4案生成済、家確認待ち" },
+      { id: "2",  name: "僕の惑星 (公転型ハブ)", url: "osakenpiro.github.io", priority: 2, status: "idle" }
+    ]},
+  { id: "W2", title: "論文 one-pager",
+    items: [
+      { id: "3",  name: "I Morphology of Desire (深紅/三形態)", priority: 0, status: "done" },
+      { id: "4",  name: "II Circulation of Alignment (藍/同心円)", priority: 0, status: "done" },
+      { id: "5",  name: "III Jianghu Principle (緑/多路一山)", priority: 0, status: "done" },
+      { id: "6",  name: "IV Thought-Capital (金/七色分光)", priority: 0, status: "done" },
+      { id: "7",  name: "V Genetics of Ideas (紫/二重螺旋)", priority: 0, status: "done" },
+      { id: "8",  name: "VI Gradient of Kokoro (赤橙/六軸)", priority: 0, status: "done" },
+      { id: "9",  name: "VII Gravity of Jizai (藍鉄/トーラス)", priority: 0, status: "done" },
+      { id: "10", name: "VIII Ground State of Three (銀白/三角基底)", priority: 0, status: "done" },
+      { id: "11", name: "IX Decryption Key (グレー/鍵穴blur)", priority: 0, status: "done" }
+    ]},
+  { id: "W3", title: "ツール群 個別ReDesign",
+    items: [
+      { id: "12", name: "わっかずかん", url: "osakenpiro.github.io/wakkazukan/", priority: 3, status: "idle", note: "v47→v48、Boolean→Float象徴。次の本命" },
+      { id: "13", name: "バネットマップ", url: "osakenpiro.github.io/banet-map/", priority: 3, status: "idle" },
+      { id: "14", name: "たなずかん", url: "osakenpiro.github.io/tana-zukan/", priority: 2, status: "idle" },
+      { id: "15", name: "SATORI", url: "osakenpiro.github.io/satori/", priority: 3, status: "idle", note: "4賢者+モッポイ統合" },
+      { id: "16", name: "人類の素材図鑑", url: "osakenpiro.github.io/materials-of-civilization/", priority: 2, status: "idle" },
+      { id: "17", name: "わたしのお財布", url: "osakenpiro.github.io/watashi-wallet/", priority: 2, status: "idle" },
+      { id: "18", name: "人口動態マップ", url: "osakenpiro.github.io/japan-wallet-map/", priority: 2, status: "idle" },
+      { id: "19", name: "じこしょうかいポータル", url: "osakenpiro.github.io/jikoshoukai/", priority: 3, status: "idle" },
+      { id: "20", name: "VR Akinator", url: "osakenpiro.github.io/vr-akinator/", priority: 1, status: "idle" },
+      { id: "21", name: "百ます", url: "osakenpiro.github.io/hyakumasu/", priority: 1, status: "idle" },
+      { id: "22", name: "ひらめき", url: "osakenpiro.github.io/hirameki/", priority: 1, status: "idle" },
+      { id: "23", name: "MIERU", url: "osakenpiro.github.io/MIERU/", priority: 1, status: "idle" },
+      { id: "24", name: "finance-dashboard", url: "osakenpiro.github.io/finance-dashboard/", priority: 1, status: "idle" },
+      { id: "36", name: "Claude Design Queue Dashboard (このツール自体)", url: "(V0は本仕様で生成)", priority: 3, status: "prep", note: "自己言及ループ" }
+    ]},
+  { id: "W4", title: "絵本シリーズ 統合戦略",
+    items: [
+      { id: "25", name: "じこしょうかい統合ポータル刷新", priority: 3, status: "idle" },
+      { id: "26", name: "共通ナビバー (17巻一括適用)", priority: 2, status: "idle" },
+      { id: "27", name: "カバー表示統一フォーマット", priority: 2, status: "idle" },
+      { id: "28", name: "シーズン5系統カラーコード", priority: 2, status: "idle" }
+    ]},
+  { id: "W5", title: "創作 新規生成",
+    items: [
+      { id: "29", name: "0.5の魔女 連載LP (note)", priority: 2, status: "prep" },
+      { id: "30", name: "0.5の魔女 キービジュアル (二重螺旋SVG)", priority: 2, status: "prep" },
+      { id: "31", name: "星は知らない LP", priority: 1, status: "idle" },
+      { id: "32", name: "PEACE PIECE 漫画紹介LP", priority: 1, status: "idle" }
+    ]},
+  { id: "W6", title: "基盤・外部アカウント",
+    items: [
+      { id: "33", name: "ORCID / LinkedIn 画像+バナー", priority: 1, status: "idle" },
+      { id: "34", name: "X ヘッダー + プロフ画像", priority: 1, status: "idle" },
+      { id: "35", name: "note プロフィール + マガジンカバー", priority: 1, status: "idle" }
+    ]}
+];
+
+const STATUS_ORDER = ["idle","prep","active","done"];
+const STATUS_LABEL = { idle:"IDLE", prep:"PREP", active:"ACTIVE", done:"DONE" };
+const LS_KEY = "osakenpiro-claude-design-queue-v2";
+const KICKOFF = new Date("2026-04-19T00:00:00");
+
+/* ---- persistence ---- */
+function loadStatuses() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    const map = JSON.parse(raw);
+    WAVES.forEach(w => w.items.forEach(it => {
+      if (map[it.id] && STATUS_ORDER.includes(map[it.id])) it.status = map[it.id];
+    }));
+  } catch (e) { console.warn(e); }
+}
+function saveStatuses() {
+  const m = {};
+  WAVES.forEach(w => w.items.forEach(it => { m[it.id] = it.status; }));
+  localStorage.setItem(LS_KEY, JSON.stringify(m));
+}
+function cycleStatus(item) {
+  const i = STATUS_ORDER.indexOf(item.status);
+  item.status = STATUS_ORDER[(i + 1) % STATUS_ORDER.length];
+  saveStatuses(); renderAll();
+}
+function setStatus(item, s) {
+  if (!STATUS_ORDER.includes(s)) return;
+  item.status = s; saveStatuses(); renderAll();
+}
+
+/* ---- derived stats ---- */
+function allItems() { return WAVES.flatMap(w => w.items); }
+function stats() {
+  const all = allItems();
+  const counts = { idle: 0, prep: 0, active: 0, done: 0 };
+  all.forEach(it => counts[it.status]++);
+  return { total: all.length, ...counts, pct: Math.round(counts.done / all.length * 100) };
+}
+function waveStats(w) {
+  const done = w.items.filter(i => i.status === "done").length;
+  return { done, total: w.items.length, pct: Math.round(done / w.items.length * 100) };
+}
+function daysFromKickoff() {
+  return Math.floor((Date.now() - KICKOFF.getTime()) / 86400000);
+}
+
+/* ---- priority stars ---- */
+function starsHTML(p) {
+  if (!p || p === 0) return "";
+  return '<span class="priority-stars">' + "★".repeat(p) + "</span>";
+}
+
+/* ---- status buttons builder ---- */
+function statusButtonsHTML(item) {
+  return STATUS_ORDER.map(s =>
+    `<button class="st-button st-button--${s}${item.status === s ? " st-button--current" : ""}" data-set-status="${s}" data-item-id="${item.id}">${STATUS_LABEL[s]}</button>`
+  ).join("");
+}
+
+/* =========================================================
+   DENSITY FILTER — float Boolean→Float slider
+   Shows top-N items (priority desc, then original order).
+   ========================================================= */
+let density = 35;
+function rankedItems() {
+  // Stable ordering: (active > prep > idle > done) + priority desc + id numeric
+  const weight = { active: 0, prep: 1, idle: 2, done: 3 };
+  return allItems()
+    .map((it, i) => ({ it, _i: i, wave: WAVES.find(w => w.items.includes(it)) }))
+    .sort((a, b) => {
+      const wa = weight[a.it.status], wb = weight[b.it.status];
+      if (wa !== wb) return wa - wb;
+      if (a.it.priority !== b.it.priority) return (b.it.priority || 0) - (a.it.priority || 0);
+      return a._i - b._i;
+    });
+}
+function visibleIds() {
+  return new Set(rankedItems().slice(0, density).map(r => r.it.id));
+}
+function isVisible(id, vis = _cachedVisible) { return vis.has(id); }
+let _cachedVisible = new Set();
+
+/* =========================================================
+   RENDER — shared meta
+   ========================================================= */
+function renderShared() {
+  const s = stats();
+  document.getElementById("overall-pct").textContent = s.pct;
+  document.getElementById("overall-fill").style.width = s.pct + "%";
+  document.getElementById("m-done").textContent = s.done;
+  document.getElementById("m-active").textContent = s.active;
+  document.getElementById("m-prep").textContent = s.prep;
+  document.getElementById("m-idle").textContent = s.idle;
+  document.getElementById("m-day").textContent = daysFromKickoff();
+
+  // wave tick markers on overall bar
+  const host = document.getElementById("overall-waves");
+  host.innerHTML = "";
+  let acc = 0;
+  const total = s.total;
+  WAVES.forEach((w, i) => {
+    acc += w.items.length;
+    const pct = (acc / total) * 100;
+    if (i === WAVES.length - 1) return;
+    const el = document.createElement("div");
+    el.className = "overall__bar-wave";
+    el.style.left = pct + "%";
+    el.innerHTML = `<span>${w.id}</span>`;
+    host.appendChild(el);
+  });
+}
+
+/* =========================================================
+   VARIANT A — ORBITAL
+   ========================================================= */
+function renderA() {
+  const host = document.getElementById("va-rings");
+  host.innerHTML = "";
+  const vis = _cachedVisible;
+
+  // ring sizes (radii as % of smaller dimension, mapped to CSS)
+  const ringPcts = [18, 30, 44, 58, 72, 86];
+  WAVES.forEach((w, wi) => {
+    const pct = ringPcts[wi];
+    const wS = waveStats(w);
+    const ring = document.createElement("div");
+    ring.className = "va-ring";
+    ring.style.width = `${pct}%`;
+    ring.style.aspectRatio = "1 / 1";
+    ring.innerHTML = `
+      <div class="va-ring__label"><b>${w.id}</b>${w.title}</div>
+      <div class="va-ring__count"><b>${wS.done}</b>/${wS.total}</div>
+    `;
+    host.appendChild(ring);
+
+    // planets around ring — even angle distribution, but skip hidden items
+    const visible = w.items.filter(it => vis.has(it.id));
+    if (!visible.length) return;
+    const n = visible.length;
+    const angleOffset = -Math.PI / 2 + (wi * 0.22);
+    visible.forEach((it, idx) => {
+      const angle = angleOffset + (idx / n) * Math.PI * 2;
+      // offset from ring center — ring is centered at 50%/50% of container
+      // radius in % of container width (approx)
+      const rad = pct / 2;
+      const cx = 50 + Math.cos(angle) * rad;
+      const cy = 50 + Math.sin(angle) * rad * (11/16); // aspect correction
+      const planet = document.createElement("div");
+      planet.className = `va-planet st-${it.status}`;
+      planet.style.left = `${cx}%`;
+      planet.style.top = `${cy}%`;
+      planet.style.transform = "translate(-50%, -50%)";
+      planet.dataset.itemId = it.id;
+      planet.innerHTML = `
+        <div class="va-planet__tooltip">
+          <div class="va-planet__tooltip-id">#${it.id} · ${w.id}</div>
+          <div>${it.name}</div>
+        </div>`;
+      planet.addEventListener("click", (e) => { e.stopPropagation(); openADetail(it, w); });
+      host.appendChild(planet);
+    });
+  });
+}
+function openADetail(item, wave) {
+  const d = document.getElementById("va-detail");
+  d.dataset.open = "true";
+  document.getElementById("va-d-id").textContent = `#${item.id} · ${wave.id}`;
+  document.getElementById("va-d-name").textContent = item.name;
+  document.getElementById("va-d-chip").innerHTML = `<span class="st-chip st-${item.status}">${STATUS_LABEL[item.status]}</span>`;
+  document.getElementById("va-d-prio").innerHTML = starsHTML(item.priority);
+  document.getElementById("va-d-wave").textContent = wave.title;
+  const urlEl = document.getElementById("va-d-url");
+  if (item.url) {
+    urlEl.style.display = "block";
+    urlEl.textContent = "▸ " + item.url;
+    urlEl.href = item.url.startsWith("http") ? item.url : ("https://" + item.url);
+  } else urlEl.style.display = "none";
+  const nEl = document.getElementById("va-d-note");
+  if (item.note) { nEl.style.display = "block"; nEl.textContent = item.note; } else nEl.style.display = "none";
+  document.getElementById("va-d-btns").innerHTML = statusButtonsHTML(item);
+}
+document.addEventListener("click", (e) => {
+  if (e.target.matches("[data-close]")) {
+    document.getElementById("va-detail").dataset.open = "false";
+  }
+});
+
+/* =========================================================
+   VARIANT B — GOLDEN BARS
+   ========================================================= */
+function renderB() {
+  const s = stats();
+  document.getElementById("vb-pct").textContent = s.pct;
+  document.getElementById("vb-done").textContent = s.done;
+  document.getElementById("vb-total").textContent = s.total;
+  document.getElementById("vb-act").textContent = s.active;
+  document.getElementById("vb-prep").textContent = s.prep;
+  document.getElementById("vb-day").textContent = daysFromKickoff();
+
+  const sectionsHost = document.getElementById("vb-sections");
+  sectionsHost.innerHTML = "";
+  const vis = _cachedVisible;
+  WAVES.forEach((w, wi) => {
+    const wS = waveStats(w);
+    const row = document.createElement("div");
+    row.className = "vb-section";
+    const num = String(wi + 1).padStart(2, "0");
+    const ticks = w.items.map(it => {
+      const hide = !vis.has(it.id);
+      return `<button class="vb-section__tick st-${it.status}" data-item-id="${it.id}" data-cycle style="${hide?'opacity:0.25; pointer-events:none;':''}">
+        <span class="vb-section__tick-tip">
+          <span class="vb-section__tick-tip-id">#${it.id} · ${STATUS_LABEL[it.status]}</span>
+          ${it.name}
+        </span>
+      </button>`;
+    }).join("");
+    row.innerHTML = `
+      <div class="vb-section__id">W${wi+1}<span class="vb-section__title">${w.title}</span></div>
+      <div class="vb-section__bar-wrap">
+        <div class="vb-section__bar"><div class="vb-section__bar-fill" style="width:${wS.pct}%"></div></div>
+        <div class="vb-section__bar-ticks">${ticks}</div>
+      </div>
+      <div class="vb-section__frac">${wS.done}<span class="dim">/${wS.total}</span></div>
+    `;
+    sectionsHost.appendChild(row);
+  });
+
+  // flat list
+  const listHost = document.getElementById("vb-list-rows");
+  listHost.innerHTML = "";
+  rankedItems().forEach(({it, wave}) => {
+    if (!vis.has(it.id)) return;
+    const row = document.createElement("div");
+    row.className = "vb-list__row";
+    row.dataset.itemId = it.id;
+    row.innerHTML = `
+      <div class="vb-list__id">#${it.id}</div>
+      <div class="vb-list__name">${it.name} <small>${wave.id} · ${wave.title}</small></div>
+      <div class="st-chip st-${it.status}">${STATUS_LABEL[it.status]}</div>
+      <div>${starsHTML(it.priority)}</div>
+      <div style="text-align:right; font-family:var(--osk-mono); font-size:10px; color:var(--osk-dim);">▾</div>
+      <div class="vb-list__detail">
+        ${it.url ? `<div style="margin-bottom:6px; font-family:var(--osk-mono); font-size:10px; color:var(--osk-accent);">▸ ${it.url}</div>` : ""}
+        ${it.note ? `<div class="vb-list__note">${it.note}</div>` : ""}
+        <div class="st-buttons">${statusButtonsHTML(it)}</div>
+      </div>`;
+    row.addEventListener("click", (e) => {
+      if (e.target.closest("[data-set-status]")) return;
+      row.classList.toggle("expanded");
+    });
+    listHost.appendChild(row);
+  });
+}
+
+/* =========================================================
+   VARIANT C — COMMAND RAIL
+   ========================================================= */
+let vcSelected = 0; // wave index
+function renderC() {
+  const railHost = document.getElementById("vc-scenes");
+  railHost.innerHTML = "";
+  WAVES.forEach((w, wi) => {
+    const wS = waveStats(w);
+    const el = document.createElement("div");
+    el.className = "vc-scene";
+    el.dataset.selected = (wi === vcSelected);
+    const num = String(wi + 1).padStart(2, "0");
+    el.innerHTML = `
+      <div class="vc-scene__id">SCENE — ${num}</div>
+      <div class="vc-scene__stats">${wS.done}/${wS.total}</div>
+      <div class="vc-scene__title">${w.title}</div>
+      <div class="vc-scene__bar"><div class="vc-scene__bar-fill" style="width:${wS.pct}%"></div></div>
+    `;
+    el.addEventListener("click", () => { vcSelected = wi; renderC(); });
+    railHost.appendChild(el);
+  });
+
+  // pane
+  const w = WAVES[vcSelected];
+  const wS = waveStats(w);
+  document.getElementById("vc-p-id").textContent = `SCENE — ${String(vcSelected+1).padStart(2,"0")} · ${w.id}`;
+  document.getElementById("vc-p-title").textContent = w.title;
+  document.getElementById("vc-p-meta").innerHTML = `
+    <div><b style="color:var(--osk-gold);">${wS.done}</b>/${wS.total} DONE · ${wS.pct}%</div>
+    <div>priority ★ ${w.items.filter(i=>i.priority===3).length} / ${w.items.filter(i=>i.priority===2).length} / ${w.items.filter(i=>i.priority===1).length}</div>`;
+
+  const itemsHost = document.getElementById("vc-items");
+  itemsHost.innerHTML = "";
+  const vis = _cachedVisible;
+  w.items.forEach(it => {
+    const hidden = !vis.has(it.id);
+    const row = document.createElement("div");
+    row.className = "vc-item st-" + it.status;
+    if (hidden) row.style.opacity = "0.3";
+    row.dataset.itemId = it.id;
+    row.innerHTML = `
+      <div class="vc-item__id">#${it.id}</div>
+      <div class="vc-item__name">${it.name}${it.url ? `<small>▸ ${it.url}</small>` : ""}</div>
+      <div>${starsHTML(it.priority)}</div>
+      <div class="st-chip st-${it.status}">${STATUS_LABEL[it.status]}</div>
+      <div style="font-family:var(--osk-mono); color:var(--osk-dim); font-size:10px;">▾</div>
+      <div class="vc-item__detail">
+        ${it.note ? `<div class="vc-item__note">${it.note}</div>` : ""}
+        <div class="st-buttons">${statusButtonsHTML(it)}</div>
+      </div>`;
+    row.addEventListener("click", (e) => {
+      if (e.target.closest("[data-set-status]")) return;
+      row.classList.toggle("expanded");
+    });
+    itemsHost.appendChild(row);
+  });
+}
+
+/* =========================================================
+   VARIANT D — HYBRID
+   ========================================================= */
+let vdSelected = 2; // default W3
+function renderD() {
+  document.getElementById("vd-spine-day").textContent = daysFromKickoff();
+  const s = stats();
+  document.getElementById("vd-pct").textContent = s.pct;
+  document.getElementById("vd-fill").style.width = s.pct + "%";
+  document.getElementById("vd-done").textContent = s.done;
+  document.getElementById("vd-total").textContent = s.total;
+  document.getElementById("vd-act").textContent = s.active;
+  document.getElementById("vd-prep").textContent = s.prep;
+
+  // rail
+  const railHost = document.getElementById("vd-scenes");
+  railHost.innerHTML = "";
+  WAVES.forEach((w, wi) => {
+    const wS = waveStats(w);
+    const el = document.createElement("div");
+    el.className = "vd-scene";
+    el.dataset.selected = (wi === vdSelected);
+    const num = String(wi + 1).padStart(2, "0");
+    el.innerHTML = `
+      <div class="vd-scene__id">S${num}</div>
+      <div class="vd-scene__title">${w.title}</div>
+      <div class="vd-scene__frac">${wS.done}/${wS.total}</div>
+      <div class="vd-scene__bar"><div class="vd-scene__bar-fill" style="width:${wS.pct}%"></div></div>
+    `;
+    el.addEventListener("click", () => { vdSelected = wi; renderD(); });
+    railHost.appendChild(el);
+  });
+
+  // orbit chip — shows THIS scene's items as dots
+  const w = WAVES[vdSelected];
+  document.getElementById("vd-orbit-label").textContent = `${w.id} · ${w.title}`;
+  const track = document.getElementById("vd-orbit-track");
+  track.innerHTML = "";
+  const vis = _cachedVisible;
+  const visItems = w.items.filter(it => vis.has(it.id));
+  visItems.forEach((it, i) => {
+    const chip = document.createElement("div");
+    chip.className = `vd-chip st-${it.status}`;
+    const pct = visItems.length === 1 ? 50 : (5 + (i / (visItems.length - 1)) * 90);
+    chip.style.left = pct + "%";
+    chip.title = `#${it.id} · ${it.name}`;
+    chip.addEventListener("click", () => cycleStatus(it));
+    track.appendChild(chip);
+  });
+
+  // pane
+  const wS = waveStats(w);
+  document.getElementById("vd-p-id").textContent = `SCENE — ${String(vdSelected+1).padStart(2,"0")} · ${w.id}`;
+  document.getElementById("vd-p-title").textContent = w.title;
+  document.getElementById("vd-p-meta").innerHTML = `
+    <div><b style="color:var(--osk-gold);">${wS.done}</b>/${wS.total} · ${wS.pct}%</div>
+    <div>★3:${w.items.filter(i=>i.priority===3).length} ★2:${w.items.filter(i=>i.priority===2).length} ★1:${w.items.filter(i=>i.priority===1).length}</div>
+  `;
+
+  const itemsHost = document.getElementById("vd-items");
+  itemsHost.innerHTML = "";
+  w.items.forEach(it => {
+    const hidden = !vis.has(it.id);
+    const row = document.createElement("div");
+    row.className = "vd-item st-" + it.status;
+    if (hidden) row.style.opacity = "0.3";
+    row.dataset.itemId = it.id;
+    row.innerHTML = `
+      <div class="vd-item__dot st-${it.status}"></div>
+      <div class="vd-item__id">#${it.id}</div>
+      <div class="vd-item__name">${it.name}${it.url ? `<small>▸ ${it.url}</small>` : ""}</div>
+      <div>${starsHTML(it.priority)}</div>
+      <div class="st-chip st-${it.status}">${STATUS_LABEL[it.status]}</div>
+      <div class="vd-item__detail">
+        ${it.note ? `<div style="background:rgba(0,0,0,0.25);padding:6px 10px;border-left:2px solid var(--osk-gold-dim);margin-bottom:6px;">${it.note}</div>` : ""}
+        <div class="st-buttons">${statusButtonsHTML(it)}</div>
+      </div>`;
+    row.addEventListener("click", (e) => {
+      if (e.target.closest("[data-set-status]")) return;
+      row.classList.toggle("expanded");
+    });
+    itemsHost.appendChild(row);
+  });
+}
+
+/* =========================================================
+   RENDER ALL
+   ========================================================= */
+function renderAll() {
+  _cachedVisible = visibleIds();
+  renderShared();
+  renderA();
+  renderB();
+  renderC();
+  renderD();
+}
+
+/* =========================================================
+   INTERACTIONS
+   ========================================================= */
+// Tab switching
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    const v = tab.dataset.variant;
+    document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", t.dataset.variant === v ? "true" : "false"));
+    document.querySelectorAll(".variant-panel").forEach(p => p.dataset.active = (p.dataset.variant === v ? "true" : "false"));
+  });
+});
+
+// Global delegation for status button clicks
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-set-status]");
+  if (btn) {
+    e.stopPropagation();
+    const it = allItems().find(x => x.id === btn.dataset.itemId);
+    if (it) setStatus(it, btn.dataset.setStatus);
+    return;
+  }
+  const tick = e.target.closest("[data-cycle]");
+  if (tick) {
+    e.stopPropagation();
+    const it = allItems().find(x => x.id === tick.dataset.itemId);
+    if (it) cycleStatus(it);
+  }
+});
+
+// Density slider
+const densityInput = document.getElementById("density");
+densityInput.addEventListener("input", () => {
+  density = parseInt(densityInput.value, 10);
+  document.getElementById("density-val").textContent = density;
+  renderAll();
+});
+
+// Export
+document.getElementById("btn-export").addEventListener("click", () => {
+  const payload = allItems().map(it => ({ id: it.id, name: it.name, status: it.status }));
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `osakenpiro-queue-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+// Reset
+document.getElementById("btn-reset").addEventListener("click", () => {
+  if (!confirm("localStorage をクリアしてステータスを初期化しますか？")) return;
+  localStorage.removeItem(LS_KEY);
+  location.reload();
+});
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+loadStatuses();
+document.getElementById("m-kickoff").textContent = "2026-04-19";
+renderAll();
+</script>
+
+</body>
+</html>
