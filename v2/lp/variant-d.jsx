@@ -300,9 +300,7 @@ function DOrbit({ speed }) {
                opacity: 0.4+d*0.6, zIndex: Math.round(d*10),
              }}
              onMouseEnter={()=>setHover(i)}
-             onMouseLeave={()=>setHover(cur => cur===i ? null : cur)}
              onFocus={()=>setHover(i)}
-             onBlur={()=>setHover(cur => cur===i ? null : cur)}
           >{s.g}</a>
         );
       })}
