@@ -736,6 +736,88 @@ input[type="range"]::-moz-range-thumb {
 }
 .vd-bar__stats b { color: var(--osk-accent); }
 
+/* ============================================================
+   D — Wave毎の金バー (B要素を移植)
+   ============================================================ */
+.vd-sections {
+  display: flex; flex-direction: column;
+  background: rgba(26, 35, 41, 0.4);
+  border: 1px solid var(--osk-line);
+  border-left: 2px solid var(--osk-gold-dim);
+  padding: 4px 20px;
+}
+.vd-sections__head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--osk-mono); font-size: 10px; letter-spacing: 0.2em;
+  color: var(--osk-dim); padding: 10px 0 6px;
+  border-bottom: 0.5px dashed rgba(58,72,82,0.6);
+}
+.vd-sections__head b { color: var(--osk-gold); }
+.vd-section {
+  display: grid; grid-template-columns: 120px 1fr auto;
+  gap: 18px; align-items: center;
+  padding: 12px 0; border-bottom: 0.5px solid rgba(58,72,82,0.4);
+}
+.vd-section:last-child { border-bottom: none; }
+.vd-section__id {
+  font-family: var(--osk-mono); font-size: 18px; font-weight: 300;
+  color: var(--osk-gold-dim); letter-spacing: 0.05em;
+}
+.vd-section__title {
+  font-family: var(--osk-serif); font-size: 13px; color: var(--osk-text);
+  display: block; margin-top: 2px; letter-spacing: 0.04em;
+}
+.vd-section__bar-wrap { position: relative; }
+.vd-section__bar {
+  height: 2px; background: rgba(58,72,82,0.5);
+  position: relative;
+}
+.vd-section__bar-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: var(--osk-gold);
+  transition: width 0.6s ease;
+  box-shadow: 0 0 6px rgba(212,164,65,0.4);
+}
+.vd-section__bar-ticks {
+  display: flex; margin-top: 7px; gap: 2px;
+}
+.vd-section__tick {
+  flex: 1; height: 12px; border: 0.5px solid var(--osk-line);
+  background: transparent; transition: all 0.3s ease;
+  cursor: pointer; position: relative;
+}
+.vd-section__tick:hover { transform: translateY(-2px); }
+.vd-section__tick.st-idle   { background: rgba(58,72,82,0.3); }
+.vd-section__tick.st-prep   { background: var(--osk-warn); border-color: var(--osk-warn); box-shadow: 0 0 4px rgba(224,164,88,0.4); }
+.vd-section__tick.st-active { background: var(--osk-accent); border-color: var(--osk-accent); box-shadow: 0 0 4px rgba(107,176,200,0.4); }
+.vd-section__tick.st-done   { background: var(--osk-success); border-color: var(--osk-success); }
+.vd-section__tick-tip {
+  position: absolute; bottom: calc(100% + 6px); left: 50%;
+  transform: translateX(-50%);
+  background: var(--osk-ink); border: 1px solid var(--osk-line);
+  padding: 5px 9px; min-width: 160px;
+  font-family: var(--osk-serif); font-size: 11px;
+  color: var(--osk-text); opacity: 0; pointer-events: none;
+  transition: opacity 0.2s; z-index: 20; white-space: normal;
+  text-align: left;
+}
+.vd-section__tick:hover .vd-section__tick-tip { opacity: 1; }
+.vd-section__tick-tip-id {
+  font-family: var(--osk-mono); font-size: 9px; color: var(--osk-gold);
+  letter-spacing: 0.15em; margin-bottom: 2px;
+  display: block;
+}
+.vd-section__frac {
+  font-family: var(--osk-mono); font-size: 13px; color: var(--osk-text);
+  letter-spacing: 0.05em; font-variant-numeric: tabular-nums;
+  min-width: 50px; text-align: right;
+}
+.vd-section__frac .dim { color: var(--osk-dim); }
+.vd-section--selected {
+  background: linear-gradient(90deg, rgba(212,164,65,0.08), transparent 60%);
+}
+.vd-section--selected .vd-section__id { color: var(--osk-gold); }
+
 .vd-orbitchip {
   padding: 18px 20px;
   background: radial-gradient(ellipse at center, rgba(212,164,65,0.05), transparent 70%);
@@ -897,6 +979,8 @@ input[type="range"]::-moz-range-thumb {
   .vd-bar { grid-template-columns: 1fr; }
   .vd-bar__stats { text-align: left; }
   .vd-bar__pct { font-size: 42px; }
+  .vd-section { grid-template-columns: 90px 1fr; row-gap: 8px; }
+  .vd-section__frac { grid-column: 1 / -1; text-align: left; }
   .vd-item { grid-template-columns: 12px 40px 1fr auto; }
 }
 </style>
@@ -1063,6 +1147,8 @@ input[type="range"]::-moz-range-thumb {
               <div><b id="vd-act">0</b> ACT · <b id="vd-prep">0</b> PREP</div>
             </div>
           </div>
+
+          <div class="vd-sections" id="vd-sections"></div>
 
           <div class="vd-orbitchip">
             <div class="vd-orbitchip__head">
@@ -1502,12 +1588,46 @@ function renderD() {
     railHost.appendChild(el);
   });
 
+  const vis = _cachedVisible;
+
+  // Wave毎の金バー (B要素を移植) — 選択中の Wave はハイライト
+  const sectionsHost = document.getElementById("vd-sections");
+  sectionsHost.innerHTML = "";
+  WAVES.forEach((ww, wi) => {
+    const wS = waveStats(ww);
+    const row = document.createElement("div");
+    row.className = "vd-section" + (wi === vdSelected ? " vd--selected vd-section--selected" : "");
+    const ticks = ww.items.map(it => {
+      const hide = !vis.has(it.id);
+      return `<button class="vd-section__tick st-${it.status}" data-item-id="${it.id}" data-cycle style="${hide?'opacity:0.25; pointer-events:none;':''}">
+        <span class="vd-section__tick-tip">
+          <span class="vd-section__tick-tip-id">#${it.id} · ${STATUS_LABEL[it.status]}</span>
+          ${it.name}
+        </span>
+      </button>`;
+    }).join("");
+    row.innerHTML = `
+      <div class="vd-section__id">W${wi+1}<span class="vd-section__title">${ww.title}</span></div>
+      <div class="vd-section__bar-wrap">
+        <div class="vd-section__bar"><div class="vd-section__bar-fill" style="width:${wS.pct}%"></div></div>
+        <div class="vd-section__bar-ticks">${ticks}</div>
+      </div>
+      <div class="vd-section__frac">${wS.done}<span class="dim">/${wS.total}</span></div>
+    `;
+    row.addEventListener("click", (e) => {
+      // tick クリック時は cycleStatus に任せる (data-cycle グローバルハンドラ)
+      if (e.target.closest("[data-cycle]")) return;
+      vdSelected = wi;
+      renderD();
+    });
+    sectionsHost.appendChild(row);
+  });
+
   // orbit chip — shows THIS scene's items as dots
   const w = WAVES[vdSelected];
   document.getElementById("vd-orbit-label").textContent = `${w.id} · ${w.title}`;
   const track = document.getElementById("vd-orbit-track");
   track.innerHTML = "";
-  const vis = _cachedVisible;
   const visItems = w.items.filter(it => vis.has(it.id));
   visItems.forEach((it, i) => {
     const chip = document.createElement("div");
