@@ -271,7 +271,7 @@
 }
 
 /* Orbit (reused pattern from C) */
-.vd-orbit { position: relative; width: 560px; height: 560px; }
+.vd-orbit { position: relative; width: 700px; height: 700px; }
 .vd-orbit-ring {
   position: absolute; left: 50%; top: 50%;
   transform: translate(-50%, -50%);
@@ -803,8 +803,8 @@
   .vd-hero-roles { justify-content: flex-start; }
   .vd-hero-name { font-size: calc(44px * var(--vd-drama)); }
   .vd-hero-foot { grid-column: 1; flex-direction: column; gap: 8px; text-align: left; }
-  .vd-orbit { width: 360px; height: 360px; }
-  .vd-orbit-sat { width: 44px; height: 44px; margin-left: -22px; margin-top: -22px; font-size: 26px; }
+  .vd-orbit { width: 420px; height: 420px; }
+  .vd-orbit-sat { width: 52px; height: 52px; margin-left: -26px; margin-top: -26px; font-size: 32px; }
   .vd-orbit-core { font-size: 56px; }
   .vd-stats, .vd-papers, .vd-creative, .vd-tools, .vd-sns {
     padding: 32px 18px;
@@ -841,11 +841,11 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 52px;
-  height: 52px;
-  margin-left: -26px;
-  margin-top: -26px;
-  font-size: 34px;
+  width: 62px;
+  height: 62px;
+  margin-left: -31px;
+  margin-top: -31px;
+  font-size: 42px;
   border-radius: 50%;
   transition: filter 0.2s ease, transform 0.25s ease, box-shadow 0.3s ease;
   -webkit-tap-highlight-color: transparent;
