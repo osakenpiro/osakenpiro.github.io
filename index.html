@@ -1,737 +1,958 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>osakenpiro — 僕の惑星</title>
-<meta name="description" content="osakenpiro / 哲学・漫画・小説・コード・音楽。全部がぼく。">
-<meta property="og:title" content="osakenpiro — 僕の惑星">
-<meta property="og:description" content="哲学・漫画・小説・コード・音楽。全部がぼく。AI×東アジア哲学 論文8本。">
-<meta property="og:image" content="https://osakenpiro.github.io/ogp.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:url" content="https://osakenpiro.github.io/">
-<meta property="og:type" content="website">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@kenpiro7">
-<meta name="twitter:title" content="osakenpiro — 僕の惑星">
-<meta name="twitter:description" content="哲学・漫画・小説・コード・音楽。全部がぼく。">
-<meta name="twitter:image" content="https://osakenpiro.github.io/ogp.png">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>osakenpiro — 全部がぼく</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --void:#08080e;
-  --debris:#c8b8a0;
-  --gold:#d4a853;
-  --dim:#3a3530;
-  --glow-gold:rgba(212,168,83,0.3);
+  --bg:#faf9f6;
+  --paper:#f6f3ea;
+  --card:#f2f0eb;
+  --ink:#2c2c2a;
+  --sub:#5f5e5a;
+  --rule:#d9d6cc;
+  --soft:#e7e4dc;
+  --purple:#534AB7;
+  --teal:#1D9E75;
+  --coral:#D85A30;
+  --blue:#3266ad;
+  --gold:#BA7517;
+  --mincho:"Zen Old Mincho", "Noto Serif JP", serif;
+  --sans:"Noto Sans JP", "DM Sans", system-ui, sans-serif;
+  --mono:"DM Sans", ui-monospace, monospace;
 }
-html,body{
-  width:100%;height:100%;overflow:hidden;
-  font-family:'Zen Kaku Gothic New',sans-serif;
-  background:var(--void);color:var(--debris);
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#1c1b18; --paper:#201f1b; --card:#25241f; --ink:#e9e6dd; --sub:#a8a49a; --rule:#3a382f; --soft:#2e2d27;
+    --purple:#8f87ea; --teal:#4fcfa1; --coral:#f0825d; --blue:#7eaee6; --gold:#e2b35a; }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{ scroll-behavior: smooth;}
+body{
+  font-family: var(--sans);
+  font-size: 18px;
+  line-height: 1.7;
+  color: var(--ink);
+  background: var(--bg);
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--ink) 3%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--ink) 3%, transparent) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: 0 0;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "palt";
+  overflow-x: hidden;
+}
+a{color:inherit; text-decoration:none}
+::selection{ background: var(--gold); color: var(--bg);}
+
+/* (chrome removed — pages nav lives in the bottom-right file-stack) */
+
+/* ========== FILE-CARD (styles, positioned inside pocket) ========== */
+.file-stack{
+  display: flex; flex-direction: column; gap: 8px;
+  align-items: stretch;
+}
+.file-stack .file-card{
+  display: block;
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 7px 14px 8px;
+  font-family: var(--mono);
+  letter-spacing: .22em;
+  color: var(--sub);
+  min-width: 168px;
+  text-align: left;
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--ink) 60%, transparent);
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, color .25s ease;
+}
+/* 003 — cosmos / purple (top, HTML first) */
+.file-stack .file-card:nth-child(1){
+  background: color-mix(in srgb, var(--purple) 11%, var(--bg));
+}
+/* 002 — dashboard / teal */
+.file-stack .file-card:nth-child(2){
+  background: color-mix(in srgb, var(--teal) 11%, var(--bg));
+}
+/* 001 — entrance / coral (bottom, active) */
+.file-stack .file-card:nth-child(3){
+  background: color-mix(in srgb, var(--coral) 12%, var(--bg));
+  border-color: var(--coral);
+}
+.file-stack .file-card .ruby{
+  display: block;
+  font-size: 9px; letter-spacing: .18em;
+  color: var(--sub); opacity: .75;
+  text-transform: lowercase;
+  margin-bottom: 2px;
+}
+.file-stack .file-card .main{
+  display: block;
+  font-size: 11px; font-weight: 700;
+  color: var(--ink);
+}
+.file-stack .file-card.active{
+  border: 2px solid var(--coral);
+  color: var(--coral);
+}
+.file-stack .file-card.active .main{ color: var(--coral);}
+.file-stack .file-card.active .ruby{ color: var(--coral); opacity: .8;}
+
+.file-stack .file-card:nth-child(1):hover{
+  border-color: var(--purple); color: var(--purple);
+  box-shadow: 3px 3px 0 var(--purple); transform: translate(-2px,-2px);
+}
+.file-stack .file-card:nth-child(1):hover .main{ color: var(--purple);}
+.file-stack .file-card:nth-child(2):hover{
+  border-color: var(--teal); color: var(--teal);
+  box-shadow: 3px 3px 0 var(--teal); transform: translate(-2px,-2px);
+}
+.file-stack .file-card:nth-child(2):hover .main{ color: var(--teal);}
+
+/* ========== POCKET CLUSTER ========== */
+.pocket-cluster{
+  position: fixed;
+  right: 20px; bottom: 20px;
+  z-index: 29;
+}
+.pocket-btn{
+  display: inline-flex; align-items: center; gap: 10px;
+  min-height: 52px; padding: 10px 18px 10px 14px;
+  background: var(--coral);
+  color: var(--bg);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  font-family: var(--mincho); font-weight: 700; font-size: 15px;
+  letter-spacing: .06em;
+  box-shadow: 0 8px 20px rgba(0,0,0,.18);
+  cursor: pointer;
+  transition: transform .25s ease, box-shadow .25s ease;
+  position: relative;
+  z-index: 31;
+}
+.pocket-btn:hover,
+.pocket-btn:focus-visible,
+.pocket-cluster:hover .pocket-btn{
+  transform: translateY(-2px) rotate(-2deg);
+  box-shadow: 0 12px 24px rgba(0,0,0,.22);
+  outline: none;
+}
+.pocket-btn svg{ flex-shrink: 0;}
+.pocket-btn .pocket-label{ padding-right: 2px;}
+
+.pocket-contents{
+  position: absolute;
+  right: 0; bottom: calc(100% + 10px);
+  display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px) scale(.97);
+  transform-origin: right bottom;
+  transition: opacity .32s ease, transform .32s cubic-bezier(.2,.8,.2,1);
+}
+/* invisible bridge filling the gap between contents and pocket-btn  
+   so hover stays active when cursor crosses the gap */
+.pocket-contents::after{
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  top: 100%;
+  height: 18px;
+}
+.pocket-cluster:hover .pocket-contents,
+.pocket-cluster:focus-within .pocket-contents,
+.pocket-btn:focus-visible + .pocket-contents{
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
 }
 
-/* === STARFIELD === */
-canvas#stars{position:fixed;inset:0;z-index:0}
+/* inside pocket-contents: static positioning for children */
+.pocket-contents .file-stack,
+.pocket-contents .credit-badge,
+.pocket-contents .bmc,
+.pocket-contents .tag-wrap{
+  position: relative;
+  right: auto; bottom: auto; top: auto; left: auto;
+}
+/* ========== HERO: typographic primitive ========== */
+.hero{
+  min-height: 100vh;
+  padding: 90px 24px 50px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  position: relative;
+}
+.hero .sig{
+  font-family: var(--mono); font-size: 12px; letter-spacing: .22em; color: var(--sub);
+  display:flex; gap: 18px; align-items:center;
+}
+.hero .sig::before{ content:""; width: 36px; height: 1px; background: var(--ink);}
 
-/* === ORBIT SCENE === */
-.scene{
-  position:fixed;inset:0;z-index:1;
-  display:flex;align-items:center;justify-content:center;
-  perspective:800px;
+/* the giant word-piece */
+.stage{
+  flex: 1;
+  display: grid; grid-template-columns: 1fr;
+  align-content: center; justify-items: center;
+  padding: 20px 0;
+  position: relative;
 }
-
-/* === CORE (The Emptyfall) === */
-.core{
-  position:absolute;
-  width:150px;height:150px;
-  z-index:10;
-  cursor:pointer;
+.big{
+  font-family: var(--mincho);
+  font-weight: 900;
+  font-size: clamp(84px, 22vw, 280px);
+  line-height: .88;
+  letter-spacing: -.04em;
+  color: var(--ink);
+  text-align: center;
+  position: relative;
+  user-select: none;
 }
-.core-avatar{
-  width:150px;height:150px;
-  border-radius:50%;
-  background:radial-gradient(circle at 40% 35%, #1f1a28 0%, #0c0c14 70%);
-  border:1px solid rgba(200,184,160,0.15);
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:
-    0 0 40px rgba(212,168,83,0.08),
-    0 0 80px rgba(212,168,83,0.03),
-    inset 0 0 30px rgba(0,0,0,0.5);
-  transition:box-shadow 0.5s, transform 0.3s;
+.big .piece{
+  display: inline-block;
+  position: relative;
+  transition: transform .5s cubic-bezier(.2,.8,.2,1), color .5s ease;
 }
-.core:hover .core-avatar{
-  box-shadow:
-    0 0 60px rgba(212,168,83,0.15),
-    0 0 120px rgba(212,168,83,0.06),
-    inset 0 0 30px rgba(0,0,0,0.5);
-  transform:scale(1.05);
+.big .ga{
+  color: var(--coral);
+  display: inline-block;
+  transform-origin: 50% 60%;
+  animation: tiltGa 5.4s ease-in-out infinite;
 }
-.core-glyph{
-  font-family:'Cormorant Garamond',serif;
-  font-size:3.4rem;font-weight:300;font-style:italic;
-  color:var(--gold);opacity:0.5;
-  animation:breathe 6s ease-in-out infinite;
-}
-@keyframes breathe{0%,100%{opacity:0.35}50%{opacity:0.7}}
-
-/* Orbit ring visuals */
-.orbit-ring{
-  position:absolute;
-  border:1px solid rgba(200,184,160,0.04);
-  border-radius:50%;
-  top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  pointer-events:none;
-}
-
-/* === SATELLITES === */
-.satellite{
-  position:absolute;
-  width:64px;height:64px;
-  transform:translate(-50%,-50%);
-  cursor:pointer;
-  z-index:5;
-  transition:filter 0.3s;
-}
-.satellite:hover{filter:brightness(1.3);z-index:20}
-.satellite:hover .sat-label{opacity:1;transform:translateX(-50%) translateY(0)}
-.satellite:hover .sat-body{
-  box-shadow:0 0 20px var(--glow-gold);
-  border-color:rgba(212,168,83,0.4);
-}
-
-.sat-body{
-  width:64px;height:64px;
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.4rem;
-  border:1px solid rgba(200,184,160,0.12);
-  transition:all 0.3s;
-  position:relative;
-}
-/* Natural planets (organic) */
-.sat-body.organic{
-  background:radial-gradient(circle at 35% 30%, #2a2035 0%, #12111a 80%);
-}
-/* Artificial satellites (mechanical) */
-.sat-body.mechanical{
-  background:radial-gradient(circle at 35% 30%, #1a2025 0%, #0e1118 80%);
-  border-style:dashed;
-  border-color:rgba(140,160,180,0.2);
-}
-/* Moon — larger, lunar glow */
-.sat-body.moon{
-  width:90px;height:90px;font-size:0;
-  background:radial-gradient(circle at 35% 35%,#e8e8e0,#b0b0a8 40%,#808078 70%,#58584f);
-  box-shadow:0 0 30px rgba(200,200,180,0.2),0 0 60px rgba(200,200,180,0.08);
-  border:none;
-}
-.sat-body.moon::after{
-  content:'🌙';font-size:2.2rem;
-}
-
-.sat-label{
-  position:absolute;
-  top:calc(100% + 6px);left:50%;
-  transform:translateX(-50%) translateY(4px);
-  white-space:nowrap;
-  font-size:0.6rem;
-  letter-spacing:0.08em;
-  color:var(--debris);
-  opacity:0;
-  transition:all 0.3s;
-  pointer-events:none;
-  text-align:center;
-  line-height:1.4;
-}
-.sat-sublabel{
-  color:rgba(200,184,160,0.4);
-  font-size:0.5rem;
-}
-
-/* === INFO PANEL === */
-.info-panel{
-  position:fixed;
-  bottom:0;left:0;right:0;
-  z-index:100;
-  background:linear-gradient(to top, rgba(8,8,14,0.95) 0%, rgba(8,8,14,0.8) 70%, transparent 100%);
-  padding:1.5rem 1rem 2rem;
-  text-align:center;
-  pointer-events:none;
-  transition:opacity 0.5s;
-}
-.info-name{
-  font-family:'Cormorant Garamond',serif;
-  font-size:1.4rem;font-weight:300;
-  letter-spacing:0.15em;
-  margin-bottom:0.2rem;
-}
-.info-tagline{
-  font-size:0.65rem;
-  letter-spacing:0.25em;
-  color:var(--dim);
-  text-transform:uppercase;
-}
-.info-bio{
-  font-size:0.72rem;
-  color:rgba(200,184,160,0.4);
-  margin-top:0.5rem;
-  line-height:1.7;
-}
-.info-footer{
-  margin-top:0.8rem;
-  font-family:'Cormorant Garamond',serif;
-  font-size:0.55rem;
-  font-style:italic;
-  color:rgba(200,184,160,0.2);
-  letter-spacing:0.1em;
-}
-
-/* === TOOLTIP on click === */
-.tooltip{
-  position:fixed;
-  z-index:200;
-  background:rgba(15,15,22,0.95);
-  border:1px solid rgba(200,184,160,0.15);
-  border-radius:6px;
-  padding:0.8rem 1rem;
-  max-width:260px;
-  opacity:0;pointer-events:none;
-  transition:opacity 0.3s;
-  backdrop-filter:blur(10px);
-}
-.tooltip.active{opacity:1;pointer-events:auto}
-.tooltip-title{
-  font-size:0.8rem;font-weight:400;
-  color:var(--debris);margin-bottom:0.2rem;
-}
-.tooltip-desc{
-  font-size:0.65rem;color:rgba(200,184,160,0.5);
-  line-height:1.5;margin-bottom:0.5rem;
-}
-.tooltip-link{
+.big .boku{ color: var(--ink);}
+.big .dot{
   display:inline-block;
-  font-size:0.65rem;
-  color:var(--gold);
-  text-decoration:none;
-  letter-spacing:0.05em;
-  transition:opacity 0.2s;
+  width: .18em; height: .18em; border-radius: 50%;
+  background: var(--gold);
+  vertical-align: .08em;
+  margin-left: .02em;
+  animation: pulseDot 4s ease-in-out infinite;
 }
-.tooltip-link:hover{opacity:0.7}
-.tooltip-close{
-  position:absolute;top:0.4rem;right:0.6rem;
-  font-size:0.7rem;color:var(--dim);
-  cursor:pointer;background:none;border:none;
-  padding:0.2rem;
+@keyframes tiltGa{
+  0%,100%{ transform: rotate(-4deg) translateY(0);}
+  50%{ transform: rotate(6deg) translateY(-8px);}
+}
+@keyframes pulseDot{
+  0%,100%{ opacity: .3; transform: scale(1);}
+  50%{ opacity: 1; transform: scale(1.15);}
 }
 
-/* === SCROLL HINT === */
-.scroll-hint{
-  position:fixed;bottom:0;left:0;right:0;
-  z-index:50;text-align:center;
-  padding-bottom:0.5rem;
-  pointer-events:none;
+.rubi{
+  position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+  font-family: var(--mono); font-size: 13px; letter-spacing: .5em; color: var(--sub);
+  white-space: nowrap;
 }
-.scroll-arrow{
-  font-size:0.7rem;color:var(--dim);
-  animation:bob 2s ease-in-out infinite;
-}
-@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
 
-/* === LIST VIEW (scroll down) === */
-.list-view{
-  position:fixed;inset:0;z-index:80;
-  background:var(--void);
-  overflow-y:auto;
-  padding:2rem 1rem 4rem;
-  opacity:0;pointer-events:none;
-  transition:opacity 0.5s;
+.stage .sub{
+  margin-top: 28px;
+  font-family: var(--mincho); font-size: clamp(18px, 2.6vw, 28px); color: var(--sub);
+  text-align: center;
 }
-.list-view.active{opacity:1;pointer-events:auto}
-.list-back{
-  position:sticky;top:0;z-index:90;
-  background:linear-gradient(to bottom, var(--void) 60%, transparent);
-  padding:0.5rem 0 1.5rem;
+.stage .sub em{ font-style: normal; color: var(--ink); background: linear-gradient(transparent 88%, color-mix(in srgb, var(--gold) 70%, transparent) 88%);}
+
+/* four-letter key */
+.keyrow{
+  display:grid; grid-template-columns: repeat(4, 1fr);
+  max-width: 920px; margin: 36px auto 0; width: 100%;
+  border: 1.5px solid var(--ink);
+  border-radius: 4px;
+  background: var(--paper);
+  box-shadow: 5px 5px 0 var(--ink);
+}
+.keyrow .k{
+  padding: 18px 14px 16px;
+  display:flex; flex-direction:column; align-items:center; gap: 4px;
+  border-right: 1px solid var(--rule);
   text-align:center;
+  color: inherit; text-decoration: none;
+  cursor: pointer;
+  transition: background .2s ease, transform .2s ease;
 }
-.list-back button{
-  background:none;border:1px solid var(--dim);
-  color:var(--debris);padding:0.4rem 1.2rem;
-  border-radius:20px;font-size:0.7rem;
-  letter-spacing:0.1em;cursor:pointer;
-  font-family:inherit;
-  transition:border-color 0.3s;
+.keyrow .k:hover{
+  background: color-mix(in srgb, currentColor 8%, transparent);
 }
-.list-back button:hover{border-color:var(--gold)}
+.keyrow .k:hover .letter{
+  transform: translateY(-2px);
+  transition: transform .2s ease;
+}
+.keyrow .k:last-child{ border-right: 0;}
+.keyrow .letter{ font-family: var(--mincho); font-weight: 900; font-size: clamp(38px, 6vw, 62px); line-height: 1; letter-spacing: -.02em;}
+.keyrow .name{ font-family: var(--mono); font-size: 12px; letter-spacing: .2em; color: var(--sub); text-transform: uppercase;}
+.keyrow .k.t1 .letter{ color: var(--teal);}
+.keyrow .k.t2 .letter{ color: var(--coral);}
+.keyrow .k.t3 .letter{ color: var(--blue);}
+.keyrow .k.t4 .letter{ color: var(--purple);}
 
-.list-section{margin-bottom:2rem;max-width:500px;margin-left:auto;margin-right:auto}
-.list-section-title{
-  font-family:'Cormorant Garamond',serif;
-  font-size:0.65rem;letter-spacing:0.3em;
-  text-transform:uppercase;color:var(--dim);
-  margin-bottom:0.6rem;padding-left:1rem;
+.hero .bottombar{
+  display:flex; justify-content: space-between; align-items: baseline;
+  margin-top: 34px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .18em; color: var(--sub);
+  border-top: 1px solid var(--rule); padding-top: 16px;
 }
-.list-item{
-  display:flex;align-items:center;gap:0.8rem;
-  padding:0.7rem 1rem;
-  text-decoration:none;color:var(--debris);
-  border-bottom:1px solid rgba(200,184,160,0.04);
-  transition:background 0.3s;
-}
-.list-item:hover{background:rgba(255,255,255,0.02)}
-.list-item .li-icon{font-size:1rem;width:1.5rem;text-align:center;flex-shrink:0}
-.list-item .li-body{flex:1}
-.list-item .li-title{font-size:0.8rem}
-.list-item .li-desc{font-size:0.6rem;color:rgba(200,184,160,0.35);margin-top:0.1rem}
+.hero .bottombar .scroll{ animation: bob 2.4s ease-in-out infinite;}
+@keyframes bob{ 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(4px);}}
 
-/* Mobile tweaks */
-#bgLabel{
-  position:fixed;top:8vh;left:50%;transform:translateX(-50%);
-  font-family:'Cormorant Garamond',serif;font-size:clamp(5rem,14vw,12rem);font-weight:300;font-style:italic;
-  color:rgba(200,184,160,0);white-space:nowrap;pointer-events:none;z-index:3;
-  transition:color 0.4s ease,letter-spacing 0.5s ease,text-shadow 0.4s ease;letter-spacing:0.02em;
-  text-shadow:0 0 60px rgba(212,168,83,0);
+/* ========== Theatrical pillar slabs ========== */
+.slab{
+  position: relative;
+  padding: 96px 24px 110px;
+  border-top: 1px solid var(--ink);
+  overflow: hidden;
 }
-#bgLabel.show{
-  color:rgba(200,184,160,0.32);letter-spacing:0.08em;
-  text-shadow:0 0 60px rgba(212,168,83,0.15), 0 0 200px rgba(212,168,83,0.06);
+.slab .glyph{
+  position:absolute;
+  font-family: var(--mincho); font-weight: 900;
+  font-size: clamp(240px, 44vw, 580px);
+  line-height: .8;
+  top: -40px;
+  pointer-events: none;
+  letter-spacing: -.08em;
+  user-select: none;
+  color: color-mix(in srgb, currentColor 16%, transparent);
+  z-index: 0;
 }
-@media(max-width:500px){
-  .core{width:110px;height:110px}
-  .core-avatar{width:110px;height:110px}
-  .core-glyph{font-size:2.2rem}
-  .satellite{width:52px;height:52px}
-  .sat-body{width:52px;height:52px;font-size:1.1rem}
-  .sat-body.moon{width:68px;height:68px}
-  .info-name{font-size:1.2rem}
+.slab .glyph.right{ right: -4vw;}
+.slab .glyph.left{ left: -4vw;}
+
+.slab .inner{
+  position: relative; z-index: 1;
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: start;
+}
+.slab .label{ font-family: var(--mono); font-size: 12px; letter-spacing: .22em; color: var(--sub); margin-bottom: 18px;}
+.slab h2{
+  font-family: var(--mincho); font-weight: 900;
+  font-size: clamp(52px, 8.5vw, 108px);
+  line-height: .95; letter-spacing: -.02em;
+  margin: 0 0 12px; color: var(--ink);
+}
+.slab h2 .tag{
+  display:inline-block;
+  font-size: .35em; vertical-align: 60%;
+  padding: .2em .6em;
+  margin-left: .4em;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  color: currentColor;
+  letter-spacing: .08em;
+  font-weight: 700;
+  transform: rotate(-2deg);
+}
+.slab .rom{ font-family: var(--mono); font-size: 12px; letter-spacing: .24em; color: var(--sub); text-transform: uppercase;}
+.slab .bubble{
+  position: relative;
+  background: var(--card);
+  border: 1.5px solid var(--ink);
+  border-radius: 20px;
+  padding: 22px 22px 20px;
+  font-family: var(--mincho); font-size: 20px; line-height: 1.7;
+  margin: 26px 0 24px;
+  max-width: 520px;
+}
+.slab .bubble::after{
+  content:"";
+  position: absolute; bottom: -12px; left: 48px;
+  width: 24px; height: 24px;
+  background: var(--card);
+  border-right: 1.5px solid var(--ink);
+  border-bottom: 1.5px solid var(--ink);
+  transform: rotate(45deg);
+}
+.slab .bubble em{ font-style: normal; background: linear-gradient(transparent 88%, color-mix(in srgb, currentColor 45%, transparent) 88%);}
+
+.slab ul{ list-style:none; padding:0; margin:0;}
+.slab ul li{ border-top: 1px solid var(--rule);}
+.slab ul li:last-child{ border-bottom: 1px solid var(--rule);}
+.slab ul li a{
+  display:grid; grid-template-columns: 48px 1fr auto; gap: 14px; align-items:baseline;
+  padding: 18px 4px; min-height: 56px;
+}
+.slab ul li .idx{ font-family: var(--mono); font-size: 12px; letter-spacing: .14em; color: var(--sub); padding-top: 4px;}
+.slab ul li .ti{ font-family: var(--mincho); font-weight: 700; font-size: 22px;}
+.slab ul li .ti small{ display:block; font-family: var(--sans); font-weight: 400; font-size: 15px; color: var(--sub); margin-top: 4px; line-height: 1.55;}
+.slab ul li .arr{ font-family: var(--mincho); font-weight: 900; font-size: 28px; color: var(--sub); transition: transform .2s, color .2s;}
+.slab ul li a:hover .arr{ color: currentColor; transform: translateX(6px);}
+.slab ul li a:hover .ti{ color: currentColor;}
+
+/* per-pillar colors */
+.s1{ color: var(--teal);}
+.s2{ color: var(--coral);}
+.s3{ color: var(--blue);}
+.s4{ color: var(--purple);}
+
+/* Footer slab */
+.footer{
+  padding: 100px 24px 140px;
+  border-top: 1px solid var(--ink);
+  background: var(--card);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.footer .vert{
+  position: absolute; top: 40px; bottom: 40px; right: 6vw;
+  writing-mode: vertical-rl;
+  font-family: var(--mincho); font-weight: 700; font-size: clamp(28px, 4vw, 44px); color: var(--sub);
+  letter-spacing: .3em;
+  opacity: .8;
+}
+.footer h3{
+  font-family: var(--mincho); font-weight: 900;
+  font-size: clamp(36px, 6vw, 72px); line-height: 1.15; letter-spacing: -.01em;
+  margin: 0 auto 22px; max-width: 920px;
+}
+.footer h3 .g{ background: linear-gradient(transparent 62%, color-mix(in srgb, var(--gold) 55%, transparent) 62%);}
+.footer .links{
+  display:flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 28px 0 10px;
+}
+.footer .links a{
+  display:inline-flex; align-items:center; gap:10px;
+  padding: 12px 18px; min-height: 48px;
+  border: 1.5px solid var(--ink); background: var(--bg); border-radius: 999px;
+  font-size: 14px; font-weight: 700; letter-spacing: .04em;
+  transition: transform .2s, background .2s;
+}
+.footer .links a:hover{ transform: translateY(-2px); background: var(--ink); color: var(--bg);}
+.footer .foot{
+  margin-top: 36px; font-family: var(--mono); font-size: 11px; color: var(--sub); letter-spacing: .16em;
+}
+
+/* BMC as a price tag (yellow — brand color) */
+.bmc{
+  display:flex; align-items:center; gap:10px;
+  min-height: 44px;
+  padding: 10px 22px 10px 44px;
+  background: #ffdd00;
+  color: #111;
+  font-family: var(--sans); font-weight: 700; font-size: 14px;
+  clip-path: polygon(0% 50%, 14% 0%, 100% 0%, 100% 100%, 14% 100%);
+  filter:
+    drop-shadow(1.6px 0 0 var(--ink))
+    drop-shadow(-1.6px 0 0 var(--ink))
+    drop-shadow(0 1.6px 0 var(--ink))
+    drop-shadow(0 -1.6px 0 var(--ink))
+    drop-shadow(2px 4px 4px rgba(0,0,0,.18));
+  position: relative;
+}
+/* credit badge as a price tag */
+.credit-badge{
+  display: inline-flex; align-items: baseline; gap: 8px;
+  padding: 9px 22px 9px 44px;
+  min-height: 44px;
+  background: var(--paper);
+  font-family: var(--mono); font-size: 10px; letter-spacing: .2em;
+  color: var(--sub);
+  clip-path: polygon(0% 50%, 14% 0%, 100% 0%, 100% 100%, 14% 100%);
+  filter:
+    drop-shadow(1.6px 0 0 var(--ink))
+    drop-shadow(-1.6px 0 0 var(--ink))
+    drop-shadow(0 1.6px 0 var(--ink))
+    drop-shadow(0 -1.6px 0 var(--ink))
+    drop-shadow(2px 4px 4px rgba(0,0,0,.14));
+  position: relative;
+}
+.credit-badge b{
+  font-family: var(--mincho); font-weight: 900;
+  font-size: 13px; letter-spacing: 0; color: var(--ink);
+}
+/* Tag grommet hole — center of the left pointy end */
+.credit-badge::before,
+.bmc::before{
+  content: "";
+  position: absolute;
+  left: 18px; top: 50%;
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  background: var(--ink);
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+.credit-badge::after,
+.bmc::after{
+  content: "";
+  position: absolute;
+  left: 18px; top: 50%;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--bg);
+  transform: translate(-50%, -50%);
+  z-index: 3;
+}
+.bmc::after{
+  background: #ffdd00;  /* match bmc yellow */
+}
+
+/* Tag wrapper + hanger string anchored at the grommet */
+.tag-wrap{
+  position: relative;
+  display: inline-block;
+  margin-top: 32px;  /* room for the hanger */
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.tag-wrap:nth-of-type(1){ transform: rotate(-3deg) translateZ(0);}
+.tag-wrap:nth-of-type(2){ transform: rotate(2deg) translateZ(0);}
+.tag-hanger{
+  /* SVG bottom-center sits ON the grommet */
+  position: absolute;
+  left: 22px;                     /* match grommet x (credit-badge::before left) */
+  top: 22px;                      /* match grommet y (min-height 44 / 2) */
+  width: 34px;
+  height: 34px;
+  transform: translate(-50%, -100%);
+  color: var(--ink);
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* ========== Ticker (credits strip, bottom) ========== */
+.ticker{
+  position: relative;
+  background: var(--ink); color: var(--bg);
+  overflow: hidden; white-space: nowrap;
+  font-family: var(--mono); font-size: 12px; letter-spacing: .22em;
+  border-top: 1px solid var(--ink);
+}
+.ticker .run{
+  display: inline-block; padding: 11px 0;
+  animation: run 44s linear infinite;
+}
+.ticker .run span{ padding: 0 22px;}
+.ticker .run .b{ color: var(--gold);}
+@keyframes run{ to{ transform: translateX(-50%);} }
+
+/* ========== Hero stamps (removed) ========== */
+
+/* ========== SIDE DOORS (どこでもドア風) ========== */
+.doors{
+  max-width: 720px; margin: 0 auto; padding: 90px 24px 110px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 44px;
+  border-top: 1px solid var(--ink);
+  perspective: 1800px;
+}
+.door-frame{
+  position: relative;
+  background: color-mix(in srgb, var(--ink) 10%, var(--bg));
+  border: 1.5px solid var(--ink);
+  border-radius: 12px 12px 2px 2px;
+  padding: 14px 14px 18px;
+  box-shadow: 6px 6px 0 var(--ink);
+  min-height: 560px;
+  transform-style: preserve-3d;
+}
+.door-frame::before{
+  /* door frame labels */
+  content: attr(data-label);
+  position: absolute; top: -14px; left: 18px;
+  background: var(--bg);
+  padding: 2px 10px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .22em;
+  color: var(--sub);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+}
+.door{
+  display: flex; flex-direction: column;
+  width: 100%; height: 100%; min-height: 524px;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 6px 6px 1px 1px;
+  padding: 32px 32px 28px;
+  position: relative;
+  cursor: pointer;
+  transform-origin: left center;
+  transform: perspective(1600px) rotateY(0deg);
+  transition: transform .55s cubic-bezier(.2,.8,.2,1), box-shadow .4s ease;
+}
+.door:hover{
+  transform: perspective(1600px) rotateY(-18deg);
+}
+.door::after{
+  /* door panel divider line (midway, for door-ness) */
+  content: "";
+  position: absolute;
+  left: 28px; right: 28px;
+  top: 56%;
+  height: 1px;
+  background: currentColor;
+  opacity: .14;
+}
+.door::before{
+  /* hinges on left edge */
+  content: "";
+  position: absolute; left: -4px; top: 60px; bottom: 60px;
+  width: 5px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--ink) 0 22px,
+    transparent 22px 80px,
+    var(--ink) 80px 102px,
+    transparent 102px 160px,
+    var(--ink) 160px 182px,
+    transparent 182px 240px
+  );
+  border-radius: 2px;
+}
+.door .knob{
+  position: absolute;
+  right: 22px; top: 50%;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #e8c37a, var(--gold) 60%, #8a5510);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 22%, transparent), 1px 2px 3px rgba(0,0,0,.25);
+  transform: translateY(-50%);
+}
+.door .lab{
+  font-family: var(--mono); font-size: 11px; letter-spacing: .22em; color: var(--sub);
+  margin-bottom: 14px;
+}
+.door h4{
+  font-family: var(--mincho); font-weight: 900;
+  font-size: clamp(24px, 3.2vw, 34px);
+  line-height: 1.15; letter-spacing: -.01em;
+  margin: 0 0 14px;
+}
+.door p{
+  margin: 0 0 auto; font-size: 15px; color: var(--sub);
+  max-width: 85%;
+}
+.door .go{
+  margin-top: 18px;
+  font-family: var(--mono); font-size: 12px; letter-spacing: .18em; color: var(--ink);
+  display:inline-flex; align-items:center; gap: 8px;
+  transition: transform .25s;
+}
+.door:hover .go{ transform: translateX(4px);}
+
+/* door 01 — coral trim (どこでもドア homage) */
+.door{
+  border-color: var(--coral);
+  box-shadow: inset 0 0 0 4px color-mix(in srgb, var(--coral) 18%, var(--paper));
+}
+
+/* door 02 — cosmos */
+.door.cosmos{
+  background:
+    radial-gradient(1.5px 1.5px at 20% 28%, #fff 1px, transparent 2px),
+    radial-gradient(1px 1px at 82% 62%, rgba(255,255,255,.7) 1px, transparent 2px),
+    radial-gradient(1.5px 1.5px at 50% 82%, #fff 1px, transparent 2px),
+    radial-gradient(1px 1px at 70% 18%, rgba(255,255,255,.6) 1px, transparent 2px),
+    radial-gradient(1px 1px at 30% 68%, rgba(255,255,255,.7) 1px, transparent 2px),
+    radial-gradient(1.2px 1.2px at 88% 34%, rgba(255,255,255,.8) 1px, transparent 2px),
+    radial-gradient(1px 1px at 12% 52%, rgba(255,255,255,.6) 1px, transparent 2px),
+    linear-gradient(170deg, #1c1c28 0%, #0f0f18 100%);
+  border-color: var(--purple);
+  box-shadow: inset 0 0 0 4px color-mix(in srgb, var(--purple) 28%, #0f0f18);
+  color: #e9e6dd;
+}
+.door.cosmos .lab{ color: color-mix(in srgb, #e9e6dd 55%, transparent);}
+.door.cosmos p{ color: color-mix(in srgb, #e9e6dd 72%, transparent);}
+.door.cosmos .go{ color: #e9e6dd;}
+
+/* ========== footer shout ========== */
+.footer h3{
+  font-family: var(--mincho); font-weight: 900;
+  font-size: clamp(30px, 5vw, 58px); line-height: 1.3; letter-spacing: -.01em;
+  margin: 0 auto 24px; max-width: 920px;
+}
+/* pocket h3 — UI/UX/WW と日本語のペア表示 */
+.footer h3.pocket{
+  display: block;
+  text-align: center;
+  font-weight: normal;
+  margin: 0 auto 36px;
+  max-width: none;
+}
+.footer h3.pocket .line{
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto 22px;
+  text-align: center;
+}
+.footer h3.pocket .ja{
+  display: block;
+  font-family: var(--mincho); font-weight: 900;
+  font-size: clamp(30px, 5.2vw, 58px);
+  letter-spacing: -.01em;
+  color: var(--ink);
+  line-height: 1.15;
+}
+.footer h3.pocket .en{
+  display: block;
+  font-family: var(--mono);
+  font-size: 12px; letter-spacing: .22em;
+  color: var(--sub);
+  font-weight: 400;
+  text-align: right;
+  margin-top: 8px;
+  padding-right: 0;
+}
+.footer h3.pocket .en b{
+  color: var(--gold);
+  font-weight: 700;
+  letter-spacing: .08em;
+  margin-right: 4px;
+}
+.footer h3 .line{ display: inline-block;}
+.footer .reveal{
+  font-family: var(--mincho); font-size: clamp(18px, 2.4vw, 26px);
+  color: var(--sub); margin: 0 auto 16px; max-width: 920px;
+}
+.footer .shout{
+  display: inline-block;
+  font-family: var(--mincho); font-weight: 900;
+  font-size: 1.35em;
+  color: var(--coral);
+  transform: rotate(-3deg);
+  padding: 0 .15em;
+  letter-spacing: .02em;
+}
+
+/* responsive */
+@media (max-width: 880px){
+  .slab{ padding: 72px 20px 80px;}
+  .slab .inner{ grid-template-columns: 1fr; gap: 24px;}
+  .slab .bubble{ max-width: none; font-size: 18px;}
+  .hero{ padding: 80px 18px 40px;}
+  .keyrow{ grid-template-columns: repeat(2, 1fr);}
+  .keyrow .k:nth-child(2){ border-right: 0;}
+  .keyrow .k:nth-child(-n+2){ border-bottom: 1px solid var(--rule);}
+  .slab ul li .ti{ font-size: 19px;}
+  .footer{ padding: 80px 20px 140px;}
+  .footer .vert{ display: none;}
+  body{ background-size: 36px 36px;}
+  .file-stack .file-card{ min-width: 138px; padding: 6px 10px;}
+  .file-stack .file-card .main{ font-size: 10px; letter-spacing: .18em;}
+  .file-stack .file-card .ruby{ font-size: 8px;}
+  .doors{ grid-template-columns: 1fr; padding: 56px 18px 70px; gap: 32px; max-width: 420px;}
+  .door-frame{ min-height: 460px;}
+  .door{ min-height: 430px;}
+  .door:hover{ transform: perspective(1600px) rotateY(-10deg);}
 }
 </style>
 </head>
 <body>
 
-<canvas id="stars"></canvas>
+<!-- ========== HERO ========== -->
+<section class="hero">
+  <div class="sig">OSAKENPIRO · 2026 · 玄関</div>
 
-<div class="scene" id="scene">
-  <div id="bgLabel"></div>
-  <!-- Core -->
-  <div class="core" id="core">
-    <div class="core-avatar">
-      <span class="core-glyph">空</span>
+  <div class="stage">
+    <div class="big" aria-label="全部がぼく">
+      <span class="rubi">zen — bu — ga — bo — ku</span>
+      <span class="piece boku">全部</span><span class="piece ga">が</span><span class="piece boku">ぼく</span><span class="dot"></span>
+    </div>
+    <div class="sub">
+      哲学・創作・実装を<em>分離しない</em>単一人格。
+    </div>
+
+    <div class="keyrow" aria-label="Visionium TRBP">
+      <a class="k t1" href="#tool"><span class="letter">T</span><span class="name">TOOL</span></a>
+      <a class="k t2" href="#redesign"><span class="letter">R</span><span class="name">REDESIGN</span></a>
+      <a class="k t3" href="#bookbug"><span class="letter">B</span><span class="name">BOOKBUG</span></a>
+      <a class="k t4" href="#postboy"><span class="letter">P</span><span class="name">POSTBOY</span></a>
     </div>
   </div>
-  <!-- Orbit rings (visual only) -->
-  <!-- Satellites injected by JS -->
-</div>
 
-<!-- Info Panel -->
-<div class="info-panel">
-  <div class="info-name">osakenpiro</div>
-  <div class="info-tagline">全部がぼく</div>
-  <div class="info-bio">哲学 · 漫画 · 小説 · コード · 音楽<br>AI×東アジア哲学 論文8本 · Kindle『パンダと哲学とAI』</div>
-  <div class="info-footer">the center is empty; the circulation constitutes existence</div>
-</div>
+  <div class="bottombar">
+    <span>VISIONIUM / 4 柱 / 0.0 → 1.0</span>
+    <span class="scroll">SCROLL ↓</span>
+    <span>ORCID 0009-0004-9167-3186</span>
+  </div>
+</section>
 
-<!-- Tooltip -->
-<div class="tooltip" id="tooltip">
-  <button class="tooltip-close" id="tooltip-close">✕</button>
-  <div class="tooltip-title" id="tt-title"></div>
-  <div class="tooltip-desc" id="tt-desc"></div>
-  <a class="tooltip-link" id="tt-link" href="#" target="_blank" rel="noopener">開く →</a>
-</div>
-
-<!-- List View -->
-<div class="list-view" id="listView"></div>
-
-<script>
-// === SATELLITE DATA ===
-const SATELLITES = [
-  // Inner orbit — 読む (organic planets)
-  {id:'note',icon:'📝',title:'note',desc:'エッセイ・連載・地面の言葉',url:'https://note.com/osakenpiro',type:'organic',orbit:1,speed:0.4},
-  {id:'panda',icon:'📕',title:'パンダと哲学とAI',desc:'Kindle ¥980 / KU無料 / ペーパーバック ¥1,480',url:'#',type:'organic',orbit:1,speed:0.35},
-  {id:'kakuyomu',icon:'📖',title:'星は知らない',desc:'カクヨム — 8編構成SF長編',url:'https://kakuyomu.jp/users/osakenpiro',type:'organic',orbit:1,speed:0.45},
-  {id:'jikoshoukai',icon:'🧬',title:'じこしょうかい',desc:'全17巻85キャラ完結 — 絵本シリーズ',url:'https://osakenpiro.github.io/jikoshoukai/',type:'organic',orbit:1,speed:0.38},
-  {id:'negai',icon:'⭐',title:'願い片道きっぷ',desc:'届かないかもしれない想いを、夜空に。',url:'https://osakenpiro.github.io/negai-kippu/',type:'organic',orbit:1,speed:0.42},
-  {id:'materials',icon:'📘',title:'人類の素材図鑑',desc:'11章の物語 + 15セクションの図鑑 — Boolean→Float',url:'https://osakenpiro.github.io/materials-of-civilization/',type:'organic',orbit:1,speed:0.5},
-  {id:'ningen',icon:'🃏',title:'人間図鑑',desc:'人間観察カードゲーム — 4編37枚',url:'https://osakenpiro.github.io/ningen-zukan/',type:'organic',orbit:1,speed:0.47},
-  
-  // Middle orbit — 学問 + 月
-  {id:'zenodo',icon:'🔬',title:'論文 8本',desc:'Zenodo プレプリント・DOI付き',url:'https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Osada%2C%20Kenshiro%22',type:'mechanical',orbit:2,speed:0.25},
-  {id:'moon',icon:'🌙',title:'月',desc:'全ツール一覧 — 可視化・哲学・ユーティリティ',url:'https://osakenpiro.github.io/moon/',type:'moon',orbit:2,speed:0.12},
-  {id:'mission',icon:'🛰',title:'Mission Control',desc:'全チャット共有タスクボード',url:'https://www.notion.so/Mission-Control-Claude-3282b7e543e0815db7c0d5afdae9ae76',type:'mechanical',orbit:2,speed:0.22},
-  {id:'orcid',icon:'🆔',title:'ORCID',desc:'0009-0004-9167-3186',url:'https://orcid.org/0009-0004-9167-3186',type:'mechanical',orbit:2,speed:0.28},
-
-  // Outer orbit — 観る + 聴く + つながる
-  {id:'x',icon:'𝕏',title:'X',desc:'日常哲学 / 論文告知',url:'https://twitter.com/kenpiro7',type:'mechanical',orbit:3,speed:0.18},
-  {id:'tiktok',icon:'▶',title:'TikTok',desc:'30秒哲学 / PEACE PIECE',url:'https://www.tiktok.com/@panio54',type:'mechanical',orbit:3,speed:0.22},
-  {id:'ig',icon:'◻',title:'Instagram',desc:'Reels / カルーセル',url:'https://www.instagram.com/osakenpiro/',type:'mechanical',orbit:3,speed:0.15},
-  {id:'yt',icon:'△',title:'YouTube',desc:'SATORI / 総集編',url:'https://www.youtube.com/channel/UCdvMT7OAZQuWBln8D3GrFBQ',type:'mechanical',orbit:3,speed:0.2},
-  {id:'pixiv',icon:'✦',title:'pixiv',desc:'PEACE PIECE まとめ読み',url:'https://www.pixiv.net/users/11085694',type:'organic',orbit:3,speed:0.17},
-  {id:'spotify',icon:'♪',title:'Spotify',desc:'オリジナル作詞',url:'https://open.spotify.com/intl-ja/artist/6QtgEcJeDSxhatNDzxGm8v',type:'mechanical',orbit:3,speed:0.23},
-  {id:'booth',icon:'🏪',title:'BOOTH',desc:'アイコン・素材',url:'https://osakenpiro.booth.pm/',type:'mechanical',orbit:3,speed:0.19},
-];
-
-// Orbit radii
-const isMobile = window.innerWidth < 500;
-const RADII = isMobile ? [100, 170, 250] : [160, 260, 370];
-const TILT = 0.35; // orbital tilt (0 = flat, 1 = edge-on)
-
-// === STARFIELD ===
-const canvas = document.getElementById('stars');
-const ctx = canvas.getContext('2d');
-let starList = [];
-
-function initStars(){
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  starList = [];
-  for(let i=0;i<120;i++){
-    starList.push({
-      x:Math.random()*canvas.width,
-      y:Math.random()*canvas.height,
-      r:Math.random()*1.2+0.3,
-      phase:Math.random()*Math.PI*2,
-      speed:0.3+Math.random()*0.8
-    });
-  }
-}
-
-function drawStars(t){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  for(const s of starList){
-    const a = 0.15 + 0.35 * Math.sin(s.phase + t*0.001*s.speed);
-    ctx.beginPath();
-    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-    ctx.fillStyle=`rgba(200,190,170,${a})`;
-    ctx.fill();
-  }
-}
-
-// === CREATE SATELLITE ELEMENTS ===
-const scene = document.getElementById('scene');
-const satEls = [];
-
-// Orbit rings
-for(let i=0;i<3;i++){
-  const ring = document.createElement('div');
-  ring.className='orbit-ring';
-  const r = RADII[i];
-  ring.style.width = r*2+'px';
-  ring.style.height = r*2*TILT+'px';
-  scene.appendChild(ring);
-}
-
-// Satellite elements
-SATELLITES.forEach((sat,i) => {
-  const el = document.createElement('div');
-  el.className='satellite';
-  el.dataset.idx = i;
-  el.innerHTML = `
-    <div class="sat-body ${sat.type}">
-      <span>${sat.icon}</span>
+<!-- ========== T ========== -->
+<section class="slab s1" id="tool">
+  <div class="glyph right">工</div>
+  <div class="inner">
+    <div>
+      <div class="label">PILLAR 01 · T</div>
+      <h2>🛠️ Hi-Me TooL<span class="tag">秘め道具</span></h2>
+      <div class="rom">HIMITSU × TOOL — ひみつーる</div>
+      <div class="bubble">
+        第0原則——<em>「パソコン越しに触れるひみつ道具」</em>。二値の判断を 0.0〜1.0 の連続値に再定義する小道具群。
+      </div>
     </div>
-    <div class="sat-label">
-      ${sat.title}
-      <div class="sat-sublabel">${sat.type==='organic'?'●':sat.type==='moon'?'☽':'◆'}</div>
+    <ul>
+      <li><a href="/wakkazukan/"><span class="idx">#01</span><span class="ti">分類わっか<small>わっかずかん — 同心円でカテゴリを並べる視覚分類器</small></span><span class="arr">→</span></a></li>
+      <li><a href="/materials-of-civilization/"><span class="idx">#05</span><span class="ti">素材の標本箱<small>素材図鑑 — 文明を素材の系譜として並べる</small></span><span class="arr">→</span></a></li>
+      <li><a href="/vr-akinator/"><span class="idx">🧙</span><span class="ti">VR Akinator<small>分類法のメタ分類(双子構造の片割れ)</small></span><span class="arr">→</span></a></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========== R ========== -->
+<section class="slab s2" id="redesign">
+  <div class="glyph left">再</div>
+  <div class="inner">
+    <div>
+      <div class="label">PILLAR 02 · R</div>
+      <h2>🎨 Re:DeSign<span class="tag">系譜</span></h2>
+      <div class="rom">RE — DESIGN</div>
+      <div class="bubble">
+        デザインを良し悪しではなく<em>系譜</em>で捉え直す。Hi-Me TooL の双子として置かれる、デザインのメタカタログ。
+      </div>
     </div>
-  `;
-  scene.appendChild(el);
-  satEls.push(el);
+    <ul>
+      <li><a href="/re-design/genealogy/"><span class="idx">🗂️</span><span class="ti">デザイン系譜DB<small>9系統 → 拡張中。この柱の核。</small></span><span class="arr">→</span></a></li>
+      <li><a href="/v2/"><span class="idx">📚</span><span class="ti">LP v2 集約版<small>向こう側にある詳細版の一枚</small></span><span class="arr">→</span></a></li>
+      <li><a href="/re-design/queue-dashboard.html"><span class="idx">🔁</span><span class="ti">Queue Dashboard<small>見直し待ちの案件、優先度と放置年数</small></span><span class="arr">→</span></a></li>
+    </ul>
+  </div>
+</section>
 
-  // Click handler
-  el.addEventListener('click', (e) => {
-    e.stopPropagation();
-    showTooltip(sat, el);
-  });
-  // Hover: show big background label + constellation
-  el.addEventListener('mouseenter', () => {
-    const bgLabel = document.getElementById('bgLabel');
-    bgLabel.textContent = sat.title;
-    bgLabel.classList.add('show');
-    showConstellation(sat.title);
-  });
-  el.addEventListener('mouseleave', () => {
-    const bgLabel = document.getElementById('bgLabel');
-    bgLabel.classList.remove('show');
-    hideConstellation();
-  });
-});
+<!-- ========== B ========== -->
+<section class="slab s3" id="bookbug">
+  <div class="glyph right">読</div>
+  <div class="inner">
+    <div>
+      <div class="label">PILLAR 03 · B</div>
+      <h2>📚 BookBug<span class="tag">読む</span></h2>
+      <div class="rom">BOOK + BUG</div>
+      <div class="bubble">
+        長文を読みたい人のための区画。<em>論文・読み物版図鑑・note</em>。虫は本の愛好家の別名。
+      </div>
+    </div>
+    <ul>
+      <li><a href="/materials-of-civilization/"><span class="idx">📘</span><span class="ti">素材図鑑 読み物版<small>ツールと同じ素材を、長尺エッセイで読み抜ける</small></span><span class="arr">→</span></a></li>
+      <li><a href="https://zenodo.org/communities/visionium"><span class="idx">📄</span><span class="ti">Visionium 論文群<small>9本 · ORCID / Zenodo</small></span><span class="arr">→</span></a></li>
+      <li><a href="https://note.com/osakenpiro"><span class="idx">✎</span><span class="ti">note 記事<small>論文になる前の断片、思索の中間生成物</small></span><span class="arr">→</span></a></li>
+    </ul>
+  </div>
+</section>
 
-// Evenly distribute initial angles per orbit
-const orbitCounts = [0,0,0];
-const orbitAngles = SATELLITES.map(s => {
-  const oi = s.orbit - 1;
-  const count = SATELLITES.filter(x=>x.orbit===s.orbit).length;
-  const idx = orbitCounts[oi]++;
-  return (idx / count) * Math.PI * 2;
-});
+<!-- ========== P ========== -->
+<section class="slab s4" id="postboy">
+  <div class="glyph left">届</div>
+  <div class="inner">
+    <div>
+      <div class="label">PILLAR 04 · P</div>
+      <h2>📮 Postboy<span class="tag">届ける</span></h2>
+      <div class="rom">POST + BOY</div>
+      <div class="bubble">
+        Visionium の中で、ここだけが<em>外に出ていく係</em>。広報の小僧として、郵便を運ぶ。
+      </div>
+    </div>
+    <ul>
+      <li><a href="https://twitter.com/osakenpiro"><span class="idx">𝕏</span><span class="ti">X<small>@osakenpiro — 開発ログ・引用・思索のスナップショット</small></span><span class="arr">→</span></a></li>
+      <li><a href="https://www.tiktok.com/@panio54"><span class="idx">♪</span><span class="ti">TikTok<small>@panio54 — 口語のほうの osakenpiro</small></span><span class="arr">→</span></a></li>
+      <li><a href="https://note.com/osakenpiro"><span class="idx">✎</span><span class="ti">note<small>note.com/osakenpiro</small></span><span class="arr">→</span></a></li>
+      <li><a href="https://www.amazon.co.jp/"><span class="idx">📕</span><span class="ti">KDP 書籍<small>『パンダと哲学とAI』</small></span><span class="arr">→</span></a></li>
+    </ul>
+  </div>
+</section>
 
-// === ANIMATION LOOP ===
-let time = 0;
-let paused = false;
+<!-- ========== SIDE DOORS (どこでもドア風) ========== -->
+<section class="doors">
+  <div class="door-frame" data-label="SIDE DOOR · 01">
+    <a class="door" href="/v2/">
+      <span class="knob" aria-hidden="true"></span>
+      <div class="lab">OSAKENPIRO · V2</div>
+      <h4>Re:DeSign</h4>
+      <p>デザインを系譜で捉え直す、集約ダッシュボード。長尺・全索引の一枚。</p>
+      <span class="go">osakenpiro.github.io/v2/ →</span>
+    </a>
+  </div>
+  <div class="door-frame" data-label="SIDE DOOR · 02">
+    <a class="door cosmos" href="/cosmos/">
+      <span class="knob" aria-hidden="true"></span>
+      <div class="lab">OSAKENPIRO · COSMOS</div>
+      <h4>もう一つの顔<br>/cosmos/</h4>
+      <p>黒背景・星屑・軌道。スペシャル体験としての惑星ビュー。</p>
+      <span class="go">osakenpiro.github.io/cosmos/ →</span>
+    </a>
+  </div>
+</section>
 
-function animate(ts){
-  if(!paused) time = ts;
-  drawStars(time);
+<!-- ========== Ticker (credits strip) ========== -->
+<div class="ticker" aria-hidden="true">
+  <div class="run">
+    <span><b class="b">VISIONIUM ·</b> TRBP 4柱 / Tool · Redesign · BookBug · Postboy</span>
+    <span><b class="b">UI =</b> Ubiquitous isolation <b class="b">· UX =</b> Unique Exchange <b class="b">· WW =</b> World Word</span>
+    <span><b class="b">HI-ME TOOL ·</b> ひみつーる / Origin ポケットDs · タイポマシン / フロシキ / ビックライト</span>
+    <span><b class="b">原則 ·</b> Boolean → Float · 腐葉土設計 · 三重がけ命名</span>
+    <span><b class="b">INDEX ·</b> 論文 9 · ツール 8 · 絵本 17 · KDP 1 · ORCID 0009-0004-9167-3186</span>
+    <span><b class="b">VISIONIUM ·</b> TRBP 4柱 / Tool · Redesign · BookBug · Postboy</span>
+    <span><b class="b">UI =</b> Ubiquitous isolation <b class="b">· UX =</b> Unique Exchange <b class="b">· WW =</b> World Word</span>
+    <span><b class="b">HI-ME TOOL ·</b> ひみつーる / Origin ポケットDs · タイポマシン / フロシキ / ビックライト</span>
+    <span><b class="b">原則 ·</b> Boolean → Float · 腐葉土設計 · 三重がけ命名</span>
+    <span><b class="b">INDEX ·</b> 論文 9 · ツール 8 · 絵本 17 · KDP 1 · ORCID 0009-0004-9167-3186</span>
+  </div>
+</div>
 
-  const cx = window.innerWidth / 2;
-  const cy = window.innerHeight / 2 - 30;
+<!-- ========== FOOTER ========== -->
+<footer class="footer">
+  <div class="vert">全人類UX改善計画</div>
+  <h3 class="pocket">
+    <span class="line">
+      <span class="ja">どこでもミライに、</span>
+      <span class="en"><b>UI</b> · Ubiquitous isolation</span>
+    </span>
+    <span class="line">
+      <span class="ja">いつでも子どもに、</span>
+      <span class="en"><b>UX</b> · Unique Exchange</span>
+    </span>
+    <span class="line">
+      <span class="ja">できたらいいなをポケットに。</span>
+      <span class="en"><b>WW</b> · World Word</span>
+    </span>
+  </h3>
+  <p class="reveal">だれもが世界にいられるような UI が　<span class="shout">「でた！！！」</span></p>
+  <div class="foot">© osakenpiro · Visionium — the center is empty · the circulation constitutes existence</div>
+</footer>
 
-  SATELLITES.forEach((sat, i) => {
-    const r = RADII[sat.orbit - 1];
-    const angle = orbitAngles[i] + time * 0.001 * sat.speed * 0.3;
-    
-    const x = cx + Math.cos(angle) * r;
-    const y = cy + Math.sin(angle) * r * TILT;
-    const z = Math.sin(angle); // -1 to 1, for depth
-
-    const el = satEls[i];
-    el.style.left = x + 'px';
-    el.style.top = y + 'px';
-    
-    // Depth: scale and opacity
-    const scale = 0.7 + 0.3 * (z + 1) / 2; // 0.7 to 1.0
-    const opacity = 0.5 + 0.5 * (z + 1) / 2; // 0.5 to 1.0
-    el.style.transform = `translate(-50%,-50%) scale(${scale})`;
-    el.style.opacity = opacity;
-    el.style.zIndex = Math.round(z * 10) + 10;
-  });
-
-  requestAnimationFrame(animate);
-}
-
-// === TOOLTIP ===
-const tooltip = document.getElementById('tooltip');
-const ttTitle = document.getElementById('tt-title');
-const ttDesc = document.getElementById('tt-desc');
-const ttLink = document.getElementById('tt-link');
-
-function showTooltip(sat, el){
-  ttTitle.textContent = sat.title;
-  ttDesc.textContent = sat.desc;
-  ttLink.href = sat.url;
-  
-  const rect = el.getBoundingClientRect();
-  let tx = rect.left + rect.width/2;
-  let ty = rect.top - 10;
-  
-  // Position above satellite, clamped to viewport
-  tooltip.style.left = Math.min(Math.max(tx - 130, 10), window.innerWidth - 270) + 'px';
-  tooltip.style.top = Math.max(ty - 120, 10) + 'px';
-  
-  tooltip.classList.add('active');
-}
-
-document.getElementById('tooltip-close').addEventListener('click', () => {
-  tooltip.classList.remove('active');
-});
-
-document.addEventListener('click', (e) => {
-  if(!e.target.closest('.satellite') && !e.target.closest('.tooltip')){
-    tooltip.classList.remove('active');
-  }
-});
-
-// === CORE CLICK → LIST VIEW ===
-const core = document.getElementById('core');
-const listView = document.getElementById('listView');
-
-function buildListView(){
-  const sections = {
-    '読む — Read': SATELLITES.filter(s=>['note','panda','kakuyomu','jikoshoukai'].includes(s.id)),
-    '論文 — Papers': SATELLITES.filter(s=>['zenodo','orcid'].includes(s.id)),
-    '観る — Watch': SATELLITES.filter(s=>['tiktok','ig','yt','pixiv'].includes(s.id)),
-    '触る — Interact': SATELLITES.filter(s=>['satori','tools','materials','booth'].includes(s.id)),
-    '聴く — Listen': SATELLITES.filter(s=>['spotify'].includes(s.id)),
-    'つながる — Connect': SATELLITES.filter(s=>['x'].includes(s.id)),
-  };
-
-  let html = `<div class="list-back"><button id="listBack">⟵ 惑星に戻る</button></div>`;
-  
-  for(const[title, items] of Object.entries(sections)){
-    if(!items.length) continue;
-    html += `<div class="list-section"><div class="list-section-title">${title}</div>`;
-    for(const s of items){
-      html += `<a class="list-item" href="${s.url}" target="_blank" rel="noopener">
-        <span class="li-icon">${s.icon}</span>
-        <div class="li-body">
-          <div class="li-title">${s.title}</div>
-          <div class="li-desc">${s.desc}</div>
-        </div>
-      </a>`;
-    }
-    html += `</div>`;
-  }
-  
-  html += `<div style="text-align:center;padding:2rem 0;font-size:0.55rem;color:var(--dim);font-style:italic;font-family:'Cormorant Garamond',serif">
-    the center is empty; the circulation constitutes existence
-    <br><a href="mailto:kenpikenpi64@gmail.com" style="color:var(--dim);text-decoration:none">contact</a>
-  </div>`;
-  
-  listView.innerHTML = html;
-  
-  document.getElementById('listBack').addEventListener('click', () => {
-    listView.classList.remove('active');
-  });
-}
-
-core.addEventListener('click', () => {
-  buildListView();
-  listView.classList.add('active');
-});
-
-// === CONSTELLATION EFFECT (preset patterns, no RNG bugs) ===
-let constellationEl = null;
-
-// 12 preset constellation patterns — normalized coords (0-1 range)
-// Each pattern spans roughly 0.1-0.9 horizontally, 0.15-0.85 vertically within the text zone
-const PATTERNS = [
-  // 0: Cassiopeia W
-  [[.12,.3],[.25,.7],[.4,.25],[.55,.75],[.7,.2],[.82,.55],[.38,.52],[.6,.4]],
-  // 1: Orion-like
-  [[.15,.5],[.25,.3],[.35,.2],[.5,.15],[.65,.2],[.75,.3],[.85,.5],[.5,.5],[.5,.75],[.4,.9],[.6,.9],[.3,.65],[.7,.65]],
-  // 2: Big Dipper
-  [[.1,.4],[.2,.35],[.32,.3],[.42,.35],[.42,.55],[.55,.6],[.68,.55],[.78,.4],[.88,.5]],
-  // 3: Lyra
-  [[.15,.45],[.3,.2],[.5,.1],[.7,.2],[.85,.45],[.5,.55],[.35,.7],[.65,.7],[.5,.85],[.4,.4],[.6,.4]],
-  // 4: Crown
-  [[.1,.6],[.22,.35],[.35,.2],[.5,.15],[.65,.2],[.78,.35],[.9,.6],[.3,.5],[.5,.4],[.7,.5]],
-  // 5: Scorpius tail
-  [[.08,.3],[.18,.45],[.28,.5],[.38,.45],[.48,.35],[.58,.3],[.68,.35],[.78,.5],[.88,.6],[.92,.75],[.5,.55]],
-  // 6: Diamond
-  [[.15,.5],[.35,.15],[.5,.5],[.65,.15],[.85,.5],[.65,.85],[.35,.85],[.5,.25],[.5,.75],[.3,.4],[.7,.4]],
-  // 7: Zigzag
-  [[.08,.3],[.2,.7],[.32,.25],[.44,.65],[.56,.2],[.68,.7],[.8,.3],[.92,.65],[.14,.5],[.5,.45],[.74,.5]],
-  // 8: Arc
-  [[.1,.7],[.2,.45],[.3,.28],[.42,.18],[.55,.15],[.68,.18],[.78,.28],[.87,.45],[.93,.7],[.5,.4],[.35,.55],[.65,.55]],
-  // 9: Scattered cross
-  [[.5,.1],[.5,.35],[.5,.6],[.5,.85],[.15,.45],[.35,.45],[.65,.45],[.85,.45],[.3,.25],[.7,.25],[.3,.7],[.7,.7]],
-  // 10: Fish
-  [[.1,.5],[.25,.3],[.4,.25],[.55,.3],[.65,.45],[.75,.35],[.9,.5],[.75,.65],[.55,.7],[.4,.75],[.25,.7],[.5,.5]],
-  // 11: Spiral-ish
-  [[.5,.15],[.65,.25],[.75,.45],[.7,.65],[.55,.75],[.35,.7],[.25,.5],[.3,.3],[.45,.25],[.55,.35],[.5,.5],[.85,.3],[.15,.6]],
-];
-
-function titleHash(str) {
-  let h = 0;
-  for (let i = 0; i < str.length; i++) h = ((h * 31) + str.charCodeAt(i)) & 0xffff;
-  return h;
-}
-
-function buildConstellationSVG(title) {
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-  const pattern = PATTERNS[titleHash(title) % PATTERNS.length];
-
-  // Map normalized coords to screen: text zone is top 5%-25% of screen, 5%-95% width
-  const zoneX = w * 0.05, zoneW = w * 0.9;
-  const zoneY = h * 0.03, zoneH = h * 0.22;
-
-  const stars = pattern.map(([nx, ny]) => ({
-    x: zoneX + nx * zoneW,
-    y: zoneY + ny * zoneH,
-  }));
-
-  let lines = '';
-  let dots = '';
-
-  // Connect sequential neighbors (chain)
-  for (let i = 0; i < stars.length - 1; i++) {
-    const s1 = stars[i], s2 = stars[i+1];
-    lines += `<line x1="${s1.x}" y1="${s1.y}" x2="${s2.x}" y2="${s2.y}" stroke="rgba(200,184,160,0.2)" stroke-width="0.7"/>`;
-  }
-  // Close the loop for some density
-  const last = stars[stars.length-1], first = stars[0];
-  lines += `<line x1="${last.x}" y1="${last.y}" x2="${first.x}" y2="${first.y}" stroke="rgba(200,184,160,0.1)" stroke-width="0.5"/>`;
-
-  // A few cross-connections for web density
-  for (let i = 0; i < stars.length; i++) {
-    const j = (i + 3) % stars.length;
-    const s1 = stars[i], s2 = stars[j];
-    const dist = Math.hypot(s1.x-s2.x, s1.y-s2.y);
-    if (dist < w * 0.3) {
-      lines += `<line x1="${s1.x}" y1="${s1.y}" x2="${s2.x}" y2="${s2.y}" stroke="rgba(200,184,160,0.1)" stroke-width="0.4"/>`;
-    }
-  }
-
-  // Star dots
-  stars.forEach(s => {
-    dots += `<circle cx="${s.x}" cy="${s.y}" r="4" fill="rgba(212,168,83,0.12)"/>`;
-    dots += `<circle cx="${s.x}" cy="${s.y}" r="1.5" fill="rgba(230,210,180,0.7)"/>`;
-  });
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" style="position:fixed;top:0;left:0;pointer-events:none;z-index:2;">${lines}${dots}</svg>`;
-}
-
-function showConstellation(title) {
-  hideConstellation();
-  const el = document.createElement('div');
-  el.id = 'constellationWrap';
-  el.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2;opacity:0;transition:opacity 0.4s ease;';
-  el.innerHTML = buildConstellationSVG(title);
-  document.body.appendChild(el);
-  constellationEl = el;
-  requestAnimationFrame(() => { el.style.opacity = '1'; });
-}
-
-function hideConstellation() {
-  if (constellationEl) {
-    constellationEl.style.opacity = '0';
-    const old = constellationEl;
-    constellationEl = null;
-    setTimeout(() => { if (old.parentNode) old.parentNode.removeChild(old); }, 500);
-  }
-}
-
-// === INIT ===
-initStars();
-window.addEventListener('resize', () => {
-  initStars();
-});
-requestAnimationFrame(animate);
-</script>
-<!-- osakenpiro support button v1 -->
-<style>
-  .osk-support-btn {
-    position: fixed;
-    bottom: 16px;
-    right: 16px;
-    background: linear-gradient(135deg, #FFDD00 0%, #FFC700 100%);
-    color: #1a1a1a;
-    padding: 10px 16px;
-    border-radius: 999px;
-    text-decoration: none;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
-    z-index: 99999;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .osk-support-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-  }
-  @media (max-width: 480px) {
-    .osk-support-btn { font-size: 12px; padding: 8px 12px; }
-  }
-</style>
-<a href="https://www.buymeacoffee.com/osakenpiro"
-   target="_blank"
-   rel="noopener noreferrer"
-   class="osk-support-btn"
-   aria-label="osakenpiroを応援する">
-  ☕ <span>応援</span>
-</a>
-<!-- /osakenpiro support button -->
+<!-- ========== POCKET CLUSTER (right-bottom, 1 button → expands) ========== -->
+<div class="pocket-cluster">
+  <div class="pocket-contents" aria-label="Quick links">
+    <nav class="file-stack" aria-label="Pages">
+      <a class="file-card" href="/cosmos/">
+        <span class="ruby">cosmos</span>
+        <span class="main">FILE · 003 · 惑星</span>
+      </a>
+      <a class="file-card" href="/v2/">
+        <span class="ruby">redesign</span>
+        <span class="main">FILE · 002 · デザイン</span>
+      </a>
+      <a class="file-card active" href="#" aria-current="page">
+        <span class="ruby">entrance</span>
+        <span class="main">FILE · 001 · 玄関</span>
+      </a>
+    </nav>
+    <div class="tag-wrap">
+      <svg class="tag-hanger" viewBox="0 0 34 34" aria-hidden="true">
+        <path d="M 17 34 C 17 24, 5 22, 5 12 C 5 4, 14 3, 14 10 C 14 17, 26 16, 26 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="credit-badge" aria-label="brand">
+        <b>osakenpiro</b><span>Visionium · 2026</span>
+      </div>
+    </div>
+    <div class="tag-wrap">
+      <svg class="tag-hanger" viewBox="0 0 34 34" aria-hidden="true">
+        <path d="M 17 34 C 17 24, 5 22, 5 12 C 5 4, 14 3, 14 10 C 14 17, 26 16, 26 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <a class="bmc" href="https://www.buymeacoffee.com/osakenpiro" aria-label="Buy me a coffee">
+        <span>☕</span><span>Support</span>
+      </a>
+    </div>
+  </div>
+  <button class="pocket-btn" type="button" aria-label="ポケットを開く">
+    <svg viewBox="0 0 48 48" width="26" height="26" aria-hidden="true">
+      <path d="M 6 14 L 6 28 Q 6 38 24 38 Q 42 38 42 28 L 42 14 Z" fill="currentColor"/>
+      <path d="M 4 14 L 44 14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <circle cx="16" cy="24" r="1.4" fill="var(--bg)" opacity=".8"/>
+      <circle cx="24" cy="28" r="1.3" fill="var(--bg)" opacity=".7"/>
+      <circle cx="32" cy="23" r="1.4" fill="var(--bg)" opacity=".8"/>
+    </svg>
+    <span class="pocket-label">ポケット</span>
+  </button>
+</div>
 
 </body>
 </html>
-
-
