@@ -3,392 +3,571 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>osakenpiro — 全部がぼく</title>
+<title>osakenpiro — 机の上に、全部ある</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#faf9f6;
-  --paper:#f6f3ea;
-  --card:#f2f0eb;
-  --ink:#2c2c2a;
-  --sub:#5f5e5a;
-  --rule:#d9d6cc;
-  --soft:#e7e4dc;
-  --purple:#534AB7;
-  --teal:#1D9E75;
-  --coral:#D85A30;
-  --blue:#3266ad;
-  --gold:#BA7517;
+  --cream:#faf9f6;
+  --cream-2:#f4f1e8;
+  --cream-3:#ece7d8;
+  --desk:#e8dfc7;          /* 机の天板 */
+  --desk-dark:#d6c8a3;
+  --ink:#2c2a26;
+  --ink-soft:#4a4640;
+  --sub:#6b665d;
+  --rule:#cfc9b8;
+  --soft:#e2ddce;
+  --gold:#d4a574;          /* アクセント */
+  --coral:#ff6b6b;         /* 強調 */
+  --postit-y:#f5e17a;
+  --postit-p:#f2aec4;
+  --postit-b:#a7d8e6;
+  --postit-g:#bde2a8;
+  --paper:#fdfcf7;
+  --paper-edge:#ded7c1;
+  --shadow-soft: 0 1px 2px rgba(60,50,30,.08), 0 6px 12px rgba(60,50,30,.06);
+  --shadow-lift: 0 4px 8px rgba(60,50,30,.15), 0 18px 36px rgba(60,50,30,.12);
   --mincho:"Zen Old Mincho", "Noto Serif JP", serif;
-  --sans:"Noto Sans JP", "DM Sans", system-ui, sans-serif;
-  --mono:"DM Sans", ui-monospace, monospace;
+  --sans:"Noto Sans JP", system-ui, sans-serif;
+  --mono:"DM Mono", ui-monospace, monospace;
 }
-@media (prefers-color-scheme: dark){
-  :root{ --bg:#1c1b18; --paper:#201f1b; --card:#25241f; --ink:#e9e6dd; --sub:#a8a49a; --rule:#3a382f; --soft:#2e2d27;
-    --purple:#8f87ea; --teal:#4fcfa1; --coral:#f0825d; --blue:#7eaee6; --gold:#e2b35a; }
+
+/* 紙テクスチャ (SVGフィルタで軽くノイズ) */
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{ animation: none !important; transition: none !important;}
 }
+
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
-html{ scroll-behavior: smooth;}
 body{
   font-family: var(--sans);
-  font-size: 18px;
+  font-size: 17px;
   line-height: 1.7;
   color: var(--ink);
-  background: var(--bg);
-  background-image:
-    linear-gradient(to right, color-mix(in srgb, var(--ink) 3%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in srgb, var(--ink) 3%, transparent) 1px, transparent 1px);
-  background-size: 48px 48px;
-  background-position: 0 0;
+  background: var(--cream);
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "palt";
   overflow-x: hidden;
 }
 a{color:inherit; text-decoration:none}
-::selection{ background: var(--gold); color: var(--bg);}
+::selection{ background: var(--gold); color: var(--cream);}
 
-/* (chrome removed — pages nav lives in the bottom-right file-stack) */
-
-/* ========== FILE-CARD (styles, positioned inside pocket) ========== */
-.file-stack{
-  display: flex; flex-direction: column; gap: 8px;
-  align-items: stretch;
-}
-.file-stack .file-card{
-  display: block;
-  background: var(--bg);
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  padding: 7px 14px 8px;
-  font-family: var(--mono);
-  letter-spacing: .22em;
-  color: var(--sub);
-  min-width: 168px;
-  text-align: left;
-  box-shadow: 2px 2px 0 color-mix(in srgb, var(--ink) 60%, transparent);
-  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, color .25s ease;
-}
-/* 003 — cosmos / purple (top, HTML first) */
-.file-stack .file-card:nth-child(1){
-  background: color-mix(in srgb, var(--purple) 11%, var(--bg));
-}
-/* 002 — dashboard / teal */
-.file-stack .file-card:nth-child(2){
-  background: color-mix(in srgb, var(--teal) 11%, var(--bg));
-}
-/* 001 — entrance / coral (bottom, active) */
-.file-stack .file-card:nth-child(3){
-  background: color-mix(in srgb, var(--coral) 12%, var(--bg));
-  border-color: var(--coral);
-}
-.file-stack .file-card .ruby{
-  display: block;
-  font-size: 9px; letter-spacing: .18em;
-  color: var(--sub); opacity: .75;
-  text-transform: lowercase;
-  margin-bottom: 2px;
-}
-.file-stack .file-card .main{
-  display: block;
-  font-size: 11px; font-weight: 700;
-  color: var(--ink);
-}
-.file-stack .file-card.active{
-  border: 2px solid var(--coral);
-  color: var(--coral);
-}
-.file-stack .file-card.active .main{ color: var(--coral);}
-.file-stack .file-card.active .ruby{ color: var(--coral); opacity: .8;}
-
-.file-stack .file-card:nth-child(1):hover{
-  border-color: var(--purple); color: var(--purple);
-  box-shadow: 3px 3px 0 var(--purple); transform: translate(-2px,-2px);
-}
-.file-stack .file-card:nth-child(1):hover .main{ color: var(--purple);}
-.file-stack .file-card:nth-child(2):hover{
-  border-color: var(--teal); color: var(--teal);
-  box-shadow: 3px 3px 0 var(--teal); transform: translate(-2px,-2px);
-}
-.file-stack .file-card:nth-child(2):hover .main{ color: var(--teal);}
-
-/* ========== POCKET CLUSTER ========== */
-.pocket-cluster{
-  position: fixed;
-  right: 20px; bottom: 20px;
-  z-index: 29;
-}
-.pocket-btn{
-  display: inline-flex; align-items: center; gap: 10px;
-  min-height: 52px; padding: 10px 18px 10px 14px;
-  background: var(--coral);
-  color: var(--bg);
-  border: 2px solid var(--ink);
-  border-radius: 999px;
-  font-family: var(--mincho); font-weight: 700; font-size: 15px;
-  letter-spacing: .06em;
-  box-shadow: 0 8px 20px rgba(0,0,0,.18);
-  cursor: pointer;
-  transition: transform .25s ease, box-shadow .25s ease;
-  position: relative;
-  z-index: 31;
-}
-.pocket-btn:hover,
-.pocket-btn:focus-visible,
-.pocket-cluster:hover .pocket-btn{
-  transform: translateY(-2px) rotate(-2deg);
-  box-shadow: 0 12px 24px rgba(0,0,0,.22);
-  outline: none;
-}
-.pocket-btn svg{ flex-shrink: 0;}
-.pocket-btn .pocket-label{ padding-right: 2px;}
-
-.pocket-contents{
-  position: absolute;
-  right: 0; bottom: calc(100% + 10px);
-  display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(12px) scale(.97);
-  transform-origin: right bottom;
-  transition: opacity .32s ease, transform .32s cubic-bezier(.2,.8,.2,1);
-}
-/* invisible bridge filling the gap between contents and pocket-btn  
-   so hover stays active when cursor crosses the gap */
-.pocket-contents::after{
-  content: "";
-  position: absolute;
-  left: 0; right: 0;
-  top: 100%;
-  height: 18px;
-}
-.pocket-cluster:hover .pocket-contents,
-.pocket-cluster:focus-within .pocket-contents,
-.pocket-btn:focus-visible + .pocket-contents{
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0) scale(1);
+/* グローバル紙ノイズ（全体にうっすら） */
+body::before{
+  content:""; position: fixed; inset: 0; pointer-events: none; z-index: 200;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.15 0 0 0 0 0.12 0 0 0 0 0.08 0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  mix-blend-mode: multiply; opacity: .5;
 }
 
-/* inside pocket-contents: static positioning for children */
-.pocket-contents .file-stack,
-.pocket-contents .credit-badge,
-.pocket-contents .bmc,
-.pocket-contents .tag-wrap{
-  position: relative;
-  right: auto; bottom: auto; top: auto; left: auto;
+/* ========== Chrome ========== */
+.chrome{
+  position: fixed; top: 0; left: 0; right: 0; z-index: 40;
+  display:flex; justify-content: space-between; align-items: center;
+  padding: 14px 22px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .18em; color: var(--sub);
+  mix-blend-mode: multiply;
 }
-/* ========== HERO: typographic primitive ========== */
+.chrome .m b{ font-family: var(--mincho); font-weight: 900; letter-spacing: 0; font-size: 15px; color: var(--ink);}
+.chrome nav{ display:flex; gap: 4px;}
+.chrome nav a{ padding: 12px 10px; min-height: 44px; display:inline-flex; align-items:center;}
+.chrome nav a:hover{ color: var(--ink);}
+
+/* ========================================================
+   HERO — 机の俯瞰
+   ======================================================== */
 .hero{
+  position: relative;
   min-height: 100vh;
-  padding: 90px 24px 50px;
-  display: flex; flex-direction: column; justify-content: space-between;
-  position: relative;
+  padding: 64px 0 40px;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 55%, var(--desk) 0%, var(--desk) 55%, color-mix(in srgb, var(--desk) 88%, #b7a77a) 100%),
+    var(--cream-2);
+  overflow: hidden;
 }
-.hero .sig{
-  font-family: var(--mono); font-size: 12px; letter-spacing: .22em; color: var(--sub);
-  display:flex; gap: 18px; align-items:center;
+/* 木目 (斜めストライプ) */
+.hero::before{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background:
+    repeating-linear-gradient(92deg,
+      transparent 0 7px,
+      color-mix(in srgb, var(--desk-dark) 22%, transparent) 7px 8px,
+      transparent 8px 22px,
+      color-mix(in srgb, var(--desk-dark) 14%, transparent) 22px 23px,
+      transparent 23px 48px);
+  opacity: .55;
+  mask: radial-gradient(ellipse 85% 65% at 50% 55%, black 0%, black 60%, transparent 95%);
+  -webkit-mask: radial-gradient(ellipse 85% 65% at 50% 55%, black 0%, black 60%, transparent 95%);
 }
-.hero .sig::before{ content:""; width: 36px; height: 1px; background: var(--ink);}
+/* 机の端 (vignette) */
+.hero::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background: radial-gradient(ellipse 95% 75% at 50% 50%, transparent 55%, rgba(40,30,10,.18) 100%);
+}
 
-/* the giant word-piece */
-.stage{
-  flex: 1;
-  display: grid; grid-template-columns: 1fr;
-  align-content: center; justify-items: center;
-  padding: 20px 0;
-  position: relative;
+.hero-inner{
+  position: relative; z-index: 2;
+  max-width: 1280px; margin: 0 auto;
+  padding: 0 32px;
 }
-.big{
+
+/* 左上の署名 */
+.hero .sig{
+  font-family: var(--mono); font-size: 11px; letter-spacing: .28em; color: var(--ink-soft);
+  display:flex; gap: 14px; align-items:center; margin-top: 20px;
+}
+.hero .sig::before{ content:""; width: 28px; height: 1px; background: var(--ink);}
+
+/* 大きなタイトル (机に置かれた見出し) */
+.desk-title{
+  margin: 42px 0 6px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: end;
+  gap: 28px;
+}
+.desk-title h1{
+  margin: 0;
   font-family: var(--mincho);
   font-weight: 900;
-  font-size: clamp(84px, 22vw, 280px);
-  line-height: .88;
-  letter-spacing: -.04em;
+  font-size: clamp(52px, 9.2vw, 128px);
+  line-height: .92;
+  letter-spacing: -.03em;
   color: var(--ink);
-  text-align: center;
-  position: relative;
-  user-select: none;
 }
-.big .piece{
-  display: inline-block;
-  position: relative;
-  transition: transform .5s cubic-bezier(.2,.8,.2,1), color .5s ease;
-}
-.big .ga{
+.desk-title h1 .ga{
   color: var(--coral);
   display: inline-block;
-  transform-origin: 50% 60%;
+  transform-origin: 50% 85%;
   animation: tiltGa 5.4s ease-in-out infinite;
 }
-.big .boku{ color: var(--ink);}
-.big .dot{
+.desk-title h1 .dot{
   display:inline-block;
-  width: .18em; height: .18em; border-radius: 50%;
+  width: .14em; height: .14em; border-radius: 50%;
   background: var(--gold);
-  vertical-align: .08em;
-  margin-left: .02em;
+  vertical-align: .22em;
+  margin-left: .05em;
   animation: pulseDot 4s ease-in-out infinite;
 }
 @keyframes tiltGa{
-  0%,100%{ transform: rotate(-4deg) translateY(0);}
-  50%{ transform: rotate(6deg) translateY(-8px);}
+  0%,100%{ transform: rotate(-3deg) translateY(0);}
+  50%{ transform: rotate(5deg) translateY(-6px);}
 }
 @keyframes pulseDot{
-  0%,100%{ opacity: .3; transform: scale(1);}
+  0%,100%{ opacity: .35; transform: scale(1);}
   50%{ opacity: 1; transform: scale(1.15);}
 }
+.desk-title .side{
+  padding-bottom: 20px;
+  display:flex; flex-direction: column; gap: 6px;
+  border-left: 1px solid var(--ink);
+  padding-left: 18px;
+}
+.desk-title .side .rubi{ font-family: var(--mono); font-size: 11px; letter-spacing: .36em; color: var(--sub);}
+.desk-title .side .sub{ font-family: var(--mincho); font-size: 18px; color: var(--ink-soft); max-width: 24ch;}
+.desk-title .side .sub em{ font-style: normal; background: linear-gradient(transparent 62%, color-mix(in srgb, var(--gold) 55%, transparent) 62%);}
 
-.rubi{
-  position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
-  font-family: var(--mono); font-size: 13px; letter-spacing: .5em; color: var(--sub);
-  white-space: nowrap;
+/* ========== Paper 書類束 (俯瞰) ========== */
+.papers{
+  margin: 46px auto 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 22px;
+  max-width: 1180px;
 }
-
-.stage .sub{
-  margin-top: 28px;
-  font-family: var(--mincho); font-size: clamp(18px, 2.6vw, 28px); color: var(--sub);
-  text-align: center;
-}
-.stage .sub em{ font-style: normal; color: var(--ink); background: linear-gradient(transparent 88%, color-mix(in srgb, var(--gold) 70%, transparent) 88%);}
-
-/* four-letter key */
-.keyrow{
-  display:grid; grid-template-columns: repeat(4, 1fr);
-  max-width: 920px; margin: 36px auto 0; width: 100%;
-  border: 1.5px solid var(--ink);
-  border-radius: 4px;
-  background: var(--paper);
-  box-shadow: 5px 5px 0 var(--ink);
-}
-.keyrow .k{
-  padding: 18px 14px 16px;
-  display:flex; flex-direction:column; align-items:center; gap: 4px;
-  border-right: 1px solid var(--rule);
-  text-align:center;
-  color: inherit; text-decoration: none;
-  cursor: pointer;
-  transition: background .2s ease, transform .2s ease;
-}
-.keyrow .k:hover{
-  background: color-mix(in srgb, currentColor 8%, transparent);
-}
-.keyrow .k:hover .letter{
-  transform: translateY(-2px);
-  transition: transform .2s ease;
-}
-.keyrow .k:last-child{ border-right: 0;}
-.keyrow .letter{ font-family: var(--mincho); font-weight: 900; font-size: clamp(38px, 6vw, 62px); line-height: 1; letter-spacing: -.02em;}
-.keyrow .name{ font-family: var(--mono); font-size: 12px; letter-spacing: .2em; color: var(--sub); text-transform: uppercase;}
-.keyrow .k.t1 .letter{ color: var(--teal);}
-.keyrow .k.t2 .letter{ color: var(--coral);}
-.keyrow .k.t3 .letter{ color: var(--blue);}
-.keyrow .k.t4 .letter{ color: var(--purple);}
-
-.hero .bottombar{
-  display:flex; justify-content: space-between; align-items: baseline;
-  margin-top: 34px;
-  font-family: var(--mono); font-size: 11px; letter-spacing: .18em; color: var(--sub);
-  border-top: 1px solid var(--rule); padding-top: 16px;
-}
-.hero .bottombar .scroll{ animation: bob 2.4s ease-in-out infinite;}
-@keyframes bob{ 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(4px);}}
-
-/* ========== Theatrical pillar slabs ========== */
-.slab{
+.stack{
+  --rot: -2deg;
+  --tilt: 0deg;
   position: relative;
-  padding: 96px 24px 110px;
-  border-top: 1px solid var(--ink);
-  overflow: hidden;
+  aspect-ratio: 3 / 4;
+  transform: rotate(var(--rot));
+  transition: transform .5s cubic-bezier(.2,.8,.2,1), filter .4s;
+  cursor: pointer;
+  display: block;
 }
-.slab .glyph{
-  position:absolute;
-  font-family: var(--mincho); font-weight: 900;
-  font-size: clamp(240px, 44vw, 580px);
-  line-height: .8;
-  top: -40px;
-  pointer-events: none;
-  letter-spacing: -.08em;
-  user-select: none;
-  color: color-mix(in srgb, currentColor 16%, transparent);
-  z-index: 0;
-}
-.slab .glyph.right{ right: -4vw;}
-.slab .glyph.left{ left: -4vw;}
+.stack:nth-child(1){ --rot: -3deg;}
+.stack:nth-child(2){ --rot: 2.2deg;}
+.stack:nth-child(3){ --rot: -1.5deg;}
+.stack:nth-child(4){ --rot: 3deg;}
+.stack:nth-child(5){ --rot: -2.4deg;}
 
-.slab .inner{
-  position: relative; z-index: 1;
-  max-width: 1100px; margin: 0 auto;
-  display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: start;
+.stack .sheet{
+  position: absolute; inset: 0;
+  background: var(--paper);
+  border: 1px solid var(--paper-edge);
+  box-shadow: var(--shadow-soft);
+  border-radius: 2px;
+  transition: transform .5s cubic-bezier(.2,.8,.2,1), box-shadow .4s;
 }
-.slab .label{ font-family: var(--mono); font-size: 12px; letter-spacing: .22em; color: var(--sub); margin-bottom: 18px;}
-.slab h2{
-  font-family: var(--mincho); font-weight: 900;
-  font-size: clamp(52px, 8.5vw, 108px);
-  line-height: .95; letter-spacing: -.02em;
-  margin: 0 0 12px; color: var(--ink);
+/* 下の紙たち (ズレた重なり) */
+.stack .sheet.s3{ transform: translate(-6px, 8px) rotate(-1.2deg); background: #f6f1dd;}
+.stack .sheet.s2{ transform: translate(4px, 5px) rotate(0.8deg); background: #faf4de;}
+.stack .sheet.s1{ transform: translate(-2px, 2px) rotate(-0.3deg);}
+.stack .sheet.top{ background: var(--paper); z-index: 3;}
+
+/* 罫線／ヘッダ */
+.stack .sheet.top::before{
+  content:"";
+  position:absolute; left: 12%; right: 12%; top: 14%;
+  height: 1px; background: var(--ink-soft); opacity: .35;
 }
-.slab h2 .tag{
-  display:inline-block;
-  font-size: .35em; vertical-align: 60%;
-  padding: .2em .6em;
-  margin-left: .4em;
-  border: 2px solid currentColor;
-  border-radius: 999px;
-  color: currentColor;
-  letter-spacing: .08em;
-  font-weight: 700;
+.stack .sheet.top::after{
+  content:"";
+  position:absolute; left: 16%; right: 16%; top: calc(14% + 10px);
+  height: 26%;
+  background-image: linear-gradient(var(--ink-soft) 1px, transparent 1px);
+  background-size: 100% 7px;
+  opacity: .13;
+}
+
+.stack .meta{
+  position: absolute; left: 14%; top: 46%;
+  font-family: var(--mono); font-size: 9px; letter-spacing: .22em; color: var(--sub);
+  z-index: 4;
+}
+.stack .title-jp{
+  position: absolute; left: 14%; right: 14%; bottom: 18%;
+  font-family: var(--mincho); font-weight: 700; font-size: clamp(14px, 1.3vw, 18px);
+  line-height: 1.35;
+  color: var(--ink);
+  z-index: 4;
+}
+.stack .title-en{
+  position: absolute; left: 14%; right: 14%; bottom: 9%;
+  font-family: var(--mono); font-size: 9px; letter-spacing: .16em; color: var(--sub);
+  z-index: 4;
+}
+
+/* ポストイット */
+.postit{
+  position: absolute;
+  width: 62%; aspect-ratio: 1 / .78;
+  top: -8%; left: 18%;
+  background: var(--postit-y);
+  box-shadow: 0 2px 3px rgba(60,50,30,.15), 0 10px 18px rgba(60,50,30,.12);
+  transform: rotate(-5deg);
+  z-index: 5;
+  display:flex; flex-direction:column; justify-content: space-between;
+  padding: 10px 12px 9px;
+  transition: transform .5s cubic-bezier(.2,.8,.2,1), box-shadow .4s;
+}
+.postit::before{
+  /* テープ */
+  content:""; position:absolute; left: 38%; right: 38%; top: -6px; height: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.15));
+  border: 1px solid rgba(255,255,255,.4);
   transform: rotate(-2deg);
 }
-.slab .rom{ font-family: var(--mono); font-size: 12px; letter-spacing: .24em; color: var(--sub); text-transform: uppercase;}
-.slab .bubble{
+.postit .tag{ font-family: var(--mono); font-size: 9px; letter-spacing: .22em; color: rgba(0,0,0,.55);}
+.postit .word{ font-family: var(--mincho); font-weight: 900; font-size: clamp(15px, 1.5vw, 20px); line-height: 1.1; color: #3b2a16;}
+.postit .word small{ display:block; font-family: var(--mono); font-weight: 500; font-size: 9px; letter-spacing: .18em; color: rgba(0,0,0,.55); margin-top: 4px;}
+
+.stack.p2 .postit{ background: var(--postit-p); transform: rotate(4deg); left: 22%;}
+.stack.p3 .postit{ background: var(--postit-b); transform: rotate(-6deg); left: 14%;}
+.stack.p4 .postit{ background: var(--postit-g); transform: rotate(3deg); left: 20%;}
+.stack.p5 .postit{ background: var(--postit-y); transform: rotate(-4deg); left: 16%;}
+
+/* ホバーで束がふわり */
+.stack:hover{
+  transform: rotate(calc(var(--rot) * .3)) translateY(-6px) scale(1.02);
+  filter: drop-shadow(0 12px 24px rgba(40,30,10,.2));
+  z-index: 10;
+}
+.stack:hover .sheet.top{ box-shadow: 0 4px 10px rgba(60,50,30,.12), 0 22px 40px rgba(60,50,30,.18);}
+.stack:hover .postit{ transform: rotate(0deg) translateY(-3px); box-shadow: 0 6px 10px rgba(60,50,30,.2), 0 24px 40px rgba(60,50,30,.2);}
+
+/* ラベル (paperが何であるか) */
+.papers-label{
+  max-width: 1180px; margin: 36px auto 10px;
+  display:flex; justify-content: space-between; align-items: baseline;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .22em; color: var(--ink-soft);
+  border-top: 1px dashed var(--ink-soft);
+  padding-top: 12px;
+}
+.papers-label .r{ font-family: var(--mincho); font-weight: 700; font-size: 15px; color: var(--ink); letter-spacing: 0;}
+
+/* hero bottom */
+.hero-bottom{
+  max-width: 1180px; margin: 32px auto 0;
+  display:flex; justify-content: space-between; align-items: center;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .2em; color: var(--ink-soft);
+}
+.hero-bottom .scroll{ animation: bob 2.4s ease-in-out infinite;}
+@keyframes bob{ 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(4px);}}
+
+/* ========================================================
+   実物柱 (4 pillars)
+   ======================================================== */
+.pillars{
+  padding: 90px 24px 40px;
+  background: var(--cream);
+  border-top: 1px solid var(--ink);
   position: relative;
-  background: var(--card);
+}
+.pillars-intro{
+  max-width: 1180px; margin: 0 auto 56px;
+  display: grid; grid-template-columns: auto 1fr auto; gap: 32px; align-items: end;
+}
+.pillars-intro h2{
+  margin:0;
+  font-family: var(--mincho); font-weight: 900;
+  font-size: clamp(36px, 5vw, 64px); line-height: .95; letter-spacing: -.02em;
+}
+.pillars-intro h2 small{ display:block; font-family: var(--mono); font-size: 11px; letter-spacing: .3em; color: var(--sub); margin-bottom: 10px; font-weight: 500;}
+.pillars-intro .note{ font-family: var(--mincho); font-size: 16px; color: var(--ink-soft); max-width: 40ch;}
+.pillars-intro .note em{ font-style:normal; background: linear-gradient(transparent 62%, color-mix(in srgb, var(--coral) 40%, transparent) 62%);}
+.pillars-intro .meta{
+  text-align:right; font-family: var(--mono); font-size: 11px; letter-spacing: .2em; color: var(--sub);
+}
+
+.pillar-grid{
+  max-width: 1180px; margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
+}
+
+/* カード共通 */
+.pillar{
+  position: relative;
+  background: var(--cream-2);
   border: 1.5px solid var(--ink);
-  border-radius: 20px;
-  padding: 22px 22px 20px;
-  font-family: var(--mincho); font-size: 20px; line-height: 1.7;
-  margin: 26px 0 24px;
-  max-width: 520px;
+  border-radius: 8px;
+  padding: 28px 28px 26px;
+  box-shadow: var(--shadow-soft);
+  transition: transform .35s ease, box-shadow .35s ease;
+  min-height: 420px;
+  display: flex; flex-direction: column;
 }
-.slab .bubble::after{
+.pillar:hover{ transform: translateY(-4px); box-shadow: var(--shadow-lift);}
+
+.pillar .head{
+  display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: baseline;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule);
+}
+.pillar .head .k{
+  font-family: var(--mincho); font-weight: 900; font-size: 56px; line-height: .85; letter-spacing: -.04em;
+}
+.pillar .head .ttl{ display:flex; flex-direction: column; gap: 2px;}
+.pillar .head .ttl .jp{ font-family: var(--mincho); font-weight: 900; font-size: 28px; letter-spacing: -.01em;}
+.pillar .head .ttl .en{ font-family: var(--mono); font-size: 10px; letter-spacing: .24em; color: var(--sub);}
+.pillar .head .num{ font-family: var(--mono); font-size: 10px; letter-spacing: .22em; color: var(--sub);}
+
+.pillar .oneliner{
+  font-family: var(--mincho); font-size: 16px; line-height: 1.75; color: var(--ink-soft);
+  margin: 0 0 22px;
+}
+.pillar .oneliner em{ font-style:normal; background: linear-gradient(transparent 62%, color-mix(in srgb, currentColor 35%, transparent) 62%);}
+
+.pillar .list{ list-style:none; padding:0; margin: 0 0 10px; flex: 1;}
+.pillar .list li{ border-top: 1px solid var(--rule);}
+.pillar .list li:last-child{ border-bottom: 1px solid var(--rule);}
+.pillar .list li a{
+  display:grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: baseline;
+  padding: 14px 2px; min-height: 52px;
+}
+.pillar .list .idx{ font-family: var(--mono); font-size: 11px; letter-spacing: .14em; color: var(--sub); padding-top: 2px;}
+.pillar .list .t{ font-family: var(--mincho); font-weight: 700; font-size: 17px;}
+.pillar .list .t small{ display:block; font-family: var(--sans); font-weight: 400; font-size: 13px; color: var(--sub); margin-top: 2px; line-height: 1.55;}
+.pillar .list .arr{ font-family: var(--mincho); font-weight: 900; font-size: 22px; color: var(--sub); transition: transform .2s, color .2s;}
+.pillar .list li a:hover .arr{ color: currentColor; transform: translateX(5px);}
+.pillar .list li a:hover .t{ color: currentColor;}
+
+.pillar .pill-label{
+  position: absolute; top: -10px; left: 22px;
+  background: var(--cream); padding: 2px 10px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .22em; color: var(--sub);
+  border: 1px solid var(--rule); border-radius: 2px;
+}
+
+/* per-pillar accents */
+.p-t{ color: #1D9E75;}   /* T */
+.p-r{ color: #D85A30;}   /* R */
+.p-b{ color: #3266ad;}   /* B */
+.p-p{ color: #534AB7;}   /* P */
+
+.p-t .head .k{ color: #1D9E75;}
+.p-r .head .k{ color: #D85A30;}
+.p-b .head .k{ color: #3266ad;}
+.p-p .head .k{ color: #534AB7;}
+
+/* ===== T : 道具箱 / 引き出し ===== */
+.pillar.p-t .prop{
+  position: relative;
+  margin: 0 -28px 22px;
+  padding: 0;
+  height: 120px;
+  background: color-mix(in srgb, #1D9E75 8%, var(--cream-2));
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  overflow: hidden;
+}
+.pillar.p-t .drawer{
+  position: absolute; bottom: 0; height: 92px;
+  background: var(--cream);
+  border: 1.5px solid var(--ink);
+  border-radius: 6px 6px 0 0;
+  transition: transform .5s cubic-bezier(.2,.8,.2,1);
+  display:flex; align-items:flex-end; justify-content:center;
+  padding-bottom: 6px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .2em; color: var(--sub);
+}
+.pillar.p-t .drawer::before{
+  content:""; width: 26px; height: 4px; border-radius: 2px; background: var(--ink-soft);
+  position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+}
+.pillar.p-t .drawer.d1{ left: 8%; width: 26%;}
+.pillar.p-t .drawer.d2{ left: 37%; width: 26%;}
+.pillar.p-t .drawer.d3{ left: 66%; width: 26%;}
+.pillar.p-t:hover .drawer.d1{ transform: translateY(-32px);}
+.pillar.p-t:hover .drawer.d2{ transform: translateY(-44px);}
+.pillar.p-t:hover .drawer.d3{ transform: translateY(-28px);}
+.pillar.p-t .drawer .obj{
+  position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+  font-family: var(--mincho); font-size: 22px; font-weight: 900; color: #1D9E75;
+  opacity: 0; transition: opacity .4s .15s;
+}
+.pillar.p-t:hover .drawer .obj{ opacity: 1;}
+
+/* ===== R : 画框 ===== */
+.pillar.p-r .prop{
+  position: relative;
+  margin: 0 -28px 22px;
+  height: 130px;
+  background: color-mix(in srgb, #D85A30 8%, var(--cream-2));
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  display:flex; align-items:center; justify-content: space-around;
+  padding: 0 24px;
+}
+.pillar.p-r .frame{
+  flex: 1; max-width: 150px; aspect-ratio: 5/4;
+  background: var(--cream);
+  border: 4px double #5a4028;
+  position: relative;
+  transition: transform .4s ease, filter .4s ease, box-shadow .4s ease;
+  display: grid; place-items: center;
+  font-family: var(--mincho); font-weight: 900; font-size: 30px;
+  color: #D85A30;
+  filter: grayscale(.5) brightness(.95);
+}
+.pillar.p-r:hover .frame{ filter: grayscale(0) brightness(1);}
+.pillar.p-r:hover .frame:nth-child(2){ transform: scale(1.08); box-shadow: 0 8px 20px rgba(40,30,10,.2); z-index: 2;}
+.pillar.p-r .frame::before{
+  content: attr(data-label);
+  position:absolute; bottom: -20px; left: 0; right: 0; text-align: center;
+  font-family: var(--mono); font-size: 9px; letter-spacing: .18em; color: var(--sub); font-weight: 500;
+}
+
+/* ===== B : 本棚 ===== */
+.pillar.p-b .prop{
+  position: relative;
+  margin: 0 -28px 22px;
+  height: 130px;
+  background: color-mix(in srgb, #3266ad 8%, var(--cream-2));
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  display:flex; align-items:flex-end; justify-content: center;
+  padding: 12px 24px 10px;
+  gap: 6px;
+}
+.pillar.p-b .shelf{
+  position: absolute; left: 24px; right: 24px; bottom: 9px;
+  height: 3px; background: #5a4028;
+}
+.pillar.p-b .book{
+  width: 22px; height: 100px;
+  background: var(--color, #3266ad);
+  border: 1px solid rgba(0,0,0,.25);
+  border-radius: 1px 1px 0 0;
+  transform-origin: bottom center;
+  transition: transform .4s cubic-bezier(.2,.8,.2,1);
+  display:flex; align-items:center; justify-content: center;
+  position: relative;
+  box-shadow: inset -3px 0 0 rgba(0,0,0,.15);
+}
+.pillar.p-b .book::before{
+  content: attr(data-t);
+  writing-mode: vertical-rl;
+  font-family: var(--mincho); font-weight: 700; font-size: 9px; color: rgba(255,255,255,.9);
+  letter-spacing: .1em;
+}
+.pillar.p-b .book:nth-child(2){ --color:#3266ad;}
+.pillar.p-b .book:nth-child(3){ --color:#5a4028; height: 90px;}
+.pillar.p-b .book:nth-child(4){ --color:#1D9E75; height: 105px;}
+.pillar.p-b .book:nth-child(5){ --color:#BA7517; height: 95px;}
+.pillar.p-b .book:nth-child(6){ --color:#534AB7; height: 100px;}
+.pillar.p-b .book:nth-child(7){ --color:#D85A30; height: 88px;}
+.pillar.p-b .book:nth-child(8){ --color:#2c2a26; height: 102px;}
+.pillar.p-b:hover .book:nth-child(4){ transform: translateY(-10px) rotate(-8deg);}
+.pillar.p-b .book:hover{ transform: translateY(-12px) rotate(-10deg); z-index: 2;}
+
+/* ===== P : 封筒 ===== */
+.pillar.p-p .prop{
+  position: relative;
+  margin: 0 -28px 22px;
+  height: 130px;
+  background: color-mix(in srgb, #534AB7 8%, var(--cream-2));
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  display:flex; align-items:center; justify-content: center;
+}
+.pillar.p-p .envelope{
+  position: relative;
+  width: 180px; height: 105px;
+  background: var(--cream);
+  border: 1.5px solid var(--ink);
+  transition: transform .3s ease;
+}
+.pillar.p-p .envelope::before{
+  /* 封のフタ */
   content:"";
-  position: absolute; bottom: -12px; left: 48px;
-  width: 24px; height: 24px;
-  background: var(--card);
-  border-right: 1.5px solid var(--ink);
-  border-bottom: 1.5px solid var(--ink);
-  transform: rotate(45deg);
+  position:absolute; inset: -1px;
+  background: linear-gradient(180deg, #f0ebdc, #e5dfcb);
+  border: 1.5px solid var(--ink);
+  clip-path: polygon(0 0, 100% 0, 50% 62%);
+  transform-origin: top center;
+  transition: transform .5s cubic-bezier(.2,.8,.2,1);
+  z-index: 3;
 }
-.slab .bubble em{ font-style: normal; background: linear-gradient(transparent 88%, color-mix(in srgb, currentColor 45%, transparent) 88%);}
-
-.slab ul{ list-style:none; padding:0; margin:0;}
-.slab ul li{ border-top: 1px solid var(--rule);}
-.slab ul li:last-child{ border-bottom: 1px solid var(--rule);}
-.slab ul li a{
-  display:grid; grid-template-columns: 48px 1fr auto; gap: 14px; align-items:baseline;
-  padding: 18px 4px; min-height: 56px;
+.pillar.p-p .envelope::after{
+  /* 封蝋 */
+  content:"P";
+  position:absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #D85A30;
+  color: var(--cream);
+  display:grid; place-items:center;
+  font-family: var(--mincho); font-weight: 900; font-size: 12px;
+  z-index: 4;
+  box-shadow: 0 2px 4px rgba(0,0,0,.3);
 }
-.slab ul li .idx{ font-family: var(--mono); font-size: 12px; letter-spacing: .14em; color: var(--sub); padding-top: 4px;}
-.slab ul li .ti{ font-family: var(--mincho); font-weight: 700; font-size: 22px;}
-.slab ul li .ti small{ display:block; font-family: var(--sans); font-weight: 400; font-size: 15px; color: var(--sub); margin-top: 4px; line-height: 1.55;}
-.slab ul li .arr{ font-family: var(--mincho); font-weight: 900; font-size: 28px; color: var(--sub); transition: transform .2s, color .2s;}
-.slab ul li a:hover .arr{ color: currentColor; transform: translateX(6px);}
-.slab ul li a:hover .ti{ color: currentColor;}
+.pillar.p-p:hover .envelope::before{ transform: rotateX(170deg); z-index: 1;}
+.pillar.p-p .card{
+  position: absolute; inset: 12px 18px 18px;
+  background: var(--cream);
+  border: 1px solid var(--rule);
+  z-index: 2;
+  padding: 12px 14px;
+  font-family: var(--mincho); font-weight: 700; font-size: 13px;
+  display:flex; flex-direction: column; justify-content: space-between;
+  transform: translateY(6px);
+  opacity: 0;
+  transition: transform .5s .15s cubic-bezier(.2,.8,.2,1), opacity .4s .2s;
+}
+.pillar.p-p:hover .card{ opacity: 1; transform: translateY(0);}
+.pillar.p-p .card small{ font-family: var(--mono); font-size: 9px; letter-spacing: .2em; color: var(--sub); font-weight: 500;}
 
-/* per-pillar colors */
-.s1{ color: var(--teal);}
-.s2{ color: var(--coral);}
-.s3{ color: var(--blue);}
-.s4{ color: var(--purple);}
-
-/* Footer slab */
+/* ========================================================
+   FOOTER
+   ======================================================== */
 .footer{
   padding: 100px 24px 140px;
   border-top: 1px solid var(--ink);
-  background: var(--card);
+  background: var(--cream-2);
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -396,563 +575,280 @@ a{color:inherit; text-decoration:none}
 .footer .vert{
   position: absolute; top: 40px; bottom: 40px; right: 6vw;
   writing-mode: vertical-rl;
-  font-family: var(--mincho); font-weight: 700; font-size: clamp(28px, 4vw, 44px); color: var(--sub);
+  font-family: var(--mincho); font-weight: 700; font-size: clamp(24px, 3vw, 36px); color: var(--sub);
   letter-spacing: .3em;
-  opacity: .8;
+  opacity: .7;
 }
 .footer h3{
   font-family: var(--mincho); font-weight: 900;
-  font-size: clamp(36px, 6vw, 72px); line-height: 1.15; letter-spacing: -.01em;
-  margin: 0 auto 22px; max-width: 920px;
+  font-size: clamp(32px, 5vw, 56px); line-height: 1.2; letter-spacing: -.01em;
+  margin: 0 auto 22px; max-width: 860px;
 }
 .footer h3 .g{ background: linear-gradient(transparent 62%, color-mix(in srgb, var(--gold) 55%, transparent) 62%);}
-.footer .links{
-  display:flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 28px 0 10px;
-}
+.footer .links{ display:flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 28px 0 10px;}
 .footer .links a{
-  display:inline-flex; align-items:center; gap:10px;
-  padding: 12px 18px; min-height: 48px;
-  border: 1.5px solid var(--ink); background: var(--bg); border-radius: 999px;
-  font-size: 14px; font-weight: 700; letter-spacing: .04em;
+  display:inline-flex; align-items:center; gap:8px;
+  padding: 10px 16px; min-height: 44px;
+  border: 1.5px solid var(--ink); background: var(--cream); border-radius: 999px;
+  font-size: 13px; font-weight: 700; letter-spacing: .04em;
   transition: transform .2s, background .2s;
 }
-.footer .links a:hover{ transform: translateY(-2px); background: var(--ink); color: var(--bg);}
-.footer .foot{
-  margin-top: 36px; font-family: var(--mono); font-size: 11px; color: var(--sub); letter-spacing: .16em;
-}
+.footer .links a:hover{ transform: translateY(-2px); background: var(--ink); color: var(--cream);}
+.footer .foot{ margin-top: 36px; font-family: var(--mono); font-size: 10px; color: var(--sub); letter-spacing: .16em;}
 
-/* BMC as a price tag (yellow — brand color) */
+/* BMC */
 .bmc{
+  position: fixed; right: 20px; bottom: 20px; z-index: 30;
   display:flex; align-items:center; gap:10px;
-  min-height: 44px;
-  padding: 10px 22px 10px 44px;
-  background: #ffdd00;
-  color: #111;
-  font-family: var(--sans); font-weight: 700; font-size: 14px;
-  clip-path: polygon(0% 50%, 14% 0%, 100% 0%, 100% 100%, 14% 100%);
-  filter:
-    drop-shadow(1.6px 0 0 var(--ink))
-    drop-shadow(-1.6px 0 0 var(--ink))
-    drop-shadow(0 1.6px 0 var(--ink))
-    drop-shadow(0 -1.6px 0 var(--ink))
-    drop-shadow(2px 4px 4px rgba(0,0,0,.18));
-  position: relative;
-}
-/* credit badge as a price tag */
-.credit-badge{
-  display: inline-flex; align-items: baseline; gap: 8px;
-  padding: 9px 22px 9px 44px;
-  min-height: 44px;
-  background: var(--paper);
-  font-family: var(--mono); font-size: 10px; letter-spacing: .2em;
-  color: var(--sub);
-  clip-path: polygon(0% 50%, 14% 0%, 100% 0%, 100% 100%, 14% 100%);
-  filter:
-    drop-shadow(1.6px 0 0 var(--ink))
-    drop-shadow(-1.6px 0 0 var(--ink))
-    drop-shadow(0 1.6px 0 var(--ink))
-    drop-shadow(0 -1.6px 0 var(--ink))
-    drop-shadow(2px 4px 4px rgba(0,0,0,.14));
-  position: relative;
-}
-.credit-badge b{
-  font-family: var(--mincho); font-weight: 900;
-  font-size: 13px; letter-spacing: 0; color: var(--ink);
-}
-/* Tag grommet hole — center of the left pointy end */
-.credit-badge::before,
-.bmc::before{
-  content: "";
-  position: absolute;
-  left: 18px; top: 50%;
-  width: 11px; height: 11px;
-  border-radius: 50%;
-  background: var(--ink);
-  transform: translate(-50%, -50%);
-  z-index: 2;
-}
-.credit-badge::after,
-.bmc::after{
-  content: "";
-  position: absolute;
-  left: 18px; top: 50%;
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: var(--bg);
-  transform: translate(-50%, -50%);
-  z-index: 3;
-}
-.bmc::after{
-  background: #ffdd00;  /* match bmc yellow */
+  min-height: 44px; padding: 9px 14px;
+  background: #ffdd00; color: #111; border-radius: 999px;
+  font-family: var(--sans); font-weight: 700; font-size: 13px;
+  box-shadow: 0 8px 18px rgba(0,0,0,.15);
+  border: 1px solid rgba(0,0,0,.1);
 }
 
-/* Tag wrapper + hanger string anchored at the grommet */
-.tag-wrap{
-  position: relative;
-  display: inline-block;
-  margin-top: 32px;  /* room for the hanger */
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ====================== Responsive ====================== */
+@media (max-width: 980px){
+  .desk-title{ grid-template-columns: 1fr; gap: 16px;}
+  .desk-title .side{ border-left: 0; padding-left: 0; border-top: 1px solid var(--ink); padding-top: 16px; padding-bottom: 0;}
+  .papers{ grid-template-columns: repeat(3, 1fr);}
+  .papers .stack:nth-child(n+4){ display: none;}
+  .pillar-grid{ grid-template-columns: 1fr;}
+  .pillars-intro{ grid-template-columns: 1fr; gap: 12px;}
+  .pillars-intro .meta{ text-align: left;}
 }
-.tag-wrap:nth-of-type(1){ transform: rotate(-3deg) translateZ(0);}
-.tag-wrap:nth-of-type(2){ transform: rotate(2deg) translateZ(0);}
-.tag-hanger{
-  /* SVG bottom-center sits ON the grommet */
-  position: absolute;
-  left: 22px;                     /* match grommet x (credit-badge::before left) */
-  top: 22px;                      /* match grommet y (min-height 44 / 2) */
-  width: 34px;
-  height: 34px;
-  transform: translate(-50%, -100%);
-  color: var(--ink);
-  pointer-events: none;
-  z-index: 4;
-}
-
-/* ========== Ticker (credits strip, bottom) ========== */
-.ticker{
-  position: relative;
-  background: var(--ink); color: var(--bg);
-  overflow: hidden; white-space: nowrap;
-  font-family: var(--mono); font-size: 12px; letter-spacing: .22em;
-  border-top: 1px solid var(--ink);
-}
-.ticker .run{
-  display: inline-block; padding: 11px 0;
-  animation: run 44s linear infinite;
-}
-.ticker .run span{ padding: 0 22px;}
-.ticker .run .b{ color: var(--gold);}
-@keyframes run{ to{ transform: translateX(-50%);} }
-
-/* ========== Hero stamps (removed) ========== */
-
-/* ========== SIDE DOORS (どこでもドア風) ========== */
-.doors{
-  max-width: 720px; margin: 0 auto; padding: 90px 24px 110px;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 44px;
-  border-top: 1px solid var(--ink);
-  perspective: 1800px;
-}
-.door-frame{
-  position: relative;
-  background: color-mix(in srgb, var(--ink) 10%, var(--bg));
-  border: 1.5px solid var(--ink);
-  border-radius: 12px 12px 2px 2px;
-  padding: 14px 14px 18px;
-  box-shadow: 6px 6px 0 var(--ink);
-  min-height: 560px;
-  transform-style: preserve-3d;
-}
-.door-frame::before{
-  /* door frame labels */
-  content: attr(data-label);
-  position: absolute; top: -14px; left: 18px;
-  background: var(--bg);
-  padding: 2px 10px;
-  font-family: var(--mono); font-size: 11px; letter-spacing: .22em;
-  color: var(--sub);
-  border: 1px solid var(--rule);
-  border-radius: 3px;
-}
-.door{
-  display: flex; flex-direction: column;
-  width: 100%; height: 100%; min-height: 524px;
-  background: var(--paper);
-  border: 1.5px solid var(--ink);
-  border-radius: 6px 6px 1px 1px;
-  padding: 32px 32px 28px;
-  position: relative;
-  cursor: pointer;
-  transform-origin: left center;
-  transform: perspective(1600px) rotateY(0deg);
-  transition: transform .55s cubic-bezier(.2,.8,.2,1), box-shadow .4s ease;
-}
-.door:hover{
-  transform: perspective(1600px) rotateY(-18deg);
-}
-.door::after{
-  /* door panel divider line (midway, for door-ness) */
-  content: "";
-  position: absolute;
-  left: 28px; right: 28px;
-  top: 56%;
-  height: 1px;
-  background: currentColor;
-  opacity: .14;
-}
-.door::before{
-  /* hinges on left edge */
-  content: "";
-  position: absolute; left: -4px; top: 60px; bottom: 60px;
-  width: 5px;
-  background: repeating-linear-gradient(
-    to bottom,
-    var(--ink) 0 22px,
-    transparent 22px 80px,
-    var(--ink) 80px 102px,
-    transparent 102px 160px,
-    var(--ink) 160px 182px,
-    transparent 182px 240px
-  );
-  border-radius: 2px;
-}
-.door .knob{
-  position: absolute;
-  right: 22px; top: 50%;
-  width: 20px; height: 20px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #e8c37a, var(--gold) 60%, #8a5510);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 22%, transparent), 1px 2px 3px rgba(0,0,0,.25);
-  transform: translateY(-50%);
-}
-.door .lab{
-  font-family: var(--mono); font-size: 11px; letter-spacing: .22em; color: var(--sub);
-  margin-bottom: 14px;
-}
-.door h4{
-  font-family: var(--mincho); font-weight: 900;
-  font-size: clamp(24px, 3.2vw, 34px);
-  line-height: 1.15; letter-spacing: -.01em;
-  margin: 0 0 14px;
-}
-.door p{
-  margin: 0 0 auto; font-size: 15px; color: var(--sub);
-  max-width: 85%;
-}
-.door .go{
-  margin-top: 18px;
-  font-family: var(--mono); font-size: 12px; letter-spacing: .18em; color: var(--ink);
-  display:inline-flex; align-items:center; gap: 8px;
-  transition: transform .25s;
-}
-.door:hover .go{ transform: translateX(4px);}
-
-/* door 01 — coral trim (どこでもドア homage) */
-.door{
-  border-color: var(--coral);
-  box-shadow: inset 0 0 0 4px color-mix(in srgb, var(--coral) 18%, var(--paper));
-}
-
-/* door 02 — cosmos */
-.door.cosmos{
-  background:
-    radial-gradient(1.5px 1.5px at 20% 28%, #fff 1px, transparent 2px),
-    radial-gradient(1px 1px at 82% 62%, rgba(255,255,255,.7) 1px, transparent 2px),
-    radial-gradient(1.5px 1.5px at 50% 82%, #fff 1px, transparent 2px),
-    radial-gradient(1px 1px at 70% 18%, rgba(255,255,255,.6) 1px, transparent 2px),
-    radial-gradient(1px 1px at 30% 68%, rgba(255,255,255,.7) 1px, transparent 2px),
-    radial-gradient(1.2px 1.2px at 88% 34%, rgba(255,255,255,.8) 1px, transparent 2px),
-    radial-gradient(1px 1px at 12% 52%, rgba(255,255,255,.6) 1px, transparent 2px),
-    linear-gradient(170deg, #1c1c28 0%, #0f0f18 100%);
-  border-color: var(--purple);
-  box-shadow: inset 0 0 0 4px color-mix(in srgb, var(--purple) 28%, #0f0f18);
-  color: #e9e6dd;
-}
-.door.cosmos .lab{ color: color-mix(in srgb, #e9e6dd 55%, transparent);}
-.door.cosmos p{ color: color-mix(in srgb, #e9e6dd 72%, transparent);}
-.door.cosmos .go{ color: #e9e6dd;}
-
-/* ========== footer shout ========== */
-.footer h3{
-  font-family: var(--mincho); font-weight: 900;
-  font-size: clamp(30px, 5vw, 58px); line-height: 1.3; letter-spacing: -.01em;
-  margin: 0 auto 24px; max-width: 920px;
-}
-/* pocket h3 — UI/UX/WW と日本語のペア表示 */
-.footer h3.pocket{
-  display: block;
-  text-align: center;
-  font-weight: normal;
-  margin: 0 auto 36px;
-  max-width: none;
-}
-.footer h3.pocket .line{
-  display: block;
-  width: fit-content;
-  max-width: 100%;
-  margin: 0 auto 22px;
-  text-align: center;
-}
-.footer h3.pocket .ja{
-  display: block;
-  font-family: var(--mincho); font-weight: 900;
-  font-size: clamp(30px, 5.2vw, 58px);
-  letter-spacing: -.01em;
-  color: var(--ink);
-  line-height: 1.15;
-}
-.footer h3.pocket .en{
-  display: block;
-  font-family: var(--mono);
-  font-size: 12px; letter-spacing: .22em;
-  color: var(--sub);
-  font-weight: 400;
-  text-align: right;
-  margin-top: 8px;
-  padding-right: 0;
-}
-.footer h3.pocket .en b{
-  color: var(--gold);
-  font-weight: 700;
-  letter-spacing: .08em;
-  margin-right: 4px;
-}
-.footer h3 .line{ display: inline-block;}
-.footer .reveal{
-  font-family: var(--mincho); font-size: clamp(18px, 2.4vw, 26px);
-  color: var(--sub); margin: 0 auto 16px; max-width: 920px;
-}
-.footer .shout{
-  display: inline-block;
-  font-family: var(--mincho); font-weight: 900;
-  font-size: 1.35em;
-  color: var(--coral);
-  transform: rotate(-3deg);
-  padding: 0 .15em;
-  letter-spacing: .02em;
-}
-
-/* responsive */
-@media (max-width: 880px){
-  .slab{ padding: 72px 20px 80px;}
-  .slab .inner{ grid-template-columns: 1fr; gap: 24px;}
-  .slab .bubble{ max-width: none; font-size: 18px;}
-  .hero{ padding: 80px 18px 40px;}
-  .keyrow{ grid-template-columns: repeat(2, 1fr);}
-  .keyrow .k:nth-child(2){ border-right: 0;}
-  .keyrow .k:nth-child(-n+2){ border-bottom: 1px solid var(--rule);}
-  .slab ul li .ti{ font-size: 19px;}
-  .footer{ padding: 80px 20px 140px;}
-  .footer .vert{ display: none;}
-  body{ background-size: 36px 36px;}
-  .file-stack .file-card{ min-width: 138px; padding: 6px 10px;}
-  .file-stack .file-card .main{ font-size: 10px; letter-spacing: .18em;}
-  .file-stack .file-card .ruby{ font-size: 8px;}
-  .doors{ grid-template-columns: 1fr; padding: 56px 18px 70px; gap: 32px; max-width: 420px;}
-  .door-frame{ min-height: 460px;}
-  .door{ min-height: 430px;}
-  .door:hover{ transform: perspective(1600px) rotateY(-10deg);}
+@media (max-width: 620px){
+  .papers{ grid-template-columns: 1fr 1fr; gap: 18px;}
+  .papers .stack:nth-child(n+3){ display: none;}
+  .hero-inner{ padding: 0 20px;}
+  .pillars{ padding: 64px 16px 30px;}
 }
 </style>
 </head>
 <body>
 
-<!-- ========== HERO ========== -->
-<section class="hero">
-  <div class="sig">OSAKENPIRO · 2026 · 玄関</div>
+<header class="chrome">
+  <a class="m" href="/contact/" aria-label="お仕事の依頼はこちら"><b>osakenpiro</b></a>
+  <nav>
+    <a href="/contact/">CONTACT →</a>
+    <a href="/cosmos/">惑星 →/cosmos/</a>
+    <a href="/v2_typo.html">v2</a>
+  </nav>
+</header>
 
-  <div class="stage">
-    <div class="big" aria-label="全部がぼく">
-      <span class="rubi">zen — bu — ga — bo — ku</span>
-      <span class="piece boku">全部</span><span class="piece ga">が</span><span class="piece boku">ぼく</span><span class="dot"></span>
-    </div>
-    <div class="sub">
-      哲学・創作・実装を<em>分離しない</em>単一人格。
-    </div>
+<!-- ============================================================
+     HERO — 机の俯瞰
+     ============================================================ -->
+<section class="hero" aria-label="机の上">
+  <div class="hero-inner">
+    <div class="sig">OSAKENPIRO · 2026 · 机の上</div>
 
-    <div class="keyrow" aria-label="Visionium TRBP">
-      <a class="k t1" href="#tool"><span class="letter">T</span><span class="name">TOOL</span></a>
-      <a class="k t2" href="#redesign"><span class="letter">R</span><span class="name">REDESIGN</span></a>
-      <a class="k t3" href="#bookbug"><span class="letter">B</span><span class="name">BOOKBUG</span></a>
-      <a class="k t4" href="#postboy"><span class="letter">P</span><span class="name">POSTBOY</span></a>
-    </div>
-  </div>
-
-  <div class="bottombar">
-    <span>VISIONIUM / 4 柱 / 0.0 → 1.0</span>
-    <span class="scroll">SCROLL ↓</span>
-    <span>ORCID 0009-0004-9167-3186</span>
-  </div>
-</section>
-
-<!-- ========== T ========== -->
-<section class="slab s1" id="tool">
-  <div class="glyph right">工</div>
-  <div class="inner">
-    <div>
-      <div class="label">PILLAR 01 · T</div>
-      <h2>🛠️ Hi-Me TooL<span class="tag">秘め道具</span></h2>
-      <div class="rom">HIMITSU × TOOL — ひみつーる</div>
-      <div class="bubble">
-        第0原則——<em>「パソコン越しに触れるひみつ道具」</em>。二値の判断を 0.0〜1.0 の連続値に再定義する小道具群。
+    <div class="desk-title">
+      <h1>全部<span class="ga">が</span>ぼく<span class="dot"></span></h1>
+      <div class="side">
+        <div class="rubi">ZEN-BU — GA — BO-KU</div>
+        <div class="sub">哲学・創作・実装が<em>同じ机</em>の上で混ざる。</div>
       </div>
     </div>
-    <ul>
-      <li><a href="/wakkazukan/"><span class="idx">#01</span><span class="ti">分類わっか<small>わっかずかん — 同心円でカテゴリを並べる視覚分類器</small></span><span class="arr">→</span></a></li>
-      <li><a href="/materials-of-civilization/"><span class="idx">#05</span><span class="ti">素材の標本箱<small>素材図鑑 — 文明を素材の系譜として並べる</small></span><span class="arr">→</span></a></li>
-      <li><a href="/vr-akinator/"><span class="idx">🧙</span><span class="ti">VR Akinator<small>分類法のメタ分類(双子構造の片割れ)</small></span><span class="arr">→</span></a></li>
-    </ul>
-  </div>
-</section>
 
-<!-- ========== R ========== -->
-<section class="slab s2" id="redesign">
-  <div class="glyph left">再</div>
-  <div class="inner">
-    <div>
-      <div class="label">PILLAR 02 · R</div>
-      <h2>🎨 Re:DeSign<span class="tag">系譜</span></h2>
-      <div class="rom">RE — DESIGN</div>
-      <div class="bubble">
-        デザインを良し悪しではなく<em>系譜</em>で捉え直す。Hi-Me TooL の双子として置かれる、デザインのメタカタログ。
-      </div>
+    <!-- Paper 書類束×5 -->
+    <div class="papers" aria-label="Visionium 論文シリーズ">
+
+      <a class="stack p1" href="https://zenodo.org/communities/visionium" aria-label="G1 Genetics">
+        <div class="sheet s3"></div>
+        <div class="sheet s2"></div>
+        <div class="sheet s1"></div>
+        <div class="sheet top"></div>
+        <div class="meta">G1 · 2024</div>
+        <div class="title-jp">遺伝子と<br>自己決定の境界</div>
+        <div class="title-en">GENETICS × ETHICS</div>
+        <div class="postit"><span class="tag">#01</span><span class="word">G1 Genetics<small>遺伝</small></span></div>
+      </a>
+
+      <a class="stack p2" href="https://zenodo.org/communities/visionium" aria-label="G3 Boolean→Float">
+        <div class="sheet s3"></div>
+        <div class="sheet s2"></div>
+        <div class="sheet s1"></div>
+        <div class="sheet top"></div>
+        <div class="meta">G3 · 2025</div>
+        <div class="title-jp">二値から<br>連続値へ</div>
+        <div class="title-en">BOOL → FLOAT</div>
+        <div class="postit"><span class="tag">#03</span><span class="word">G3 Float<small>連続値</small></span></div>
+      </a>
+
+      <a class="stack p3" href="https://zenodo.org/communities/visionium" aria-label="G6 Kokoro">
+        <div class="sheet s3"></div>
+        <div class="sheet s2"></div>
+        <div class="sheet s1"></div>
+        <div class="sheet top"></div>
+        <div class="meta">G6 · 2025</div>
+        <div class="title-jp">AIに<br>こころは宿るか</div>
+        <div class="title-en">KOKORO × MACHINE</div>
+        <div class="postit"><span class="tag">#06</span><span class="word">G6 Kokoro<small>こころ</small></span></div>
+      </a>
+
+      <a class="stack p4" href="https://zenodo.org/communities/visionium" aria-label="G7 Humus">
+        <div class="sheet s3"></div>
+        <div class="sheet s2"></div>
+        <div class="sheet s1"></div>
+        <div class="sheet top"></div>
+        <div class="meta">G7 · 2025</div>
+        <div class="title-jp">腐葉土層<br>としての記憶</div>
+        <div class="title-en">HUMUS-LAYER UX</div>
+        <div class="postit"><span class="tag">#07</span><span class="word">G7 Humus<small>腐葉土</small></span></div>
+      </a>
+
+      <a class="stack p5" href="https://zenodo.org/communities/visionium" aria-label="G9 Circulation">
+        <div class="sheet s3"></div>
+        <div class="sheet s2"></div>
+        <div class="sheet s1"></div>
+        <div class="sheet top"></div>
+        <div class="meta">G9 · 2026</div>
+        <div class="title-jp">中心のない<br>循環構造</div>
+        <div class="title-en">CIRCULATION</div>
+        <div class="postit"><span class="tag">#09</span><span class="word">G9 Cycle<small>循環</small></span></div>
+      </a>
+
     </div>
-    <ul>
-      <li><a href="/re-design/genealogy/"><span class="idx">🗂️</span><span class="ti">デザイン系譜DB<small>9系統 → 拡張中。この柱の核。</small></span><span class="arr">→</span></a></li>
-      <li><a href="/v2/"><span class="idx">📚</span><span class="ti">LP v2 集約版<small>向こう側にある詳細版の一枚</small></span><span class="arr">→</span></a></li>
-      <li><a href="/re-design/queue-dashboard.html"><span class="idx">🔁</span><span class="ti">Queue Dashboard<small>見直し待ちの案件、優先度と放置年数</small></span><span class="arr">→</span></a></li>
-    </ul>
-  </div>
-</section>
 
-<!-- ========== B ========== -->
-<section class="slab s3" id="bookbug">
-  <div class="glyph right">読</div>
-  <div class="inner">
-    <div>
-      <div class="label">PILLAR 03 · B</div>
-      <h2>📚 BookBug<span class="tag">読む</span></h2>
-      <div class="rom">BOOK + BUG</div>
-      <div class="bubble">
-        長文を読みたい人のための区画。<em>論文・読み物版図鑑・note</em>。虫は本の愛好家の別名。
-      </div>
+    <div class="papers-label">
+      <span>VISIONIUM PAPERS · 9 / 9 · ZENODO</span>
+      <span class="r">書類束：9本の論文シリーズ（束を触ると浮く）</span>
+      <span>ORCID 0009-0004-9167-3186</span>
     </div>
-    <ul>
-      <li><a href="/materials-of-civilization/"><span class="idx">📘</span><span class="ti">素材図鑑 読み物版<small>ツールと同じ素材を、長尺エッセイで読み抜ける</small></span><span class="arr">→</span></a></li>
-      <li><a href="https://zenodo.org/communities/visionium"><span class="idx">📄</span><span class="ti">Visionium 論文群<small>9本 · ORCID / Zenodo</small></span><span class="arr">→</span></a></li>
-      <li><a href="https://note.com/osakenpiro"><span class="idx">✎</span><span class="ti">note 記事<small>論文になる前の断片、思索の中間生成物</small></span><span class="arr">→</span></a></li>
-    </ul>
-  </div>
-</section>
 
-<!-- ========== P ========== -->
-<section class="slab s4" id="postboy">
-  <div class="glyph left">届</div>
-  <div class="inner">
-    <div>
-      <div class="label">PILLAR 04 · P</div>
-      <h2>📮 Postboy<span class="tag">届ける</span></h2>
-      <div class="rom">POST + BOY</div>
-      <div class="bubble">
-        Visionium の中で、ここだけが<em>外に出ていく係</em>。広報の小僧として、郵便を運ぶ。
-      </div>
+    <div class="hero-bottom">
+      <span>BIG-LIGHT Br · SPOT PT ×4</span>
+      <span class="scroll">↓ 4 つの柱をひらく</span>
+      <span>2026 EDITION</span>
     </div>
-    <ul>
-      <li><a href="https://twitter.com/osakenpiro"><span class="idx">𝕏</span><span class="ti">X<small>@osakenpiro — 開発ログ・引用・思索のスナップショット</small></span><span class="arr">→</span></a></li>
-      <li><a href="https://www.tiktok.com/@panio54"><span class="idx">♪</span><span class="ti">TikTok<small>@panio54 — 口語のほうの osakenpiro</small></span><span class="arr">→</span></a></li>
-      <li><a href="https://note.com/osakenpiro"><span class="idx">✎</span><span class="ti">note<small>note.com/osakenpiro</small></span><span class="arr">→</span></a></li>
-      <li><a href="https://www.amazon.co.jp/"><span class="idx">📕</span><span class="ti">KDP 書籍<small>『パンダと哲学とAI』</small></span><span class="arr">→</span></a></li>
-    </ul>
   </div>
 </section>
 
-<!-- ========== SIDE DOORS (どこでもドア風) ========== -->
-<section class="doors">
-  <div class="door-frame" data-label="SIDE DOOR · 01">
-    <a class="door" href="/v2/">
-      <span class="knob" aria-hidden="true"></span>
-      <div class="lab">OSAKENPIRO · V2</div>
-      <h4>Re:DeSign</h4>
-      <p>デザインを系譜で捉え直す、集約ダッシュボード。長尺・全索引の一枚。</p>
-      <span class="go">osakenpiro.github.io/v2/ →</span>
-    </a>
+<!-- ============================================================
+     PILLARS — 4 physical objects
+     ============================================================ -->
+<section class="pillars">
+  <div class="pillars-intro">
+    <h2><small>4 柱 / 4 PILLARS</small>四つの机。</h2>
+    <p class="note">机の奥には、<em>別の机</em>が四つ並んでいる。道具箱、画框、本棚、封筒——それぞれ役割の違う物体として、立てかけてある。</p>
+    <div class="meta">HOVER TO OPEN<br>TAP ON MOBILE</div>
   </div>
-  <div class="door-frame" data-label="SIDE DOOR · 02">
-    <a class="door cosmos" href="/cosmos/">
-      <span class="knob" aria-hidden="true"></span>
-      <div class="lab">OSAKENPIRO · COSMOS</div>
-      <h4>もう一つの顔<br>/cosmos/</h4>
-      <p>黒背景・星屑・軌道。スペシャル体験としての惑星ビュー。</p>
-      <span class="go">osakenpiro.github.io/cosmos/ →</span>
-    </a>
+
+  <div class="pillar-grid">
+
+    <!-- ===== T : Hi-Me TooL — 道具箱 ===== -->
+    <article class="pillar p-t">
+      <span class="pill-label">PILLAR 01 · TOOLBOX</span>
+      <div class="head">
+        <span class="k">T</span>
+        <span class="ttl"><span class="jp">Hi-Me TooL</span><span class="en">HIMITSU × TOOL — 秘め道具</span></span>
+        <span class="num">#01</span>
+      </div>
+      <div class="prop" aria-hidden="true">
+        <div class="drawer d1"><span class="obj">分</span>わっか</div>
+        <div class="drawer d2"><span class="obj">素</span>素材</div>
+        <div class="drawer d3"><span class="obj">巫</span>Akinator</div>
+      </div>
+      <p class="oneliner">パソコン越しに触れる、<em>ひみつ道具</em>。二値を 0.0〜1.0 に再定義する小道具たち。</p>
+      <ul class="list">
+        <li><a href="/wakkazukan/"><span class="idx">#01</span><span class="t">分類わっか<small>同心円でカテゴリを並べる視覚分類器</small></span><span class="arr">→</span></a></li>
+        <li><a href="/materials-of-civilization/"><span class="idx">#05</span><span class="t">素材の標本箱<small>文明を素材の系譜として並べる</small></span><span class="arr">→</span></a></li>
+        <li><a href="/vr-akinator/"><span class="idx">🧙</span><span class="t">VR Akinator<small>分類法のメタ分類(双子構造)</small></span><span class="arr">→</span></a></li>
+      </ul>
+    </article>
+
+    <!-- ===== R : Re:DeSign — 画框 ===== -->
+    <article class="pillar p-r">
+      <span class="pill-label">PILLAR 02 · GALLERY</span>
+      <div class="head">
+        <span class="k">R</span>
+        <span class="ttl"><span class="jp">Re:DeSign</span><span class="en">DESIGN — GENEALOGY / 系譜</span></span>
+        <span class="num">#02</span>
+      </div>
+      <div class="prop" aria-hidden="true">
+        <div class="frame" data-label="1920s">モ</div>
+        <div class="frame" data-label="1960s">構</div>
+        <div class="frame" data-label="2020s">再</div>
+      </div>
+      <p class="oneliner">デザインを良し悪しではなく、<em>系譜</em>で捉え直す。メタカタログとしての展示室。</p>
+      <ul class="list">
+        <li><a href="/re-design/genealogy/"><span class="idx">🗂️</span><span class="t">デザイン系譜DB<small>9系統 → 拡張中。この柱の核。</small></span><span class="arr">→</span></a></li>
+        <li><a href="/v2/"><span class="idx">📚</span><span class="t">LP v2 集約版<small>向こう側にある詳細版の一枚</small></span><span class="arr">→</span></a></li>
+        <li><a href="/re-design/queue-dashboard.html"><span class="idx">🔁</span><span class="t">Queue Dashboard<small>見直し待ちの案件、優先度と放置年数</small></span><span class="arr">→</span></a></li>
+      </ul>
+    </article>
+
+    <!-- ===== B : BookBug — 本棚 ===== -->
+    <article class="pillar p-b">
+      <span class="pill-label">PILLAR 03 · SHELF</span>
+      <div class="head">
+        <span class="k">B</span>
+        <span class="ttl"><span class="jp">BookBug</span><span class="en">BOOK + BUG — 読む</span></span>
+        <span class="num">#03</span>
+      </div>
+      <div class="prop" aria-hidden="true">
+        <div class="shelf"></div>
+        <div class="book" data-t="素材図鑑"></div>
+        <div class="book" data-t="Visionium"></div>
+        <div class="book" data-t="論文集"></div>
+        <div class="book" data-t="note"></div>
+        <div class="book" data-t="パンダ"></div>
+        <div class="book" data-t="哲学"></div>
+        <div class="book" data-t="AI"></div>
+      </div>
+      <p class="oneliner">長文を読みたい人のための区画。<em>論文・読み物版図鑑・note</em>。虫は愛好家の別名。</p>
+      <ul class="list">
+        <li><a href="/materials-of-civilization/"><span class="idx">📘</span><span class="t">素材図鑑 読み物版<small>ツールと同じ素材を、長尺エッセイで読み抜ける</small></span><span class="arr">→</span></a></li>
+        <li><a href="https://zenodo.org/communities/visionium"><span class="idx">📄</span><span class="t">Visionium 論文群<small>9本 · ORCID / Zenodo</small></span><span class="arr">→</span></a></li>
+        <li><a href="https://note.com/osakenpiro"><span class="idx">✎</span><span class="t">note 記事<small>論文になる前の断片、思索の中間生成物</small></span><span class="arr">→</span></a></li>
+      </ul>
+    </article>
+
+    <!-- ===== P : Postboy — 封筒 ===== -->
+    <article class="pillar p-p">
+      <span class="pill-label">PILLAR 04 · MAILBOX</span>
+      <div class="head">
+        <span class="k">P</span>
+        <span class="ttl"><span class="jp">Postboy</span><span class="en">POST + BOY — 届ける</span></span>
+        <span class="num">#04</span>
+      </div>
+      <a class="prop prop-link" href="/contact/" aria-label="お仕事の依頼はこちら — 名刺を机の上に">
+        <div class="envelope">
+          <div class="card">
+            osakenpiro
+            <small>@osakenpiro · HIRE ME →</small>
+          </div>
+        </div>
+      </a>
+      <p class="oneliner">Visionium の中で、ここだけが<em>外に出ていく係</em>。広報の小僧として、郵便を運ぶ。</p>
+      <ul class="list">
+        <li><a href="https://twitter.com/osakenpiro"><span class="idx">𝕏</span><span class="t">X<small>@osakenpiro — 開発ログ・引用・思索のスナップショット</small></span><span class="arr">→</span></a></li>
+        <li><a href="https://www.tiktok.com/@panio54"><span class="idx">♪</span><span class="t">TikTok<small>@panio54 — 口語のほうの osakenpiro</small></span><span class="arr">→</span></a></li>
+        <li><a href="https://note.com/osakenpiro"><span class="idx">✎</span><span class="t">note<small>note.com/osakenpiro</small></span><span class="arr">→</span></a></li>
+        <li><a href="https://www.amazon.co.jp/"><span class="idx">📕</span><span class="t">KDP 書籍<small>『パンダと哲学とAI』</small></span><span class="arr">→</span></a></li>
+      </ul>
+    </article>
+
   </div>
 </section>
 
-<!-- ========== Ticker (credits strip) ========== -->
-<div class="ticker" aria-hidden="true">
-  <div class="run">
-    <span><b class="b">VISIONIUM ·</b> TRBP 4柱 / Tool · Redesign · BookBug · Postboy</span>
-    <span><b class="b">UI =</b> Ubiquitous isolation <b class="b">· UX =</b> Unique Exchange <b class="b">· WW =</b> World Word</span>
-    <span><b class="b">HI-ME TOOL ·</b> ひみつーる / Origin ポケットDs · タイポマシン / フロシキ / ビックライト</span>
-    <span><b class="b">原則 ·</b> Boolean → Float · 腐葉土設計 · 三重がけ命名</span>
-    <span><b class="b">INDEX ·</b> 論文 9 · ツール 8 · 絵本 17 · KDP 1 · ORCID 0009-0004-9167-3186</span>
-    <span><b class="b">VISIONIUM ·</b> TRBP 4柱 / Tool · Redesign · BookBug · Postboy</span>
-    <span><b class="b">UI =</b> Ubiquitous isolation <b class="b">· UX =</b> Unique Exchange <b class="b">· WW =</b> World Word</span>
-    <span><b class="b">HI-ME TOOL ·</b> ひみつーる / Origin ポケットDs · タイポマシン / フロシキ / ビックライト</span>
-    <span><b class="b">原則 ·</b> Boolean → Float · 腐葉土設計 · 三重がけ命名</span>
-    <span><b class="b">INDEX ·</b> 論文 9 · ツール 8 · 絵本 17 · KDP 1 · ORCID 0009-0004-9167-3186</span>
-  </div>
-</div>
-
-<!-- ========== FOOTER ========== -->
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
 <footer class="footer">
   <div class="vert">全人類UX改善計画</div>
-  <h3 class="pocket">
-    <span class="line">
-      <span class="ja">どこでもミライに、</span>
-      <span class="en"><b>UI</b> · Ubiquitous isolation</span>
-    </span>
-    <span class="line">
-      <span class="ja">いつでも子どもに、</span>
-      <span class="en"><b>UX</b> · Unique Exchange</span>
-    </span>
-    <span class="line">
-      <span class="ja">できたらいいなをポケットに。</span>
-      <span class="en"><b>WW</b> · World Word</span>
-    </span>
-  </h3>
-  <p class="reveal">だれもが世界にいられるような UI が　<span class="shout">「でた！！！」</span></p>
-  <div class="foot">© osakenpiro · Visionium — the center is empty · the circulation constitutes existence</div>
+  <h3><span class="g">老人と子供が</span>先に使えて、<br>大人が追いつく UI。</h3>
+  <div class="links">
+    <a href="/v2/">📂 詳しくは /v2/ へ</a>
+    <a href="/cosmos/">🪐 もう一つの顔 /cosmos/</a>
+  </div>
+  <div class="foot">© osakenpiro · VISIONIUM — the center is empty · the circulation constitutes existence</div>
 </footer>
 
-<!-- ========== POCKET CLUSTER (right-bottom, 1 button → expands) ========== -->
-<div class="pocket-cluster">
-  <div class="pocket-contents" aria-label="Quick links">
-    <nav class="file-stack" aria-label="Pages">
-      <a class="file-card" href="/cosmos/">
-        <span class="ruby">cosmos</span>
-        <span class="main">FILE · 003 · 惑星</span>
-      </a>
-      <a class="file-card" href="/v2/">
-        <span class="ruby">redesign</span>
-        <span class="main">FILE · 002 · デザイン</span>
-      </a>
-      <a class="file-card active" href="#" aria-current="page">
-        <span class="ruby">entrance</span>
-        <span class="main">FILE · 001 · 玄関</span>
-      </a>
-    </nav>
-    <div class="tag-wrap">
-      <svg class="tag-hanger" viewBox="0 0 34 34" aria-hidden="true">
-        <path d="M 17 34 C 17 24, 5 22, 5 12 C 5 4, 14 3, 14 10 C 14 17, 26 16, 26 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <div class="credit-badge" aria-label="brand">
-        <b>osakenpiro</b><span>Visionium · 2026</span>
-      </div>
-    </div>
-    <div class="tag-wrap">
-      <svg class="tag-hanger" viewBox="0 0 34 34" aria-hidden="true">
-        <path d="M 17 34 C 17 24, 5 22, 5 12 C 5 4, 14 3, 14 10 C 14 17, 26 16, 26 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <a class="bmc" href="https://www.buymeacoffee.com/osakenpiro" aria-label="Buy me a coffee">
-        <span>☕</span><span>Support</span>
-      </a>
-    </div>
-  </div>
-  <button class="pocket-btn" type="button" aria-label="ポケットを開く">
-    <svg viewBox="0 0 48 48" width="26" height="26" aria-hidden="true">
-      <path d="M 6 14 L 6 28 Q 6 38 24 38 Q 42 38 42 28 L 42 14 Z" fill="currentColor"/>
-      <path d="M 4 14 L 44 14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-      <circle cx="16" cy="24" r="1.4" fill="var(--bg)" opacity=".8"/>
-      <circle cx="24" cy="28" r="1.3" fill="var(--bg)" opacity=".7"/>
-      <circle cx="32" cy="23" r="1.4" fill="var(--bg)" opacity=".8"/>
-    </svg>
-    <span class="pocket-label">ポケット</span>
-  </button>
-</div>
+<a class="bmc" href="https://www.buymeacoffee.com/osakenpiro" aria-label="Buy me a coffee">
+  <span>☕</span><span>Support</span>
+</a>
 
 </body>
 </html>
