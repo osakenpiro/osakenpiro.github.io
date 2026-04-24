@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Paper I — The Morphology of Desire · osakenpiro</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  /* ---- Paper-specific tokens (overridable per paper) ---- */
+  :root {
+    --p-accent: #8B1A1A;           /* Paper A: 深紅 */
+    --p-accent-tint: #8B1A1A1a;
+    --p-paper: #f5f1ea;            /* off-white */
+    --p-paper-2: #efe9dd;
+    --p-ink: #1a1611;              /* near-black warm */
+    --p-ink-2: #4a4036;            /* body text */
+    --p-ink-3: #8a7d6e;            /* captions / muted */
+    --p-rule: #cfc6b5;             /* hairlines */
+    --p-rule-soft: #e0d9c8;
+  }
+
+  html, body { margin: 0; padding: 0; background: #2a2620; }
+  body {
+    font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+    color: var(--p-ink);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* A4 page — 210×297mm. Fixed on screen, single-page in print. */
+  .page {
+    width: 210mm;
+    height: 297mm;
+    margin: 24px auto;
+    background: var(--p-paper);
+    position: relative;
+    box-shadow: 0 6px 40px rgba(0,0,0,0.45);
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    padding: 18mm 20mm 14mm;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  /* Subtle paper texture */
+  .page::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(139,26,26,0.015), transparent 50%),
+      radial-gradient(circle at 85% 80%, rgba(0,0,0,0.02), transparent 50%);
+    pointer-events: none;
+  }
+
+  /* ==================== HEADER ==================== */
+  .p-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12mm;
+    align-items: start;
+    padding-bottom: 5mm;
+    border-bottom: 0.5pt solid var(--p-rule);
+    position: relative;
+  }
+  .p-head::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 18mm; height: 2.5pt;
+    background: var(--p-accent);
+  }
+  .p-meta-row {
+    display: flex;
+    gap: 14px;
+    font-family: 'Consolas', monospace;
+    font-size: 7.5pt;
+    letter-spacing: 0.18em;
+    color: var(--p-ink-3);
+    text-transform: uppercase;
+    margin-bottom: 6mm;
+    padding-top: 3mm;
+  }
+  .p-meta-row b {
+    color: var(--p-accent);
+    font-weight: 700;
+  }
+  .p-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 26pt;
+    line-height: 1.08;
+    letter-spacing: -0.005em;
+    margin: 0 0 3mm;
+    color: var(--p-ink);
+    text-wrap: pretty;
+  }
+  .p-title .accent { color: var(--p-accent); font-style: italic; }
+  .p-subtitle-en {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13pt;
+    color: var(--p-ink-2);
+    line-height: 1.3;
+    margin: 0 0 2mm;
+    font-weight: 400;
+  }
+  .p-subtitle-ja {
+    font-family: 'Zen Kaku Gothic New', 'Yu Gothic UI', sans-serif;
+    font-size: 10pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.08em;
+    margin: 0;
+    font-weight: 300;
+  }
+
+  /* Roman numeral right shoulder */
+  .p-numeral {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 72pt;
+    line-height: 0.85;
+    color: var(--p-accent);
+    opacity: 0.85;
+    letter-spacing: -0.02em;
+    text-align: right;
+    padding-top: 2mm;
+  }
+  .p-numeral small {
+    display: block;
+    font-family: 'Consolas', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.3em;
+    color: var(--p-ink-3);
+    margin-top: 2mm;
+    font-weight: 400;
+  }
+
+  /* ==================== AUTHOR STRIP ==================== */
+  .p-author-strip {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    gap: 10mm;
+    align-items: baseline;
+    padding: 4mm 0;
+    border-bottom: 0.5pt solid var(--p-rule-soft);
+    font-size: 9pt;
+  }
+  .p-author-strip > div > .label {
+    display: block;
+    font-family: 'Consolas', monospace;
+    font-size: 6.5pt;
+    letter-spacing: 0.3em;
+    color: var(--p-ink-3);
+    text-transform: uppercase;
+    margin-bottom: 1mm;
+  }
+  .p-author-strip > div > .val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10.5pt;
+    color: var(--p-ink);
+  }
+  .p-author-strip > div > .val .orcid {
+    font-family: 'Consolas', monospace;
+    font-size: 8pt;
+    color: var(--p-ink-3);
+    margin-left: 6px;
+  }
+  .p-author-strip .doi-val {
+    font-family: 'Consolas', monospace;
+    font-size: 8.5pt;
+    color: var(--p-accent);
+    letter-spacing: 0.02em;
+  }
+
+  /* ==================== BODY: 2-col ==================== */
+  .p-body {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 10mm;
+    padding-top: 7mm;
+    padding-bottom: 7mm;
+  }
+
+  /* Column 1: Abstract + findings */
+  .p-col-left { display: flex; flex-direction: column; gap: 6mm; }
+
+  .p-block-label {
+    font-family: 'Consolas', monospace;
+    font-size: 7.5pt;
+    letter-spacing: 0.3em;
+    color: var(--p-accent);
+    text-transform: uppercase;
+    margin: 0 0 2.5mm;
+    padding-bottom: 1mm;
+    border-bottom: 0.5pt solid var(--p-accent);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .p-block-label .ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 8pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.15em;
+  }
+
+  .p-abstract {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: var(--p-ink);
+    text-wrap: pretty;
+    margin: 0;
+  }
+  .p-abstract .drop {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--p-accent);
+  }
+
+  .p-oneline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 10.5pt;
+    line-height: 1.35;
+    color: var(--p-ink-2);
+    margin: 2mm 0 0;
+    padding: 3mm 4mm;
+    background: var(--p-accent-tint);
+    border-left: 1.5pt solid var(--p-accent);
+  }
+  .p-oneline-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 8.5pt;
+    color: var(--p-ink-3);
+    margin-top: 1.5mm;
+    letter-spacing: 0.04em;
+    font-weight: 400;
+  }
+
+  /* Findings — numbered */
+  .p-findings { display: flex; flex-direction: column; gap: 3mm; }
+  .p-finding {
+    display: grid;
+    grid-template-columns: 9mm 1fr;
+    gap: 3mm;
+    padding: 2mm 0;
+  }
+  .p-finding:not(:last-child) {
+    border-bottom: 0.3pt dashed var(--p-rule);
+    padding-bottom: 3mm;
+  }
+  .p-finding-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 22pt;
+    line-height: 0.9;
+    color: var(--p-accent);
+  }
+  .p-finding-head {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 10.5pt;
+    color: var(--p-ink);
+    margin: 0 0 1mm;
+    line-height: 1.25;
+  }
+  .p-finding-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 9.5pt;
+    line-height: 1.45;
+    color: var(--p-ink-2);
+    margin: 0;
+    text-wrap: pretty;
+  }
+  .p-finding-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 7.5pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.06em;
+    margin-top: 0.8mm;
+  }
+
+  /* Column 2: Core figure */
+  .p-col-right { display: flex; flex-direction: column; gap: 4mm; }
+  .p-figure-frame {
+    background: var(--p-paper-2);
+    border: 0.5pt solid var(--p-rule);
+    padding: 5mm 5mm 4mm;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .p-figure-caption {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4mm;
+    font-family: 'Consolas', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.25em;
+    color: var(--p-ink-3);
+    text-transform: uppercase;
+  }
+  .p-figure-caption b {
+    color: var(--p-accent);
+    font-weight: 700;
+  }
+  .p-figure-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 13pt;
+    color: var(--p-ink);
+    text-align: center;
+    margin: 0 0 1mm;
+  }
+  .p-figure-title-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 9pt;
+    color: var(--p-ink-3);
+    text-align: center;
+    margin: 0 0 4mm;
+    letter-spacing: 0.1em;
+  }
+  .p-figure-svg {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2mm 0;
+  }
+  .p-figure-svg svg { width: 100%; height: auto; max-height: 75mm; }
+  .p-figure-legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 3mm;
+    padding-top: 3mm;
+    border-top: 0.5pt solid var(--p-rule);
+  }
+  .p-legend-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8mm;
+  }
+  .p-legend-head {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-style: italic;
+    font-size: 10pt;
+    color: var(--p-accent);
+    line-height: 1.1;
+  }
+  .p-legend-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 8.5pt;
+    color: var(--p-ink);
+    letter-spacing: 0.04em;
+  }
+  .p-legend-desc {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 8.5pt;
+    line-height: 1.35;
+    color: var(--p-ink-2);
+    margin-top: 0.5mm;
+  }
+
+  /* ==================== FOOTER ==================== */
+  .p-foot {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8mm;
+    align-items: end;
+    padding-top: 4mm;
+    border-top: 0.5pt solid var(--p-rule);
+  }
+  .p-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2mm;
+    font-family: 'Consolas', monospace;
+    font-size: 7.5pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.1em;
+  }
+  .p-contact > div { display: flex; gap: 8px; }
+  .p-contact .k {
+    color: var(--p-accent);
+    font-weight: 700;
+    min-width: 14mm;
+  }
+  .p-contact .v { color: var(--p-ink); }
+
+  .p-cite {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 8pt;
+    line-height: 1.4;
+    color: var(--p-ink-2);
+    font-style: italic;
+    max-width: 80mm;
+    text-align: right;
+  }
+  .p-cite b { color: var(--p-ink); font-style: normal; font-weight: 600; }
+
+  .p-qr {
+    width: 18mm; height: 18mm;
+    background: #fff;
+    padding: 1mm;
+    border: 0.5pt solid var(--p-rule);
+    position: relative;
+  }
+  .p-qr svg { width: 100%; height: 100%; display: block; }
+  .p-qr-label {
+    position: absolute;
+    bottom: -4mm;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Consolas', monospace;
+    font-size: 6pt;
+    letter-spacing: 0.2em;
+    color: var(--p-ink-3);
+    white-space: nowrap;
+  }
+
+  /* ==================== PRINT ==================== */
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+  @media print {
+    html, body { background: #fff; }
+    .page {
+      margin: 0; box-shadow: none;
+      page-break-after: avoid;
+    }
+  }
+
+  /* ==================== VIEWER CHROME ==================== */
+  .viewer-hint {
+    position: fixed;
+    bottom: 14px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(245,241,234,0.9);
+    color: #4a4036;
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    padding: 6px 14px;
+    border-radius: 2px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    z-index: 100;
+  }
+  .viewer-hint b { color: #8B1A1A; }
+  @media print { .viewer-hint { display: none; } }
+</style>
+</head>
+<body>
+
+<article class="page" data-screen-label="paper-I-onepager">
+
+  <!-- HEADER -->
+  <header class="p-head">
+    <div>
+      <div class="p-meta-row">
+        <span><b>SERIES</b> Boolean → Float</span>
+        <span>·</span>
+        <span>Phenomenology &amp; Cog. Sci. <b>(under review)</b></span>
+        <span>·</span>
+        <span>2025</span>
+      </div>
+      <h1 class="p-title">
+        The Morphology of <span class="accent">Desire</span>
+      </h1>
+      <p class="p-subtitle-en">Buddhist Śūnyatā, AI-Mediated Satiation, and a New Framework for Understanding Human Want</p>
+      <p class="p-subtitle-ja">欲望の形態学 — 仏教的空・AI媒介の充足・人間の欲望のための新しい枠組み</p>
+    </div>
+    <div class="p-numeral">
+      I
+      <small>PAPER · 01 / 09</small>
+    </div>
+  </header>
+
+  <!-- AUTHOR STRIP -->
+  <section class="p-author-strip">
+    <div>
+      <span class="label">Author</span>
+      <span class="val">Kenshiro Osada <span class="orcid">0009-0004-9167-3186</span></span>
+    </div>
+    <div>
+      <span class="label">Affiliation</span>
+      <span class="val">Independent · Tokyo, JP</span>
+    </div>
+    <div>
+      <span class="label">Keywords</span>
+      <span class="val" style="font-family: 'Consolas', monospace; font-size: 8pt; letter-spacing: 0.06em;">
+        śūnyatā · desire · satiation · LLM · phenomenology · philosophy of mind
+      </span>
+    </div>
+    <div>
+      <span class="label">DOI</span>
+      <span class="val doi-val">10.5281/zenodo.19106655</span>
+    </div>
+  </section>
+
+  <!-- BODY -->
+  <main class="p-body">
+
+    <!-- LEFT: Abstract + Findings -->
+    <div class="p-col-left">
+      <div>
+        <div class="p-block-label">
+          <span>§ Abstract</span>
+          <span class="ja">要旨</span>
+        </div>
+        <p class="p-abstract">
+          <span class="drop">Desire</span> is typically framed as a lack that seeks its missing object. We propose the inverse: desire is the <em>morphology of an interior hollow</em> — a shape the self adopts around an absence. Drawing on Buddhist śūnyatā (emptiness) and contemporary work on AI-mediated satiation, we identify three canonical hollow-shapes — <em>arrow, sphere, and star</em> — each defining a distinct phenomenology of want. The framework reframes both consumer behavior and contemplative practice as operations on hollow-shape, not on the object of desire.
+        </p>
+        <p class="p-oneline">
+          “Desire is not the absence of an object, but the morphology of an interior hollow — arrow, sphere, or star.”
+          <span class="p-oneline-ja">欲望は対象の欠如ではなく、内部の空洞の形態 — 矢・球・星 — である。</span>
+        </p>
+      </div>
+
+      <div>
+        <div class="p-block-label">
+          <span>§ Key findings</span>
+          <span class="ja">主要な発見</span>
+        </div>
+        <div class="p-findings">
+
+          <div class="p-finding">
+            <span class="p-finding-num">01</span>
+            <div>
+              <h4 class="p-finding-head">Three hollow-shapes exhaust canonical desire.</h4>
+              <p class="p-finding-body">
+                Arrow (directed wanting), sphere (homeostatic balance), and star (receptive joy-at-the-accidental) together cover desire's typology without remainder across the surveyed cases.
+              </p>
+              <p class="p-finding-ja">矢・球・星の三形状で古典的な欲望の類型は余りなく覆われる。</p>
+            </div>
+          </div>
+
+          <div class="p-finding">
+            <span class="p-finding-num">02</span>
+            <div>
+              <h4 class="p-finding-head">LLM-mediation collapses arrows into spheres.</h4>
+              <p class="p-finding-body">
+                Prolonged AI-mediated satiation converts directed wanting into a diffuse equilibrium state — a measurable shift on the shape-lattice from pointed to rounded.
+              </p>
+              <p class="p-finding-ja">LLM媒介は矢を球へと畳み込み、欲望を拡散した均衡状態に変える。</p>
+            </div>
+          </div>
+
+          <div class="p-finding">
+            <span class="p-finding-num">03</span>
+            <div>
+              <h4 class="p-finding-head">Contemplative practice operates on shape, not object.</h4>
+              <p class="p-finding-body">
+                Classical śūnyatā practice is re-read as hollow-shape transformation (star-ification) rather than object-suppression — yielding a testable predicate for practice efficacy.
+              </p>
+              <p class="p-finding-ja">空の修行は対象の抑圧でなく形の変換(星化)である。</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Core figure -->
+    <div class="p-col-right">
+      <div class="p-figure-frame">
+        <div class="p-figure-caption">
+          <span><b>FIG. 1</b> · Core</span>
+          <span>図 1 · 核心図</span>
+        </div>
+        <h3 class="p-figure-title">The Three Morphologies of Desire</h3>
+        <p class="p-figure-title-ja">欲望の三形態 — 矢・球・星</p>
+
+        <div class="p-figure-svg">
+          <!-- 3-panel line-art: arrow / sphere / star -->
+          <svg viewBox="0 0 480 240" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <style>
+                .stroke-accent { stroke: #8B1A1A; fill: none; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+                .stroke-ink { stroke: #1a1611; fill: none; stroke-width: 1; stroke-linecap: round; }
+                .stroke-ink-thin { stroke: #4a4036; fill: none; stroke-width: 0.6; stroke-linecap: round; stroke-dasharray: 2 2; }
+                .fill-accent { fill: #8B1A1A; }
+                .fill-none { fill: none; }
+                .label-type { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; fill: #1a1611; }
+                .label-ja { font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 10px; fill: #8a7d6e; letter-spacing: 0.1em; }
+                .label-mode { font-family: 'Consolas', monospace; font-size: 7px; fill: #8a7d6e; letter-spacing: 0.25em; }
+                .axis { stroke: #cfc6b5; stroke-width: 0.5; fill: none; }
+              </style>
+            </defs>
+
+            <!-- baseline -->
+            <line class="axis" x1="20" y1="180" x2="460" y2="180"/>
+            <line class="axis" x1="20" y1="20" x2="20" y2="180" stroke-dasharray="1 2"/>
+            <text x="14" y="18" class="label-mode" text-anchor="end" transform="rotate(-90 14 18)">INTENSITY</text>
+            <text x="460" y="193" class="label-mode" text-anchor="end">TIME →</text>
+
+            <!-- PANEL 1: ARROW (Wanting / directed) -->
+            <g transform="translate(40,0)">
+              <!-- subject/self -->
+              <circle cx="10" cy="140" r="3" class="fill-accent"/>
+              <text x="10" y="158" class="label-mode" text-anchor="middle">SELF</text>
+              <!-- arrow shaft -->
+              <line x1="14" y1="140" x2="100" y2="80" class="stroke-accent" stroke-width="2"/>
+              <!-- arrowhead -->
+              <polygon points="100,80 92,82 95,74" class="fill-accent"/>
+              <!-- object at the tip -->
+              <circle cx="105" cy="75" r="4" class="stroke-ink" stroke-width="1.2"/>
+              <text x="105" y="66" class="label-mode" text-anchor="middle">OBJ</text>
+              <!-- hollow behind the self -->
+              <path d="M -4 140 Q -10 145 -14 140" class="stroke-ink-thin"/>
+
+              <text x="60" y="210" class="label-type" text-anchor="middle">Arrow</text>
+              <text x="60" y="226" class="label-ja" text-anchor="middle">矢 · 指向性</text>
+            </g>
+
+            <!-- PANEL 2: SPHERE (Balance / homeostatic) -->
+            <g transform="translate(200,0)">
+              <!-- the sphere -->
+              <circle cx="60" cy="110" r="42" class="stroke-accent" stroke-width="1.8"/>
+              <!-- hollow inside -->
+              <circle cx="60" cy="110" r="22" class="stroke-ink-thin"/>
+              <!-- self — at the center -->
+              <circle cx="60" cy="110" r="3" class="fill-accent"/>
+              <!-- equilibrium tick marks around -->
+              <line x1="60" y1="66" x2="60" y2="72" class="stroke-ink"/>
+              <line x1="60" y1="148" x2="60" y2="154" class="stroke-ink"/>
+              <line x1="16" y1="110" x2="22" y2="110" class="stroke-ink"/>
+              <line x1="98" y1="110" x2="104" y2="110" class="stroke-ink"/>
+              <!-- inward arrows -->
+              <path d="M 40 90 l 6 6" class="stroke-ink-thin"/>
+              <path d="M 80 90 l -6 6" class="stroke-ink-thin"/>
+              <path d="M 40 130 l 6 -6" class="stroke-ink-thin"/>
+              <path d="M 80 130 l -6 -6" class="stroke-ink-thin"/>
+
+              <text x="60" y="210" class="label-type" text-anchor="middle">Sphere</text>
+              <text x="60" y="226" class="label-ja" text-anchor="middle">球 · 均衡</text>
+            </g>
+
+            <!-- PANEL 3: STAR (Receptive / joy-at-the-accidental) -->
+            <g transform="translate(360,0)">
+              <!-- star burst -->
+              <g stroke="#8B1A1A" stroke-width="1.4" fill="none" stroke-linecap="round" transform="translate(60,110)">
+                <line x1="0" y1="-44" x2="0" y2="-22"/>
+                <line x1="0" y1="44" x2="0" y2="22"/>
+                <line x1="-44" y1="0" x2="-22" y2="0"/>
+                <line x1="44" y1="0" x2="22" y2="0"/>
+                <line x1="-31" y1="-31" x2="-15" y2="-15"/>
+                <line x1="31" y1="-31" x2="15" y2="-15"/>
+                <line x1="-31" y1="31" x2="-15" y2="15"/>
+                <line x1="31" y1="31" x2="15" y2="15"/>
+                <!-- minor rays -->
+                <line x1="-38" y1="-14" x2="-26" y2="-10" opacity="0.5"/>
+                <line x1="38" y1="-14" x2="26" y2="-10" opacity="0.5"/>
+                <line x1="-38" y1="14" x2="-26" y2="10" opacity="0.5"/>
+                <line x1="38" y1="14" x2="26" y2="10" opacity="0.5"/>
+              </g>
+              <!-- self — at the center, receptive -->
+              <circle cx="60" cy="110" r="3" class="fill-accent"/>
+              <circle cx="60" cy="110" r="12" class="stroke-ink-thin"/>
+              <!-- chance symbols around periphery -->
+              <text x="12" y="70" class="label-mode">+</text>
+              <text x="100" y="72" class="label-mode">?</text>
+              <text x="16" y="160" class="label-mode">!</text>
+              <text x="100" y="158" class="label-mode">◊</text>
+
+              <text x="60" y="210" class="label-type" text-anchor="middle">Star</text>
+              <text x="60" y="226" class="label-ja" text-anchor="middle">星 · 偶然の喜び</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="p-figure-legend">
+          <div class="p-legend-item">
+            <div class="p-legend-head">Arrow</div>
+            <div class="p-legend-ja">矢</div>
+            <div class="p-legend-desc">Directed wanting · subject vectors toward an object. Unstable.</div>
+          </div>
+          <div class="p-legend-item">
+            <div class="p-legend-head">Sphere</div>
+            <div class="p-legend-ja">球</div>
+            <div class="p-legend-desc">Homeostatic balance · self sits at the center of inward forces.</div>
+          </div>
+          <div class="p-legend-item">
+            <div class="p-legend-head">Star</div>
+            <div class="p-legend-ja">星</div>
+            <div class="p-legend-desc">Receptive joy · self opens to the chance-arrival. Meta-stable.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="p-foot">
+    <div class="p-contact">
+      <div><span class="k">CONTACT</span><span class="v">osakenpiro@gmail.com</span></div>
+      <div><span class="k">WEB</span><span class="v">osakenpiro.github.io</span></div>
+      <div><span class="k">X / GH</span><span class="v">@kenpiro7 · github.com/osakenpiro</span></div>
+    </div>
+
+    <div class="p-cite">
+      Osada, K. (2025). <b>The Morphology of Desire.</b> Zenodo.<br>
+      doi.org/10.5281/zenodo.19106655
+    </div>
+
+    <div class="p-qr">
+      <!-- Placeholder QR — static pattern. Swap for real QR in production. -->
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+        <rect width="100" height="100" fill="#fff"/>
+        <!-- finder patterns -->
+        <rect x="6" y="6" width="22" height="22" fill="#000"/>
+        <rect x="10" y="10" width="14" height="14" fill="#fff"/>
+        <rect x="13" y="13" width="8" height="8" fill="#000"/>
+        <rect x="72" y="6" width="22" height="22" fill="#000"/>
+        <rect x="76" y="10" width="14" height="14" fill="#fff"/>
+        <rect x="79" y="13" width="8" height="8" fill="#000"/>
+        <rect x="6" y="72" width="22" height="22" fill="#000"/>
+        <rect x="10" y="76" width="14" height="14" fill="#fff"/>
+        <rect x="13" y="79" width="8" height="8" fill="#000"/>
+        <!-- alignment -->
+        <rect x="66" y="66" width="12" height="12" fill="#000"/>
+        <rect x="69" y="69" width="6" height="6" fill="#fff"/>
+        <rect x="71" y="71" width="2" height="2" fill="#000"/>
+        <!-- timing patterns + pseudo-random data modules (static, decorative) -->
+        <g fill="#000">
+          <rect x="32" y="6" width="2" height="2"/><rect x="38" y="6" width="2" height="2"/>
+          <rect x="44" y="6" width="2" height="2"/><rect x="50" y="6" width="2" height="2"/>
+          <rect x="56" y="6" width="2" height="2"/><rect x="62" y="6" width="2" height="2"/>
+          <rect x="6" y="32" width="2" height="2"/><rect x="6" y="38" width="2" height="2"/>
+          <rect x="6" y="44" width="2" height="2"/><rect x="6" y="50" width="2" height="2"/>
+          <rect x="6" y="56" width="2" height="2"/><rect x="6" y="62" width="2" height="2"/>
+          <rect x="32" y="32" width="4" height="4"/><rect x="40" y="34" width="2" height="4"/>
+          <rect x="44" y="32" width="4" height="2"/><rect x="50" y="34" width="2" height="2"/>
+          <rect x="54" y="32" width="2" height="4"/><rect x="58" y="34" width="4" height="2"/>
+          <rect x="62" y="36" width="2" height="2"/><rect x="32" y="38" width="2" height="4"/>
+          <rect x="36" y="42" width="4" height="2"/><rect x="42" y="40" width="2" height="4"/>
+          <rect x="46" y="44" width="2" height="2"/><rect x="50" y="42" width="4" height="4"/>
+          <rect x="56" y="44" width="2" height="2"/><rect x="60" y="40" width="2" height="2"/>
+          <rect x="34" y="48" width="2" height="4"/><rect x="38" y="50" width="4" height="2"/>
+          <rect x="44" y="48" width="2" height="4"/><rect x="50" y="50" width="2" height="4"/>
+          <rect x="54" y="48" width="4" height="2"/><rect x="60" y="50" width="2" height="4"/>
+          <rect x="32" y="54" width="4" height="2"/><rect x="38" y="56" width="2" height="2"/>
+          <rect x="42" y="54" width="2" height="4"/><rect x="46" y="56" width="4" height="2"/>
+          <rect x="52" y="54" width="2" height="2"/><rect x="56" y="56" width="2" height="4"/>
+          <rect x="60" y="54" width="4" height="2"/><rect x="34" y="60" width="2" height="2"/>
+          <rect x="38" y="62" width="4" height="2"/><rect x="44" y="60" width="2" height="2"/>
+          <rect x="48" y="62" width="2" height="2"/><rect x="52" y="60" width="4" height="4"/>
+          <rect x="58" y="62" width="2" height="2"/><rect x="62" y="60" width="2" height="4"/>
+          <rect x="32" y="68" width="2" height="2"/><rect x="36" y="70" width="2" height="2"/>
+          <rect x="40" y="68" width="2" height="4"/><rect x="44" y="70" width="4" height="2"/>
+          <rect x="50" y="68" width="2" height="4"/><rect x="54" y="70" width="4" height="2"/>
+          <rect x="60" y="68" width="2" height="2"/><rect x="32" y="74" width="4" height="2"/>
+          <rect x="38" y="76" width="2" height="2"/><rect x="42" y="74" width="2" height="4"/>
+          <rect x="46" y="78" width="4" height="2"/><rect x="52" y="76" width="2" height="4"/>
+          <rect x="58" y="74" width="2" height="2"/><rect x="62" y="76" width="2" height="2"/>
+          <rect x="32" y="82" width="2" height="4"/><rect x="36" y="84" width="4" height="2"/>
+          <rect x="42" y="82" width="2" height="4"/><rect x="48" y="86" width="2" height="2"/>
+          <rect x="52" y="84" width="4" height="2"/><rect x="58" y="82" width="2" height="4"/>
+          <rect x="62" y="84" width="2" height="2"/><rect x="32" y="90" width="4" height="2"/>
+          <rect x="38" y="92" width="2" height="2"/><rect x="42" y="90" width="2" height="4"/>
+          <rect x="46" y="92" width="4" height="2"/><rect x="52" y="90" width="4" height="4"/>
+        </g>
+      </svg>
+      <div class="p-qr-label">ZENODO</div>
+    </div>
+  </footer>
+
+</article>
+
+<div class="viewer-hint">
+  <b>PAPER I</b> · template draft · press <b>⌘/Ctrl + P</b> to print A4 PDF
+</div>
+
+</body>
+</html>

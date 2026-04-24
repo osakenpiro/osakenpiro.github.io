@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Paper IX — The Decryption Key · osakenpiro</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  /* ---- Paper-specific tokens (overridable per paper) ---- */
+  :root {
+    --p-accent: #4a4036;
+    --p-accent-tint: #4a40361a;
+    --p-paper: #f5f1ea;            /* off-white */
+    --p-paper-2: #efe9dd;
+    --p-ink: #1a1611;              /* near-black warm */
+    --p-ink-2: #4a4036;            /* body text */
+    --p-ink-3: #8a7d6e;            /* captions / muted */
+    --p-rule: #cfc6b5;             /* hairlines */
+    --p-rule-soft: #e0d9c8;
+  }
+
+  html, body { margin: 0; padding: 0; background: #2a2620; }
+  body {
+    font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+    color: var(--p-ink);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* A4 page — 210×297mm. Fixed on screen, single-page in print. */
+  .page {
+    width: 210mm;
+    height: 297mm;
+    margin: 24px auto;
+    background: var(--p-paper);
+    position: relative;
+    box-shadow: 0 6px 40px rgba(0,0,0,0.45);
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    padding: 18mm 20mm 14mm;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  /* Subtle paper texture */
+  .page::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(139,26,26,0.015), transparent 50%),
+      radial-gradient(circle at 85% 80%, rgba(0,0,0,0.02), transparent 50%);
+    pointer-events: none;
+  }
+
+  /* ==================== HEADER ==================== */
+  .p-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12mm;
+    align-items: start;
+    padding-bottom: 5mm;
+    border-bottom: 0.5pt solid var(--p-rule);
+    position: relative;
+  }
+  .p-head::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 18mm; height: 2.5pt;
+    background: var(--p-accent);
+  }
+  .p-meta-row {
+    display: flex;
+    gap: 14px;
+    font-family: 'Consolas', monospace;
+    font-size: 7.5pt;
+    letter-spacing: 0.18em;
+    color: var(--p-ink-3);
+    text-transform: uppercase;
+    margin-bottom: 6mm;
+    padding-top: 3mm;
+  }
+  .p-meta-row b {
+    color: var(--p-accent);
+    font-weight: 700;
+  }
+  .p-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 26pt;
+    line-height: 1.08;
+    letter-spacing: -0.005em;
+    margin: 0 0 3mm;
+    color: var(--p-ink);
+    text-wrap: pretty;
+  }
+  .p-title .accent { color: var(--p-accent); font-style: italic; }
+  .p-subtitle-en {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13pt;
+    color: var(--p-ink-2);
+    line-height: 1.3;
+    margin: 0 0 2mm;
+    font-weight: 400;
+  }
+  .p-subtitle-ja {
+    font-family: 'Zen Kaku Gothic New', 'Yu Gothic UI', sans-serif;
+    font-size: 10pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.08em;
+    margin: 0;
+    font-weight: 300;
+  }
+
+  /* Roman numeral right shoulder */
+  .p-numeral {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 72pt;
+    line-height: 0.85;
+    color: var(--p-accent);
+    opacity: 0.85;
+    letter-spacing: -0.02em;
+    text-align: right;
+    padding-top: 2mm;
+  }
+  .p-numeral small {
+    display: block;
+    font-family: 'Consolas', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.3em;
+    color: var(--p-ink-3);
+    margin-top: 2mm;
+    font-weight: 400;
+  }
+
+  /* ==================== AUTHOR STRIP ==================== */
+  .p-author-strip {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    gap: 10mm;
+    align-items: baseline;
+    padding: 4mm 0;
+    border-bottom: 0.5pt solid var(--p-rule-soft);
+    font-size: 9pt;
+  }
+  .p-author-strip > div > .label {
+    display: block;
+    font-family: 'Consolas', monospace;
+    font-size: 6.5pt;
+    letter-spacing: 0.3em;
+    color: var(--p-ink-3);
+    text-transform: uppercase;
+    margin-bottom: 1mm;
+  }
+  .p-author-strip > div > .val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10.5pt;
+    color: var(--p-ink);
+  }
+  .p-author-strip > div > .val .orcid {
+    font-family: 'Consolas', monospace;
+    font-size: 8pt;
+    color: var(--p-ink-3);
+    margin-left: 6px;
+  }
+  .p-author-strip .doi-val {
+    font-family: 'Consolas', monospace;
+    font-size: 8.5pt;
+    color: var(--p-accent);
+    letter-spacing: 0.02em;
+  }
+
+  /* ==================== BODY: 2-col ==================== */
+  .p-body {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 10mm;
+    padding-top: 7mm;
+    padding-bottom: 7mm;
+  }
+
+  /* Column 1: Abstract + findings */
+  .p-col-left { display: flex; flex-direction: column; gap: 6mm; }
+
+  .p-block-label {
+    font-family: 'Consolas', monospace;
+    font-size: 7.5pt;
+    letter-spacing: 0.3em;
+    color: var(--p-accent);
+    text-transform: uppercase;
+    margin: 0 0 2.5mm;
+    padding-bottom: 1mm;
+    border-bottom: 0.5pt solid var(--p-accent);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .p-block-label .ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 8pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.15em;
+  }
+
+  .p-abstract {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: var(--p-ink);
+    text-wrap: pretty;
+    margin: 0;
+  }
+  .p-abstract .drop {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--p-accent);
+  }
+
+  .p-oneline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 10.5pt;
+    line-height: 1.35;
+    color: var(--p-ink-2);
+    margin: 2mm 0 0;
+    padding: 3mm 4mm;
+    background: var(--p-accent-tint);
+    border-left: 1.5pt solid var(--p-accent);
+  }
+  .p-oneline-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 8.5pt;
+    color: var(--p-ink-3);
+    margin-top: 1.5mm;
+    letter-spacing: 0.04em;
+    font-weight: 400;
+  }
+
+  /* Findings — numbered */
+  .p-findings { display: flex; flex-direction: column; gap: 3mm; }
+  .p-finding {
+    display: grid;
+    grid-template-columns: 9mm 1fr;
+    gap: 3mm;
+    padding: 2mm 0;
+  }
+  .p-finding:not(:last-child) {
+    border-bottom: 0.3pt dashed var(--p-rule);
+    padding-bottom: 3mm;
+  }
+  .p-finding-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 22pt;
+    line-height: 0.9;
+    color: var(--p-accent);
+  }
+  .p-finding-head {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 10.5pt;
+    color: var(--p-ink);
+    margin: 0 0 1mm;
+    line-height: 1.25;
+  }
+  .p-finding-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 9.5pt;
+    line-height: 1.45;
+    color: var(--p-ink-2);
+    margin: 0;
+    text-wrap: pretty;
+  }
+  .p-finding-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 7.5pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.06em;
+    margin-top: 0.8mm;
+  }
+
+  /* Column 2: Core figure */
+  .p-col-right { display: flex; flex-direction: column; gap: 4mm; }
+  .p-figure-frame {
+    background: var(--p-paper-2);
+    border: 0.5pt solid var(--p-rule);
+    padding: 5mm 5mm 4mm;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .p-figure-caption {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4mm;
+    font-family: 'Consolas', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.25em;
+    color: var(--p-ink-3);
+    text-transform: uppercase;
+  }
+  .p-figure-caption b {
+    color: var(--p-accent);
+    font-weight: 700;
+  }
+  .p-figure-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 13pt;
+    color: var(--p-ink);
+    text-align: center;
+    margin: 0 0 1mm;
+  }
+  .p-figure-title-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 9pt;
+    color: var(--p-ink-3);
+    text-align: center;
+    margin: 0 0 4mm;
+    letter-spacing: 0.1em;
+  }
+  .p-figure-svg {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2mm 0;
+  }
+  .p-figure-svg svg { width: 100%; height: auto; max-height: 75mm; }
+  .p-figure-legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 3mm;
+    padding-top: 3mm;
+    border-top: 0.5pt solid var(--p-rule);
+  }
+  .p-legend-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8mm;
+  }
+  .p-legend-head {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-style: italic;
+    font-size: 10pt;
+    color: var(--p-accent);
+    line-height: 1.1;
+  }
+  .p-legend-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 8.5pt;
+    color: var(--p-ink);
+    letter-spacing: 0.04em;
+  }
+  .p-legend-desc {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 8.5pt;
+    line-height: 1.35;
+    color: var(--p-ink-2);
+    margin-top: 0.5mm;
+  }
+
+  /* ==================== FOOTER ==================== */
+  .p-foot {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8mm;
+    align-items: end;
+    padding-top: 4mm;
+    border-top: 0.5pt solid var(--p-rule);
+  }
+  .p-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2mm;
+    font-family: 'Consolas', monospace;
+    font-size: 7.5pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.1em;
+  }
+  .p-contact > div { display: flex; gap: 8px; }
+  .p-contact .k {
+    color: var(--p-accent);
+    font-weight: 700;
+    min-width: 14mm;
+  }
+  .p-contact .v { color: var(--p-ink); }
+
+  .p-cite {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 8pt;
+    line-height: 1.4;
+    color: var(--p-ink-2);
+    font-style: italic;
+    max-width: 80mm;
+    text-align: right;
+  }
+  .p-cite b { color: var(--p-ink); font-style: normal; font-weight: 600; }
+
+  .p-qr {
+    width: 18mm; height: 18mm;
+    background: #fff;
+    padding: 1mm;
+    border: 0.5pt solid var(--p-rule);
+    position: relative;
+  }
+  .p-qr svg { width: 100%; height: 100%; display: block; }
+  .p-qr-label {
+    position: absolute;
+    bottom: -4mm;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Consolas', monospace;
+    font-size: 6pt;
+    letter-spacing: 0.2em;
+    color: var(--p-ink-3);
+    white-space: nowrap;
+  }
+
+  /* ==================== PRINT ==================== */
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+  @media print {
+    html, body { background: #fff; }
+    .page {
+      margin: 0; box-shadow: none;
+      page-break-after: avoid;
+    }
+  }
+
+  /* ==================== VIEWER CHROME ==================== */
+  .viewer-hint {
+    position: fixed;
+    bottom: 14px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(245,241,234,0.9);
+    color: #4a4036;
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    padding: 6px 14px;
+    border-radius: 2px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    z-index: 100;
+  }
+  .viewer-hint b { color: #4a4036; }
+  @media print { .viewer-hint { display: none; } }
+</style>
+</head>
+<body>
+
+<article class="page" data-screen-label="paper-IX-onepager">
+
+  <!-- HEADER -->
+  <header class="p-head">
+    <div>
+      <div class="p-meta-row">
+        <span><b>SERIES</b> Boolean → Float</span>
+        <span>·</span>
+        <span>Phenomenology &amp; Cog. Sci. <b>(under review)</b></span>
+        <span>·</span>
+        <span>2025</span>
+      </div>
+      <h1 class="p-title">
+        The <span class="accent">Decryption Key</span>
+      </h1>
+      <p class="p-subtitle-en">A Pending Meta-Paper on the Key That Unlocks the Eight — Shape Still Forming</p>
+      <p class="p-subtitle-ja">解読の鍵 — 八論文を開く鍵についての未完メタ論文・形はまだ定まらない</p>
+    </div>
+    <div class="p-numeral">
+      IX
+      <small>PAPER · 09 / 09</small>
+    </div>
+  </header>
+
+  <!-- AUTHOR STRIP -->
+  <section class="p-author-strip">
+    <div>
+      <span class="label">Author</span>
+      <span class="val">Kenshiro Osada <span class="orcid">0009-0004-9167-3186</span></span>
+    </div>
+    <div>
+      <span class="label">Affiliation</span>
+      <span class="val">Independent · Tokyo, JP</span>
+    </div>
+    <div>
+      <span class="label">Keywords</span>
+      <span class="val" style="font-family: 'Consolas', monospace; font-size: 8pt; letter-spacing: 0.06em;">
+        meta-paper · keyhole · incompleteness · pending · draft · decryption
+      </span>
+    </div>
+    <div>
+      <span class="label">DOI</span>
+      <span class="val doi-val">10.5281/zenodo.19106733</span>
+    </div>
+  </section>
+
+  <!-- BODY -->
+  <main class="p-body">
+
+    <!-- LEFT: Abstract + Findings -->
+    <div class="p-col-left">
+      <div>
+        <div class="p-block-label">
+          <span>§ Abstract</span>
+          <span class="ja">要旨</span>
+        </div>
+        <p class="p-abstract">
+          <span class="drop">Pending</span> is eight preceding papers describe the shape of a keyhole. This ninth paper is the <em>key</em> — but the key is not yet cut. We present what can be said about the key's teeth from the keyhole's inner geometry, and mark explicitly what must remain <em>pending</em> until the object is held in the hand. The paper is an honest draft; its incompleteness is structural, not negligent.
+        </p>
+        <p class="p-oneline">
+          "The key is inferred from the keyhole, but not yet cut. The incompleteness is structural."
+          <span class="p-oneline-ja">鍵は鍵穴から推論できるが、まだ切られていない。この未完は構造的である。</span>
+        </p>
+      </div>
+
+      <div>
+        <div class="p-block-label">
+          <span>§ Key findings</span>
+          <span class="ja">主要な発見</span>
+        </div>
+        <div class="p-findings">
+
+          <div class="p-finding">
+            <span class="p-finding-num">01</span>
+            <div>
+              <h4 class="p-finding-head">The keyhole's inner geometry is knowable.</h4>
+              <p class="p-finding-body">
+                From Papers I–VIII, we can specify the negative space the key must fill: arrow, ring, mountain, prism, helix, radar, torus, triangle.
+              </p>
+              <p class="p-finding-ja">鍵穴の内形は既知 — 八論文の負空間として定まる。</p>
+            </div>
+          </div>
+
+          <div class="p-finding">
+            <span class="p-finding-num">02</span>
+            <div>
+              <h4 class="p-finding-head">The key itself remains pending.</h4>
+              <p class="p-finding-body">
+                What metal, what hand, what turn — these cannot yet be specified without equivocation. We mark them as (pending) rather than invent.
+              </p>
+              <p class="p-finding-ja">鍵そのものは未定 — 金属・手・回転は未だ仮置きのみ。</p>
+            </div>
+          </div>
+
+          <div class="p-finding">
+            <span class="p-finding-num">03</span>
+            <div>
+              <h4 class="p-finding-head">Honest incompleteness beats false closure.</h4>
+              <p class="p-finding-body">
+                Publishing the draft key with explicit (pending) markers is strictly better than forcing closure; the draft invites correction.
+              </p>
+              <p class="p-finding-ja">虚偽の完結より正直な未完の方が良い。</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Core figure -->
+    <div class="p-col-right">
+      <div class="p-figure-frame">
+        <div class="p-figure-caption">
+          <span><b>FIG. 1</b> · Core</span>
+          <span>図 1 · 核心図</span>
+        </div>
+        <h3 class="p-figure-title">The Keyhole and the Uncut Key</h3>
+        <p class="p-figure-title-ja">鍵穴と未完の鍵 — 鍵の輪郭はまだ淡い</p>
+
+        <div class="p-figure-svg">
+          <!-- Core figure for Paper IX -->
+      <svg viewBox="0 0 480 240" xmlns="http://www.w3.org/2000/svg">
+        <defs><style>
+          .s-acc { stroke: #4a4036; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+          .s-ink { stroke: #1a1611; fill: none; stroke-linecap: round; }
+          .s-thin { stroke: #4a4036; fill: none; stroke-width: 0.4; stroke-dasharray: 2 2; }
+          .s-pending { stroke: #8a7d6e; fill: none; stroke-linecap: round; stroke-linejoin: round; opacity: 0.4; stroke-dasharray: 2 3; }
+          .f-acc { fill: #4a4036; }
+          .f-pending { fill: #8a7d6e; opacity: 0.25; }
+          .lbl-t { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; fill: #1a1611; }
+          .lbl-j { font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 10px; fill: #8a7d6e; letter-spacing: 0.1em; }
+          .lbl-m { font-family: 'Consolas', monospace; font-size: 7px; fill: #8a7d6e; letter-spacing: 0.25em; }
+          .axis { stroke: #cfc6b5; stroke-width: 0.5; fill: none; }
+        </style>
+          <!-- blur filter for pending key -->
+          <filter id="pending-blur" x="-10%" y="-10%" width="120%" height="120%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="1.2"/>
+          </filter>
+        </defs>
+
+        <line class="axis" x1="20" y1="210" x2="460" y2="210"/>
+        <text x="30" y="225" class="lbl-m">KEYHOLE · SHARP</text>
+        <text x="450" y="225" class="lbl-m" text-anchor="end">KEY · (PENDING)</text>
+
+        <!-- LEFT: Keyhole (sharp silhouette) in a lock plate -->
+        <g transform="translate(130,110)">
+          <!-- lock plate -->
+          <rect x="-60" y="-70" width="120" height="140" rx="6" class="s-acc" stroke-width="1.4" fill="none"/>
+          <!-- decorative corner dots -->
+          <circle cx="-50" cy="-60" r="1.5" class="f-acc"/>
+          <circle cx="50" cy="-60" r="1.5" class="f-acc"/>
+          <circle cx="-50" cy="60" r="1.5" class="f-acc"/>
+          <circle cx="50" cy="60" r="1.5" class="f-acc"/>
+          <!-- keyhole silhouette: circle on top + narrowing slot below -->
+          <path d="M 0 -30
+                   m -14 0
+                   a 14 14 0 1 0 28 0
+                   a 14 14 0 1 0 -28 0
+                   M -6 -18
+                   L -9 40
+                   L 9 40
+                   L 6 -18 Z" class="f-acc"/>
+          <!-- Paper numerals arranged around keyhole (I-VIII) -->
+          <g class="lbl-m" fill="#8a7d6e">
+            <text x="-48" y="-32">I</text>
+            <text x="-48" y="-14">II</text>
+            <text x="-48" y="4">III</text>
+            <text x="-48" y="22">IV</text>
+            <text x="40" y="-32">V</text>
+            <text x="40" y="-14">VI</text>
+            <text x="40" y="4">VII</text>
+            <text x="40" y="22">VIII</text>
+          </g>
+          <!-- label -->
+          <text x="0" y="90" class="lbl-t" text-anchor="middle">Keyhole</text>
+          <text x="0" y="104" class="lbl-j" text-anchor="middle">鍵穴 · 八論文の負空間</text>
+        </g>
+
+        <!-- ARROW between them -->
+        <g transform="translate(240,110)">
+          <line x1="0" y1="0" x2="40" y2="0" class="s-thin"/>
+          <polygon points="40,0 34,-4 34,4" class="f-acc" opacity="0.6"/>
+          <text x="20" y="-8" class="lbl-m" text-anchor="middle">FITS →</text>
+          <text x="20" y="18" class="lbl-m" text-anchor="middle">(PENDING)</text>
+        </g>
+
+        <!-- RIGHT: Key (soft / pending / blurred outline) -->
+        <g transform="translate(370,110)" filter="url(#pending-blur)" opacity="0.75">
+          <!-- key bow (circular grip) -->
+          <circle cx="-40" cy="0" r="22" class="s-pending" stroke-width="2" fill="none"/>
+          <circle cx="-40" cy="0" r="8" class="s-pending" stroke-width="1"/>
+          <!-- shaft -->
+          <rect x="-18" y="-5" width="60" height="10" class="s-pending" stroke-width="2" fill="none"/>
+          <!-- teeth (irregular cuts on bottom of shaft) -->
+          <path d="M 5 5 L 5 16 L 12 16 L 12 9 L 20 9 L 20 18 L 28 18 L 28 5"
+                class="s-pending" stroke-width="2" fill="none"/>
+          <!-- question marks around teeth indicating uncut -->
+          <text x="14" y="30" class="lbl-m" text-anchor="middle" fill="#8a7d6e" opacity="0.8">?</text>
+          <text x="32" y="30" class="lbl-m" text-anchor="middle" fill="#8a7d6e" opacity="0.8">?</text>
+        </g>
+        <text x="370" y="200" class="lbl-t" text-anchor="middle">Key</text>
+        <text x="370" y="214" class="lbl-j" text-anchor="middle">鍵 · 未完の輪郭</text>
+      </svg>
+        </div>
+
+        <div class="p-figure-legend">
+          <div class="p-legend-item">
+            <div class="p-legend-head">Keyhole</div>
+            <div class="p-legend-ja">鍵穴</div>
+            <div class="p-legend-desc">Negative space. Specified by Papers I–VIII. Sharp.</div>
+          </div>
+          <div class="p-legend-item">
+            <div class="p-legend-head">Key</div>
+            <div class="p-legend-ja">鍵</div>
+            <div class="p-legend-desc">The object that would fit. Currently (pending) — soft outline.</div>
+          </div>
+          <div class="p-legend-item">
+            <div class="p-legend-head">Turn</div>
+            <div class="p-legend-ja">回転</div>
+            <div class="p-legend-desc">What happens after insertion. Out of scope of this draft.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="p-foot">
+    <div class="p-contact">
+      <div><span class="k">CONTACT</span><span class="v">osakenpiro@gmail.com</span></div>
+      <div><span class="k">WEB</span><span class="v">osakenpiro.github.io</span></div>
+      <div><span class="k">X / GH</span><span class="v">@kenpiro7 · github.com/osakenpiro</span></div>
+    </div>
+
+    <div class="p-cite">
+      Osada, K. (2025). <b>The Decryption Key.</b> Zenodo.<br>
+      doi.org/10.5281/zenodo.19106733
+    </div>
+
+    <div class="p-qr">
+      <!-- Real QR linking to Zenodo DOI for Paper IX -->
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=2&data=https%3A%2F%2Fdoi.org%2F10.5281%2Fzenodo.19106733" alt="QR code for https://doi.org/10.5281/zenodo.19106733" style="width:100%;height:100%;display:block;image-rendering: pixelated;"/>
+      <div class="p-qr-label">ZENODO</div>
+    </div>
+  </footer>
+
+</article>
+
+<div class="viewer-hint">
+  <b>PAPER IX</b> · press <b>⌘/Ctrl + P</b> to print A4 PDF
+</div>
+
+</body>
+</html>

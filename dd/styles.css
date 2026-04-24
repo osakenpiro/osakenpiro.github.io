@@ -1,0 +1,700 @@
+/* =========================================================
+   osakenpiro DD (Design Dashboard) v3 — styles
+   Base layer: BLBr (simple, high info density, 素材図鑑 direct).
+   Spot motifs: PtDs (Physical Twin Design) · GUBr (Gaming UI).
+   ========================================================= */
+
+/* ---- Tokens ---- */
+:root{
+  /* brand base — BLBr */
+  --bg:        #faf9f6;   /* off-white, never pure */
+  --surface:   #ffffff;
+  --ink:       #2c2c2a;   /* near-black, never pure */
+  --sub:       #5f5e5a;
+  --dim:       #8a8880;
+  --rule:      #d9d6cc;
+  --soft:      #ece9df;
+  --paper:     #faf7ef;   /* paper sheet base */
+  --desk:      #e9e3d4;   /* 机の木目 top */
+  --desk-dark: #d9d1be;   /* 机の木目 bottom */
+  --grain:     rgba(44,44,42,.06);
+
+  /* accent discipline */
+  --gold:  #BA7517;   /* ONLY glyph + DOI */
+  --coral: #ff6b6b;   /* emphasis */
+
+  /* type */
+  --mincho: "Zen Old Mincho","Noto Serif JP",serif;
+  --hook:   "Shippori Mincho B1","Zen Old Mincho",serif;
+  --sans:   "Noto Sans JP",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:   ui-monospace, "DM Mono", "Courier New", monospace;
+
+  /* scale */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px;
+  --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 72px;
+
+  /* motion */
+  --ease: cubic-bezier(.2,.8,.2,1);
+}
+
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#1c1b18; --surface:#25241f;
+    --ink:#f0ece2; --sub:#aca99c; --dim:#6e6b62;
+    --rule:#3d3a31; --soft:#2a2722;
+    --paper:#efe9d9; --desk:#2a2722; --desk-dark:#23211c;
+    --grain:rgba(255,255,255,.04);
+  }
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family: var(--sans);
+  font-size: 16px; line-height: 1.75;
+  color: var(--ink); background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "palt";
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+a{color:inherit;text-decoration:none}
+::selection{ background: var(--gold); color: #fff;}
+
+/* ---------- top bar ---------- */
+.top{
+  position: sticky; top:0; z-index:40;
+  display:flex; justify-content:space-between; align-items:center;
+  padding: 12px 20px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--soft);
+  font-size: 13px;
+}
+.top .mark{
+  font-family: var(--mincho); font-weight: 900; font-size: 18px; letter-spacing: 0;
+}
+.top .mark .dot{ color: var(--coral); }
+.top nav{
+  display:flex; gap: 4px; flex-wrap: wrap;
+  font-family: var(--mono); font-size: 11px; letter-spacing:.14em; color: var(--sub);
+}
+.top nav a{
+  padding: 8px 10px; min-height: 44px; display:inline-flex; align-items:center;
+  border-radius: 4px;
+}
+.top nav a:hover{ color: var(--ink); background: var(--soft); }
+
+/* ---------- page container ---------- */
+.wrap{ max-width: 1200px; margin: 0 auto; padding: 0 20px;}
+
+/* section base */
+section.sec{
+  padding: var(--s-8) 0 var(--s-8);
+  border-top: 1px solid var(--soft);
+}
+section.sec:first-of-type{ border-top: none;}
+
+.sec-head{ margin: 0 0 var(--s-6); }
+.kicker{
+  display:inline-flex; align-items:center; gap: 10px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .22em; color: var(--sub);
+  text-transform: uppercase;
+}
+.kicker::before{ content:""; width: 28px; height: 1px; background: var(--ink); }
+.sec-title{
+  font-family: var(--mincho); font-weight: 900;
+  font-size: clamp(28px, 3.8vw, 44px);
+  line-height: 1.15; letter-spacing: -.01em;
+  margin: 10px 0 6px;
+}
+.sec-sub{
+  font-family: var(--mincho); font-size: clamp(15px, 1.6vw, 18px);
+  color: var(--sub); margin: 0; max-width: 680px;
+}
+
+/* ----- placeholder block (for not-yet-built sections) ----- */
+.ph{
+  border: 1px dashed var(--rule);
+  border-radius: 10px;
+  padding: var(--s-6) var(--s-5);
+  background: color-mix(in srgb, var(--soft) 45%, transparent);
+  color: var(--sub);
+  font-family: var(--mono); font-size: 12px; letter-spacing: .1em;
+}
+.ph b{ color: var(--ink); font-weight: 700; letter-spacing: 0; font-family: var(--mincho); font-size: 14px; display:block; margin-bottom: 4px;}
+
+/* =========================================================
+   HERO (placeholder · BLBr 準拠 · テキスト主体)
+   ========================================================= */
+.hero{ padding-top: var(--s-8); padding-bottom: var(--s-7); border-top: none;}
+.hero h1{
+  font-family: var(--hook);
+  font-weight: 700;
+  font-size: clamp(40px, 6vw, 84px);
+  line-height: 1.05; letter-spacing: -.015em;
+  margin: 14px 0 14px;
+}
+.hero h1 .dot{ color: var(--coral); }
+.hero .roles{
+  font-family: var(--mincho); font-size: 18px; color: var(--sub);
+  margin: 0 0 var(--s-4);
+}
+.hero .tagline{
+  display: inline-block;
+  background: linear-gradient(transparent 62%, color-mix(in srgb, var(--gold) 45%, transparent) 62%);
+  color: var(--ink);
+  padding: 0 4px;
+  font-family: var(--mincho); font-weight: 700; font-size: clamp(18px, 2vw, 24px);
+}
+.hero .manifesto{
+  margin: var(--s-5) 0 0;
+  font-family: var(--mincho); font-style: italic;
+  color: var(--dim); max-width: 680px; font-size: 15px; line-height: 1.8;
+}
+
+/* =========================================================
+   PAPERS — PtDs 机俯瞰 × 書類束 × 9
+   机の俯瞰ビュー (クリーム紙面トーンの木目)
+   ========================================================= */
+.papers-desk{
+  position: relative;
+  margin: var(--s-5) 0 0;
+  padding: clamp(40px, 6vw, 72px) clamp(20px, 4vw, 56px) clamp(56px, 7vw, 88px);
+  border-radius: 14px;
+  border: 1px solid var(--rule);
+
+  /* 木目 × クリーム紙面ブレンド — 斜めの木目ライン */
+  background:
+    /* subtle top vignette */
+    radial-gradient(ellipse at 50% -10%, color-mix(in srgb, var(--gold) 12%, transparent), transparent 55%),
+    /* horizontal wood bands */
+    repeating-linear-gradient(92deg,
+      color-mix(in srgb, var(--desk-dark) 65%, transparent) 0 2px,
+      transparent 2px 7px),
+    repeating-linear-gradient(90deg,
+      color-mix(in srgb, var(--desk-dark) 28%, transparent) 0 1px,
+      transparent 1px 19px),
+    linear-gradient(180deg, var(--desk) 0%, var(--desk-dark) 100%);
+  box-shadow: inset 0 0 60px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+/* paper grain */
+.papers-desk::before{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background-image: radial-gradient(var(--grain) 1px, transparent 1px);
+  background-size: 3px 3px;
+  opacity:.5; mix-blend-mode: multiply;
+}
+
+/* label strip inside the desk */
+.papers-desk .desk-meta{
+  position: absolute; top: 14px; left: 20px;
+  display:flex; gap: 14px; align-items: center;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .22em;
+  color: color-mix(in srgb, var(--ink) 48%, transparent);
+  text-transform: uppercase;
+  z-index: 2;
+}
+.papers-desk .desk-meta .count{ color: var(--gold); font-weight: 700;}
+
+/* 3列グリッドで9束 (3-3-3) — モバイルは2列、極小は縦スタック */
+.papers-grid{
+  position: relative; z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(24px, 4vw, 56px) clamp(20px, 3vw, 40px);
+  justify-items: center;
+  margin: var(--s-5) 0 0;
+}
+@media (max-width: 780px){
+  .papers-grid{ grid-template-columns: repeat(3, 1fr); gap: 28px 12px; }
+}
+@media (max-width: 460px){
+  .papers-grid{ grid-template-columns: repeat(2, 1fr); gap: 28px 12px; }
+}
+
+/* ------- Paper bundle (書類束) -------
+   A 4-layer stack of sheets under a single sticky note.
+   Each layer is a small translateY + rotate, building physical reality.
+   Global rotation per bundle is set via --rot (1..4deg, alternating sign).
+*/
+.bundle{
+  --rot: 1.8deg;
+  --w:   148px;
+  --h:   192px;
+  position: relative;
+  width: var(--w);
+  min-height: calc(var(--h) + 56px);
+  cursor: pointer;
+  display: block;
+  transform: rotate(var(--rot));
+  transition: transform .28s var(--ease), filter .28s var(--ease);
+  filter: drop-shadow(0 6px 10px rgba(40,30,15,.15));
+  padding: 8px; /* tap target padding; ≥48px effective */
+}
+.bundle:focus-visible{ outline: 2px solid var(--gold); outline-offset: 4px; border-radius: 4px;}
+
+@media (max-width: 460px){
+  .bundle{ --w: 132px; --h: 172px; }
+}
+
+/* each sheet in the stack */
+.bundle .sheet{
+  position: absolute;
+  left: 8px; top: 8px;
+  width: var(--w); height: var(--h);
+  background: var(--paper);
+  border: 1px solid color-mix(in srgb, var(--rule) 80%, transparent);
+  border-radius: 2px;
+  box-shadow: 0 1px 0 rgba(0,0,0,.04);
+  transform-origin: 50% 50%;
+}
+.bundle .sheet::after{
+  /* faint ruled lines (素材図鑑 ledger feel) */
+  content:""; position: absolute; inset: 16px 12px 16px 16px;
+  background-image: repeating-linear-gradient(
+    180deg,
+    transparent 0 11px,
+    color-mix(in srgb, var(--ink) 10%, transparent) 11px 12px);
+  opacity: .55; pointer-events: none;
+}
+.bundle .sheet.s1{ transform: translate(6px, 6px) rotate(-3deg); }
+.bundle .sheet.s2{ transform: translate(3px, 3px) rotate( 2deg); }
+.bundle .sheet.s3{ transform: translate(1px, 1px) rotate(-1deg); }
+.bundle .sheet.s4{ transform: translate(0, 0) rotate(0deg); }
+
+/* paper clip on the top sheet (PtDs 線画) */
+.bundle .clip{
+  position: absolute;
+  left: calc(50% - 11px); top: 0;
+  width: 22px; height: 32px;
+  pointer-events: none;
+  z-index: 3;
+}
+.bundle .clip svg{ display:block; width: 100%; height: 100%;}
+.bundle .clip path{
+  fill: none;
+  stroke: color-mix(in srgb, var(--ink) 62%, transparent);
+  stroke-width: 1.1;   /* PtDs: 0.5〜1.5pt 均質 */
+  stroke-linecap: round;
+}
+
+/* tiny paper label — left margin of top sheet */
+.bundle .sheet-label{
+  position: absolute; left: 20px; top: 20px; z-index: 2;
+  font-family: var(--mono); font-size: 9px; letter-spacing: .18em;
+  color: color-mix(in srgb, var(--ink) 40%, transparent);
+  text-transform: uppercase;
+}
+.bundle .sheet-num{
+  position: absolute; right: 14px; bottom: 12px; z-index: 2;
+  font-family: var(--mincho); font-weight: 700; font-size: 11px;
+  color: color-mix(in srgb, var(--ink) 35%, transparent);
+  letter-spacing: .1em;
+}
+
+/* ---- sticky note (ポストイット, 1枚) ---- */
+.bundle .stickie{
+  position: absolute;
+  z-index: 4;
+  width: 92px; height: 92px;
+  top: -14px; right: -10px;
+  background: var(--tone, #f4c95d);
+  /* 微かに波打つ下辺 — フィジカルリアリティ */
+  clip-path: polygon(
+    0% 0%, 100% 0%, 100% 96%,
+    82% 100%, 64% 97%, 46% 100%, 28% 96%, 12% 99%, 0% 96%
+  );
+  transform: rotate(calc(var(--rot) * -1.8));
+  box-shadow:
+    0 6px 10px rgba(40,30,15,.22),
+    inset 0 0 0 1px rgba(0,0,0,.03);
+  padding: 12px 10px 14px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  color: #2c2c2a; /* ink on color — 純黒回避 */
+  transition: transform .28s var(--ease), box-shadow .28s var(--ease);
+}
+/* sticky-note shadow tint (tone-aware) */
+.bundle .stickie::before{
+  content:""; position: absolute; inset: 0;
+  background: linear-gradient(160deg, rgba(255,255,255,.22), transparent 40%);
+  pointer-events: none;
+  clip-path: inherit;
+}
+.bundle .stickie .roman{
+  font-family: var(--mincho); font-weight: 900;
+  font-size: 22px; line-height: 1; letter-spacing: .02em;
+}
+.bundle .stickie .jp{
+  font-family: var(--hook);
+  font-weight: 700; font-size: 17px; line-height: 1.1;
+  align-self: flex-end;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  max-height: 56px;
+}
+.bundle .stickie .en{
+  font-family: var(--mono); font-size: 8px; letter-spacing: .14em;
+  color: color-mix(in srgb, #2c2c2a 58%, transparent);
+  text-transform: uppercase;
+}
+
+/* pending marker (論文IX) */
+.bundle.pending .stickie{ background: repeating-linear-gradient(
+  -45deg, #efefe8 0 6px, #e3e2d8 6px 12px);}
+.bundle.pending .stickie .roman{ color: #5f5e5a;}
+
+/* hover/focus — "持ち上がる" */
+.bundle:hover,
+.bundle:focus-within{
+  transform: rotate(calc(var(--rot) * 0.35)) translateY(-3px);
+  filter: drop-shadow(0 14px 18px rgba(40,30,15,.28));
+}
+.bundle:hover .stickie,
+.bundle:focus-within .stickie{
+  transform: rotate(calc(var(--rot) * -1.2)) translateY(-1px);
+  box-shadow: 0 10px 16px rgba(40,30,15,.32), inset 0 0 0 1px rgba(0,0,0,.03);
+}
+
+@media (hover:none){
+  .bundle:hover{ transform: rotate(var(--rot)); filter: drop-shadow(0 6px 10px rgba(40,30,15,.15));}
+  .bundle:hover .stickie{ transform: rotate(calc(var(--rot) * -1.8));}
+}
+
+/* Papers footer strip — bibliography preview */
+.papers-biblio{
+  margin: var(--s-6) 0 0;
+  padding: var(--s-4) var(--s-4);
+  border-top: 1px dashed var(--rule);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 14px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+  color: var(--sub);
+}
+.papers-biblio .gold{ color: var(--gold); font-weight: 700;}
+.papers-biblio .right{ text-align: right;}
+
+/* =========================================================
+   CREATIVE / TOOLS / SOCIALS placeholder card grids
+   ========================================================= */
+.card-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  margin-top: var(--s-5);
+}
+.card{
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 6px;
+  transition: border-color .2s var(--ease), transform .2s var(--ease), box-shadow .2s var(--ease);
+  min-height: 140px;
+}
+.card:hover{
+  border-color: var(--ink);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px -14px rgba(0,0,0,.18);
+}
+.card .tag{
+  font-family: var(--mono); font-size: 10px; letter-spacing: .18em;
+  color: var(--sub); text-transform: uppercase;
+}
+.card .title{ font-family: var(--mincho); font-weight: 900; font-size: 18px; line-height: 1.25; color: var(--ink);}
+.card .en{ font-family: var(--mono); font-size: 11px; color: var(--sub); letter-spacing: .08em;}
+.card .detail{ font-size: 13.5px; color: var(--sub); line-height: 1.7; margin-top: 4px;}
+.card .meta{
+  margin-top: auto; padding-top: 8px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .14em; color: var(--dim);
+  border-top: 1px dashed var(--rule);
+}
+.card.pending{ opacity: .55;}
+.card.pending .tag{ color: var(--coral);}
+
+/* Tools specifically — compact 2-col */
+.tools-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+  margin-top: var(--s-5);
+}
+.tool-row{
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  gap: 12px; align-items: center;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  min-height: 56px;
+  transition: border-color .2s var(--ease), background .2s var(--ease);
+}
+.tool-row:hover{ border-color: var(--ink);}
+.tool-row .icon{
+  font-size: 20px; text-align: center;
+}
+.tool-row .name{
+  font-family: var(--mincho); font-weight: 700; font-size: 15px; color: var(--ink);
+  line-height: 1.3;
+}
+.tool-row .name small{
+  display: block;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .1em;
+  color: var(--sub); font-weight: 400; margin-top: 1px;
+}
+.tool-row .stack{
+  font-family: var(--mono); font-size: 10px; letter-spacing: .1em; color: var(--dim);
+}
+
+/* =========================================================
+   HUMUSHUMAN — GUBr (gaming-UI character-select)
+   箱だけ placeholder ×6。秘書子のみ PtDs (task-tray + cabinet)。
+   ========================================================= */
+.hh-frame{
+  position: relative;
+  margin: var(--s-5) 0 0;
+  padding: 20px;
+  background: #0d1014;
+  border: 1px solid #242a34;
+  border-radius: 12px;
+  color: #d6dae3;
+  overflow: hidden;
+}
+/* subtle CRT scan */
+.hh-frame::before{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background: repeating-linear-gradient(180deg,
+    rgba(255,255,255,.015) 0 1px,
+    transparent 1px 3px);
+  mix-blend-mode: overlay;
+}
+/* faint grid */
+.hh-frame::after{
+  content:""; position:absolute; inset: 0; pointer-events:none;
+  background-image:
+    linear-gradient(to right,  rgba(120,160,200,.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(120,160,200,.06) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: linear-gradient(180deg, rgba(0,0,0,.35), transparent 60%);
+}
+.hh-hud{
+  position: relative; z-index: 2;
+  display:flex; justify-content: space-between; align-items: baseline;
+  padding: 4px 6px 16px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .22em;
+  color: #97a3b6; text-transform: uppercase;
+}
+.hh-hud .gu-title{
+  font-family: var(--mincho); font-size: 14px; font-weight: 700;
+  color: #e8edf5; letter-spacing: .08em;
+}
+.hh-hud .gu-right{ color: #5ea9b8; }
+
+.hh-grid{
+  position: relative; z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+@media (max-width: 880px){ .hh-grid{ grid-template-columns: repeat(3, 1fr); }}
+@media (max-width: 460px){ .hh-grid{ grid-template-columns: repeat(2, 1fr); }}
+
+.hh-slot{
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border: 1px solid #2a3240;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.15)),
+    #141821;
+  padding: 8px;
+  display: flex; flex-direction: column;
+  transition: border-color .2s var(--ease), transform .2s var(--ease);
+}
+.hh-slot:hover{ border-color: var(--tone, #f4c95d); transform: translateY(-2px);}
+
+/* corner brackets — GU motif */
+.hh-slot::before,
+.hh-slot::after{
+  content:""; position: absolute;
+  width: 10px; height: 10px;
+  border: 1px solid var(--tone, #8aa0b8);
+}
+.hh-slot::before{ top: 4px; left: 4px; border-right: none; border-bottom: none;}
+.hh-slot::after { bottom: 4px; right: 4px; border-left: none; border-top: none;}
+
+.hh-slot .body{
+  flex: 1;
+  border-radius: 4px;
+  background:
+    repeating-linear-gradient(135deg,
+      rgba(255,255,255,.02) 0 6px,
+      rgba(255,255,255,.05) 6px 12px);
+  display:flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 10px; letter-spacing: .18em;
+  color: color-mix(in srgb, var(--tone, #8aa0b8) 70%, #fff 0%);
+}
+.hh-slot .body .placeholder-mark{
+  text-align: center; line-height: 1.6;
+}
+.hh-slot .body .placeholder-mark b{
+  display: block;
+  font-family: var(--mincho); font-weight: 700; font-size: 13px;
+  color: #d6dae3; letter-spacing: .05em; margin-bottom: 2px;
+}
+.hh-slot .body .placeholder-mark small{
+  font-size: 8.5px; letter-spacing: .12em;
+}
+
+.hh-slot .plate{
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 4px;
+  border-top: 1px solid rgba(255,255,255,.05);
+}
+.hh-slot .plate .elem{
+  width: 22px; height: 22px; border-radius: 4px;
+  border: 1px solid var(--tone, #8aa0b8);
+  display:flex; align-items:center; justify-content:center;
+  font-family: var(--mincho); font-size: 11px; font-weight: 700;
+  color: var(--tone, #d6dae3);
+  background: rgba(0,0,0,.25);
+}
+.hh-slot .plate .name{
+  font-family: var(--mincho); font-weight: 700; font-size: 12.5px; color: #e8edf5;
+  line-height: 1.15;
+}
+.hh-slot .plate .name small{
+  display: block;
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: .14em;
+  color: #6f7a8d; font-weight: 400;
+}
+.hh-slot .plate .kind{
+  font-family: var(--mono); font-size: 8.5px; letter-spacing: .2em;
+  color: var(--tone, #8aa0b8);
+  writing-mode: vertical-rl;
+}
+
+/* ptds slot (秘書子) — overlay small taskbar + cabinet hint */
+.hh-slot.ptds .body{
+  background: #f3efe2;
+  color: #2c2c2a;
+  border: 1px solid #cdc4a8;
+  position: relative;
+  overflow: hidden;
+}
+.hh-slot.ptds .body .placeholder-mark b{ color: #2c2c2a;}
+.hh-slot.ptds .body::after{
+  /* cabinet hint lines (PtDs 線画) */
+  content:""; position: absolute; left: 8%; right: 8%; bottom: 8px; height: 28%;
+  background:
+    linear-gradient(#bfb59a, #bfb59a) top / 100% 1px no-repeat,
+    linear-gradient(#bfb59a, #bfb59a) 0 34% / 100% 1px no-repeat,
+    linear-gradient(#bfb59a, #bfb59a) 0 66% / 100% 1px no-repeat,
+    linear-gradient(#bfb59a, #bfb59a) 0 100% / 100% 1px no-repeat;
+  opacity: .8;
+}
+.hh-slot.ptds .body::before{
+  /* tasktray tab */
+  content: "TASK";
+  position: absolute; top: 6px; left: 6px;
+  font-family: var(--mono); font-size: 7.5px; letter-spacing: .2em;
+  padding: 2px 5px;
+  background: #2c2c2a; color: #f3efe2;
+}
+
+/* =========================================================
+   SOCIALS (placeholder, horizontal strip)
+   ========================================================= */
+.socials-row{
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-top: var(--s-5);
+}
+@media (max-width: 640px){ .socials-row{ grid-template-columns: repeat(3, 1fr); }}
+.soc{
+  display:flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 16px 8px;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  transition: border-color .2s var(--ease), transform .2s var(--ease);
+  min-height: 80px;
+}
+.soc:hover{ border-color: var(--ink); transform: translateY(-2px);}
+.soc .glyph{
+  font-family: var(--mincho); font-weight: 900; font-size: 22px; color: var(--ink);
+  line-height: 1;
+}
+.soc .k{ font-family: var(--mono); font-size: 10px; letter-spacing: .14em; color: var(--sub); text-transform: uppercase;}
+.soc .handle{ font-family: var(--mono); font-size: 9.5px; color: var(--dim);}
+
+/* =========================================================
+   IDENTITY / FOOTER
+   ========================================================= */
+.identity{
+  padding: var(--s-7) 0 var(--s-6);
+  border-top: 1px solid var(--soft);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--s-5);
+  align-items: end;
+}
+@media (max-width: 640px){ .identity{ grid-template-columns: 1fr;}}
+
+.identity .name-ja{
+  font-family: var(--hook); font-weight: 700;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.1; letter-spacing: -.005em;
+  margin: 0;
+}
+.identity .name-en{
+  font-family: var(--mincho); font-size: 14px; color: var(--sub);
+  letter-spacing: .12em; text-transform: uppercase;
+  margin-top: 6px;
+}
+.identity .stats{
+  display: grid; grid-template-columns: 70px 1fr;
+  row-gap: 4px; column-gap: 12px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
+}
+.identity .stats dt{ color: var(--sub); text-transform: uppercase; letter-spacing: .18em;}
+.identity .stats dd{ margin: 0; color: var(--ink);}
+.identity .stats dd.gold{ color: var(--gold); font-weight: 700;}
+
+.identity .mini-links{
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-top: 10px;
+}
+.identity .mini-links a{
+  padding: 6px 12px;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em;
+  border: 1px solid var(--rule); border-radius: 999px;
+  color: var(--sub);
+  min-height: 32px; display: inline-flex; align-items: center;
+}
+.identity .mini-links a:hover{ border-color: var(--ink); color: var(--ink);}
+
+footer.foot{
+  padding: var(--s-4) 0 var(--s-7);
+  display:flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; color: var(--dim);
+  border-top: 1px solid var(--soft);
+}
+footer.foot em{ font-style: italic; font-family: var(--mincho); letter-spacing: .08em;}
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}

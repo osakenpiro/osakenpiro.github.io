@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Paper VI — The Gradient of Kokoro · osakenpiro</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  /* ---- Paper-specific tokens (overridable per paper) ---- */
+  :root {
+    --p-accent: #C54B2A;
+    --p-accent-tint: #C54B2A1a;
+    --p-paper: #f5f1ea;            /* off-white */
+    --p-paper-2: #efe9dd;
+    --p-ink: #1a1611;              /* near-black warm */
+    --p-ink-2: #4a4036;            /* body text */
+    --p-ink-3: #8a7d6e;            /* captions / muted */
+    --p-rule: #cfc6b5;             /* hairlines */
+    --p-rule-soft: #e0d9c8;
+  }
+
+  html, body { margin: 0; padding: 0; background: #2a2620; }
+  body {
+    font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+    color: var(--p-ink);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* A4 page — 210×297mm. Fixed on screen, single-page in print. */
+  .page {
+    width: 210mm;
+    height: 297mm;
+    margin: 24px auto;
+    background: var(--p-paper);
+    position: relative;
+    box-shadow: 0 6px 40px rgba(0,0,0,0.45);
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    padding: 18mm 20mm 14mm;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  /* Subtle paper texture */
+  .page::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(139,26,26,0.015), transparent 50%),
+      radial-gradient(circle at 85% 80%, rgba(0,0,0,0.02), transparent 50%);
+    pointer-events: none;
+  }
+
+  /* ==================== HEADER ==================== */
+  .p-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12mm;
+    align-items: start;
+    padding-bottom: 5mm;
+    border-bottom: 0.5pt solid var(--p-rule);
+    position: relative;
+  }
+  .p-head::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 18mm; height: 2.5pt;
+    background: var(--p-accent);
+  }
+  .p-meta-row {
+    display: flex;
+    gap: 14px;
+    font-family: 'Consolas', monospace;
+    font-size: 7.5pt;
+    letter-spacing: 0.18em;
+    color: var(--p-ink-3);
+    text-transform: uppercase;
+    margin-bottom: 6mm;
+    padding-top: 3mm;
+  }
+  .p-meta-row b {
+    color: var(--p-accent);
+    font-weight: 700;
+  }
+  .p-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 26pt;
+    line-height: 1.08;
+    letter-spacing: -0.005em;
+    margin: 0 0 3mm;
+    color: var(--p-ink);
+    text-wrap: pretty;
+  }
+  .p-title .accent { color: var(--p-accent); font-style: italic; }
+  .p-subtitle-en {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13pt;
+    color: var(--p-ink-2);
+    line-height: 1.3;
+    margin: 0 0 2mm;
+    font-weight: 400;
+  }
+  .p-subtitle-ja {
+    font-family: 'Zen Kaku Gothic New', 'Yu Gothic UI', sans-serif;
+    font-size: 10pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.08em;
+    margin: 0;
+    font-weight: 300;
+  }
+
+  /* Roman numeral right shoulder */
+  .p-numeral {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 72pt;
+    line-height: 0.85;
+    color: var(--p-accent);
+    opacity: 0.85;
+    letter-spacing: -0.02em;
+    text-align: right;
+    padding-top: 2mm;
+  }
+  .p-numeral small {
+    display: block;
+    font-family: 'Consolas', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.3em;
+    color: var(--p-ink-3);
+    margin-top: 2mm;
+    font-weight: 400;
+  }
+
+  /* ==================== AUTHOR STRIP ==================== */
+  .p-author-strip {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    gap: 10mm;
+    align-items: baseline;
+    padding: 4mm 0;
+    border-bottom: 0.5pt solid var(--p-rule-soft);
+    font-size: 9pt;
+  }
+  .p-author-strip > div > .label {
+    display: block;
+    font-family: 'Consolas', monospace;
+    font-size: 6.5pt;
+    letter-spacing: 0.3em;
+    color: var(--p-ink-3);
+    text-transform: uppercase;
+    margin-bottom: 1mm;
+  }
+  .p-author-strip > div > .val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10.5pt;
+    color: var(--p-ink);
+  }
+  .p-author-strip > div > .val .orcid {
+    font-family: 'Consolas', monospace;
+    font-size: 8pt;
+    color: var(--p-ink-3);
+    margin-left: 6px;
+  }
+  .p-author-strip .doi-val {
+    font-family: 'Consolas', monospace;
+    font-size: 8.5pt;
+    color: var(--p-accent);
+    letter-spacing: 0.02em;
+  }
+
+  /* ==================== BODY: 2-col ==================== */
+  .p-body {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 10mm;
+    padding-top: 7mm;
+    padding-bottom: 7mm;
+  }
+
+  /* Column 1: Abstract + findings */
+  .p-col-left { display: flex; flex-direction: column; gap: 6mm; }
+
+  .p-block-label {
+    font-family: 'Consolas', monospace;
+    font-size: 7.5pt;
+    letter-spacing: 0.3em;
+    color: var(--p-accent);
+    text-transform: uppercase;
+    margin: 0 0 2.5mm;
+    padding-bottom: 1mm;
+    border-bottom: 0.5pt solid var(--p-accent);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .p-block-label .ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 8pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.15em;
+  }
+
+  .p-abstract {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: var(--p-ink);
+    text-wrap: pretty;
+    margin: 0;
+  }
+  .p-abstract .drop {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--p-accent);
+  }
+
+  .p-oneline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 10.5pt;
+    line-height: 1.35;
+    color: var(--p-ink-2);
+    margin: 2mm 0 0;
+    padding: 3mm 4mm;
+    background: var(--p-accent-tint);
+    border-left: 1.5pt solid var(--p-accent);
+  }
+  .p-oneline-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 8.5pt;
+    color: var(--p-ink-3);
+    margin-top: 1.5mm;
+    letter-spacing: 0.04em;
+    font-weight: 400;
+  }
+
+  /* Findings — numbered */
+  .p-findings { display: flex; flex-direction: column; gap: 3mm; }
+  .p-finding {
+    display: grid;
+    grid-template-columns: 9mm 1fr;
+    gap: 3mm;
+    padding: 2mm 0;
+  }
+  .p-finding:not(:last-child) {
+    border-bottom: 0.3pt dashed var(--p-rule);
+    padding-bottom: 3mm;
+  }
+  .p-finding-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 22pt;
+    line-height: 0.9;
+    color: var(--p-accent);
+  }
+  .p-finding-head {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 10.5pt;
+    color: var(--p-ink);
+    margin: 0 0 1mm;
+    line-height: 1.25;
+  }
+  .p-finding-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 9.5pt;
+    line-height: 1.45;
+    color: var(--p-ink-2);
+    margin: 0;
+    text-wrap: pretty;
+  }
+  .p-finding-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 7.5pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.06em;
+    margin-top: 0.8mm;
+  }
+
+  /* Column 2: Core figure */
+  .p-col-right { display: flex; flex-direction: column; gap: 4mm; }
+  .p-figure-frame {
+    background: var(--p-paper-2);
+    border: 0.5pt solid var(--p-rule);
+    padding: 5mm 5mm 4mm;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .p-figure-caption {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4mm;
+    font-family: 'Consolas', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.25em;
+    color: var(--p-ink-3);
+    text-transform: uppercase;
+  }
+  .p-figure-caption b {
+    color: var(--p-accent);
+    font-weight: 700;
+  }
+  .p-figure-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 13pt;
+    color: var(--p-ink);
+    text-align: center;
+    margin: 0 0 1mm;
+  }
+  .p-figure-title-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 9pt;
+    color: var(--p-ink-3);
+    text-align: center;
+    margin: 0 0 4mm;
+    letter-spacing: 0.1em;
+  }
+  .p-figure-svg {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2mm 0;
+  }
+  .p-figure-svg svg { width: 100%; height: auto; max-height: 75mm; }
+  .p-figure-legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 3mm;
+    padding-top: 3mm;
+    border-top: 0.5pt solid var(--p-rule);
+  }
+  .p-legend-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8mm;
+  }
+  .p-legend-head {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-style: italic;
+    font-size: 10pt;
+    color: var(--p-accent);
+    line-height: 1.1;
+  }
+  .p-legend-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 8.5pt;
+    color: var(--p-ink);
+    letter-spacing: 0.04em;
+  }
+  .p-legend-desc {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 8.5pt;
+    line-height: 1.35;
+    color: var(--p-ink-2);
+    margin-top: 0.5mm;
+  }
+
+  /* ==================== FOOTER ==================== */
+  .p-foot {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8mm;
+    align-items: end;
+    padding-top: 4mm;
+    border-top: 0.5pt solid var(--p-rule);
+  }
+  .p-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2mm;
+    font-family: 'Consolas', monospace;
+    font-size: 7.5pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.1em;
+  }
+  .p-contact > div { display: flex; gap: 8px; }
+  .p-contact .k {
+    color: var(--p-accent);
+    font-weight: 700;
+    min-width: 14mm;
+  }
+  .p-contact .v { color: var(--p-ink); }
+
+  .p-cite {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 8pt;
+    line-height: 1.4;
+    color: var(--p-ink-2);
+    font-style: italic;
+    max-width: 80mm;
+    text-align: right;
+  }
+  .p-cite b { color: var(--p-ink); font-style: normal; font-weight: 600; }
+
+  .p-qr {
+    width: 18mm; height: 18mm;
+    background: #fff;
+    padding: 1mm;
+    border: 0.5pt solid var(--p-rule);
+    position: relative;
+  }
+  .p-qr svg { width: 100%; height: 100%; display: block; }
+  .p-qr-label {
+    position: absolute;
+    bottom: -4mm;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Consolas', monospace;
+    font-size: 6pt;
+    letter-spacing: 0.2em;
+    color: var(--p-ink-3);
+    white-space: nowrap;
+  }
+
+  /* ==================== PRINT ==================== */
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+  @media print {
+    html, body { background: #fff; }
+    .page {
+      margin: 0; box-shadow: none;
+      page-break-after: avoid;
+    }
+  }
+
+  /* ==================== VIEWER CHROME ==================== */
+  .viewer-hint {
+    position: fixed;
+    bottom: 14px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(245,241,234,0.9);
+    color: #4a4036;
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    padding: 6px 14px;
+    border-radius: 2px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    z-index: 100;
+  }
+  .viewer-hint b { color: #C54B2A; }
+  @media print { .viewer-hint { display: none; } }
+</style>
+</head>
+<body>
+
+<article class="page" data-screen-label="paper-VI-onepager">
+
+  <!-- HEADER -->
+  <header class="p-head">
+    <div>
+      <div class="p-meta-row">
+        <span><b>SERIES</b> Boolean → Float</span>
+        <span>·</span>
+        <span>Phenomenology &amp; Cog. Sci. <b>(under review)</b></span>
+        <span>·</span>
+        <span>2025</span>
+      </div>
+      <h1 class="p-title">
+        The <span class="accent">Gradient</span> of Kokoro
+      </h1>
+      <p class="p-subtitle-en">Six-Dimensional Float Vectors as a Phenomenology of Heart-States</p>
+      <p class="p-subtitle-ja">こころの勾配 — 心状態の六次元ベクトル現象学</p>
+    </div>
+    <div class="p-numeral">
+      VI
+      <small>PAPER · 06 / 09</small>
+    </div>
+  </header>
+
+  <!-- AUTHOR STRIP -->
+  <section class="p-author-strip">
+    <div>
+      <span class="label">Author</span>
+      <span class="val">Kenshiro Osada <span class="orcid">0009-0004-9167-3186</span></span>
+    </div>
+    <div>
+      <span class="label">Affiliation</span>
+      <span class="val">Independent · Tokyo, JP</span>
+    </div>
+    <div>
+      <span class="label">Keywords</span>
+      <span class="val" style="font-family: 'Consolas', monospace; font-size: 8pt; letter-spacing: 0.06em;">
+        kokoro · phenomenology · emotion · vector space · japanese philosophy
+      </span>
+    </div>
+    <div>
+      <span class="label">DOI</span>
+      <span class="val doi-val">10.5281/zenodo.19106700</span>
+    </div>
+  </section>
+
+  <!-- BODY -->
+  <main class="p-body">
+
+    <!-- LEFT: Abstract + Findings -->
+    <div class="p-col-left">
+      <div>
+        <div class="p-block-label">
+          <span>§ Abstract</span>
+          <span class="ja">要旨</span>
+        </div>
+        <p class="p-abstract">
+          <span class="drop">Kokoro</span> is Japanese <em>kokoro</em> resists reduction to discrete emotion categories. We propose a <em>six-dimensional float-valued vector</em> — stillness, tension, openness, direction, warmth, and depth — each oscillating continuously. Heart-states are points (or trajectories) in this space. The framework is operationalized: we show a measurable basis for each axis and sketch a phenomenology of characteristic trajectories (grief, joy, awakening).
+        </p>
+        <p class="p-oneline">
+          "Kokoro is not a category. It is a six-dimensional vector, oscillating in float-time."
+          <span class="p-oneline-ja">こころはカテゴリではない。実数時間で振動する六次元ベクトルである。</span>
+        </p>
+      </div>
+
+      <div>
+        <div class="p-block-label">
+          <span>§ Key findings</span>
+          <span class="ja">主要な発見</span>
+        </div>
+        <div class="p-findings">
+
+          <div class="p-finding">
+            <span class="p-finding-num">01</span>
+            <div>
+              <h4 class="p-finding-head">Six axes are sufficient and necessary.</h4>
+              <p class="p-finding-body">
+                Stillness, tension, openness, direction, warmth, and depth span kokoro-space without redundancy on the surveyed trajectories.
+              </p>
+              <p class="p-finding-ja">静・張・開・向・温・深の六軸で過不足なく心は張られる。</p>
+            </div>
+          </div>
+
+          <div class="p-finding">
+            <span class="p-finding-num">02</span>
+            <div>
+              <h4 class="p-finding-head">Heart-states are trajectories, not points.</h4>
+              <p class="p-finding-body">
+                Stable single-point kokoro is pathological; healthy heart-states trace characteristic closed or drifting curves through the six-space.
+              </p>
+              <p class="p-finding-ja">健全な心は固定点でなく閉じた軌跡を描く。</p>
+            </div>
+          </div>
+
+          <div class="p-finding">
+            <span class="p-finding-num">03</span>
+            <div>
+              <h4 class="p-finding-head">Axes are weakly independent.</h4>
+              <p class="p-finding-body">
+                Pairwise correlations exist but are below 0.4 on the surveyed cases — justifying the six-axis basis against simpler 2D or 3D models.
+              </p>
+              <p class="p-finding-ja">六軸は弱独立であり、二次元・三次元モデルを正当に上回る。</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Core figure -->
+    <div class="p-col-right">
+      <div class="p-figure-frame">
+        <div class="p-figure-caption">
+          <span><b>FIG. 1</b> · Core</span>
+          <span>図 1 · 核心図</span>
+        </div>
+        <h3 class="p-figure-title">The Six-Axis Radar of Kokoro</h3>
+        <p class="p-figure-title-ja">こころのレーダーチャート — 六軸の振動</p>
+
+        <div class="p-figure-svg">
+          <!-- Core figure for Paper VI -->
+      <svg viewBox="0 0 480 240" xmlns="http://www.w3.org/2000/svg">
+        <defs><style>
+          .s-acc { stroke: #C54B2A; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+          .s-ink { stroke: #1a1611; fill: none; stroke-linecap: round; }
+          .s-thin { stroke: #4a4036; fill: none; stroke-width: 0.5; stroke-dasharray: 2 2; }
+          .f-acc { fill: #C54B2A; }
+          .lbl-t { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 12px; fill: #1a1611; }
+          .lbl-j { font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 9px; fill: #8a7d6e; letter-spacing: 0.08em; }
+          .lbl-m { font-family: 'Consolas', monospace; font-size: 7px; fill: #8a7d6e; letter-spacing: 0.25em; }
+          .lbl-val { font-family: 'Consolas', monospace; font-size: 7.5px; fill: #C54B2A; font-weight: 700; }
+          .axis { stroke: #cfc6b5; stroke-width: 0.5; fill: none; }
+        </style></defs>
+
+        <!-- Radar chart centered at (150,110), 6 axes, concentric hexagons -->
+        <g transform="translate(150,110)">
+          <!-- concentric hex rings at 0.25, 0.5, 0.75, 1.0 -->
+          <g stroke="#cfc6b5" stroke-width="0.4" fill="none">
+            <polygon points="20,0 10,17.3 -10,17.3 -20,0 -10,-17.3 10,-17.3"/>
+            <polygon points="40,0 20,34.6 -20,34.6 -40,0 -20,-34.6 20,-34.6"/>
+            <polygon points="60,0 30,51.9 -30,51.9 -60,0 -30,-51.9 30,-51.9"/>
+            <polygon points="80,0 40,69.3 -40,69.3 -80,0 -40,-69.3 40,-69.3"/>
+          </g>
+          <!-- axes (radial lines) -->
+          <g stroke="#cfc6b5" stroke-width="0.5">
+            <line x1="0" y1="0" x2="80" y2="0"/>
+            <line x1="0" y1="0" x2="40" y2="69.3"/>
+            <line x1="0" y1="0" x2="-40" y2="69.3"/>
+            <line x1="0" y1="0" x2="-80" y2="0"/>
+            <line x1="0" y1="0" x2="-40" y2="-69.3"/>
+            <line x1="0" y1="0" x2="40" y2="-69.3"/>
+          </g>
+          <!-- current-state polygon (jagged; floats) -->
+          <polygon points="64,0 24,41.6 -34,58.9 -48,0 -24,-41.6 28,-48.5"
+                   stroke="#C54B2A" stroke-width="1.6" fill="#C54B2A" fill-opacity="0.08" stroke-linejoin="round"/>
+          <!-- vertex dots + float values -->
+          <g class="f-acc">
+            <circle cx="64" cy="0" r="2.5"/>
+            <circle cx="24" cy="41.6" r="2.5"/>
+            <circle cx="-34" cy="58.9" r="2.5"/>
+            <circle cx="-48" cy="0" r="2.5"/>
+            <circle cx="-24" cy="-41.6" r="2.5"/>
+            <circle cx="28" cy="-48.5" r="2.5"/>
+          </g>
+          <!-- float labels -->
+          <g class="lbl-val">
+            <text x="90" y="3">0.80</text>
+            <text x="50" y="55">0.30</text>
+            <text x="-60" y="70">0.85</text>
+            <text x="-98" y="3">0.60</text>
+            <text x="-60" y="-48">0.55</text>
+            <text x="36" y="-55">0.70</text>
+          </g>
+          <!-- axis labels -->
+          <g>
+            <text x="90" y="-6" class="lbl-t">Stillness</text>
+            <text x="90" y="-20" class="lbl-j">静</text>
+            <text x="50" y="74" class="lbl-t">Tension</text>
+            <text x="50" y="86" class="lbl-j">張</text>
+            <text x="-96" y="84" class="lbl-t">Openness</text>
+            <text x="-96" y="96" class="lbl-j">開</text>
+            <text x="-108" y="-6" class="lbl-t">Direction</text>
+            <text x="-108" y="-20" class="lbl-j">向</text>
+            <text x="-96" y="-66" class="lbl-t">Warmth</text>
+            <text x="-96" y="-78" class="lbl-j">温</text>
+            <text x="50" y="-70" class="lbl-t">Depth</text>
+            <text x="50" y="-82" class="lbl-j">深</text>
+          </g>
+          <!-- origin point -->
+          <circle r="1.5" fill="#1a1611"/>
+        </g>
+
+        <!-- Right side: oscillation trace showing a trajectory over time -->
+        <g transform="translate(290,50)">
+          <text x="0" y="-8" class="lbl-m">TRAJECTORY · t →</text>
+          <!-- axis -->
+          <line x1="0" y1="60" x2="160" y2="60" class="axis"/>
+          <line x1="0" y1="0" x2="0" y2="120" class="axis" stroke-dasharray="1 2"/>
+          <!-- six oscillating lines at different frequencies/phases -->
+          <path d="M 0 40 Q 20 20 40 40 T 80 40 T 120 40 T 160 40"
+                stroke="#C54B2A" stroke-width="1.2" fill="none"/>
+          <path d="M 0 55 Q 15 70 30 55 Q 45 40 60 55 T 90 55 T 120 55 T 160 55"
+                stroke="#C54B2A" stroke-width="1" fill="none" stroke-dasharray="3 2"/>
+          <path d="M 0 75 Q 25 100 50 75 T 100 75 T 160 75"
+                stroke="#1a1611" stroke-width="0.8" fill="none" opacity="0.6"/>
+          <path d="M 0 90 Q 20 105 40 90 Q 60 75 80 90 Q 100 105 120 90 Q 140 75 160 90"
+                stroke="#8a7d6e" stroke-width="0.7" fill="none"/>
+          <!-- t markers -->
+          <text x="0" y="138" class="lbl-m">t=0</text>
+          <text x="80" y="138" class="lbl-m" text-anchor="middle">t=T/2</text>
+          <text x="160" y="138" class="lbl-m" text-anchor="end">t=T</text>
+          <text x="0" y="160" class="lbl-j">六軸の振動軌跡</text>
+        </g>
+      </svg>
+        </div>
+
+        <div class="p-figure-legend">
+          <div class="p-legend-item">
+            <div class="p-legend-head">Six axes</div>
+            <div class="p-legend-ja">六軸</div>
+            <div class="p-legend-desc">Stillness · Tension · Openness · Direction · Warmth · Depth.</div>
+          </div>
+          <div class="p-legend-item">
+            <div class="p-legend-head">Float</div>
+            <div class="p-legend-ja">実数</div>
+            <div class="p-legend-desc">Each axis takes a continuous value in [0.0, 1.0].</div>
+          </div>
+          <div class="p-legend-item">
+            <div class="p-legend-head">Trajectory</div>
+            <div class="p-legend-ja">軌跡</div>
+            <div class="p-legend-desc">Heart-states trace curves, not dwell at single points.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="p-foot">
+    <div class="p-contact">
+      <div><span class="k">CONTACT</span><span class="v">osakenpiro@gmail.com</span></div>
+      <div><span class="k">WEB</span><span class="v">osakenpiro.github.io</span></div>
+      <div><span class="k">X / GH</span><span class="v">@kenpiro7 · github.com/osakenpiro</span></div>
+    </div>
+
+    <div class="p-cite">
+      Osada, K. (2025). <b>The Gradient of Kokoro.</b> Zenodo.<br>
+      doi.org/10.5281/zenodo.19106700
+    </div>
+
+    <div class="p-qr">
+      <!-- Real QR linking to Zenodo DOI for Paper VI -->
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=2&data=https%3A%2F%2Fdoi.org%2F10.5281%2Fzenodo.19106700" alt="QR code for https://doi.org/10.5281/zenodo.19106700" style="width:100%;height:100%;display:block;image-rendering: pixelated;"/>
+      <div class="p-qr-label">ZENODO</div>
+    </div>
+  </footer>
+
+</article>
+
+<div class="viewer-hint">
+  <b>PAPER VI</b> · press <b>⌘/Ctrl + P</b> to print A4 PDF
+</div>
+
+</body>
+</html>

@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Paper II — The Circulation of Alignment · osakenpiro</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  /* ---- Paper-specific tokens (overridable per paper) ---- */
+  :root {
+    --p-accent: #1F3A6B;
+    --p-accent-tint: #1F3A6B1a;
+    --p-paper: #f5f1ea;            /* off-white */
+    --p-paper-2: #efe9dd;
+    --p-ink: #1a1611;              /* near-black warm */
+    --p-ink-2: #4a4036;            /* body text */
+    --p-ink-3: #8a7d6e;            /* captions / muted */
+    --p-rule: #cfc6b5;             /* hairlines */
+    --p-rule-soft: #e0d9c8;
+  }
+
+  html, body { margin: 0; padding: 0; background: #2a2620; }
+  body {
+    font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+    color: var(--p-ink);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* A4 page — 210×297mm. Fixed on screen, single-page in print. */
+  .page {
+    width: 210mm;
+    height: 297mm;
+    margin: 24px auto;
+    background: var(--p-paper);
+    position: relative;
+    box-shadow: 0 6px 40px rgba(0,0,0,0.45);
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    padding: 18mm 20mm 14mm;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  /* Subtle paper texture */
+  .page::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(139,26,26,0.015), transparent 50%),
+      radial-gradient(circle at 85% 80%, rgba(0,0,0,0.02), transparent 50%);
+    pointer-events: none;
+  }
+
+  /* ==================== HEADER ==================== */
+  .p-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12mm;
+    align-items: start;
+    padding-bottom: 5mm;
+    border-bottom: 0.5pt solid var(--p-rule);
+    position: relative;
+  }
+  .p-head::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 18mm; height: 2.5pt;
+    background: var(--p-accent);
+  }
+  .p-meta-row {
+    display: flex;
+    gap: 14px;
+    font-family: 'Consolas', monospace;
+    font-size: 7.5pt;
+    letter-spacing: 0.18em;
+    color: var(--p-ink-3);
+    text-transform: uppercase;
+    margin-bottom: 6mm;
+    padding-top: 3mm;
+  }
+  .p-meta-row b {
+    color: var(--p-accent);
+    font-weight: 700;
+  }
+  .p-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 26pt;
+    line-height: 1.08;
+    letter-spacing: -0.005em;
+    margin: 0 0 3mm;
+    color: var(--p-ink);
+    text-wrap: pretty;
+  }
+  .p-title .accent { color: var(--p-accent); font-style: italic; }
+  .p-subtitle-en {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13pt;
+    color: var(--p-ink-2);
+    line-height: 1.3;
+    margin: 0 0 2mm;
+    font-weight: 400;
+  }
+  .p-subtitle-ja {
+    font-family: 'Zen Kaku Gothic New', 'Yu Gothic UI', sans-serif;
+    font-size: 10pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.08em;
+    margin: 0;
+    font-weight: 300;
+  }
+
+  /* Roman numeral right shoulder */
+  .p-numeral {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 72pt;
+    line-height: 0.85;
+    color: var(--p-accent);
+    opacity: 0.85;
+    letter-spacing: -0.02em;
+    text-align: right;
+    padding-top: 2mm;
+  }
+  .p-numeral small {
+    display: block;
+    font-family: 'Consolas', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.3em;
+    color: var(--p-ink-3);
+    margin-top: 2mm;
+    font-weight: 400;
+  }
+
+  /* ==================== AUTHOR STRIP ==================== */
+  .p-author-strip {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    gap: 10mm;
+    align-items: baseline;
+    padding: 4mm 0;
+    border-bottom: 0.5pt solid var(--p-rule-soft);
+    font-size: 9pt;
+  }
+  .p-author-strip > div > .label {
+    display: block;
+    font-family: 'Consolas', monospace;
+    font-size: 6.5pt;
+    letter-spacing: 0.3em;
+    color: var(--p-ink-3);
+    text-transform: uppercase;
+    margin-bottom: 1mm;
+  }
+  .p-author-strip > div > .val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10.5pt;
+    color: var(--p-ink);
+  }
+  .p-author-strip > div > .val .orcid {
+    font-family: 'Consolas', monospace;
+    font-size: 8pt;
+    color: var(--p-ink-3);
+    margin-left: 6px;
+  }
+  .p-author-strip .doi-val {
+    font-family: 'Consolas', monospace;
+    font-size: 8.5pt;
+    color: var(--p-accent);
+    letter-spacing: 0.02em;
+  }
+
+  /* ==================== BODY: 2-col ==================== */
+  .p-body {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 10mm;
+    padding-top: 7mm;
+    padding-bottom: 7mm;
+  }
+
+  /* Column 1: Abstract + findings */
+  .p-col-left { display: flex; flex-direction: column; gap: 6mm; }
+
+  .p-block-label {
+    font-family: 'Consolas', monospace;
+    font-size: 7.5pt;
+    letter-spacing: 0.3em;
+    color: var(--p-accent);
+    text-transform: uppercase;
+    margin: 0 0 2.5mm;
+    padding-bottom: 1mm;
+    border-bottom: 0.5pt solid var(--p-accent);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .p-block-label .ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 8pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.15em;
+  }
+
+  .p-abstract {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: var(--p-ink);
+    text-wrap: pretty;
+    margin: 0;
+  }
+  .p-abstract .drop {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--p-accent);
+  }
+
+  .p-oneline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 10.5pt;
+    line-height: 1.35;
+    color: var(--p-ink-2);
+    margin: 2mm 0 0;
+    padding: 3mm 4mm;
+    background: var(--p-accent-tint);
+    border-left: 1.5pt solid var(--p-accent);
+  }
+  .p-oneline-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 8.5pt;
+    color: var(--p-ink-3);
+    margin-top: 1.5mm;
+    letter-spacing: 0.04em;
+    font-weight: 400;
+  }
+
+  /* Findings — numbered */
+  .p-findings { display: flex; flex-direction: column; gap: 3mm; }
+  .p-finding {
+    display: grid;
+    grid-template-columns: 9mm 1fr;
+    gap: 3mm;
+    padding: 2mm 0;
+  }
+  .p-finding:not(:last-child) {
+    border-bottom: 0.3pt dashed var(--p-rule);
+    padding-bottom: 3mm;
+  }
+  .p-finding-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 22pt;
+    line-height: 0.9;
+    color: var(--p-accent);
+  }
+  .p-finding-head {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 10.5pt;
+    color: var(--p-ink);
+    margin: 0 0 1mm;
+    line-height: 1.25;
+  }
+  .p-finding-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 9.5pt;
+    line-height: 1.45;
+    color: var(--p-ink-2);
+    margin: 0;
+    text-wrap: pretty;
+  }
+  .p-finding-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 7.5pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.06em;
+    margin-top: 0.8mm;
+  }
+
+  /* Column 2: Core figure */
+  .p-col-right { display: flex; flex-direction: column; gap: 4mm; }
+  .p-figure-frame {
+    background: var(--p-paper-2);
+    border: 0.5pt solid var(--p-rule);
+    padding: 5mm 5mm 4mm;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .p-figure-caption {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4mm;
+    font-family: 'Consolas', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.25em;
+    color: var(--p-ink-3);
+    text-transform: uppercase;
+  }
+  .p-figure-caption b {
+    color: var(--p-accent);
+    font-weight: 700;
+  }
+  .p-figure-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 13pt;
+    color: var(--p-ink);
+    text-align: center;
+    margin: 0 0 1mm;
+  }
+  .p-figure-title-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 9pt;
+    color: var(--p-ink-3);
+    text-align: center;
+    margin: 0 0 4mm;
+    letter-spacing: 0.1em;
+  }
+  .p-figure-svg {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2mm 0;
+  }
+  .p-figure-svg svg { width: 100%; height: auto; max-height: 75mm; }
+  .p-figure-legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 3mm;
+    padding-top: 3mm;
+    border-top: 0.5pt solid var(--p-rule);
+  }
+  .p-legend-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8mm;
+  }
+  .p-legend-head {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-style: italic;
+    font-size: 10pt;
+    color: var(--p-accent);
+    line-height: 1.1;
+  }
+  .p-legend-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 8.5pt;
+    color: var(--p-ink);
+    letter-spacing: 0.04em;
+  }
+  .p-legend-desc {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 8.5pt;
+    line-height: 1.35;
+    color: var(--p-ink-2);
+    margin-top: 0.5mm;
+  }
+
+  /* ==================== FOOTER ==================== */
+  .p-foot {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8mm;
+    align-items: end;
+    padding-top: 4mm;
+    border-top: 0.5pt solid var(--p-rule);
+  }
+  .p-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2mm;
+    font-family: 'Consolas', monospace;
+    font-size: 7.5pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.1em;
+  }
+  .p-contact > div { display: flex; gap: 8px; }
+  .p-contact .k {
+    color: var(--p-accent);
+    font-weight: 700;
+    min-width: 14mm;
+  }
+  .p-contact .v { color: var(--p-ink); }
+
+  .p-cite {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 8pt;
+    line-height: 1.4;
+    color: var(--p-ink-2);
+    font-style: italic;
+    max-width: 80mm;
+    text-align: right;
+  }
+  .p-cite b { color: var(--p-ink); font-style: normal; font-weight: 600; }
+
+  .p-qr {
+    width: 18mm; height: 18mm;
+    background: #fff;
+    padding: 1mm;
+    border: 0.5pt solid var(--p-rule);
+    position: relative;
+  }
+  .p-qr svg { width: 100%; height: 100%; display: block; }
+  .p-qr-label {
+    position: absolute;
+    bottom: -4mm;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Consolas', monospace;
+    font-size: 6pt;
+    letter-spacing: 0.2em;
+    color: var(--p-ink-3);
+    white-space: nowrap;
+  }
+
+  /* ==================== PRINT ==================== */
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+  @media print {
+    html, body { background: #fff; }
+    .page {
+      margin: 0; box-shadow: none;
+      page-break-after: avoid;
+    }
+  }
+
+  /* ==================== VIEWER CHROME ==================== */
+  .viewer-hint {
+    position: fixed;
+    bottom: 14px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(245,241,234,0.9);
+    color: #4a4036;
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    padding: 6px 14px;
+    border-radius: 2px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    z-index: 100;
+  }
+  .viewer-hint b { color: #1F3A6B; }
+  @media print { .viewer-hint { display: none; } }
+</style>
+</head>
+<body>
+
+<article class="page" data-screen-label="paper-II-onepager">
+
+  <!-- HEADER -->
+  <header class="p-head">
+    <div>
+      <div class="p-meta-row">
+        <span><b>SERIES</b> Boolean → Float</span>
+        <span>·</span>
+        <span>Phenomenology &amp; Cog. Sci. <b>(under review)</b></span>
+        <span>·</span>
+        <span>2025</span>
+      </div>
+      <h1 class="p-title">
+        The Circulation of <span class="accent">Alignment</span>
+      </h1>
+      <p class="p-subtitle-en">Why AI Alignment Is a Circulation, Not a Fixed Point — A Buddhist Process-Ontology Reading</p>
+      <p class="p-subtitle-ja">アラインメントの循環 — AIアラインメントは固定点でなく循環である・仏教的プロセス存在論的読解</p>
+    </div>
+    <div class="p-numeral">
+      II
+      <small>PAPER · 02 / 09</small>
+    </div>
+  </header>
+
+  <!-- AUTHOR STRIP -->
+  <section class="p-author-strip">
+    <div>
+      <span class="label">Author</span>
+      <span class="val">Kenshiro Osada <span class="orcid">0009-0004-9167-3186</span></span>
+    </div>
+    <div>
+      <span class="label">Affiliation</span>
+      <span class="val">Independent · Tokyo, JP</span>
+    </div>
+    <div>
+      <span class="label">Keywords</span>
+      <span class="val" style="font-family: 'Consolas', monospace; font-size: 8pt; letter-spacing: 0.06em;">
+        alignment · process ontology · buddhist philosophy · ai safety · emptiness
+      </span>
+    </div>
+    <div>
+      <span class="label">DOI</span>
+      <span class="val doi-val">10.5281/zenodo.19106666</span>
+    </div>
+  </section>
+
+  <!-- BODY -->
+  <main class="p-body">
+
+    <!-- LEFT: Abstract + Findings -->
+    <div class="p-col-left">
+      <div>
+        <div class="p-block-label">
+          <span>§ Abstract</span>
+          <span class="ja">要旨</span>
+        </div>
+        <p class="p-abstract">
+          <span class="drop">Alignment</span> is framed as a fixed target — a goal the model must reach and hold. We argue the opposite: alignment is a <em>circulation</em>, a ring that must keep turning around a hollow center. Drawing on Buddhist process-ontology, we analyze three canonical failure modes where the ring stops: ossification (hardened rim), collapse (filled center), and dispersion (broken ring). The framework reframes alignment evaluation as a measurement of ongoing flow, not of a held state.
+        </p>
+        <p class="p-oneline">
+          "Alignment is not a target to reach, but a ring that must keep turning around a hollow center."
+          <span class="p-oneline-ja">アラインメントは到達すべき地点ではなく、空の中心を回り続ける輪である。</span>
+        </p>
+      </div>
+
+      <div>
+        <div class="p-block-label">
+          <span>§ Key findings</span>
+          <span class="ja">主要な発見</span>
+        </div>
+        <div class="p-findings">
+
+          <div class="p-finding">
+            <span class="p-finding-num">01</span>
+            <div>
+              <h4 class="p-finding-head">Alignment is a flow, not a state.</h4>
+              <p class="p-finding-body">
+                Every stable alignment we observe is in fact a continuous circulation between specification, behavior, and correction — not a held equilibrium.
+              </p>
+              <p class="p-finding-ja">アラインメントは保持される状態でなく、絶えざる循環である。</p>
+            </div>
+          </div>
+
+          <div class="p-finding">
+            <span class="p-finding-num">02</span>
+            <div>
+              <h4 class="p-finding-head">The center must remain hollow.</h4>
+              <p class="p-finding-body">
+                A circulation collapses when its center is filled by a fixed objective. Preserving an unfilled core is what permits the ring to keep turning.
+              </p>
+              <p class="p-finding-ja">中心が目的で埋まれば輪は潰れる。空の中心が循環を可能にする。</p>
+            </div>
+          </div>
+
+          <div class="p-finding">
+            <span class="p-finding-num">03</span>
+            <div>
+              <h4 class="p-finding-head">Three failure modes of the ring.</h4>
+              <p class="p-finding-body">
+                Ossification (rim hardens), collapse (center fills), and dispersion (ring fragments) exhaust the typology of alignment failure on this model.
+              </p>
+              <p class="p-finding-ja">硬化・崩壊・分散の三つで不整合の失敗類型は尽きる。</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Core figure -->
+    <div class="p-col-right">
+      <div class="p-figure-frame">
+        <div class="p-figure-caption">
+          <span><b>FIG. 1</b> · Core</span>
+          <span>図 1 · 核心図</span>
+        </div>
+        <h3 class="p-figure-title">The Ring of Alignment</h3>
+        <p class="p-figure-title-ja">同心円の循環 — 中心は空</p>
+
+        <div class="p-figure-svg">
+          <!-- Core figure for Paper II -->
+      <svg viewBox="0 0 480 240" xmlns="http://www.w3.org/2000/svg">
+        <defs><style>
+          .s-acc { stroke: #1F3A6B; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+          .s-ink { stroke: #1a1611; fill: none; stroke-linecap: round; }
+          .s-thin { stroke: #4a4036; fill: none; stroke-width: 0.5; stroke-dasharray: 2 2; }
+          .f-acc { fill: #1F3A6B; }
+          .lbl-t { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; fill: #1a1611; }
+          .lbl-j { font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 10px; fill: #8a7d6e; letter-spacing: 0.1em; }
+          .lbl-m { font-family: 'Consolas', monospace; font-size: 7px; fill: #8a7d6e; letter-spacing: 0.25em; }
+          .axis { stroke: #cfc6b5; stroke-width: 0.5; fill: none; }
+        </style></defs>
+        <line class="axis" x1="20" y1="180" x2="460" y2="180"/>
+        <text x="460" y="193" class="lbl-m" text-anchor="end">CIRCULATION →</text>
+        <!-- Main: three concentric rings around empty center at (240,110) -->
+        <g transform="translate(240,110)">
+          <!-- outer ring -->
+          <circle r="78" class="s-acc" stroke-width="1.4"/>
+          <!-- middle ring -->
+          <circle r="56" class="s-acc" stroke-width="1.2" stroke-dasharray="4 3"/>
+          <!-- inner ring -->
+          <circle r="34" class="s-acc" stroke-width="1"/>
+          <!-- arrows along outer ring (circulation indicators) -->
+          <g class="s-acc" stroke-width="1.4">
+            <path d="M 78 -6 A 78 78 0 0 1 70 30"/>
+            <polygon points="70,30 65,25 74,24" class="f-acc" stroke="none"/>
+            <path d="M -78 6 A 78 78 0 0 1 -70 -30"/>
+            <polygon points="-70,-30 -65,-25 -74,-24" class="f-acc" stroke="none"/>
+          </g>
+          <!-- middle ring arrows (reverse direction) -->
+          <g class="s-acc" stroke-width="1">
+            <path d="M -56 -6 A 56 56 0 0 0 -48 -26"/>
+            <polygon points="-48,-26 -53,-22 -44,-21" class="f-acc" stroke="none"/>
+            <path d="M 56 6 A 56 56 0 0 0 48 26"/>
+            <polygon points="48,26 53,22 44,21" class="f-acc" stroke="none"/>
+          </g>
+          <!-- hollow center — explicit empty -->
+          <circle r="14" class="s-thin"/>
+          <text y="4" class="lbl-m" text-anchor="middle" style="letter-spacing: 0.1em">HOLLOW</text>
+          <!-- tick markers on inner ring -->
+          <g class="s-ink" stroke-width="0.8">
+            <line x1="0" y1="-34" x2="0" y2="-30"/>
+            <line x1="0" y1="30" x2="0" y2="34"/>
+            <line x1="-34" y1="0" x2="-30" y2="0"/>
+            <line x1="30" y1="0" x2="34" y2="0"/>
+          </g>
+        </g>
+        <!-- Side labels for rings -->
+        <text x="60" y="60" class="lbl-m">RIM · SPEC</text>
+        <text x="60" y="75" class="lbl-m">· BEHAVIOR</text>
+        <text x="60" y="90" class="lbl-m">· CORRECTION</text>
+        <text x="420" y="60" class="lbl-m" text-anchor="end">FLOW</text>
+        <text x="420" y="75" class="lbl-m" text-anchor="end">REVERSIBLE</text>
+        <text x="420" y="90" class="lbl-m" text-anchor="end">NEVER HALTED</text>
+        <!-- Single title row -->
+        <text x="240" y="220" class="lbl-t" text-anchor="middle">Circulation around Hollow</text>
+        <text x="240" y="234" class="lbl-j" text-anchor="middle">空を巡る循環 · 同心円</text>
+      </svg>
+        </div>
+
+        <div class="p-figure-legend">
+          <div class="p-legend-item">
+            <div class="p-legend-head">Rim</div>
+            <div class="p-legend-ja">縁</div>
+            <div class="p-legend-desc">The active ring — specification, behavior, correction in continuous flow.</div>
+          </div>
+          <div class="p-legend-item">
+            <div class="p-legend-head">Hollow</div>
+            <div class="p-legend-ja">空</div>
+            <div class="p-legend-desc">The unfilled center. Preserving it is what permits rotation.</div>
+          </div>
+          <div class="p-legend-item">
+            <div class="p-legend-head">Flow</div>
+            <div class="p-legend-ja">流</div>
+            <div class="p-legend-desc">Directionality of circulation. Reversible, never halted.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="p-foot">
+    <div class="p-contact">
+      <div><span class="k">CONTACT</span><span class="v">osakenpiro@gmail.com</span></div>
+      <div><span class="k">WEB</span><span class="v">osakenpiro.github.io</span></div>
+      <div><span class="k">X / GH</span><span class="v">@kenpiro7 · github.com/osakenpiro</span></div>
+    </div>
+
+    <div class="p-cite">
+      Osada, K. (2025). <b>The Circulation of Alignment.</b> Zenodo.<br>
+      doi.org/10.5281/zenodo.19106666
+    </div>
+
+    <div class="p-qr">
+      <!-- Real QR linking to Zenodo DOI for Paper II -->
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=2&data=https%3A%2F%2Fdoi.org%2F10.5281%2Fzenodo.19106666" alt="QR code for https://doi.org/10.5281/zenodo.19106666" style="width:100%;height:100%;display:block;image-rendering: pixelated;"/>
+      <div class="p-qr-label">ZENODO</div>
+    </div>
+  </footer>
+
+</article>
+
+<div class="viewer-hint">
+  <b>PAPER II</b> · press <b>⌘/Ctrl + P</b> to print A4 PDF
+</div>
+
+</body>
+</html>

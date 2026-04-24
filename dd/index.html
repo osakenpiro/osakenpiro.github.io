@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>osakenpiro / DD — Design Dashboard v3</title>
+<meta name="description" content="osakenpiro (長田 謙志郎) の集約LP — 論文9本 × 創作4点 × ツール8本 × HumusHuman を、机の上に広げて。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;700;900&family=Shippori+Mincho+B1:wght@500;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="top">
+  <a class="mark" href="/"><span>osakenpiro</span><span class="dot">.</span></a>
+  <nav aria-label="in-page">
+    <a href="#hero">HERO</a>
+    <a href="#papers">PAPERS</a>
+    <a href="#creative">CREATIVE</a>
+    <a href="#tools">TOOLS</a>
+    <a href="#hh">HH</a>
+    <a href="#socials">SOCIALS</a>
+    <a href="#id">ID</a>
+  </nav>
+</header>
+
+<main class="wrap">
+
+  <!-- ====================================================
+       1 · HERO (placeholder — BLBr, text-first)
+       ==================================================== -->
+  <section class="sec hero" id="hero" data-screen-label="01 Hero">
+    <div class="kicker">DD · DESIGN DASHBOARD v3</div>
+    <h1 id="hero-h1"></h1>
+    <p class="roles" id="hero-roles"></p>
+    <p><span class="tagline" id="hero-tagline"></span></p>
+    <p class="manifesto" id="hero-manifesto"></p>
+  </section>
+
+  <!-- ====================================================
+       2 · PAPERS — PtDs 机俯瞰 × 書類束 × 9 (完成実装)
+       ==================================================== -->
+  <section class="sec" id="papers" data-screen-label="02 Papers">
+    <div class="sec-head">
+      <div class="kicker">II · PAPERS · 論文</div>
+      <h2 class="sec-title">9 bundles on the desk<span style="color:var(--coral)">.</span></h2>
+      <p class="sec-sub">AI倫理と東洋思想を架橋する9本。机の上の書類束として並べてある。束を選ぶと、論文の展示室 (Museum Plate) へ。</p>
+    </div>
+
+    <div class="papers-desk" aria-label="机の俯瞰 — 9束の書類">
+      <div class="desk-meta">
+        <span>DESK · TOP VIEW</span>
+        <span>·</span>
+        <span class="count" id="papers-count"></span>
+      </div>
+
+      <div class="papers-grid" id="papers-grid" role="list"></div>
+
+      <div class="papers-biblio">
+        <span>BIBLIO</span>
+        <span style="text-align:center">ZENODO · 2025</span>
+        <span class="right gold">DOI ◆</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================
+       3 · CREATIVE (placeholder — standard card grid, PtDs未決)
+       ==================================================== -->
+  <section class="sec" id="creative" data-screen-label="03 Creative">
+    <div class="sec-head">
+      <div class="kicker">III · CREATIVE · 創作</div>
+      <h2 class="sec-title">Four creative bodies.</h2>
+      <p class="sec-sub">漫画 · 小説 × 2 · 絵本シリーズ。PtDsモチーフ未決のため、当面はスタンダードな図鑑リスト。</p>
+    </div>
+    <div class="card-grid" id="creative-grid"></div>
+    <div class="ph" style="margin-top:16px">
+      <b>PtDs motif: 未決 / pending</b>
+      候補: 本棚 · 原稿用紙 · しおり · 製本ケース etc. — 後続スプリントで確定させる。
+    </div>
+  </section>
+
+  <!-- ====================================================
+       4 · TOOLS (placeholder — 図鑑リスト)
+       ==================================================== -->
+  <section class="sec" id="tools" data-screen-label="04 Tools">
+    <div class="sec-head">
+      <div class="kicker">IV · TOOLS · 実装物</div>
+      <h2 class="sec-title">Eight shipped tools.</h2>
+      <p class="sec-sub">単一HTMLの図鑑・可視化・AI対話。PtDsモチーフ未決、当面はエントリ形式の一覧で。</p>
+    </div>
+    <div class="tools-grid" id="tools-grid"></div>
+    <div class="ph" style="margin-top:16px">
+      <b>PtDs motif: 未決 / pending</b>
+      候補: 工具箱 · 引き出し × 8 · カセットラック etc.
+    </div>
+  </section>
+
+  <!-- ====================================================
+       5 · HUMUSHUMAN — GUBr (新設, 箱だけ placeholder)
+       ==================================================== -->
+  <section class="sec" id="hh" data-screen-label="05 HumusHuman">
+    <div class="sec-head">
+      <div class="kicker">V · HUMUSHUMAN · 腐葉土人</div>
+      <h2 class="sec-title">Character select.</h2>
+      <p class="sec-sub">擬人化された6体の内部キャラ。GUBr (ゲーミングUI) の文法で。秘書子のみPtDs (タスクトレイ + キャビネット) 仕様。立ち絵は後日差し込み。</p>
+    </div>
+
+    <div class="hh-frame" aria-label="キャラクターセレクト">
+      <div class="hh-hud">
+        <span class="gu-title">HUMUSHUMAN ／ SELECT</span>
+        <span class="gu-right">06 / 06 SLOTS</span>
+      </div>
+      <div class="hh-grid" id="hh-grid"></div>
+    </div>
+    <div class="ph" style="margin-top:16px">
+      <b>Image slot spec</b>
+      各スロット = aspect 3:4 / 立ち絵は PNG 透過 / min 400×533 / 秘書子は PtDs線画ルール (線 0.5〜1.5pt, グロー禁則)。
+    </div>
+  </section>
+
+  <!-- ====================================================
+       6 · SOCIALS (placeholder — 横並び6)
+       ==================================================== -->
+  <section class="sec" id="socials" data-screen-label="06 Socials">
+    <div class="sec-head">
+      <div class="kicker">VI · SOCIALS · 外窓</div>
+      <h2 class="sec-title">Six outward windows.</h2>
+    </div>
+    <div class="socials-row" id="socials-row"></div>
+  </section>
+
+  <!-- ====================================================
+       7 · IDENTITY / FOOTER (軽く実装)
+       ==================================================== -->
+  <section class="sec identity" id="id" data-screen-label="07 Identity">
+    <div>
+      <div class="kicker">VII · IDENTITY</div>
+      <h2 class="name-ja" id="id-name-ja"></h2>
+      <div class="name-en" id="id-name-en"></div>
+      <div class="mini-links" id="id-links"></div>
+    </div>
+    <dl class="stats" id="id-stats"></dl>
+  </section>
+
+  <footer class="foot">
+    <span>© osakenpiro · Visionium · 2026</span>
+    <em>the center is empty · the circulation constitutes existence</em>
+  </footer>
+
+</main>
+
+<script src="data.js"></script>
+<script>
+(function(){
+  const D = window.OSK_DATA;
+  if (!D) return;
+
+  /* ---------- HERO ---------- */
+  const h = D.hero;
+  document.getElementById('hero-h1').innerHTML =
+    `${escapeHtml(h.name_ja)}<span class="dot">.</span>`;
+  document.getElementById('hero-roles').textContent =
+    `${h.roles_ja.join(' · ')} / ${h.roles_en.join(' · ')} · ${h.location}`;
+  document.getElementById('hero-tagline').textContent = h.tagline_ja;
+  document.getElementById('hero-manifesto').textContent =
+    `${h.manifesto_ja} — ${h.manifesto_en}`;
+
+  /* ---------- PAPERS ---------- */
+  const papers = D.papers;
+  document.getElementById('papers-count').textContent =
+    `N=${papers.length} · ZENODO`;
+
+  const pGrid = document.getElementById('papers-grid');
+  papers.forEach((p, i) => {
+    // rotation: alternating 1..4deg signs for natural stacking
+    const rots = [1.8, -2.4, 1.2, -1.6, 2.6, -1.1, 1.9, -2.8, 1.4];
+    const rot = rots[i % rots.length];
+
+    const a = document.createElement('a');
+    a.className = 'bundle' + (p.pending ? ' pending' : '');
+    a.href = p.file;
+    a.style.setProperty('--rot', rot + 'deg');
+    a.style.setProperty('--tone', p.tone);
+    a.setAttribute('role', 'listitem');
+    a.setAttribute('aria-label',
+      `Paper ${p.n}: ${p.ja} / ${p.en}${p.pending ? ' (preparing)' : ''}`);
+
+    a.innerHTML = `
+      <div class="sheet s1" aria-hidden="true"></div>
+      <div class="sheet s2" aria-hidden="true"></div>
+      <div class="sheet s3" aria-hidden="true"></div>
+      <div class="sheet s4" aria-hidden="true">
+        <span class="sheet-label">PAPER · ${p.n}</span>
+        <span class="sheet-num">${p.year || '—'}</span>
+      </div>
+      <div class="clip" aria-hidden="true">
+        <svg viewBox="0 0 22 32">
+          <path d="M5 5 L5 26 Q5 30 11 30 Q17 30 17 26 L17 9 Q17 5 13 5 Q9 5 9 9 L9 23 Q9 25 11 25 Q13 25 13 23 L13 12"/>
+        </svg>
+      </div>
+      <div class="stickie" aria-hidden="true">
+        <span class="roman">${p.n}</span>
+        <span class="jp">${p.short_ja}</span>
+        <span class="en">${escapeHtml(p.en).slice(0, 18)}</span>
+      </div>
+    `;
+    pGrid.appendChild(a);
+  });
+
+  /* ---------- CREATIVE (placeholder card) ---------- */
+  const cGrid = document.getElementById('creative-grid');
+  D.creative.forEach(c => {
+    const el = document.createElement('a');
+    el.className = 'card';
+    el.href = c.url || '#';
+    if (c.url && c.url.startsWith('http')) { el.target = '_blank'; el.rel = 'noopener'; }
+    el.innerHTML = `
+      <div class="tag">${escapeHtml(c.kind).toUpperCase()}</div>
+      <div class="title">${escapeHtml(c.ja)}</div>
+      <div class="en">${escapeHtml(c.en)}</div>
+      <div class="detail">${escapeHtml(c.detail)}</div>
+      <div class="meta">${escapeHtml(c.meta)}</div>
+    `;
+    cGrid.appendChild(el);
+  });
+
+  /* ---------- TOOLS (placeholder rows) ---------- */
+  const tGrid = document.getElementById('tools-grid');
+  D.tools.forEach(t => {
+    const el = document.createElement('a');
+    el.className = 'tool-row' + (t.pending ? ' pending' : '');
+    el.href = t.url || '#';
+    if (t.url && t.url.startsWith('http')) { el.target = '_blank'; el.rel = 'noopener'; }
+    el.innerHTML = `
+      <div class="icon">${escapeHtml(t.icon)}</div>
+      <div class="name">${escapeHtml(t.ja)}<small>${escapeHtml(t.en)} — ${escapeHtml(t.sub)}</small></div>
+      <div class="stack">${escapeHtml(t.stack)}</div>
+    `;
+    tGrid.appendChild(el);
+  });
+
+  /* ---------- HUMUSHUMAN (placeholder slots) ---------- */
+  const hGrid = document.getElementById('hh-grid');
+  D.hh.forEach((c, i) => {
+    const el = document.createElement('div');
+    el.className = 'hh-slot' + (c.ptds ? ' ptds' : '');
+    el.style.setProperty('--tone', c.tone);
+    el.setAttribute('aria-label', `${c.ja} / ${c.en}`);
+    el.innerHTML = `
+      <div class="body">
+        <div class="placeholder-mark">
+          <b>立ち絵</b>
+          <small>400 × 533 · PNG</small>
+          <small style="opacity:.6">slot ${String(i+1).padStart(2,'0')}</small>
+        </div>
+      </div>
+      <div class="plate">
+        <div class="elem">${escapeHtml(c.element[0])}</div>
+        <div class="name">${escapeHtml(c.ja)}<small>${escapeHtml(c.en)}</small></div>
+        <div class="kind">${escapeHtml(c.kind)}</div>
+      </div>
+    `;
+    hGrid.appendChild(el);
+  });
+
+  /* ---------- SOCIALS ---------- */
+  const sRow = document.getElementById('socials-row');
+  D.socials.forEach(s => {
+    const el = document.createElement('a');
+    el.className = 'soc';
+    el.href = s.url; el.target = '_blank'; el.rel = 'noopener';
+    el.innerHTML = `
+      <div class="glyph">${escapeHtml(s.glyph)}</div>
+      <div class="k">${escapeHtml(s.k)}</div>
+      <div class="handle">${escapeHtml(s.handle)}</div>
+    `;
+    sRow.appendChild(el);
+  });
+
+  /* ---------- IDENTITY ---------- */
+  document.getElementById('id-name-ja').textContent = h.name_ja;
+  document.getElementById('id-name-en').textContent = `${h.name_en} · ${h.handle}`;
+
+  const stats = document.getElementById('id-stats');
+  stats.innerHTML = `
+    <dt>ORCID</dt><dd class="gold">${escapeHtml(h.orcid)}</dd>
+    <dt>HANDLE</dt><dd>${escapeHtml(h.handle)}</dd>
+    <dt>BASED</dt><dd>${escapeHtml(h.location)}</dd>
+    <dt>PAPERS</dt><dd>${D.papers.length} · Zenodo</dd>
+    <dt>TOOLS</dt><dd>${D.tools.length} shipped</dd>
+  `;
+
+  const links = document.getElementById('id-links');
+  const mini = [
+    { t: 'CONTACT', u: '../contact.html' },
+    { t: 'ORCID',   u: `https://orcid.org/${h.orcid}` },
+    { t: 'ZENODO',  u: 'https://zenodo.org/search?q=osakenpiro' },
+    { t: 'GITHUB',  u: 'https://github.com/osakenpiro' },
+    { t: 'TOP',     u: '/' },
+  ];
+  mini.forEach(m => {
+    const a = document.createElement('a');
+    a.href = m.u; a.textContent = m.t;
+    if (m.u.startsWith('http')) { a.target='_blank'; a.rel='noopener'; }
+    links.appendChild(a);
+  });
+
+  /* ---------- utils ---------- */
+  function escapeHtml(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+})();
+</script>
+
+</body>
+</html>

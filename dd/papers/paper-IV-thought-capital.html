@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Paper IV — Thought as Capital · osakenpiro</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  /* ---- Paper-specific tokens (overridable per paper) ---- */
+  :root {
+    --p-accent: #B8892A;
+    --p-accent-tint: #B8892A1a;
+    --p-paper: #f5f1ea;            /* off-white */
+    --p-paper-2: #efe9dd;
+    --p-ink: #1a1611;              /* near-black warm */
+    --p-ink-2: #4a4036;            /* body text */
+    --p-ink-3: #8a7d6e;            /* captions / muted */
+    --p-rule: #cfc6b5;             /* hairlines */
+    --p-rule-soft: #e0d9c8;
+  }
+
+  html, body { margin: 0; padding: 0; background: #2a2620; }
+  body {
+    font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+    color: var(--p-ink);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* A4 page — 210×297mm. Fixed on screen, single-page in print. */
+  .page {
+    width: 210mm;
+    height: 297mm;
+    margin: 24px auto;
+    background: var(--p-paper);
+    position: relative;
+    box-shadow: 0 6px 40px rgba(0,0,0,0.45);
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    padding: 18mm 20mm 14mm;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  /* Subtle paper texture */
+  .page::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(139,26,26,0.015), transparent 50%),
+      radial-gradient(circle at 85% 80%, rgba(0,0,0,0.02), transparent 50%);
+    pointer-events: none;
+  }
+
+  /* ==================== HEADER ==================== */
+  .p-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12mm;
+    align-items: start;
+    padding-bottom: 5mm;
+    border-bottom: 0.5pt solid var(--p-rule);
+    position: relative;
+  }
+  .p-head::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 18mm; height: 2.5pt;
+    background: var(--p-accent);
+  }
+  .p-meta-row {
+    display: flex;
+    gap: 14px;
+    font-family: 'Consolas', monospace;
+    font-size: 7.5pt;
+    letter-spacing: 0.18em;
+    color: var(--p-ink-3);
+    text-transform: uppercase;
+    margin-bottom: 6mm;
+    padding-top: 3mm;
+  }
+  .p-meta-row b {
+    color: var(--p-accent);
+    font-weight: 700;
+  }
+  .p-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 26pt;
+    line-height: 1.08;
+    letter-spacing: -0.005em;
+    margin: 0 0 3mm;
+    color: var(--p-ink);
+    text-wrap: pretty;
+  }
+  .p-title .accent { color: var(--p-accent); font-style: italic; }
+  .p-subtitle-en {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13pt;
+    color: var(--p-ink-2);
+    line-height: 1.3;
+    margin: 0 0 2mm;
+    font-weight: 400;
+  }
+  .p-subtitle-ja {
+    font-family: 'Zen Kaku Gothic New', 'Yu Gothic UI', sans-serif;
+    font-size: 10pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.08em;
+    margin: 0;
+    font-weight: 300;
+  }
+
+  /* Roman numeral right shoulder */
+  .p-numeral {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-size: 72pt;
+    line-height: 0.85;
+    color: var(--p-accent);
+    opacity: 0.85;
+    letter-spacing: -0.02em;
+    text-align: right;
+    padding-top: 2mm;
+  }
+  .p-numeral small {
+    display: block;
+    font-family: 'Consolas', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.3em;
+    color: var(--p-ink-3);
+    margin-top: 2mm;
+    font-weight: 400;
+  }
+
+  /* ==================== AUTHOR STRIP ==================== */
+  .p-author-strip {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    gap: 10mm;
+    align-items: baseline;
+    padding: 4mm 0;
+    border-bottom: 0.5pt solid var(--p-rule-soft);
+    font-size: 9pt;
+  }
+  .p-author-strip > div > .label {
+    display: block;
+    font-family: 'Consolas', monospace;
+    font-size: 6.5pt;
+    letter-spacing: 0.3em;
+    color: var(--p-ink-3);
+    text-transform: uppercase;
+    margin-bottom: 1mm;
+  }
+  .p-author-strip > div > .val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 10.5pt;
+    color: var(--p-ink);
+  }
+  .p-author-strip > div > .val .orcid {
+    font-family: 'Consolas', monospace;
+    font-size: 8pt;
+    color: var(--p-ink-3);
+    margin-left: 6px;
+  }
+  .p-author-strip .doi-val {
+    font-family: 'Consolas', monospace;
+    font-size: 8.5pt;
+    color: var(--p-accent);
+    letter-spacing: 0.02em;
+  }
+
+  /* ==================== BODY: 2-col ==================== */
+  .p-body {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 10mm;
+    padding-top: 7mm;
+    padding-bottom: 7mm;
+  }
+
+  /* Column 1: Abstract + findings */
+  .p-col-left { display: flex; flex-direction: column; gap: 6mm; }
+
+  .p-block-label {
+    font-family: 'Consolas', monospace;
+    font-size: 7.5pt;
+    letter-spacing: 0.3em;
+    color: var(--p-accent);
+    text-transform: uppercase;
+    margin: 0 0 2.5mm;
+    padding-bottom: 1mm;
+    border-bottom: 0.5pt solid var(--p-accent);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .p-block-label .ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 8pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.15em;
+  }
+
+  .p-abstract {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: var(--p-ink);
+    text-wrap: pretty;
+    margin: 0;
+  }
+  .p-abstract .drop {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--p-accent);
+  }
+
+  .p-oneline {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 10.5pt;
+    line-height: 1.35;
+    color: var(--p-ink-2);
+    margin: 2mm 0 0;
+    padding: 3mm 4mm;
+    background: var(--p-accent-tint);
+    border-left: 1.5pt solid var(--p-accent);
+  }
+  .p-oneline-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 8.5pt;
+    color: var(--p-ink-3);
+    margin-top: 1.5mm;
+    letter-spacing: 0.04em;
+    font-weight: 400;
+  }
+
+  /* Findings — numbered */
+  .p-findings { display: flex; flex-direction: column; gap: 3mm; }
+  .p-finding {
+    display: grid;
+    grid-template-columns: 9mm 1fr;
+    gap: 3mm;
+    padding: 2mm 0;
+  }
+  .p-finding:not(:last-child) {
+    border-bottom: 0.3pt dashed var(--p-rule);
+    padding-bottom: 3mm;
+  }
+  .p-finding-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 22pt;
+    line-height: 0.9;
+    color: var(--p-accent);
+  }
+  .p-finding-head {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 10.5pt;
+    color: var(--p-ink);
+    margin: 0 0 1mm;
+    line-height: 1.25;
+  }
+  .p-finding-body {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 9.5pt;
+    line-height: 1.45;
+    color: var(--p-ink-2);
+    margin: 0;
+    text-wrap: pretty;
+  }
+  .p-finding-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 7.5pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.06em;
+    margin-top: 0.8mm;
+  }
+
+  /* Column 2: Core figure */
+  .p-col-right { display: flex; flex-direction: column; gap: 4mm; }
+  .p-figure-frame {
+    background: var(--p-paper-2);
+    border: 0.5pt solid var(--p-rule);
+    padding: 5mm 5mm 4mm;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .p-figure-caption {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4mm;
+    font-family: 'Consolas', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.25em;
+    color: var(--p-ink-3);
+    text-transform: uppercase;
+  }
+  .p-figure-caption b {
+    color: var(--p-accent);
+    font-weight: 700;
+  }
+  .p-figure-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: 13pt;
+    color: var(--p-ink);
+    text-align: center;
+    margin: 0 0 1mm;
+  }
+  .p-figure-title-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 9pt;
+    color: var(--p-ink-3);
+    text-align: center;
+    margin: 0 0 4mm;
+    letter-spacing: 0.1em;
+  }
+  .p-figure-svg {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2mm 0;
+  }
+  .p-figure-svg svg { width: 100%; height: auto; max-height: 75mm; }
+  .p-figure-legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 3mm;
+    padding-top: 3mm;
+    border-top: 0.5pt solid var(--p-rule);
+  }
+  .p-legend-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8mm;
+  }
+  .p-legend-head {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-style: italic;
+    font-size: 10pt;
+    color: var(--p-accent);
+    line-height: 1.1;
+  }
+  .p-legend-ja {
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 8.5pt;
+    color: var(--p-ink);
+    letter-spacing: 0.04em;
+  }
+  .p-legend-desc {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 8.5pt;
+    line-height: 1.35;
+    color: var(--p-ink-2);
+    margin-top: 0.5mm;
+  }
+
+  /* ==================== FOOTER ==================== */
+  .p-foot {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8mm;
+    align-items: end;
+    padding-top: 4mm;
+    border-top: 0.5pt solid var(--p-rule);
+  }
+  .p-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2mm;
+    font-family: 'Consolas', monospace;
+    font-size: 7.5pt;
+    color: var(--p-ink-3);
+    letter-spacing: 0.1em;
+  }
+  .p-contact > div { display: flex; gap: 8px; }
+  .p-contact .k {
+    color: var(--p-accent);
+    font-weight: 700;
+    min-width: 14mm;
+  }
+  .p-contact .v { color: var(--p-ink); }
+
+  .p-cite {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 8pt;
+    line-height: 1.4;
+    color: var(--p-ink-2);
+    font-style: italic;
+    max-width: 80mm;
+    text-align: right;
+  }
+  .p-cite b { color: var(--p-ink); font-style: normal; font-weight: 600; }
+
+  .p-qr {
+    width: 18mm; height: 18mm;
+    background: #fff;
+    padding: 1mm;
+    border: 0.5pt solid var(--p-rule);
+    position: relative;
+  }
+  .p-qr svg { width: 100%; height: 100%; display: block; }
+  .p-qr-label {
+    position: absolute;
+    bottom: -4mm;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Consolas', monospace;
+    font-size: 6pt;
+    letter-spacing: 0.2em;
+    color: var(--p-ink-3);
+    white-space: nowrap;
+  }
+
+  /* ==================== PRINT ==================== */
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+  @media print {
+    html, body { background: #fff; }
+    .page {
+      margin: 0; box-shadow: none;
+      page-break-after: avoid;
+    }
+  }
+
+  /* ==================== VIEWER CHROME ==================== */
+  .viewer-hint {
+    position: fixed;
+    bottom: 14px; left: 50%;
+    transform: translateX(-50%);
+    background: rgba(245,241,234,0.9);
+    color: #4a4036;
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    padding: 6px 14px;
+    border-radius: 2px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    z-index: 100;
+  }
+  .viewer-hint b { color: #B8892A; }
+  @media print { .viewer-hint { display: none; } }
+</style>
+</head>
+<body>
+
+<article class="page" data-screen-label="paper-IV-onepager">
+
+  <!-- HEADER -->
+  <header class="p-head">
+    <div>
+      <div class="p-meta-row">
+        <span><b>SERIES</b> Boolean → Float</span>
+        <span>·</span>
+        <span>Phenomenology &amp; Cog. Sci. <b>(under review)</b></span>
+        <span>·</span>
+        <span>2025</span>
+      </div>
+      <h1 class="p-title">
+        Thought as <span class="accent">Capital</span>
+      </h1>
+      <p class="p-subtitle-en">A Spectral Theory of Intellectual Value — How Raw Cognition Refracts Into Seven Kinds</p>
+      <p class="p-subtitle-ja">思考資本論 — 原思考の分光・知的価値の七色理論</p>
+    </div>
+    <div class="p-numeral">
+      IV
+      <small>PAPER · 04 / 09</small>
+    </div>
+  </header>
+
+  <!-- AUTHOR STRIP -->
+  <section class="p-author-strip">
+    <div>
+      <span class="label">Author</span>
+      <span class="val">Kenshiro Osada <span class="orcid">0009-0004-9167-3186</span></span>
+    </div>
+    <div>
+      <span class="label">Affiliation</span>
+      <span class="val">Independent · Tokyo, JP</span>
+    </div>
+    <div>
+      <span class="label">Keywords</span>
+      <span class="val" style="font-family: 'Consolas', monospace; font-size: 8pt; letter-spacing: 0.06em;">
+        thought capital · intellectual value · institutions · spectral theory · economics of ideas
+      </span>
+    </div>
+    <div>
+      <span class="label">DOI</span>
+      <span class="val doi-val">10.5281/zenodo.19106688</span>
+    </div>
+  </section>
+
+  <!-- BODY -->
+  <main class="p-body">
+
+    <!-- LEFT: Abstract + Findings -->
+    <div class="p-col-left">
+      <div>
+        <div class="p-block-label">
+          <span>§ Abstract</span>
+          <span class="ja">要旨</span>
+        </div>
+        <p class="p-abstract">
+          <span class="drop">Thinking</span> is commonly treated as a single fungible good: "insight," "ideas," "thought." We argue that raw cognition is in fact white light — it refracts through institutional prisms into at least <em>seven</em> distinct kinds of intellectual value, each with its own market, unit of account, and failure mode. The framework yields a predictive account of why certain thinkers are wealthy in one spectrum and destitute in another.
+        </p>
+        <p class="p-oneline">
+          "Raw thought is white light. Institutions are prisms. The seven colors are not interchangeable."
+          <span class="p-oneline-ja">原思考は白色光である。制度はプリズム。七色は互換ではない。</span>
+        </p>
+      </div>
+
+      <div>
+        <div class="p-block-label">
+          <span>§ Key findings</span>
+          <span class="ja">主要な発見</span>
+        </div>
+        <div class="p-findings">
+
+          <div class="p-finding">
+            <span class="p-finding-num">01</span>
+            <div>
+              <h4 class="p-finding-head">Thought refracts into seven spectra.</h4>
+              <p class="p-finding-body">
+                Academic, aesthetic, practical, narrative, numerical, relational, and contemplative value each behave as an independent color on the spectrum.
+              </p>
+              <p class="p-finding-ja">思考は七つの独立したスペクトルに分光する。</p>
+            </div>
+          </div>
+
+          <div class="p-finding">
+            <span class="p-finding-num">02</span>
+            <div>
+              <h4 class="p-finding-head">The prism is institutional.</h4>
+              <p class="p-finding-body">
+                Which kind of value a thought takes depends on the institution it passes through — not on the content of the thought itself.
+              </p>
+              <p class="p-finding-ja">思考の色は内容でなく通過する制度が決める。</p>
+            </div>
+          </div>
+
+          <div class="p-finding">
+            <span class="p-finding-num">03</span>
+            <div>
+              <h4 class="p-finding-head">Wealth in one ≠ wealth in all.</h4>
+              <p class="p-finding-body">
+                Individuals systematically concentrate capital in 1–2 spectra and remain structurally poor in others; transfer costs are nontrivial and often one-way.
+              </p>
+              <p class="p-finding-ja">一色で富めば他色で貧するのが常。移転は不可逆。</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Core figure -->
+    <div class="p-col-right">
+      <div class="p-figure-frame">
+        <div class="p-figure-caption">
+          <span><b>FIG. 1</b> · Core</span>
+          <span>図 1 · 核心図</span>
+        </div>
+        <h3 class="p-figure-title">The Seven-Color Refraction of Thought</h3>
+        <p class="p-figure-title-ja">思考の七色分光 — プリズムを通る白色光</p>
+
+        <div class="p-figure-svg">
+          <!-- Core figure for Paper IV -->
+      <svg viewBox="0 0 480 240" xmlns="http://www.w3.org/2000/svg">
+        <defs><style>
+          .s-acc { stroke: #B8892A; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+          .s-ink { stroke: #1a1611; fill: none; stroke-linecap: round; }
+          .s-thin { stroke: #4a4036; fill: none; stroke-width: 0.5; stroke-dasharray: 2 2; }
+          .f-acc { fill: #B8892A; }
+          .lbl-t { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; fill: #1a1611; }
+          .lbl-j { font-family: 'Zen Kaku Gothic New', sans-serif; font-size: 10px; fill: #8a7d6e; letter-spacing: 0.1em; }
+          .lbl-m { font-family: 'Consolas', monospace; font-size: 7px; fill: #8a7d6e; letter-spacing: 0.25em; }
+          .axis { stroke: #cfc6b5; stroke-width: 0.5; fill: none; }
+        </style></defs>
+        <line class="axis" x1="20" y1="200" x2="460" y2="200"/>
+        <text x="30" y="194" class="lbl-m">WHITE LIGHT</text>
+        <text x="450" y="194" class="lbl-m" text-anchor="end">SEVEN SPECTRA →</text>
+
+        <!-- Incoming white light ray (left) -->
+        <g>
+          <line x1="30" y1="115" x2="175" y2="115" stroke="#1a1611" stroke-width="2" />
+          <line x1="30" y1="112" x2="175" y2="112" stroke="#1a1611" stroke-width="0.4" />
+          <line x1="30" y1="118" x2="175" y2="118" stroke="#1a1611" stroke-width="0.4" />
+          <text x="100" y="103" class="lbl-m" text-anchor="middle">RAW THOUGHT</text>
+        </g>
+
+        <!-- Prism (triangle) -->
+        <g transform="translate(175,55)">
+          <polygon points="0,120 60,0 60,120" class="s-acc" stroke-width="1.6" fill="none"/>
+          <polygon points="6,115 55,15 55,115" class="s-thin"/>
+          <text x="30" y="142" class="lbl-t" text-anchor="middle">Prism</text>
+          <text x="30" y="156" class="lbl-j" text-anchor="middle">制度</text>
+        </g>
+
+        <!-- Refracted rays: 7 fanning outward from prism exit edge -->
+        <g stroke-linecap="round">
+          <!-- each ray has slightly different angle + label -->
+          <line x1="235" y1="100" x2="450" y2="40"  stroke="#B8892A" stroke-width="1.3"/>
+          <line x1="235" y1="108" x2="450" y2="65"  stroke="#C09B45" stroke-width="1.3"/>
+          <line x1="235" y1="115" x2="450" y2="90"  stroke="#C8AD60" stroke-width="1.3"/>
+          <line x1="235" y1="122" x2="450" y2="115" stroke="#B8892A" stroke-width="1.3"/>
+          <line x1="235" y1="129" x2="450" y2="140" stroke="#A07824" stroke-width="1.3"/>
+          <line x1="235" y1="136" x2="450" y2="165" stroke="#8B6820" stroke-width="1.3"/>
+          <line x1="235" y1="143" x2="450" y2="190" stroke="#75581B" stroke-width="1.3"/>
+        </g>
+
+        <!-- Ray labels on right edge -->
+        <g class="lbl-m">
+          <text x="456" y="42">ACADEMIC</text>
+          <text x="456" y="67">AESTHETIC</text>
+          <text x="456" y="92">PRACTICAL</text>
+          <text x="456" y="117">NARRATIVE</text>
+          <text x="456" y="142">NUMERICAL</text>
+          <text x="456" y="167">RELATIONAL</text>
+          <text x="456" y="192">CONTEMPL.</text>
+        </g>
+
+        <!-- Small JP labels grouped -->
+        <text x="456" y="220" class="lbl-j">知・美・実・物・数・縁・空</text>
+      </svg>
+        </div>
+
+        <div class="p-figure-legend">
+          <div class="p-legend-item">
+            <div class="p-legend-head">White Light</div>
+            <div class="p-legend-ja">白色光</div>
+            <div class="p-legend-desc">Raw cognition before institutional refraction.</div>
+          </div>
+          <div class="p-legend-item">
+            <div class="p-legend-head">Prism</div>
+            <div class="p-legend-ja">プリズム</div>
+            <div class="p-legend-desc">The institution that sorts thought into a value-color.</div>
+          </div>
+          <div class="p-legend-item">
+            <div class="p-legend-head">Spectrum</div>
+            <div class="p-legend-ja">スペクトル</div>
+            <div class="p-legend-desc">Seven incommensurable kinds of intellectual capital.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="p-foot">
+    <div class="p-contact">
+      <div><span class="k">CONTACT</span><span class="v">osakenpiro@gmail.com</span></div>
+      <div><span class="k">WEB</span><span class="v">osakenpiro.github.io</span></div>
+      <div><span class="k">X / GH</span><span class="v">@kenpiro7 · github.com/osakenpiro</span></div>
+    </div>
+
+    <div class="p-cite">
+      Osada, K. (2025). <b>Thought as Capital.</b> Zenodo.<br>
+      doi.org/10.5281/zenodo.19106688
+    </div>
+
+    <div class="p-qr">
+      <!-- Real QR linking to Zenodo DOI for Paper IV -->
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=2&data=https%3A%2F%2Fdoi.org%2F10.5281%2Fzenodo.19106688" alt="QR code for https://doi.org/10.5281/zenodo.19106688" style="width:100%;height:100%;display:block;image-rendering: pixelated;"/>
+      <div class="p-qr-label">ZENODO</div>
+    </div>
+  </footer>
+
+</article>
+
+<div class="viewer-hint">
+  <b>PAPER IV</b> · press <b>⌘/Ctrl + P</b> to print A4 PDF
+</div>
+
+</body>
+</html>
