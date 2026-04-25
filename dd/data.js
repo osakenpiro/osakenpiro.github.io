@@ -78,7 +78,7 @@ window.OSK_DATA = {
     { k: 'TikTok',   handle: '@osakenpiro', url: 'https://www.tiktok.com/@osakenpiro',     glyph: '◈', avatar: 'assets/sns-02-tiktok-avatar.png', bg: 'assets/sns-02-tiktok-bg.png' },
     { k: 'pixiv',    handle: '@osakenpiro', url: 'https://www.pixiv.net/users/osakenpiro', glyph: 'P', avatar: 'assets/sns-03-pixiv-avatar.png', bg: 'assets/sns-03-pixiv-bg.png' },
     { k: 'Kakuyomu', handle: '@osakenpiro', url: 'https://kakuyomu.jp/users/osakenpiro',   glyph: '書', avatar: 'assets/sns-04-kakuyomu-avatar.png', bg: 'assets/sns-04-kakuyomu-bg.png' },
-    { k: 'note',     handle: '@osakenpiro', url: 'https://note.com/osakenpiro',            glyph: 'n' },
-    { k: 'GitHub',   handle: 'osakenpiro',  url: 'https://github.com/osakenpiro',          glyph: '◉' },
+    { k: 'note',     handle: '@osakenpiro', url: 'https://note.com/osakenpiro',            glyph: 'n', avatar: 'assets/sns-05-note-avatar.png', bg: 'assets/sns-05-note-bg.png' },
+    { k: 'GitHub',   handle: 'osakenpiro',  url: 'https://github.com/osakenpiro',          glyph: '◉', avatar: 'assets/sns-06-github-avatar.png', bg: 'assets/sns-06-github-bg.png' },
   ],
 };
