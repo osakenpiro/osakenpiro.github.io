@@ -49,13 +49,13 @@ window.OSK_DATA = {
   ],
 
   tools: [
-    { icon: '🌏', ja: '僕の惑星',           en: 'Boku no Wakusei',         sub: 'orbital hub · canonical brand surface', stack: 'single html · canvas',     url: 'https://osakenpiro.github.io', comic: 'assets/tool-01-boku-no-wakusei.png', hero: true },
+    { icon: '🌏', ja: '僕の惑星',           en: 'Boku no Wakusei',         sub: 'orbital hub · canonical brand surface', stack: 'single html · canvas',     url: 'https://osakenpiro.github.io', comic: 'assets/tool-01-boku-no-wakusei.png', hero: true, comic: 'assets/tool-01-boku-no-wakusei.png' },
     { icon: '◉',  ja: 'SATORI',             en: 'SATORI',                  sub: '四賢者との哲学対話',                    stack: 'Claude API · CF Worker',    url: 'https://osakenpiro.github.io/satori/', comic: 'assets/tool-02-satori.png' },
     { icon: '🐸', ja: 'わっかずかん',       en: 'Wakka-zukan',             sub: '連続値で生き物を眺める図鑑',             stack: 'localStorage · SVG',        url: 'https://osakenpiro.github.io/wakkazukan/', comic: 'assets/tool-03-wakka-zukan.png' },
     { icon: '🧪', ja: '人類の素材図鑑',     en: 'Materials of Civilization',sub: '砂・鉄・プラスチック 15章',           stack: 'D3.js · single html',       url: 'https://osakenpiro.github.io/materials-of-civilization/', comic: 'assets/tool-04-materials.png' },
     { icon: '💰', ja: 'わたしのお財布',     en: 'Watashi Wallet',          sub: '52都市の家計データ × 自由度指数',        stack: 'D3.js · real data',         url: 'https://osakenpiro.github.io/watashi-wallet/', comic: 'assets/tool-05-watashi-wallet.png' },
     { icon: '🗾', ja: '人口動態マップ',     en: 'Japan Wallet Map',        sub: '飛鳥時代〜2050年 · 5レイヤー可視化',      stack: 'D3.js · TopoJSON',          url: 'https://osakenpiro.github.io/japan-wallet-map/', comic: 'assets/tool-06-japan-wallet-map.png' },
-    { icon: '🧬', ja: 'じこしょうかい',     en: 'Jikoshoukai Portal',      sub: '全17巻85キャラの絵本ポータル',           stack: 'single html',               url: 'https://osakenpiro.github.io/jikoshoukai/' },
+    { icon: '🧬', ja: 'じこしょうかい',     en: 'Jikoshoukai Portal',      sub: '全17巻85キャラの絵本ポータル',           stack: 'single html',               url: 'https://osakenpiro.github.io/jikoshoukai/', comic: 'assets/tool-07-jikoshoukai.png' },
     { icon: '☁',  ja: '天人𦻙記',          en: 'Tenjin-ki',               sub: '準備中',                                  stack: '—',                         url: '#', comic: 'assets/tool-08-tenjin-ki.png', pending: true },
   ],
 
