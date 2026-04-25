@@ -536,6 +536,7 @@ a{color:inherit; text-decoration:none}
   border-top: 1px solid var(--ink);
   perspective: 1800px;
 }
+.doors.single{ grid-template-columns: 1fr; max-width: 480px;}
 .door-frame{
   position: relative;
   background: color-mix(in srgb, var(--ink) 10%, var(--bg));
@@ -849,24 +850,15 @@ a{color:inherit; text-decoration:none}
   </div>
 </section>
 
-<!-- ========== SIDE DOORS (どこでもドア風) ========== -->
-<section class="doors">
-  <div class="door-frame" data-label="SIDE DOOR · 01">
-    <a class="door" href="/v2/">
+<!-- ========== SIDE DOOR (どこでもドア風) ========== -->
+<section class="doors single">
+  <div class="door-frame" data-label="SIDE DOOR">
+    <a class="door" href="/dd/">
       <span class="knob" aria-hidden="true"></span>
-      <div class="lab">OSAKENPIRO · V2</div>
-      <h4>Re:DeSign</h4>
-      <p>デザインを系譜で捉え直す、集約ダッシュボード。長尺・全索引の一枚。</p>
-      <span class="go">osakenpiro.github.io/v2/ →</span>
-    </a>
-  </div>
-  <div class="door-frame" data-label="SIDE DOOR · 02">
-    <a class="door cosmos" href="/cosmos/">
-      <span class="knob" aria-hidden="true"></span>
-      <div class="lab">OSAKENPIRO · COSMOS</div>
-      <h4>もう一つの顔<br>/cosmos/</h4>
-      <p>黒背景・星屑・軌道。スペシャル体験としての惑星ビュー。</p>
-      <span class="go">osakenpiro.github.io/cosmos/ →</span>
+      <div class="lab">OSAKENPIRO · DD</div>
+      <h4>Design Dashboard</h4>
+      <p>論文9本・創作・ツール・HumusHumanを机の上に広げた集約LP。長尺・全索引の一枚。</p>
+      <span class="go">osakenpiro.github.io/dd/ →</span>
     </a>
   </div>
 </section>
@@ -912,17 +904,13 @@ a{color:inherit; text-decoration:none}
 <div class="pocket-cluster">
   <div class="pocket-contents" aria-label="Quick links">
     <nav class="file-stack" aria-label="Pages">
-      <a class="file-card" href="/cosmos/">
-        <span class="ruby">cosmos</span>
-        <span class="main">FILE · 003 · 惑星</span>
-      </a>
-      <a class="file-card" href="/v2/">
-        <span class="ruby">redesign</span>
-        <span class="main">FILE · 002 · デザイン</span>
+      <a class="file-card" href="/dd/">
+        <span class="ruby">design dashboard</span>
+        <span class="main">FILE · 002 · DD</span>
       </a>
       <a class="file-card" href="/contact/">
         <span class="ruby">contact</span>
-        <span class="main">FILE · 004 · 名刺</span>
+        <span class="main">FILE · 003 · 名刺</span>
       </a>
       <a class="file-card active" href="#" aria-current="page">
         <span class="ruby">entrance</span>
