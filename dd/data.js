@@ -45,11 +45,11 @@ window.OSK_DATA = {
     { kind: 'manga',   ja: 'PEACE PIECE',    en: 'PEACE PIECE',       meta: '連載 · manga',          detail: '戦争と静寂の短篇集',      url: '#' },
     { kind: 'novel',   ja: '星は知らない',   en: 'Hoshi wa Shiranai', meta: '8章 · SF長編',           detail: '超長期的孤独のSF',        url: '#' },
     { kind: 'novel',   ja: '0.5の魔女',      en: '0.5 no Majo',       meta: '連載中 · カクヨム',      detail: '連続値で生きる魔女',      url: '#' },
-    { kind: 'picture', ja: 'じこしょうかい', en: 'Jikoshoukai',       meta: '全17巻 · 85キャラ完結',  detail: '自己紹介という哲学行為', url: 'https://osakenpiro.github.io/jikoshoukai/', comic: 'assets/tool-07-jikoshoukai.png' },
+    { kind: 'picture', ja: 'じこしょうかい', en: 'Jikoshoukai',       meta: '全17巻 · 85キャラ完結',  detail: '自己紹介という哲学行為', url: 'https://osakenpiro.github.io/jikoshoukai/' },
   ],
 
   tools: [
-    { icon: '🌏', ja: '僕の惑星',           en: 'Boku no Wakusei',         sub: 'orbital hub · canonical brand surface', stack: 'single html · canvas',     url: 'https://osakenpiro.github.io', comic: 'assets/tool-01-boku-no-wakusei.png', hero: true, comic: 'assets/tool-01-boku-no-wakusei.png' },
+    { icon: '🌏', ja: '僕の惑星',           en: 'Boku no Wakusei',         sub: 'orbital hub · canonical brand surface', stack: 'single html · canvas',     url: 'https://osakenpiro.github.io', hero: true, comic: 'assets/tool-01-boku-no-wakusei.png' },
     { icon: '◉',  ja: 'SATORI',             en: 'SATORI',                  sub: '四賢者との哲学対話',                    stack: 'Claude API · CF Worker',    url: 'https://osakenpiro.github.io/satori/', comic: 'assets/tool-02-satori.png' },
     { icon: '🐸', ja: 'わっかずかん',       en: 'Wakka-zukan',             sub: '連続値で生き物を眺める図鑑',             stack: 'localStorage · SVG',        url: 'https://osakenpiro.github.io/wakkazukan/', comic: 'assets/tool-03-wakka-zukan.png' },
     { icon: '🧪', ja: '人類の素材図鑑',     en: 'Materials of Civilization',sub: '砂・鉄・プラスチック 15章',           stack: 'D3.js · single html',       url: 'https://osakenpiro.github.io/materials-of-civilization/', comic: 'assets/tool-04-materials.png' },
