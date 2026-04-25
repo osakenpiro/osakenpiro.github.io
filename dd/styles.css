@@ -628,8 +628,33 @@ section.sec:first-of-type{ border-top: none;}
   border-radius: 8px;
   transition: border-color .2s var(--ease), transform .2s var(--ease);
   min-height: 80px;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.soc::before{
+  content: '';
+  position: absolute; inset: 0;
+  background-image: var(--soc-bg, none);
+  background-size: cover;
+  background-position: center;
+  opacity: .14;
+  filter: saturate(.85);
+  z-index: 0;
+  transition: opacity .3s var(--ease);
 }
 .soc:hover{ border-color: var(--ink); transform: translateY(-2px);}
+.soc:hover::before{ opacity: .26; }
+.soc > *{ position: relative; z-index: 1;}
+.soc .avatar{
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid var(--rule);
+  margin-bottom: 2px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
 .soc .glyph{
   font-family: var(--mincho); font-weight: 900; font-size: 22px; color: var(--ink);
   line-height: 1;
