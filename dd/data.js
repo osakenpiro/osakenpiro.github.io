@@ -45,18 +45,18 @@ window.OSK_DATA = {
     { kind: 'manga',   ja: 'PEACE PIECE',    en: 'PEACE PIECE',       meta: '連載 · manga',          detail: '戦争と静寂の短篇集',      url: '#' },
     { kind: 'novel',   ja: '星は知らない',   en: 'Hoshi wa Shiranai', meta: '8章 · SF長編',           detail: '超長期的孤独のSF',        url: '#' },
     { kind: 'novel',   ja: '0.5の魔女',      en: '0.5 no Majo',       meta: '連載中 · カクヨム',      detail: '連続値で生きる魔女',      url: '#' },
-    { kind: 'picture', ja: 'じこしょうかい', en: 'Jikoshoukai',       meta: '全17巻 · 85キャラ完結',  detail: '自己紹介という哲学行為', url: 'https://osakenpiro.github.io/jikoshoukai/' },
+    { kind: 'picture', ja: 'じこしょうかい', en: 'Jikoshoukai',       meta: '全17巻 · 85キャラ完結',  detail: '自己紹介という哲学行為', url: 'https://osakenpiro.github.io/jikoshoukai/', comic: 'assets/tool-07-jikoshoukai.png' },
   ],
 
   tools: [
-    { icon: '🌏', ja: '僕の惑星',           en: 'Boku no Wakusei',         sub: 'orbital hub · canonical brand surface', stack: 'single html · canvas',     url: 'https://osakenpiro.github.io', hero: true },
-    { icon: '◉',  ja: 'SATORI',             en: 'SATORI',                  sub: '四賢者との哲学対話',                    stack: 'Claude API · CF Worker',    url: 'https://osakenpiro.github.io/satori/' },
-    { icon: '🐸', ja: 'わっかずかん',       en: 'Wakka-zukan',             sub: '連続値で生き物を眺める図鑑',             stack: 'localStorage · SVG',        url: 'https://osakenpiro.github.io/wakkazukan/' },
-    { icon: '🧪', ja: '人類の素材図鑑',     en: 'Materials of Civilization',sub: '砂・鉄・プラスチック 15章',           stack: 'D3.js · single html',       url: 'https://osakenpiro.github.io/materials-of-civilization/' },
-    { icon: '💰', ja: 'わたしのお財布',     en: 'Watashi Wallet',          sub: '52都市の家計データ × 自由度指数',        stack: 'D3.js · real data',         url: 'https://osakenpiro.github.io/watashi-wallet/' },
-    { icon: '🗾', ja: '人口動態マップ',     en: 'Japan Wallet Map',        sub: '飛鳥時代〜2050年 · 5レイヤー可視化',      stack: 'D3.js · TopoJSON',          url: 'https://osakenpiro.github.io/japan-wallet-map/' },
+    { icon: '🌏', ja: '僕の惑星',           en: 'Boku no Wakusei',         sub: 'orbital hub · canonical brand surface', stack: 'single html · canvas',     url: 'https://osakenpiro.github.io', comic: 'assets/tool-01-boku-no-wakusei.png', hero: true },
+    { icon: '◉',  ja: 'SATORI',             en: 'SATORI',                  sub: '四賢者との哲学対話',                    stack: 'Claude API · CF Worker',    url: 'https://osakenpiro.github.io/satori/', comic: 'assets/tool-02-satori.png' },
+    { icon: '🐸', ja: 'わっかずかん',       en: 'Wakka-zukan',             sub: '連続値で生き物を眺める図鑑',             stack: 'localStorage · SVG',        url: 'https://osakenpiro.github.io/wakkazukan/', comic: 'assets/tool-03-wakka-zukan.png' },
+    { icon: '🧪', ja: '人類の素材図鑑',     en: 'Materials of Civilization',sub: '砂・鉄・プラスチック 15章',           stack: 'D3.js · single html',       url: 'https://osakenpiro.github.io/materials-of-civilization/', comic: 'assets/tool-04-materials.png' },
+    { icon: '💰', ja: 'わたしのお財布',     en: 'Watashi Wallet',          sub: '52都市の家計データ × 自由度指数',        stack: 'D3.js · real data',         url: 'https://osakenpiro.github.io/watashi-wallet/', comic: 'assets/tool-05-watashi-wallet.png' },
+    { icon: '🗾', ja: '人口動態マップ',     en: 'Japan Wallet Map',        sub: '飛鳥時代〜2050年 · 5レイヤー可視化',      stack: 'D3.js · TopoJSON',          url: 'https://osakenpiro.github.io/japan-wallet-map/', comic: 'assets/tool-06-japan-wallet-map.png' },
     { icon: '🧬', ja: 'じこしょうかい',     en: 'Jikoshoukai Portal',      sub: '全17巻85キャラの絵本ポータル',           stack: 'single html',               url: 'https://osakenpiro.github.io/jikoshoukai/' },
-    { icon: '☁',  ja: '天人𦻙記',          en: 'Tenjin-ki',               sub: '準備中',                                  stack: '—',                         url: '#', pending: true },
+    { icon: '☁',  ja: '天人𦻙記',          en: 'Tenjin-ki',               sub: '準備中',                                  stack: '—',                         url: '#', comic: 'assets/tool-08-tenjin-ki.png', pending: true },
   ],
 
   // HumusHuman — GUBr (game-character-select) section.
@@ -72,10 +72,10 @@ window.OSK_DATA = {
   ],
 
   socials: [
-    { k: 'X',        handle: '@osakenpiro',   url: 'https://x.com/osakenpiro',                 glyph: '𝕏' },
-    { k: 'TikTok',   handle: '@osakenpiro', url: 'https://www.tiktok.com/@osakenpiro',     glyph: '◈' },
-    { k: 'pixiv',    handle: '@osakenpiro', url: 'https://www.pixiv.net/users/osakenpiro', glyph: 'P' },
-    { k: 'Kakuyomu', handle: '@osakenpiro', url: 'https://kakuyomu.jp/users/osakenpiro',   glyph: '書' },
+    { k: 'X',        handle: '@osakenpiro',   url: 'https://x.com/osakenpiro',                 glyph: '𝕏', avatar: 'assets/sns-01-x-avatar.png', bg: 'assets/sns-01-x-bg.png' },
+    { k: 'TikTok',   handle: '@osakenpiro', url: 'https://www.tiktok.com/@osakenpiro',     glyph: '◈', avatar: 'assets/sns-02-tiktok-avatar.png', bg: 'assets/sns-02-tiktok-bg.png' },
+    { k: 'pixiv',    handle: '@osakenpiro', url: 'https://www.pixiv.net/users/osakenpiro', glyph: 'P', avatar: 'assets/sns-03-pixiv-avatar.png', bg: 'assets/sns-03-pixiv-bg.png' },
+    { k: 'Kakuyomu', handle: '@osakenpiro', url: 'https://kakuyomu.jp/users/osakenpiro',   glyph: '書', avatar: 'assets/sns-04-kakuyomu-avatar.png', bg: 'assets/sns-04-kakuyomu-bg.png' },
     { k: 'note',     handle: '@osakenpiro', url: 'https://note.com/osakenpiro',            glyph: 'n' },
     { k: 'GitHub',   handle: 'osakenpiro',  url: 'https://github.com/osakenpiro',          glyph: '◉' },
   ],
