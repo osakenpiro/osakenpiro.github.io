@@ -271,8 +271,12 @@
     const el = document.createElement('a');
     el.className = 'soc';
     el.href = s.url; el.target = '_blank'; el.rel = 'noopener';
+    if (s.bg) el.style.setProperty('--soc-bg', `url('${s.bg}')`);
+    const visual = s.avatar
+      ? `<div class="avatar" style="background-image:url('${s.avatar}')" aria-hidden="true"></div>`
+      : `<div class="glyph">${escapeHtml(s.glyph)}</div>`;
     el.innerHTML = `
-      <div class="glyph">${escapeHtml(s.glyph)}</div>
+      ${visual}
       <div class="k">${escapeHtml(s.k)}</div>
       <div class="handle">${escapeHtml(s.handle)}</div>
     `;
