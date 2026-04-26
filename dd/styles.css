@@ -128,7 +128,7 @@ section.sec:first-of-type{ border-top: none;}
 /* =========================================================
    HERO (placeholder · BLBr 準拠 · テキスト主体)
    ========================================================= */
-.hero{ padding-top: var(--s-8); padding-bottom: var(--s-7); border-top: none;}
+.hero{ padding-top: var(--s-8); padding-bottom: var(--s-8); border-top: none;}
 .hero h1{
   font-family: var(--hook);
   font-weight: 700;
@@ -619,6 +619,7 @@ section.sec:first-of-type{ border-top: none;}
   gap: 8px;
   margin-top: var(--s-5);
 }
+@media (max-width: 960px){ .socials-row{ grid-template-columns: repeat(4, 1fr); }}
 @media (max-width: 640px){ .socials-row{ grid-template-columns: repeat(3, 1fr); }}
 .soc{
   display:flex; flex-direction: column; align-items: center; gap: 4px;
