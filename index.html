@@ -72,15 +72,20 @@ a{color:inherit; text-decoration:none}
   transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, color .25s ease;
 }
 /* 003 — cosmos / purple (top, HTML first) */
-.file-stack .file-card:nth-child(1){
+/* 004 — cosmos / purple (top, featured) */
+.file-stack .file-card.fc-cosmos{
   background: color-mix(in srgb, var(--purple) 11%, var(--bg));
 }
 /* 002 — dashboard / teal */
-.file-stack .file-card:nth-child(2){
+.file-stack .file-card.fc-dd{
   background: color-mix(in srgb, var(--teal) 11%, var(--bg));
 }
+/* 003 — contact / blue */
+.file-stack .file-card.fc-contact{
+  background: color-mix(in srgb, var(--blue) 11%, var(--bg));
+}
 /* 001 — entrance / coral (bottom, active) */
-.file-stack .file-card:nth-child(3){
+.file-stack .file-card.fc-entrance{
   background: color-mix(in srgb, var(--coral) 12%, var(--bg));
   border-color: var(--coral);
 }
@@ -103,16 +108,21 @@ a{color:inherit; text-decoration:none}
 .file-stack .file-card.active .main{ color: var(--coral);}
 .file-stack .file-card.active .ruby{ color: var(--coral); opacity: .8;}
 
-.file-stack .file-card:nth-child(1):hover{
+.file-stack .file-card.fc-cosmos:hover{
   border-color: var(--purple); color: var(--purple);
   box-shadow: 3px 3px 0 var(--purple); transform: translate(-2px,-2px);
 }
-.file-stack .file-card:nth-child(1):hover .main{ color: var(--purple);}
-.file-stack .file-card:nth-child(2):hover{
+.file-stack .file-card.fc-cosmos:hover .main{ color: var(--purple);}
+.file-stack .file-card.fc-dd:hover{
   border-color: var(--teal); color: var(--teal);
   box-shadow: 3px 3px 0 var(--teal); transform: translate(-2px,-2px);
 }
-.file-stack .file-card:nth-child(2):hover .main{ color: var(--teal);}
+.file-stack .file-card.fc-dd:hover .main{ color: var(--teal);}
+.file-stack .file-card.fc-contact:hover{
+  border-color: var(--blue); color: var(--blue);
+  box-shadow: 3px 3px 0 var(--blue); transform: translate(-2px,-2px);
+}
+.file-stack .file-card.fc-contact:hover .main{ color: var(--blue);}
 
 /* ========== POCKET CLUSTER ========== */
 .pocket-cluster{
@@ -903,15 +913,19 @@ a{color:inherit; text-decoration:none}
 <div class="pocket-cluster">
   <div class="pocket-contents" aria-label="Quick links">
     <nav class="file-stack" aria-label="Pages">
-      <a class="file-card" href="/dd/">
+      <a class="file-card fc-cosmos" href="/cosmos/">
+        <span class="ruby">cosmos · 軌道</span>
+        <span class="main">FILE · 004 · 軌道</span>
+      </a>
+      <a class="file-card fc-dd" href="/dd/">
         <span class="ruby">design dashboard</span>
         <span class="main">FILE · 002 · DD</span>
       </a>
-      <a class="file-card" href="/contact/">
+      <a class="file-card fc-contact" href="/contact/">
         <span class="ruby">contact</span>
         <span class="main">FILE · 003 · 名刺</span>
       </a>
-      <a class="file-card active" href="#" aria-current="page">
+      <a class="file-card fc-entrance active" href="#" aria-current="page">
         <span class="ruby">entrance</span>
         <span class="main">FILE · 001 · 玄関</span>
       </a>
