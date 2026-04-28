@@ -43,13 +43,13 @@ window.OSK_DATA = {
 
   creative: [
     { kind: 'manga',   ja: 'PEACE PIECE',    en: 'PEACE PIECE',       meta: '連載 · manga',          detail: '戦争と静寂の短篇集',      url: '#' },
-    { kind: 'novel',   ja: '星は知らない',   en: 'Hoshi wa Shiranai', meta: '8章 · SF長編',           detail: '超長期的孤独のSF',        url: '#' },
+    { kind: 'novel',   ja: '星は知らない',   en: 'Hoshi wa Shiranai', meta: '8章 · SF長編',           detail: '超長期的孤独のSF',        url: 'https://kakuyomu.jp/works/16817330664193948573' },
     { kind: 'novel',   ja: '0.5の魔女',      en: '0.5 no Majo',       meta: '連載中 · カクヨム',      detail: '連続値で生きる魔女',      url: '#' },
     { kind: 'picture', ja: 'じこしょうかい', en: 'Jikoshoukai',       meta: '全17巻 · 85キャラ完結',  detail: '自己紹介という哲学行為', url: 'https://osakenpiro.github.io/jikoshoukai/' },
   ],
 
   tools: [
-    { icon: '🌏', ja: '僕の惑星',           en: 'Boku no Wakusei',         sub: 'orbital hub · canonical brand surface', stack: 'single html · canvas',     url: 'https://osakenpiro.github.io', hero: true, comic: 'assets/tool-01-boku-no-wakusei.png' },
+    { icon: '🌏', ja: '僕の惑星',           en: 'Boku no Wakusei',         sub: 'orbital hub · canonical brand surface', stack: 'single html · canvas',     url: 'https://osakenpiro.github.io/cosmos/', hero: true, comic: 'assets/tool-01-boku-no-wakusei.png' },
     { icon: '◉',  ja: 'SATORI',             en: 'SATORI',                  sub: '四賢者との哲学対話',                    stack: 'Claude API · CF Worker',    url: 'https://osakenpiro.github.io/satori/', comic: 'assets/tool-02-satori.png' },
     { icon: '🐸', ja: 'わっかずかん',       en: 'Wakka-zukan',             sub: '連続値で生き物を眺める図鑑',             stack: 'localStorage · SVG',        url: 'https://osakenpiro.github.io/wakkazukan/', comic: 'assets/tool-03-wakka-zukan.png' },
     { icon: '🧪', ja: '人類の素材図鑑',     en: 'Materials of Civilization',sub: '砂・鉄・プラスチック 15章',           stack: 'D3.js · single html',       url: 'https://osakenpiro.github.io/materials-of-civilization/', comic: 'assets/tool-04-materials.png' },
@@ -75,7 +75,7 @@ window.OSK_DATA = {
 
   socials: [
     { k: 'X',        handle: '@osakenpiro',   url: 'https://x.com/osakenpiro',                 glyph: '𝕏', avatar: 'assets/sns-01-x-avatar.png', bg: 'assets/sns-01-x-bg.png' },
-    { k: 'TikTok',   handle: '@osakenpiro', url: 'https://www.tiktok.com/@osakenpiro',     glyph: '◈', avatar: 'assets/sns-02-tiktok-avatar.png', bg: 'assets/sns-02-tiktok-bg.png' },
+    { k: 'TikTok',   handle: '@panio54',    url: 'https://www.tiktok.com/@panio54',        glyph: '◈', avatar: 'assets/sns-02-tiktok-avatar.png', bg: 'assets/sns-02-tiktok-bg.png' },
     { k: 'pixiv',    handle: '@osakenpiro', url: 'https://www.pixiv.net/users/osakenpiro', glyph: 'P', avatar: 'assets/sns-03-pixiv-avatar.png', bg: 'assets/sns-03-pixiv-bg.png' },
     { k: 'Kakuyomu', handle: '@osakenpiro', url: 'https://kakuyomu.jp/users/osakenpiro',   glyph: '書', avatar: 'assets/sns-04-kakuyomu-avatar.png', bg: 'assets/sns-04-kakuyomu-bg.png' },
     { k: 'note',     handle: '@osakenpiro', url: 'https://note.com/osakenpiro',            glyph: 'n', avatar: 'assets/sns-05-note-avatar.png', bg: 'assets/sns-05-note-bg.png' },
