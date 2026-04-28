@@ -42,7 +42,7 @@ window.OSK_DATA = {
   ],
 
   creative: [
-    { kind: 'manga',   ja: 'PEACE PIECE',    en: 'PEACE PIECE',       meta: '連載 · manga',          detail: '戦争と静寂の短篇集',      url: '#' },
+    { kind: 'manga',   ja: 'PEACE PIECE',    en: 'PEACE PIECE',       meta: '連載 · manga',          detail: '戦争と静寂の短篇集',      url: 'https://rookie.shonenjump.com/series/zGZPbQ8SCbs' },
     { kind: 'novel',   ja: '星は知らない',   en: 'Hoshi wa Shiranai', meta: '8章 · SF長編',           detail: '超長期的孤独のSF',        url: 'https://kakuyomu.jp/works/16817330664193948573' },
     { kind: 'novel',   ja: '0.5の魔女',      en: '0.5 no Majo',       meta: '連載中 · カクヨム',      detail: '連続値で生きる魔女',      url: '#' },
     { kind: 'picture', ja: 'じこしょうかい', en: 'Jikoshoukai',       meta: '全17巻 · 85キャラ完結',  detail: '自己紹介という哲学行為', url: 'https://osakenpiro.github.io/jikoshoukai/' },
@@ -76,7 +76,7 @@ window.OSK_DATA = {
   socials: [
     { k: 'X',        handle: '@osakenpiro',   url: 'https://x.com/osakenpiro',                 glyph: '𝕏', avatar: 'assets/sns-01-x-avatar.png', bg: 'assets/sns-01-x-bg.png' },
     { k: 'TikTok',   handle: '@panio54',    url: 'https://www.tiktok.com/@panio54',        glyph: '◈', avatar: 'assets/sns-02-tiktok-avatar.png', bg: 'assets/sns-02-tiktok-bg.png' },
-    { k: 'pixiv',    handle: '@osakenpiro', url: 'https://www.pixiv.net/users/osakenpiro', glyph: 'P', avatar: 'assets/sns-03-pixiv-avatar.png', bg: 'assets/sns-03-pixiv-bg.png' },
+    { k: 'pixiv',    handle: '@kenpiro7',   url: 'https://www.pixiv.net/users/11085694',   glyph: 'P', avatar: 'assets/sns-03-pixiv-avatar.png', bg: 'assets/sns-03-pixiv-bg.png' },
     { k: 'Kakuyomu', handle: '@osakenpiro', url: 'https://kakuyomu.jp/users/osakenpiro',   glyph: '書', avatar: 'assets/sns-04-kakuyomu-avatar.png', bg: 'assets/sns-04-kakuyomu-bg.png' },
     { k: 'note',     handle: '@osakenpiro', url: 'https://note.com/osakenpiro',            glyph: 'n', avatar: 'assets/sns-05-note-avatar.png', bg: 'assets/sns-05-note-bg.png' },
     { k: 'GitHub',   handle: 'osakenpiro',  url: 'https://github.com/osakenpiro',          glyph: '◉', avatar: 'assets/sns-06-github-avatar.png', bg: 'assets/sns-06-github-bg.png' },

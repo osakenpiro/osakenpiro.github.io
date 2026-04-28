@@ -422,6 +422,20 @@
     white-space: nowrap;
   }
 
+  /* ==================== MOBILE SCALE ==================== */
+  @media screen and (max-width: 850px) {
+    html, body {
+      overflow-x: hidden;
+      margin: 0;
+    }
+    .page {
+      transform: scale(calc(100vw / 794));
+      transform-origin: top left;
+      margin: 0;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.45);
+    }
+  }
+
   /* ==================== PRINT ==================== */
   @page {
     size: A4 portrait;
