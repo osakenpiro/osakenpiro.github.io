@@ -96,3 +96,17 @@
 body.is-home .dokodemo-home {
   display: none;
 }
+
+/* =========================================================
+   ヘッダーバー左寄せロゴ (.top .mark) との衝突回避
+   ホームボタンがあるページでは、ヘッダー全体を右にシフト
+   :has() を使うことで、ホームボタン未設置ページには影響なし
+   ========================================================= */
+body:has(.dokodemo-home) .top {
+  padding-left: 76px;
+}
+@media (max-width: 600px) {
+  body:has(.dokodemo-home) .top {
+    padding-left: 60px;
+  }
+}
