@@ -1,0 +1,98 @@
+/* =========================================================
+   Dokodemo Home Button — 共通アセット
+   各ページの左上に配置するどこでもドア型ホームボタン
+   テーマカラー fallback chain: --p-accent > --coral > --gold > default
+   ========================================================= */
+
+.dokodemo-home {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1000;
+  width: 44px;
+  height: 56px;
+  display: block;
+  text-decoration: none;
+  --theme-color: var(--p-accent, var(--coral, var(--gold, #ff6b6b)));
+}
+
+.dokodemo-home svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  display: block;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+}
+
+.dokodemo-home .ddh-frame {
+  fill: rgba(255, 255, 255, 0.92);
+  stroke: var(--theme-color);
+  stroke-width: 2;
+}
+
+.dokodemo-home .ddh-void {
+  fill: #08080e;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+
+.dokodemo-home .ddh-door {
+  fill: var(--theme-color);
+  transition: transform .35s cubic-bezier(.4, 0, .2, 1);
+}
+
+.dokodemo-home .ddh-door-left  { transform-origin: 4px 28px; }
+.dokodemo-home .ddh-door-right { transform-origin: 40px 28px; }
+
+.dokodemo-home .ddh-knob {
+  fill: rgba(255, 255, 255, 0.92);
+  transition: opacity .25s ease;
+}
+
+/* ホバー / フォーカスで観音開き演出（scaleXで近似、SVG3D変換のクロブラ問題回避） */
+.dokodemo-home:hover .ddh-door-left,
+.dokodemo-home:focus-visible .ddh-door-left {
+  transform: scaleX(0.12);
+}
+.dokodemo-home:hover .ddh-door-right,
+.dokodemo-home:focus-visible .ddh-door-right {
+  transform: scaleX(0.12);
+}
+.dokodemo-home:hover .ddh-void,
+.dokodemo-home:focus-visible .ddh-void {
+  opacity: 1;
+}
+.dokodemo-home:hover .ddh-knob,
+.dokodemo-home:focus-visible .ddh-knob {
+  opacity: 0;
+}
+
+.dokodemo-home:focus-visible {
+  outline: 2px solid var(--theme-color);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* モバイル */
+@media (max-width: 600px) {
+  .dokodemo-home {
+    width: 36px;
+    height: 48px;
+    top: 12px;
+    left: 12px;
+  }
+}
+
+/* 動きを抑える設定への配慮 */
+@media (prefers-reduced-motion: reduce) {
+  .dokodemo-home .ddh-door,
+  .dokodemo-home .ddh-void,
+  .dokodemo-home .ddh-knob {
+    transition: none;
+  }
+}
+
+/* 玄関TOPでは非表示（自分自身に戻るドアは無意味） */
+body.is-home .dokodemo-home {
+  display: none;
+}
