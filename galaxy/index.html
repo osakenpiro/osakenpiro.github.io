@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>僕の銀河系 — Visionium Galaxy v0.6</title>
-<meta name="description" content="Visionium 全体構造 — 7層 / 5柱+HiCo / 観測層 / 腐葉土層 / 資産層 / KAIZO直4軸を force-directed graph で可視化。v0.6: KAIZO 双子エッジ vector (過去/未来)。" />
+<meta name="description" content="Visionium 全体構造 — 7層 / 5柱+HiCo / 観測層 / 腐葉土層 / 資産層 / KAIZO直4軸を force-directed graph で可視化。v0.6 DEBUG: KAIZO 双子エッジ vector。" />
 <meta property="og:title" content="僕の銀河系 — Visionium Galaxy v0.6" />
 <meta property="og:description" content="Visionium 全体構造を可視化した観測層 v0.1。Discord と並ぶ L3b 観測の二系統目。" />
 <meta property="og:type" content="website" />
@@ -454,7 +454,9 @@
         d.fy = null;
       });
       nodeG.call(drag);
+      window.__sim = sim; window.__link = link; window.__nodeG = nodeG; window.__tickCount = 0;
       sim.on("tick", () => {
+        window.__tickCount = (window.__tickCount || 0) + 1;
         link.attr("d", (d) => {
           const sx = d.source.x, sy = d.source.y, tx = d.target.x, ty = d.target.y;
           if (!d.type) return `M${sx},${sy}L${tx},${ty}`;
