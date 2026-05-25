@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>僕の銀河系 — Visionium Galaxy v0.4</title>
+<title>僕の銀河系 — Visionium Galaxy v0.1</title>
 <meta name="description" content="Visionium 全体構造 — 7層 / 5柱+HiCo / 観測層 / 腐葉土層 / 資産層 / KAIZO直4軸を force-directed graph で可視化。" />
-<meta property="og:title" content="僕の銀河系 — Visionium Galaxy v0.4" />
+<meta property="og:title" content="僕の銀河系 — Visionium Galaxy v0.1" />
 <meta property="og:description" content="Visionium 全体構造を可視化した観測層 v0.1。Discord と並ぶ L3b 観測の二系統目。" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://osakenpiro.github.io/galaxy/" />
@@ -168,20 +168,20 @@ const NODES = [
   { id: "SessionLog", label: "\u30BB\u30C3\u30B7\u30E7\u30F3\u30ED\u30B0DB", layer: "operation", size: 11 },
   { id: "RPGDB", label: "RPG Status", layer: "operation", size: 10 },
   { id: "TrophyDB", label: "\u{1F3C6} \u30C8\u30ED\u30D5\u30A3\u30FCDB", layer: "operation", size: 10 },
-  // === v0.4 additions ===
+  // === v0.4 (Cow) additions ===
   // L0 思想層: 多重符号化原則
   { id: "TajuFugou", label: "\u591A\u91CD\u7B26\u53F7\u5316\u539F\u5247", layer: "philosophy", size: 11, note: "1\u30BF\u30B0\u3060\u3051=\u5316\u77F3 / \u591A\u91CD\u30BF\u30B0=\u8150\u8449\u571F", url: "https://www.notion.so/3522b7e543e08171b767d64aff3d7347" },
   // HMT 配下: IF発芽型DB
   { id: "IFGerm", label: "IF\u767A\u82BD\u578BDB", layer: "tool", size: 9, note: "\u30AD\u30E3\u30E9\u4ED8\u3051\u30FBVR\u811A" },
   // RD 配下: VR分類法カタログDB (20methods)
   { id: "VRMethods", label: "VR\u5206\u985E\u6CD5\u30AB\u30BF\u30ED\u30B0 (20)", layer: "tool", size: 9, note: "20\u30E1\u30BD\u30C3\u30C9" },
-  // L4 腐葉土層配下追加: 短文辞書 (Tanbun-Jiten)
+  // L4 腐葉土層: 短文辞書
   { id: "Tanbun", label: "\uD83D\uDCD4 \u77ED\u6587\u8F9E\u5178", layer: "compost", size: 11, note: "1\u30A8\u30F3\u30C8\u30EA1\u884C\u301C\u6570\u884C / Tagacha+Float" },
-  // HiCo配下追加: Daily Log / Connect / 家計簿
+  // HiCo配下追加
   { id: "DailyLog", label: "Daily Log DB", layer: "operation", size: 9, note: "\u65E5\u6B21\u30ED\u30B0" },
   { id: "Connect", label: "\uD83D\uDD0C Connect DB", layer: "operation", size: 9, note: "MCP/Connector" },
   { id: "Kakeibo", label: "\u5BB6\u8A08\u7C3FDB", layer: "operation", size: 9, note: "\u308F\u305F\u3057\u306E\u304A\u8CA1\u5E03" },
-  // L3b 観測層: Galaxy 自己参照 (self-application)
+  // L3b 観測層: Galaxy 自己参照
   { id: "Galaxy", label: "\uD83C\uDF0C \u9280\u6CB3\u7CFB v0.1+", layer: "observation", size: 12, note: "\u672C\u30A2\u30FC\u30C6\u30A3\u30D5\u30A1\u30AF\u30C8\u8868\u73FE (\u81EA\u5DF1\u53C2\u7167)", url: "https://osakenpiro.github.io/galaxy/" }
 ];
 const LINKS = [
@@ -282,22 +282,22 @@ const LINKS = [
   ["BoolFloat", "ProtoV1"],
   ["Humus", "MemVault"],
   ["Humus", "GTDB"],
-  // === v0.4 link additions ===
-  ["BoolFloat", "TajuFugou"],         // 多重符号化は Float の応用
-  ["GT", "TajuFugou"],                // GT 知見
-  ["HMT", "IFGerm"],                  // IF発芽型は HMT
-  ["RD", "VRMethods"],                // 20methods は Re:DeSign
-  ["VRSuite", "VRMethods"],           // VR suite は 20methods に依拠
-  ["GTDB", "Tanbun"],                 // 短文辞書は腐葉土層
-  ["Humus", "Tanbun"],                // 腐葉土設計の運用第3号
-  ["BoolFloat", "Tanbun"],            // Float軸を持つ
+  // === v0.4 (Cow) link additions ===
+  ["BoolFloat", "TajuFugou"],
+  ["GT", "TajuFugou"],
+  ["HMT", "IFGerm"],
+  ["RD", "VRMethods"],
+  ["VRSuite", "VRMethods"],
+  ["GTDB", "Tanbun"],
+  ["Humus", "Tanbun"],
+  ["BoolFloat", "Tanbun"],
   ["HiCo", "DailyLog"],
   ["HiCo", "Connect"],
   ["HiCo", "Kakeibo"],
-  ["MIHARASHI", "Galaxy"],            // MIHARASHI と並列観測
-  ["Discord", "Galaxy"],              // Discord と並列 (観測2系統)
+  ["MIHARASHI", "Galaxy"],
+  ["Discord", "Galaxy"],
   ["Visionium", "Galaxy"],
-  ["Galaxy", "Orb"]                   // 銀河系は Orb mirror 候補
+  ["Galaxy", "Orb"]
 
 ];
 const LAYER = {
@@ -335,9 +335,9 @@ const STALE_IDS = /* @__PURE__ */ new Set([
   // 未確立
 ]);
 const NODE_FILL_OVERRIDE = {
-  // KAIZO 双子 Float\u5316 v0.4: \u904E\u53BB(\u6696\u8272) / \u672A\u6765(\u51B7\u8272)
-  "Zada": { fill: "#f97316", glow: "#fdba74" },  // \u904E\u53BB\u30FB\u611F\u60C5 (orange)
-  "Iven": { fill: "#3b82f6", glow: "#93c5fd" }   // \u672A\u6765\u30FB\u7406\u6027 (blue)
+  // KAIZO 双子 Float化 v0.5: 過去(暖色) / 未来(冷色)
+  "Zada": { fill: "#f97316", glow: "#fdba74" },  // 過去・感情 (orange)
+  "Iven": { fill: "#3b82f6", glow: "#93c5fd" }   // 未来・理性 (blue)
 };
 function VisioniumGalaxy() {
   var _a, _b;
@@ -489,7 +489,7 @@ function VisioniumGalaxy() {
     }
   }, [hoveredLayer, searchQuery, showStale, effectiveStaleSet]);
   const layerKeys = Object.keys(LAYER);
-  return /* @__PURE__ */ React.createElement("div", { className: "w-full min-h-screen bg-[#0a0807] text-[#f5f0e4]", style: { fontFamily: '"Shippori Mincho", "\u30D2\u30E9\u30AE\u30CE\u660E\u671D ProN", serif' } }, /* @__PURE__ */ React.createElement("div", { className: "hidden md:block fixed left-3 top-1/2 -translate-y-1/2 origin-left -rotate-90 text-[10px] tracking-[0.4em] opacity-50 select-none", style: { writingMode: "horizontal-tb" } }, "Visionium  \u30FB  \u5168\u90E8\u304C\u307C\u304F  \u30FB  \u9280\u6CB3\u7CFB v0.1"), /* @__PURE__ */ React.createElement("header", { className: "px-5 md:px-12 pt-6 md:pt-10 pb-3" }, /* @__PURE__ */ React.createElement("div", { className: "text-[10px] tracking-[0.35em] opacity-60" }, "VISIONIUM / GALAXY v0.4"), /* @__PURE__ */ React.createElement("h1", { className: "mt-1 text-2xl md:text-4xl font-bold", style: { fontFamily: '"Bricolage Grotesque", "Shippori Mincho", serif' } }, "\u50D5\u306E", /* @__PURE__ */ React.createElement("span", { style: { color: "#d4a853" } }, "\u9280\u6CB3\u7CFB")), /* @__PURE__ */ React.createElement("p", { className: "mt-1 text-xs md:text-sm opacity-70" }, "Visionium \u5168\u4F53\u69CB\u9020 \u2014 7\u5C64 / 5\u67F1+HiCo / \u89B3\u6E2C\u5C64 / \u8150\u8449\u571F\u5C64 / \u8CC7\u7523\u5C64 / KAIZO\u76F44\u8EF8")), /* @__PURE__ */ React.createElement("div", { ref: containerRef, className: "relative w-full", style: { height: "70vh", minHeight: 500 } }, /* @__PURE__ */ React.createElement("svg", { ref: svgRef, width: size.w, height: size.h, className: "block" }), /* @__PURE__ */ React.createElement(
+  return /* @__PURE__ */ React.createElement("div", { className: "w-full min-h-screen bg-[#0a0807] text-[#f5f0e4]", style: { fontFamily: '"Shippori Mincho", "\u30D2\u30E9\u30AE\u30CE\u660E\u671D ProN", serif' } }, /* @__PURE__ */ React.createElement("div", { className: "hidden md:block fixed left-3 top-1/2 -translate-y-1/2 origin-left -rotate-90 text-[10px] tracking-[0.4em] opacity-50 select-none", style: { writingMode: "horizontal-tb" } }, "Visionium  \u30FB  \u5168\u90E8\u304C\u307C\u304F  \u30FB  \u9280\u6CB3\u7CFB v0.1"), /* @__PURE__ */ React.createElement("header", { className: "px-5 md:px-12 pt-6 md:pt-10 pb-3" }, /* @__PURE__ */ React.createElement("div", { className: "text-[10px] tracking-[0.35em] opacity-60" }, "VISIONIUM / GALAXY v0.5"), /* @__PURE__ */ React.createElement("h1", { className: "mt-1 text-2xl md:text-4xl font-bold", style: { fontFamily: '"Bricolage Grotesque", "Shippori Mincho", serif' } }, "\u50D5\u306E", /* @__PURE__ */ React.createElement("span", { style: { color: "#d4a853" } }, "\u9280\u6CB3\u7CFB")), /* @__PURE__ */ React.createElement("p", { className: "mt-1 text-xs md:text-sm opacity-70" }, "Visionium \u5168\u4F53\u69CB\u9020 \u2014 7\u5C64 / 5\u67F1+HiCo / \u89B3\u6E2C\u5C64 / \u8150\u8449\u571F\u5C64 / \u8CC7\u7523\u5C64 / KAIZO\u76F44\u8EF8")), /* @__PURE__ */ React.createElement("div", { ref: containerRef, className: "relative w-full", style: { height: "70vh", minHeight: 500 } }, /* @__PURE__ */ React.createElement("svg", { ref: svgRef, width: size.w, height: size.h, className: "block" }), /* @__PURE__ */ React.createElement(
     "div",
     {
       className: "absolute top-3 right-3 md:top-5 md:right-5 max-w-[42%] md:max-w-[260px] backdrop-blur-md bg-[#0a0807]/70 border border-[#d4a853]/25 rounded p-3 text-[10px] md:text-[11px]",
@@ -552,7 +552,7 @@ function VisioniumGalaxy() {
       style: { color: "#d4a853" }
     },
     "Notion \u3067\u958B\u304F \u2192"
-  ))), /* @__PURE__ */ React.createElement("footer", { className: "px-5 md:px-12 py-4 text-[10px] opacity-50 flex flex-wrap gap-4 justify-between" }, /* @__PURE__ */ React.createElement("span", null, "Cl SES rehem 2026-05-25 \xB7 v0.4 (Notion lastUpdated fetch)"), /* @__PURE__ */ React.createElement("span", null, "Re:DeSign \xD7 \u5168\u4EBA\u985EUX\u6539\u5584\u8A08\u753B")));
+  ))), /* @__PURE__ */ React.createElement("footer", { className: "px-5 md:px-12 py-4 text-[10px] opacity-50 flex flex-wrap gap-4 justify-between" }, /* @__PURE__ */ React.createElement("span", null, "Cow SES-223 hem merge 2026-05-25 \xB7 v0.5 (Cl Notion lastUpdated fetch + Cow 8nodes + KAIZO\u53cc\u5b50\u8272Float + \u81EA\u5DF1\u53C2\u7167)"), /* @__PURE__ */ React.createElement("span", null, "Re:DeSign \xD7 \u5168\u4EBA\u985EUX\u6539\u5584\u8A08\u753B")));
 }
 const root = ReactDOM.createRoot(document.getElementById("app"));
 root.render(React.createElement(VisioniumGalaxy));
@@ -560,3 +560,4 @@ root.render(React.createElement(VisioniumGalaxy));
 </script>
 </body>
 </html>
+
