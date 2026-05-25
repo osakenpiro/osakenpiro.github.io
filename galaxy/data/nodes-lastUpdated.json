@@ -1,9 +1,10 @@
 {
   "_meta": {
-    "generated_at": "2026-05-25T03:30:00+09:00",
-    "generator": "manual-seed v0.4",
+    "generated_at": "2026-05-25T14:30:00+09:00",
+    "generator": "manual-seed v0.5 (Cow SES-223 hem merge)",
     "spec": "node id → ISO date (YYYY-MM-DD). 銀河系 v0.4+ が fetch して化石化判定に使う。最終的には snapshot.py 拡張で Notion lastEditedTime から自動生成予定。",
-    "fallback_note": "ここに無いノードは STALE_IDS hardcode の判定対象 (中庸=今日扱い)"
+    "fallback_note": "ここに無いノードは STALE_IDS hardcode の判定対象 (中庸=今日扱い)",
+    "entries_count": 44
   },
   "Visionium": "2026-05-25",
   "MC": "2026-05-25",
@@ -40,5 +41,13 @@
   "Orb": "2026-05-23",
   "Dararin": "2026-04-15",
   "DJOSA": "2026-05-20",
-  "SessionLog": "2026-05-25"
+  "SessionLog": "2026-05-25",
+  "TajuFugou": "2026-04-30",
+  "IFGerm": "2026-05-01",
+  "VRMethods": "2026-05-15",
+  "Tanbun": "2026-05-17",
+  "DailyLog": "2026-05-10",
+  "Connect": "2026-05-12",
+  "Kakeibo": "2026-04-20",
+  "Galaxy": "2026-05-25"
 }
