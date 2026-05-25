@@ -85,7 +85,484 @@
   <span>☕</span><span>Support</span>
 </a>
 <script>
-(()=>{const{useEffect:G,useRef:L,useState:m,useMemo:K}=React,q=[{id:"Visionium",label:"Visionium",layer:"core",size:28,url:"https://www.notion.so/3282b7e543e0815db7c0d5afdae9ae76",note:"\u601D\u60F3\u8CC7\u672C=\u666E\u904D\u7684\u69CB\u6210\u8981\u7D20"},{id:"DBDB",label:"\u{1F5C4}\uFE0F DBDB",layer:"meta",size:11,note:"\u5168\u30C7\u30FC\u30BF\u30BD\u30FC\u30B9\u76EE\u9332"},{id:"TagDB",label:"\u{1F3F7}\uFE0F \u30BF\u30B0DB",layer:"meta",size:11,note:"Tagacha 4\u8EF8\u6B63\u672C"},{id:"SkillDB",label:"\u{1F6E0}\uFE0F \u30B9\u30AD\u30EBDB",layer:"meta",size:11,note:"claude-shared/skills/"},{id:"ProtoDB",label:"\u{1F4D6} \u30D7\u30ED\u30C8\u30B3\u30EBDB",layer:"meta",size:11,note:"\xA7\u5358\u4F4D\u7BA1\u7406"},{id:"GT",label:"Grand Tips",layer:"philosophy",size:14,url:"https://www.notion.so/3492b7e543e081cfa6edd9a0bdac1e5d"},{id:"ProtoV1",label:"\u{1F4D6} \u30D7\u30ED\u30C8\u30B3\u30EB v1",layer:"philosophy",size:16,url:"https://www.notion.so/34a2b7e543e081e5a94bd47726e1e5b0",note:"SoT (\u904B\u7528\u5168\u74B0\u5883)"},{id:"BoolFloat",label:"Boolean\u2192Float",layer:"philosophy",size:18,note:"\u6838\u3068\u306A\u308B\u8A2D\u8A08\u539F\u5247"},{id:"Humus",label:"\u8150\u8449\u571F\u8A2D\u8A08",layer:"philosophy",size:13},{id:"SansetsuMei",label:"\u4E09\u91CD\u304C\u3051\u547D\u540D\u6CD5",layer:"philosophy",size:12},{id:"MC",label:"\u{1F30C} MC",layer:"state",size:16,url:"https://www.notion.so/3282b7e543e0815db7c0d5afdae9ae76",note:"\u8868\u793A\u5C64 (Mission Control)"},{id:"HMT",label:"T: Hi-Me TooL",layer:"pillarT",size:18,note:"\u3072\u307F\u3064\u30FC\u308B/\u672A\u6765\u6E90"},{id:"RD",label:"R: Re:DeSign",layer:"pillarR",size:18,note:"\u5168\u4EBA\u985EUX\u6539\u5584\u8A08\u753B"},{id:"BB",label:"B: BookBug",layer:"pillarB",size:18,note:"\u51FA\u7248"},{id:"PB",label:"P: Postboy",layer:"pillarP",size:18,note:"\u767A\u4FE1/Backstage"},{id:"GG",label:"G: Gaming Gathering",layer:"pillarG",size:18,note:"4 sub"},{id:"OP",label:"O: Opaarts \u26E9\uFE0F",layer:"pillarO",size:18,note:"\u904E\u53BB\u6E90/3\u7DE8"},{id:"HiCo",label:"HiCo \u79D8\u66F8\u5B50",layer:"operation",size:17,note:"\u904B\u7528\u67F1"},{id:"KAIZO",label:"\u{1F331} KAIZO",layer:"kaizo",size:16,note:"Visionium \u76F44\u8EF8"},{id:"Zada",label:"Zada",layer:"kaizo",size:11,note:"\u904E\u53BB\u30FB\u611F\u60C5"},{id:"Iven",label:"Iven",layer:"kaizo",size:11,note:"\u672A\u6765\u30FB\u7406\u6027"},{id:"Wakka",label:"\u308F\u3063\u304B\u305A\u304B\u3093",layer:"tool",size:9},{id:"Ningen",label:"\u4EBA\u9593\u56F3\u9451",layer:"tool",size:9},{id:"Banet",label:"\u30D0\u30CD\u30C3\u30C8",layer:"tool",size:9},{id:"Satori",label:"SATORI",layer:"tool",size:9},{id:"Sozai",label:"\u7D20\u6750\u56F3\u9451",layer:"tool",size:9},{id:"Meguru",label:"MEGURU",layer:"tool",size:9},{id:"Wakusei",label:"\u50D5\u306E\u60D1\u661F",layer:"tool",size:9},{id:"VRSuite",label:"VR suite (5app)",layer:"tool",size:10},{id:"VM",label:"VM (\u89B3\u6E2C\u30ED\u30B0)",layer:"tool",size:9},{id:"Lexilium",label:"Lexilium",layer:"tool",size:9},{id:"GG-Visual",label:"\u653B\u7565\u53EF\u8996\u5316",layer:"game",size:8},{id:"GG-Unity",label:"Unity\u30B2\u30FC\u30E0",layer:"game",size:8},{id:"GG-Board",label:"\u30DC\u30C9\u30B2",layer:"game",size:8},{id:"GG-Web",label:"Web\u30B2\u30FC\u30E0",layer:"game",size:8},{id:"Rikkoku",label:"\u516D\u524B RPG",layer:"game",size:9},{id:"Pokechan",label:"\u30DD\u30B1\u30C1\u30E3\u30F3",layer:"game",size:9},{id:"OP-Time",label:"Time\u7DE8 \u30AB\u30A4\u30BD\u30FC",layer:"opaarts",size:9},{id:"OP-IO",label:"IO\u7DE8",layer:"opaarts",size:9},{id:"OP-Retro",label:"Retro\u7DE8",layer:"opaarts",size:9},{id:"Papers",label:"Papers 9\u7BC7",layer:"paper",size:13,note:"A/B/C/D/5-9 \u5168\u63D0\u51FA"},{id:"KDP1",label:"\u30D1\u30F3\u30C0\u3068\u54F2\u5B66\u3068AI",layer:"paper",size:9},{id:"KDP2",label:"\u4EBA\u985E\u306E\u7D20\u6750\u56F3\u9451",layer:"paper",size:9},{id:"KDP3",label:"\u4E3B\u7FA9\u7D76\u5BFE\u4E3B\u7FA9 (7\u6708)",layer:"paper",size:10,note:"\u601D\u60F3\u306E\u8A2D\u8A08\u66F8#03"},{id:"Novel1",label:"\u661F\u306F\u77E5\u3089\u306A\u3044",layer:"paper",size:10},{id:"Novel2",label:"0.5\u306E\u9B54\u5973",layer:"paper",size:9},{id:"Imasica",label:"\u50D5\u306EIMASICA",layer:"paper",size:9},{id:"Backstage",label:"Backstage",layer:"tool",size:9,note:"15-20sec\u52D5\u753B"},{id:"DJOSA",label:"DJOSA",layer:"tool",size:8},{id:"MIHARASHI",label:"\u{1F52D} MIHARASHI",layer:"observation",size:12,note:"snapshot.py"},{id:"Orb",label:"Orb (Obsidian)",layer:"observation",size:12,note:"\u21AA \u9280\u6CB3\u7CFB\u672C\u4F53"},{id:"Dararin",label:"\u3060\u3089\u308A\u3093",layer:"observation",size:10},{id:"Discord",label:"\u{1F4AC} Discord",layer:"observation",size:11,note:"L3b \u6B63\u5F0F\u683C\u4E0A"},{id:"GTDB",label:"\u{1F342} \u7D71\u5408GT\u77E5\u898BDB",layer:"compost",size:13},{id:"MemVault",label:"Memory Vault",layer:"compost",size:12},{id:"HandoffIdx",label:"handoff Index",layer:"compost",size:11},{id:"Archive",label:"Archive DB",layer:"compost",size:10},{id:"CShared",label:"claude-shared",layer:"asset",size:12,note:"GitHub private"},{id:"GHPages",label:"GitHub Pages",layer:"asset",size:11},{id:"Zenodo",label:"Zenodo",layer:"asset",size:10},{id:"ProjectDB",label:"\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8DB",layer:"operation",size:11},{id:"HishoCoDB",label:"\u79D8\u66F8CoDB",layer:"operation",size:11},{id:"SessionLog",label:"\u30BB\u30C3\u30B7\u30E7\u30F3\u30ED\u30B0DB",layer:"operation",size:11},{id:"RPGDB",label:"RPG Status",layer:"operation",size:10},{id:"TrophyDB",label:"\u{1F3C6} \u30C8\u30ED\u30D5\u30A3\u30FCDB",layer:"operation",size:10},{id:"TajuFugou",label:"\u591A\u91CD\u7B26\u53F7\u5316\u539F\u5247",layer:"philosophy",size:11,note:"1\u30BF\u30B0\u3060\u3051=\u5316\u77F3 / \u591A\u91CD\u30BF\u30B0=\u8150\u8449\u571F",url:"https://www.notion.so/3522b7e543e08171b767d64aff3d7347"},{id:"IFGerm",label:"IF\u767A\u82BD\u578BDB",layer:"tool",size:9,note:"\u30AD\u30E3\u30E9\u4ED8\u3051\u30FBVR\u811A"},{id:"VRMethods",label:"VR\u5206\u985E\u6CD5\u30AB\u30BF\u30ED\u30B0 (20)",layer:"tool",size:9,note:"20\u30E1\u30BD\u30C3\u30C9"},{id:"Tanbun",label:"\u{1F4D4} \u77ED\u6587\u8F9E\u66F8",layer:"compost",size:11,note:"1\u30A8\u30F3\u30C8\u30EA1\u884C\u301C\u6570\u884C / Tagacha+Float"},{id:"DailyLog",label:"Daily Log DB",layer:"operation",size:9,note:"\u65E5\u6B21\u30ED\u30B0"},{id:"Connect",label:"\u{1F50C} Connect DB",layer:"operation",size:9,note:"MCP/Connector"},{id:"Kakeibo",label:"\u5BB6\u8A08\u7C3FDB",layer:"operation",size:9,note:"\u308F\u305F\u3057\u306E\u304A\u8CA1\u5E03"},{id:"Galaxy",label:"\u{1F30C} \u9280\u6CB3\u7CFB v0.1+",layer:"observation",size:12,note:"\u672C\u30A2\u30FC\u30C6\u30A3\u30D5\u30A1\u30AF\u30C8\u8868\u73FE (\u81EA\u5DF1\u53C2\u7167)",url:"https://osakenpiro.github.io/galaxy/"}],Q=[["Visionium","MC"],["Visionium","GT"],["Visionium","KAIZO"],["Visionium","HMT"],["Visionium","RD"],["Visionium","BB"],["Visionium","PB"],["Visionium","GG"],["Visionium","OP"],["Visionium","HiCo"],["Visionium","DBDB"],["Visionium","TagDB"],["Visionium","SkillDB"],["Visionium","ProtoDB"],["GT","ProtoV1"],["GT","BoolFloat"],["GT","Humus"],["GT","SansetsuMei"],["ProtoV1","MC"],["ProtoV1","ProtoDB"],["KAIZO","Zada","past"],["KAIZO","Iven","future"],["HMT","Wakka"],["HMT","Ningen"],["HMT","Banet"],["HMT","Satori"],["HMT","Sozai"],["HMT","Meguru"],["HMT","Wakusei"],["RD","VRSuite"],["RD","VM"],["RD","Lexilium"],["VRSuite","Wakka"],["VRSuite","Banet"],["GG","GG-Visual"],["GG","GG-Unity"],["GG","GG-Board"],["GG","GG-Web"],["GG-Unity","Rikkoku"],["GG-Visual","Pokechan"],["OP","OP-Time"],["OP","OP-IO"],["OP","OP-Retro"],["BB","Papers"],["BB","KDP1"],["BB","KDP2"],["BB","KDP3"],["BB","Novel1"],["BB","Novel2"],["BB","Imasica"],["Papers","Zenodo"],["KDP3","BoolFloat"],["PB","Backstage"],["Backstage","DJOSA"],["Visionium","MIHARASHI"],["Visionium","Orb"],["Visionium","Dararin"],["Visionium","Discord"],["MIHARASHI","SessionLog"],["MIHARASHI","RPGDB"],["Visionium","GTDB"],["Visionium","MemVault"],["Visionium","HandoffIdx"],["Visionium","Archive"],["HishoCoDB","MemVault"],["GT","GTDB"],["Visionium","CShared"],["Visionium","GHPages"],["Visionium","Zenodo"],["SkillDB","CShared"],["HiCo","ProjectDB"],["HiCo","HishoCoDB"],["HiCo","SessionLog"],["HiCo","RPGDB"],["HiCo","TrophyDB"],["Novel1","Papers"],["BoolFloat","ProtoV1"],["Humus","MemVault"],["Humus","GTDB"],["BoolFloat","TajuFugou"],["GT","TajuFugou"],["HMT","IFGerm"],["RD","VRMethods"],["VRSuite","VRMethods"],["GTDB","Tanbun"],["Humus","Tanbun"],["BoolFloat","Tanbun"],["HiCo","DailyLog"],["HiCo","Connect"],["HiCo","Kakeibo"],["MIHARASHI","Galaxy"],["Discord","Galaxy"],["Visionium","Galaxy"],["Galaxy","Orb"]],u={core:{fill:"#d4a853",glow:"#f6cf6c",label:"Visionium \u6838"},meta:{fill:"#7c6dab",glow:"#a594d4",label:"L-1 \u30E1\u30BF\u5C64"},philosophy:{fill:"#ff6b6b",glow:"#ff9b9b",label:"L0 \u601D\u60F3\u5C64"},state:{fill:"#f5f0e4",glow:"#fff8e7",label:"L2 \u72B6\u614B\u5C64"},pillarT:{fill:"#5b9eff",glow:"#88bdff",label:"T: Hi-Me TooL"},pillarR:{fill:"#4ade80",glow:"#86efac",label:"R: Re:DeSign"},pillarB:{fill:"#f97316",glow:"#fdba74",label:"B: BookBug"},pillarP:{fill:"#ec4899",glow:"#f9a8d4",label:"P: Postboy"},pillarG:{fill:"#a855f7",glow:"#d8b4fe",label:"G: Gaming Gathering"},pillarO:{fill:"#eab308",glow:"#fde047",label:"O: Opaarts"},operation:{fill:"#94a3b8",glow:"#cbd5e1",label:"HiCo \u904B\u7528\u67F1"},kaizo:{fill:"#86efac",glow:"#bbf7d0",label:"KAIZO \u76F44\u8EF8"},tool:{fill:"#7dd3fc",glow:"#bae6fd",label:"Tool / \u5B50\u8981\u7D20"},game:{fill:"#c4b5fd",glow:"#ddd6fe",label:"Game \u5B50\u8981\u7D20"},opaarts:{fill:"#fde047",glow:"#fef08a",label:"Opaarts \u7DE8"},paper:{fill:"#fb923c",glow:"#fed7aa",label:"\u8AD6\u6587\u30FB\u66F8\u7C4D"},observation:{fill:"#22d3ee",glow:"#67e8f9",label:"L3b \u89B3\u6E2C\u5C64"},compost:{fill:"#a16207",glow:"#ca8a04",label:"L4 \u8150\u8449\u571F\u5C64"},asset:{fill:"#6b7280",glow:"#9ca3af",label:"L5 \u8CC7\u7523\u5C64"}},ee=new Set(["Iven","Zada","Lexilium","Ningen","MemVault","TrophyDB"]),k={Zada:{fill:"#f97316",glow:"#fdba74"},Iven:{fill:"#3b82f6",glow:"#93c5fd"}};function ae(){const h=L(null),M=L(null),[f,R]=m(null),[O,I]=m(null),[z,C]=m(""),[g,F]=m(!1),[B,$]=m(30),[v,E]=m(null),[x,Z]=m({w:800,h:600});G(()=>{fetch("./data/nodes-lastUpdated.json").then(a=>a.ok?a.json():null).then(a=>{if(a&&typeof a=="object"){const o={...a};delete o._meta,E(o)}}).catch(()=>{})},[]);const S=K(()=>{const a=new Set(ee);if(v&&B>0){const o=Date.now()-B*864e5;for(const[r,i]of Object.entries(v)){const n=Date.parse(i);!isNaN(n)&&n<o&&a.add(r)}}return a},[v,B]);G(()=>{const a=()=>{if(M.current){const o=M.current.getBoundingClientRect();Z({w:o.width,h:Math.max(500,o.height)})}};return a(),window.addEventListener("resize",a),()=>window.removeEventListener("resize",a)},[]);const{nodes:V,links:H}=K(()=>{const a=q.map(i=>({...i})),o=new Set(a.map(i=>i.id)),r=Q.filter(([i,n])=>o.has(i)&&o.has(n)).map(([i,n,T])=>({source:i,target:n,type:T||null}));return{nodes:a,links:r}},[]);G(()=>{if(!h.current)return;const a=x.w,o=x.h,r=d3.select(h.current);r.selectAll("*").remove();const i=r.append("defs"),n=i.append("radialGradient").attr("id","bgGrad").attr("cx","50%").attr("cy","50%").attr("r","70%");n.append("stop").attr("offset","0%").attr("stop-color","#1a1410").attr("stop-opacity",1),n.append("stop").attr("offset","100%").attr("stop-color","#0a0807").attr("stop-opacity",1),r.append("rect").attr("width",a).attr("height",o).attr("fill","url(#bgGrad)");const T=d3.range(180).map(()=>({x:Math.random()*a,y:Math.random()*o,r:Math.random()*1.2+.2,o:Math.random()*.6+.1}));r.append("g").selectAll("circle.star").data(T).enter().append("circle").attr("cx",e=>e.x).attr("cy",e=>e.y).attr("r",e=>e.r).attr("fill","#f5f0e4").attr("opacity",e=>e.o),Object.entries(u).forEach(([e,t])=>{const d=i.append("filter").attr("id",`glow-${e}`).attr("x","-50%").attr("y","-50%").attr("width","200%").attr("height","200%");d.append("feGaussianBlur").attr("stdDeviation",3.5).attr("result","blur");const c=d.append("feMerge");c.append("feMergeNode").attr("in","blur"),c.append("feMergeNode").attr("in","SourceGraphic")}),[["past","#f97316"],["future","#3b82f6"]].forEach(([e,t])=>{i.append("marker").attr("id",`arrow-${e}`).attr("viewBox","0 -5 10 10").attr("refX",16).attr("refY",0).attr("markerWidth",6).attr("markerHeight",6).attr("orient","auto").append("path").attr("d","M0,-5L10,0L0,5").attr("fill",t).attr("opacity",.8)});const N=r.append("g"),j=d3.zoom().scaleExtent([.3,4]).on("zoom",e=>{N.attr("transform",e.transform)});r.call(j);const w=d3.forceSimulation(V).force("link",d3.forceLink(H).id(e=>e.id).distance(e=>e.source.id==="Visionium"||e.target.id==="Visionium"?130:70).strength(.4)).force("charge",d3.forceManyBody().strength(e=>e.layer==="core"?-800:-200)).force("center",d3.forceCenter(a/2,o/2)).force("collide",d3.forceCollide().radius(e=>e.size+4)).force("radial",d3.forceRadial(e=>e.layer==="core"?0:["philosophy","state","meta"].includes(e.layer)?130:e.layer.startsWith("pillar")||e.layer==="operation"||e.layer==="kaizo"?200:(["observation","compost","asset"].includes(e.layer),280),a/2,o/2).strength(.25)),A=N.append("g").selectAll("path.link").data(H).enter().append("path").attr("class","link").attr("fill","none").attr("stroke",e=>e.type==="past"?"#f97316":e.type==="future"?"#3b82f6":"#d4a853").attr("stroke-opacity",e=>e.type?.7:.18).attr("stroke-width",e=>e.type?1.8:.6).attr("marker-end",e=>e.type==="past"?"url(#arrow-past)":e.type==="future"?"url(#arrow-future)":null),s=N.append("g").selectAll("g.node").data(V).enter().append("g").attr("class","node").style("cursor","pointer");s.append("circle").attr("class","halo").attr("r",e=>e.size+6).attr("fill",e=>k[e.id]?k[e.id].glow:u[e.layer].glow).attr("opacity",.08),s.append("circle").attr("class","body").attr("r",e=>e.size).attr("fill",e=>k[e.id]?k[e.id].fill:u[e.layer].fill).attr("stroke","#0a0807").attr("stroke-width",1.2).attr("filter",e=>`url(#glow-${e.layer})`),s.append("circle").attr("r",e=>Math.max(e.size*.25,2)).attr("fill","#0a0807").attr("opacity",.4),s.append("text").attr("y",e=>e.size+13).attr("text-anchor","middle").attr("font-family",'"Shippori Mincho", "\u30D2\u30E9\u30AE\u30CE\u660E\u671D ProN", serif').attr("font-size",e=>e.layer==="core"?14:e.size>=12?11:9).attr("font-weight",e=>e.layer==="core"||e.layer.startsWith("pillar")?700:400).attr("fill","#f5f0e4").attr("opacity",.92).style("pointer-events","none").style("paint-order","stroke").style("stroke","#0a0807").style("stroke-width","3px").style("stroke-linejoin","round").text(e=>e.label),s.on("click",(e,t)=>{R(t),t.url}),s.on("mouseover",function(e,t){d3.select(this).select("circle.body").transition().duration(200).attr("r",t.size*1.18)}),s.on("mouseout",function(e,t){d3.select(this).select("circle.body").transition().duration(200).attr("r",t.size)});const U=d3.drag().on("start",(e,t)=>{e.active||w.alphaTarget(.3).restart(),t.fx=t.x,t.fy=t.y}).on("drag",(e,t)=>{t.fx=e.x,t.fy=e.y}).on("end",(e,t)=>{e.active||w.alphaTarget(0),t.fx=null,t.fy=null});s.call(U),w.on("tick",()=>{A.attr("d",e=>{const t=e.source.x,d=e.source.y,c=e.target.x,p=e.target.y;if(!e.type)return`M${t},${d}L${c},${p}`;const y=c-t,b=p-d,l=Math.sqrt(y*y+b*b)||1,D=e.type==="past"?-28:28,P=(t+c)/2,J=(d+p)/2,X=P+-b/l*D,Y=J+y/l*D;return`M${t},${d}Q${X},${Y} ${c},${p}`}),s.attr("transform",e=>`translate(${e.x},${e.y})`)});const W=(e,t,d,c)=>{const p=(t||"").trim().toLowerCase(),y=l=>{const D=!e||l.layer===e,P=!p||(l.label||"").toLowerCase().includes(p)||(l.note||"").toLowerCase().includes(p)||(l.id||"").toLowerCase().includes(p);return D&&P},b=l=>d&&c.has(l.id);s.style("opacity",l=>b(l)?.25:y(l)?1:.15),s.select("circle").style("filter",l=>b(l)?"grayscale(0.85)":null),A.style("opacity",l=>b(l.source)||b(l.target)?.05:y(l.source)&&y(l.target)?.6:.05)};return r.node().__applyHighlight=W,()=>w.stop()},[V,H,x]),G(()=>{h.current?.__applyHighlight&&h.current.__applyHighlight(O,z,g,S)},[O,z,g,S]);const _=Object.keys(u);return React.createElement("div",{className:"w-full min-h-screen bg-[#0a0807] text-[#f5f0e4]",style:{fontFamily:'"Shippori Mincho", "\u30D2\u30E9\u30AE\u30CE\u660E\u671D ProN", serif'}},React.createElement("div",{className:"hidden md:block fixed left-3 top-1/2 -translate-y-1/2 origin-left -rotate-90 text-[10px] tracking-[0.4em] opacity-50 select-none",style:{writingMode:"horizontal-tb"}},"Visionium  \u30FB  \u5168\u90E8\u304C\u307C\u304F  \u30FB  \u9280\u6CB3\u7CFB v0.6"),React.createElement("header",{className:"px-5 md:px-12 pt-6 md:pt-10 pb-3"},React.createElement("div",{className:"text-[10px] tracking-[0.35em] opacity-60"},"VISIONIUM / GALAXY v0.6"),React.createElement("h1",{className:"mt-1 text-2xl md:text-4xl font-bold",style:{fontFamily:'"Bricolage Grotesque", "Shippori Mincho", serif'}},"\u50D5\u306E",React.createElement("span",{style:{color:"#d4a853"}},"\u9280\u6CB3\u7CFB")),React.createElement("p",{className:"mt-1 text-xs md:text-sm opacity-70"},"Visionium \u5168\u4F53\u69CB\u9020 \u2014 7\u5C64 / 5\u67F1+HiCo / \u89B3\u6E2C\u5C64 / \u8150\u8449\u571F\u5C64 / \u8CC7\u7523\u5C64 / KAIZO\u76F44\u8EF8")),React.createElement("div",{ref:M,className:"relative w-full",style:{height:"70vh",minHeight:500}},React.createElement("svg",{ref:h,width:x.w,height:x.h,className:"block"}),React.createElement("div",{className:"absolute top-3 right-3 md:top-5 md:right-5 max-w-[42%] md:max-w-[260px] backdrop-blur-md bg-[#0a0807]/70 border border-[#d4a853]/25 rounded p-3 text-[10px] md:text-[11px]",onMouseLeave:()=>I(null)},React.createElement("div",{className:"mb-2"},React.createElement("input",{type:"text",value:z,onChange:a=>C(a.target.value),placeholder:"\u691C\u7D22  label / note / id",className:"w-full bg-[#0a0807]/60 border border-[#d4a853]/40 rounded px-2 py-1 text-[10px] text-[#f5f0e4] placeholder:text-[#f5f0e4]/30 focus:outline-none focus:border-[#d4a853]"}),z&&React.createElement("button",{onClick:()=>C(""),className:"mt-1 text-[9px] opacity-50 hover:opacity-100",style:{color:"#d4a853"}},"\u30AF\u30EA\u30A2 \xD7")),React.createElement("div",{className:"mb-2 flex items-center justify-between gap-2"},React.createElement("span",{className:"text-[9px] tracking-[0.25em] opacity-60"},"\u{1F9B4} \u5316\u77F3\u5316 fade"),React.createElement("button",{onClick:()=>F(!g),className:`text-[10px] px-2 py-0.5 rounded border transition-colors ${g?"border-[#d4a853] text-[#d4a853] bg-[#d4a853]/10":"border-[#f5f0e4]/20 text-[#f5f0e4]/40 hover:border-[#f5f0e4]/40"}`},g?"ON":"OFF")),g&&React.createElement("div",{className:"mb-2"},React.createElement("div",{className:"text-[9px] opacity-50 mb-1"},S.size,"\u4EF6 \u7070\u8272 (",v?"JSON+hardcode":"hardcode \u306E\u307F",")"),React.createElement("div",{className:"flex gap-1"},[14,30,90,365].map(a=>React.createElement("button",{key:a,onClick:()=>$(a),className:`text-[9px] px-1.5 py-0.5 rounded border transition-colors ${B===a?"border-[#d4a853] text-[#d4a853] bg-[#d4a853]/10":"border-[#f5f0e4]/15 text-[#f5f0e4]/40 hover:border-[#f5f0e4]/35"}`},a<365?`${a}d`:"1y")))),React.createElement("div",{className:"text-[9px] tracking-[0.3em] opacity-60 mb-2"},"LAYERS / hover \u3067\u30D5\u30A3\u30EB\u30BF"),React.createElement("div",{className:"grid grid-cols-1 gap-[3px]"},_.map(a=>React.createElement("div",{key:a,className:"flex items-center gap-2 cursor-pointer hover:bg-[#d4a853]/10 rounded px-1 py-[1px]",onMouseEnter:()=>I(a)},React.createElement("span",{className:"inline-block w-2.5 h-2.5 rounded-full",style:{background:u[a].fill,boxShadow:`0 0 6px ${u[a].glow}`}}),React.createElement("span",{className:"opacity-85"},u[a].label)))),React.createElement("div",{className:"mt-2 pt-2 border-t border-[#f5f0e4]/10 text-[9px] opacity-60"},"drag: \u30CE\u30FC\u30C9\u79FB\u52D5 / wheel: zoom / click: \u8A73\u7D30")),f&&React.createElement("div",{className:"absolute bottom-3 left-3 right-3 md:left-5 md:right-auto md:bottom-5 md:w-[340px] backdrop-blur-md bg-[#0a0807]/85 border border-[#d4a853]/35 rounded p-4"},React.createElement("div",{className:"flex items-start justify-between gap-3"},React.createElement("div",null,React.createElement("div",{className:"text-[9px] tracking-[0.3em] opacity-60"},u[f.layer]?.label),React.createElement("div",{className:"text-lg font-bold mt-0.5",style:{color:u[f.layer]?.fill}},f.label)),React.createElement("button",{onClick:()=>R(null),className:"text-[#f5f0e4]/60 hover:text-[#f5f0e4] text-lg leading-none"},"\xD7")),f.note&&React.createElement("p",{className:"mt-2 text-xs opacity-85"},f.note),f.url&&React.createElement("a",{href:f.url,target:"_blank",rel:"noreferrer",className:"inline-block mt-3 text-xs underline decoration-[#d4a853]/50 hover:decoration-[#d4a853]",style:{color:"#d4a853"}},"Notion \u3067\u958B\u304F \u2192"))),React.createElement("footer",{className:"px-5 md:px-12 py-4 text-[10px] opacity-50 flex flex-wrap gap-4 justify-between"},React.createElement("span",null,"Cow SES-224 2026-05-25 \xB7 v0.6 (KAIZO \u53CC\u5B50\u30A8\u30C3\u30B8 vector \u2014 past/future)"),React.createElement("span",null,"Re:DeSign \xD7 \u5168\u4EBA\u985EUX\u6539\u5584\u8A08\u753B")))}const te=ReactDOM.createRoot(document.getElementById("app"));te.render(React.createElement(ae,null));})();
+(() => {
+  const { useEffect, useRef, useState, useMemo } = React;
+  const NODES = [
+    // CORE
+    { id: "Visionium", label: "Visionium", layer: "core", size: 28, url: "https://www.notion.so/3282b7e543e0815db7c0d5afdae9ae76", note: "\u601D\u60F3\u8CC7\u672C=\u666E\u904D\u7684\u69CB\u6210\u8981\u7D20" },
+    // L-1 メタ層
+    { id: "DBDB", label: "\u{1F5C4}\uFE0F DBDB", layer: "meta", size: 11, note: "\u5168\u30C7\u30FC\u30BF\u30BD\u30FC\u30B9\u76EE\u9332" },
+    { id: "TagDB", label: "\u{1F3F7}\uFE0F \u30BF\u30B0DB", layer: "meta", size: 11, note: "Tagacha 4\u8EF8\u6B63\u672C" },
+    { id: "SkillDB", label: "\u{1F6E0}\uFE0F \u30B9\u30AD\u30EBDB", layer: "meta", size: 11, note: "claude-shared/skills/" },
+    { id: "ProtoDB", label: "\u{1F4D6} \u30D7\u30ED\u30C8\u30B3\u30EBDB", layer: "meta", size: 11, note: "\xA7\u5358\u4F4D\u7BA1\u7406" },
+    // L0 思想層
+    { id: "GT", label: "Grand Tips", layer: "philosophy", size: 14, url: "https://www.notion.so/3492b7e543e081cfa6edd9a0bdac1e5d" },
+    { id: "ProtoV1", label: "\u{1F4D6} \u30D7\u30ED\u30C8\u30B3\u30EB v1", layer: "philosophy", size: 16, url: "https://www.notion.so/34a2b7e543e081e5a94bd47726e1e5b0", note: "SoT (\u904B\u7528\u5168\u74B0\u5883)" },
+    { id: "BoolFloat", label: "Boolean\u2192Float", layer: "philosophy", size: 18, note: "\u6838\u3068\u306A\u308B\u8A2D\u8A08\u539F\u5247" },
+    { id: "Humus", label: "\u8150\u8449\u571F\u8A2D\u8A08", layer: "philosophy", size: 13 },
+    { id: "SansetsuMei", label: "\u4E09\u91CD\u304C\u3051\u547D\u540D\u6CD5", layer: "philosophy", size: 12 },
+    // L2 状態層
+    { id: "MC", label: "\u{1F30C} MC", layer: "state", size: 16, url: "https://www.notion.so/3282b7e543e0815db7c0d5afdae9ae76", note: "\u8868\u793A\u5C64 (Mission Control)" },
+    // L3a Live 5柱+HiCo
+    { id: "HMT", label: "T: Hi-Me TooL", layer: "pillarT", size: 18, note: "\u3072\u307F\u3064\u30FC\u308B/\u672A\u6765\u6E90" },
+    { id: "RD", label: "R: Re:DeSign", layer: "pillarR", size: 18, note: "\u5168\u4EBA\u985EUX\u6539\u5584\u8A08\u753B" },
+    { id: "BB", label: "B: BookBug", layer: "pillarB", size: 18, note: "\u51FA\u7248" },
+    { id: "PB", label: "P: Postboy", layer: "pillarP", size: 18, note: "\u767A\u4FE1/Backstage" },
+    { id: "GG", label: "G: Gaming Gathering", layer: "pillarG", size: 18, note: "4 sub" },
+    { id: "OP", label: "O: Opaarts \u26E9\uFE0F", layer: "pillarO", size: 18, note: "\u904E\u53BB\u6E90/3\u7DE8" },
+    { id: "HiCo", label: "HiCo \u79D8\u66F8\u5B50", layer: "operation", size: 17, note: "\u904B\u7528\u67F1" },
+    // KAIZO 軸
+    { id: "KAIZO", label: "\u{1F331} KAIZO", layer: "kaizo", size: 16, note: "Visionium \u76F44\u8EF8" },
+    { id: "Zada", label: "Zada", layer: "kaizo", size: 11, note: "\u904E\u53BB\u30FB\u611F\u60C5" },
+    { id: "Iven", label: "Iven", layer: "kaizo", size: 11, note: "\u672A\u6765\u30FB\u7406\u6027" },
+    // HMT 配下
+    { id: "Wakka", label: "\u308F\u3063\u304B\u305A\u304B\u3093", layer: "tool", size: 9 },
+    { id: "Ningen", label: "\u4EBA\u9593\u56F3\u9451", layer: "tool", size: 9 },
+    { id: "Banet", label: "\u30D0\u30CD\u30C3\u30C8", layer: "tool", size: 9 },
+    { id: "Satori", label: "SATORI", layer: "tool", size: 9 },
+    { id: "Sozai", label: "\u7D20\u6750\u56F3\u9451", layer: "tool", size: 9 },
+    { id: "Meguru", label: "MEGURU", layer: "tool", size: 9 },
+    { id: "Wakusei", label: "\u50D5\u306E\u60D1\u661F", layer: "tool", size: 9 },
+    // RD 配下
+    { id: "VRSuite", label: "VR suite (5app)", layer: "tool", size: 10 },
+    { id: "VM", label: "VM (\u89B3\u6E2C\u30ED\u30B0)", layer: "tool", size: 9 },
+    { id: "Lexilium", label: "Lexilium", layer: "tool", size: 9 },
+    // GG 配下
+    { id: "GG-Visual", label: "\u653B\u7565\u53EF\u8996\u5316", layer: "game", size: 8 },
+    { id: "GG-Unity", label: "Unity\u30B2\u30FC\u30E0", layer: "game", size: 8 },
+    { id: "GG-Board", label: "\u30DC\u30C9\u30B2", layer: "game", size: 8 },
+    { id: "GG-Web", label: "Web\u30B2\u30FC\u30E0", layer: "game", size: 8 },
+    { id: "Rikkoku", label: "\u516D\u524B RPG", layer: "game", size: 9 },
+    { id: "Pokechan", label: "\u30DD\u30B1\u30C1\u30E3\u30F3", layer: "game", size: 9 },
+    // OP 配下
+    { id: "OP-Time", label: "Time\u7DE8 \u30AB\u30A4\u30BD\u30FC", layer: "opaarts", size: 9 },
+    { id: "OP-IO", label: "IO\u7DE8", layer: "opaarts", size: 9 },
+    { id: "OP-Retro", label: "Retro\u7DE8", layer: "opaarts", size: 9 },
+    // BB 配下
+    { id: "Papers", label: "Papers 9\u7BC7", layer: "paper", size: 13, note: "A/B/C/D/5-9 \u5168\u63D0\u51FA" },
+    { id: "KDP1", label: "\u30D1\u30F3\u30C0\u3068\u54F2\u5B66\u3068AI", layer: "paper", size: 9 },
+    { id: "KDP2", label: "\u4EBA\u985E\u306E\u7D20\u6750\u56F3\u9451", layer: "paper", size: 9 },
+    { id: "KDP3", label: "\u4E3B\u7FA9\u7D76\u5BFE\u4E3B\u7FA9 (7\u6708)", layer: "paper", size: 10, note: "\u601D\u60F3\u306E\u8A2D\u8A08\u66F8#03" },
+    { id: "Novel1", label: "\u661F\u306F\u77E5\u3089\u306A\u3044", layer: "paper", size: 10 },
+    { id: "Novel2", label: "0.5\u306E\u9B54\u5973", layer: "paper", size: 9 },
+    { id: "Imasica", label: "\u50D5\u306EIMASICA", layer: "paper", size: 9 },
+    // PB 配下
+    { id: "Backstage", label: "Backstage", layer: "tool", size: 9, note: "15-20sec\u52D5\u753B" },
+    { id: "DJOSA", label: "DJOSA", layer: "tool", size: 8 },
+    // L3b 観測層
+    { id: "MIHARASHI", label: "\u{1F52D} MIHARASHI", layer: "observation", size: 12, note: "snapshot.py" },
+    { id: "Orb", label: "Orb (Obsidian)", layer: "observation", size: 12, note: "\u21AA \u9280\u6CB3\u7CFB\u672C\u4F53" },
+    { id: "Dararin", label: "\u3060\u3089\u308A\u3093", layer: "observation", size: 10 },
+    { id: "Discord", label: "\u{1F4AC} Discord", layer: "observation", size: 11, note: "L3b \u6B63\u5F0F\u683C\u4E0A" },
+    // L4 腐葉土層
+    { id: "GTDB", label: "\u{1F342} \u7D71\u5408GT\u77E5\u898BDB", layer: "compost", size: 13 },
+    { id: "MemVault", label: "Memory Vault", layer: "compost", size: 12 },
+    { id: "HandoffIdx", label: "handoff Index", layer: "compost", size: 11 },
+    { id: "Archive", label: "Archive DB", layer: "compost", size: 10 },
+    // L5 資産層
+    { id: "CShared", label: "claude-shared", layer: "asset", size: 12, note: "GitHub private" },
+    { id: "GHPages", label: "GitHub Pages", layer: "asset", size: 11 },
+    { id: "Zenodo", label: "Zenodo", layer: "asset", size: 10 },
+    // HiCo 配下 主要 DB
+    { id: "ProjectDB", label: "\u30D7\u30ED\u30B8\u30A7\u30AF\u30C8DB", layer: "operation", size: 11 },
+    { id: "HishoCoDB", label: "\u79D8\u66F8CoDB", layer: "operation", size: 11 },
+    { id: "SessionLog", label: "\u30BB\u30C3\u30B7\u30E7\u30F3\u30ED\u30B0DB", layer: "operation", size: 11 },
+    { id: "RPGDB", label: "RPG Status", layer: "operation", size: 10 },
+    { id: "TrophyDB", label: "\u{1F3C6} \u30C8\u30ED\u30D5\u30A3\u30FCDB", layer: "operation", size: 10 },
+    // === v0.5 (Cow merge) additions ===
+    { id: "TajuFugou", label: "\u591A\u91CD\u7B26\u53F7\u5316\u539F\u5247", layer: "philosophy", size: 11, note: "1\u30BF\u30B0\u3060\u3051=\u5316\u77F3 / \u591A\u91CD\u30BF\u30B0=\u8150\u8449\u571F", url: "https://www.notion.so/3522b7e543e08171b767d64aff3d7347" },
+    { id: "IFGerm", label: "IF\u767A\u82BD\u578BDB", layer: "tool", size: 9, note: "\u30AD\u30E3\u30E9\u4ED8\u3051\u30FBVR\u811A" },
+    { id: "VRMethods", label: "VR\u5206\u985E\u6CD5\u30AB\u30BF\u30ED\u30B0 (20)", layer: "tool", size: 9, note: "20\u30E1\u30BD\u30C3\u30C9" },
+    { id: "Tanbun", label: "\u{1F4D4} \u77ED\u6587\u8F9E\u66F8", layer: "compost", size: 11, note: "1\u30A8\u30F3\u30C8\u30EA1\u884C\u301C\u6570\u884C / Tagacha+Float" },
+    { id: "DailyLog", label: "Daily Log DB", layer: "operation", size: 9, note: "\u65E5\u6B21\u30ED\u30B0" },
+    { id: "Connect", label: "\u{1F50C} Connect DB", layer: "operation", size: 9, note: "MCP/Connector" },
+    { id: "Kakeibo", label: "\u5BB6\u8A08\u7C3FDB", layer: "operation", size: 9, note: "\u308F\u305F\u3057\u306E\u304A\u8CA1\u5E03" },
+    { id: "Galaxy", label: "\u{1F30C} \u9280\u6CB3\u7CFB v0.1+", layer: "observation", size: 12, note: "\u672C\u30A2\u30FC\u30C6\u30A3\u30D5\u30A1\u30AF\u30C8\u8868\u73FE (\u81EA\u5DF1\u53C2\u7167)", url: "https://osakenpiro.github.io/galaxy/" }
+  ];
+  const LINKS = [
+    // Visionium → 各層 / 直4軸
+    ["Visionium", "MC"],
+    ["Visionium", "GT"],
+    ["Visionium", "KAIZO"],
+    ["Visionium", "HMT"],
+    ["Visionium", "RD"],
+    ["Visionium", "BB"],
+    ["Visionium", "PB"],
+    ["Visionium", "GG"],
+    ["Visionium", "OP"],
+    ["Visionium", "HiCo"],
+    // L-1 メタ層 (Visionium 直属、Boolean→Float 経由)
+    ["Visionium", "DBDB"],
+    ["Visionium", "TagDB"],
+    ["Visionium", "SkillDB"],
+    ["Visionium", "ProtoDB"],
+    // 思想層
+    ["GT", "ProtoV1"],
+    ["GT", "BoolFloat"],
+    ["GT", "Humus"],
+    ["GT", "SansetsuMei"],
+    ["ProtoV1", "MC"],
+    ["ProtoV1", "ProtoDB"],
+    // KAIZO (v0.6: 双子エッジ vector — past/future direction)
+    ["KAIZO", "Zada", "past"],
+    ["KAIZO", "Iven", "future"],
+    // HMT 配下
+    ["HMT", "Wakka"],
+    ["HMT", "Ningen"],
+    ["HMT", "Banet"],
+    ["HMT", "Satori"],
+    ["HMT", "Sozai"],
+    ["HMT", "Meguru"],
+    ["HMT", "Wakusei"],
+    // RD 配下
+    ["RD", "VRSuite"],
+    ["RD", "VM"],
+    ["RD", "Lexilium"],
+    ["VRSuite", "Wakka"],
+    ["VRSuite", "Banet"],
+    // cross link
+    // GG 配下
+    ["GG", "GG-Visual"],
+    ["GG", "GG-Unity"],
+    ["GG", "GG-Board"],
+    ["GG", "GG-Web"],
+    ["GG-Unity", "Rikkoku"],
+    ["GG-Visual", "Pokechan"],
+    // OP 配下
+    ["OP", "OP-Time"],
+    ["OP", "OP-IO"],
+    ["OP", "OP-Retro"],
+    // BB 配下
+    ["BB", "Papers"],
+    ["BB", "KDP1"],
+    ["BB", "KDP2"],
+    ["BB", "KDP3"],
+    ["BB", "Novel1"],
+    ["BB", "Novel2"],
+    ["BB", "Imasica"],
+    ["Papers", "Zenodo"],
+    ["KDP3", "BoolFloat"],
+    // 思想接続
+    // PB 配下
+    ["PB", "Backstage"],
+    ["Backstage", "DJOSA"],
+    // 観測層
+    ["Visionium", "MIHARASHI"],
+    ["Visionium", "Orb"],
+    ["Visionium", "Dararin"],
+    ["Visionium", "Discord"],
+    ["MIHARASHI", "SessionLog"],
+    ["MIHARASHI", "RPGDB"],
+    // 腐葉土層
+    ["Visionium", "GTDB"],
+    ["Visionium", "MemVault"],
+    ["Visionium", "HandoffIdx"],
+    ["Visionium", "Archive"],
+    ["HishoCoDB", "MemVault"],
+    ["GT", "GTDB"],
+    // 資産層
+    ["Visionium", "CShared"],
+    ["Visionium", "GHPages"],
+    ["Visionium", "Zenodo"],
+    ["SkillDB", "CShared"],
+    // HiCo 配下 DB
+    ["HiCo", "ProjectDB"],
+    ["HiCo", "HishoCoDB"],
+    ["HiCo", "SessionLog"],
+    ["HiCo", "RPGDB"],
+    ["HiCo", "TrophyDB"],
+    // 横断 (思想 cross link)
+    ["Novel1", "Papers"],
+    // 星は知らない → papers
+    ["BoolFloat", "ProtoV1"],
+    ["Humus", "MemVault"],
+    ["Humus", "GTDB"],
+    // === v0.5 (Cow merge) link additions ===
+    ["BoolFloat", "TajuFugou"],
+    ["GT", "TajuFugou"],
+    ["HMT", "IFGerm"],
+    ["RD", "VRMethods"],
+    ["VRSuite", "VRMethods"],
+    ["GTDB", "Tanbun"],
+    ["Humus", "Tanbun"],
+    ["BoolFloat", "Tanbun"],
+    ["HiCo", "DailyLog"],
+    ["HiCo", "Connect"],
+    ["HiCo", "Kakeibo"],
+    ["MIHARASHI", "Galaxy"],
+    ["Discord", "Galaxy"],
+    ["Visionium", "Galaxy"],
+    ["Galaxy", "Orb"]
+  ];
+  const LAYER = {
+    core: { fill: "#d4a853", glow: "#f6cf6c", label: "Visionium \u6838" },
+    meta: { fill: "#7c6dab", glow: "#a594d4", label: "L-1 \u30E1\u30BF\u5C64" },
+    philosophy: { fill: "#ff6b6b", glow: "#ff9b9b", label: "L0 \u601D\u60F3\u5C64" },
+    state: { fill: "#f5f0e4", glow: "#fff8e7", label: "L2 \u72B6\u614B\u5C64" },
+    pillarT: { fill: "#5b9eff", glow: "#88bdff", label: "T: Hi-Me TooL" },
+    pillarR: { fill: "#4ade80", glow: "#86efac", label: "R: Re:DeSign" },
+    pillarB: { fill: "#f97316", glow: "#fdba74", label: "B: BookBug" },
+    pillarP: { fill: "#ec4899", glow: "#f9a8d4", label: "P: Postboy" },
+    pillarG: { fill: "#a855f7", glow: "#d8b4fe", label: "G: Gaming Gathering" },
+    pillarO: { fill: "#eab308", glow: "#fde047", label: "O: Opaarts" },
+    operation: { fill: "#94a3b8", glow: "#cbd5e1", label: "HiCo \u904B\u7528\u67F1" },
+    kaizo: { fill: "#86efac", glow: "#bbf7d0", label: "KAIZO \u76F44\u8EF8" },
+    tool: { fill: "#7dd3fc", glow: "#bae6fd", label: "Tool / \u5B50\u8981\u7D20" },
+    game: { fill: "#c4b5fd", glow: "#ddd6fe", label: "Game \u5B50\u8981\u7D20" },
+    opaarts: { fill: "#fde047", glow: "#fef08a", label: "Opaarts \u7DE8" },
+    paper: { fill: "#fb923c", glow: "#fed7aa", label: "\u8AD6\u6587\u30FB\u66F8\u7C4D" },
+    observation: { fill: "#22d3ee", glow: "#67e8f9", label: "L3b \u89B3\u6E2C\u5C64" },
+    compost: { fill: "#a16207", glow: "#ca8a04", label: "L4 \u8150\u8449\u571F\u5C64" },
+    asset: { fill: "#6b7280", glow: "#9ca3af", label: "L5 \u8CC7\u7523\u5C64" }
+  };
+  const STALE_IDS = /* @__PURE__ */ new Set([
+    "Iven",
+    "Zada",
+    // KAIZO 双子 — 構想のみ
+    "Lexilium",
+    // 構想ノード
+    "Ningen",
+    // 人間図鑑 — 進展少
+    "MemVault",
+    // memory vault 構想
+    "TrophyDB"
+    // 未確立
+  ]);
+  const NODE_FILL_OVERRIDE = {
+    "Zada": { fill: "#f97316", glow: "#fdba74" },
+    // 過去・感情 (orange / warm)
+    "Iven": { fill: "#3b82f6", glow: "#93c5fd" }
+    // 未来・理性 (blue / cool)
+  };
+  function VisioniumGalaxy() {
+    const svgRef = useRef(null);
+    const containerRef = useRef(null);
+    const [selected, setSelected] = useState(null);
+    const [hoveredLayer, setHoveredLayer] = useState(null);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [showStale, setShowStale] = useState(false);
+    const [fossilThresholdDays, setFossilThresholdDays] = useState(30);
+    const [nodeUpdatedMap, setNodeUpdatedMap] = useState(null);
+    const [size, setSize] = useState({ w: 800, h: 600 });
+    useEffect(() => {
+      fetch("./data/nodes-lastUpdated.json").then((r) => r.ok ? r.json() : null).then((d) => {
+        if (d && typeof d === "object") {
+          const clean = { ...d };
+          delete clean._meta;
+          setNodeUpdatedMap(clean);
+        }
+      }).catch(() => {
+      });
+    }, []);
+    const effectiveStaleSet = useMemo(() => {
+      const base = new Set(STALE_IDS);
+      if (nodeUpdatedMap && fossilThresholdDays > 0) {
+        const cutoff = Date.now() - fossilThresholdDays * 864e5;
+        for (const [id, dateStr] of Object.entries(nodeUpdatedMap)) {
+          const ts = Date.parse(dateStr);
+          if (!isNaN(ts) && ts < cutoff) base.add(id);
+        }
+      }
+      return base;
+    }, [nodeUpdatedMap, fossilThresholdDays]);
+    useEffect(() => {
+      const update = () => {
+        if (containerRef.current) {
+          const r = containerRef.current.getBoundingClientRect();
+          setSize({ w: r.width, h: Math.max(500, r.height) });
+        }
+      };
+      update();
+      window.addEventListener("resize", update);
+      return () => window.removeEventListener("resize", update);
+    }, []);
+    const { nodes, links } = useMemo(() => {
+      const nodes2 = NODES.map((n) => ({ ...n }));
+      const idSet = new Set(nodes2.map((n) => n.id));
+      const links2 = LINKS.filter(([s, t]) => idSet.has(s) && idSet.has(t)).map(([s, t, type]) => ({ source: s, target: t, type: type || null }));
+      return { nodes: nodes2, links: links2 };
+    }, []);
+    useEffect(() => {
+      if (!svgRef.current) return;
+      const W = size.w, H = size.h;
+      const svg = d3.select(svgRef.current);
+      svg.selectAll("*").remove();
+      const defs = svg.append("defs");
+      const grad = defs.append("radialGradient").attr("id", "bgGrad").attr("cx", "50%").attr("cy", "50%").attr("r", "70%");
+      grad.append("stop").attr("offset", "0%").attr("stop-color", "#1a1410").attr("stop-opacity", 1);
+      grad.append("stop").attr("offset", "100%").attr("stop-color", "#0a0807").attr("stop-opacity", 1);
+      svg.append("rect").attr("width", W).attr("height", H).attr("fill", "url(#bgGrad)");
+      const stars = d3.range(180).map(() => ({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.2 + 0.2,
+        o: Math.random() * 0.6 + 0.1
+      }));
+      svg.append("g").selectAll("circle.star").data(stars).enter().append("circle").attr("cx", (d) => d.x).attr("cy", (d) => d.y).attr("r", (d) => d.r).attr("fill", "#f5f0e4").attr("opacity", (d) => d.o);
+      Object.entries(LAYER).forEach(([k, v]) => {
+        const f = defs.append("filter").attr("id", `glow-${k}`).attr("x", "-50%").attr("y", "-50%").attr("width", "200%").attr("height", "200%");
+        f.append("feGaussianBlur").attr("stdDeviation", 3.5).attr("result", "blur");
+        const merge = f.append("feMerge");
+        merge.append("feMergeNode").attr("in", "blur");
+        merge.append("feMergeNode").attr("in", "SourceGraphic");
+      });
+      [["past", "#f97316"], ["future", "#3b82f6"]].forEach(([id, color]) => {
+        defs.append("marker").attr("id", `arrow-${id}`).attr("viewBox", "0 -5 10 10").attr("refX", 16).attr("refY", 0).attr("markerWidth", 6).attr("markerHeight", 6).attr("orient", "auto").append("path").attr("d", "M0,-5L10,0L0,5").attr("fill", color).attr("opacity", 0.8);
+      });
+      const g = svg.append("g");
+      const zoom = d3.zoom().scaleExtent([0.3, 4]).on("zoom", (e) => {
+        g.attr("transform", e.transform);
+      });
+      svg.call(zoom);
+      const sim = d3.forceSimulation(nodes).force("link", d3.forceLink(links).id((d) => d.id).distance((d) => {
+        if (d.source.id === "Visionium" || d.target.id === "Visionium") return 130;
+        return 70;
+      }).strength(0.4)).force("charge", d3.forceManyBody().strength((d) => d.layer === "core" ? -800 : -200)).force("center", d3.forceCenter(W / 2, H / 2)).force("collide", d3.forceCollide().radius((d) => d.size + 4)).force("radial", d3.forceRadial((d) => {
+        if (d.layer === "core") return 0;
+        if (["philosophy", "state", "meta"].includes(d.layer)) return 130;
+        if (d.layer.startsWith("pillar") || d.layer === "operation" || d.layer === "kaizo") return 200;
+        if (["observation", "compost", "asset"].includes(d.layer)) return 280;
+        return 280;
+      }, W / 2, H / 2).strength(0.25));
+      const link = g.append("g").selectAll("path.link").data(links).enter().append("path").attr("class", "link").attr("fill", "none").attr("stroke", (d) => d.type === "past" ? "#f97316" : d.type === "future" ? "#3b82f6" : "#d4a853").attr("stroke-opacity", (d) => d.type ? 0.7 : 0.18).attr("stroke-width", (d) => d.type ? 1.8 : 0.6).attr("marker-end", (d) => d.type === "past" ? "url(#arrow-past)" : d.type === "future" ? "url(#arrow-future)" : null);
+      const nodeG = g.append("g").selectAll("g.node").data(nodes).enter().append("g").attr("class", "node").style("cursor", "pointer");
+      nodeG.append("circle").attr("class", "halo").attr("r", (d) => d.size + 6).attr("fill", (d) => NODE_FILL_OVERRIDE[d.id] ? NODE_FILL_OVERRIDE[d.id].glow : LAYER[d.layer].glow).attr("opacity", 0.08);
+      nodeG.append("circle").attr("class", "body").attr("r", (d) => d.size).attr("fill", (d) => NODE_FILL_OVERRIDE[d.id] ? NODE_FILL_OVERRIDE[d.id].fill : LAYER[d.layer].fill).attr("stroke", "#0a0807").attr("stroke-width", 1.2).attr("filter", (d) => `url(#glow-${d.layer})`);
+      nodeG.append("circle").attr("r", (d) => Math.max(d.size * 0.25, 2)).attr("fill", "#0a0807").attr("opacity", 0.4);
+      nodeG.append("text").attr("y", (d) => d.size + 13).attr("text-anchor", "middle").attr("font-family", '"Shippori Mincho", "\u30D2\u30E9\u30AE\u30CE\u660E\u671D ProN", serif').attr("font-size", (d) => d.layer === "core" ? 14 : d.size >= 12 ? 11 : 9).attr("font-weight", (d) => d.layer === "core" || d.layer.startsWith("pillar") ? 700 : 400).attr("fill", "#f5f0e4").attr("opacity", 0.92).style("pointer-events", "none").style("paint-order", "stroke").style("stroke", "#0a0807").style("stroke-width", "3px").style("stroke-linejoin", "round").text((d) => d.label);
+      nodeG.on("click", (_, d) => {
+        setSelected(d);
+        if (d.url) {
+        }
+      });
+      nodeG.on("mouseover", function(_, d) {
+        d3.select(this).select("circle.body").transition().duration(200).attr("r", d.size * 1.18);
+      });
+      nodeG.on("mouseout", function(_, d) {
+        d3.select(this).select("circle.body").transition().duration(200).attr("r", d.size);
+      });
+      const drag = d3.drag().on("start", (e, d) => {
+        if (!e.active) sim.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      }).on("drag", (e, d) => {
+        d.fx = e.x;
+        d.fy = e.y;
+      }).on("end", (e, d) => {
+        if (!e.active) sim.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      });
+      nodeG.call(drag);
+      sim.on("tick", () => {
+        link.attr("d", (d) => {
+          const sx = d.source.x, sy = d.source.y, tx = d.target.x, ty = d.target.y;
+          if (!d.type) return `M${sx},${sy}L${tx},${ty}`;
+          const dx = tx - sx, dy = ty - sy;
+          const dr = Math.sqrt(dx * dx + dy * dy) || 1;
+          const offset = d.type === "past" ? -28 : 28;
+          const mx = (sx + tx) / 2, my = (sy + ty) / 2;
+          const cx = mx + -dy / dr * offset;
+          const cy = my + dx / dr * offset;
+          return `M${sx},${sy}Q${cx},${cy} ${tx},${ty}`;
+        });
+        nodeG.attr("transform", (d) => `translate(${d.x},${d.y})`);
+      });
+      const applyHighlight = (layer, q, fadeStale, staleSet) => {
+        const qLower = (q || "").trim().toLowerCase();
+        const match = (d) => {
+          const layerOK = !layer || d.layer === layer;
+          const searchOK = !qLower || (d.label || "").toLowerCase().includes(qLower) || (d.note || "").toLowerCase().includes(qLower) || (d.id || "").toLowerCase().includes(qLower);
+          return layerOK && searchOK;
+        };
+        const isStale = (d) => fadeStale && staleSet.has(d.id);
+        nodeG.style("opacity", (d) => {
+          if (isStale(d)) return 0.25;
+          return match(d) ? 1 : 0.15;
+        });
+        nodeG.select("circle").style("filter", (d) => isStale(d) ? "grayscale(0.85)" : null);
+        link.style("opacity", (d) => {
+          if (isStale(d.source) || isStale(d.target)) return 0.05;
+          return match(d.source) && match(d.target) ? 0.6 : 0.05;
+        });
+      };
+      svg.node().__applyHighlight = applyHighlight;
+      return () => sim.stop();
+    }, [nodes, links, size]);
+    useEffect(() => {
+      if (svgRef.current?.__applyHighlight) {
+        svgRef.current.__applyHighlight(hoveredLayer, searchQuery, showStale, effectiveStaleSet);
+      }
+    }, [hoveredLayer, searchQuery, showStale, effectiveStaleSet]);
+    const layerKeys = Object.keys(LAYER);
+    return /* @__PURE__ */ React.createElement("div", { className: "w-full min-h-screen bg-[#0a0807] text-[#f5f0e4]", style: { fontFamily: '"Shippori Mincho", "\u30D2\u30E9\u30AE\u30CE\u660E\u671D ProN", serif' } }, /* @__PURE__ */ React.createElement("div", { className: "hidden md:block fixed left-3 top-1/2 -translate-y-1/2 origin-left -rotate-90 text-[10px] tracking-[0.4em] opacity-50 select-none", style: { writingMode: "horizontal-tb" } }, "Visionium  \u30FB  \u5168\u90E8\u304C\u307C\u304F  \u30FB  \u9280\u6CB3\u7CFB v0.6"), /* @__PURE__ */ React.createElement("header", { className: "px-5 md:px-12 pt-6 md:pt-10 pb-3" }, /* @__PURE__ */ React.createElement("div", { className: "text-[10px] tracking-[0.35em] opacity-60" }, "VISIONIUM / GALAXY v0.6"), /* @__PURE__ */ React.createElement("h1", { className: "mt-1 text-2xl md:text-4xl font-bold", style: { fontFamily: '"Bricolage Grotesque", "Shippori Mincho", serif' } }, "\u50D5\u306E", /* @__PURE__ */ React.createElement("span", { style: { color: "#d4a853" } }, "\u9280\u6CB3\u7CFB")), /* @__PURE__ */ React.createElement("p", { className: "mt-1 text-xs md:text-sm opacity-70" }, "Visionium \u5168\u4F53\u69CB\u9020 \u2014 7\u5C64 / 5\u67F1+HiCo / \u89B3\u6E2C\u5C64 / \u8150\u8449\u571F\u5C64 / \u8CC7\u7523\u5C64 / KAIZO\u76F44\u8EF8")), /* @__PURE__ */ React.createElement("div", { ref: containerRef, className: "relative w-full", style: { height: "70vh", minHeight: 500 } }, /* @__PURE__ */ React.createElement("svg", { ref: svgRef, width: size.w, height: size.h, className: "block" }), /* @__PURE__ */ React.createElement(
+      "div",
+      {
+        className: "absolute top-3 right-3 md:top-5 md:right-5 max-w-[42%] md:max-w-[260px] backdrop-blur-md bg-[#0a0807]/70 border border-[#d4a853]/25 rounded p-3 text-[10px] md:text-[11px]",
+        onMouseLeave: () => setHoveredLayer(null)
+      },
+      /* @__PURE__ */ React.createElement("div", { className: "mb-2" }, /* @__PURE__ */ React.createElement(
+        "input",
+        {
+          type: "text",
+          value: searchQuery,
+          onChange: (e) => setSearchQuery(e.target.value),
+          placeholder: "\u691C\u7D22  label / note / id",
+          className: "w-full bg-[#0a0807]/60 border border-[#d4a853]/40 rounded px-2 py-1 text-[10px] text-[#f5f0e4] placeholder:text-[#f5f0e4]/30 focus:outline-none focus:border-[#d4a853]"
+        }
+      ), searchQuery && /* @__PURE__ */ React.createElement(
+        "button",
+        {
+          onClick: () => setSearchQuery(""),
+          className: "mt-1 text-[9px] opacity-50 hover:opacity-100",
+          style: { color: "#d4a853" }
+        },
+        "\u30AF\u30EA\u30A2 \xD7"
+      )),
+      /* @__PURE__ */ React.createElement("div", { className: "mb-2 flex items-center justify-between gap-2" }, /* @__PURE__ */ React.createElement("span", { className: "text-[9px] tracking-[0.25em] opacity-60" }, "\u{1F9B4} \u5316\u77F3\u5316 fade"), /* @__PURE__ */ React.createElement(
+        "button",
+        {
+          onClick: () => setShowStale(!showStale),
+          className: `text-[10px] px-2 py-0.5 rounded border transition-colors ${showStale ? "border-[#d4a853] text-[#d4a853] bg-[#d4a853]/10" : "border-[#f5f0e4]/20 text-[#f5f0e4]/40 hover:border-[#f5f0e4]/40"}`
+        },
+        showStale ? "ON" : "OFF"
+      )),
+      showStale && /* @__PURE__ */ React.createElement("div", { className: "mb-2" }, /* @__PURE__ */ React.createElement("div", { className: "text-[9px] opacity-50 mb-1" }, effectiveStaleSet.size, "\u4EF6 \u7070\u8272 (", nodeUpdatedMap ? "JSON+hardcode" : "hardcode \u306E\u307F", ")"), /* @__PURE__ */ React.createElement("div", { className: "flex gap-1" }, [14, 30, 90, 365].map((d) => /* @__PURE__ */ React.createElement(
+        "button",
+        {
+          key: d,
+          onClick: () => setFossilThresholdDays(d),
+          className: `text-[9px] px-1.5 py-0.5 rounded border transition-colors ${fossilThresholdDays === d ? "border-[#d4a853] text-[#d4a853] bg-[#d4a853]/10" : "border-[#f5f0e4]/15 text-[#f5f0e4]/40 hover:border-[#f5f0e4]/35"}`
+        },
+        d < 365 ? `${d}d` : "1y"
+      )))),
+      /* @__PURE__ */ React.createElement("div", { className: "text-[9px] tracking-[0.3em] opacity-60 mb-2" }, "LAYERS / hover \u3067\u30D5\u30A3\u30EB\u30BF"),
+      /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-1 gap-[3px]" }, layerKeys.map((k) => /* @__PURE__ */ React.createElement(
+        "div",
+        {
+          key: k,
+          className: "flex items-center gap-2 cursor-pointer hover:bg-[#d4a853]/10 rounded px-1 py-[1px]",
+          onMouseEnter: () => setHoveredLayer(k)
+        },
+        /* @__PURE__ */ React.createElement("span", { className: "inline-block w-2.5 h-2.5 rounded-full", style: { background: LAYER[k].fill, boxShadow: `0 0 6px ${LAYER[k].glow}` } }),
+        /* @__PURE__ */ React.createElement("span", { className: "opacity-85" }, LAYER[k].label)
+      ))),
+      /* @__PURE__ */ React.createElement("div", { className: "mt-2 pt-2 border-t border-[#f5f0e4]/10 text-[9px] opacity-60" }, "drag: \u30CE\u30FC\u30C9\u79FB\u52D5 / wheel: zoom / click: \u8A73\u7D30")
+    ), selected && /* @__PURE__ */ React.createElement("div", { className: "absolute bottom-3 left-3 right-3 md:left-5 md:right-auto md:bottom-5 md:w-[340px] backdrop-blur-md bg-[#0a0807]/85 border border-[#d4a853]/35 rounded p-4" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-start justify-between gap-3" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "text-[9px] tracking-[0.3em] opacity-60" }, LAYER[selected.layer]?.label), /* @__PURE__ */ React.createElement("div", { className: "text-lg font-bold mt-0.5", style: { color: LAYER[selected.layer]?.fill } }, selected.label)), /* @__PURE__ */ React.createElement("button", { onClick: () => setSelected(null), className: "text-[#f5f0e4]/60 hover:text-[#f5f0e4] text-lg leading-none" }, "\xD7")), selected.note && /* @__PURE__ */ React.createElement("p", { className: "mt-2 text-xs opacity-85" }, selected.note), selected.url && /* @__PURE__ */ React.createElement(
+      "a",
+      {
+        href: selected.url,
+        target: "_blank",
+        rel: "noreferrer",
+        className: "inline-block mt-3 text-xs underline decoration-[#d4a853]/50 hover:decoration-[#d4a853]",
+        style: { color: "#d4a853" }
+      },
+      "Notion \u3067\u958B\u304F \u2192"
+    ))), /* @__PURE__ */ React.createElement("footer", { className: "px-5 md:px-12 py-4 text-[10px] opacity-50 flex flex-wrap gap-4 justify-between" }, /* @__PURE__ */ React.createElement("span", null, "Cow SES-224 2026-05-25 \xB7 v0.6 (KAIZO \u53CC\u5B50\u30A8\u30C3\u30B8 vector \u2014 past/future)"), /* @__PURE__ */ React.createElement("span", null, "Re:DeSign \xD7 \u5168\u4EBA\u985EUX\u6539\u5584\u8A08\u753B")));
+  }
+  const __root = ReactDOM.createRoot(document.getElementById("app"));
+  __root.render(/* @__PURE__ */ React.createElement(VisioniumGalaxy, null));
+})();
 
 </script>
 </body>
