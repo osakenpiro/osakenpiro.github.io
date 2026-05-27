@@ -1,12 +1,12 @@
 {
   "_meta": {
-    "generated_at": "2026-05-28T07:11:59.413064+09:00",
+    "generated_at": "2026-05-28T07:24:24.778230+09:00",
     "generator": "snapshot.py v0.1.1 (scheduled task, API push)",
     "spec": "node id -> ISO date (YYYY-MM-DD). _meta は drift verify 用",
     "node_count": 48,
-    "fresh_count": 39,
-    "preserved_count": 9,
-    "source_sha": "13ff6bfc6e7d2fb72182bf87f3ba7734da6eb281"
+    "fresh_count": 40,
+    "preserved_count": 8,
+    "source_sha": "969d60b75d00104b2faec11bd89214829f222e3d"
   },
   "Visionium": "2026-05-27",
   "MC": "2026-05-27",
