@@ -1,17 +1,17 @@
 {
   "_meta": {
-    "generated_at": "2026-05-28T07:24:24.778230+09:00",
+    "generated_at": "2026-05-29T07:54:26.655078+09:00",
     "generator": "snapshot.py v0.1.1 (scheduled task, API push)",
     "spec": "node id -> ISO date (YYYY-MM-DD). _meta は drift verify 用",
     "node_count": 48,
     "fresh_count": 40,
     "preserved_count": 8,
-    "source_sha": "969d60b75d00104b2faec11bd89214829f222e3d"
+    "source_sha": "7d458b8b49876182019759cb3c142df5c4f27a19"
   },
   "Visionium": "2026-05-27",
   "MC": "2026-05-27",
   "BoolFloat": "2026-04-27",
-  "ProtoV1": "2026-05-27",
+  "ProtoV1": "2026-05-28",
   "GT": "2026-05-05",
   "Discord": "2026-05-26",
   "MIHARASHI": "2026-04-27",
@@ -52,7 +52,7 @@
   "Connect": "2026-05-11",
   "Kakeibo": "2026-04-21",
   "Galaxy": "2026-05-25",
-  "HishoCoDB": "2026-05-01",
+  "HishoCoDB": "2026-05-28",
   "ProjectDB": "2026-05-02",
   "RPGDB": "2026-04-21",
   "GTDB": "2026-05-01"
