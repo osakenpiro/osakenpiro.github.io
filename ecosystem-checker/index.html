@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生態系チェッカー — osakenpiro 全部がぼく</title>
+<meta name="description" content="持っているAIツールとプランから、創作・知的生産の『運用生態系』がどこまで組めるかをFloatで判定。">
+<meta property="og:title" content="生態系チェッカー｜Visionium 運用OS">
+<meta property="og:description" content="あなたのAI環境で、Visionium級の運用生態系がどこまで組めるか。到達度をFloatで判定し、次に足すべきピースを提案。">
+<meta property="og:url" content="https://osakenpiro.github.io/ecosystem-checker/">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e13; --bg2:#111721; --ink:#e8edf2; --sub:#8c9bab; --faint:#5a6573;
+    --line:#243140; --gold:#c8a86a;
+    --ok:#5ec98a; --part:#d4b04c; --no:#3a4a5a;
+    --novel:#e0794c; --se:#5b8def; --gen:#4cc4b0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:"Zen Kaku Gothic New",sans-serif;-webkit-font-smoothing:antialiased}
+  body{
+    background:
+      radial-gradient(1100px 560px at 85% -8%, rgba(200,168,106,.09), transparent 60%),
+      radial-gradient(800px 480px at -8% 108%, rgba(91,141,239,.07), transparent 60%),
+      var(--bg);
+    min-height:100vh;padding:22px 20px 60px;
+  }
+  .wrap{max-width:1080px;margin:0 auto}
+  .back{display:inline-flex;align-items:center;gap:8px;color:var(--gold);text-decoration:none;
+    font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.14em;margin-bottom:18px;opacity:.8;transition:.2s}
+  .back:hover{opacity:1;gap:11px}
+  header{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:22px}
+  h1{font-family:"Shippori Mincho",serif;font-weight:800;font-size:clamp(22px,3.6vw,34px);letter-spacing:.04em;display:flex;align-items:center;gap:12px}
+  h1 .ic{font-size:.9em}
+  .en{display:block;font-family:"Space Mono",monospace;font-size:11px;color:var(--gold);letter-spacing:.24em;margin-top:8px;text-transform:uppercase}
+  .lead{color:var(--sub);font-size:13px;line-height:1.8;max-width:620px;margin-top:12px}
+  .lead b{color:var(--ink);font-weight:500}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:start}
+  @media (max-width:780px){.grid{grid-template-columns:1fr}}
+
+  .block{border:1px solid var(--line);border-radius:16px;padding:20px;background:linear-gradient(180deg,rgba(18,24,33,.6),rgba(11,15,20,.5))}
+  .block h2{font-family:"Shippori Mincho",serif;font-size:16px;margin-bottom:4px;display:flex;align-items:center;gap:9px}
+  .block .step{font-family:"Space Mono",monospace;font-size:10px;color:var(--gold);letter-spacing:.16em}
+  .block .hint2{font-size:11px;color:var(--faint);margin:2px 0 16px}
+
+  /* purpose radios */
+  .purpose{display:flex;gap:9px;flex-wrap:wrap}
+  .purpose label{flex:1;min-width:88px;cursor:pointer;border:1px solid var(--line);border-radius:11px;padding:13px 10px;text-align:center;transition:.18s;background:var(--bg2)}
+  .purpose label:hover{border-color:var(--gold)}
+  .purpose input{display:none}
+  .purpose .em{font-size:22px;display:block;margin-bottom:5px}
+  .purpose .nm{font-size:12.5px;font-weight:700}
+  .purpose .ds{font-size:9.5px;color:var(--faint);margin-top:3px}
+  .purpose input:checked + .em + .nm{color:var(--gold)}
+  .purpose label.sel-novel{border-color:var(--novel);box-shadow:0 0 0 1px var(--novel) inset}
+  .purpose label.sel-se{border-color:var(--se);box-shadow:0 0 0 1px var(--se) inset}
+  .purpose label.sel-general{border-color:var(--gen);box-shadow:0 0 0 1px var(--gen) inset}
+
+  /* tool checks */
+  .toolcat{font-family:"Space Mono",monospace;font-size:9.5px;color:var(--faint);letter-spacing:.14em;text-transform:uppercase;margin:16px 0 8px}
+  .tools{display:flex;flex-direction:column;gap:7px}
+  .tools label{cursor:pointer;border:1px solid var(--line);border-radius:9px;padding:10px 12px;display:flex;align-items:center;gap:11px;transition:.16s;background:var(--bg2)}
+  .tools label:hover{border-color:var(--gold)}
+  .tools input{appearance:none;width:18px;height:18px;border:1.5px solid var(--faint);border-radius:5px;flex:none;position:relative;transition:.15s}
+  .tools input:checked{background:var(--gold);border-color:var(--gold)}
+  .tools input:checked::after{content:"✓";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#0a0e13;font-size:12px;font-weight:700}
+  .tools .tnm{font-size:12.5px;font-weight:500}
+  .tools .tpr{margin-left:auto;font-family:"Space Mono",monospace;font-size:10px;color:var(--faint)}
+  .tools label:has(input:checked){border-color:var(--gold);background:rgba(200,168,106,.06)}
+
+  /* results */
+  .result{position:sticky;top:18px}
+  .meter-wrap{text-align:center;margin-bottom:18px}
+  .meter-label{font-family:"Space Mono",monospace;font-size:10px;color:var(--sub);letter-spacing:.16em;text-transform:uppercase;margin-bottom:8px}
+  .pct{font-family:"Shippori Mincho",serif;font-weight:800;font-size:54px;line-height:1;transition:.4s;color:var(--gold)}
+  .pct .u{font-size:22px;color:var(--sub)}
+  .bar{height:10px;border-radius:6px;background:var(--no);margin-top:14px;overflow:hidden}
+  .bar .fill{height:100%;width:0%;border-radius:6px;background:linear-gradient(90deg,var(--se),var(--gold));transition:width .5s cubic-bezier(.2,.8,.2,1)}
+  .pack{margin-top:12px;font-size:13px;color:var(--ink)}
+  .pack b{font-family:"Shippori Mincho",serif;font-size:15px}
+  .pack .tagp{display:inline-block;font-family:"Space Mono",monospace;font-size:10px;border:1px solid var(--gold);color:var(--gold);padding:2px 8px;border-radius:5px;margin-left:6px}
+
+  .caps{margin-top:6px;display:flex;flex-direction:column;gap:6px}
+  .cap{display:flex;align-items:center;gap:10px;font-size:12px;padding:7px 10px;border-radius:8px;background:rgba(255,255,255,.02);border:1px solid var(--line);transition:.2s}
+  .cap .ind{width:9px;height:9px;border-radius:50%;flex:none;background:var(--no)}
+  .cap.ok .ind{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+  .cap.part .ind{background:var(--part)}
+  .cap.ok{border-color:rgba(94,201,138,.3)}
+  .cap .cn{flex:1}
+  .cap .cf{font-family:"Space Mono",monospace;font-size:10px;color:var(--faint)}
+
+  .next{margin-top:18px;border-top:1px dashed var(--line);padding-top:16px}
+  .next h3{font-size:13px;margin-bottom:10px;color:var(--gold);display:flex;align-items:center;gap:7px}
+  .next .row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid rgba(36,49,64,.5);font-size:12px;line-height:1.6}
+  .next .row:last-child{border-bottom:none}
+  .next .pill{font-family:"Space Mono",monospace;font-size:9.5px;background:var(--bg2);border:1px solid var(--line);padding:3px 7px;border-radius:5px;color:var(--gold);flex:none;white-space:nowrap}
+  .next .gain{color:var(--sub)}
+  .next .gain b{color:var(--ink);font-weight:500}
+  .allset{font-size:12.5px;color:var(--ok);line-height:1.7;text-align:center;padding:8px}
+
+  .disc{font-size:10.5px;color:var(--faint);line-height:1.7;margin-top:14px;font-style:italic}
+  .soon{margin-top:18px;border:1px dashed var(--line);border-radius:12px;padding:14px;font-size:11.5px;color:var(--sub);line-height:1.7}
+  .soon .k{font-size:13px}
+  .soon b{color:var(--ink);font-weight:500}
+
+  footer{margin-top:34px;color:var(--faint);font-size:10.5px;font-family:"Space Mono",monospace;letter-spacing:.1em;text-align:center;opacity:.7;line-height:1.9}
+  footer a{color:var(--gold);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">&larr; osakenpiro &mdash; 全部がぼく</a>
+  <header>
+    <h1><span class="ic">🧩</span>生態系チェッカー</h1>
+    <span class="en">Ecosystem Readiness Checker</span>
+    <p class="lead">持っている <b>AIツール＋プラン</b> から、創作・知的生産の <b>「運用生態系」がどこまで組めるか</b> を判定。二値でなく <b>到達度(Float 0〜100%)</b> で測り、次に足すべきピースを提案します。<br><span style="color:var(--faint);font-size:11.5px">— Visionium の運用OSを支える Boolean→Float の考え方を、そのまま判定エンジンに。</span></p>
+  </header>
+
+  <div class="grid">
+    <!-- LEFT: input -->
+    <div>
+      <div class="block">
+        <div class="step">STEP 01</div>
+        <h2>🎯 主な用途は？</h2>
+        <p class="hint2">用途で各能力の重みが変わる(同じ環境でも到達度が変わる)。</p>
+        <div class="purpose" id="purpose">
+          <label data-v="novel"><input type="radio" name="pp" value="novel" checked><span class="em">✍️</span><span class="nm">小説・創作</span><span class="ds">執筆/挿絵/世界観</span></label>
+          <label data-v="se"><input type="radio" name="pp" value="se"><span class="em">💻</span><span class="nm">開発・SE</span><span class="ds">コード/デプロイ</span></label>
+          <label data-v="general"><input type="radio" name="pp" value="general"><span class="em">🧠</span><span class="nm">汎用・知的生産</span><span class="ds">調査/整理/発信</span></label>
+        </div>
+      </div>
+
+      <div class="block" style="margin-top:18px">
+        <div class="step">STEP 02</div>
+        <h2>🧰 持っているものをチェック</h2>
+        <p class="hint2">今使えるAIサブスク・基盤ツールを選ぶ。料金は月額の目安(税込概算)。</p>
+        <div class="toolcat">AI サブスク</div>
+        <div class="tools" id="tools-ai"></div>
+        <div class="toolcat">基盤ツール</div>
+        <div class="tools" id="tools-base"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: result -->
+    <div class="result">
+      <div class="block">
+        <div class="meter-wrap">
+          <div class="meter-label">生態系 到達度</div>
+          <div class="pct" id="pct">0<span class="u">%</span></div>
+          <div class="bar"><div class="fill" id="fill"></div></div>
+          <div class="pack" id="pack"></div>
+        </div>
+
+        <div class="caps" id="caps"></div>
+
+        <div class="next" id="next"></div>
+
+        <p class="disc">※ 料金は2026年時点の概算・目安です。プラン名や価格は地域・時期で変わるため、最新は各サービス公式でご確認ください。Claude Code は Claude 有料プランに付帯します。</p>
+      </div>
+
+      <div class="soon">
+        <span class="k">🔜</span> <b>セット割計算機</b>（osakenpiro の個別ツールを束ねた価格判定）は、商品ラインナップ確定後にここへ追加予定。今は「AI環境の到達度判定」のみ。
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    🧩 ECOSYSTEM READINESS CHECKER &middot; Boolean→Float &middot; rev 2026-05-29<br>
+    made by <a href="/">osakenpiro — 全部がぼく</a> &middot;
+    <a href="/ecosystem/">生態系の全体像</a> &middot;
+    <a href="/ecosystem/topology.html">7層構造の地図</a>
+  </footer>
+</div>
+
+<script>
+const STORAGE_KEY='ecosystem-checker-v0';
+
+const TOOLS={
+  claude:    {label:'Claude (Pro / Max)', cat:'ai', price:'~¥3,000+/月'},
+  chatgpt:   {label:'ChatGPT (Plus / Pro)', cat:'ai', price:'~¥3,000+/月'},
+  claudecode:{label:'Claude Code', cat:'ai', price:'プラン付帯'},
+  codex:     {label:'Codex / Cursor 等', cat:'ai', price:'~¥3,000/月'},
+  imageai:   {label:'画像生成AI (Midjourney/SD等)', cat:'ai', price:'~¥1,500/月'},
+  notion:    {label:'Notion', cat:'base', price:'無料枠〜'},
+  obsidian:  {label:'Obsidian', cat:'base', price:'無料'},
+  github:    {label:'GitHub', cat:'base', price:'無料枠〜'},
+  localgpu:  {label:'ローカルGPU (RTX等)', cat:'base', price:'初期投資'},
+};
+
+// 能力(消費者版 Capability)。need=OR条件。w=用途別重み。fn=Float達成度
+const CAPS=[
+  {id:'sot', nm:'タスク・知識のSoT管理', need:['notion','obsidian'],
+   gain:'情報を一箇所に集約。散らからない「脳」ができる', cheap:'obsidian',
+   w:{novel:0.9, se:0.8, general:1.0}},
+  {id:'chat', nm:'AIとの対話・起案・執筆', need:['claude','chatgpt'],
+   gain:'壁打ち・ドラフト・推敲が回る', cheap:'claude',
+   w:{novel:1.0, se:0.7, general:1.0}},
+  {id:'local', nm:'ローカルファイルの大量処理', need:['claudecode','codex','localgpu'],
+   gain:'手元のファイルを一括加工・変換できる', cheap:'claudecode',
+   w:{novel:0.4, se:1.0, general:0.6}},
+  {id:'code', nm:'コードのレビュー・修正', need:['claudecode','codex'],
+   gain:'バグ取り・リファクタをAIに任せられる', cheap:'codex',
+   w:{novel:0.2, se:1.0, general:0.5}},
+  {id:'image', nm:'画像・イラスト生成', need:['imageai','chatgpt'],
+   gain:'挿絵・カバー・図版を自前で作れる', cheap:'imageai',
+   w:{novel:0.85, se:0.3, general:0.6}},
+  {id:'deploy', nm:'デプロイ・公開', need:['github'],
+   gain:'作ったものをWebに出せる(このサイトもそれ)', cheap:'github',
+   w:{novel:0.5, se:0.9, general:0.6}},
+  {id:'orch', nm:'複数AIのオーケストレーション', need:['__multi__'],
+   gain:'AIを衝突なく使い分ける = 運用OSの核', cheap:'__multi__',
+   w:{novel:0.7, se:0.8, general:0.95}},
+];
+
+let state={purpose:'novel', tools:{}};
+try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}'); if(s.purpose)state=s;}catch(e){}
+
+// render tool checkboxes
+function renderTools(){
+  const ai=document.getElementById('tools-ai'), base=document.getElementById('tools-base');
+  ai.innerHTML=''; base.innerHTML='';
+  for(const[k,t]of Object.entries(TOOLS)){
+    const lab=document.createElement('label');
+    lab.innerHTML=`<input type="checkbox" data-k="${k}" ${state.tools[k]?'checked':''}>
+      <span class="tnm">${t.label}</span><span class="tpr">${t.price}</span>`;
+    (t.cat==='ai'?ai:base).appendChild(lab);
+  }
+  document.querySelectorAll('input[type=checkbox][data-k]').forEach(c=>{
+    c.addEventListener('change',e=>{state.tools[e.target.dataset.k]=e.target.checked; persist(); compute();});
+  });
+}
+
+// orchestration float: ai数 + SoT
+function orchFloat(){
+  const aiKeys=['claude','chatgpt','claudecode','codex'];
+  const n=aiKeys.filter(k=>state.tools[k]).length;
+  const hasSot=state.tools.notion||state.tools.obsidian;
+  let f=0;
+  if(n>=1)f=0.3; if(n>=2)f=0.6; if(n>=3)f=0.82; if(n>=4)f=0.92;
+  if(hasSot&&n>=2)f=Math.min(1,f+0.12);
+  return f;
+}
+
+function capFloat(c){
+  if(c.id==='orch')return orchFloat();
+  return c.need.some(k=>state.tools[k])?1:0;
+}
+
+function compute(){
+  const P=state.purpose;
+  // 到達度 = Σ(達成float×重み)/Σ重み
+  let num=0,den=0; const capStates=[];
+  CAPS.forEach(c=>{
+    const f=capFloat(c), w=c.w[P];
+    num+=f*w; den+=w;
+    capStates.push({c,f});
+  });
+  const pct=Math.round(num/den*100);
+
+  // meter
+  document.getElementById('pct').innerHTML=pct+'<span class="u">%</span>';
+  document.getElementById('fill').style.width=pct+'%';
+
+  // pack name
+  const pmap={novel:'小説家パック',se:'開発者パック',general:'汎用パック'};
+  let scale = pct<40?'ミニマム構成': pct<78?'スタンダード構成':'フル構成';
+  document.getElementById('pack').innerHTML=
+    `推薦: <b>〔${pmap[P]}・${scale}〕</b><span class="tagp">${pct}% READY</span>`;
+
+  // capability list (sorted: 達成→部分→未達, 重み順)
+  const caps=document.getElementById('caps');
+  caps.innerHTML='';
+  capStates.sort((a,b)=> (b.f-a.f) || (b.c.w[P]-a.c.w[P]));
+  capStates.forEach(({c,f})=>{
+    const cls=f>=1?'ok':(f>0?'part':'');
+    const fl=f>=1?'✓':(f>0?f.toFixed(2):'—');
+    const el=document.createElement('div');
+    el.className='cap '+cls;
+    el.innerHTML=`<span class="ind"></span><span class="cn">${c.nm}</span><span class="cf">${fl}</span>`;
+    caps.appendChild(el);
+  });
+
+  // next pieces: 未達/部分のうち重み順 TOP3
+  const lacking=capStates.filter(x=>x.f<1)
+    .sort((a,b)=> (b.c.w[P]-a.c.w[P]) || (a.f-b.f));
+  const next=document.getElementById('next');
+  if(lacking.length===0){
+    next.innerHTML=`<div class="allset">✦ 生態系コンプリート。全能力が揃っています。<br>あとは運用設計(衝突回避・SoT一本化)の番です。</div>`;
+  }else{
+    let html='<h3>🧱 次に足すべきピース</h3>';
+    lacking.slice(0,3).forEach(({c})=>{
+      let rec;
+      if(c.cheap==='__multi__'){
+        rec='AIをもう1つ + Notion/Obsidian';
+      }else{
+        rec=TOOLS[c.cheap].label;
+      }
+      html+=`<div class="row"><span class="pill">+ ${rec}</span>
+        <span class="gain"><b>${c.nm}</b>が解放 — ${c.gain}</span></div>`;
+    });
+    next.innerHTML=html;
+  }
+}
+
+function persist(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}}
+
+// purpose select
+function bindPurpose(){
+  document.querySelectorAll('#purpose input').forEach(r=>{
+    r.addEventListener('change',e=>{state.purpose=e.target.value; markPurpose(); persist(); compute();});
+  });
+}
+function markPurpose(){
+  document.querySelectorAll('#purpose label').forEach(l=>{
+    l.className=''; if(l.dataset.v===state.purpose)l.classList.add('sel-'+state.purpose);
+    const inp=l.querySelector('input'); inp.checked=(l.dataset.v===state.purpose);
+  });
+}
+
+renderTools(); bindPurpose(); markPurpose(); compute();
+</script>
+</body>
+</html>
