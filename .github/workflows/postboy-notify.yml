@@ -1,0 +1,54 @@
+name: PostBoy Notify
+
+on:
+  schedule:
+    # 5分おき (UTC)
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: postboy-notify
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run notify
+        env:
+          GCAL_ICS_URL: ${{ secrets.GCAL_ICS_URL }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          POSTBOY_LOOKBACK_MIN: '180'
+          POSTBOY_LOOKFWD_MIN: '5'
+        run: |
+          python projects/postboy/notify.py
+
+      - name: Update Orb countdown (相乗り)
+        run: |
+          python projects/orb/countdown_update.py projects/orb/widget/countdown.md || true
+
+      - name: Commit state/countdown if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add projects/postboy/state.json projects/orb/widget/countdown.md
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(postboy+orb): update state & countdown [skip ci]"
+            git push origin main
+          else
+            echo "No changes"
+          fi
