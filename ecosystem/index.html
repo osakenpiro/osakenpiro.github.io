@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visionium 生態系相関総観</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0f14;
+    --bg2:#121821;
+    --ink:#e8edf2;
+    --sub:#8c9bab;
+    --line:#2a3744;
+    --gold:#c8a86a;
+    --warehouse:#5b8def;   /* 倉庫 Notion */
+    --kitchen:#e0794c;     /* 調理場 Orb */
+    --pipe:#9b8bd4;        /* 配管 Git */
+    --broadcast:#4cc4b0;   /* 放送 Discord/Cal */
+    --tools:#d4b04c;       /* 器具 Skills */
+    --window:#7a8a99;      /* 見学窓 MC */
+    --asset:#e05c8a;       /* 資産 Pages/Zenodo/KDP */
+    --plan:#5a6573;        /* 整備途中 */
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:"Zen Kaku Gothic New",sans-serif;-webkit-font-smoothing:antialiased}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(91,141,239,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(224,121,76,.08), transparent 60%),
+      var(--bg);
+    min-height:100vh;padding:28px 20px 60px;
+  }
+  .wrap{max-width:1180px;margin:0 auto}
+  .back{display:inline-flex;align-items:center;gap:8px;color:var(--gold);text-decoration:none;
+    font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.14em;margin-bottom:18px;opacity:.8;transition:.2s}
+  .back:hover{opacity:1;gap:11px}
+
+  header{display:flex;align-items:baseline;gap:18px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:8px}
+  h1{font-family:"Shippori Mincho",serif;font-weight:700;font-size:clamp(22px,3.4vw,34px);letter-spacing:.04em}
+  h1 .en{display:block;font-family:"Space Mono",monospace;font-size:12px;color:var(--gold);letter-spacing:.28em;font-weight:400;margin-top:6px;text-transform:uppercase}
+  .tagline{color:var(--sub);font-size:13px;line-height:1.7;max-width:520px}
+  .tagline b{color:var(--ink);font-weight:500}
+
+  /* layer toggles */
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 6px;align-items:center}
+  .controls .lbl{font-family:"Space Mono",monospace;font-size:10px;color:var(--sub);letter-spacing:.2em;margin-right:4px}
+  .chip{
+    cursor:pointer;border:1px solid var(--line);background:var(--bg2);color:var(--sub);
+    font-family:"Zen Kaku Gothic New";font-size:12px;font-weight:500;
+    padding:6px 12px;border-radius:20px;transition:.18s;user-select:none;display:flex;align-items:center;gap:7px
+  }
+  .chip .dot{width:9px;height:9px;border-radius:50%;background:currentColor;flex:none}
+  .chip:hover{border-color:var(--gold);color:var(--ink)}
+  .chip.active{color:#0b0f14;font-weight:700;border-color:transparent}
+  .chip.active.all{background:var(--gold)}
+  .chip.active.session{background:var(--kitchen)}
+  .chip.active.sot{background:var(--warehouse)}
+  .chip.active.notify{background:var(--broadcast)}
+  .chip.active.asset{background:var(--asset)}
+
+  /* diagram */
+  .stage{position:relative;margin-top:14px;border:1px solid var(--line);border-radius:18px;overflow:hidden;
+    background:linear-gradient(180deg,rgba(18,24,33,.6),rgba(11,15,20,.6));
+    box-shadow:0 30px 80px -40px rgba(0,0,0,.8) inset, 0 1px 0 rgba(255,255,255,.03)}
+  svg{display:block;width:100%;height:auto}
+
+  /* node label html overlay not used; all in svg */
+  .legend{display:flex;flex-wrap:wrap;gap:14px 22px;margin-top:18px;font-size:12px;color:var(--sub)}
+  .legend .item{display:flex;align-items:center;gap:8px}
+  .legend .swatch{width:14px;height:14px;border-radius:4px;flex:none}
+  .legend .ln{width:26px;height:0;border-top:2px solid var(--sub);flex:none}
+  .legend .ln.dash{border-top-style:dashed}
+
+  .notes{margin-top:26px;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+  .card{border:1px solid var(--line);border-radius:14px;padding:16px 18px;background:var(--bg2)}
+  .card h3{font-family:"Shippori Mincho",serif;font-size:15px;margin-bottom:8px;letter-spacing:.03em;display:flex;align-items:center;gap:8px}
+  .card h3 .k{font-family:"Space Mono",monospace;font-size:10px;color:var(--gold);border:1px solid var(--line);padding:2px 6px;border-radius:4px}
+  .card p{font-size:12.5px;line-height:1.75;color:var(--sub)}
+  .card p b{color:var(--ink);font-weight:500}
+  footer{margin-top:34px;color:var(--sub);font-size:11px;font-family:"Space Mono",monospace;letter-spacing:.12em;text-align:center;opacity:.6}
+  .hint{font-size:11px;color:var(--sub);margin-top:8px;font-style:italic}
+  @media (max-width:640px){
+    body{padding:18px 12px 50px}
+    .tagline{font-size:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">&larr; osakenpiro &mdash; 全部がぼく</a>
+  <header>
+    <h1>生態系相関総観<span class="en">Visionium &mdash; Operating OS Topology</span></h1>
+    <p class="tagline"><b>倉庫→調理場→配管→放送→資産</b>の循環。データは一箇所(Notion=SoT)に集約され、各層が様式を変えて取り出す。「データ構造1つ・様式複数」の地図。</p>
+  </header>
+
+  <div class="controls">
+    <span class="lbl">FLOW</span>
+    <span class="chip active all" data-flow="all"><span class="dot"></span>全部入り</span>
+    <span class="chip session" data-flow="session"><span class="dot"></span>セッション周回</span>
+    <span class="chip sot" data-flow="sot"><span class="dot"></span>SoT循環</span>
+    <span class="chip notify" data-flow="notify"><span class="dot"></span>通知パイプ</span>
+    <span class="chip asset" data-flow="asset"><span class="dot"></span>成果の堆積</span>
+  </div>
+  <p class="hint">チップで流れを切り替え。「全部入り」で全循環、個別で1本だけハイライト。</p>
+
+  <div class="stage">
+    <svg id="map" viewBox="0 0 1180 720" xmlns="http://www.w3.org/2000/svg" font-family="'Zen Kaku Gothic New',sans-serif">
+      <defs>
+        <!-- arrow markers -->
+        <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#3a4a5a"/>
+        </marker>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <radialGradient id="coreg" cx="50%" cy="40%" r="70%">
+          <stop offset="0%" stop-color="#7aa6ff"/>
+          <stop offset="100%" stop-color="#3b6bd4"/>
+        </radialGradient>
+      </defs>
+
+      <!-- ================= EDGES (paths) ================= -->
+      <!-- each path has class flow-{type}; id used by particles -->
+      <g id="edges" fill="none" stroke-width="2">
+        <!-- SoT circulation: Notion <-> kitchen/tools/window -->
+        <path id="e_sot_kitchen" class="edge sot" d="M520,300 C440,330 400,360 360,400" marker-end="url(#ar)"/>
+        <path id="e_kitchen_sot" class="edge sot" d="M360,440 C420,440 470,400 520,360" marker-end="url(#ar)"/>
+        <path id="e_sot_tools"   class="edge sot" d="M640,300 C740,330 800,360 850,400" marker-end="url(#ar)"/>
+        <path id="e_tools_sot"   class="edge sot" d="M850,440 C780,450 700,400 640,360" marker-end="url(#ar)"/>
+        <path id="e_sot_window"  class="edge sot" d="M580,250 C580,200 580,170 580,140" marker-end="url(#ar)"/>
+
+        <!-- session loop: kitchen -> pipe -> warehouse(Notion log) -> window, the rehem/hem cycle -->
+        <path id="e_kitchen_pipe" class="edge session" d="M340,460 C320,520 360,560 430,580" marker-end="url(#ar)"/>
+        <path id="e_pipe_ware"    class="edge session" d="M560,600 C610,600 600,420 590,360" marker-end="url(#ar)"/>
+        <path id="e_ware_kitchen" class="edge session" d="M520,330 C460,360 400,390 360,410" marker-end="url(#ar)"/>
+
+        <!-- notify pipe: warehouse -> broadcast (Discord + Calendar) -->
+        <path id="e_ware_broad"  class="edge notify" d="M640,330 C760,400 850,500 880,560" marker-end="url(#ar)"/>
+        <path id="e_broad_user"  class="edge notify" d="M900,620 C940,660 980,670 1020,660" marker-end="url(#ar)"/>
+        <path id="e_broad_cal"   class="edge notify plan" d="M940,560 C1000,520 1030,500 1060,470" marker-end="url(#ar)" stroke-dasharray="6 6"/>
+
+        <!-- asset stack: pipe -> asset (Pages/Zenodo/KDP) -->
+        <path id="e_pipe_asset"  class="edge asset" d="M520,610 C380,640 230,600 170,520" marker-end="url(#ar)"/>
+        <path id="e_kitchen_asset" class="edge asset" d="M300,440 C220,460 170,470 150,480" marker-end="url(#ar)"/>
+        <path id="e_asset_ware"  class="edge asset" d="M150,420 C220,330 380,290 510,290" marker-end="url(#ar)" stroke-dasharray="2 7"/>
+
+        <!-- codex / mediation (plan) -->
+        <path id="e_tools_codex" class="edge session plan" d="M900,420 C980,400 1020,360 1040,320" marker-end="url(#ar)" stroke-dasharray="6 6"/>
+      </g>
+
+      <!-- ================= NODES ================= -->
+      <!-- WAREHOUSE / Notion (center core) -->
+      <g class="node" data-layers="sot session notify asset">
+        <circle cx="580" cy="300" r="70" fill="url(#coreg)" filter="url(#glow)"/>
+        <circle cx="580" cy="300" r="70" fill="none" stroke="#bcd2ff" stroke-opacity=".5"/>
+        <text x="580" y="294" text-anchor="middle" font-size="22" font-weight="700" fill="#fff">🏛️ 倉庫</text>
+        <text x="580" y="318" text-anchor="middle" font-size="13" fill="#dce8ff">Notion = 脳 / SoT</text>
+        <text x="580" y="338" text-anchor="middle" font-size="10" fill="#a9c2f5" font-family="'Space Mono'">DB群・プロトコルv1</text>
+      </g>
+
+      <!-- KITCHEN / Orb -->
+      <g class="node" data-layers="sot session asset">
+        <rect x="250" y="395" width="160" height="92" rx="14" fill="#1c1410" stroke="var(--kitchen)" stroke-width="1.5"/>
+        <text x="330" y="428" text-anchor="middle" font-size="18" font-weight="700" fill="var(--kitchen)">🍳 調理場</text>
+        <text x="330" y="450" text-anchor="middle" font-size="12" fill="#e8d3c5">Orb (Obsidian)</text>
+        <text x="330" y="470" text-anchor="middle" font-size="9.5" fill="#b89580" font-family="'Space Mono'">家/職場/iPhone 3端末同期</text>
+      </g>
+
+      <!-- TOOLS / Skills -->
+      <g class="node" data-layers="sot session">
+        <rect x="800" y="395" width="158" height="92" rx="14" fill="#1c1808" stroke="var(--tools)" stroke-width="1.5"/>
+        <text x="879" y="428" text-anchor="middle" font-size="18" font-weight="700" fill="var(--tools)">🛠️ 器具</text>
+        <text x="879" y="450" text-anchor="middle" font-size="12" fill="#e8e0c5">Skills / 製造ライン</text>
+        <text x="879" y="470" text-anchor="middle" font-size="9.5" fill="#bab280" font-family="'Space Mono'">docx/kdp/tool-deploy…</text>
+      </g>
+
+      <!-- WINDOW / MC -->
+      <g class="node" data-layers="sot">
+        <rect x="495" y="78" width="170" height="62" rx="12" fill="#161b20" stroke="var(--window)" stroke-width="1.5"/>
+        <text x="580" y="106" text-anchor="middle" font-size="16" font-weight="700" fill="#aab8c6">🪟 見学窓</text>
+        <text x="580" y="126" text-anchor="middle" font-size="11" fill="#8c9bab">Mission Control = 表示層</text>
+      </g>
+
+      <!-- PIPE / Git -->
+      <g class="node" data-layers="session asset">
+        <rect x="430" y="560" width="160" height="80" rx="14" fill="#16121f" stroke="var(--pipe)" stroke-width="1.5"/>
+        <text x="510" y="592" text-anchor="middle" font-size="18" font-weight="700" fill="var(--pipe)">🔌 配管</text>
+        <text x="510" y="613" text-anchor="middle" font-size="12" fill="#ddd5ee">Git / claude-shared</text>
+        <text x="510" y="632" text-anchor="middle" font-size="9.5" fill="#9b90bf" font-family="'Space Mono'">handoff/skill 運搬</text>
+      </g>
+
+      <!-- BROADCAST / Discord + Calendar -->
+      <g class="node" data-layers="notify">
+        <rect x="830" y="555" width="160" height="84" rx="14" fill="#0e1c1a" stroke="var(--broadcast)" stroke-width="1.5"/>
+        <text x="910" y="586" text-anchor="middle" font-size="18" font-weight="700" fill="var(--broadcast)">📡 放送</text>
+        <text x="910" y="607" text-anchor="middle" font-size="12" fill="#c8efe8">Discord (稼働)</text>
+        <text x="910" y="626" text-anchor="middle" font-size="9.5" fill="#7fbfb4" font-family="'Space Mono'">task-inbox-daily 07:00 cron</text>
+      </g>
+
+      <!-- Calendar (plan) -->
+      <g class="node" data-layers="notify">
+        <rect x="1010" y="430" width="150" height="62" rx="12" fill="#101719" stroke="var(--plan)" stroke-width="1.5" stroke-dasharray="5 5"/>
+        <text x="1085" y="458" text-anchor="middle" font-size="14" font-weight="700" fill="#9fb0bf">🗓️ カレンダー</text>
+        <text x="1085" y="478" text-anchor="middle" font-size="10" fill="#74838f">連携=整備途中</text>
+      </g>
+
+      <!-- USER (human lane) -->
+      <g class="node" data-layers="notify session">
+        <circle cx="1050" cy="655" r="40" fill="#161b20" stroke="var(--gold)" stroke-width="1.5"/>
+        <text x="1050" y="650" text-anchor="middle" font-size="15" font-weight="700" fill="var(--gold)">🧑 人間</text>
+        <text x="1050" y="670" text-anchor="middle" font-size="9.5" fill="#a98f5e" font-family="'Space Mono'">最終判断</text>
+      </g>
+
+      <!-- ASSET / Pages・Zenodo・KDP -->
+      <g class="node" data-layers="asset">
+        <rect x="50" y="415" width="160" height="100" rx="14" fill="#1d0f17" stroke="var(--asset)" stroke-width="1.5"/>
+        <text x="130" y="448" text-anchor="middle" font-size="18" font-weight="700" fill="var(--asset)">📦 資産</text>
+        <text x="130" y="470" text-anchor="middle" font-size="11.5" fill="#f3cdda">GitHub Pages</text>
+        <text x="130" y="488" text-anchor="middle" font-size="11.5" fill="#f3cdda">Zenodo / KDP</text>
+        <text x="130" y="505" text-anchor="middle" font-size="9.5" fill="#c78aa1" font-family="'Space Mono'">公開・堆積(腐葉土)</text>
+      </g>
+
+      <!-- Codex lane (plan) -->
+      <g class="node" data-layers="session">
+        <rect x="1010" y="270" width="150" height="58" rx="12" fill="#141414" stroke="var(--plan)" stroke-width="1.5" stroke-dasharray="5 5"/>
+        <text x="1085" y="296" text-anchor="middle" font-size="13" font-weight="700" fill="#9fb0bf">⚙️ Codex</text>
+        <text x="1085" y="315" text-anchor="middle" font-size="10" fill="#74838f">仲介レーン(信用0.95)</text>
+      </g>
+
+      <!-- particles layer -->
+      <g id="particles"></g>
+    </svg>
+  </div>
+
+  <div class="legend">
+    <div class="item"><span class="swatch" style="background:var(--warehouse)"></span>倉庫 / Notion(SoT)</div>
+    <div class="item"><span class="swatch" style="background:var(--kitchen)"></span>調理場 / Orb</div>
+    <div class="item"><span class="swatch" style="background:var(--pipe)"></span>配管 / Git</div>
+    <div class="item"><span class="swatch" style="background:var(--broadcast)"></span>放送 / Discord</div>
+    <div class="item"><span class="swatch" style="background:var(--tools)"></span>器具 / Skills</div>
+    <div class="item"><span class="swatch" style="background:var(--asset)"></span>資産 / Pages·Zenodo·KDP</div>
+    <div class="item"><span class="ln"></span>稼働中</div>
+    <div class="item"><span class="ln dash"></span>整備途中 (Codex / カレンダー)</div>
+  </div>
+
+  <div class="notes">
+    <div class="card">
+      <h3><span class="k">SoT</span>データのSoT循環</h3>
+      <p><b>Notionが唯一のSoT</b>。調理場(Orb)・器具(Skills)・見学窓(MC)は様式を変えて取り出すだけのミラー層。1情報=1SoT原則で、データの実体は常に倉庫に1つ。</p>
+    </div>
+    <div class="card">
+      <h3><span class="k">SES</span>セッション周回</h3>
+      <p><b>rehem→作業→hem→handoff</b>の周回。調理場で作り→配管(Git)で運搬→倉庫のセッションログDBに採番・記録。RPG精算とhandoff Index DBで履歴が腐葉土として残る。</p>
+    </div>
+    <div class="card">
+      <h3><span class="k">PSH</span>通知パイプ</h3>
+      <p>倉庫の inbox 件数を <b>Discordへ毎朝7時 push</b>(task-inbox-daily cron, 稼働中)。<b>カレンダー連携は整備途中</b>=点線。最終判断は人間レーンへ。</p>
+    </div>
+    <div class="card">
+      <h3><span class="k">ASSET</span>成果の堆積</h3>
+      <p>調理場・配管を経た成果が <b>GitHub Pages / Zenodo / KDP</b> に公開・堆積。消化型でなく装飾型で残し、資産は薄い循環で倉庫(SoT)へメタ情報を還す。</p>
+    </div>
+  </div>
+
+  <footer>VISIONIUM ECOSYSTEM TOPOLOGY &middot; データ構造1つ・様式複数 &middot; rev 2026-05-29<br><a href="/ecosystem/topology.html" style="color:var(--gold);text-decoration:none">→ 役割分化地図（7層構造の解剖）</a></footer>
+</div>
+
+<script>
+(function(){
+  const svgNS="http://www.w3.org/2000/svg";
+  const colors={sot:"#5b8def",session:"#e0794c",notify:"#4cc4b0",asset:"#e05c8a",all:"#c8a86a"};
+  const edges=Array.from(document.querySelectorAll('#edges .edge'));
+  const nodes=Array.from(document.querySelectorAll('.node'));
+  const pLayer=document.getElementById('particles');
+  let current="all";
+  let particles=[];
+
+  // base edge styling
+  function styleEdges(){
+    edges.forEach(e=>{
+      const isPlan=e.classList.contains('plan');
+      e.setAttribute('stroke', isPlan? '#3d4756':'#33414f');
+      e.setAttribute('stroke-opacity', '0.55');
+      // highlight active flow
+      const flows=['sot','session','notify','asset'];
+      const f=flows.find(fl=>e.classList.contains(fl));
+      const on = (current==='all') || e.classList.contains(current);
+      e.style.transition='.3s';
+      if(on){
+        e.setAttribute('stroke', isPlan? colors[f]+'88' : colors[f]);
+        e.setAttribute('stroke-opacity', isPlan?'0.5':'0.85');
+      }else{
+        e.setAttribute('stroke','#28323d');
+        e.setAttribute('stroke-opacity','0.25');
+      }
+    });
+    // dim nodes not in active layer
+    nodes.forEach(n=>{
+      const layers=(n.dataset.layers||'').split(' ');
+      const on=(current==='all')||layers.includes(current);
+      n.style.transition='.3s';
+      n.style.opacity=on?1:0.32;
+    });
+  }
+
+  // build particles for active edges
+  function buildParticles(){
+    particles.forEach(p=>p.el.remove());
+    particles=[];
+    const flows=['sot','session','notify','asset'];
+    edges.forEach(e=>{
+      const f=flows.find(fl=>e.classList.contains(fl));
+      const on=(current==='all')||e.classList.contains(current);
+      if(!on) return;
+      const len=e.getTotalLength();
+      const count = e.classList.contains('plan')?1:2;
+      for(let i=0;i<count;i++){
+        const c=document.createElementNS(svgNS,'circle');
+        c.setAttribute('r', e.classList.contains('plan')?2.2:3);
+        c.setAttribute('fill', colors[f]);
+        c.setAttribute('filter','url(#glow)');
+        if(e.classList.contains('plan')) c.setAttribute('opacity','0.6');
+        pLayer.appendChild(c);
+        particles.push({el:c,path:e,len:len,
+          t:Math.random(),
+          speed:(e.classList.contains('plan')?0.0016:0.0026)+Math.random()*0.0010});
+      }
+    });
+  }
+
+  function tick(){
+    particles.forEach(p=>{
+      p.t+=p.speed;
+      if(p.t>1)p.t-=1;
+      const pt=p.path.getPointAtLength(p.t*p.len);
+      p.el.setAttribute('cx',pt.x);
+      p.el.setAttribute('cy',pt.y);
+      // fade near ends
+      const edgeFade=Math.min(p.t,1-p.t)*8;
+      p.el.setAttribute('opacity', Math.max(0.15, Math.min(1,edgeFade)) * (p.path.classList.contains('plan')?0.6:1));
+    });
+    requestAnimationFrame(tick);
+  }
+
+  // controls
+  document.querySelectorAll('.chip').forEach(ch=>{
+    ch.addEventListener('click',()=>{
+      document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      ch.classList.add('active');
+      current=ch.dataset.flow;
+      styleEdges();
+      buildParticles();
+    });
+  });
+
+  styleEdges();
+  buildParticles();
+  requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
