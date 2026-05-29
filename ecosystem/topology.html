@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visionium 役割分化地図 — osakenpiro 全部がぼく</title>
+<meta name="description" content="個別ツールでなく『運用OS』。Visioniumを7層構造で解剖した役割分化地図。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e13; --bg2:#111721; --ink:#e8edf2; --sub:#8c9bab; --faint:#5a6573;
+    --line:#243140; --gold:#c8a86a;
+    --L1:#c8a86a; --L0:#b56ad4; --L2:#7a8a99; --L3a:#5b8def; --L3b:#4cc4b0; --L4:#8a9b5a; --L5:#e05c8a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:"Zen Kaku Gothic New",sans-serif;-webkit-font-smoothing:antialiased}
+  body{
+    background:
+      radial-gradient(1100px 560px at 85% -8%, rgba(200,168,106,.09), transparent 60%),
+      radial-gradient(800px 480px at -8% 108%, rgba(138,155,90,.07), transparent 60%),
+      var(--bg);
+    min-height:100vh;padding:22px 20px 60px;
+  }
+  .wrap{max-width:1140px;margin:0 auto}
+  .back{display:inline-flex;align-items:center;gap:8px;color:var(--gold);text-decoration:none;
+    font-family:"Space Mono",monospace;font-size:11px;letter-spacing:.14em;margin-bottom:18px;opacity:.8;transition:.2s}
+  .back:hover{opacity:1;gap:11px}
+  header{border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:6px;display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
+  h1{font-family:"Shippori Mincho",serif;font-weight:800;font-size:clamp(21px,3.3vw,32px);letter-spacing:.04em}
+  h1 .en{display:block;font-family:"Space Mono",monospace;font-size:11px;color:var(--gold);letter-spacing:.26em;font-weight:400;margin-top:6px;text-transform:uppercase}
+  .tagline{color:var(--sub);font-size:12.5px;line-height:1.7;max-width:480px}
+  .tagline b{color:var(--ink);font-weight:500}
+
+  .tabs{display:flex;gap:8px;margin:20px 0 4px;flex-wrap:wrap}
+  .tab{cursor:pointer;border:1px solid var(--line);background:var(--bg2);color:var(--sub);
+    font-size:13px;font-weight:500;padding:9px 16px;border-radius:10px;transition:.18s;user-select:none;display:flex;align-items:center;gap:9px}
+  .tab .n{font-family:"Space Mono",monospace;font-size:10px;opacity:.7}
+  .tab .lk{font-size:10px;opacity:.6}
+  .tab:hover{border-color:var(--gold);color:var(--ink)}
+  .tab.active{background:var(--gold);color:#0a0e13;font-weight:700;border-color:transparent}
+  .panel{display:none;animation:fade .4s ease}
+  .panel.show{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* layer stack (fully public) */
+  .stack{margin-top:16px;display:flex;flex-direction:column;gap:9px}
+  .layer{position:relative;border:1px solid var(--line);border-radius:13px;overflow:hidden;
+    background:linear-gradient(180deg,rgba(18,24,33,.7),rgba(11,15,20,.55));
+    display:grid;grid-template-columns:148px 1fr;min-height:74px;
+    opacity:0;transform:translateX(-14px);animation:slidein .5s ease forwards}
+  @keyframes slidein{to{opacity:1;transform:none}}
+  .layer .tag{padding:12px 12px;display:flex;flex-direction:column;justify-content:center;gap:3px;border-right:1px solid var(--line)}
+  .layer .tag .code{font-family:"Space Mono",monospace;font-size:11px;font-weight:700;letter-spacing:.1em}
+  .layer .tag .name{font-family:"Shippori Mincho",serif;font-size:15px;font-weight:700}
+  .layer .tag .sec{font-family:"Space Mono",monospace;font-size:8.5px;color:var(--faint);margin-top:2px;line-height:1.5}
+  .layer .body{padding:11px 14px;display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+  .item{font-size:11.5px;padding:5px 10px;border-radius:7px;background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--ink);transition:.16s;white-space:nowrap}
+  .item:hover{transform:translateY(-2px)}
+  .item .em{margin-right:4px}
+  .item.sot{border-color:var(--gold);box-shadow:0 0 0 1px rgba(200,168,106,.2) inset}
+  .item.disp{opacity:.7;font-style:italic}
+  .mirror-note{font-family:"Space Mono",monospace;font-size:9px;color:var(--L1);margin-top:2px;display:flex;align-items:center;gap:5px}
+  .mirror-note::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--L1);animation:blink 1.6s infinite}
+  @keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+  .layer[data-l="L1"]{border-color:rgba(200,168,106,.4)} .layer[data-l="L1"] .code,.layer[data-l="L1"] .name{color:var(--L1)}
+  .layer[data-l="L0"] .code,.layer[data-l="L0"] .name{color:var(--L0)} .layer[data-l="L0"]{border-color:rgba(181,106,212,.3)}
+  .layer[data-l="L2"] .code,.layer[data-l="L2"] .name{color:var(--L2)}
+  .layer[data-l="L3a"] .code,.layer[data-l="L3a"] .name{color:var(--L3a)} .layer[data-l="L3a"]{border-color:rgba(91,141,239,.3)}
+  .layer[data-l="L3b"] .code,.layer[data-l="L3b"] .name{color:var(--L3b)} .layer[data-l="L3b"]{border-color:rgba(76,196,176,.3)}
+  .layer[data-l="L4"] .code,.layer[data-l="L4"] .name{color:var(--L4)} .layer[data-l="L4"]{border-color:rgba(138,155,90,.3)}
+  .layer[data-l="L5"] .code,.layer[data-l="L5"] .name{color:var(--L5)} .layer[data-l="L5"]{border-color:rgba(224,92,138,.3)}
+  .stack-cap{font-size:11px;color:var(--faint);margin-top:12px;font-style:italic;line-height:1.7}
+
+  /* teaser locks */
+  .meta-grid{margin-top:18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:16px}
+  .meta-card{border:1px solid rgba(200,168,106,.35);border-radius:14px;padding:18px;background:linear-gradient(180deg,rgba(28,24,15,.5),rgba(11,15,20,.6));position:relative;overflow:hidden}
+  .meta-card::after{content:"";position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(200,168,106,.08),transparent);animation:sweep 4s infinite}
+  @keyframes sweep{0%{left:-100%}60%,100%{left:140%}}
+  .meta-card h3{font-family:"Shippori Mincho",serif;font-size:17px;color:var(--gold);display:flex;align-items:center;gap:9px;margin-bottom:4px}
+  .meta-card .role{font-size:11px;color:var(--sub);margin-bottom:14px;line-height:1.6}
+  .mini-lock{font-family:"Space Mono",monospace;font-size:10px;color:var(--faint);border-top:1px dashed var(--line);padding-top:12px;display:flex;align-items:center;gap:8px;letter-spacing:.05em}
+  .mini-lock .k{font-size:13px;opacity:.7}
+
+  .lane-preview{margin-top:18px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--bg2);position:relative}
+  table.cap{border-collapse:collapse;width:100%;min-width:680px;font-size:12px}
+  table.cap th,table.cap td{padding:9px 8px;text-align:center;border-bottom:1px solid var(--line)}
+  table.cap thead th{background:rgba(255,255,255,.03);font-weight:700;position:sticky;top:0}
+  table.cap thead th .em{display:block;font-size:16px;margin-bottom:2px}
+  table.cap thead th .sub2{display:block;font-family:"Space Mono",monospace;font-size:8px;color:var(--faint);font-weight:400}
+  table.cap td.rowh{text-align:left;color:var(--ink);font-weight:500;white-space:nowrap;background:rgba(255,255,255,.02)}
+  table.cap td.rowh .mono{font-family:"Space Mono",monospace;font-size:8.5px;color:var(--faint);display:block}
+  .vlock{display:inline-flex;align-items:center;justify-content:center;width:36px;height:24px;border-radius:6px;background:rgba(42,55,68,.5);color:var(--faint);font-family:"Space Mono",monospace;font-size:13px;filter:blur(.4px)}
+  .lane-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(10,14,19,.1),rgba(10,14,19,.78))}
+  .lane-overlay .box{text-align:center;padding:0 20px}
+  .lane-overlay .lk{font-size:30px;opacity:.6;margin-bottom:10px}
+  .lane-overlay .t{font-size:13px;color:var(--ink);line-height:1.7;max-width:420px;margin:0 auto}
+  .lane-overlay .t b{color:var(--gold)}
+
+  .sell{margin-top:26px;border:1px solid rgba(200,168,106,.4);border-radius:16px;padding:26px 24px;background:linear-gradient(135deg,rgba(28,24,15,.55),rgba(17,23,33,.55));text-align:center}
+  .sell h2{font-family:"Shippori Mincho",serif;font-size:19px;margin-bottom:10px;letter-spacing:.03em}
+  .sell p{color:var(--sub);font-size:13px;line-height:1.8;max-width:560px;margin:0 auto 20px}
+  .sell p b{color:var(--ink);font-weight:500}
+  .cta{display:inline-flex;align-items:center;gap:9px;background:var(--gold);color:#0a0e13;font-weight:700;font-size:13.5px;padding:12px 22px;border-radius:11px;text-decoration:none;transition:.2s}
+  .cta:hover{transform:translateY(-2px);box-shadow:0 12px 30px -12px rgba(200,168,106,.6)}
+  .cta .arr{font-family:"Space Mono",monospace}
+
+  footer{margin-top:34px;color:var(--faint);font-size:10.5px;font-family:"Space Mono",monospace;letter-spacing:.12em;text-align:center;opacity:.6}
+  @media (max-width:640px){ body{padding:16px 12px 50px} .layer{grid-template-columns:118px 1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">&larr; osakenpiro &mdash; 全部がぼく</a>
+  <header>
+    <h1>役割分化地図<span class="en">Visionium &mdash; Role Topology</span></h1>
+    <p class="tagline">個別ツールでなく <b>『運用OS』</b>。Visionium という創作・知的生産の生態系を、<b>7層構造</b>で解剖した地図。「データ構造1つ・様式複数」の設計思想。</p>
+  </header>
+
+  <div class="tabs">
+    <span class="tab active" data-p="stack"><span class="n">01</span>層構造（解剖）</span>
+    <span class="tab" data-p="mirror"><span class="n">02</span>メタ層 L-1<span class="lk">🔒</span></span>
+    <span class="tab" data-p="lane"><span class="n">03</span>実行レーン<span class="lk">🔒</span></span>
+  </div>
+
+  <!-- VIEW 1: fully public -->
+  <section class="panel show" id="p-stack">
+    <div class="stack">
+      <div class="layer" data-l="L1" style="animation-delay:.02s">
+        <div class="tag"><span class="code">L-1</span><span class="name">🗂️ メタ層</span><span class="mirror-note">全層を映す鏡</span></div>
+        <div class="body">
+          <span class="item sot"><span class="em">🗄️</span>DBDB</span>
+          <span class="item sot"><span class="em">🏷️</span>タグDB</span>
+          <span class="item sot"><span class="em">🛠️</span>スキルDB</span>
+          <span class="item sot"><span class="em">📖</span>プロトコルDB</span>
+        </div>
+      </div>
+      <div class="layer" data-l="L0" style="animation-delay:.07s">
+        <div class="tag"><span class="code">L0</span><span class="name">💭 思想層</span></div>
+        <div class="body">
+          <span class="item"><span class="em">📜</span>憲章 (Grand Tips)</span>
+          <span class="item"><span class="em">∞</span>Boolean→Float 原則</span>
+          <span class="item"><span class="em">🌱</span>発芽型DB</span>
+          <span class="item"><span class="em">🍂</span>三重がけ命名 / 腐葉土設計</span>
+        </div>
+      </div>
+      <div class="layer" data-l="L2" style="animation-delay:.12s">
+        <div class="tag"><span class="code">L2</span><span class="name">🪟 状態層</span></div>
+        <div class="body">
+          <span class="item disp"><span class="em">🎛️</span>Mission Control（表示層）</span>
+          <span class="item disp"><span class="em">📌</span>最終更新 sub-page</span>
+        </div>
+      </div>
+      <div class="layer" data-l="L3a" style="animation-delay:.17s">
+        <div class="tag"><span class="code">L3a</span><span class="name">⚡ Live 層</span></div>
+        <div class="body">
+          <span class="item"><span class="em">🔧</span>Hi-Me TooL</span>
+          <span class="item"><span class="em">🎨</span>Re:DeSign</span>
+          <span class="item"><span class="em">📖</span>BookBug</span>
+          <span class="item"><span class="em">📡</span>Postboy</span>
+          <span class="item"><span class="em">🎮</span>Gaming Gathering</span>
+          <span class="item"><span class="em">🏺</span>Opaarts</span>
+          <span class="item sot"><span class="em">🗃️</span>HiCo（運用柱）</span>
+        </div>
+      </div>
+      <div class="layer" data-l="L3b" style="animation-delay:.22s">
+        <div class="tag"><span class="code">L3b</span><span class="name">🔭 観測層</span></div>
+        <div class="body">
+          <span class="item"><span class="em">🔭</span>MIHARASHI</span>
+          <span class="item"><span class="em">🍳</span>Orb (Obsidian)</span>
+          <span class="item"><span class="em">📊</span>だらりん</span>
+          <span class="item"><span class="em">💬</span>Discord（毎朝通知）</span>
+        </div>
+      </div>
+      <div class="layer" data-l="L4" style="animation-delay:.27s">
+        <div class="tag"><span class="code">L4</span><span class="name">🍂 腐葉土層</span></div>
+        <div class="body">
+          <span class="item sot"><span class="em">🍂</span>知見DB</span>
+          <span class="item sot"><span class="em">🧠</span>Memory Vault</span>
+          <span class="item"><span class="em">🌉</span>handoff Index</span>
+          <span class="item"><span class="em">❄️</span>Archive</span>
+          <span class="item"><span class="em">🏆</span>トロフィー</span>
+        </div>
+      </div>
+      <div class="layer" data-l="L5" style="animation-delay:.32s">
+        <div class="tag"><span class="code">L5</span><span class="name">📦 資産層</span></div>
+        <div class="body">
+          <span class="item"><span class="em">🐙</span>claude-shared</span>
+          <span class="item"><span class="em">🌐</span>GitHub Pages</span>
+          <span class="item"><span class="em">📄</span>Zenodo</span>
+          <span class="item"><span class="em">📕</span>KDP</span>
+        </div>
+      </div>
+    </div>
+    <p class="stack-cap">⬦ <b style="color:var(--gold)">金枠＝SoT級</b>（単一の真値）／ <i>斜体＝表示層</i>（実データは別層に存在）。L-1メタ層は全層を横断して映す鏡。情報は一箇所に1つ、各層は様式を変えて取り出す。</p>
+  </section>
+
+  <!-- VIEW 2: teaser -->
+  <section class="panel" id="p-mirror">
+    <div class="meta-grid">
+      <div class="meta-card">
+        <h3>🗄️ DBDB</h3>
+        <div class="role">全データソースの目録。重複・移行漏れを一括検知する全層の鏡。</div>
+        <div class="mini-lock"><span class="k">🔒</span>映す全DBと質分類は運用OS本体で</div>
+      </div>
+      <div class="meta-card">
+        <h3>🏷️ タグDB</h3>
+        <div class="role">タグの正本。多重符号化で「化石化」を防ぐ索引設計。</div>
+        <div class="mini-lock"><span class="k">🔒</span>5軸のタグ体系は運用OS本体で</div>
+      </div>
+      <div class="meta-card">
+        <h3>🛠️ スキルDB</h3>
+        <div class="role">製造ラインの管理。各スキルが効くDB・環境を追跡。</div>
+        <div class="mini-lock"><span class="k">🔒</span>スキル群と依存マップは運用OS本体で</div>
+      </div>
+      <div class="meta-card">
+        <h3>📖 プロトコルDB</h3>
+        <div class="role">運用プロトコルを条文単位で管理。改訂履歴を追跡。</div>
+        <div class="mini-lock"><span class="k">🔒</span>全条文と依存関係は運用OS本体で</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIEW 3: teaser -->
+  <section class="panel" id="p-lane">
+    <div class="lane-preview">
+      <table class="cap" aria-hidden="true">
+        <thead><tr>
+          <th style="text-align:left">能力 / レーン</th>
+          <th><span class="em">🧑</span>人間<span class="sub2">判断</span></th>
+          <th><span class="em">🌐</span>Cl<span class="sub2">ブラウザ</span></th>
+          <th><span class="em">🍳</span>Cow<span class="sub2">家PC</span></th>
+          <th><span class="em">⌨️</span>CC<span class="sub2">Code</span></th>
+          <th><span class="em">🎨</span>Ch<span class="sub2">画像</span></th>
+          <th><span class="em">⚙️</span>Codex<span class="sub2">仲介</span></th>
+        </tr></thead>
+        <tbody>
+          <tr><td class="rowh">Notion 読み書き<span class="mono">read/write</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td></tr>
+          <tr><td class="rowh">ローカルファイル<span class="mono">rw.local</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td></tr>
+          <tr><td class="rowh">デプロイ実行<span class="mono">deploy</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td></tr>
+          <tr><td class="rowh">画像・イラスト生成<span class="mono">image.gen</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td></tr>
+          <tr><td class="rowh">コード修正・レビュー<span class="mono">code.review</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td><td><span class="vlock">·</span></td></tr>
+        </tbody>
+      </table>
+      <div class="lane-overlay">
+        <div class="box">
+          <div class="lk">🔒</div>
+          <div class="t"><b>7レーン × 能力を Float(0.0〜1.0) で管理</b>。人間・Claude(ブラウザ/家PC/Code)・ChatGPT・Codex が、どこまで動けるかの権限ベクトル。具体値と使い分けは運用OS本体で。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="sell">
+    <h2>この地図ごと、運用OSとして</h2>
+    <p>個別ツールではなく、<b>Notion(脳)・Orb(調理場)・Git(配管)・スキル(製造ライン)・通知</b>を束ねた運用OS。複数のAIエージェントを衝突なくオーケストレーションする設計を、テンプレート＋手順書＋判定ツールでパッケージ化を進めています。</p>
+    <a class="cta" href="/ecosystem/">🌐 生態系の全体像（相関総観）を見る<span class="arr">→</span></a>
+  </div>
+
+  <footer>VISIONIUM ROLE TOPOLOGY &middot; teaser &middot; データ構造1つ・様式複数 &middot; rev 2026-05-29</footer>
+</div>
+
+<script>
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(x=>x.classList.remove('show'));
+      t.classList.add('active');
+      document.getElementById('p-'+t.dataset.p).classList.add('show');
+    });
+  });
+</script>
+</body>
+</html>
