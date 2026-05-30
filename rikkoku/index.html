@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>六剋(りくこく) — Boolean→Float RPG</title>
+<meta name="description" content="六剋(りくこく) — 斬・刺・打・固・軟・翻、六属性が剋しあうBoolean→Float RPG。あなたが究めた強さは、誰かに対する弱さでもある。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="六剋(りくこく) — Boolean→Float RPG">
+<meta property="og:description" content="六属性が互いを剋する世界。あなたの偏りは、あなたの強さだった。">
+<meta property="og:url" content="https://osakenpiro.github.io/rikkoku/">
+<meta property="og:image" content="https://osakenpiro.github.io/rikkoku/assets/og-rikkoku.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@osakenpiro">
 <style>
   :root {
     --c-zan: #c0c0d8;     /* 斬 銀 */
@@ -46,6 +54,13 @@
   .char-thumb { width: 100%; max-width: 88px; aspect-ratio: 1/1; object-fit: cover; border-radius: 6px; margin: 0 auto 6px; display: block; }
   .combatant-portrait { width: 100%; max-width: 120px; aspect-ratio: 1/1; object-fit: cover; border-radius: 8px; display: block; margin: 0 auto 10px; }
   .combatant.enemy .combatant-portrait { transform: scaleX(-1); }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(4px)} }
+  .combatant.hit { animation: shake 0.4s ease; }
+  #flash { position: fixed; inset: 0; background: var(--c-shi); opacity: 0; pointer-events: none; z-index: 50; }
+  #flash.on { opacity: 0.28; }
+  .share-btn { display:inline-block; background:#1d9bf0; color:#fff; padding:10px 18px; border-radius:6px; font-size:14px; text-decoration:none; margin-top:14px; }
+  .share-btn:hover { filter:brightness(1.12); }
+  .resume-btn { background: var(--debris); color: var(--ink); }
   .ending-portrait { width: 100%; max-width: 300px; aspect-ratio: 1/1; object-fit: cover; border-radius: 12px; border: 2px solid var(--debris); margin: 0 auto 24px; display: block; }
   
   /* マップ */
@@ -109,6 +124,7 @@
 </head>
 <body>
 <div id="app"></div>
+<div id="flash"></div>
 
 <script>
 // ============================================================
@@ -218,7 +234,9 @@ function render() {
     gameover: renderGameOver
   }[game.screen];
   $app().innerHTML = fn();
+  if (['map','battle','result'].includes(game.screen)) saveGame();
   attachListeners();
+  if (game._fx && game.screen === 'battle') { flashHit(game._fx); game._fx = null; }
 }
 
 function renderTitle() {
@@ -232,9 +250,11 @@ function renderTitle() {
         あなたが究めた強さは、同時に、<br>
         誰かに対する弱さでもある。
       </p>
+      ${hasResumableSave() ? '<button id="btn-resume" class="resume-btn">つづきから</button>' : ''}
       <button id="btn-start">はじめる</button>
+      <a class="share-btn" href="${shareUrl()}" target="_blank" rel="noopener">𝕏 でシェア</a>
       <p style="font-size:11px; opacity:0.5; margin-top:20px;">
-        Boolean→Float RPG v1.0<br>
+        Boolean→Float RPG v1.1<br>
         © 2026 osakenpiro
       </p>
     </div>
@@ -410,6 +430,7 @@ function renderEnding() {
         誰もが、自分の偏りで世界を見ている。<br>
         あなたの偏りは、あなたの強さだった。
       </p>
+      <a class="share-btn" href="${shareUrl('六剋(りくこく)をクリアした。偏ったまま、世界を救った。')}" target="_blank" rel="noopener">𝕏 で結果をシェア</a>
       <button id="btn-restart" style="margin-top:30px;">最初から</button>
     </div>
   `;
@@ -432,7 +453,9 @@ function renderGameOver() {
 function attachListeners() {
   const screen = game.screen;
   if (screen === 'title') {
-    document.getElementById('btn-start').onclick = () => { game.screen = 'select'; render(); };
+    document.getElementById('btn-start').onclick = () => { clearSave(); game.screen = 'select'; render(); };
+    const rb = document.getElementById('btn-resume');
+    if (rb) rb.onclick = () => { const s = loadSave(); if (s) { game = s; render(); } };
   } else if (screen === 'select') {
     document.querySelectorAll('.char-card').forEach(card => {
       card.onclick = () => {
@@ -501,9 +524,10 @@ function attachListeners() {
     const m = document.getElementById('btn-map');
     if (m) m.onclick = () => { game.screen = 'map'; render(); };
     const e = document.getElementById('btn-ending');
-    if (e) e.onclick = () => { game.screen = 'ending'; render(); };
+    if (e) e.onclick = () => { clearSave(); game.screen = 'ending'; render(); };
   } else if (screen === 'ending' || screen === 'gameover') {
     document.getElementById('btn-restart').onclick = () => {
+      clearSave();
       game = { screen: 'title', player: null, enemies: [], defeated: [], currentEnemy: null, log: [], isBoss: false };
       render();
     };
@@ -545,6 +569,7 @@ function playerAttack(attr) {
   else if (result.rivalryMult < 0.8) mark = ' (いまひとつ…)';
   
   e.hp = Math.max(0, e.hp - result.dmg);
+  game._fx = 'enemy';
   addLog(`${p.name} の <span class="attr-${attr}">${ATTR_NAMES[attr]}</span>！ ${e.name} に ${result.dmg} ダメージ${mark}`, result.rivalryMult > 1.2 ? 'dmg-high' : (result.rivalryMult < 0.8 ? 'dmg-low' : ''));
   
   if (e.hp <= 0) {
@@ -582,11 +607,12 @@ function enemyAttack() {
   else if (result.rivalryMult < 0.8) mark = ' (いまひとつ)';
   
   p.hp = Math.max(0, p.hp - result.dmg);
+  game._fx = 'player';
   addLog(`${e.name} の <span class="attr-${chosen}">${ATTR_NAMES[chosen]}</span>！ ${p.name} に ${result.dmg} ダメージ${mark}`, result.rivalryMult > 1.2 ? 'dmg-high' : (result.rivalryMult < 0.8 ? 'dmg-low' : ''));
   
   if (p.hp <= 0) {
     addLog(`${p.name} は倒れた…`, 'system');
-    setTimeout(() => { game.screen = 'gameover'; render(); }, 800);
+    setTimeout(() => { clearSave(); game.screen = 'gameover'; render(); }, 800);
     render();
     return;
   }
@@ -622,6 +648,14 @@ function victory() {
   game.screen = 'result';
   render();
 }
+
+const SAVE_KEY = 'rikkoku-save-v1';
+function saveGame(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(game)); }catch(e){} }
+function loadSave(){ try{ const s=localStorage.getItem(SAVE_KEY); return s?JSON.parse(s):null; }catch(e){ return null; } }
+function clearSave(){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} }
+function hasResumableSave(){ const s=loadSave(); return !!(s && s.player && ['map','battle','result'].includes(s.screen)); }
+function shareUrl(extra){ const text=extra||'六剋(りくこく) — 六属性が剋しあうBoolean→Float RPG。あなたの偏りは、あなたの強さだった。'; const url='https://osakenpiro.github.io/rikkoku/'; return 'https://twitter.com/intent/tweet?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(url)+'&hashtags='+encodeURIComponent('全人類UX改善,rikkoku'); }
+function flashHit(side){ const el=document.querySelector('.combatant.'+side); if(el){ el.classList.add('hit'); setTimeout(()=>el.classList.remove('hit'),420);} const f=document.getElementById('flash'); if(f){ f.classList.add('on'); setTimeout(()=>f.classList.remove('on'),90);} }
 
 function addLog(text, cls) {
   game.log.push({ text, cls });
