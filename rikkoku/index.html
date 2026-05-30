@@ -83,7 +83,11 @@
   
   /* バトル */
   .battle { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-  .combatant { padding: 16px; border-radius: 8px; background: rgba(255,255,255,0.05); }
+  .combatant { padding: 16px; border-radius: 8px; background: rgba(255,255,255,0.05); position: relative; }
+  .dmg-pop { position: absolute; top: 38%; left: 50%; transform: translate(-50%,-50%); font-family: "Hiragino Sans", sans-serif; font-weight: bold; font-size: 30px; color: var(--paper); text-shadow: 0 2px 6px rgba(0,0,0,0.75); pointer-events: none; z-index: 20; animation: dmgPop 0.9s ease-out forwards; }
+  .dmg-pop.dmg-high { color: var(--c-shi); font-size: 38px; }
+  .dmg-pop.dmg-low { color: var(--c-hon); font-size: 24px; }
+  @keyframes dmgPop { 0% { opacity: 0; transform: translate(-50%,-20%) scale(0.6); } 25% { opacity: 1; transform: translate(-50%,-50%) scale(1.1); } 100% { opacity: 0; transform: translate(-50%,-130%) scale(1); } }
   .combatant.player { border-left: 4px solid var(--debris); }
   .combatant.enemy { border-left: 4px solid var(--c-shi); }
   .hp-bar-bg { background: rgba(255,255,255,0.1); height: 14px; border-radius: 7px; overflow: hidden; margin-top: 8px; }
@@ -176,6 +180,15 @@ const PLAYER_EPILOGUE = {
   shi: 'あなたの穿(うが)った一点が、円環にひとつ、穴を空けた。',
   shiro:'あなたは、何者にも偏らなかった。その均(なら)しが虚無と同じ顔に見えても──あなたはそのつど、選び続けた。だから、虚無とは違う。'
 };
+
+// ボス遭遇の段階ナレーション (v1.4 stagger で順次reveal)
+const BOSS_INTRO = [
+  '誰の色も、もう残っていない。',
+  '六属性すべてを均等に呑み込んだ円環(ループ)が、ゆっくりと回りはじめる。',
+  '虚無のループ ―― 偏りを失くした果ての、のっぺりとした完全。',
+  'それは何にも勝てず、何にも負けない。だから、終われない。',
+  'あなたの偏りだけが、この輪を断てる。'
+];
 
 // 相剋: ある属性 X の「得意な相手 (時計回り隣)」と「天敵 (反時計回り隣)」
 function rivalry(attacker, defender) {
@@ -273,7 +286,7 @@ function render() {
   if (['map','battle','result'].includes(game.screen)) saveGame();
   attachListeners();
   if (game.screen === 'battle') { const _l = document.getElementById('log'); if (_l) _l.scrollTop = _l.scrollHeight; }
-  if (game._fx && game.screen === 'battle') { flashHit(game._fx); game._fx = null; }
+  if (game._fx && game.screen === 'battle') { flashHit(game._fx); popDamage(game._fx, game._popDmg, game._popCls); game._fx = null; game._popDmg = null; }
 }
 
 function renderTitle() {
@@ -291,7 +304,7 @@ function renderTitle() {
       <button id="btn-start">はじめる</button>
       <a class="share-btn" href="${shareUrl()}" target="_blank" rel="noopener">𝕏 でシェア</a>
       <p style="font-size:11px; opacity:0.5; margin-top:20px;">
-        Boolean→Float RPG v1.5<br>
+        Boolean→Float RPG v1.6<br>
         © 2026 osakenpiro
       </p>
     </div>
@@ -566,8 +579,12 @@ function attachListeners() {
         game.seal = { mode:false, used:false, attr:null };
         game.enemyStatus = { hanten: 0 };
         addLog(`${game.currentEnemy.name} が立ちはだかる。`, 'system');
-        const _lore = ENEMY_LORE[game.isBoss ? 'boss' : game.currentEnemy.mainAttr];
-        if (_lore) addLog(_lore, 'lore');
+        if (game.isBoss) {
+          BOSS_INTRO.forEach((line, i) => addLog(line, i % 2 ? 'lore' : 'system'));
+        } else {
+          const _lore = ENEMY_LORE[game.currentEnemy.mainAttr];
+          if (_lore) addLog(_lore, 'lore');
+        }
         game.screen = 'battle';
         render();
       };
@@ -651,6 +668,8 @@ function playerAttack(attr) {
   
   e.hp = Math.max(0, e.hp - result.dmg);
   game._fx = 'enemy';
+  game._popDmg = result.dmg;
+  game._popCls = result.rivalryMult > 1.2 ? 'dmg-high' : (result.rivalryMult < 0.8 ? 'dmg-low' : '');
   addLog(`${p.name} の <span class="attr-${attr}">${ATTR_NAMES[attr]}</span>！ ${e.name} に ${result.dmg} ダメージ${mark}`, result.rivalryMult > 1.2 ? 'dmg-high' : (result.rivalryMult < 0.8 ? 'dmg-low' : ''));
   
   if (e.hp <= 0) {
@@ -696,6 +715,8 @@ function enemyAttack() {
   
   p.hp = Math.max(0, p.hp - result.dmg);
   game._fx = 'player';
+  game._popDmg = result.dmg;
+  game._popCls = result.rivalryMult > 1.2 ? 'dmg-high' : (result.rivalryMult < 0.8 ? 'dmg-low' : '');
   addLog(`${e.name} の <span class="attr-${chosen}">${ATTR_NAMES[chosen]}</span>！ ${p.name} に ${result.dmg} ダメージ${mark}`, result.rivalryMult > 1.2 ? 'dmg-high' : (result.rivalryMult < 0.8 ? 'dmg-low' : ''));
   
   if (p.hp <= 0) {
@@ -744,6 +765,7 @@ function clearSave(){ try{ localStorage.removeItem(SAVE_KEY); }catch(e){} }
 function hasResumableSave(){ const s=loadSave(); return !!(s && s.player && ['map','battle','result'].includes(s.screen)); }
 function shareUrl(extra){ const text=extra||'六剋(りくこく) — 六属性が剋しあうBoolean→Float RPG。あなたの偏りは、あなたの強さだった。'; const url='https://osakenpiro.github.io/rikkoku/'; return 'https://twitter.com/intent/tweet?text='+encodeURIComponent(text)+'&url='+encodeURIComponent(url)+'&hashtags='+encodeURIComponent('全人類UX改善,rikkoku'); }
 function flashHit(side){ const el=document.querySelector('.combatant.'+side); if(el){ el.classList.add('hit'); setTimeout(()=>el.classList.remove('hit'),420);} const f=document.getElementById('flash'); if(f){ f.classList.add('on'); setTimeout(()=>f.classList.remove('on'),90);} }
+function popDamage(side, dmg, cls){ if(dmg==null) return; const host=document.querySelector('.combatant.'+side); if(!host) return; const el=document.createElement('div'); el.className='dmg-pop '+(cls||''); el.textContent='-'+dmg; host.appendChild(el); setTimeout(()=>el.remove(),900); }
 
 function addLog(text, cls) {
   game.log.push({ text, cls });
