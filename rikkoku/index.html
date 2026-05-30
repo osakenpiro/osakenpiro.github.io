@@ -540,7 +540,7 @@ function attachListeners() {
       };
     });
     const sealBtn = document.getElementById('btn-seal');
-    if (sealBtn) sealBtn.onclick = () => { game.seal.mode = true; render(); };
+    if (sealBtn) sealBtn.onclick = () => { if (!game.seal) game.seal = { mode:false, used:false, attr:null }; game.seal.mode = true; render(); };
     const sealCancel = document.getElementById('btn-seal-cancel');
     if (sealCancel) sealCancel.onclick = () => { game.seal.mode = false; render(); };
   } else if (screen === 'result') {
