@@ -60,6 +60,9 @@
   #flash.on { opacity: 0.28; }
   .share-btn { display:inline-block; background:#1d9bf0; color:#fff; padding:10px 18px; border-radius:6px; font-size:14px; text-decoration:none; margin-top:14px; }
   .share-btn:hover { filter:brightness(1.12); }
+  #bmc { position: fixed; right: 18px; bottom: 18px; z-index: 40; display: inline-flex; align-items: center; gap: 7px; background: var(--debris); color: var(--ink); padding: 10px 16px; border-radius: 24px; font-family: "Hiragino Sans", sans-serif; font-size: 14px; font-weight: bold; text-decoration: none; box-shadow: 0 4px 14px rgba(0,0,0,0.42); opacity: 0.9; transition: all 0.2s; }
+  #bmc:hover { opacity: 1; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.5); }
+  @media (max-width: 600px) { #bmc { right: 12px; bottom: 12px; padding: 9px 13px; font-size: 13px; } }
   .resume-btn { background: var(--debris); color: var(--ink); }
   .stat-cell.sealed { text-decoration: line-through; opacity: 0.6; outline: 1px solid var(--debris); color: var(--debris); }
   .seal-bar { margin-top: 12px; display: flex; align-items: center; gap: 12px; justify-content: center; flex-wrap: wrap; }
@@ -134,6 +137,7 @@
 <body>
 <div id="app"></div>
 <div id="flash"></div>
+<a id="bmc" href="https://buymeacoffee.com/osakenpiro" target="_blank" rel="noopener" aria-label="Buy me a coffee — osakenpiro">☕ <span>支援</span></a>
 
 <script>
 // ============================================================
@@ -287,7 +291,7 @@ function renderTitle() {
       <button id="btn-start">はじめる</button>
       <a class="share-btn" href="${shareUrl()}" target="_blank" rel="noopener">𝕏 でシェア</a>
       <p style="font-size:11px; opacity:0.5; margin-top:20px;">
-        Boolean→Float RPG v1.4<br>
+        Boolean→Float RPG v1.5<br>
         © 2026 osakenpiro
       </p>
     </div>
