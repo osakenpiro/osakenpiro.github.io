@@ -40,6 +40,16 @@
       "src": "models/koma-fu.glb",
       "poster": "models/poster-fu.png",
       "note": "一歩ずつ前へ。最弱にして最多、成れば“と金”。"
+    },
+    {
+      "id": "standing",
+      "name": "起立フィギュア No.1",
+      "yomi": "きりつ",
+      "category": "本番駒 / TripoSR",
+      "float": 0.5,
+      "src": "models/koma-standing.glb",
+      "poster": "models/poster-standing.png",
+      "note": "画像→TripoSR→Blender→Draco の本番パイプライン第1号。試製駒（手続き生成の王飛角歩）に対する“実物”側。TripoSR=MIT/商用可。"
     }
   ]
 }
