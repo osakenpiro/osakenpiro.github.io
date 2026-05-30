@@ -137,6 +137,14 @@
   .header-title { font-size: 20px; color: var(--debris); }
   .header-info { font-size: 13px; opacity: 0.7; }
 
+  /* 中間ストーリー card (v1.8) */
+  .story-beat { position: relative; max-width: 620px; margin: 0 auto 26px; padding: 24px 26px 22px; background: linear-gradient(180deg, rgba(212,168,83,0.07), rgba(0,0,0,0.28)); border: 1px solid rgba(212,168,83,0.42); border-radius: 8px; text-align: left; }
+  .story-beat::before { content: "間 ―― 物語"; position: absolute; top: -11px; left: 18px; background: var(--ink); padding: 0 10px; font-size: 12px; letter-spacing: 0.25em; color: var(--debris); opacity: 0.92; }
+  .story-beat .beat-line { font-size: 16px; line-height: 2.05; color: var(--paper); opacity: 0; font-style: italic; border-left: 2px solid var(--debris); padding-left: 14px; margin: 0; animation: beatIn 0.6s ease forwards; }
+  .story-beat .beat-line + .beat-line { margin-top: 12px; }
+  .story-beat .beat-arc { display: block; margin-top: 18px; font-size: 12px; letter-spacing: 0.18em; color: var(--debris); opacity: 0; font-style: normal; animation: beatIn 0.6s ease forwards; }
+  @keyframes beatIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 0.92; transform: none; } }
+
   /* モバイル戦闘UI最適化 (v1.7) */
   @media (max-width: 600px) {
     body { padding: 10px; }
@@ -156,6 +164,10 @@
     .actions button { padding: 12px 6px; font-size: 13px; margin: 2px; }
     .ending h1 { font-size: 36px; }
     .ending p { font-size: 16px; }
+    .story-beat { padding: 16px 16px 15px; margin-bottom: 18px; }
+    .story-beat .beat-line { font-size: 14px; line-height: 1.95; padding-left: 11px; }
+    .story-beat .beat-line + .beat-line { margin-top: 9px; }
+    .story-beat::before { font-size: 11px; left: 12px; }
   }
 </style>
 </head>
@@ -210,6 +222,35 @@ const BOSS_INTRO = [
   'それは何にも勝てず、何にも負けない。だから、終われない。',
   'あなたの偏りだけが、この輪を断てる。'
 ];
+
+// 中間ストーリー (v1.8): 撃破数の結節点で差し込む物語ビート。
+// 偏り型 = 「倒すほど均(なら)され、虚無へ近づく」緊張。白(シロ)型 = 「選び続けて虚無と分岐する」緊張。
+const STORY_BEATS = {
+  bias: [
+    null,
+    { lines:['最初のひとりが、倒れた。','その色が、あなたの裡(うち)に、ひとしずく混ざる。','一点だった刃が ―― ほんの少し、にぶく、ひろくなった。'], arc:'円環の回転 ●○○○○' },
+    { lines:['遠くで、円環(ループ)が一段、速く回りはじめた。','あなたが偏りを削るたび、世界は均(なら)されていく。','それは、虚無に一歩、近づくことでもある。'], arc:'円環の回転 ●●○○○' },
+    { lines:['半分が、終わった。','一点だった偏りに、いまは幾色(いくいろ)も滲(にじ)む。','あなたは強くなった。同時に、輪郭(りんかく)を失いはじめた。'], arc:'円環の回転 ●●●○○' },
+    { lines:['倒した極(きょく)は、円環を内から押し返す杭(くい)だった。','ひとり倒すごとに、虚無を阻む者が、ひとり減る。','勝つほどに ―― 輪は、自由になっていく。'], arc:'円環の回転 ●●●●○' }
+  ],
+  biasFinal: { lines:['五つの極(きょく)は、もう、ない。','残ったのは、あなたと、回り続ける輪だけ。','広がったあなたは、虚無と同じ顔になったのか。','それとも、芯(しん)は ―― まだ、偏ったままか。'], arc:'円環の回転 ●●●●● ── 最終決戦へ' },
+  shiro: [
+    null,
+    { lines:['白いままのあなたが、最初の色を、奪(と)った。','あなたは生まれつき、虚無に似ている。均等で、空っぽで。','だが ―― いま、あなたは一色を、選んだ。'], arc:'選んだ色 ●○○○○○' },
+    { lines:['二色目。','虚無は色を捨てて均(なら)した。あなたは色を集めて、均しに近い。','同じ平らさ。違うのは ―― あなたが、毎回、選んでいること。'], arc:'選んだ色 ●●○○○○' },
+    { lines:['半分。','あなたの六つの目盛りは、まだ、どれも低い。','それでも、選び続けた手の跡(あと)だけは、虚無に、ない。'], arc:'選んだ色 ●●●○○○' },
+    { lines:['集めた色が、ようやく、重みを持ちはじめる。','虚無は偏りを恐れて、均した。','あなたは偏れないまま ―― それでも、前へ出た。'], arc:'選んだ色 ●●●●○○' },
+    { lines:['あと、一色。','のっぺりとした完全(ループ)が、すぐそこで回っている。','あなたとそっくりの顔をして。だが ―― あなたは、選んできた。'], arc:'選んだ色 ●●●●●○' }
+  ],
+  shiroFinal: { lines:['すべての色が、あなたの手にある。','虚無と、ほとんど同じ平らさで ―― けれど、決定的に、違う。','虚無は、選ばなかった。あなたは、そのつど、選んだ。','その差を、最後の一戦で、証明しろ。'], arc:'選んだ色 ●●●●●● ── 最終決戦へ' }
+};
+function storyBeat(defeatedCount, totalEnemies, player) {
+  const allCleared = defeatedCount >= totalEnemies;
+  if (player.isBlank) {
+    return allCleared ? STORY_BEATS.shiroFinal : (STORY_BEATS.shiro[defeatedCount] || null);
+  }
+  return allCleared ? STORY_BEATS.biasFinal : (STORY_BEATS.bias[defeatedCount] || null);
+}
 
 // 相剋: ある属性 X の「得意な相手 (時計回り隣)」と「天敵 (反時計回り隣)」
 function rivalry(attacker, defender) {
@@ -325,7 +366,7 @@ function renderTitle() {
       <button id="btn-start">はじめる</button>
       <a class="share-btn" href="${shareUrl()}" target="_blank" rel="noopener">𝕏 でシェア</a>
       <p style="font-size:11px; opacity:0.5; margin-top:20px;">
-        Boolean→Float RPG v1.7<br>
+        Boolean→Float RPG v1.8<br>
         © 2026 osakenpiro
       </p>
     </div>
@@ -403,8 +444,11 @@ function renderMap() {
       <div class="header-info">${game.player.name} / HP ${game.player.hp}/${game.player.maxHp} / 撃破 ${game.defeated.length}/${totalEnemies}</div>
     </div>
     <h2>誰から攻める？</h2>
-    <p style="opacity:0.8; margin-bottom:10px; font-size:13px;">
+    <p style="opacity:0.8; margin-bottom:6px; font-size:13px;">
       残る五人と、その先のラスボス。順番はあなた次第。
+    </p>
+    <p style="opacity:0.66; margin-bottom:10px; font-size:12px; letter-spacing:0.12em; color:var(--debris);">
+      円環の回転：${'●'.repeat(game.defeated.length)}${'○'.repeat(Math.max(0,totalEnemies-game.defeated.length))}　${game.defeated.length>=totalEnemies?'── 虚無が満ちた':'倒すほど、輪は速くなる'}
     </p>
     <div class="map-grid">${nodes}</div>
     <div style="margin-top:20px;">${bossNode}</div>
@@ -484,7 +528,14 @@ function renderResult() {
   const e = game.currentEnemy;
   const p = game.player;
   const isBoss = game.isBoss;
+  const _beat = (!isBoss && game.storyBeat) ? game.storyBeat : null;
+  const _beatHtml = _beat ? `
+    <div class="story-beat">
+      ${_beat.lines.map((ln, _i) => `<p class="beat-line" style="animation-delay:${_i*420}ms">${ln}</p>`).join('')}
+      ${_beat.arc ? `<span class="beat-arc" style="animation-delay:${_beat.lines.length*420}ms">${_beat.arc}</span>` : ''}
+    </div>` : '';
   return `
+    ${_beatHtml}
     <div class="center">
       <h2>${isBoss ? '勝利！' : '勝利'}</h2>
       <p style="font-size:18px;">${e.name} を撃破した。</p>
@@ -599,6 +650,7 @@ function attachListeners() {
         game._shownLog = 0;
         game.seal = { mode:false, used:false, attr:null };
         game.enemyStatus = { hanten: 0 };
+        game.storyBeat = null;
         addLog(`${game.currentEnemy.name} が立ちはだかる。`, 'system');
         if (game.isBoss) {
           BOSS_INTRO.forEach((line, i) => addLog(line, i % 2 ? 'lore' : 'system'));
@@ -774,7 +826,15 @@ function victory() {
   p.hp = Math.floor(p.maxHp * oldRatio);  // 比率維持
   
   if (!game.isBoss) game.defeated.push(e.name);
-  
+
+  // 中間ストーリー (v1.8): 非ボス撃破の結節点で物語ビートを差し込む
+  if (!game.isBoss) {
+    const _total = game.player.isBlank ? 6 : 5;
+    game.storyBeat = storyBeat(game.defeated.length, _total, game.player);
+  } else {
+    game.storyBeat = null;
+  }
+
   game.screen = 'result';
   render();
 }
