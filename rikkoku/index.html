@@ -136,6 +136,27 @@
   .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.2); }
   .header-title { font-size: 20px; color: var(--debris); }
   .header-info { font-size: 13px; opacity: 0.7; }
+
+  /* モバイル戦闘UI最適化 (v1.7) */
+  @media (max-width: 600px) {
+    body { padding: 10px; }
+    #app { padding: 16px; min-height: 520px; border-radius: 6px; }
+    h1 { font-size: 44px; }
+    h2 { font-size: 22px; }
+    .subtitle { margin-bottom: 24px; letter-spacing: 0.2em; }
+    .char-grid, .map-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .char-card.blank-char { grid-column: span 2; max-width: none; }
+    .char-portrait { max-width: 110px; }
+    .battle { gap: 10px; }
+    .combatant { padding: 10px; }
+    .combatant-portrait { max-width: 84px; margin-bottom: 6px; }
+    .combatant h3 { font-size: 16px; }
+    .stat-row { grid-template-columns: repeat(3, 1fr); gap: 3px; font-size: 11px; }
+    .actions { gap: 6px; }
+    .actions button { padding: 12px 6px; font-size: 13px; margin: 2px; }
+    .ending h1 { font-size: 36px; }
+    .ending p { font-size: 16px; }
+  }
 </style>
 </head>
 <body>
@@ -304,7 +325,7 @@ function renderTitle() {
       <button id="btn-start">はじめる</button>
       <a class="share-btn" href="${shareUrl()}" target="_blank" rel="noopener">𝕏 でシェア</a>
       <p style="font-size:11px; opacity:0.5; margin-top:20px;">
-        Boolean→Float RPG v1.6<br>
+        Boolean→Float RPG v1.7<br>
         © 2026 osakenpiro
       </p>
     </div>
