@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>立体図鑑 / zukan3d — Visionium</title>
+<meta name="description" content="駒・素材の立体図鑑。回して、寄って、ARで現実に置く。#全人類UX改善計画">
+<meta property="og:title" content="立体図鑑 / zukan3d">
+<meta property="og:description" content="駒・素材を3Dで観る図鑑。回す／寄る／ARで置く。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://osakenpiro.github.io/zukan3d/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap" rel="stylesheet">
+<script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@4.2.0/dist/model-viewer.min.js"></script>
+<style>
+/* === osakenpiro 設計SoT (dd/styles.css :root) を inline ミラー === */
+:root{
+  --bg:#0b0b0f; --panel:#14141b; --ink:#ece7da; --muted:#9b937f;
+  --gold:#d4a853; --gold-2:#b8862f; --gold-foil:#f0d896; --line:#26262f;
+  --maxw:1100px; --radius:14px;
+  --serif:"Shippori Mincho","Hiragino Mincho ProN",serif;
+  --sans:"Zen Kaku Gothic New",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans);
+  line-height:1.75; -webkit-font-smoothing:antialiased; min-height:100dvh}
+a{color:var(--gold); text-decoration:none}
+::selection{background:rgba(212,168,83,.3)}
+/* 闇＋星＋金箔 */
+.sky{position:fixed; inset:0; z-index:-1; background:var(--bg); overflow:hidden}
+.sky::before{content:""; position:absolute; inset:-50%;
+  background-image:
+    radial-gradient(1.4px 1.4px at 20% 30%, rgba(236,231,218,.55), transparent),
+    radial-gradient(1.2px 1.2px at 70% 60%, rgba(236,231,218,.40), transparent),
+    radial-gradient(1px 1px at 45% 80%, rgba(236,231,218,.32), transparent),
+    radial-gradient(1.6px 1.6px at 85% 20%, rgba(240,216,150,.50), transparent),
+    radial-gradient(1px 1px at 12% 68%, rgba(236,231,218,.30), transparent),
+    radial-gradient(1.2px 1.2px at 60% 12%, rgba(236,231,218,.30), transparent);
+  background-repeat:repeat; background-size:520px 520px; opacity:.7}
+.sky::after{content:""; position:absolute; inset:0;
+  background:
+    radial-gradient(60vw 40vw at 78% -10%, rgba(184,134,47,.16), transparent 60%),
+    radial-gradient(50vw 50vw at -10% 110%, rgba(212,168,83,.10), transparent 60%)}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:clamp(1rem,4vw,2.2rem)}
+header.top{display:flex; flex-direction:column; gap:.25rem; margin-bottom:1.2rem}
+.kicker{font-size:.8rem; letter-spacing:.28em; color:var(--gold); text-transform:uppercase}
+h1{font-family:var(--serif); font-weight:600; margin:.1rem 0 0; font-size:clamp(1.9rem,6vw,3rem); line-height:1.15}
+.foil{background:linear-gradient(120deg,var(--gold-2),var(--gold-foil),var(--gold));
+  -webkit-background-clip:text; background-clip:text; color:transparent}
+.sub{color:var(--muted); font-size:.95rem; max-width:62ch}
+.dim{color:var(--muted)}
+/* hero */
+.stage-card{background:linear-gradient(180deg, rgba(20,20,27,.92), rgba(11,11,15,.92));
+  border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; box-shadow:0 18px 50px rgba(0,0,0,.45)}
+model-viewer#hero{width:100%; height:min(62vh,560px); display:block;
+  background:radial-gradient(80% 80% at 50% 30%, #16161f 0%, #0b0b0f 75%); --poster-color:transparent}
+.stage-meta{display:flex; flex-wrap:wrap; align-items:flex-start; gap:.6rem 1rem;
+  padding:.9rem clamp(.9rem,3vw,1.4rem) 1.1rem; border-top:1px solid var(--line)}
+.stage-meta h2{font-family:var(--serif); font-weight:600; font-size:clamp(1.2rem,3.6vw,1.7rem); margin:0; line-height:1.25}
+.yomi{color:var(--muted); font-size:.82rem; letter-spacing:.06em; display:block; margin-top:.15rem}
+.note{flex:1 1 240px; min-width:200px; color:var(--muted); font-size:.9rem; margin:.1rem 0 0}
+.chips{display:flex; gap:.4rem; flex-wrap:wrap; align-items:center}
+.chip{font-size:.74rem; letter-spacing:.03em; padding:.18rem .55rem; border-radius:999px;
+  border:1px solid var(--gold-2); color:var(--gold); white-space:nowrap}
+.chip.float{display:inline-flex; align-items:center; gap:.4rem; color:var(--muted); border-color:var(--line)}
+.float-bar{--v:.5; height:6px; width:84px; border-radius:999px; background:var(--line); position:relative; overflow:hidden}
+.float-bar::after{content:""; position:absolute; inset:0; width:calc(var(--v)*100%);
+  background:linear-gradient(90deg,var(--gold-2),var(--gold-foil))}
+.controls{display:flex; flex-wrap:wrap; gap:.5rem; padding:0 clamp(.9rem,3vw,1.4rem) 1rem}
+button.ctl,a.ctl{font:inherit; font-size:.85rem; cursor:pointer; color:var(--ink); background:var(--bg);
+  border:1px solid var(--line); padding:.5rem .85rem; border-radius:10px; text-decoration:none;
+  display:inline-flex; align-items:center; gap:.4rem; transition:border-color .15s,color .15s,background .15s}
+button.ctl:hover,a.ctl:hover{border-color:var(--gold); color:var(--gold-foil)}
+button.ctl[aria-pressed="true"]{border-color:var(--gold); color:#1a1205; background:var(--gold)}
+.ar-btn{position:absolute; right:12px; bottom:12px; z-index:5}
+.gallery-head{display:flex; align-items:baseline; justify-content:space-between; margin:1.8rem 0 .8rem; gap:1rem}
+.gallery-head h3{font-family:var(--serif); font-weight:600; margin:0; font-size:1.2rem}
+.count{color:var(--muted); font-size:.82rem}
+.grid{display:grid; gap:.8rem; grid-template-columns:repeat(auto-fill, minmax(150px,1fr))}
+.card{position:relative; text-align:left; cursor:pointer; color:inherit; font:inherit;
+  background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:.7rem;
+  display:flex; flex-direction:column; gap:.5rem; transition:border-color .15s, transform .12s}
+.card:hover{border-color:var(--gold); transform:translateY(-2px)}
+.card[aria-current="true"]{border-color:var(--gold); box-shadow:0 0 0 1px var(--gold) inset}
+.thumb{aspect-ratio:1/1; border-radius:8px; display:grid; place-items:center; overflow:hidden;
+  background:radial-gradient(70% 70% at 50% 35%, #16161f, #0b0b0f); border:1px solid var(--line)}
+.thumb img{width:100%; height:100%; object-fit:cover}
+.thumb svg{width:52%; height:52%; opacity:.92}
+.card .nm{font-family:var(--serif); font-size:.95rem; line-height:1.25}
+.card .cat{font-size:.72rem; color:var(--muted)}
+.empty{border:1px dashed var(--line); border-radius:12px; padding:2rem 1.2rem; text-align:center;
+  color:var(--muted); background:rgba(20,20,27,.5)}
+.empty code{color:var(--gold-foil); background:rgba(184,134,47,.14); padding:.1rem .35rem; border-radius:6px; font-family:monospace}
+footer{margin:2.4rem 0 1rem; color:var(--muted); font-size:.8rem; text-align:center; line-height:1.9}
+footer a{color:var(--gold)}
+@media (max-width:560px){
+  model-viewer#hero{height:52vh}
+  .stage-meta{flex-direction:column; gap:.5rem}
+  .grid{grid-template-columns:repeat(auto-fill, minmax(118px,1fr))}
+}
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true"></div>
+<div class="wrap">
+  <header class="top">
+    <span class="kicker">Visionium · 立体図鑑</span>
+    <h1><span class="foil">zukan3d</span></h1>
+    <p class="sub">駒と素材を、回して・寄って・ARで現実に置く。Boolean→Float を立体で。<span class="dim">— #全人類UX改善計画</span></p>
+  </header>
+  <main>
+    <section class="stage-card" aria-label="3Dビューア">
+      <div style="position:relative">
+        <model-viewer id="hero" camera-controls auto-rotate auto-rotate-delay="0" rotation-per-second="18deg"
+          interaction-prompt="none" shadow-intensity="1" shadow-softness="0.9" exposure="1.0"
+          environment-image="neutral" touch-action="pan-y" ar ar-modes="webxr scene-viewer quick-look" alt="3Dモデル">
+          <button slot="ar-button" class="ctl ar-btn">ARで置く</button>
+        </model-viewer>
+      </div>
+      <div class="stage-meta">
+        <div><h2 id="m-name">—<span class="yomi" id="m-yomi"></span></h2></div>
+        <p class="note" id="m-note"></p>
+        <div class="chips" id="m-chips"></div>
+      </div>
+      <div class="controls">
+        <button class="ctl" id="btn-rotate" aria-pressed="true">⟳ 自動回転</button>
+        <button class="ctl" id="btn-reset">⤢ 視点リセット</button>
+        <a class="ctl" id="btn-dl" download>⤓ GLB</a>
+      </div>
+    </section>
+    <div class="gallery-head"><h3>収蔵品</h3><span class="count" id="count"></span></div>
+    <div id="grid" class="grid" role="list"></div>
+    <div id="empty" class="empty" hidden>
+      まだ収蔵品がありません。<br>
+      <code>models/</code> に GLB を置き、<code>models/manifest.json</code> の <code>models[]</code> に1行追加すれば並びます。
+    </div>
+  </main>
+  <footer>
+    立体図鑑 / zukan3d — <a href="https://osakenpiro.github.io/">osakenpiro.github.io</a> · Visionium 傘下<br>
+    <span class="dim">model-viewer 4.2.0 (MIT) · Draco/KTX2 自動展開 · GLBはDraco圧縮推奨（16MB級は重い）</span>
+  </footer>
+</div>
+<template id="koma-svg">
+  <svg viewBox="-0.8 -1.15 1.6 2.3" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs><linearGradient id="kg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#b8862f"/><stop offset=".55" stop-color="#f0d896"/><stop offset="1" stop-color="#d4a853"/>
+    </linearGradient></defs>
+    <polygon points="0,-1 0.48,-0.55 0.62,1 -0.62,1 -0.48,-0.55" fill="url(#kg)" fill-opacity="0.16"
+      stroke="url(#kg)" stroke-width="0.05" stroke-linejoin="round"/>
+  </svg>
+</template>
+<script>
+const hero=document.getElementById('hero'), elName=document.getElementById('m-name'),
+ elYomi=document.getElementById('m-yomi'), elNote=document.getElementById('m-note'),
+ elChips=document.getElementById('m-chips'), elGrid=document.getElementById('grid'),
+ elEmpty=document.getElementById('empty'), elCount=document.getElementById('count'),
+ btnRot=document.getElementById('btn-rotate'), btnReset=document.getElementById('btn-reset'),
+ btnDl=document.getElementById('btn-dl'), komaSVG=document.getElementById('koma-svg').innerHTML;
+const LS='zukan3d:v1'; let MODELS=[];
+const state=(()=>{try{return JSON.parse(localStorage.getItem(LS))||{}}catch(e){return{}}})();
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function select(m,idx){
+  if(!m)return;
+  hero.src=m.src; hero.alt=(m.name||'モデル')+' の3Dモデル';
+  elName.firstChild.textContent=m.name||'—';
+  elYomi.textContent=m.yomi?'（'+m.yomi+'）':''; elNote.textContent=m.note||''; btnDl.href=m.src;
+  const c=[];
+  if(m.category)c.push('<span class="chip">'+esc(m.category)+'</span>');
+  if(typeof m.float==='number')c.push('<span class="chip float" title="Boolean→Float 位置">Float '+m.float.toFixed(2)+
+    '<span class="float-bar" style="--v:'+Math.max(0,Math.min(1,m.float))+'"></span></span>');
+  elChips.innerHTML=c.join('');
+  [...elGrid.children].forEach((el,i)=>el.setAttribute('aria-current',i===idx?'true':'false'));
+  state.last=m.id; save();
+}
+function card(m,idx){
+  const b=document.createElement('button'); b.className='card'; b.setAttribute('role','listitem');
+  const thumb=m.poster?'<div class="thumb"><img loading="lazy" src="'+esc(m.poster)+'" alt=""></div>'
+    :'<div class="thumb">'+komaSVG+'</div>';
+  b.innerHTML=thumb+'<div class="nm">'+esc(m.name||'無題')+'</div><div class="cat">'+esc(m.category||'')+'</div>';
+  b.addEventListener('click',()=>select(m,idx)); return b;
+}
+function render(){
+  elGrid.innerHTML='';
+  if(!MODELS.length){elEmpty.hidden=false; elCount.textContent='0 点'; return;}
+  elEmpty.hidden=true; MODELS.forEach((m,i)=>elGrid.appendChild(card(m,i)));
+  elCount.textContent=MODELS.length+' 点';
+  let idx=MODELS.findIndex(m=>m.id===state.last); if(idx<0)idx=0;
+  select(MODELS[idx],idx);
+}
+function setRotate(on){hero.autoRotate=on; btnRot.setAttribute('aria-pressed',on?'true':'false'); state.rotate=on; save();}
+btnRot.addEventListener('click',()=>setRotate(!hero.autoRotate));
+btnReset.addEventListener('click',()=>{hero.cameraOrbit='0deg 75deg 105%'; hero.fieldOfView='auto'; hero.resetTurntableRotation&&hero.resetTurntableRotation(0);});
+(async function init(){
+  setRotate(state.rotate!==false);
+  try{
+    const r=await fetch('models/manifest.json',{cache:'no-store'}); const d=await r.json();
+    MODELS=Array.isArray(d)?d:(d.models||[]); if(d.title)document.title=d.title+' / zukan3d';
+  }catch(e){MODELS=[]; console.warn('manifest 読み込み失敗:',e);}
+  render();
+})();
+</script>
+</body>
+</html>

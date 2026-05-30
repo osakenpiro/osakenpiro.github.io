@@ -1,0 +1,15 @@
+{
+  "title": "立体図鑑",
+  "models": [
+    {
+      "id": "koma-placeholder",
+      "name": "試製駒・零番",
+      "yomi": "しせいこま・れいばん",
+      "category": "駒 / 試製",
+      "float": 0.5,
+      "src": "models/koma-placeholder.glb",
+      "poster": "",
+      "note": "パイプライン疎通用の試製駒。TRELLIS.2-4B 本番駒に置換予定。"
+    }
+  ]
+}
