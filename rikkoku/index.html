@@ -143,6 +143,11 @@
   .story-beat .beat-line { font-size: 16px; line-height: 2.05; color: var(--paper); opacity: 0; font-style: italic; border-left: 2px solid var(--debris); padding-left: 14px; margin: 0; animation: beatIn 0.6s ease forwards; }
   .story-beat .beat-line + .beat-line { margin-top: 12px; }
   .story-beat .beat-arc { display: block; margin-top: 18px; font-size: 12px; letter-spacing: 0.18em; color: var(--debris); opacity: 0; font-style: normal; animation: beatIn 0.6s ease forwards; }
+  /* 白/偏り 色分け (v1.9): 偏り型=金(熱)／白型=銀(余白)。パレット内(--c-shiro) */
+  .story-beat.beat-shiro { background: linear-gradient(180deg, rgba(240,240,248,0.06), rgba(0,0,0,0.30)); border-color: rgba(240,240,248,0.40); }
+  .story-beat.beat-shiro::before { color: var(--c-shiro); }
+  .story-beat.beat-shiro .beat-line { border-left-color: var(--c-shiro); }
+  .story-beat.beat-shiro .beat-arc { color: var(--c-shiro); }
   @keyframes beatIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 0.92; transform: none; } }
 
   /* モバイル戦闘UI最適化 (v1.7) */
@@ -366,7 +371,7 @@ function renderTitle() {
       <button id="btn-start">はじめる</button>
       <a class="share-btn" href="${shareUrl()}" target="_blank" rel="noopener">𝕏 でシェア</a>
       <p style="font-size:11px; opacity:0.5; margin-top:20px;">
-        Boolean→Float RPG v1.8<br>
+        Boolean→Float RPG v1.9<br>
         © 2026 osakenpiro
       </p>
     </div>
@@ -530,7 +535,7 @@ function renderResult() {
   const isBoss = game.isBoss;
   const _beat = (!isBoss && game.storyBeat) ? game.storyBeat : null;
   const _beatHtml = _beat ? `
-    <div class="story-beat">
+    <div class="story-beat ${game.player.isBlank ? 'beat-shiro' : 'beat-bias'}">
       ${_beat.lines.map((ln, _i) => `<p class="beat-line" style="animation-delay:${_i*420}ms">${ln}</p>`).join('')}
       ${_beat.arc ? `<span class="beat-arc" style="animation-delay:${_beat.lines.length*420}ms">${_beat.arc}</span>` : ''}
     </div>` : '';
