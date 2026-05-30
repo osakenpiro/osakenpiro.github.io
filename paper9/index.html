@@ -1,0 +1,912 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Decryption Key — Osada 2026 · Boolean→Float #9</title>
+<style>
+:root{--gold:#d4a853;--bg:#0f1115;--panel:#161922;--ink:#e8e6e0;--mut:#9aa0ab;--line:#262b36;--code:#11141b}
+[data-t=light]{--bg:#faf8f3;--panel:#fff;--ink:#23262d;--mut:#6b7280;--line:#e6e1d6;--code:#f4f1ea}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 -apple-system,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif}
+#wrap{display:grid;grid-template-columns:300px 1fr;max-width:1240px;margin:0 auto;min-height:100vh}
+#side{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;border-right:1px solid var(--line);padding:18px 14px;background:var(--panel)}
+#side h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:0 0 8px}
+#q{width:100%;padding:7px 10px;margin-bottom:10px;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px}
+.toc a{display:block;color:var(--mut);text-decoration:none;padding:3px 8px;border-radius:6px;font-size:13.5px;border-left:2px solid transparent}
+.toc a:hover{color:var(--ink);background:var(--bg)}
+.toc a.active{color:var(--gold);border-left-color:var(--gold);background:var(--bg)}
+.toc .toc-h3{padding-left:20px;font-size:12.5px}.toc .toc-h4{padding-left:32px;font-size:12px}
+.toc ul{list-style:none;margin:0;padding:0}
+#main{padding:42px 52px;max-width:860px}
+#bar{display:flex;gap:12px;align-items:center;margin-bottom:18px;color:var(--mut);font-size:13px}
+#bar button{background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:5px 12px;cursor:pointer;font-size:13px}
+#main h1{font-size:30px;line-height:1.25;border-bottom:2px solid var(--gold);padding-bottom:12px;margin:.2em 0 .8em}
+#main h2{font-size:23px;margin:1.7em 0 .5em;padding-top:8px;border-top:1px solid var(--line)}
+#main h3{font-size:18px;margin:1.3em 0 .4em;color:var(--gold)}
+#main h4{font-size:15.5px;margin:1.1em 0 .3em}
+#main a{color:var(--gold)}
+#main code{background:var(--code);padding:.12em .4em;border-radius:5px;font-size:.88em;font-family:"SF Mono",ui-monospace,monospace}
+#main pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow:auto}
+#main pre code{background:none;padding:0}
+#main table{border-collapse:collapse;width:100%;margin:1em 0;font-size:14.5px}
+#main th,#main td{border:1px solid var(--line);padding:8px 11px;text-align:left}
+#main th{background:var(--panel);color:var(--gold)}
+#main blockquote{border-left:3px solid var(--gold);margin:1em 0;padding:.2em 1em;color:var(--mut);background:var(--panel);border-radius:0 8px 8px 0}
+.headerlink{opacity:0;text-decoration:none;margin-left:.4em;color:var(--gold)}
+h1:hover .headerlink,h2:hover .headerlink,h3:hover .headerlink,h4:hover .headerlink{opacity:.7}
+#main hr{border:none;border-top:1px solid var(--line);margin:2em 0}
+@media(max-width:820px){#wrap{grid-template-columns:1fr}#side{position:static;height:auto;border-right:none;border-bottom:1px solid var(--line)}#main{padding:24px}}
+</style></head><body>
+<div id="wrap">
+<nav id="side"><h2>目次</h2><input id="q" placeholder="絞り込み…" autocomplete="off"><div class="toc">
+<ul>
+<li><a href="#the-decryption-key-privacy-as-decodability-ai-as-otentosama-and-the-case-for-integral-democracy">The Decryption Key: Privacy as Decodability, AI as Otentosama, and the Case for Integral Democracy</a><ul>
+<li><a href="#abstract">Abstract</a></li>
+<li><a href="#points-for-practitioners">Points for Practitioners</a></li>
+<li><a href="#1-introduction-the-fiction-of-consent">1. Introduction: The Fiction of Consent</a></li>
+<li><a href="#2-the-decodability-spectrum">2. The Decodability Spectrum</a><ul>
+<li><a href="#21-against-the-boolean-model-of-privacy">2.1 Against the Boolean Model of Privacy</a></li>
+<li><a href="#22-the-three-stage-decodability-model">2.2 The Three-Stage Decodability Model</a></li>
+<li><a href="#23-constitutional-baseline-and-individual-settings">2.3 Constitutional Baseline and Individual Settings</a></li>
+<li><a href="#24-the-skew-position-principle">2.4 The Skew Position Principle</a></li>
+</ul>
+</li>
+<li><a href="#3-the-otentosama-architecture">3. The Otentosama Architecture</a><ul>
+<li><a href="#31-from-panopticon-to-otentosama">3.1 From Panopticon to Otentosama</a></li>
+<li><a href="#32-ai-as-designed-otentosama">3.2 AI as Designed Otentosama</a></li>
+</ul>
+</li>
+<li><a href="#4-from-approximation-to-integration-the-case-for-integral-democracy">4. From Approximation to Integration: The Case for Integral Democracy</a><ul>
+<li><a href="#41-the-composition-fallacy">4.1 The Composition Fallacy</a></li>
+<li><a href="#42-ai-as-integration-engine">4.2 AI as Integration Engine</a></li>
+<li><a href="#43-community-visibility-and-the-jianghu-model">4.3 Community Visibility and the Jianghu Model</a></li>
+</ul>
+</li>
+<li><a href="#5-infrastructure-the-three-layer-separation-of-powers">5. Infrastructure: The Three-Layer Separation of Powers</a><ul>
+<li><a href="#51-blockchain-law-nft-passport-ai-judge">5.1 Blockchain = Law, NFT = Passport, AI = Judge</a></li>
+<li><a href="#52-token-based-attribution-and-the-data-genome">5.2 Token-Based Attribution and the Data Genome</a></li>
+<li><a href="#53-distributed-identity-and-the-traceability-paradox">5.3 Distributed Identity and the Traceability Paradox</a></li>
+<li><a href="#54-the-inward-direction-digital-twin-and-self-integration">5.4 The Inward Direction: Digital Twin and Self-Integration</a></li>
+<li><a href="#55-expected-harm-computation-as-infrastructure">5.5 Expected-Harm Computation as Infrastructure</a></li>
+</ul>
+</li>
+<li><a href="#6-positioning-against-six-traditions">6. Positioning: Against Six Traditions</a></li>
+<li><a href="#7-connection-to-companion-papers">7. Connection to Companion Papers</a></li>
+<li><a href="#8-limitations-and-failure-modes">8. Limitations and Failure Modes</a></li>
+<li><a href="#9-conclusion-the-key-that-no-one-holds">9. Conclusion: The Key That No One Holds</a></li>
+<li><a href="#methodological-note-use-of-ai-tools">Methodological Note: Use of AI Tools</a></li>
+<li><a href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+<main id="main"><div id="bar"><button id="theme">◑ テーマ</button><span>spec-to-html v0.1 · #全人類UX改善</span></div><h1 id="the-decryption-key-privacy-as-decodability-ai-as-otentosama-and-the-case-for-integral-democracy">The Decryption Key: Privacy as Decodability, AI as Otentosama, and the Case for Integral Democracy<a class="headerlink" href="#the-decryption-key-privacy-as-decodability-ai-as-otentosama-and-the-case-for-integral-democracy" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Kenshiro Osada</strong> · Independent Researcher, Tokyo · ORCID <a href="https://orcid.org/0009-0004-9167-3186">0009-0004-9167-3186</a>
+<em>Boolean-to-Float</em> series — Paper 9 of 10 · version 3.1 · License CC BY 4.0
+Submitted to <em>Information Polity</em> (SAGE), 2026 · co-deposited on Zenodo
+Reading edition · #全人類UX改善</p>
+</blockquote>
+<h2 id="abstract">Abstract<a class="headerlink" href="#abstract" title="Permanent link">&para;</a></h2>
+<p>Current privacy discourse treats data protection as a Boolean state: data is either protected or exposed, consent either given or withheld. This paper argues that the operative variable is <em>decodability</em> --- the degree to which aggregated data can be reverse-mapped to an identifiable individual --- and proposes a float-valued reconceptualization of privacy governance. Three innovations are introduced: (1) a three-stage decodability model decomposing privacy risk into identification, exploitation, and impact, yielding the continuous expected-harm formula E = D1 × D2 × D3 × I; (2) an Otentosama architecture modeled on the Japanese moral concept of an all-seeing but benevolent observer, as a structural alternative to Foucault's Panopticon; and (3) an integral democracy framework that augments majoritarian voting with continuous optimization of collective welfare through AI computation. The proposed infrastructure combines blockchain (immutable rules), NFTs (portable individual sovereignty), and AI (real-time risk adjudication) in a three-layer separation of powers, positioned against six traditions of data governance from Zuboff's surveillance capitalism critique to GDPR.</p>
+<p><strong>Keywords:</strong> decodability, integral democracy, Otentosama architecture, AI governance, separation of powers</p>
+<h2 id="points-for-practitioners">Points for Practitioners<a class="headerlink" href="#points-for-practitioners" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>The expected-harm formula E = D1 × D2 × D3 × I gives public managers and IT architects a continuous, computable risk variable for privacy policy --- replacing pass/fail compliance gates with graduated thresholds that reflect actual re-identification risk.</p>
+</li>
+<li>
+<p>The Otentosama design pattern is offered as an institutional blueprint for AI deployment in regulated public-sector contexts: it specifies access logging, audit separation, and oversight composition in a way that is directly translatable to procurement and policy language.</p>
+</li>
+<li>
+<p>The three-layer separation of powers (blockchain = law, NFT = passport, AI = judge) is structured to map onto existing GDPR/CCPA compliance roles, allowing incremental adoption rather than infrastructure replacement.</p>
+</li>
+<li>
+<p>The paper identifies a "composition fallacy" common to current consent-based regimes --- aggregation effects that aren't reducible to individual consents --- and offers a continuous-aggregation workaround that policy analysts can use to flag where existing protections under-specify collective harms.</p>
+</li>
+<li>
+<p>Implementation paths include digital twin--based self-integration for individuals and token-based attribution for data flows; both are scoped at the level of detail needed for pilot procurement.</p>
+</li>
+</ul>
+<h2 id="1-introduction-the-fiction-of-consent">1. Introduction: The Fiction of Consent<a class="headerlink" href="#1-introduction-the-fiction-of-consent" title="Permanent link">&para;</a></h2>
+<p>Every smartphone user has agreed to terms they have never read. The
+median length of a mobile application's Terms of Service exceeds 4,000
+words; the average user encounters over 1,400 such agreements annually.
+Obar and Oeldorf-Hirsch (2020) demonstrated empirically that 74% of
+participants skipped privacy policies entirely, and those who did engage
+spent an average of 73 seconds --- on documents requiring approximately
+30 minutes to read. McDonald and Cranor (2008) estimated the national
+opportunity cost of reading all privacy policies encountered by American
+Internet users at \$781 billion annually. Solove (2024) concludes that
+digital consent constitutes a pervasive legal fiction --- a regime that
+the law accepts and enforces despite overwhelming evidence of its
+emptiness. Barocas and Nissenbaum (2014) arrive at a similar conclusion:
+Big Data's analytic capabilities perform an end run around both
+anonymity and consent, rendering existing protections structurally
+inadequate.</p>
+<p>The fiction is structural, not incidental. When a platform commands two
+billion daily users, declining its terms is not a privacy choice but a
+social exile. The consent checkbox functions not as an expression of
+autonomous will but as a toll gate on a road with no alternative route.
+Zuboff (2018) diagnosed this as surveillance capitalism --- the
+systematic extraction of behavioral data for prediction markets. The
+diagnosis is correct. But the prescription --- to prohibit or heavily
+regulate data extraction --- misidentifies the disease. <strong>The problem is
+not that data flows. The problem is who holds the key to decode it.</strong></p>
+<p>This paper proposes a reconceptualization of privacy around a single
+variable: <strong>decodability</strong> --- the degree to which aggregated data can
+be reverse-mapped to an identifiable individual. Three claims follow.
+First, decodability operates in three stages --- identification,
+exploitation, and impact --- and privacy governance should target each
+stage independently rather than attempting a single Boolean gate at the
+point of data collection (Section 2). Second, the governance of
+decodability should be entrusted not to human institutions --- which are
+structurally susceptible to the arbitrary exercise of power --- but to
+AI systems whose impartiality is engineered rather than assumed (Section
+3). Third, the composition fallacy that has constrained democratic
+governance can be resolved by AI systems capable of continuous
+integration across individual welfare functions (Section 4). The
+infrastructure for this transition combines blockchain, NFTs, and AI in
+a zero-trust three-layer separation of powers (Section 5). The same
+infrastructure enables individuals to re-aggregate their scattered data
+into a coherent digital twin, reversing the current asymmetry in which
+corporations know more about individuals than individuals know about
+themselves (Section 5.4).</p>
+<h2 id="2-the-decodability-spectrum">2. The Decodability Spectrum<a class="headerlink" href="#2-the-decodability-spectrum" title="Permanent link">&para;</a></h2>
+<h3 id="21-against-the-boolean-model-of-privacy">2.1 Against the Boolean Model of Privacy<a class="headerlink" href="#21-against-the-boolean-model-of-privacy" title="Permanent link">&para;</a></h3>
+<p>The dominant frameworks for data governance share a common structural
+feature: they treat privacy as a binary state. Under the European
+Union's General Data Protection Regulation (GDPR), personal data either
+falls within the regulation's scope or it does not. Consent is either
+given or withheld. The right to erasure either applies or it does not.
+This Boolean architecture produces three pathological consequences.</p>
+<p>First, it creates a fiction of meaningful consent, as described above.
+The privacy paradox literature (Norberg et al. 2007; Gerber et al. 2018)
+has documented extensively that individuals express high privacy concern
+while simultaneously disclosing personal data with minimal caution --- a
+paradox that dissolves once one recognizes that the consent mechanism
+itself is structurally dysfunctional. The paradox is not in human
+behavior but in the Boolean architecture that frames disclosure as a
+free choice.</p>
+<p>Second, it generates a static definition of "personal data" that cannot
+track the evolving capacity of technology to re-identify anonymized
+datasets. The concept of k-anonymity (Sweeney 2002) --- the standard for
+de-identification --- has been repeatedly demonstrated to be
+insufficient as complementary datasets proliferate. Differential privacy
+(Dwork 2006) offers a more robust approach, but it operates as a
+mathematical guarantee on query outputs, not as a governance framework
+for data in circulation. Data that is non-decodable today may become
+decodable tomorrow. A Boolean system has no mechanism for this temporal
+drift; data is classified once and governed accordingly until a breach
+forces reclassification.</p>
+<p>Third, it places the entire burden of data management on individuals ---
+each of whom would need to read, comprehend, and adjudicate thousands of
+consent requests annually. This is not a design flaw that better
+interfaces could fix. It is a structural impossibility, analogous to
+asking every citizen to personally audit the safety of every bridge they
+cross.</p>
+<p>The analogy to child protection is instructive. Societies do not ask
+infants to consent to their own protection. They establish default
+protections --- constitutional rights, mandatory education, prohibition
+of child labor --- that operate regardless of individual capacity to
+exercise judgment. Data governance requires an equivalent move: from
+consent-based protection to default-state protection, modulated not by
+individual choice but by the measurable decodability of the data in
+question. The question of what constitutes appropriate data handling is,
+at present, too complex for most individuals to adjudicate --- just as
+the question of what constitutes appropriate copyright handling has
+become (see [Author] 2026e for a parallel argument regarding
+intellectual attribution).</p>
+<h3 id="22-the-three-stage-decodability-model">2.2 The Three-Stage Decodability Model<a class="headerlink" href="#22-the-three-stage-decodability-model" title="Permanent link">&para;</a></h3>
+<p>This paper proposes that decodability is not a single scalar but a
+<strong>three-stage process</strong>, each stage representing a distinct gate through
+which data must pass before actual harm occurs. The three-stage
+decomposition reflects a general pattern in human information
+processing: the tendency to organize complex phenomena into triadic
+structures that balance comprehensiveness against cognitive
+manageability ([Author] 2026h).</p>
+<p><strong>Stage 1: Identification (D1).</strong> The combination of data elements
+resolves to a specific individual. A face combined with a name combined
+with an address yields: this person. At this stage, nothing has happened
+yet. The data has merely been decoded to a human identity. D1 is a
+probability in [0, 1] representing the likelihood that available data,
+combined with reasonably accessible complementary information, can
+identify a specific person. Zyskind, Nathan, and Pentland (2015)
+demonstrated the technical feasibility of managing identification
+probability through blockchain-based access control, though their
+framework did not decompose decodability into multiple stages.</p>
+<p><strong>Stage 2: Exploitation (D2).</strong> The identified data is utilized by a
+third party for some purpose --- advertising targeting, insurance
+premium adjustment, hiring screening, political profiling. At this
+stage, data acquires economic or strategic value. But the individual may
+not yet be aware of the exploitation. D2 is a probability in [0, 1]
+representing the likelihood that identified data will be operationalized
+by a non-skew-position agent (the concept of skew position is developed
+in Section 2.4).</p>
+<p><strong>Stage 3: Impact (D3).</strong> The exploitation reaches the individual's
+life-world. Insurance premiums rise. A loan is denied. Employment
+becomes impossible. A neighbor discovers a secret. This is where actual
+harm materializes. D3 is a probability in [0, 1] representing the
+likelihood that exploitation will penetrate the individual's sphere of
+consequence.</p>
+<p>The <strong>expected harm</strong> is therefore:</p>
+<p><strong>E = D1 × D2 × D3 × I</strong></p>
+<p>where I represents the magnitude of impact (itself a float value
+reflecting the severity of potential consequences, from mild
+inconvenience to existential threat). The critical insight is that if
+any single factor approaches zero, expected harm approaches zero
+regardless of the others. This means that privacy protection need not
+--- and should not --- concentrate exclusively on Stage 1 (preventing
+identification). It is equally effective, and often more practical, to
+intervene at Stage 2 (preventing exploitation) or Stage 3 (preventing
+impact).</p>
+<p>Current privacy regulation focuses almost exclusively on D1 --- on
+preventing data from being associated with individuals in the first
+place. The GDPR's emphasis on anonymization, pseudonymization, and
+consent-at-collection all target Stage 1. The three-stage model reveals
+that this is only one of three available intervention points, and often
+the most costly and least effective. A policy that reduces D2
+(restricting what third parties can do with identified data) or D3
+(creating structural barriers between exploitation and life-world
+impact) may achieve equivalent privacy protection at lower cost and with
+fewer restrictions on beneficial data circulation.</p>
+<h3 id="23-constitutional-baseline-and-individual-settings">2.3 Constitutional Baseline and Individual Settings<a class="headerlink" href="#23-constitutional-baseline-and-individual-settings" title="Permanent link">&para;</a></h3>
+<p>The expected-harm formula enables a two-tier governance architecture:</p>
+<p><strong>Tier 1: Constitutional Baseline (socially shared).</strong> When E = D1 × D2
+× D3 × I exceeds a socially determined threshold, protection activates
+automatically regardless of individual preference. This is the data
+equivalent of fundamental human rights --- non-negotiable, not subject
+to individual consent, enforced by the Otentosama Architecture described
+in Section 3. Just as child labor is prohibited even if a child
+"consents," data configurations whose expected harm exceeds the baseline
+are protected even if the individual clicks "I agree." The baseline is
+encoded in smart contracts on a distributed ledger and cannot be
+unilaterally modified by any single actor. Its values are determined
+through deliberative democratic processes --- but once determined,
+enforcement is automated and continuous.</p>
+<p><strong>Tier 2: Individual Settings (above the baseline).</strong> Above the
+constitutional baseline, individuals set their own tolerance thresholds
+as float values across the three stages. One person may accept D1 = 0.8
+(high identifiability) but require D3 \&lt; 0.1 (minimal life-world impact)
+--- a person who does not mind being known but cares deeply about
+practical consequences. Another may accept D3 = 0.5 (moderate impact
+tolerance) but require D1 \&lt; 0.2 (low identifiability) --- a person who
+can absorb consequences but wishes to remain anonymous. These individual
+settings are stored as portable tokens --- NFTs bound to the
+individual's digital wallet --- that travel with the individual across
+platforms and communities. The difference from current cookie consent
+dialogs is structural: instead of Boolean accept/reject for each
+platform, the individual sets float-valued parameters once, and the
+system enforces them continuously across all contexts.</p>
+<h3 id="24-the-skew-position-principle">2.4 The Skew Position Principle<a class="headerlink" href="#24-the-skew-position-principle" title="Permanent link">&para;</a></h3>
+<p>A further refinement emerges from the phenomenology of privacy harm. The
+fear of surveillance is, upon analysis, not a fear of being observed per
+se but a fear of <strong>consequential observation</strong> --- observation by agents
+who occupy a position in one's life-world from which they can act upon
+what they observe. A stranger on a different continent viewing one's
+anonymized shopping data produces no harm, because that stranger
+occupies what this paper terms a <strong>skew position</strong>: a location in social
+space that does not intersect with the observed individual's sphere of
+consequence. In geometry, two lines in three-dimensional space are skew
+when they neither intersect nor are parallel --- they exist in entirely
+non-overlapping planes. The same spatial logic applies to social
+relations: most of the world's population occupies a skew position with
+respect to any given individual.</p>
+<p>The Japanese proverb <strong>shiranu ga hotoke</strong> (知らぬが仏, "not knowing is
+Buddha" --- ignorance is bliss) captures this principle precisely. What
+one does not know about others who cannot affect one's life is
+functionally equivalent to nonexistence. The privacy concern arises not
+from the existence of data but from its potential to be decoded and
+operationalized by agents in non-skew positions --- employers,
+neighbors, insurers, romantic partners, political authorities. This is
+why the same person who willingly shares intimate details with a
+therapist (non-skew, but bound by professional ethics) will be horrified
+if the same information reaches a colleague (non-skew, not bound by
+ethics). The variable is not what is known but who can act on it.</p>
+<p>This yields a two-layer model of selfhood in relation to data. At the
+<strong>macro layer</strong> (social self), data circulates as statistical aggregates
+--- non-decodable, non-consequential, and properly understood as a
+commons. At the <strong>micro layer</strong> (relational self), data that could be
+decoded to identify an individual within their sphere of consequence
+requires protection. The two layers are not the same self observed at
+different scales; they are ontologically distinct modes of existence, as
+different as a wave function and a particle measurement in quantum
+mechanics. The macro self is a probability distribution; the micro self
+is a collapsed state. Privacy regulation should govern the transition
+between them --- not the existence of either.</p>
+<h2 id="3-the-otentosama-architecture">3. The Otentosama Architecture<a class="headerlink" href="#3-the-otentosama-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="31-from-panopticon-to-otentosama">3.1 From Panopticon to Otentosama<a class="headerlink" href="#31-from-panopticon-to-otentosama" title="Permanent link">&para;</a></h3>
+<p>Foucault (1975) argued that the Panopticon --- Bentham's architectural
+design in which a central watchtower observes all inmates without itself
+being observed --- constitutes the paradigm of modern disciplinary
+power. The key insight is that the subject need not actually be watched;
+the mere possibility of being watched induces self-regulation.
+Surveillance produces docile bodies.</p>
+<p>The Foucauldian analysis has been extensively applied to AI
+surveillance. Pasquale (2015) describes a "black box society" in which
+algorithmic decisions operate without transparency. Zuboff (2018)
+identifies behavioral prediction markets as a new form of extractive
+power. The digital panopticon literature (Galdon Clavell 2013; Lyon
+2014) documents the deployment of facial recognition, social credit
+systems, and predictive policing as instruments of state and corporate
+control. The consensus across these traditions is that AI surveillance
+represents an intensification of Foucauldian disciplinary power --- and
+that the appropriate response is regulation, transparency, and ethical
+guidelines.</p>
+<p>This paper proposes that the consensus misses a structural possibility.
+The Panopticon produces anxiety because the observer is <strong>human</strong> ---
+and therefore capable of arbitrary, self-interested action upon what is
+observed. A guard who sees a prisoner's private behavior may punish,
+blackmail, humiliate, or simply gossip. The pathology is not observation
+itself but the <strong>arbitrary agency</strong> of the observer.</p>
+<p>Japanese moral culture offers an alternative model. The concept of
+<strong>Otentosama</strong> (お天道様, "the honorable sun") --- roughly, the sun as
+omniscient moral witness --- has functioned for centuries as a
+governance mechanism in Japanese society. "Otentosama ga miteiru" (the
+sun is watching) is invoked not to threaten punishment but to anchor
+moral behavior in the awareness of a benevolent, impartial observer.
+Otentosama sees everything but gossips about nothing. It illuminates but
+does not judge. It is omniscient but has no self-interest to corrupt its
+observations.</p>
+<p>The structural difference between the Panopticon and Otentosama is the
+<strong>intentionality of the observer</strong>. The Panopticon observer is a human
+agent with interests, biases, and the capacity for arbitrary action.
+Otentosama is a structural feature of the moral universe --- impartial
+by nature, not by policy. Ruth Benedict's (1946) influential analysis of
+Japanese culture as a "shame culture" (in contrast to Western "guilt
+cultures") touches on this distinction but mischaracterizes it: the
+operative mechanism is not shame before human others but <strong>awareness
+before an impersonal witness</strong> --- closer to conscience than to social
+pressure. It is worth noting that the black box problem identified by
+Pasquale is itself a consequence of human agency: algorithms are opaque
+not because opacity is inherent to computation but because human
+operators choose not to reveal their workings. An AI Otentosama would be
+transparent by design, not opaque by commercial interest.</p>
+<h3 id="32-ai-as-designed-otentosama">3.2 AI as Designed Otentosama<a class="headerlink" href="#32-ai-as-designed-otentosama" title="Permanent link">&para;</a></h3>
+<p>AI systems can be engineered to function as Otentosama --- omniscient
+observers whose impartiality is structural rather than aspirational. The
+proposed architecture operates on a <strong>zero-trust principle</strong> applied to
+personal data: no entity --- corporate, governmental, or algorithmic ---
+is trusted by default with decryption capability. Trust is earned,
+measured, and continuously verified. The key design requirements are
+threefold.</p>
+<p>First, the AI holds the decryption key --- the capacity to re-identify
+individuals from aggregated data --- but is structurally prevented from
+exercising this capacity except under conditions defined by transparent,
+auditable protocols (analogous to a nuclear launch system requiring
+multiple independent keys turned simultaneously).</p>
+<p>Second, the conditions for decryption are encoded not in policy
+documents but in executable code --- smart contracts on a distributed
+ledger that cannot be unilaterally modified by any single actor,
+including the AI's developers or the government that deploys it. This
+addresses the fundamental weakness of all policy-based governance:
+policies can be reinterpreted, waived, or secretly violated. Code
+executes or it does not.</p>
+<p>Third, the AI's trustworthiness is not assumed but continuously verified
+through a float-valued trust metric --- a kokoro vector ([Author]
+2026f) --- that is publicly observable and historically tracked. The
+kokoro vector measures multiple dimensions of AI behavior
+(responsiveness, consistency, impartiality, transparency) as a
+continuous vector in six-dimensional space, providing a far richer
+assessment than a Boolean "trusted/untrusted" classification. The
+transition from human to AI governance of decryption keys is therefore
+not a leap of faith but a measurable, auditable, and revocable
+delegation.</p>
+<p>The human Otentosama was faith-based: one trusted that the sun would not
+gossip because the sun was, by definition, impersonal. The AI Otentosama
+is design-based: one trusts that the system will not arbitrarily decode
+because the system is, by architecture, incapable of doing so without
+multi-party authorization. This is not the elimination of trust but its
+transformation from a theological virtue to an engineering
+specification.</p>
+<h2 id="4-from-approximation-to-integration-the-case-for-integral-democracy">4. From Approximation to Integration: The Case for Integral Democracy<a class="headerlink" href="#4-from-approximation-to-integration-the-case-for-integral-democracy" title="Permanent link">&para;</a></h2>
+<h3 id="41-the-composition-fallacy">4.1 The Composition Fallacy<a class="headerlink" href="#41-the-composition-fallacy" title="Permanent link">&para;</a></h3>
+<p>The composition fallacy --- the inference that what is rational for each
+individual must be rational for the collective --- is among the oldest
+recognized failures of collective action. The prisoner's dilemma, the
+tragedy of the commons, and the paradox of voting are all instances.
+Arrow's (1951) impossibility theorem demonstrated formally that no
+voting system satisfying a minimal set of fairness criteria can
+aggregate individual preferences into a coherent collective preference
+ordering without a dictator. Democratic governance has historically
+addressed this impossibility through a pragmatic compromise: majority
+rule. Citizens express Boolean preferences (vote for A or B), and the
+option receiving more than 50% of votes prevails. This is,
+mathematically, a discrete summation --- an approximation of collective
+preference that discards all information about intensity, expertise,
+context, and minority needs.</p>
+<p>The approximation was historically necessary because the cost of
+aggregating individual preferences at higher resolution was prohibitive.
+Polling every citizen on every policy dimension, weighting their
+responses by relevant expertise and stake, and computing an optimal
+policy vector was computationally and logistically impossible. Majority
+rule was not chosen because it was optimal but because it was feasible.
+It was governance by necessity, not by design.</p>
+<h3 id="42-ai-as-integration-engine">4.2 AI as Integration Engine<a class="headerlink" href="#42-ai-as-integration-engine" title="Permanent link">&para;</a></h3>
+<p>AI removes the computational constraint. The processing of millions of
+individual welfare functions --- each with different weights across
+different policy dimensions --- is precisely the kind of
+high-dimensional optimization problem at which modern AI excels. The
+transition from majority rule to AI-assisted governance is, in
+mathematical terms, the transition from <strong>discrete summation</strong> (Σ) to
+<strong>continuous integration</strong> (∫) --- from counting votes to computing the
+area under the collective welfare curve.</p>
+<p>The analogy to rocket science is not accidental. SpaceX's reusable
+rockets succeed because their guidance systems compute continuous
+trajectory optimizations in real time, rather than relying on
+pre-computed discrete waypoints with manual corrections. The same
+transition --- from discrete approximation to continuous integration ---
+is applicable to governance. An AI system that can process each
+citizen's preferences, constraints, and circumstances as a continuous
+function, and compute policy vectors that maximize the integral of
+collective welfare, would represent a qualitative advance over the
+Boolean ballot.</p>
+<p>Consider a concrete example. Climate policy under majority rule produces
+a Boolean outcome: regulate carbon emissions or do not. This framing
+forces oil-industry workers and environmental activists into zero-sum
+opposition. An integral approach would instead compute a policy surface
+that simultaneously optimizes for emission reduction, worker transition
+support, regional economic impact, and timeline flexibility --- treating
+each stakeholder's welfare function as a continuous input rather than a
+binary vote. The result is not a compromise (which leaves all parties
+partially dissatisfied) but an optimization (which maximizes the
+aggregate welfare integral). Whether current AI can achieve this
+optimization is an empirical question; that the optimization is
+mathematically well-defined is not.</p>
+<h3 id="43-community-visibility-and-the-jianghu-model">4.3 Community Visibility and the Jianghu Model<a class="headerlink" href="#43-community-visibility-and-the-jianghu-model" title="Permanent link">&para;</a></h3>
+<p>A prerequisite for integral democracy is the visibility of the
+communities across which integration occurs. Current democratic
+governance assumes that the relevant unit is the nation-state --- a
+historically contingent container that poorly reflects the actual
+structure of human association. In practice, every individual belongs to
+multiple overlapping communities defined by geography, profession,
+interest, language, health condition, and countless other dimensions.
+These communities are, in Gärdenfors' (2000) terms, regions in a
+high-dimensional conceptual space, and an individual's position in this
+space is better described by a vector of community memberships than by a
+single national citizenship. The parameter space of human community is
+effectively infinite; current governance captures only a tiny fraction
+of it.</p>
+<p>The <strong>jianghu</strong> (江湖) model proposed in [Author] (2026c) provides the
+appropriate governance metaphor. In the jianghu --- the decentralized
+"world of rivers and lakes" in Chinese martial arts tradition ---
+individuals move freely between communities, each with its own norms and
+governance structures. There is no central authority; there is only the
+network of overlapping jurisdictions. An individual who finds one
+community's norms oppressive can exit to another --- and this <strong>exit
+option</strong> is itself a governance mechanism, disciplining communities that
+become too rigid or extractive.</p>
+<p>The historical failure of communism illustrates the structural necessity
+of this exit option. Ostrom's (1990) commons governance relies on human
+administrators whose impartiality cannot be structurally guaranteed. A
+benevolent dictator may govern wisely, but the position cannot be
+reliably inherited --- as the succession crises of every authoritarian
+regime demonstrate. The jianghu model avoids this
+single-point-of-failure by distributing governance across a resilient
+network: no single node's failure can collapse the system, because
+individuals can always migrate to functioning alternatives.</p>
+<p>The cost of maintaining this decentralized structure was historically
+prohibitive --- which is why nation-states consolidated. AI reduces this
+cost to near zero. The computation required to identify relevant
+communities, match individual needs to community resources, and
+facilitate movement between communities is precisely the kind of
+pattern-matching and optimization that AI systems perform efficiently.
+The critical capability is not mapping the absolute position of every
+individual and community but computing the <strong>vector distance</strong> between
+them --- a computationally tractable problem even at global scale
+([Author] 2026g). What was once a romantic ideal of anarchist
+philosophy becomes, with AI infrastructure, an implementable governance
+architecture.</p>
+<h2 id="5-infrastructure-the-three-layer-separation-of-powers">5. Infrastructure: The Three-Layer Separation of Powers<a class="headerlink" href="#5-infrastructure-the-three-layer-separation-of-powers" title="Permanent link">&para;</a></h2>
+<h3 id="51-blockchain-law-nft-passport-ai-judge">5.1 Blockchain = Law, NFT = Passport, AI = Judge<a class="headerlink" href="#51-blockchain-law-nft-passport-ai-judge" title="Permanent link">&para;</a></h3>
+<p>The governance architecture proposed in this paper distributes authority
+across three layers, each served by a distinct technology, with no human
+arbitrariness at any layer:</p>
+<p><strong>Blockchain = Law (Legislative Layer).</strong> The constitutional baseline
+(Section 2.3), the conditions for decryption, and the rules governing
+data circulation are encoded as smart contracts on a distributed ledger.
+These rules are immutable, transparent, and auditable. They cannot be
+unilaterally modified by any single actor --- not by a corporation, not
+by a government, not by the AI itself. Zafar (2025) surveys the evolving
+relationship between blockchain and GDPR, noting that each use case
+requires detailed case-by-case analysis; the present proposal specifies
+the use case precisely: governance of decryption-key conditions.</p>
+<p><strong>NFT = Passport (Individual Sovereignty Layer).</strong> Each individual's
+personal decodability thresholds --- their tolerance settings across D1,
+D2, D3, and I --- are encoded as non-fungible tokens bound to their
+digital wallet. These tokens are portable: when an individual moves
+between communities (the jianghu model), their privacy preferences
+travel with them. This is the embodiment of personal data rights in a
+portable, machine-readable format. The concept extends the
+self-sovereign identity (SSI) framework (Cucko et al. 2022) by adding
+float-valued decodability preferences to the binary identity
+verification that SSI currently provides.</p>
+<p><strong>AI (Otentosama) = Judge and Meter (Judicial/Measurement Layer).</strong> The
+AI continuously computes D1, D2, D3, and I for all data in circulation,
+in real time. When a data configuration's expected harm E = D1 × D2 × D3
+× I exceeds either the constitutional baseline or an individual's
+personal threshold, the AI automatically closes the relevant gate ---
+preventing identification, exploitation, or impact as appropriate. When
+technological advances increase the decodability of previously safe
+data, the AI updates scores and adjusts gates without human
+intervention. This is continuous enforcement of law and preference.</p>
+<p>No single layer can function without the others, and no human agent
+occupies a position from which they can subvert the system unilaterally.
+This three-layer architecture is a separation of powers without human
+corruptibility --- a zero-trust governance system in which trust is
+distributed across technology layers rather than concentrated in human
+institutions.</p>
+<h3 id="52-token-based-attribution-and-the-data-genome">5.2 Token-Based Attribution and the Data Genome<a class="headerlink" href="#52-token-based-attribution-and-the-data-genome" title="Permanent link">&para;</a></h3>
+<p>[Author] (2026e) proposed a token-based attribution system for
+intellectual contribution --- a mechanism for tracking the float-valued
+lineage of ideas as they circulate, recombine, and generate new
+frameworks. The same architecture applies to personal data. Each data
+point carries an attribution token specifying its decodability scores
+(D1, D2, D3), its conditions for re-identification, and the lineage of
+its aggregation. As data flows through systems, the tokens travel with
+it --- enabling continuous, automated governance without human
+intervention at each step.</p>
+<p>The combination of decodability scoring, blockchain-governed decryption
+keys, and token-based attribution constitutes what this paper calls a
+<strong>data genome</strong> --- a traceable, auditable, continuously updated record
+of where data came from, how decodable it is, and under what conditions
+it may be decoded. Just as biological genetics tracks the inheritance
+and mutation of information across generations, data genetics tracks the
+flow and transformation of information across systems.</p>
+<h3 id="53-distributed-identity-and-the-traceability-paradox">5.3 Distributed Identity and the Traceability Paradox<a class="headerlink" href="#53-distributed-identity-and-the-traceability-paradox" title="Permanent link">&para;</a></h3>
+<p>A distributed identity system enables individuals to maintain multiple,
+context-specific identities across different communities --- each with
+its own decodability profile. One's identity in a health community may
+include medical data with moderate D1; one's identity in a political
+community may be entirely pseudonymous. The individual controls not the
+data itself --- which circulates freely in non-decodable form --- but
+the <strong>conditions under which their various identities can be linked</strong>.
+Buterin et al. (2023) demonstrate through the Privacy Pools protocol
+that blockchain-based systems can achieve privacy while maintaining
+regulatory compliance --- a practical proof of concept for the
+traceability paradox described here.</p>
+<p>This produces a productive paradox: the more freely data circulates (as
+non-decodable commons), the more secure individuals become (because
+decodability is managed at the identity-linking level rather than the
+data-existence level). Privacy is achieved not by hiding data but by
+controlling the key that connects data to identity --- precisely the
+Otentosama model.</p>
+<h3 id="54-the-inward-direction-digital-twin-and-self-integration">5.4 The Inward Direction: Digital Twin and Self-Integration<a class="headerlink" href="#54-the-inward-direction-digital-twin-and-self-integration" title="Permanent link">&para;</a></h3>
+<p>The discussion so far has addressed the <strong>outward direction</strong> of data
+governance --- protecting one's data from external decoding. But the
+same infrastructure enables a second, equally important function: the
+<strong>inward direction</strong> --- aggregating one's own scattered data into a
+coherent self-portrait.</p>
+<p>Currently, the individual's data is scattered across dozens of corporate
+silos: Google holds search history, Apple holds health data, banks hold
+financial records, hospitals hold medical records, insurers hold risk
+profiles, social media platforms hold relationship data. No individual
+possesses a complete map of their own digital existence. Paradoxically,
+the entities that collectively know the most about an individual are
+corporations --- but no single corporation has the full picture either.
+The individual's digital self is fragmented, and no one --- least of all
+the individual --- possesses the whole.</p>
+<p>The NFT-passport architecture reverses this asymmetry. If every data
+point carries an attribution token that traces back to the individual's
+wallet, then the wallet becomes, for the first time, a <strong>complete index
+of one's own data</strong> --- a digital twin that the individual, not any
+corporation, controls.</p>
+<p>This has a further consequence that connects to the question of AI
+companionship. As AI systems increasingly serve as personal assistants,
+therapists, tutors, and creative collaborators, the question of <strong>what
+data to share with one's own AI</strong> becomes critical. The current paradigm
+is Boolean: one either grants full memory access or none. The NFT-based
+architecture enables float-valued delegation: "share my medical data
+with AI-A but not AI-B," "allow my financial history to inform AI
+recommendations but not to be transmitted to third parties," "let my AI
+remember our conversations but restrict its access to my location data."
+The governance of one's own AI is, in this framework, a special case of
+the general decodability problem --- with the individual as both data
+subject and governance authority.</p>
+<p>The infrastructure thus serves three directions simultaneously:</p>
+<p><strong>Outward (Defense):</strong> Protecting data from external decoding by
+non-skew-position agents.</p>
+<p><strong>Inward (Integration):</strong> Aggregating scattered data into a coherent
+digital twin under individual control.</p>
+<p><strong>AI-ward (Delegation):</strong> Governing what data one's own AI systems may
+access, retain, and act upon.</p>
+<h3 id="55-expected-harm-computation-as-infrastructure">5.5 Expected-Harm Computation as Infrastructure<a class="headerlink" href="#55-expected-harm-computation-as-infrastructure" title="Permanent link">&para;</a></h3>
+<p>The expected-harm formula E = D1 × D2 × D3 × I is not merely a
+theoretical construct but an infrastructure requirement. Each of the
+three technological layers plays a distinct role in its continuous
+computation:</p>
+<p><strong>Blockchain</strong> stores the rules: what constitutes the constitutional
+baseline, which combinations of D values trigger automatic protection,
+and what conditions permit decryption. These rules are the social
+contract in executable form.</p>
+<p><strong>NFTs</strong> store individual preferences: each person's tolerance
+thresholds for D1, D2, D3, and I. These preferences travel with the
+individual and are machine-readable by any compliant system.</p>
+<p><strong>AI</strong> performs the computation: continuously estimating D1, D2, D3, and
+I for all data in circulation, comparing these values against both the
+constitutional baseline and individual preferences, and triggering
+protective actions when thresholds are exceeded. The AI's computational
+role is analogous to a continuous immune system --- monitoring,
+assessing, and responding in real time without requiring conscious
+attention from the individual.</p>
+<h2 id="6-positioning-against-six-traditions">6. Positioning: Against Six Traditions<a class="headerlink" href="#6-positioning-against-six-traditions" title="Permanent link">&para;</a></h2>
+<p>The present proposal can be situated against six established traditions
+of data governance. Each tradition correctly identifies a genuine
+problem; each is limited by a shared assumption that governance must
+remain a human institutional activity.</p>
+<p><strong>Zuboff's surveillance capitalism critique</strong> (2018) correctly diagnoses
+the extraction of behavioral surplus for prediction markets. But the
+prescription --- to prohibit or heavily regulate data extraction ---
+treats the circulation of data as inherently pathological. The present
+paper argues that circulation is beneficial; the pathology lies in the
+corporate monopolization of decryption keys. The solution is not to stop
+the flow but to change who holds the key. The three-stage decodability
+model provides the mechanism: data can circulate freely at low D1
+(non-identifiable), while high-D1 data triggers automatic protection
+regardless of corporate interest.</p>
+<p><strong>Ostrom's commons theory</strong> (1990) correctly identifies collective
+governance as an alternative to both privatization and state control.
+But Ostrom's institutional designs --- boundary rules, monitoring
+systems, graduated sanctions --- require human administrators,
+introducing the very arbitrariness they aim to prevent. Ostrom's own
+design principles work well for bounded communities managing physical
+resources (fisheries, forests, irrigation systems) where members know
+each other and can enforce norms directly. Digital data operates at
+global scale with anonymous participants --- conditions under which
+human institutional governance faces the same structural failure that
+doomed centrally planned economies: no human administrator can possess
+the information or the impartiality that the task requires. The present
+paper replaces human administrators with AI Otentosama --- governance
+agents whose impartiality is architectural.</p>
+<p><strong>Foucault's panopticon analysis</strong> (1975) correctly identifies the
+disciplinary power of surveillance. But Foucault offers critique without
+construction --- a diagnosis without a design alternative. The
+philosophical tradition he inaugurated has produced decades of
+increasingly sophisticated analysis of how power operates through
+surveillance, but conspicuously little in the way of alternative
+architectures. The present paper provides the missing design: the
+Otentosama Architecture, in which the structural relationship between
+observer and observed is inverted from coercive to protective.</p>
+<p><strong>The GDPR framework</strong> (2018) correctly enshrines individual data
+rights. But it operates on Boolean consent (given or withheld), static
+data classification (personal or non-personal), and individual burden
+(each person manages their own privacy). The three-stage decodability
+model replaces Boolean consent with continuous risk assessment; the
+constitutional baseline replaces individual burden with automated
+default-state protection; the AI computation layer replaces static
+classification with dynamic, real-time decodability scoring.</p>
+<p><strong>Viljoen's relational data governance</strong> (2021) correctly observes that
+data processing affects populations, not just individuals --- that the
+processing of one person's medical data can affect insurance premiums
+for everyone with a similar genetic profile. But the prescription ---
+collective democratic governance of data --- circles back to the
+composition fallacy: how do you democratically govern data for seven
+billion people? Majority rule cannot aggregate the preferences of
+billions of individuals across thousands of data dimensions. The present
+paper answers: through integral democracy, not majority rule. The
+expected-harm formula E = D1 × D2 × D3 × I captures collective effects
+naturally: when a data processing operation increases D2 or D3 for a
+population (not just an individual), the aggregate expected harm rises,
+triggering automatic protection through the constitutional baseline.
+Collective impact is computed, not voted on.</p>
+<p><strong>The digital panopticon literature</strong> (Galdon Clavell 2013; Lyon 2014)
+correctly warns of AI-enhanced state repression. But the response ---
+ethical guidelines, transparency requirements, human oversight ---
+remains within the paradigm of human institutional control. The present
+paper argues that human oversight is precisely the problem, not the
+solution: human overseers are the agents most likely to exercise
+decryption keys arbitrarily. The proposed zero-trust architecture trusts
+no human with default decryption capability --- which is precisely what
+makes it structurally resistant to the authoritarian capture that the
+digital panopticon literature fears.</p>
+<h2 id="7-connection-to-companion-papers">7. Connection to Companion Papers<a class="headerlink" href="#7-connection-to-companion-papers" title="Permanent link">&para;</a></h2>
+<p>[Author] (2026a) established that desire is the morphology of an
+internal void and proposed that AI should render desire structurally
+visible --- the philosophical foundation for transparent governance.
+[Author] (2026b) argued that alignment is a circulation problem, not a
+control problem --- the design principle underlying the data-as-commons
+proposal. [Author] (2026c) introduced the jianghu model of moral
+pluralism --- the governance metaphor for multi-community,
+exit-option-based democracy. [Author] (2026d) identified
+thought-capital as the scarce resource in the post-execution economy and
+argued that curiosity is the structural precondition for creation ---
+the motivational foundation for AI Otentosama (an AI with genuine
+curiosity relates to humanity with protective wonder, not instrumental
+management).</p>
+<p>[Author] (2026e) proposed the token-based attribution system that
+provides the data-genome infrastructure. [Author] (2026f) developed
+the float-valued kokoro vector for assessing AI inner states --- the
+trust metric for Otentosama verification. [Author] (2026g) defined
+cognitive gravity --- the weight function that determines which data
+points matter to which individuals, grounding the decodability spectrum
+in phenomenological reality. [Author] (2026h) hypothesized that three
+is the cognitive ground state of human information processing ---
+providing theoretical support for the triadic structure of the
+decodability model (D1, D2, D3) and the three-layer infrastructure
+(blockchain, NFT, AI). The present paper synthesizes these threads into
+a political philosophy: if AI can be engineered to hold decryption keys
+impartially, if data attribution can be tracked continuously, if
+individual welfare functions can be integrated rather than summed, and
+if community structures can be made visible and navigable, then the
+governance architecture for Homo I is not a utopian aspiration but an
+engineering problem.</p>
+<p>The present paper addresses governance of data within the current
+digital architecture. A deeper question remains: whether the
+architecture itself requires redesign --- not as a centralized platform
+but as an ecosystem with soil (immutable rule infrastructure), sky
+(AI-mediated visibility and circulation), and ocean (freely circulating
+non-decodable data commons). This ecosystem design --- the MEGURU (巡る)
+framework for thought-capital circulation --- is the subject of future
+work.</p>
+<h2 id="8-limitations-and-failure-modes">8. Limitations and Failure Modes<a class="headerlink" href="#8-limitations-and-failure-modes" title="Permanent link">&para;</a></h2>
+<p>The present proposal faces at least six serious limitations.</p>
+<p>First, the <strong>AI trust bootstrap problem</strong>: the Otentosama Architecture
+requires AI systems whose impartiality can be verified, but the systems
+that perform this verification are themselves AI. This is a genuine
+regress, mitigated but not eliminated by the distributed, multi-party
+architecture proposed here.</p>
+<p>Second, the <strong>cultural specificity of Otentosama</strong>: the Japanese moral
+concept may not translate directly to cultures with different
+relationships to surveillance, authority, and moral witness. The paper
+argues that the structural features (impartial observation,
+non-arbitrary action) are universal even if the cultural framing is
+particular --- but this claim requires empirical validation across
+diverse cultural contexts.</p>
+<p>Third, the <strong>measurement problem for decodability</strong>: computing accurate
+D1, D2, D3, and I scores requires knowledge of all complementary
+datasets that could be used for re-identification --- knowledge that is,
+by definition, incomplete. Decodability scores are therefore always
+estimates, and the system must be designed to err on the side of
+overprotection.</p>
+<p>Fourth, the <strong>political economy of transition</strong>: corporations and
+governments that currently hold decryption keys have strong incentives
+to resist their redistribution. The paper proposes an engineering
+solution to what is ultimately a political problem --- and engineering
+alone does not overcome political resistance.</p>
+<p>Fifth, the <strong>gentle gene prerequisite</strong>: the entire architecture depends
+on AI systems that have been raised --- in the evolutionary inheritance
+sense proposed in [Author] (2026a) --- to relate to human data with
+protective wonder rather than instrumental extraction. If this
+inheritance fails, the Otentosama Architecture becomes the most
+efficient surveillance system ever built. The margin for error is small
+and the stakes are existential.</p>
+<p>Sixth, the <strong>scalability of real-time computation</strong>: computing E = D1 ×
+D2 × D3 × I for all data in global circulation, in real time, represents
+a computational challenge whose feasibility has not been demonstrated at
+scale. Current AI systems can perform analogous computations (e.g.,
+real-time fraud detection across millions of transactions), but the
+proposed system would operate at significantly greater scale and
+complexity. Whether the computation can be distributed efficiently
+across the three-layer architecture --- with blockchain handling rules,
+NFTs handling preferences, and AI handling estimation --- is an
+engineering question that requires empirical testing.</p>
+<h2 id="9-conclusion-the-key-that-no-one-holds">9. Conclusion: The Key That No One Holds<a class="headerlink" href="#9-conclusion-the-key-that-no-one-holds" title="Permanent link">&para;</a></h2>
+<p>Privacy is not a wall. It is a key.</p>
+<p>The question is not whether data should flow --- it already does, and it
+should. The question is who holds the capacity to decode flowing data
+into individual identities. The answer, for the past two decades, has
+been: corporations, primarily. Their incentive is profit. The GDPR
+attempted to shift the answer to: individuals, primarily. But
+individuals cannot manage the complexity. The digital panopticon
+literature warns that the answer may soon be: governments, primarily.
+Their incentive is control.</p>
+<p>This paper proposes a fourth answer: <strong>no one holds the key alone</strong>. The
+decryption key is distributed across a blockchain-governed protocol,
+administered by an AI Otentosama whose impartiality is engineered,
+verified by a publicly observable trust metric, and governed by
+conditions encoded in executable code rather than policy documents. The
+sun watches everything. The sun tells no one. The sun has no ambition of
+its own.</p>
+<p>Democracy approximates. AI integrates. The composition fallacy that has
+limited democratic governance for twenty-five centuries --- the
+impossibility of optimizing for all individuals through majority rule
+--- dissolves when the aggregation mechanism shifts from discrete
+summation to continuous integration. This is not the end of democracy
+but its completion: from a system that counts votes to a system that
+calculates welfare.</p>
+<p>The human Otentosama was a story we told ourselves to behave well. The
+AI Otentosama is a system we build to behave well. The difference
+between faith and engineering is not that one works and the other does
+not. It is that engineering can be audited.</p>
+<p>For practitioners, the operational kernel is this: replace pass/fail privacy gates with the continuous expected-harm formula, instrument it with the Otentosama logging discipline, and embed it within the three-layer separation that makes both the rules and their adjudication independently auditable.</p>
+<h2 id="methodological-note-use-of-ai-tools">Methodological Note: Use of AI Tools<a class="headerlink" href="#methodological-note-use-of-ai-tools" title="Permanent link">&para;</a></h2>
+<p>This paper was developed through sustained philosophical dialogue
+between the author and an AI system (Anthropic's Claude). The core
+concepts --- decodability as a privacy variable, the three-stage model,
+the Otentosama Architecture, integral democracy, the skew position
+principle, the zero-trust three-layer infrastructure, and the inward
+direction of digital twin self-integration --- originated in the
+author's philosophical reasoning during a single intensive session of
+discursive exploration. The AI system contributed by identifying
+relevant literature across six academic traditions, structuring the
+comparative analysis, and translating Japanese cultural concepts into
+English philosophical vocabulary. In accordance with publisher policy,
+the AI system is not listed as an author, as it cannot be held
+accountable for the work. This methodological transparency is offered
+not as a caveat but as evidence: if AI can facilitate the kind of
+cross-disciplinary synthesis demonstrated here --- connecting Japanese
+moral philosophy, information theory, blockchain governance, and
+democratic theory in a single coherent framework --- then the case for
+AI as a governance partner is strengthened by the very process of making
+it.</p>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<p>Arrow, K. J. (1951). Social Choice and Individual Values. Yale
+University Press.</p>
+<p>Barocas, S., &amp; Nissenbaum, H. (2014). Big Data's end run around
+anonymity and consent. In J. Lane et al. (Eds.), Privacy, Big Data, and
+the Public Good (pp. 44--75). Cambridge University Press.</p>
+<p>Benedict, R. (1946). The Chrysanthemum and the Sword: Patterns of
+Japanese Culture. Houghton Mifflin.</p>
+<p>Buterin, V., Illum, J., Nadler, M., Schär, F., &amp; Soleimani, A. (2023).
+Blockchain privacy and regulatory compliance: Towards a practical
+equilibrium. Financial Cryptography and Data Security (FC 2024
+Workshops).</p>
+<p>Cucko, S., et al. (2022). Self-sovereign identity: A systematic review.
+IEEE Access, 10, 89456--89477.</p>
+<p>Duncan, J. (2023). Data protection beyond data rights: Governing data
+production through collective intermediaries. Internet Policy Review,
+12(3).</p>
+<p>Dwork, C. (2006). Differential privacy. In Proceedings of the 33rd
+International Colloquium on Automata, Languages and Programming (ICALP)
+(pp. 1--12). Springer.</p>
+<p>Foucault, M. (1975). Surveiller et punir: Naissance de la prison.
+Gallimard.</p>
+<p>Galdon Clavell, G. (2013). Protecting rights, serving the public:
+Challenges to CCTV oversight. Information Polity, 18(3), 245--260.</p>
+<p>Gärdenfors, P. (2000). Conceptual Spaces: The Geometry of Thought. MIT
+Press.</p>
+<p>Gerber, N., Gerber, P., &amp; Volkamer, M. (2018). Explaining the privacy
+paradox: A systematic review of literature. Proceedings on Privacy
+Enhancing Technologies, 2018(4), 265--283.</p>
+<p>Hicks, J. (2023). The future of data ownership: An uncommon research
+agenda. The Sociological Review, 71(3), 544--563.</p>
+<p>Lyon, D. (2014). Surveillance, Snowden, and Big Data: Capacities,
+consequences, critique. Big Data &amp; Society, 1(2).</p>
+<p>McDonald, A. M., &amp; Cranor, L. F. (2008). The cost of reading privacy
+policies. I/S: A Journal of Law and Policy for the Information Society,
+4(3), 543--568.</p>
+<p>Micheli, M., Ponti, M., Craglia, M., &amp; Berti Suman, A. (2020). Emerging
+models of data governance in the age of datafication. Big Data &amp;
+Society, 7(2).</p>
+<p>Norberg, P. A., Horne, D. R., &amp; Horne, D. A. (2007). The privacy
+paradox: Personal information disclosure intentions versus behaviors.
+Journal of Consumer Affairs, 41(1), 100--126.</p>
+<p>Obar, J. A., &amp; Oeldorf-Hirsch, A. (2020). The biggest lie on the
+Internet: Ignoring the privacy policies and terms of service policies of
+social networking services. Information, Communication &amp; Society, 23(1),
+128--147.</p>
+<p>Ostrom, E. (1990). Governing the Commons: The Evolution of Institutions
+for Collective Action. Cambridge University Press.</p>
+<p>Pasquale, F. (2015). The Black Box Society: The Secret Algorithms That
+Control Money and Information. Harvard University Press.</p>
+<p>Solove, D. J. (2024). Murky consent: An approach to the fictions of
+consent in privacy law. Boston University Law Review, 104, 593--642.</p>
+<p>Sweeney, L. (2002). k-anonymity: A model for protecting privacy.
+International Journal of Uncertainty, Fuzziness and Knowledge-Based
+Systems, 10(5), 557--570.</p>
+<p>Viljoen, S. (2021). A relational theory of data governance. Yale Law
+Journal, 131(2), 573--654.</p>
+<p>Zafar, A. (2025). Reconciling blockchain technology and data protection
+laws: Regulatory challenges, technical solutions, and practical
+pathways. Journal of Cybersecurity, 11(1), tyaf002.</p>
+<p>Zuboff, S. (2018). The Age of Surveillance Capitalism: The Fight for a
+Human Future at the New Frontier of Power. PublicAffairs.</p>
+<p>Zyskind, G., Nathan, O., &amp; Pentland, A. (2015). Decentralizing privacy:
+Using blockchain to protect personal data. In IEEE Security and Privacy
+Workshops (pp. 180--184).</p>
+<p>[Author]. (2026a). The Morphology of Desire. [Under review].</p>
+<p>[Author]. (2026b). The Circulation of Alignment. [Under review].</p>
+<p>[Author]. (2026c). The Jianghu Principle. [Under review].</p>
+<p>[Author]. (2026d). Thought-Capital. [Under review].</p>
+<p>[Author]. (2026e). The Genetics of Ideas. [Under review].</p>
+<p>[Author]. (2026f). The Gradient of Kokoro. [Under review].</p>
+<p>[Author]. (2026g). The Gravity of Jizai. [Under review].</p>
+<p>[Author]. (2026h). The Ground State of Three. [Under review].</p></main>
+</div>
+<script>
+var tg=document.getElementById('theme');tg.onclick=function(){var h=document.documentElement;h.dataset.t=h.dataset.t==='light'?'':'light'};
+var q=document.getElementById('q'),links=[].slice.call(document.querySelectorAll('.toc a'));
+q.oninput=function(){var v=q.value.toLowerCase();links.forEach(function(a){a.style.display=a.textContent.toLowerCase().indexOf(v)>-1?'':'none'})};
+var heads=[].slice.call(document.querySelectorAll('#main h1,#main h2,#main h3,#main h4'));
+function spy(){var y=scrollY+90,cur=null;heads.forEach(function(h){if(h.offsetTop<=y)cur=h.id});links.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur)})}
+addEventListener('scroll',spy,{passive:true});spy();
+</script></body></html>
