@@ -61,6 +61,11 @@
   .share-btn { display:inline-block; background:#1d9bf0; color:#fff; padding:10px 18px; border-radius:6px; font-size:14px; text-decoration:none; margin-top:14px; }
   .share-btn:hover { filter:brightness(1.12); }
   .resume-btn { background: var(--debris); color: var(--ink); }
+  .stat-cell.sealed { text-decoration: line-through; opacity: 0.6; outline: 1px solid var(--debris); color: var(--debris); }
+  .seal-bar { margin-top: 12px; display: flex; align-items: center; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .seal-hint { font-size: 13px; color: var(--debris); }
+  #btn-seal, #btn-seal-cancel { background: transparent; border: 1px solid var(--debris); color: var(--debris); }
+  #btn-seal:hover:not(:disabled), #btn-seal-cancel:hover { background: rgba(212,168,83,0.15); }
   .ending-portrait { width: 100%; max-width: 300px; aspect-ratio: 1/1; object-fit: cover; border-radius: 12px; border: 2px solid var(--debris); margin: 0 auto 24px; display: block; }
   
   /* マップ */
@@ -254,7 +259,7 @@ function renderTitle() {
       <button id="btn-start">はじめる</button>
       <a class="share-btn" href="${shareUrl()}" target="_blank" rel="noopener">𝕏 でシェア</a>
       <p style="font-size:11px; opacity:0.5; margin-top:20px;">
-        Boolean→Float RPG v1.1<br>
+        Boolean→Float RPG v1.2<br>
         © 2026 osakenpiro
       </p>
     </div>
@@ -349,16 +354,24 @@ function renderBattle() {
   const playerStats = ATTRS.map(a => 
     `<div class="stat-cell attr-${a}">${ATTR_NAMES[a]}<br>${p.stats[a]}</div>`
   ).join('');
-  const enemyStats = ATTRS.map(a => 
-    `<div class="stat-cell attr-${a}">${ATTR_NAMES[a]}<br>${e.stats[a]}</div>`
-  ).join('');
-  
-  // 技ボタン: 各属性 (Lv > 0 なら使える)
-  const actions = ATTRS.map(a => {
-    const lv = p.stats[a];
-    const disabled = lv <= 0 ? 'disabled' : '';
-    return `<button class="btn-attr-${a}" data-attr="${a}" ${disabled}>${ATTR_NAMES[a]}<br><span style="font-size:11px">Lv.${lv}</span></button>`;
+  const seal = game.seal || { mode:false, used:false, attr:null };
+  const enemyStats = ATTRS.map(a => {
+    const sealed = seal.attr === a;
+    return `<div class="stat-cell attr-${a} ${sealed?'sealed':''}">${ATTR_NAMES[a]}<br>${sealed?'封':e.stats[a]}</div>`;
   }).join('');
+  
+  // 技ボタン: 通常は自属性で攻撃、封じるモード時は敵属性を封印対象に
+  const actions = seal.mode
+    ? ATTRS.map(a => {
+        const lv = e.stats[a];
+        const disabled = lv <= 0 ? 'disabled' : '';
+        return `<button class="btn-attr-${a}" data-seal="${a}" ${disabled}>封：${ATTR_NAMES[a]}<br><span style="font-size:11px">Lv.${lv}</span></button>`;
+      }).join('')
+    : ATTRS.map(a => {
+        const lv = p.stats[a];
+        const disabled = lv <= 0 ? 'disabled' : '';
+        return `<button class="btn-attr-${a}" data-attr="${a}" ${disabled}>${ATTR_NAMES[a]}<br><span style="font-size:11px">Lv.${lv}</span></button>`;
+      }).join('');
   
   const logHtml = game.log.slice(-15).map(l => `<div class="log-entry ${l.cls||''}">${l.text}</div>`).join('');
   
@@ -384,6 +397,11 @@ function renderBattle() {
       </div>
     </div>
     <div class="actions">${actions}</div>
+    <div class="seal-bar">
+      ${seal.mode
+        ? `<span class="seal-hint">封じる属性を選べ ── 相手の強みを Lv.0 に。</span><button id="btn-seal-cancel">やめる</button>`
+        : `<button id="btn-seal" ${seal.used?'disabled':''}>${seal.used?'封印済み':'封じる（1戦1回）'}</button>`}
+    </div>
     <div class="log" id="log">${logHtml}</div>
   `;
 }
@@ -503,6 +521,7 @@ function attachListeners() {
           game.isBoss = false;
         }
         game.log = [];
+        game.seal = { mode:false, used:false, attr:null };
         addLog(`${game.currentEnemy.name} が立ちはだかる。`, 'system');
         game.screen = 'battle';
         render();
@@ -516,10 +535,14 @@ function attachListeners() {
   } else if (screen === 'battle') {
     document.querySelectorAll('.actions button').forEach(btn => {
       btn.onclick = () => {
-        const attr = btn.dataset.attr;
-        playerAttack(attr);
+        if (game.seal && game.seal.mode) { sealAttr(btn.dataset.seal); }
+        else { playerAttack(btn.dataset.attr); }
       };
     });
+    const sealBtn = document.getElementById('btn-seal');
+    if (sealBtn) sealBtn.onclick = () => { game.seal.mode = true; render(); };
+    const sealCancel = document.getElementById('btn-seal-cancel');
+    if (sealCancel) sealCancel.onclick = () => { game.seal.mode = false; render(); };
   } else if (screen === 'result') {
     const m = document.getElementById('btn-map');
     if (m) m.onclick = () => { game.screen = 'map'; render(); };
@@ -557,6 +580,18 @@ function calcDamage(attacker, defender, attr) {
   dmg = Math.max(1, Math.floor(dmg));
   
   return { dmg, rivalryMult, attr };
+}
+
+function sealAttr(attr) {
+  const e = game.currentEnemy;
+  if (!attr || !game.seal || game.seal.used || e.stats[attr] <= 0) return;
+  e.stats[attr] = 0;
+  game.seal.attr = attr;
+  game.seal.used = true;
+  game.seal.mode = false;
+  addLog(`${game.player.name} は ${e.name} の <span class="attr-${attr}">${ATTR_NAMES[attr]}</span> を封じた！ (Lv.0)`, 'system');
+  render();
+  setTimeout(() => enemyAttack(), 700);
 }
 
 function playerAttack(attr) {
