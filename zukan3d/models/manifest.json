@@ -9,7 +9,8 @@
       "float": 0.5,
       "src": "models/koma-ou.glb",
       "poster": "models/poster-ou.png",
-      "note": "最上位の駒。全方位1マス。Float的には“中心”=どこへも等価に行ける基準点。"
+      "note": "最上位の駒。全方位1マス。Float的には“中心”=どこへも等価に行ける基準点。",
+      "usdz": "models/koma-ou.usdz"
     },
     {
       "id": "hi",
@@ -20,7 +21,8 @@
       "src": "models/koma-hi.glb",
       "poster": "models/poster-hi.png",
       "note": "縦横に伸びる大駒。直線の意志。成れば「竜王」、斜め1マスを得る。",
-      "ura": "竜"
+      "ura": "竜",
+      "usdz": "models/koma-hi.usdz"
     },
     {
       "id": "kaku",
@@ -31,7 +33,8 @@
       "src": "models/koma-kaku.glb",
       "poster": "models/poster-kaku.png",
       "note": "斜めに伸びる大駒。盤の対角を一息に渡る。成れば「竜馬」、縦横1マスを得る。",
-      "ura": "馬"
+      "ura": "馬",
+      "usdz": "models/koma-kaku.usdz"
     },
     {
       "id": "kin",
@@ -41,7 +44,8 @@
       "float": 0.55,
       "src": "models/koma-kin.glb",
       "poster": "models/poster-kin.png",
-      "note": "成れない代わりに崩れない。前・斜め前・横・後ろ。守りの基準値。"
+      "note": "成れない代わりに崩れない。前・斜め前・横・後ろ。守りの基準値。",
+      "usdz": "models/koma-kin.usdz"
     },
     {
       "id": "gin",
@@ -52,7 +56,8 @@
       "src": "models/koma-gin.glb",
       "poster": "models/poster-gin.png",
       "note": "斜めと前。退くも進むも斜め。成れば「全」=金の動きへ寄る。",
-      "ura": "全"
+      "ura": "全",
+      "usdz": "models/koma-gin.usdz"
     },
     {
       "id": "kei",
@@ -63,7 +68,8 @@
       "src": "models/koma-kei.glb",
       "poster": "models/poster-kei.png",
       "note": "盤上唯一、駒を飛び越える。二つ先へ跳ぶ非連続。成れば「圭」。",
-      "ura": "圭"
+      "ura": "圭",
+      "usdz": "models/koma-kei.usdz"
     },
     {
       "id": "kyo",
@@ -74,7 +80,8 @@
       "src": "models/koma-kyo.glb",
       "poster": "models/poster-kyo.png",
       "note": "前へだけ、どこまでも。退路を持たない直進。成れば「杏」。",
-      "ura": "杏"
+      "ura": "杏",
+      "usdz": "models/koma-kyo.usdz"
     },
     {
       "id": "fu",
@@ -85,7 +92,8 @@
       "src": "models/koma-fu.glb",
       "poster": "models/poster-fu.png",
       "note": "一歩ずつ前へ。最弱にして最多。成れば「と金」、金の動きを得る。",
-      "ura": "と"
+      "ura": "と",
+      "usdz": "models/koma-fu.usdz"
     },
     {
       "id": "standing",

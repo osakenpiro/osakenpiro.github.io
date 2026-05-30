@@ -180,7 +180,7 @@ const save=()=>{try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function select(m,idx){
   if(!m)return;
-  hero.src=m.src; hero.alt=(m.name||'モデル')+' の3Dモデル';
+  hero.src=m.src; if(m.usdz){hero.setAttribute('ios-src',m.usdz);}else{hero.removeAttribute('ios-src');} hero.alt=(m.name||'モデル')+' の3Dモデル';
   elName.firstChild.textContent=m.name||'—';
   elYomi.textContent=m.yomi?'（'+m.yomi+'）':''; elNote.textContent=m.note||''; btnDl.href=m.src;
   const c=[];
