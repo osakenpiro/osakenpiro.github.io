@@ -96,6 +96,9 @@
   .log-entry.dmg-high { color: var(--c-shi); }
   .log-entry.dmg-low { color: var(--c-hon); opacity: 0.8; }
   .log-entry.system { color: var(--debris); font-style: italic; }
+  .log-entry.lore { color: var(--paper); opacity: 0.82; font-style: italic; border-left: 2px solid var(--debris); padding-left: 8px; margin: 6px 0; }
+  @keyframes logIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .log-entry.new { animation: logIn 0.34s ease both; }
   
   /* 属性カラー */
   .attr-zan { color: var(--c-zan); }
@@ -146,6 +149,28 @@ const ATTR_NAMES = {
 const ATTR_DESC = {
   zan: '線で切る', hon: '反転で乱す', nan: '柔らかさで受ける',
   da: '面で打つ', ko: '硬さで弾く', shi: '点で突く'
+};
+
+// 敵キャラ遭遇ロア (六剋の相関を物語化。剋グラフ: 得意=時計回り隣 / 天敵=反時計回り隣)
+const ENEMY_LORE = {
+  zan: '一本の線で全てを断つ男。乱れ舞う翻(ほん)を一刀に伏せるが、点で来る刺(し)の影は、線では捉えきれない。',
+  hon: '強さと弱さを入れ替える舞い手。柔らかな軟(なん)を内から乱すが、まっすぐな斬(ざん)の一線にだけは、翻弄が届かない。',
+  nan: 'すべてを受け流す沈黙の僧。重い打(だ)を綿のように沈めるが、芯を裏返す翻(ほん)の前では、受けの形を失う。',
+  da:  '面(めん)で世界を均(なら)す鬼。硬い固(こ)を真っ向から砕くが、柔らかな軟(なん)には、拳が深く沈む。',
+  ko:  '決して動かぬ盾。鋭い刺(し)をことごとく弾くが、面で割りに来る打(だ)の前では、己の硬さが仇となる。',
+  shi: '一点を穿(うが)つ影。線の斬(ざん)を点で抜き去るが、硬い固(こ)には、切先(きっさき)が折れる。',
+  boss:'六属性すべてを均等に究めた果ての、のっぺりとした虚無。偏りを捨てた者は、何にも勝てず、何にも負けない──ただ、円環(ループ)し続ける。あなたの偏りで、その輪を断て。'
+};
+
+// 属性別エンディング後日談 (主人公の偏りを言祝ぐ)
+const PLAYER_EPILOGUE = {
+  zan: 'あなたの一線は、最後まで、ためらいを知らなかった。',
+  hon: 'あなたは最後まで、世界を裏返し続けた。秩序の側からは、ついぞ歩み寄らずに。',
+  nan: 'あなたは受け止めることで、誰よりも遠くまで進んだ。',
+  da:  'あなたの一打は、虚無さえも平らに均(なら)した。',
+  ko:  'あなたは動かないことで、世界のほうを動かした。',
+  shi: 'あなたの穿(うが)った一点が、円環にひとつ、穴を空けた。',
+  shiro:'あなたは、何者にも偏らなかった。その均(なら)しが虚無と同じ顔に見えても──あなたはそのつど、選び続けた。だから、虚無とは違う。'
 };
 
 // 相剋: ある属性 X の「得意な相手 (時計回り隣)」と「天敵 (反時計回り隣)」
@@ -240,8 +265,10 @@ function render() {
     gameover: renderGameOver
   }[game.screen];
   $app().innerHTML = fn();
+  if (game.screen === 'battle') game._shownLog = game.log.length;
   if (['map','battle','result'].includes(game.screen)) saveGame();
   attachListeners();
+  if (game.screen === 'battle') { const _l = document.getElementById('log'); if (_l) _l.scrollTop = _l.scrollHeight; }
   if (game._fx && game.screen === 'battle') { flashHit(game._fx); game._fx = null; }
 }
 
@@ -260,7 +287,7 @@ function renderTitle() {
       <button id="btn-start">はじめる</button>
       <a class="share-btn" href="${shareUrl()}" target="_blank" rel="noopener">𝕏 でシェア</a>
       <p style="font-size:11px; opacity:0.5; margin-top:20px;">
-        Boolean→Float RPG v1.3<br>
+        Boolean→Float RPG v1.4<br>
         © 2026 osakenpiro
       </p>
     </div>
@@ -301,6 +328,7 @@ function renderSelect() {
   return `
     <h2>キャラ選択</h2>
     <p style="opacity:0.8; margin-bottom:10px; font-size:14px;">六人の特化型か、まっさらな自由型か。選んだ偏り(あるいは偏りのなさ)が、あなたのビルドになる。</p>
+    <p style="opacity:0.7; margin-bottom:10px; font-size:13px; line-height:1.8;">かつて世界は、六つの極へ裂けた。斬・刺・打・固・軟・翻。極めた者は強く、極めた分だけ脆い。その円環の果てに、偏りを失くした<span class="attr-shiro">虚無のループ</span>が回りはじめる。</p>
     <div class="char-grid">${cards}</div>
   `;
 }
@@ -374,7 +402,13 @@ function renderBattle() {
         return `<button class="btn-attr-${a}" data-attr="${a}" ${disabled}>${ATTR_NAMES[a]}<br><span style="font-size:11px">Lv.${lv}</span></button>`;
       }).join('');
   
-  const logHtml = game.log.slice(-15).map(l => `<div class="log-entry ${l.cls||''}">${l.text}</div>`).join('');
+  const _shown = game._shownLog || 0;
+  const _start = Math.max(0, game.log.length - 15);
+  const logHtml = game.log.slice(-15).map((l, _i) => {
+    const _abs = _start + _i;
+    const _new = _abs >= _shown;
+    return `<div class="log-entry ${l.cls||''}${_new?' new':''}"${_new?` style="animation-delay:${(_abs-_shown)*90}ms"`:''}>${l.text}</div>`;
+  }).join('');
   
   return `
     <div class="header">
@@ -440,6 +474,7 @@ function renderEnding() {
       <img class="ending-portrait" src="assets/chars/${game.player.isBlank ? 'char-shiro' : 'char-'+game.player.mainAttr}.webp" alt="${game.player.name}">
       <p>${game.player.name} は、虚無のループを断ち切った。</p>
       <p>偏ったまま、強くなった。<br>そして、偏ったまま、世界を救った。</p>
+      <p style="color:var(--debris); font-size:17px; line-height:1.9;">${PLAYER_EPILOGUE[game.player.mainAttr] || ''}</p>
       <p style="font-size:14px; opacity:0.7; margin-top:30px;">
         最終ステータス:
       </p>
@@ -523,9 +558,12 @@ function attachListeners() {
           game.isBoss = false;
         }
         game.log = [];
+        game._shownLog = 0;
         game.seal = { mode:false, used:false, attr:null };
         game.enemyStatus = { hanten: 0 };
         addLog(`${game.currentEnemy.name} が立ちはだかる。`, 'system');
+        const _lore = ENEMY_LORE[game.isBoss ? 'boss' : game.currentEnemy.mainAttr];
+        if (_lore) addLog(_lore, 'lore');
         game.screen = 'battle';
         render();
       };
