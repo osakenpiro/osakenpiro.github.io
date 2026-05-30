@@ -66,6 +66,7 @@
   .seal-hint { font-size: 13px; color: var(--debris); }
   #btn-seal, #btn-seal-cancel { background: transparent; border: 1px solid var(--debris); color: var(--debris); }
   #btn-seal:hover:not(:disabled), #btn-seal-cancel:hover { background: rgba(212,168,83,0.15); }
+  .status-badge { display:inline-block; margin-top:8px; padding:3px 10px; border-radius:12px; font-size:12px; background:rgba(107,181,139,0.22); border:1px solid var(--c-hon); color:var(--c-hon); }
   .ending-portrait { width: 100%; max-width: 300px; aspect-ratio: 1/1; object-fit: cover; border-radius: 12px; border: 2px solid var(--debris); margin: 0 auto 24px; display: block; }
   
   /* マップ */
@@ -259,7 +260,7 @@ function renderTitle() {
       <button id="btn-start">はじめる</button>
       <a class="share-btn" href="${shareUrl()}" target="_blank" rel="noopener">𝕏 でシェア</a>
       <p style="font-size:11px; opacity:0.5; margin-top:20px;">
-        Boolean→Float RPG v1.2<br>
+        Boolean→Float RPG v1.3<br>
         © 2026 osakenpiro
       </p>
     </div>
@@ -393,6 +394,7 @@ function renderBattle() {
         <h3>${e.name}</h3>
         <div>HP: ${e.hp}/${e.maxHp}</div>
         <div class="hp-bar-bg"><div class="hp-bar" style="width:${(e.hp/e.maxHp*100)}%"></div></div>
+        ${(game.enemyStatus && game.enemyStatus.hanten > 0) ? `<div class="status-badge">反転 ${game.enemyStatus.hanten}</div>` : ''}
         <div class="stat-row">${enemyStats}</div>
       </div>
     </div>
@@ -522,6 +524,7 @@ function attachListeners() {
         }
         game.log = [];
         game.seal = { mode:false, used:false, attr:null };
+        game.enemyStatus = { hanten: 0 };
         addLog(`${game.currentEnemy.name} が立ちはだかる。`, 'system');
         game.screen = 'battle';
         render();
@@ -560,12 +563,13 @@ function attachListeners() {
 // ============================================================
 // 戦闘ロジック
 // ============================================================
-function calcDamage(attacker, defender, attr) {
+function calcDamage(attacker, defender, attr, invert) {
   const baseAtk = attacker.stats[attr];
   if (baseAtk <= 0) return 0;
   
-  // 相剋補正
-  const rivalryMult = rivalry(attr, defender.mainAttr);
+  // 相剋補正（反転状態異常時は 得意↔天敵 をスワップ）
+  let rivalryMult = rivalry(attr, defender.mainAttr);
+  if (invert) { if (rivalryMult > 1.2) rivalryMult = 0.5; else if (rivalryMult < 0.8) rivalryMult = 1.5; }
   
   // 防御側補正: 同属性防御は +50%、攻撃属性の天敵 (= 攻撃属性 +1) を伸ばしてると -30%
   let defStat = 0;
@@ -614,6 +618,11 @@ function playerAttack(attr) {
     return;
   }
   
+  if (attr === 'hon') {
+    game.enemyStatus = game.enemyStatus || { hanten: 0 };
+    game.enemyStatus.hanten = 2;
+    addLog(`${e.name} を反転させた！ 2ターン、相剋が逆さに乱れる。`, 'system');
+  }
   render();
   // 敵のターン
   setTimeout(() => enemyAttack(), 700);
@@ -636,10 +645,12 @@ function enemyAttack() {
     chosen = usable[Math.floor(Math.random() * usable.length)];
   }
   
-  const result = calcDamage(e, p, chosen);
+  const inverted = !!(game.enemyStatus && game.enemyStatus.hanten > 0);
+  const result = calcDamage(e, p, chosen, inverted);
   let mark = '';
   if (result.rivalryMult > 1.2) mark = ' (有効…！)';
   else if (result.rivalryMult < 0.8) mark = ' (いまひとつ)';
+  if (inverted) { mark += ' [反転]'; game.enemyStatus.hanten--; }
   
   p.hp = Math.max(0, p.hp - result.dmg);
   game._fx = 'player';
