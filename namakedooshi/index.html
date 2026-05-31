@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>怠け通し — NAMAKE-DOOSHI｜サボっても崩れない段階ストリーク</title>
+<meta name="description" content="全か無か、をやめる。1日サボっても崩れない、partial-credit な習慣トラッカー。今日の達成を0〜100%で記録し、momentum(勢い)で続ける。Boolean→Float / #全人類UX改善">
+<meta property="og:title" content="怠け通し — NAMAKE-DOOSHI">
+<meta property="og:description" content="全か無か、をやめる。サボっても崩れない、段階ストリーク習慣トラッカー。">
+<meta property="og:url" content="https://osakenpiro.github.io/namakedooshi/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0a0a0f;--void-deep:#06060a;--surface:#15141a;--surface-hi:#1c1a23;
+  --gold:#d4a853;--gold-soft:rgba(212,168,83,.12);--gold-edge:rgba(212,168,83,.45);
+  --fg1:#e8e0d0;--fg2:#b8b0a0;--fg3:#807868;--line:rgba(200,184,160,.10);
+  --serif:"Cormorant Garamond","Yu Mincho",serif;--sans:"Noto Sans JP","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(130% 100% at 80% -10%,#13131c 0%,var(--void) 50%,var(--void-deep) 100%);background-attachment:fixed;color:var(--fg1);font-family:var(--sans);line-height:1.7;min-height:100vh;-webkit-text-size-adjust:100%}
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(1.4px 1.4px at 14% 18%,rgba(232,224,208,.5),transparent),radial-gradient(1.2px 1.2px at 82% 12%,rgba(232,224,208,.4),transparent),radial-gradient(1.5px 1.5px at 66% 64%,rgba(212,168,83,.45),transparent),radial-gradient(1.1px 1.1px at 30% 78%,rgba(232,224,208,.3),transparent)}
+.wrap{position:relative;z-index:1;max-width:620px;margin:0 auto;padding:40px 18px 80px}
+header{text-align:center;margin-bottom:24px}
+.kicker{font-size:12px;letter-spacing:.26em;color:var(--gold);text-transform:uppercase}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(36px,9.5vw,60px);line-height:1;margin:6px 0 2px}
+.jp-title{font-size:clamp(20px,5.5vw,28px);font-weight:700;letter-spacing:.08em}
+.tag{font-size:14px;color:var(--fg2);margin-top:12px}
+.tag b{color:var(--gold);font-weight:500}
+.panel{background:linear-gradient(180deg,var(--surface) 0%,rgba(21,20,26,.6) 100%);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:16px}
+.today{text-align:center;font-size:12px;letter-spacing:.16em;color:var(--fg3);text-transform:uppercase;margin-bottom:4px}
+.habit{background:var(--void);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;position:relative}
+.habit .hname{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.habit .hname .nm{font-size:17px;font-weight:500;color:var(--fg1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.habit .del{background:none;border:none;color:var(--fg3);font-size:18px;cursor:pointer;flex:0 0 auto;padding:2px 6px}
+.habit .del:hover{color:var(--gold)}
+.btns{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px}
+.btns button{border:1px solid var(--line);background:var(--surface-hi);color:var(--fg2);border-radius:10px;padding:10px 0;font-family:var(--sans);font-size:13px;cursor:pointer;transition:.12s;line-height:1.2}
+.btns button .em{display:block;font-size:18px;color:var(--fg3);margin-bottom:2px}
+.btns button.on{background:var(--gold);color:#1a1407;border-color:var(--gold);font-weight:700}
+.btns button.on .em{color:#1a1407}
+.btns button:hover{border-color:var(--gold-edge)}
+.stats{display:flex;gap:14px;align-items:center;margin-bottom:12px}
+.mom{flex:1}
+.momhead{display:flex;justify-content:space-between;font-size:11.5px;color:var(--fg3);margin-bottom:4px}
+.momhead .v{color:var(--gold);font-variant-numeric:tabular-nums}
+.mombar{height:9px;border-radius:5px;background:#22212a;overflow:hidden}
+.mombar b{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#6a5a38,var(--gold))}
+.eff{flex:0 0 auto;text-align:right}
+.eff .n{font-family:var(--serif);font-weight:700;font-size:30px;color:var(--gold);line-height:1}
+.eff .l{font-size:10.5px;color:var(--fg3)}
+.heat{display:flex;gap:3px;flex-wrap:wrap}
+.heat .cell{width:14px;height:14px;border-radius:3px;background:#1b1a22;border:1px solid rgba(212,168,83,.07)}
+.heat .cell.today{outline:1px solid var(--gold-edge);outline-offset:1px}
+.addrow{display:flex;gap:8px;margin-top:4px}
+.addrow input{flex:1;background:var(--void);border:1px solid var(--line);border-radius:10px;color:var(--fg1);font-family:var(--sans);font-size:15px;padding:11px 13px}
+.addrow input:focus{outline:none;border-color:var(--gold-edge)}
+.addrow button{flex:0 0 auto;background:var(--gold);color:#1a1407;border:none;border-radius:10px;padding:0 16px;font-weight:700;font-family:var(--sans);font-size:14px;cursor:pointer}
+.empty{color:var(--fg3);font-size:13px;text-align:center;padding:14px}
+.philo{font-size:13px;color:var(--fg2);background:var(--gold-soft);border-left:2px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 14px;margin-top:16px;line-height:1.8}
+.philo b{color:var(--gold)}
+.actions{display:flex;gap:10px;margin-top:14px}
+.actions button{flex:1;border-radius:10px;padding:11px;font-family:var(--sans);font-size:14px;cursor:pointer;border:1px solid var(--line);background:var(--surface-hi);color:var(--fg1)}
+.actions button:hover{border-color:var(--gold-edge)}
+footer{text-align:center;margin-top:36px;font-size:12.5px;color:var(--fg3);line-height:1.9}
+footer a{color:var(--gold);text-decoration:none}footer a:hover{text-decoration:underline}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--gold);color:#1a1407;padding:11px 20px;border-radius:24px;font-size:14px;font-weight:700;opacity:0;transition:.25s;z-index:9;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="wrap">
+  <header>
+    <div class="kicker">Boolean → Float ・ #全人類UX改善</div>
+    <h1>NAMAKE-DOOSHI</h1>
+    <div class="jp-title">怠け通し</div>
+    <div class="tag"><b>全か無か</b>、をやめる。1日サボっても <b>崩れない</b> 段階ストリーク。</div>
+  </header>
+
+  <div class="panel">
+    <div class="today" id="today"></div>
+    <div id="habits"></div>
+    <div class="addrow">
+      <input type="text" id="newhabit" placeholder="習慣を足す（例: 散歩 / 執筆 / サプリ）" autocomplete="off">
+      <button id="add">足す</button>
+    </div>
+    <div class="philo">
+      ストリークは「連続日数」じゃない。<b>momentum（勢い）</b>だ。<br>
+      0.0の日も、ゼロに丸めず平均に薄まるだけ。<b>一度サボっても崩れない</b>から、「もういいや」が起きない。半分(½)できた日は、ちゃんと半分カウントされる。
+    </div>
+    <div class="actions">
+      <button id="share">勢いをシェア</button>
+      <button id="reset">全消去</button>
+    </div>
+  </div>
+
+  <footer>
+    記録は<b>あなたのブラウザだけ</b>に保存（サーバー送信なし）。<br>
+    made by <a href="https://osakenpiro.github.io/" target="_blank" rel="noopener">@osakenpiro</a> ・
+    姉妹ツール <a href="https://osakenpiro.github.io/nandometer/" target="_blank" rel="noopener">何度メーター</a> ・
+    <a href="https://osakenpiro.github.io/papers/" target="_blank" rel="noopener">Boolean→Float papers</a><br>
+    #全人類UX改善 — 全か無か、をやめる練習
+  </footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY='namakedooshi-v1';
+const $=s=>document.querySelector(s);
+const STEPS=[{v:0,em:'✕',l:'0'},{v:.25,em:'◔',l:'¼'},{v:.5,em:'◑',l:'½'},{v:.75,em:'◕',l:'¾'},{v:1,em:'●',l:'満'}];
+const DECAY=0.8; // momentum: 1日0.0で勢いは20%減（崩れず薄まる）
+let data=load();
+
+function load(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||{habits:[]};}catch(e){return{habits:[]};}}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}
+function uid(){return Math.random().toString(36).slice(2,8);}
+function ds(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+const TODAY=ds(new Date());
+
+function dayBack(n){const d=new Date();d.setDate(d.getDate()-n);return ds(d);}
+function momentum(h){let m=0;for(let i=27;i>=0;i--){const v=h.log[dayBack(i)]||0;m=m*DECAY+v*(1-DECAY);}return m;}
+function effDays(h){return Object.values(h.log).reduce((a,b)=>a+b,0);}
+
+function render(){
+  $('#today').textContent='今日 '+TODAY+'（今日、どれくらいやった？）';
+  const wrap=$('#habits');wrap.innerHTML='';
+  if(!data.habits.length){wrap.innerHTML='<div class="empty">まだ習慣がありません。下で足してね。</div>';return;}
+  data.habits.forEach(h=>{
+    const cur=h.log[TODAY]??null;
+    const m=momentum(h),eff=effDays(h);
+    const el=document.createElement('div');el.className='habit';
+    let btns='';STEPS.forEach((s,i)=>{btns+=`<button data-id="${h.id}" data-v="${s.v}" class="${cur===s.v?'on':''}"><span class="em">${s.em}</span>${s.l}</button>`;});
+    let heat='';for(let i=27;i>=0;i--){const dt=dayBack(i),v=h.log[dt]||0;const op=v===0?0:(0.18+v*0.82);heat+=`<span class="cell ${dt===TODAY?'today':''}" title="${dt}: ${Math.round(v*100)}%" style="background:${v?`rgba(212,168,83,${op.toFixed(2)})`:'#1b1a22'}"></span>`;}
+    el.innerHTML=`
+      <div class="hname"><span class="nm">${esc(h.name)}</span><button class="del" data-del="${h.id}" title="削除">×</button></div>
+      <div class="btns">${btns}</div>
+      <div class="stats">
+        <div class="mom"><div class="momhead"><span>momentum（勢い）</span><span class="v">${Math.round(m*100)}%</span></div><div class="mombar"><b style="width:${Math.round(m*100)}%"></b></div></div>
+        <div class="eff"><div class="n">${eff.toFixed(1)}</div><div class="l">実効日数</div></div>
+      </div>
+      <div class="heat">${heat}</div>`;
+    wrap.appendChild(el);
+  });
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+
+$('#habits').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.del){data.habits=data.habits.filter(x=>x.id!==b.dataset.del);save();render();return;}
+  if(b.dataset.id){const h=data.habits.find(x=>x.id===b.dataset.id);if(!h)return;
+    const v=+b.dataset.v;h.log[TODAY]=(h.log[TODAY]===v)?undefined:v;if(h.log[TODAY]===undefined)delete h.log[TODAY];
+    save();render();}
+});
+function addHabit(){const n=$('#newhabit').value.trim();if(!n)return;data.habits.push({id:uid(),name:n,log:{}});$('#newhabit').value='';save();render();}
+$('#add').onclick=addHabit;
+$('#newhabit').addEventListener('keydown',e=>{if(e.key==='Enter')addHabit();});
+$('#reset').onclick=()=>{if(confirm('すべての習慣と記録を消します。よい？')){data={habits:[]};save();render();toast('全消去しました');}};
+$('#share').onclick=async()=>{
+  if(!data.habits.length){toast('習慣を足してね');return;}
+  const lines=data.habits.map(h=>`・${h.name}：勢い${Math.round(momentum(h)*100)}%（実効${effDays(h).toFixed(1)}日）`).join('\n');
+  const txt=`怠け通し — いまの勢い\n${lines}\n\n全か無か、をやめた習慣トラッカー。サボっても崩れない。\nhttps://osakenpiro.github.io/namakedooshi/\n#全人類UX改善`;
+  try{await navigator.clipboard.writeText(txt);toast('シェア文をコピー');}catch(e){prompt('コピーしてシェア:',txt);}
+};
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),1700);}
+
+// seed example on first visit
+if(!data.habits.length){data.habits=[{id:uid(),name:'散歩',log:{}},{id:uid(),name:'執筆',log:{}}];save();}
+render();
+</script>
+</body>
+</html>
