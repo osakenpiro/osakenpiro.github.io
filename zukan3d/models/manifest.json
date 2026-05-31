@@ -176,6 +176,16 @@
       "usdz": "models/medal-zenjinrui.usdz",
       "note": "全人類のUXを改善する精神。",
       "yomi": "ぜんじんるい"
+    },
+    {
+      "id": "korokoro",
+      "name": "凝ろコロ",
+      "yomi": "ころころ",
+      "category": "賽 / BeeF",
+      "float": 0.5,
+      "src": "models/dice-korokoro.glb",
+      "poster": "models/poster-korokoro.png",
+      "note": "二値の角を連続値の丸みへ。6面=0.0–1.0、対面の和=1.0（Float補数 1−x）。Boolean→Float＝BeeFの物質化。凝る×ころがる×コロコロの三重がけ。"
     }
   ]
 }
