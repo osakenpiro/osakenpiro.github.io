@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>何度メーター — NANDO-METER｜迷いを0〜100%の確信度に</title>
+<meta name="description" content="「やる/やらない」を0か1かでやめる。迷いの要素を重みづけして、いまの確信度を0〜100%(Float)で測るツール。Boolean→Float / #全人類UX改善">
+<meta property="og:title" content="何度メーター — NANDO-METER">
+<meta property="og:description" content="「やる/やらない」を0か1かでやめる。迷いを 0〜100% の確信度(Float)に。">
+<meta property="og:url" content="https://osakenpiro.github.io/nandometer/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0a0a0f;--void-deep:#06060a;--surface:#15141a;--surface-hi:#1c1a23;
+  --gold:#d4a853;--gold-soft:rgba(212,168,83,.12);--gold-edge:rgba(212,168,83,.45);
+  --no:#6b6b80;--fg1:#e8e0d0;--fg2:#b8b0a0;--fg3:#807868;--line:rgba(200,184,160,.10);
+  --serif:"Cormorant Garamond","Yu Mincho",serif;--sans:"Noto Sans JP","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(130% 100% at 80% -10%,#13131c 0%,var(--void) 50%,var(--void-deep) 100%);background-attachment:fixed;color:var(--fg1);font-family:var(--sans);line-height:1.7;min-height:100vh;-webkit-text-size-adjust:100%}
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(1.4px 1.4px at 14% 18%,rgba(232,224,208,.5),transparent),radial-gradient(1.2px 1.2px at 82% 12%,rgba(232,224,208,.4),transparent),radial-gradient(1.5px 1.5px at 66% 64%,rgba(212,168,83,.45),transparent),radial-gradient(1.1px 1.1px at 30% 78%,rgba(232,224,208,.3),transparent),radial-gradient(1.2px 1.2px at 90% 50%,rgba(232,224,208,.25),transparent)}
+.wrap{position:relative;z-index:1;max-width:660px;margin:0 auto;padding:40px 20px 80px}
+header{text-align:center;margin-bottom:28px}
+.kicker{font-size:12px;letter-spacing:.28em;color:var(--gold);text-transform:uppercase}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(40px,11vw,68px);line-height:1;margin:6px 0 2px;letter-spacing:.01em}
+.jp-title{font-size:clamp(20px,5.5vw,28px);font-weight:700;color:var(--fg1);letter-spacing:.06em}
+.tag{font-size:14px;color:var(--fg2);margin-top:14px;line-height:1.7}
+.tag b{color:var(--gold);font-weight:500}
+.panel{background:linear-gradient(180deg,var(--surface) 0%,rgba(21,20,26,.6) 100%);border:1px solid var(--line);border-radius:16px;padding:22px;margin-top:18px}
+.panel h2{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--fg3);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.panel h2::before{content:"";width:14px;height:1px;background:var(--gold)}
+label.f{display:block;font-size:13px;color:var(--fg2);margin-bottom:6px}
+input[type=text]{width:100%;background:var(--void);border:1px solid var(--line);border-radius:10px;color:var(--fg1);font-family:var(--sans);font-size:16px;padding:12px 14px}
+input[type=text]:focus{outline:none;border-color:var(--gold-edge)}
+input[type=text]::placeholder{color:var(--fg3)}
+#q{font-size:18px}
+.factor{background:var(--void);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;position:relative}
+.factor .fname{width:100%;background:transparent;border:none;border-bottom:1px solid var(--line);color:var(--fg1);font-family:var(--sans);font-size:15px;padding:4px 2px 8px;margin-bottom:12px}
+.factor .fname:focus{outline:none;border-color:var(--gold-edge)}
+.factor .del{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--fg3);font-size:18px;cursor:pointer;line-height:1;padding:4px}
+.factor .del:hover{color:var(--gold)}
+.slabel{display:flex;justify-content:space-between;font-size:11.5px;color:var(--fg3);margin-bottom:2px}
+.slabel .val{color:var(--gold);font-variant-numeric:tabular-nums}
+.srow{margin-bottom:10px}
+.srow:last-child{margin-bottom:0}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:#26242e;outline:none;margin:6px 0}
+input[type=range].lean{background:linear-gradient(90deg,var(--no),#3a3a45 50%,var(--gold))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:var(--gold);border:2px solid var(--void);cursor:pointer;box-shadow:0 0 0 1px var(--gold-edge)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--gold);border:2px solid var(--void);cursor:pointer}
+.addbtn{width:100%;background:transparent;border:1px dashed var(--gold-edge);color:var(--gold);border-radius:10px;padding:11px;font-family:var(--sans);font-size:14px;cursor:pointer;margin-top:2px}
+.addbtn:hover{background:var(--gold-soft)}
+/* meter */
+.meterwrap{text-align:center;padding:6px 0 0}
+svg.gauge{width:100%;max-width:340px;height:auto;display:block;margin:0 auto}
+.bignum{font-family:var(--serif);font-weight:700;font-size:64px;line-height:1;color:var(--gold);font-variant-numeric:tabular-nums;margin-top:-10px}
+.bignum small{font-size:26px;color:var(--fg2)}
+.band{font-size:16px;color:var(--fg1);margin-top:6px;font-weight:500}
+.bandsub{font-size:13px;color:var(--fg3);margin-top:4px}
+.brk{margin-top:16px}
+.brkrow{display:flex;align-items:center;gap:10px;font-size:13px;margin:7px 0}
+.brkrow .nm{flex:0 0 38%;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brkbar{flex:1;height:8px;border-radius:4px;background:#22212a;position:relative;overflow:hidden}
+.brkbar i{position:absolute;top:0;bottom:0;left:50%;width:1px;background:var(--fg3);opacity:.5}
+.brkbar b{position:absolute;top:0;bottom:0;border-radius:4px;display:block}
+.brkrow .pct{flex:0 0 46px;text-align:right;color:var(--gold);font-variant-numeric:tabular-nums}
+.actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.actions button{flex:1;min-width:90px;border-radius:10px;padding:12px;font-family:var(--sans);font-size:14px;cursor:pointer;border:1px solid var(--line);background:var(--surface-hi);color:var(--fg1)}
+.actions button.primary{background:var(--gold);color:#1a1407;border-color:var(--gold);font-weight:700}
+.actions button:hover{border-color:var(--gold-edge)}
+.hist{margin-top:12px}
+.histitem{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer;background:var(--void)}
+.histitem:hover{border-color:var(--gold-edge)}
+.histitem .hq{font-size:14px;color:var(--fg1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.histitem .hp{font-family:var(--serif);font-weight:700;font-size:20px;color:var(--gold);flex:0 0 auto}
+.histitem .hx{color:var(--fg3);font-size:16px;flex:0 0 auto}
+.empty{color:var(--fg3);font-size:13px;text-align:center;padding:10px}
+footer{text-align:center;margin-top:40px;font-size:12.5px;color:var(--fg3);line-height:1.9}
+footer a{color:var(--gold);text-decoration:none}
+footer a:hover{text-decoration:underline}
+.philo{font-size:13px;color:var(--fg2);background:var(--gold-soft);border-left:2px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 14px;margin-top:18px;line-height:1.8}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--gold);color:#1a1407;padding:11px 20px;border-radius:24px;font-size:14px;font-weight:700;opacity:0;transition:.25s;z-index:9;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="wrap">
+  <header>
+    <div class="kicker">Boolean → Float ・ #全人類UX改善</div>
+    <h1>NANDO-METER</h1>
+    <div class="jp-title">何度メーター</div>
+    <div class="tag">「やる / やらない」を <b>0か1か</b> でやめる。<br>迷いの要素を重みづけして、<b>いまの確信度</b>を <b>0〜100%</b> で測る。</div>
+  </header>
+
+  <div class="panel">
+    <h2>迷っていること</h2>
+    <input type="text" id="q" placeholder="例: 転職すべき？ / この企画、出す？" autocomplete="off">
+  </div>
+
+  <div class="panel">
+    <h2>判断の要素</h2>
+    <div id="factors"></div>
+    <button class="addbtn" id="add">＋ 要素を足す</button>
+  </div>
+
+  <div class="panel meterwrap">
+    <h2 style="justify-content:center">いまの確信度</h2>
+    <svg class="gauge" viewBox="0 0 320 188" aria-hidden="true">
+      <defs>
+        <linearGradient id="arc" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#4a4a58"/>
+          <stop offset="0.5" stop-color="#7a6a48"/>
+          <stop offset="1" stop-color="#d4a853"/>
+        </linearGradient>
+      </defs>
+      <path d="M30 160 A130 130 0 0 1 290 160" fill="none" stroke="#201f28" stroke-width="20" stroke-linecap="round"/>
+      <path id="arcfill" d="M30 160 A130 130 0 0 1 290 160" fill="none" stroke="url(#arc)" stroke-width="20" stroke-linecap="round" stroke-dasharray="408" stroke-dashoffset="408"/>
+      <text x="30" y="182" fill="#807868" font-size="12" text-anchor="middle">No</text>
+      <text x="290" y="182" fill="#d4a853" font-size="12" text-anchor="middle">Yes</text>
+      <line id="needle" x1="160" y1="160" x2="160" y2="44" stroke="#e8e0d0" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="160" cy="160" r="7" fill="#e8e0d0"/>
+      <circle cx="160" cy="160" r="3" fill="#0a0a0f"/>
+    </svg>
+    <div class="bignum"><span id="num">50</span><small>%</small></div>
+    <div class="band" id="band">五分五分</div>
+    <div class="bandsub" id="bandsub">— 要素を足すほど、メーターが動く</div>
+
+    <div class="brk" id="brk"></div>
+
+    <div class="actions">
+      <button class="primary" id="save">この迷いを保存</button>
+      <button id="share">結果をシェア</button>
+      <button id="reset">リセット</button>
+    </div>
+
+    <div class="philo">
+      数字は「答え」じゃない。<b>確信度</b>だ。<br>
+      50%付近に針が止まったら、それは「決めきれない」じゃなく「<b>いま保留するのが最適</b>」という Float の答え。0か1かに丸めず、その勾配のまま持っていていい。
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>保存した迷い</h2>
+    <div class="hist" id="hist"></div>
+  </div>
+
+  <footer>
+    重みづけはすべて<b>あなたのブラウザだけ</b>に保存されます（サーバー送信なし）。<br>
+    made by <a href="https://osakenpiro.github.io/" target="_blank" rel="noopener">@osakenpiro</a> ・
+    <a href="https://osakenpiro.github.io/papers/" target="_blank" rel="noopener">Boolean→Float 9 papers</a><br>
+    #全人類UX改善 — 0か1かをやめる練習
+  </footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY='nandometer-v1';
+const $=s=>document.querySelector(s);
+const factorsEl=$('#factors');
+let factors=[];
+
+function uid(){return Math.random().toString(36).slice(2,8);}
+function addFactor(name='',weight=50,lean=50){
+  factors.push({id:uid(),name,weight,lean});
+  render();
+}
+function render(){
+  factorsEl.innerHTML='';
+  factors.forEach(f=>{
+    const d=document.createElement('div');d.className='factor';
+    d.innerHTML=`
+      <button class="del" data-id="${f.id}" title="削除">×</button>
+      <input class="fname" type="text" data-id="${f.id}" data-k="name" value="${escapeAttr(f.name)}" placeholder="要素（例: 給料が上がる / 慣れた環境を失う）">
+      <div class="srow">
+        <div class="slabel"><span>どれくらい重要？</span><span class="val">${f.weight}</span></div>
+        <input type="range" min="0" max="100" value="${f.weight}" data-id="${f.id}" data-k="weight">
+      </div>
+      <div class="srow">
+        <div class="slabel"><span>No寄り ←→ Yes寄り</span><span class="val">${leanWord(f.lean)}</span></div>
+        <input type="range" class="lean" min="0" max="100" value="${f.lean}" data-id="${f.id}" data-k="lean">
+      </div>`;
+    factorsEl.appendChild(d);
+  });
+  compute();
+}
+function escapeAttr(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function leanWord(v){v=+v;if(v>=80)return'強くYes';if(v>=62)return'Yes寄り';if(v>56)return'ややYes';if(v>=44)return'中立';if(v>38)return'ややNo';if(v>20)return'No寄り';return'強くNo';}
+
+factorsEl.addEventListener('input',e=>{
+  const id=e.target.dataset.id,k=e.target.dataset.k;if(!id)return;
+  const f=factors.find(x=>x.id===id);if(!f)return;
+  if(k==='name'){f.name=e.target.value;}
+  else{f[k]=+e.target.value;const lbl=e.target.closest('.srow').querySelector('.val');lbl.textContent=(k==='lean')?leanWord(f.lean):f.weight;}
+  compute();
+});
+factorsEl.addEventListener('click',e=>{
+  if(e.target.classList.contains('del')){factors=factors.filter(x=>x.id!==e.target.dataset.id);render();}
+});
+$('#add').onclick=()=>addFactor();
+
+function compute(){
+  let wsum=0,acc=0;
+  factors.forEach(f=>{wsum+=f.weight;acc+=f.weight*f.lean;});
+  const conf=wsum>0?Math.round(acc/wsum):50;
+  // gauge
+  const frac=conf/100;
+  const len=408; // approx arc length pi*130
+  $('#arcfill').style.strokeDashoffset=len*(1-frac);
+  const ang=Math.PI*(1-frac); // 0%→pi(left),100%→0(right)
+  const cx=160,cy=160,r=116;
+  $('#needle').setAttribute('x2',(cx+r*Math.cos(ang)).toFixed(1));
+  $('#needle').setAttribute('y2',(cy-r*Math.sin(ang)).toFixed(1));
+  $('#num').textContent=conf;
+  // band
+  let band,sub;
+  if(wsum===0){band='情報待ち';sub='— 要素を足すほど、メーターが動く';}
+  else if(conf>=78){band='かなりYes';sub='踏み出していい確信度。あとは時期だけ。';}
+  else if(conf>=62){band='Yes寄り';sub='傾いてる。背中を押す要素を一つ確かめて。';}
+  else if(conf>56){band='ややYes';sub='薄く前向き。重い要素ほど見直す価値あり。';}
+  else if(conf>=44){band='五分五分';sub='いま保留が最適、という Float の答え。急ぐ理由がなければ持っていていい。';}
+  else if(conf>38){band='ややNo';sub='薄く後ろ向き。No寄りの要素の重みを点検。';}
+  else if(conf>=22){band='No寄り';sub='傾いてる。やめる/延ばすが軽い。';}
+  else{band='かなりNo';sub='メーターは止めろと言ってる。';}
+  $('#band').textContent=band;$('#bandsub').textContent=sub;
+  // breakdown: each factor's signed pull around 50, scaled by weight share
+  const brk=$('#brk');brk.innerHTML='';
+  if(wsum>0){
+    factors.filter(f=>f.name.trim()||f.weight>0).forEach(f=>{
+      const share=f.weight/wsum; // 0..1
+      const pull=(f.lean-50)/50; // -1..1
+      const mag=Math.abs(pull)*share*100; // 0..100 visual
+      const row=document.createElement('div');row.className='brkrow';
+      const col=f.lean>=50?'var(--gold)':'var(--no)';
+      const left=f.lean>=50?'50%':(50-mag/2)+'%';
+      row.innerHTML=`<span class="nm">${escapeAttr(f.name||'(無題)')}</span>
+        <span class="brkbar"><i></i><b style="left:${left};width:${(mag/2).toFixed(1)}%;background:${col}"></b></span>
+        <span class="pct">${f.lean>=50?'+':'−'}${Math.round(Math.abs(pull)*f.weight)}</span>`;
+      brk.appendChild(row);
+    });
+  }
+  return conf;
+}
+
+// persistence
+function state(){return{q:$('#q').value,factors:factors.map(({name,weight,lean})=>({name,weight,lean}))};}
+function loadState(s){if(!s)return;$('#q').value=s.q||'';factors=(s.factors||[]).map(f=>({id:uid(),name:f.name||'',weight:f.weight??50,lean:f.lean??50}));render();}
+$('#q').addEventListener('input',()=>{});
+
+// history (localStorage)
+function getHist(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}catch(e){return[];}}
+function setHist(h){localStorage.setItem(STORAGE_KEY,JSON.stringify(h.slice(0,30)));}
+function renderHist(){
+  const h=getHist(),el=$('#hist');el.innerHTML='';
+  if(!h.length){el.innerHTML='<div class="empty">まだありません。「この迷いを保存」で残せます。</div>';return;}
+  h.forEach((it,i)=>{
+    const d=document.createElement('div');d.className='histitem';
+    d.innerHTML=`<span class="hq">${escapeAttr(it.q||'(無題の迷い)')}</span><span style="display:flex;gap:10px;align-items:center"><span class="hp">${it.conf}%</span><span class="hx" data-i="${i}" title="削除">×</span></span>`;
+    d.addEventListener('click',e=>{
+      if(e.target.classList.contains('hx')){const hh=getHist();hh.splice(+e.target.dataset.i,1);setHist(hh);renderHist();e.stopPropagation();return;}
+      loadState(it);window.scrollTo({top:0,behavior:'smooth'});
+    });
+    el.appendChild(d);
+  });
+}
+$('#save').onclick=()=>{
+  const conf=compute();const s=state();
+  if(!s.q.trim()&&!s.factors.some(f=>f.name.trim())){toast('迷いか要素を入れてね');return;}
+  const h=getHist();h.unshift({...s,conf,t:Date.now()});setHist(h);renderHist();toast('保存しました');
+};
+$('#reset').onclick=()=>{$('#q').value='';factors=[];addFactor();addFactor();toast('リセット');};
+$('#share').onclick=async()=>{
+  const conf=compute();const s=state();
+  const hash=encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(s)))));
+  const url=location.origin+location.pathname+'#d='+hash;
+  const txt=`「${s.q||'この迷い'}」→ 確信度 ${conf}%（何度メーター）\n0か1かをやめて測ってみた。\n${url}\n#全人類UX改善`;
+  try{await navigator.clipboard.writeText(txt);toast('シェア文をコピーしました');}
+  catch(e){prompt('コピーしてシェア:',txt);}
+};
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),1800);}
+
+// init: from URL hash share, else 2 blank factors
+(function init(){
+  const m=location.hash.match(/d=([^&]+)/);
+  if(m){try{const s=JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(m[1])))));loadState(s);}catch(e){addFactor();addFactor();}}
+  else{addFactor('',60,70);addFactor('',60,30);}
+  renderHist();
+})();
+</script>
+</body>
+</html>
