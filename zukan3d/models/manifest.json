@@ -104,6 +104,67 @@
       "src": "models/koma-standing.glb",
       "poster": "models/poster-standing.png",
       "note": "画像→TripoSR→Blender→Draco の本番パイプライン第1号。試製駒（手続き生成の王飛角金銀桂香歩）に対する“実物”側。TripoSR=MIT/商用可。"
+    },
+    {
+      "id": "tool",
+      "name": "Hi-Me TooL",
+      "category": "紋章 / TRBP",
+      "float": 0.2,
+      "src": "models/medal-tool.glb",
+      "poster": "models/medal-tool.png",
+      "usdz": "models/medal-tool.usdz",
+      "note": "TRBP T柱：道具の柱。摩擦を削るツール群。"
+    },
+    {
+      "id": "redesign",
+      "name": "Re:DeSign",
+      "category": "紋章 / TRBP",
+      "float": 0.4,
+      "src": "models/medal-redesign.glb",
+      "poster": "models/medal-redesign.png",
+      "usdz": "models/medal-redesign.usdz",
+      "note": "TRBP R柱：再設計。既存の形を引き直す。"
+    },
+    {
+      "id": "bookbug",
+      "name": "BookBug",
+      "category": "紋章 / TRBP",
+      "float": 0.6,
+      "src": "models/medal-bookbug.glb",
+      "poster": "models/medal-bookbug.png",
+      "usdz": "models/medal-bookbug.usdz",
+      "note": "TRBP B柱：本の虫／出版の柱。"
+    },
+    {
+      "id": "postboy",
+      "name": "Postboy",
+      "category": "紋章 / TRBP",
+      "float": 0.8,
+      "src": "models/medal-postboy.glb",
+      "poster": "models/medal-postboy.png",
+      "usdz": "models/medal-postboy.usdz",
+      "note": "TRBP P柱：届ける柱。発信と配達。"
+    },
+    {
+      "id": "visionium",
+      "name": "Visionium",
+      "category": "紋章 / 本体",
+      "float": 0.5,
+      "src": "models/medal-visionium.glb",
+      "poster": "models/medal-visionium.png",
+      "usdz": "models/medal-visionium.usdz",
+      "note": "4柱を束ねる思考資本の母体。"
+    },
+    {
+      "id": "zenjinrui",
+      "name": "#全人類UX改善",
+      "category": "紋章 / 精神",
+      "float": 1.0,
+      "src": "models/medal-zenjinrui.glb",
+      "poster": "models/medal-zenjinrui.png",
+      "usdz": "models/medal-zenjinrui.usdz",
+      "note": "全人類のUXを改善する精神。",
+      "yomi": "ぜんじんるい"
     }
   ]
 }
