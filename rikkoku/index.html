@@ -371,7 +371,7 @@ function renderTitle() {
       <button id="btn-start">はじめる</button>
       <a class="share-btn" href="${shareUrl()}" target="_blank" rel="noopener">𝕏 でシェア</a>
       <p style="font-size:11px; opacity:0.5; margin-top:20px;">
-        Boolean→Float RPG v1.10<br>
+        Boolean→Float RPG v1.11<br>
         © 2026 osakenpiro
       </p>
     </div>
@@ -704,9 +704,9 @@ function calcDamage(attacker, defender, attr, invert) {
   const baseAtk = attacker.stats[attr];
   if (baseAtk <= 0) return 0;
   
-  // 相剋補正（反転状態異常時は 得意↔天敵 をスワップ）
+  // 相剋補正（反転状態異常時は 得意↔天敵 を Float 半転 — 中立方向へ-0.5係数）
   let rivalryMult = rivalry(attr, defender.mainAttr);
-  if (invert) { if (rivalryMult > 1.2) rivalryMult = 0.5; else if (rivalryMult < 0.8) rivalryMult = 1.5; }
+  if (invert) { rivalryMult = 1 + (rivalryMult - 1) * -0.5; }  // Float半転: 強み↔弱みを中立方向へ-0.5(完全反転=-1.0のdowngrade)
   
   // 防御側補正: 同属性防御は +50%、攻撃属性の天敵 (= 攻撃属性 +1) を伸ばしてると -30%
   let defStat = 0;
@@ -760,7 +760,7 @@ function playerAttack(attr) {
   if (attr === 'hon') {
     game.enemyStatus = game.enemyStatus || { hanten: 0 };
     game.enemyStatus.hanten = 2;
-    addLog(`${e.name} を反転させた！ 2ターン、相剋が逆さに乱れる。`, 'system');
+    addLog(`${e.name} を反転させた！ 2ターン、相剋が半ば逆さに揺らぐ。`, 'system');
   }
   render();
   // 敵のターン
