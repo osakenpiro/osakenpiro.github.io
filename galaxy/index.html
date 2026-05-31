@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>僕の銀河系 — Visionium Galaxy v0.15</title>
+<title>僕の銀河系 — Visionium Galaxy v0.16</title>
 <meta name="description" content="Visionium 全体構造 — 7層 / 5柱+HiCo / 観測層 / 腐葉土層 / 資産層 / KAIZO直4軸を force-directed graph で可視化。v0.9: +17 nodes (Papers個別化9 + L5/L0/L3a複合8) = 90 nodes。" />
-<meta property="og:title" content="僕の銀河系 — Visionium Galaxy v0.15" />
+<meta property="og:title" content="僕の銀河系 — Visionium Galaxy v0.16" />
 <meta property="og:description" content="Visionium 全体構造を可視化した観測層 v0.1。Discord と並ぶ L3b 観測の二系統目。" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://osakenpiro.github.io/galaxy/" />
@@ -113,11 +113,11 @@
     { id: "HiCo", label: "HiCo \u79D8\u66F8\u5B50", layer: "operation", size: 17, note: "\u904B\u7528\u67F1" , notionId: "3492b7e5-43e0-813d-99d8-c60846227e50", url: "https://www.notion.so/3492b7e543e0813d99d8c60846227e50"},
     // KAIZO 軸
     { id: "KAIZO", label: "\u{1F331} KAIZO", layer: "kaizo", size: 16, note: "Visionium \u76F44\u8EF8" , notionId: "3572b7e5-43e0-810b-832c-f51764fb1eb9", url: "https://www.notion.so/3572b7e543e0810b832cf51764fb1eb9"},
-    { id: "Zada", label: "Zada", layer: "kaizo", size: 11, note: "\u904E\u53BB\u30FB\u611F\u60C5" },
-    { id: "Iven", label: "Iven", layer: "kaizo", size: 11, note: "\u672A\u6765\u30FB\u7406\u6027" },
+    { id: "Zada", notionId: "3712b7e5-43e0-81c8-9dab-ff0237bdc632", url: "https://www.notion.so/3712b7e543e081c89dabff0237bdc632", label: "Zada", layer: "kaizo", size: 11, note: "\u904E\u53BB\u30FB\u611F\u60C5" },
+    { id: "Iven", notionId: "3712b7e5-43e0-8127-a59c-f74048dc0f0e", url: "https://www.notion.so/3712b7e543e08127a59cf74048dc0f0e", label: "Iven", layer: "kaizo", size: 11, note: "\u672A\u6765\u30FB\u7406\u6027" },
     // HMT 配下
     { id: "Wakka", notionId: "34a2b7e5-43e0-81a0-8950-fc776ec86e83", url: "https://www.notion.so/34a2b7e543e081a08950fc776ec86e83", label: "\u308F\u3063\u304B\u305A\u304B\u3093", layer: "tool", size: 9 },
-    { id: "Ningen", label: "\u4EBA\u9593\u56F3\u9451", layer: "tool", size: 9 },
+    { id: "Ningen", notionId: "3482b7e5-43e0-81ef-99d4-d6f8398626a9", url: "https://www.notion.so/3482b7e543e081ef99d4d6f8398626a9", label: "\u4EBA\u9593\u56F3\u9451", layer: "tool", size: 9 },
     { id: "Banet", label: "\u30D0\u30CD\u30C3\u30C8", layer: "tool", size: 9 , notionId: "34a2b7e5-43e0-81f9-810c-cd002b447d8a", url: "https://www.notion.so/34a2b7e543e081f9810ccd002b447d8a"},
     { id: "Satori", label: "SATORI", layer: "tool", size: 9 , notionId: "34b2b7e5-43e0-8144-a3d7-ef277a296112", url: "https://www.notion.so/34b2b7e543e08144a3d7ef277a296112"},
     { id: "Sozai", label: "\u7D20\u6750\u56F3\u9451", layer: "tool", size: 9 , notionId: "3492b7e5-43e0-8185-8a26-ddc3d1d2c289", url: "https://www.notion.so/3492b7e543e081858a26ddc3d1d2c289"},
@@ -142,13 +142,13 @@
     { id: "Papers", notionId: "32d2b7e5-43e0-81a6-b673-d084a6dc2068", url: "https://www.notion.so/32d2b7e543e081a6b673d084a6dc2068", label: "Papers 9\u7BC7", layer: "paper", size: 13, note: "A/B/C/D/5-9 \u5168\u63D0\u51FA" },
     { id: "KDP1", notionId: "32d2b7e5-43e0-813e-8d0c-c8b06ae769b9", url: "https://www.notion.so/32d2b7e543e0813e8d0cc8b06ae769b9", label: "\u30D1\u30F3\u30C0\u3068\u54F2\u5B66\u3068AI", layer: "paper", size: 9 },
     { id: "KDP2", notionId: "32d2b7e5-43e0-81a2-b245-db67a116c8a9", url: "https://www.notion.so/32d2b7e543e081a2b245db67a116c8a9", label: "\u4EBA\u985E\u306E\u7D20\u6750\u56F3\u9451", layer: "paper", size: 9 },
-    { id: "KDP3", label: "\u4E3B\u7FA9\u7D76\u5BFE\u4E3B\u7FA9 (7\u6708)", layer: "paper", size: 10, note: "\u601D\u60F3\u306E\u8A2D\u8A08\u66F8#03" },
+    { id: "KDP3", notionId: "3592b7e5-43e0-81d6-9738-ce35e0e14025", url: "https://www.notion.so/3592b7e543e081d69738ce35e0e14025", label: "\u4E3B\u7FA9\u7D76\u5BFE\u4E3B\u7FA9 (7\u6708)", layer: "paper", size: 10, note: "\u601D\u60F3\u306E\u8A2D\u8A08\u66F8#03" },
     { id: "Novel1", notionId: "32d2b7e5-43e0-819c-b2d1-cf88cf56d786", url: "https://www.notion.so/32d2b7e543e0819cb2d1cf88cf56d786", label: "\u661F\u306F\u77E5\u3089\u306A\u3044", layer: "paper", size: 10 },
     { id: "Novel2", notionId: "32d2b7e5-43e0-8163-814f-c6b98b025738", url: "https://www.notion.so/32d2b7e543e08163814fc6b98b025738", label: "0.5\u306E\u9B54\u5973", layer: "paper", size: 9 },
-    { id: "Imasica", label: "\u50D5\u306EIMASICA", layer: "paper", size: 9 },
+    { id: "Imasica", notionId: "3642b7e5-43e0-8172-a010-cb95452c30d9", url: "https://www.notion.so/3642b7e543e08172a010cb95452c30d9", label: "\u50D5\u306EIMASICA", layer: "paper", size: 9 },
     // PB 配下
     { id: "Backstage", notionId: "35e2b7e5-43e0-817a-b466-ee503a87ab36", url: "https://www.notion.so/35e2b7e543e0817ab466ee503a87ab36", label: "Backstage", layer: "tool", size: 9, note: "15-20sec\u52D5\u753B" },
-    { id: "DJOSA", label: "DJOSA", layer: "tool", size: 8 },
+    { id: "DJOSA", notionId: "3712b7e5-43e0-8135-89be-cf1069a78843", url: "https://www.notion.so/3712b7e543e0813589becf1069a78843", label: "DJOSA", layer: "tool", size: 8 },
     // L3b 観測層
     { id: "MIHARASHI", label: "\u{1F52D} MIHARASHI", layer: "observation", size: 12, note: "snapshot.py" , notionId: "34d2b7e5-43e0-81e3-b6e5-cac5df7f22f3", url: "https://www.notion.so/34d2b7e543e081e3b6e5cac5df7f22f3"},
     { id: "Orb", label: "Orb (Obsidian)", layer: "observation", size: 12, note: "\u21AA \u9280\u6CB3\u7CFB\u672C\u4F53" , notionId: "3522b7e5-43e0-81ec-91d0-d2049427eac9", url: "https://www.notion.so/3522b7e543e081ec91d0d2049427eac9"},
@@ -540,7 +540,7 @@
       }
     }, [hoveredLayer, searchQuery, showStale, effectiveStaleSet]);
     const layerKeys = Object.keys(LAYER);
-    return /* @__PURE__ */ React.createElement("div", { className: "w-full min-h-screen bg-[#0a0807] text-[#f5f0e4]", style: { fontFamily: '"Shippori Mincho", "\u30D2\u30E9\u30AE\u30CE\u660E\u671D ProN", serif' } }, /* @__PURE__ */ React.createElement("div", { className: "hidden md:block fixed left-3 top-1/2 -translate-y-1/2 origin-left -rotate-90 text-[10px] tracking-[0.4em] opacity-50 select-none", style: { writingMode: "horizontal-tb" } }, "Visionium  \u30FB  \u5168\u90E8\u304C\u307C\u304F  \u30FB  \u9280\u6CB3\u7CFB v0.15"), /* @__PURE__ */ React.createElement("header", { className: "px-5 md:px-12 pt-6 md:pt-10 pb-3" }, /* @__PURE__ */ React.createElement("div", { className: "text-[10px] tracking-[0.35em] opacity-60" }, "VISIONIUM / GALAXY v0.15"), /* @__PURE__ */ React.createElement("h1", { className: "mt-1 text-2xl md:text-4xl font-bold", style: { fontFamily: '"Bricolage Grotesque", "Shippori Mincho", serif' } }, "\u50D5\u306E", /* @__PURE__ */ React.createElement("span", { style: { color: "#d4a853" } }, "\u9280\u6CB3\u7CFB")), /* @__PURE__ */ React.createElement("p", { className: "mt-1 text-xs md:text-sm opacity-70" }, "Visionium \u5168\u4F53\u69CB\u9020 \u2014 7\u5C64 / 5\u67F1+HiCo / \u89B3\u6E2C\u5C64 / \u8150\u8449\u571F\u5C64 / \u8CC7\u7523\u5C64 / KAIZO\u76F44\u8EF8")), /* @__PURE__ */ React.createElement("div", { ref: containerRef, className: "relative w-full", style: { height: "70vh", minHeight: 500 } }, /* @__PURE__ */ React.createElement("svg", { ref: svgRef, width: size.w, height: size.h, className: "block" }), /* @__PURE__ */ React.createElement(
+    return /* @__PURE__ */ React.createElement("div", { className: "w-full min-h-screen bg-[#0a0807] text-[#f5f0e4]", style: { fontFamily: '"Shippori Mincho", "\u30D2\u30E9\u30AE\u30CE\u660E\u671D ProN", serif' } }, /* @__PURE__ */ React.createElement("div", { className: "hidden md:block fixed left-3 top-1/2 -translate-y-1/2 origin-left -rotate-90 text-[10px] tracking-[0.4em] opacity-50 select-none", style: { writingMode: "horizontal-tb" } }, "Visionium  \u30FB  \u5168\u90E8\u304C\u307C\u304F  \u30FB  \u9280\u6CB3\u7CFB v0.16"), /* @__PURE__ */ React.createElement("header", { className: "px-5 md:px-12 pt-6 md:pt-10 pb-3" }, /* @__PURE__ */ React.createElement("div", { className: "text-[10px] tracking-[0.35em] opacity-60" }, "VISIONIUM / GALAXY v0.16"), /* @__PURE__ */ React.createElement("h1", { className: "mt-1 text-2xl md:text-4xl font-bold", style: { fontFamily: '"Bricolage Grotesque", "Shippori Mincho", serif' } }, "\u50D5\u306E", /* @__PURE__ */ React.createElement("span", { style: { color: "#d4a853" } }, "\u9280\u6CB3\u7CFB")), /* @__PURE__ */ React.createElement("p", { className: "mt-1 text-xs md:text-sm opacity-70" }, "Visionium \u5168\u4F53\u69CB\u9020 \u2014 7\u5C64 / 5\u67F1+HiCo / \u89B3\u6E2C\u5C64 / \u8150\u8449\u571F\u5C64 / \u8CC7\u7523\u5C64 / KAIZO\u76F44\u8EF8")), /* @__PURE__ */ React.createElement("div", { ref: containerRef, className: "relative w-full", style: { height: "70vh", minHeight: 500 } }, /* @__PURE__ */ React.createElement("svg", { ref: svgRef, width: size.w, height: size.h, className: "block" }), /* @__PURE__ */ React.createElement(
       "div",
       {
         className: "absolute top-3 right-3 md:top-5 md:right-5 max-w-[42%] md:max-w-[260px] backdrop-blur-md bg-[#0a0807]/70 border border-[#d4a853]/25 rounded p-3 text-[10px] md:text-[11px]",
@@ -603,7 +603,7 @@
         style: { color: "#d4a853" }
       },
       (selected.url && selected.url.indexOf("notion.so") >= 0 ? "Notion \u3067\u958B\u304F \u2192" : "\u958B\u304F \u2192")
-    ))), /* @__PURE__ */ React.createElement("footer", { className: "px-5 md:px-12 py-4 text-[10px] opacity-50 flex flex-wrap gap-4 justify-between" }, /* @__PURE__ */ React.createElement("span", null, "Cow 2026-05-30 \xB7 v0.15 (+17 nodes: Papers\u500B\u5225\u53169 + L5/L0/L3a\u8907\u54088 = 90 nodes; notionId 72/90 linked \xB7 +3 ext)"), /* @__PURE__ */ React.createElement("span", null, "Re:DeSign \xD7 \u5168\u4EBA\u985EUX\u6539\u5584\u8A08\u753B")));
+    ))), /* @__PURE__ */ React.createElement("footer", { className: "px-5 md:px-12 py-4 text-[10px] opacity-50 flex flex-wrap gap-4 justify-between" }, /* @__PURE__ */ React.createElement("span", null, "Cow 2026-05-31 \xB7 v0.16 (+6 wired: Imasica/KDP3/Ningen/DJOSA/Zada/Iven; 90 nodes; notionId 78/90 linked \xB7 +3 ext)"), /* @__PURE__ */ React.createElement("span", null, "Re:DeSign \xD7 \u5168\u4EBA\u985EUX\u6539\u5584\u8A08\u753B")));
   }
   const __root = ReactDOM.createRoot(document.getElementById("app"));
   __root.render(/* @__PURE__ */ React.createElement(VisioniumGalaxy, null));
