@@ -187,6 +187,17 @@
       "poster": "models/poster-korokoro.png",
       "note": "二値の角を連続値の丸みへ。6面=0.0–1.0、対面の和=1.0（Float補数 1−x）。Boolean→Float＝BeeFの物質化。凝る×ころがる×コロコロの三重がけ。",
       "usdz": "models/dice-korokoro.usdz"
+    },
+    {
+      "id": "magatama",
+      "name": "勾玉",
+      "yomi": "まがたま",
+      "category": "聖具 / 天人𦻙記",
+      "float": 0.65,
+      "src": "models/magatama.glb",
+      "poster": "models/poster-magatama.png",
+      "usdz": "models/magatama.usdz",
+      "note": "天の聖具。勾(まがり)=連続曲線の体現、二値の角を持たぬ形=Boolean→Float。天人𦻙記アイテム第1号、金製勾玉。手続き生成(swept-tube/フォント非依存)。"
     }
   ]
 }
