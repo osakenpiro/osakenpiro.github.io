@@ -13,6 +13,17 @@
       "usdz": "models/koma-ou.usdz"
     },
     {
+      "id": "gyoku",
+      "name": "玉将",
+      "yomi": "ぎょくしょう",
+      "category": "駒 / 標準",
+      "float": 0.5,
+      "src": "models/koma-gyoku.glb",
+      "poster": "models/poster-gyoku.png",
+      "usdz": "models/koma-gyoku.usdz",
+      "note": "もう一方の王。位の低い側が持つ。王将と対をなす中心0.5。"
+    },
+    {
       "id": "hi",
       "name": "飛車",
       "yomi": "ひしゃ",
