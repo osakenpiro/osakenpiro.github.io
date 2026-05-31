@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>フワッカ — FUWAKKA｜done/not-done をやめる fuzzy todo</title>
+<meta name="description" content="タスクは0%か100%かじゃない。done/not-doneをやめて、各タスクを0〜100%のFloatで持つ。60%で止まっても、次はゼロから始めなくていい。Boolean→Float / #全人類UX改善">
+<meta property="og:title" content="フワッカ — FUWAKKA">
+<meta property="og:description" content="done/not-done をやめる。タスクを0〜100%のFloatで持つ todo。">
+<meta property="og:url" content="https://osakenpiro.github.io/fuwakka/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--void:#0a0a0f;--void-deep:#06060a;--surface:#15141a;--surface-hi:#1c1a23;--gold:#d4a853;--gold-soft:rgba(212,168,83,.14);--gold-edge:rgba(212,168,83,.45);--fg1:#e8e0d0;--fg2:#b8b0a0;--fg3:#807868;--line:rgba(200,184,160,.10);--serif:"Cormorant Garamond","Yu Mincho",serif;--sans:"Noto Sans JP","Hiragino Sans","Yu Gothic",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(130% 100% at 80% -10%,#13131c 0%,var(--void) 50%,var(--void-deep) 100%);background-attachment:fixed;color:var(--fg1);font-family:var(--sans);line-height:1.7;min-height:100vh;-webkit-text-size-adjust:100%}
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(1.4px 1.4px at 14% 18%,rgba(232,224,208,.5),transparent),radial-gradient(1.2px 1.2px at 82% 12%,rgba(232,224,208,.4),transparent),radial-gradient(1.5px 1.5px at 66% 64%,rgba(212,168,83,.45),transparent),radial-gradient(1.1px 1.1px at 30% 78%,rgba(232,224,208,.3),transparent)}
+.wrap{position:relative;z-index:1;max-width:620px;margin:0 auto;padding:40px 18px 80px}
+header{text-align:center;margin-bottom:22px}
+.kicker{font-size:12px;letter-spacing:.26em;color:var(--gold);text-transform:uppercase}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(38px,10vw,62px);line-height:1;margin:6px 0 2px}
+.jp-title{font-size:clamp(20px,5.5vw,28px);font-weight:700;letter-spacing:.1em}
+.tag{font-size:14px;color:var(--fg2);margin-top:12px}.tag b{color:var(--gold);font-weight:500}
+.overall{background:linear-gradient(180deg,var(--surface),rgba(21,20,26,.6));border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:16px;text-align:center}
+.overall .lab{font-size:12px;letter-spacing:.16em;color:var(--fg3);text-transform:uppercase}
+.overall .big{font-family:var(--serif);font-weight:700;font-size:54px;color:var(--gold);line-height:1;margin:2px 0 8px}
+.overall .big small{font-size:24px;color:var(--fg2)}
+.obar{height:10px;border-radius:5px;background:#22212a;overflow:hidden}
+.obar b{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#6a5a38,var(--gold));transition:width .15s}
+.osub{font-size:12px;color:var(--fg3);margin-top:8px}
+.addrow{display:flex;gap:8px;margin-top:16px}
+.addrow input{flex:1;background:var(--void);border:1px solid var(--line);border-radius:10px;color:var(--fg1);font-family:var(--sans);font-size:16px;padding:12px 14px}
+.addrow input:focus{outline:none;border-color:var(--gold-edge)}
+.addrow button{flex:0 0 auto;background:var(--gold);color:#1a1407;border:none;border-radius:10px;padding:0 18px;font-weight:700;font-family:var(--sans);font-size:14px;cursor:pointer}
+.list{margin-top:14px}
+.task{position:relative;border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;background:var(--void)}
+.task .fill{position:absolute;inset:0;width:0;background:var(--gold-soft);border-right:1px solid var(--gold-edge);transition:width .12s;z-index:0}
+.task.done .fill{background:rgba(212,168,83,.22)}
+.task .row{position:relative;z-index:1;padding:13px 14px 6px;display:flex;align-items:center;gap:10px}
+.task .nm{flex:1;font-size:16px;color:var(--fg1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.task.done .nm{color:var(--gold)}
+.task .pct{font-variant-numeric:tabular-nums;font-family:var(--serif);font-weight:700;font-size:22px;color:var(--gold);flex:0 0 auto}
+.task .del{background:none;border:none;color:var(--fg3);font-size:18px;cursor:pointer;flex:0 0 auto;padding:0 2px}
+.task .del:hover{color:var(--gold)}
+.task .sl{position:relative;z-index:1;padding:0 14px 14px}
+.task input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:#2a2833;outline:none}
+.task input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:var(--gold);border:2px solid var(--void);cursor:pointer;box-shadow:0 0 0 1px var(--gold-edge)}
+.task input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--gold);border:2px solid var(--void);cursor:pointer}
+.empty{color:var(--fg3);font-size:13px;text-align:center;padding:14px}
+.philo{font-size:13px;color:var(--fg2);background:var(--gold-soft);border-left:2px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 14px;margin-top:16px;line-height:1.8}.philo b{color:var(--gold)}
+.actions{display:flex;gap:10px;margin-top:14px}
+.actions button{flex:1;border-radius:10px;padding:11px;font-family:var(--sans);font-size:14px;cursor:pointer;border:1px solid var(--line);background:var(--surface-hi);color:var(--fg1)}.actions button:hover{border-color:var(--gold-edge)}
+footer{text-align:center;margin-top:36px;font-size:12.5px;color:var(--fg3);line-height:1.9}footer a{color:var(--gold);text-decoration:none}footer a:hover{text-decoration:underline}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--gold);color:#1a1407;padding:11px 20px;border-radius:24px;font-size:14px;font-weight:700;opacity:0;transition:.25s;z-index:9;pointer-events:none}.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="wrap">
+  <header>
+    <div class="kicker">Boolean → Float ・ #全人類UX改善</div>
+    <h1>FUWAKKA</h1>
+    <div class="jp-title">フワッカ</div>
+    <div class="tag"><b>done / not-done</b> をやめる。タスクは <b>0%か100%か</b> じゃない。</div>
+  </header>
+
+  <div class="overall">
+    <div class="lab">ぜんぶの進み具合</div>
+    <div class="big"><span id="ov">0</span><small>%</small></div>
+    <div class="obar"><b id="ovbar"></b></div>
+    <div class="osub" id="ovsub">タスクを足すと、Floatで積もっていく</div>
+  </div>
+
+  <div class="addrow">
+    <input type="text" id="newtask" placeholder="タスクを足す（例: 論文の図 / 部屋の片付け）" autocomplete="off">
+    <button id="add">足す</button>
+  </div>
+
+  <div class="list" id="list"></div>
+
+  <div class="philo">
+    60%で止まってるタスクは、<b>失敗じゃない</b>。60%できてる。<br>
+    done / not-done の2択だと、99%でも「未完了」に丸められる。Floatなら、進めた分が、ちゃんと残る。<b>次に開いたとき、ゼロから始めなくていい。</b>
+  </div>
+  <div class="actions">
+    <button id="share">進捗をシェア</button>
+    <button id="clear">完了(100%)を片づける</button>
+    <button id="reset">全消去</button>
+  </div>
+
+  <footer>
+    記録は<b>あなたのブラウザだけ</b>に保存（サーバー送信なし）。<br>
+    made by <a href="https://osakenpiro.github.io/" target="_blank" rel="noopener">@osakenpiro</a> ・姉妹ツール
+    <a href="https://osakenpiro.github.io/nandometer/" target="_blank" rel="noopener">何度メーター</a>・<a href="https://osakenpiro.github.io/namakedooshi/" target="_blank" rel="noopener">怠け通し</a><br>
+    <a href="https://osakenpiro.github.io/papers/" target="_blank" rel="noopener">Boolean→Float papers</a> ・ #全人類UX改善
+  </footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY='fuwakka-v1';
+const $=s=>document.querySelector(s);
+let data=load();
+
+function load(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||{tasks:[]};}catch(e){return{tasks:[]};}}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}
+function uid(){return Math.random().toString(36).slice(2,8);}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+
+function overall(){if(!data.tasks.length)return 0;return Math.round(data.tasks.reduce((a,t)=>a+t.prog,0)/data.tasks.length);}
+function render(){
+  const list=$('#list');list.innerHTML='';
+  if(!data.tasks.length){list.innerHTML='<div class="empty">まだタスクがありません。上で足してね。</div>';}
+  data.tasks.forEach(t=>{
+    const el=document.createElement('div');el.className='task'+(t.prog>=100?' done':'');
+    el.innerHTML=`
+      <div class="fill" style="width:${t.prog}%"></div>
+      <div class="row"><span class="nm">${esc(t.name)}</span><span class="pct">${t.prog}%</span><button class="del" data-del="${t.id}" title="削除">×</button></div>
+      <div class="sl"><input type="range" min="0" max="100" step="5" value="${t.prog}" data-id="${t.id}"></div>`;
+    list.appendChild(el);
+  });
+  const ov=overall();$('#ov').textContent=ov;$('#ovbar').style.width=ov+'%';
+  const done=data.tasks.filter(t=>t.prog>=100).length, n=data.tasks.length;
+  $('#ovsub').textContent=n?`${n}件中 ${done}件が満（100%）／ 残りも進めた分は残ってる`:'タスクを足すと、Floatで積もっていく';
+}
+$('#list').addEventListener('input',e=>{
+  const id=e.target.dataset.id;if(!id)return;
+  const t=data.tasks.find(x=>x.id===id);if(!t)return;
+  t.prog=+e.target.value;save();
+  const card=e.target.closest('.task');card.querySelector('.fill').style.width=t.prog+'%';
+  card.querySelector('.pct').textContent=t.prog+'%';card.classList.toggle('done',t.prog>=100);
+  const ov=overall();$('#ov').textContent=ov;$('#ovbar').style.width=ov+'%';
+});
+$('#list').addEventListener('click',e=>{
+  if(e.target.dataset&&e.target.dataset.del){data.tasks=data.tasks.filter(x=>x.id!==e.target.dataset.del);save();render();}
+});
+function addTask(){const n=$('#newtask').value.trim();if(!n)return;data.tasks.push({id:uid(),name:n,prog:0});$('#newtask').value='';save();render();}
+$('#add').onclick=addTask;
+$('#newtask').addEventListener('keydown',e=>{if(e.key==='Enter')addTask();});
+$('#clear').onclick=()=>{const before=data.tasks.length;data.tasks=data.tasks.filter(t=>t.prog<100);save();render();toast((before-data.tasks.length)+'件を片づけた');};
+$('#reset').onclick=()=>{if(confirm('すべてのタスクを消します。よい？')){data={tasks:[]};save();render();toast('全消去');}};
+$('#share').onclick=async()=>{
+  if(!data.tasks.length){toast('タスクを足してね');return;}
+  const lines=data.tasks.map(t=>`・${t.name}：${t.prog}%`).join('\n');
+  const txt=`フワッカ — いまの進捗（全体${overall()}%）\n${lines}\n\ndone/not-done をやめた fuzzy todo。60%で止まっても失敗じゃない。\nhttps://osakenpiro.github.io/fuwakka/\n#全人類UX改善`;
+  try{await navigator.clipboard.writeText(txt);toast('シェア文をコピー');}catch(e){prompt('コピーしてシェア:',txt);}
+};
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),1700);}
+
+if(!data.tasks.length){data.tasks=[{id:uid(),name:'論文の図',prog:40},{id:uid(),name:'部屋の片付け',prog:65}];save();}
+render();
+</script>
+</body>
+</html>
