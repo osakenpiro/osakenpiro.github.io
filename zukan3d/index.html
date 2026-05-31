@@ -220,7 +220,7 @@ btnRot.addEventListener('click',()=>setRotate(!hero.autoRotate));
 btnReset.addEventListener('click',()=>{hero.cameraOrbit='0deg 75deg 105%'; hero.fieldOfView='auto'; hero.resetTurntableRotation&&hero.resetTurntableRotation(0);});
 (async function init(){
   setRotate(state.rotate!==false);
-  if(new URLSearchParams(location.search).get('hd')==='1'){
+  if(new URLSearchParams(location.search).get('hd')!=='0'){
     hero.environmentImage='https://modelviewer.dev/shared-assets/environments/lebombo_1k.hdr';
     hero.toneMapping='neutral'; hero.exposure=1.05; hero.shadowIntensity=1.4; hero.shadowSoftness=1;
   }
