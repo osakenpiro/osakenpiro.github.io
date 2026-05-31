@@ -1,203 +1,214 @@
 {
-  "title": "立体図鑑",
-  "models": [
-    {
-      "id": "ou",
-      "name": "王将",
-      "yomi": "おうしょう",
-      "category": "駒 / 標準",
-      "float": 0.5,
-      "src": "models/koma-ou.glb",
-      "poster": "models/poster-ou.png",
-      "note": "最上位の駒。全方位1マス。Float的には“中心”=どこへも等価に行ける基準点。",
-      "usdz": "models/koma-ou.usdz"
-    },
-    {
-      "id": "gyoku",
-      "name": "玉将",
-      "yomi": "ぎょくしょう",
-      "category": "駒 / 標準",
-      "float": 0.5,
-      "src": "models/koma-gyoku.glb",
-      "poster": "models/poster-gyoku.png",
-      "usdz": "models/koma-gyoku.usdz",
-      "note": "もう一方の王。位の低い側が持つ。王将と対をなす中心0.5。"
-    },
-    {
-      "id": "hi",
-      "name": "飛車",
-      "yomi": "ひしゃ",
-      "category": "駒 / 標準",
-      "float": 0.85,
-      "src": "models/koma-hi.glb",
-      "poster": "models/poster-hi.png",
-      "note": "縦横に伸びる大駒。直線の意志。成れば「竜王」、斜め1マスを得る。",
-      "ura": "竜",
-      "usdz": "models/koma-hi.usdz"
-    },
-    {
-      "id": "kaku",
-      "name": "角行",
-      "yomi": "かくぎょう",
-      "category": "駒 / 標準",
-      "float": 0.8,
-      "src": "models/koma-kaku.glb",
-      "poster": "models/poster-kaku.png",
-      "note": "斜めに伸びる大駒。盤の対角を一息に渡る。成れば「竜馬」、縦横1マスを得る。",
-      "ura": "馬",
-      "usdz": "models/koma-kaku.usdz"
-    },
-    {
-      "id": "kin",
-      "name": "金将",
-      "yomi": "きんしょう",
-      "category": "駒 / 標準",
-      "float": 0.55,
-      "src": "models/koma-kin.glb",
-      "poster": "models/poster-kin.png",
-      "note": "成れない代わりに崩れない。前・斜め前・横・後ろ。守りの基準値。",
-      "usdz": "models/koma-kin.usdz"
-    },
-    {
-      "id": "gin",
-      "name": "銀将",
-      "yomi": "ぎんしょう",
-      "category": "駒 / 標準",
-      "float": 0.45,
-      "src": "models/koma-gin.glb",
-      "poster": "models/poster-gin.png",
-      "note": "斜めと前。退くも進むも斜め。成れば「全」=金の動きへ寄る。",
-      "ura": "全",
-      "usdz": "models/koma-gin.usdz"
-    },
-    {
-      "id": "kei",
-      "name": "桂馬",
-      "yomi": "けいま",
-      "category": "駒 / 標準",
-      "float": 0.35,
-      "src": "models/koma-kei.glb",
-      "poster": "models/poster-kei.png",
-      "note": "盤上唯一、駒を飛び越える。二つ先へ跳ぶ非連続。成れば「圭」。",
-      "ura": "圭",
-      "usdz": "models/koma-kei.usdz"
-    },
-    {
-      "id": "kyo",
-      "name": "香車",
-      "yomi": "きょうしゃ",
-      "category": "駒 / 標準",
-      "float": 0.25,
-      "src": "models/koma-kyo.glb",
-      "poster": "models/poster-kyo.png",
-      "note": "前へだけ、どこまでも。退路を持たない直進。成れば「杏」。",
-      "ura": "杏",
-      "usdz": "models/koma-kyo.usdz"
-    },
-    {
-      "id": "fu",
-      "name": "歩兵",
-      "yomi": "ふひょう",
-      "category": "駒 / 標準",
-      "float": 0.15,
-      "src": "models/koma-fu.glb",
-      "poster": "models/poster-fu.png",
-      "note": "一歩ずつ前へ。最弱にして最多。成れば「と金」、金の動きを得る。",
-      "ura": "と",
-      "usdz": "models/koma-fu.usdz"
-    },
-    {
-      "id": "standing",
-      "name": "起立フィギュア No.1",
-      "yomi": "きりつ",
-      "category": "本番駒 / TripoSR",
-      "float": 0.5,
-      "src": "models/koma-standing.glb",
-      "poster": "models/poster-standing.png",
-      "note": "画像→TripoSR→Blender→Draco の本番パイプライン第1号。試製駒（手続き生成の王飛角金銀桂香歩）に対する“実物”側。TripoSR=MIT/商用可。"
-    },
-    {
-      "id": "tool",
-      "name": "Hi-Me TooL",
-      "category": "紋章 / TRBP",
-      "float": 0.2,
-      "src": "models/medal-tool.glb",
-      "poster": "models/medal-tool.png",
-      "usdz": "models/medal-tool.usdz",
-      "note": "TRBP T柱：道具の柱。摩擦を削るツール群。"
-    },
-    {
-      "id": "redesign",
-      "name": "Re:DeSign",
-      "category": "紋章 / TRBP",
-      "float": 0.4,
-      "src": "models/medal-redesign.glb",
-      "poster": "models/medal-redesign.png",
-      "usdz": "models/medal-redesign.usdz",
-      "note": "TRBP R柱：再設計。既存の形を引き直す。"
-    },
-    {
-      "id": "bookbug",
-      "name": "BookBug",
-      "category": "紋章 / TRBP",
-      "float": 0.6,
-      "src": "models/medal-bookbug.glb",
-      "poster": "models/medal-bookbug.png",
-      "usdz": "models/medal-bookbug.usdz",
-      "note": "TRBP B柱：本の虫／出版の柱。"
-    },
-    {
-      "id": "postboy",
-      "name": "Postboy",
-      "category": "紋章 / TRBP",
-      "float": 0.8,
-      "src": "models/medal-postboy.glb",
-      "poster": "models/medal-postboy.png",
-      "usdz": "models/medal-postboy.usdz",
-      "note": "TRBP P柱：届ける柱。発信と配達。"
-    },
-    {
-      "id": "visionium",
-      "name": "Visionium",
-      "category": "紋章 / 本体",
-      "float": 0.5,
-      "src": "models/medal-visionium.glb",
-      "poster": "models/medal-visionium.png",
-      "usdz": "models/medal-visionium.usdz",
-      "note": "4柱を束ねる思考資本の母体。"
-    },
-    {
-      "id": "zenjinrui",
-      "name": "#全人類UX改善",
-      "category": "紋章 / 精神",
-      "float": 1.0,
-      "src": "models/medal-zenjinrui.glb",
-      "poster": "models/medal-zenjinrui.png",
-      "usdz": "models/medal-zenjinrui.usdz",
-      "note": "全人類のUXを改善する精神。",
-      "yomi": "ぜんじんるい"
-    },
-    {
-      "id": "korokoro",
-      "name": "凝ろコロ",
-      "yomi": "ころころ",
-      "category": "賽 / BeeF",
-      "float": 0.5,
-      "src": "models/dice-korokoro.glb",
-      "poster": "models/poster-korokoro.png",
-      "note": "二値の角を連続値の丸みへ。6面=0.0–1.0、対面の和=1.0（Float補数 1−x）。Boolean→Float＝BeeFの物質化。凝る×ころがる×コロコロの三重がけ。",
-      "usdz": "models/dice-korokoro.usdz"
-    },
-    {
-      "id": "magatama",
-      "name": "勾玉",
-      "yomi": "まがたま",
-      "category": "聖具 / 天人𦻙記",
-      "float": 0.65,
-      "src": "models/magatama.glb",
-      "poster": "models/poster-magatama.png",
-      "usdz": "models/magatama.usdz",
-      "note": "天の聖具。勾(まがり)=連続曲線の体現、二値の角を持たぬ形=Boolean→Float。天人𦻙記アイテム第1号、金製勾玉。手続き生成(swept-tube/フォント非依存)。"
-    }
-  ]
+    "title":  "立体図鑑",
+    "models":  [
+                   {
+                       "id":  "ou",
+                       "name":  "王将",
+                       "yomi":  "おうしょう",
+                       "category":  "駒 / 標準",
+                       "float":  0.5,
+                       "src":  "models/koma-ou.glb",
+                       "poster":  "models/poster-ou.png",
+                       "note":  "最上位の駒。全方位1マス。Float的には“中心”=どこへも等価に行ける基準点。",
+                       "usdz":  "models/koma-ou.usdz"
+                   },
+                   {
+                       "id":  "gyoku",
+                       "name":  "玉将",
+                       "yomi":  "ぎょくしょう",
+                       "category":  "駒 / 標準",
+                       "float":  0.5,
+                       "src":  "models/koma-gyoku.glb",
+                       "poster":  "models/poster-gyoku.png",
+                       "usdz":  "models/koma-gyoku.usdz",
+                       "note":  "もう一方の王。位の低い側が持つ。王将と対をなす中心0.5。"
+                   },
+                   {
+                       "id":  "hi",
+                       "name":  "飛車",
+                       "yomi":  "ひしゃ",
+                       "category":  "駒 / 標準",
+                       "float":  0.85,
+                       "src":  "models/koma-hi.glb",
+                       "poster":  "models/poster-hi.png",
+                       "note":  "縦横に伸びる大駒。直線の意志。成れば「竜王」、斜め1マスを得る。",
+                       "ura":  "竜",
+                       "usdz":  "models/koma-hi.usdz"
+                   },
+                   {
+                       "id":  "kaku",
+                       "name":  "角行",
+                       "yomi":  "かくぎょう",
+                       "category":  "駒 / 標準",
+                       "float":  0.8,
+                       "src":  "models/koma-kaku.glb",
+                       "poster":  "models/poster-kaku.png",
+                       "note":  "斜めに伸びる大駒。盤の対角を一息に渡る。成れば「竜馬」、縦横1マスを得る。",
+                       "ura":  "馬",
+                       "usdz":  "models/koma-kaku.usdz"
+                   },
+                   {
+                       "id":  "kin",
+                       "name":  "金将",
+                       "yomi":  "きんしょう",
+                       "category":  "駒 / 標準",
+                       "float":  0.55,
+                       "src":  "models/koma-kin.glb",
+                       "poster":  "models/poster-kin.png",
+                       "note":  "成れない代わりに崩れない。前・斜め前・横・後ろ。守りの基準値。",
+                       "usdz":  "models/koma-kin.usdz"
+                   },
+                   {
+                       "id":  "gin",
+                       "name":  "銀将",
+                       "yomi":  "ぎんしょう",
+                       "category":  "駒 / 標準",
+                       "float":  0.45,
+                       "src":  "models/koma-gin.glb",
+                       "poster":  "models/poster-gin.png",
+                       "note":  "斜めと前。退くも進むも斜め。成れば「全」=金の動きへ寄る。",
+                       "ura":  "全",
+                       "usdz":  "models/koma-gin.usdz"
+                   },
+                   {
+                       "id":  "kei",
+                       "name":  "桂馬",
+                       "yomi":  "けいま",
+                       "category":  "駒 / 標準",
+                       "float":  0.35,
+                       "src":  "models/koma-kei.glb",
+                       "poster":  "models/poster-kei.png",
+                       "note":  "盤上唯一、駒を飛び越える。二つ先へ跳ぶ非連続。成れば「圭」。",
+                       "ura":  "圭",
+                       "usdz":  "models/koma-kei.usdz"
+                   },
+                   {
+                       "id":  "kyo",
+                       "name":  "香車",
+                       "yomi":  "きょうしゃ",
+                       "category":  "駒 / 標準",
+                       "float":  0.25,
+                       "src":  "models/koma-kyo.glb",
+                       "poster":  "models/poster-kyo.png",
+                       "note":  "前へだけ、どこまでも。退路を持たない直進。成れば「杏」。",
+                       "ura":  "杏",
+                       "usdz":  "models/koma-kyo.usdz"
+                   },
+                   {
+                       "id":  "fu",
+                       "name":  "歩兵",
+                       "yomi":  "ふひょう",
+                       "category":  "駒 / 標準",
+                       "float":  0.15,
+                       "src":  "models/koma-fu.glb",
+                       "poster":  "models/poster-fu.png",
+                       "note":  "一歩ずつ前へ。最弱にして最多。成れば「と金」、金の動きを得る。",
+                       "ura":  "と",
+                       "usdz":  "models/koma-fu.usdz"
+                   },
+                   {
+                       "id":  "standing",
+                       "name":  "起立フィギュア No.1",
+                       "yomi":  "きりつ",
+                       "category":  "本番駒 / TripoSR",
+                       "float":  0.5,
+                       "src":  "models/koma-standing.glb",
+                       "poster":  "models/poster-standing.png",
+                       "note":  "画像→TripoSR→Blender→Draco の本番パイプライン第1号。試製駒（手続き生成の王飛角金銀桂香歩）に対する“実物”側。TripoSR=MIT/商用可。"
+                   },
+                   {
+                       "id":  "tool",
+                       "name":  "Hi-Me TooL",
+                       "category":  "紋章 / TRBP",
+                       "float":  0.2,
+                       "src":  "models/medal-tool.glb",
+                       "poster":  "models/medal-tool.png",
+                       "usdz":  "models/medal-tool.usdz",
+                       "note":  "TRBP T柱：道具の柱。摩擦を削るツール群。"
+                   },
+                   {
+                       "id":  "redesign",
+                       "name":  "Re:DeSign",
+                       "category":  "紋章 / TRBP",
+                       "float":  0.4,
+                       "src":  "models/medal-redesign.glb",
+                       "poster":  "models/medal-redesign.png",
+                       "usdz":  "models/medal-redesign.usdz",
+                       "note":  "TRBP R柱：再設計。既存の形を引き直す。"
+                   },
+                   {
+                       "id":  "bookbug",
+                       "name":  "BookBug",
+                       "category":  "紋章 / TRBP",
+                       "float":  0.6,
+                       "src":  "models/medal-bookbug.glb",
+                       "poster":  "models/medal-bookbug.png",
+                       "usdz":  "models/medal-bookbug.usdz",
+                       "note":  "TRBP B柱：本の虫／出版の柱。"
+                   },
+                   {
+                       "id":  "postboy",
+                       "name":  "Postboy",
+                       "category":  "紋章 / TRBP",
+                       "float":  0.8,
+                       "src":  "models/medal-postboy.glb",
+                       "poster":  "models/medal-postboy.png",
+                       "usdz":  "models/medal-postboy.usdz",
+                       "note":  "TRBP P柱：届ける柱。発信と配達。"
+                   },
+                   {
+                       "id":  "visionium",
+                       "name":  "Visionium",
+                       "category":  "紋章 / 本体",
+                       "float":  0.5,
+                       "src":  "models/medal-visionium.glb",
+                       "poster":  "models/medal-visionium.png",
+                       "usdz":  "models/medal-visionium.usdz",
+                       "note":  "4柱を束ねる思考資本の母体。"
+                   },
+                   {
+                       "id":  "zenjinrui",
+                       "name":  "#全人類UX改善",
+                       "category":  "紋章 / 精神",
+                       "float":  1.0,
+                       "src":  "models/medal-zenjinrui.glb",
+                       "poster":  "models/medal-zenjinrui.png",
+                       "usdz":  "models/medal-zenjinrui.usdz",
+                       "note":  "全人類のUXを改善する精神。",
+                       "yomi":  "ぜんじんるい"
+                   },
+                   {
+                       "id":  "korokoro",
+                       "name":  "凝ろコロ",
+                       "yomi":  "ころころ",
+                       "category":  "賽 / BeeF",
+                       "float":  0.5,
+                       "src":  "models/dice-korokoro.glb",
+                       "poster":  "models/poster-korokoro.png",
+                       "note":  "二値の角を連続値の丸みへ。6面=0.0–1.0、対面の和=1.0（Float補数 1−x）。Boolean→Float＝BeeFの物質化。凝る×ころがる×コロコロの三重がけ。",
+                       "usdz":  "models/dice-korokoro.usdz"
+                   },
+                   {
+                       "id":  "magatama",
+                       "name":  "勾玉",
+                       "yomi":  "まがたま",
+                       "category":  "聖具 / 天人𦻙記",
+                       "float":  0.65,
+                       "src":  "models/magatama.glb",
+                       "poster":  "models/poster-magatama.png",
+                       "usdz":  "models/magatama.usdz",
+                       "note":  "天の聖具。勾(まがり)=連続曲線の体現、二値の角を持たぬ形=Boolean→Float。天人𦻙記アイテム第1号、金製勾玉。手続き生成(swept-tube/フォント非依存)。"
+                   },
+                   {
+                       "id":  "panda",
+                       "name":  "パンダ",
+                       "yomi":  "ぱんだ",
+                       "category":  "キャラ / figure",
+                       "float":  0.5,
+                       "src":  "models/figure-panda.glb",
+                       "poster":  "models/poster-panda.png",
+                       "usdz":  "models/figure-panda.usdz",
+                       "note":  "パンダと哲学とAIのマスコット。白と黒＝0と1の同居、その境界の連続値こそBoolean→Float。立ち絵1枚→TripoSR→Blender→棚/AR/RPGの3用途。image→meshフィギュア第2号。"
+                   }
+               ]
 }
