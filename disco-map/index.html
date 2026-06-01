@@ -98,6 +98,11 @@ footer a:hover{color:var(--gold)}
       <span class="chwrap"><span class="ch">#postboy-schedule</span><span class="meta">0 7 (pbsc-daily-feed)</span></span>
     </div>
     <div class="pipe check">
+      <span class="src">ツール群プロモ (tool-promo-rotation) <span class="meta">成果物DB最終宣伝/宣伝回数でローテ。X+note下書き→承認制。自動投稿しない。初回6/3。</span></span>
+      <span class="flow">▶ forward<span class="way">──Webhook──▶</span></span>
+      <span class="chwrap"><span class="ch">#postboy-schedule</span><span class="meta">0 8 月水金 (tool-promo-rotation)</span></span>
+    </div>
+    <div class="pipe check">
       <span class="src">秘書CoDB today差分 + hardゲート期日 <span class="meta">継続着信は実画面と要突合(lastRunAt≠実着信)。lastRun 2026-05-31。</span></span>
       <span class="flow">▶ forward<span class="way">──Webhook──▶</span></span>
       <span class="chwrap"><span class="ch">#task-inbox</span><span class="meta">0 7 (task-inbox-daily-briefing)</span></span>
