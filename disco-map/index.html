@@ -5,14 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🔌 Discord配管マップ — Visionium L3b観測層</title>
 <meta property="og:title" content="🔌 Discord配管マップ">
-<meta property="og:description" content="Visionium L3b観測層 Discord通知の配管（ソース→方式→ch）。状態色は配管DB正本反映。#全人類UX改善計画">
+<meta property="og:description" content="Visionium L3b観測層 Discord通知の配管（ソース→方式→ch）。配管DB正本から自動生成。#全人類UX改善計画">
 <meta property="og:url" content="https://osakenpiro.github.io/disco-map/">
 <meta property="og:type" content="website">
 <style>
 :root{
   --void:#0a0a0f; --void-deep:#06060a; --surface:#15141a; --surface-hi:#1c1a23;
-  --gold:#d4a853; --gold-soft:rgba(212,168,83,.12); --gold-glow:rgba(212,168,83,.25); --gold-edge:rgba(212,168,83,.45);
-  --parchment:#c8b8a0; --violet:#a78bfa; --debris-1:#6b6b80; --debris-2:#3a3530;
+  --gold:#d4a853; --parchment:#c8b8a0; --violet:#a78bfa; --debris-1:#6b6b80; --debris-2:#3a3530;
   --fg-1:#e8e0d0; --fg-2:#b8b0a0; --fg-3:#807868; --dim:#5a5448;
   --border:rgba(200,184,160,.06); --border-hover:rgba(212,168,83,.20);
   --sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic Medium",system-ui,sans-serif;
@@ -22,7 +21,6 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--void);color:var(--fg-1);font-family:var(--sans);line-height:1.7;letter-spacing:.01em;-webkit-font-smoothing:antialiased}
 body{position:relative;min-height:100vh;overflow-x:hidden}
-/* 星屑（void+stars） */
 body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
   background:
     radial-gradient(1px 1px at 12% 18%, rgba(232,224,208,.5), transparent),
@@ -39,21 +37,13 @@ header{text-align:center;margin-bottom:48px}
 h1{font-family:var(--serif);font-style:italic;font-weight:300;font-size:clamp(2.1rem,6vw,3.2rem);line-height:1.05;letter-spacing:.04em;color:var(--fg-1)}
 h1 .pin{font-style:normal}
 .sub{color:var(--fg-3);font-size:.92rem;margin-top:14px}
-/* 凡例 */
-.legend{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:center;margin:0 auto 44px;padding:14px 18px;
-  max-width:760px;background:var(--surface);border:1px solid var(--border);border-radius:12px;font-size:.74rem;color:var(--fg-2)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:center;margin:0 auto 44px;padding:14px 18px;max-width:760px;background:var(--surface);border:1px solid var(--border);border-radius:12px;font-size:.74rem;color:var(--fg-2)}
 .legend b{color:var(--dim);font-weight:400;letter-spacing:.12em;text-transform:uppercase;font-size:.66rem;margin-right:4px}
 .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
 .d-live{background:var(--gold)} .d-check{background:var(--parchment)} .d-down{background:var(--debris-1)} .d-new{background:var(--violet)}
-/* カテゴリ */
 .cat{margin-bottom:40px}
-.cat h2{font-family:var(--mono);font-size:.7rem;letter-spacing:.2em;color:var(--gold);
-  border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:6px;font-weight:500}
-.cat .cnt{color:var(--dim);font-size:.62rem;letter-spacing:.1em}
-/* 配管行：source → 方式 → ch */
-.pipe{display:grid;grid-template-columns:1fr auto 1.15fr;align-items:center;gap:14px;
-  padding:14px 16px 14px 18px;margin-top:10px;background:var(--surface);
-  border:1px solid var(--border);border-left:3px solid var(--debris-2);border-radius:10px;transition:background .15s,border-color .15s}
+.cat h2{font-family:var(--mono);font-size:.7rem;letter-spacing:.2em;color:var(--gold);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:6px;font-weight:500}
+.pipe{display:grid;grid-template-columns:1fr auto 1.15fr;align-items:center;gap:14px;padding:14px 16px 14px 18px;margin-top:10px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--debris-2);border-radius:10px;transition:background .15s,border-color .15s}
 .pipe:hover{background:var(--surface-hi);border-color:var(--border-hover)}
 .pipe.live{border-left-color:var(--gold)} .pipe.check{border-left-color:var(--parchment)}
 .pipe.down{border-left-color:var(--debris-1);opacity:.72} .pipe.new{border-left-color:var(--violet)}
@@ -63,16 +53,11 @@ h1 .pin{font-style:normal}
 .chwrap{text-align:right}
 .ch{font-family:var(--mono);font-size:.82rem;color:var(--fg-1);letter-spacing:.02em}
 .meta{display:block;font-size:.62rem;color:var(--dim);margin-top:3px;letter-spacing:.04em}
-.st{font-size:.8rem;margin-left:2px}
-footer{text-align:center;margin-top:56px;padding-top:24px;border-top:1px solid var(--border);
-  font-size:.7rem;color:var(--dim);line-height:2}
+footer{text-align:center;margin-top:56px;padding-top:24px;border-top:1px solid var(--border);font-size:.7rem;color:var(--dim);line-height:2}
 footer a{color:var(--fg-3);text-decoration:none}
 footer a:hover{color:var(--gold)}
 .crest{font-family:var(--serif);font-style:italic;color:var(--fg-3)}
-@media(max-width:560px){
-  .pipe{grid-template-columns:1fr;gap:6px}
-  .chwrap,.flow{text-align:left} .flow{margin:2px 0}
-}
+@media(max-width:560px){.pipe{grid-template-columns:1fr;gap:6px}.chwrap,.flow{text-align:left}.flow{margin:2px 0}}
 </style>
 </head>
 <body>
@@ -80,119 +65,75 @@ footer a:hover{color:var(--gold)}
   <header>
     <div class="caption">Visionium · L3b 観測層 · disco-overhaul</div>
     <h1><span class="pin">🔌</span> Discord 配管マップ</h1>
-    <p class="sub">ソース → 方式 → チャンネル。状態色は配管DB（正本）反映。</p>
+    <p class="sub">ソース → 方式 → チャンネル。配管DB（正本）から自動生成。</p>
   </header>
-
   <div class="legend">
     <span><b>通電</b><span class="dot d-live"></span>Live <span class="dot d-check"></span>未確認 <span class="dot d-down"></span>断 <span class="dot d-new"></span>新設</span>
     <span><b>方向</b>▶ forward ・ ◀ backward ・ ◆ observe</span>
     <span><b>方式</b>Webhook ・ BotEvent</span>
   </div>
-
   <section class="cat">
-    <h2>OBSERVATION <span class="cnt">／ 観測</span></h2>
+    <h2>OBSERVATION ／ 観測</h2>
     <div class="pipe live">
-      <span class="src">snapshot.py <span class="meta">XP/events/projects/drift</span></span>
-      <span class="flow">◆ observe<span class="way">──Webhook──▶</span></span>
-      <span class="chwrap"><span class="ch">#snapshot-stdout</span><span class="meta">native 07:15</span></span>
-    </div>
-    <div class="pipe live">
-      <span class="src">秘書CoDB today / GCal / hardゲート / 接近惑星 <span class="meta">朝の予定候補・4ソース</span></span>
+      <span class="src">秘書CoDB today / GCal今日 / hardゲート≤7d / 接近惑星 <span class="meta">★最優先。実装+webhook+通電確認(204+実画面)完了。本番ドライラン2026-06-01: 実4ソース839字</span></span>
       <span class="flow">▶ forward<span class="way">──Webhook──▶</span></span>
-      <span class="chwrap"><span class="ch">#daily-briefing</span><span class="meta">0 7 相乗り（task-inbox step6）</span></span>
+      <span class="chwrap"><span class="ch">#daily-briefing</span><span class="meta">task-inbox-daily-briefing (0 7) 相乗り【step6 実装済・ガード付】</span></span>
     </div>
     <div class="pipe live">
-      <span class="src">成果物DB <span class="meta">即時 + 日次サマリ</span></span>
+      <span class="src">成果物DB (95626952 / ds 85a65f30) <span class="meta">実装+テスト完了(204×2: daily/即時)。script=workspace/disco/artifact_lo</span></span>
       <span class="flow">◀ backward<span class="way">──Webhook──▶</span></span>
-      <span class="chwrap"><span class="ch">#artifact-log</span><span class="meta">0 21 + 投入時event</span></span>
+      <span class="chwrap"><span class="ch">#artifact-log</span><span class="meta">日次 0 21 (artifact-log-daily) + 即時(投入時 artifact_log.py post)</span></span>
     </div>
-  </section>
-
-  <section class="cat">
-    <h2>LIVE OPS <span class="cnt">／ 実務</span></h2>
-    <div class="pipe check">
-      <span class="src">秘書CoDB today差分 + hardゲート期日 <span class="meta">継続着信 要実画面突合</span></span>
-      <span class="flow">▶ forward<span class="way">──Webhook──▶</span></span>
-      <span class="chwrap"><span class="ch">#task-inbox</span><span class="meta">0 7</span></span>
-    </div>
-    <div class="pipe check">
-      <span class="src">PostBoy（pbsc-daily-feed） <span class="meta">広報配信・cron遅延既知</span></span>
-      <span class="flow">▶ forward<span class="way">──BotEvent──▶</span></span>
-      <span class="chwrap"><span class="ch">#postboy-schedule</span><span class="meta">0 7 / embed</span></span>
-    </div>
-  </section>
-
-  <section class="cat">
-    <h2>HISHOCO <span class="cnt">／ 秘書子</span></h2>
     <div class="pipe live">
-      <span class="src">hem / hems（Cow） <span class="meta">snapshot二重POSTは削除予定</span></span>
+      <span class="src">snapshot.py (XP/events/projects/drift) <span class="meta">OBSERVATION webhook。native化済(Cow版cronは無効)。</span></span>
       <span class="flow">◆ observe<span class="way">──Webhook──▶</span></span>
-      <span class="chwrap"><span class="ch">#cowork-stdout</span><span class="meta">event（hem時）</span></span>
+      <span class="chwrap"><span class="ch">#snapshot-stdout</span><span class="meta">native Task Scheduler MIHARASHI-Daily 07:15</span></span>
+    </div>
+  </section>
+  <section class="cat">
+    <h2>LIVE OPS ／ 実務</h2>
+    <div class="pipe check">
+      <span class="src">PostBoy (pbsc-daily-feed) <span class="meta">cron遅延既知。embed投稿。/tmp stale罠あり。</span></span>
+      <span class="flow">▶ forward<span class="way">──BotEvent──▶</span></span>
+      <span class="chwrap"><span class="ch">#postboy-schedule</span><span class="meta">0 7 (pbsc-daily-feed)</span></span>
     </div>
     <div class="pipe check">
-      <span class="src">codex-img.ps1 生成画像 <span class="meta">URL有・ps1の実投げ要検証</span></span>
-      <span class="flow">◆ observe<span class="way">──Webhook──▶</span></span>
-      <span class="chwrap"><span class="ch">#codex-dump</span><span class="meta">event（画像着地時）</span></span>
-    </div>
-    <div class="pipe down">
-      <span class="src">Gmail MCP triage <span class="meta">Phase4 計画済・未通電</span></span>
-      <span class="flow">◆ observe<span class="way">┄┄未通電┄┄</span></span>
-      <span class="chwrap"><span class="ch">#email-triage</span><span class="meta">—</span></span>
+      <span class="src">秘書CoDB today差分 + hardゲート期日 <span class="meta">継続着信は実画面と要突合(lastRunAt≠実着信)。lastRun 2026-05-31。</span></span>
+      <span class="flow">▶ forward<span class="way">──Webhook──▶</span></span>
+      <span class="chwrap"><span class="ch">#task-inbox</span><span class="meta">0 7 (task-inbox-daily-briefing)</span></span>
     </div>
   </section>
-
   <section class="cat">
-    <h2>KNOWLEDGE <span class="cnt">／ 知</span></h2>
+    <h2>HISHOCO ／ 秘書子</h2>
+    <div class="pipe live">
+      <span class="src">hem/hems (Cow) <span class="meta">【B1検証結果】snapshot二重POSTは実は存在せず。snapshot.pyのDiscord関数(_post_di</span></span>
+      <span class="flow">◆ observe<span class="way">──Webhook──▶</span></span>
+      <span class="chwrap"><span class="ch">#cowork-stdout</span><span class="meta">event (hem時)</span></span>
+    </div>
     <div class="pipe down">
-      <span class="src">プロトコル / Grand Tips <span class="meta">Phase3 計画済・未通電</span></span>
+      <span class="src">Gmail MCP triage <span class="meta">Phase4計画済・未通電。</span></span>
       <span class="flow">◆ observe<span class="way">┄┄未通電┄┄</span></span>
-      <span class="chwrap"><span class="ch">#general</span><span class="meta">—</span></span>
+      <span class="chwrap"><span class="ch">#email-triage</span></span>
+    </div>
+    <div class="pipe live">
+      <span class="src">codex-img.ps1 生成画像 <span class="meta">通電確認完了(実画像POST 200, 2026-06-01)。codex-img.ps1 v2.1がここへ画像post</span></span>
+      <span class="flow">◆ observe<span class="way">──Webhook──▶</span></span>
+      <span class="chwrap"><span class="ch">#codex-dump</span><span class="meta">event (画像着地時)</span></span>
     </div>
   </section>
-
+  <section class="cat">
+    <h2>KNOWLEDGE ／ 知</h2>
+    <div class="pipe down">
+      <span class="src">プロトコル / Grand Tips <span class="meta">Phase3計画済・未通電。</span></span>
+      <span class="flow">◆ observe<span class="way">┄┄未通電┄┄</span></span>
+      <span class="chwrap"><span class="ch">#general</span></span>
+    </div>
+  </section>
   <footer>
-    正本 = <a href="https://www.notion.so/3a093c4c6e7a4d19abc1cef61dcb6119">🔌 Discord配管DB</a>（Discord実体=参照） · 9配管 / 🟢4 🟡3 🔴2<br>
-    生成 2026-06-01 · v0（Phase2で配管DBから自動生成予定） · 朝=forward / 夜=backward の時間軸分離<br>
+    正本 = <a href="https://www.notion.so/3a093c4c6e7a4d19abc1cef61dcb6119">🔌 Discord配管DB</a>（Discord実体=参照） · 9配管 / 🟢5 🟡2 🔴2 ⬜0<br>
+    自動生成 2026-06-01 19:18 JST · disco_map_gen.py（配管DB query→render→GH Pages） · 朝=forward / 夜=backward<br>
     <span class="crest">osakenpiro</span> · #全人類UX改善計画
   </footer>
 </main>
-
-<!-- osakenpiro support button v1 -->
-<style>
-  .osk-support-btn {
-    position: fixed;
-    bottom: 16px;
-    right: 16px;
-    background: linear-gradient(135deg, #FFDD00 0%, #FFC700 100%);
-    color: #1a1a1a;
-    padding: 10px 16px;
-    border-radius: 999px;
-    text-decoration: none;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
-    z-index: 99999;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .osk-support-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-  }
-  @media (max-width: 480px) {
-    .osk-support-btn { font-size: 12px; padding: 8px 12px; }
-  }
-</style>
-<a href="https://www.buymeacoffee.com/osakenpiro"
-   target="_blank"
-   rel="noopener noreferrer"
-   class="osk-support-btn"
-   aria-label="osakenpiroを応援する">
-  ☕ <span>応援</span>
-</a>
-<!-- /osakenpiro support button -->
 </body>
 </html>
