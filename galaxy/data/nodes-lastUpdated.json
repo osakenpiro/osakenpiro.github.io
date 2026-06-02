@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "generated_at": "2026-06-02T19:55:37.372304+09:00",
+    "generated_at": "2026-06-02T19:58:37.827906+09:00",
     "generator": "galaxy_push.py v1.0 (native daily, post-snapshot)",
     "spec": "node id -> ISO date (YYYY-MM-DD). 銀河系が fetch し化石化判定に使う。",
     "node_count": 78,
