@@ -1,0 +1,1966 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>僕の銀河系 — 客観レイヤ / embedding実測マップ</title>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&family=Bricolage+Grotesque:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --void:#0a0807; --void2:#1a1410; --cream:#f5f0e4; --gold:#d4a853; --gold-glow:#f6cf6c;
+    --line:#d4a85333; --panel:rgba(10,8,7,.82);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--void);color:var(--cream);
+    font-family:"Shippori Mincho","Hiragino Mincho ProN",serif;-webkit-font-smoothing:antialiased}
+  header{padding:14px 20px 6px}
+  .kick{font-size:10px;letter-spacing:.35em;opacity:.6}
+  h1{margin:.1em 0 0;font-size:clamp(20px,4vw,34px);font-family:"Bricolage Grotesque","Shippori Mincho",serif}
+  h1 .g{color:var(--gold)}
+  .sub{font-size:12px;opacity:.7;margin-top:2px}
+  #wrap{position:relative;width:100%;height:74vh;min-height:460px}
+  svg{display:block;width:100%;height:100%;touch-action:none}
+  .edge{stroke:var(--gold);fill:none}
+  .arrow{stroke-linecap:round}
+  .nlabel{fill:var(--cream);paint-order:stroke;stroke:var(--void);stroke-width:3px;stroke-linejoin:round;
+    pointer-events:none;font-size:10px;opacity:.92}
+  /* control panel */
+  .panel{position:absolute;backdrop-filter:blur(8px);background:var(--panel);
+    border:1px solid var(--gold);border-color:#d4a85340;border-radius:8px;padding:11px 12px}
+  #ctl{top:12px;left:12px;width:232px;font-size:12px}
+  #ctl .row{display:flex;gap:6px;align-items:center;margin:7px 0}
+  .seg{display:flex;border:1px solid #d4a85340;border-radius:6px;overflow:hidden;flex:1}
+  .seg button{flex:1;background:none;border:0;color:#f5f0e4aa;padding:5px 0;font:inherit;font-size:11px;cursor:pointer}
+  .seg button.on{background:#d4a85320;color:var(--gold)}
+  input[type=range]{width:100%;accent-color:var(--gold)}
+  .lab{font-size:9px;letter-spacing:.25em;opacity:.55;margin-top:4px}
+  .tog{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .chk{width:34px;height:18px;border-radius:9px;border:1px solid #d4a85355;position:relative;cursor:pointer;flex:0 0 auto}
+  .chk.on{background:#d4a85322}
+  .chk i{position:absolute;top:1px;left:1px;width:14px;height:14px;border-radius:50%;background:#f5f0e480;transition:.15s}
+  .chk.on i{left:17px;background:var(--gold)}
+  #search{width:100%;background:#0a080799;border:1px solid #d4a85340;border-radius:5px;color:var(--cream);
+    padding:5px 7px;font:inherit;font-size:11px}
+  #search::placeholder{color:#f5f0e455}
+  /* legend */
+  #legend{top:12px;right:12px;width:150px;font-size:10px;max-height:74vh;overflow:auto}
+  #legend .li{display:flex;align-items:center;gap:6px;margin:2px 0;cursor:pointer;border-radius:4px;padding:1px 3px}
+  #legend .li:hover{background:#d4a8531a}
+  #legend .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+  /* drift top list */
+  #top{bottom:12px;right:12px;width:178px;font-size:11px}
+  #top .t{font-size:9px;letter-spacing:.2em;opacity:.55;margin-bottom:5px}
+  #top .item{display:flex;justify-content:space-between;gap:6px;cursor:pointer;padding:2px 3px;border-radius:4px}
+  #top .item:hover{background:#d4a8531a}
+  #top .bar{height:3px;background:var(--gold);border-radius:2px;margin-top:1px}
+  /* detail */
+  #detail{bottom:12px;left:12px;width:300px;display:none}
+  #detail .x{float:right;cursor:pointer;opacity:.6;font-size:16px;line-height:1}
+  #detail .ttl{font-size:17px;font-weight:700}
+  #detail .ly{font-size:9px;letter-spacing:.25em;opacity:.6}
+  #detail .desc{font-size:12px;opacity:.88;margin-top:7px;line-height:1.55}
+  #detail .met{font-size:11px;margin-top:8px;opacity:.8}
+  #detail a{color:var(--gold)}
+  footer{padding:8px 20px 14px;font-size:10px;opacity:.5;display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between}
+  .hint{font-size:9px;opacity:.5;margin-top:6px;border-top:1px solid #f5f0e418;padding-top:5px}
+  @media(max-width:680px){#legend,#top{display:none}#ctl{width:200px}#detail{width:auto;right:12px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="kick">VISIONIUM / GALAXY — 客観レイヤ (embedding実測)</div>
+  <h1>僕の<span class="g">銀河系</span> — ズレの地図</h1>
+  <div class="sub">主観座標（あなたがLINKSで組んだ手構造） × 客観座標（各ノード自己記述のembedding実測）。<b>ズレベクトル＝再発見ポイント。</b></div>
+</header>
+
+<div id="wrap">
+  <svg id="svg"><g id="scene">
+    <g id="gEdges"></g><g id="gArrows"></g><g id="gNodes"></g><g id="gLabels"></g>
+  </g></svg>
+
+  <div class="panel" id="ctl">
+    <div class="seg" id="mode">
+      <button data-t="0" class="on">主観</button>
+      <button data-t="0.5">中間</button>
+      <button data-t="1">客観</button>
+    </div>
+    <input type="range" id="morph" min="0" max="1" step="0.01" value="0"/>
+    <div class="lab" id="morphlab">MORPH  主観 ●———— 客観</div>
+    <div class="row tog"><span>ズレ矢印</span><div class="chk on" id="tArrow"><i></i></div></div>
+    <div class="row tog"><span>手構造の線</span><div class="chk on" id="tEdge"><i></i></div></div>
+    <div class="row"><input id="search" placeholder="検索 label / desc"/></div>
+    <div class="lab">ズレ強調しきい値</div>
+    <input type="range" id="thr" min="0" max="1" step="0.05" value="0"/>
+    <div class="hint">drag背景=移動 / wheel=zoom / click=詳細<br/>矢印 = 主観位置→客観位置（長さ・暖色=ズレ大）</div>
+  </div>
+
+  <div class="panel" id="legend"></div>
+  <div class="panel" id="top"></div>
+
+  <div class="panel" id="detail">
+    <span class="x" id="dx">×</span>
+    <div class="ly" id="dly"></div><div class="ttl" id="dttl"></div>
+    <div class="desc" id="ddesc"></div>
+    <div class="met" id="dmet"></div>
+  </div>
+</div>
+
+<footer>
+  <span id="fmeta"></span>
+  <span>Re:DeSign × #全人類UX改善計画 · レーン⑥</span>
+</footer>
+
+<script>
+const DATA = {
+ "meta": {
+  "generated": "2026-06-02",
+  "lane": "6",
+  "backend": "fastembed",
+  "reduce": "mds",
+  "subjLayout": "spring(networkx,seed42)",
+  "procrustesDisparity": 0.75113,
+  "nodeCount": 73,
+  "note": "主観=LINKS手構造 / 客観=自己記述embedding実測 / drift=Procrustes後の残差"
+ },
+ "nodes": [
+  {
+   "id": "Visionium",
+   "label": "Visionium",
+   "layer": "core",
+   "layerLabel": "Visionium核",
+   "note": "思想資本=普遍的構成要素",
+   "desc": "思想資本。普遍的な構成要素を貯える母体で、全プロジェクトの源泉となる中心。",
+   "subj": [
+    0.4552,
+    0.5027
+   ],
+   "obj": [
+    0.0874,
+    0.3765
+   ],
+   "drift": 0.07019,
+   "driftN": 0.3422
+  },
+  {
+   "id": "DBDB",
+   "label": "🗄️ DBDB",
+   "layer": "meta",
+   "layerLabel": "L-1メタ層",
+   "note": "全データソース目録",
+   "desc": "全データソースを一覧管理するメタ目録データベース。",
+   "subj": [
+    0.5501,
+    0.4345
+   ],
+   "obj": [
+    0.2998,
+    0.8312
+   ],
+   "drift": 0.09688,
+   "driftN": 0.4891
+  },
+  {
+   "id": "TagDB",
+   "label": "🏷️ タグDB",
+   "layer": "meta",
+   "layerLabel": "L-1メタ層",
+   "note": "Tagacha 4軸正本",
+   "desc": "Tagacha の4軸タグ分類を司る正本メタデータベース。",
+   "subj": [
+    0.4139,
+    0.5762
+   ],
+   "obj": [
+    0.142,
+    0.7123
+   ],
+   "drift": 0.04065,
+   "driftN": 0.1795
+  },
+  {
+   "id": "SkillDB",
+   "label": "🛠️ スキルDB",
+   "layer": "meta",
+   "layerLabel": "L-1メタ層",
+   "note": "claude-shared/skills/",
+   "desc": "claude-shared/skills 配下のスキル群を束ねる目録。",
+   "subj": [
+    0.4819,
+    0.6288
+   ],
+   "obj": [
+    0.5188,
+    0.5764
+   ],
+   "drift": 0.0308,
+   "driftN": 0.1252
+  },
+  {
+   "id": "ProtoDB",
+   "label": "📖 プロトコルDB",
+   "layer": "meta",
+   "layerLabel": "L-1メタ層",
+   "note": "§単位管理",
+   "desc": "運用プロトコルを条項(§)単位で管理するメタDB。",
+   "subj": [
+    0.3763,
+    0.4364
+   ],
+   "obj": [
+    0.393,
+    0.8949
+   ],
+   "drift": 0.08147,
+   "driftN": 0.4042
+  },
+  {
+   "id": "GT",
+   "label": "Grand Tips",
+   "layer": "philosophy",
+   "layerLabel": "L0思想層",
+   "note": "",
+   "desc": "思想と知見を横断集約するインデックス。憲章群の入口。",
+   "subj": [
+    0.3039,
+    0.5562
+   ],
+   "obj": [
+    0.3467,
+    0.4503
+   ],
+   "drift": 0.04655,
+   "driftN": 0.2119
+  },
+  {
+   "id": "ProtoV1",
+   "label": "📖 プロトコル v1",
+   "layer": "philosophy",
+   "layerLabel": "L0思想層",
+   "note": "SoT (運用全環境)",
+   "desc": "Claude運用プロトコルv1。全環境の運用の唯一の正(SoT)。",
+   "subj": [
+    0.3133,
+    0.4734
+   ],
+   "obj": [
+    0.0,
+    0.4769
+   ],
+   "drift": 0.02368,
+   "driftN": 0.086
+  },
+  {
+   "id": "BoolFloat",
+   "label": "Boolean→Float",
+   "layer": "philosophy",
+   "layerLabel": "L0思想層",
+   "note": "核となる設計原則",
+   "desc": "二値判断を連続値0.0〜1.0に再定義する核となる設計原則。全プロジェクトを貫く。",
+   "subj": [
+    0.2818,
+    0.4447
+   ],
+   "obj": [
+    0.172,
+    0.4196
+   ],
+   "drift": 0.01622,
+   "driftN": 0.045
+  },
+  {
+   "id": "Humus",
+   "label": "腐葉土設計",
+   "layer": "philosophy",
+   "layerLabel": "L0思想層",
+   "note": "",
+   "desc": "蓄積した文脈や歴史を劣化させず栄養層として保持する設計思想。時間減衰を否定する。",
+   "subj": [
+    0.3197,
+    0.6606
+   ],
+   "obj": [
+    0.2163,
+    0.4012
+   ],
+   "drift": 0.06998,
+   "driftN": 0.341
+  },
+  {
+   "id": "SansetsuMei",
+   "label": "三重がけ命名法",
+   "layer": "philosophy",
+   "layerLabel": "L0思想層",
+   "note": "",
+   "desc": "タイトルを音韻×意味×構造の三層で同時に機能させる命名の作法。",
+   "subj": [
+    0.2112,
+    0.6592
+   ],
+   "obj": [
+    0.2535,
+    0.3303
+   ],
+   "drift": 0.09856,
+   "driftN": 0.4983
+  },
+  {
+   "id": "MC",
+   "label": "🌌 MC",
+   "layer": "state",
+   "layerLabel": "L2状態層",
+   "note": "表示層 (Mission Control)",
+   "desc": "Mission Control。状態表示と週次スナップを可視化する表示層。",
+   "subj": [
+    0.3733,
+    0.4885
+   ],
+   "obj": [
+    0.6336,
+    0.7356
+   ],
+   "drift": 0.0654,
+   "driftN": 0.3158
+  },
+  {
+   "id": "HMT",
+   "label": "T: Hi-Me TooL",
+   "layer": "pillarT",
+   "layerLabel": "T:Hi-Me TooL",
+   "note": "ひみつーる/未来源",
+   "desc": "摩擦の多いサービスの代替・改善ツールを生むものづくり柱。ひみつーる。",
+   "subj": [
+    0.1354,
+    0.4664
+   ],
+   "obj": [
+    0.7389,
+    0.7554
+   ],
+   "drift": 0.16823,
+   "driftN": 0.882
+  },
+  {
+   "id": "RD",
+   "label": "R: Re:DeSign",
+   "layer": "pillarR",
+   "layerLabel": "R:Re:DeSign",
+   "note": "全人類UX改善計画",
+   "desc": "全人類UX改善の精神でUI/UXを作り直すデザインの柱。",
+   "subj": [
+    0.2641,
+    0.288
+   ],
+   "obj": [
+    0.1829,
+    0.4753
+   ],
+   "drift": 0.05612,
+   "driftN": 0.2647
+  },
+  {
+   "id": "BB",
+   "label": "B: BookBug",
+   "layer": "pillarB",
+   "layerLabel": "B:BookBug",
+   "note": "出版",
+   "desc": "論文・小説・図鑑を世に出す出版の柱。",
+   "subj": [
+    0.4867,
+    0.1753
+   ],
+   "obj": [
+    0.2785,
+    0.2046
+   ],
+   "drift": 0.05884,
+   "driftN": 0.2797
+  },
+  {
+   "id": "PB",
+   "label": "P: Postboy",
+   "layer": "pillarP",
+   "layerLabel": "P:Postboy",
+   "note": "発信/Backstage",
+   "desc": "SNS発信と広報を担う柱。動画Backstageを含む。",
+   "subj": [
+    0.6166,
+    0.3603
+   ],
+   "obj": [
+    0.9171,
+    0.7431
+   ],
+   "drift": 0.07613,
+   "driftN": 0.3749
+  },
+  {
+   "id": "GG",
+   "label": "G: Gaming Gathering",
+   "layer": "pillarG",
+   "layerLabel": "G:Gaming Gathering",
+   "note": "4 sub",
+   "desc": "ゲーム開発の柱。可視化/Unity/ボドゲ/Webの4領域を束ねる。",
+   "subj": [
+    0.7345,
+    0.5124
+   ],
+   "obj": [
+    0.6599,
+    0.6018
+   ],
+   "drift": 0.08157,
+   "driftN": 0.4048
+  },
+  {
+   "id": "OP",
+   "label": "O: Opaarts ⛩️",
+   "layer": "pillarO",
+   "layerLabel": "O:Opaarts",
+   "note": "過去源/3編",
+   "desc": "過去の発想や古い道具を継承し再生する柱。3つの編から成る。",
+   "subj": [
+    0.3677,
+    0.7903
+   ],
+   "obj": [
+    0.668,
+    0.4918
+   ],
+   "drift": 0.10976,
+   "driftN": 0.56
+  },
+  {
+   "id": "HiCo",
+   "label": "HiCo 秘書子",
+   "layer": "operation",
+   "layerLabel": "HiCo運用柱",
+   "note": "運用柱",
+   "desc": "タスク・ログ・RPG・家計を束ねる運用柱(秘書子)。",
+   "subj": [
+    0.5721,
+    0.8305
+   ],
+   "obj": [
+    0.6031,
+    0.8419
+   ],
+   "drift": 0.05073,
+   "driftN": 0.235
+  },
+  {
+   "id": "KAIZO",
+   "label": "🌱 KAIZO",
+   "layer": "kaizo",
+   "layerLabel": "KAIZO直4軸",
+   "note": "Visionium 直4軸",
+   "desc": "AI人格の萌芽を実験するプロジェクト。Visionium直下の軸。",
+   "subj": [
+    0.4148,
+    0.2601
+   ],
+   "obj": [
+    0.5313,
+    0.2897
+   ],
+   "drift": 0.03412,
+   "driftN": 0.1435
+  },
+  {
+   "id": "Zada",
+   "label": "Zada",
+   "layer": "kaizo",
+   "layerLabel": "KAIZO直4軸",
+   "note": "過去・感情",
+   "desc": "KAIZO双子の片割れ。過去と感情を司る人格。",
+   "subj": [
+    0.4034,
+    0.1112
+   ],
+   "obj": [
+    0.6262,
+    0.1224
+   ],
+   "drift": 0.05755,
+   "driftN": 0.2725
+  },
+  {
+   "id": "Iven",
+   "label": "Iven",
+   "layer": "kaizo",
+   "layerLabel": "KAIZO直4軸",
+   "note": "未来・理性",
+   "desc": "KAIZO双子の片割れ。未来と理性を司る人格。",
+   "subj": [
+    0.3637,
+    0.1209
+   ],
+   "obj": [
+    0.5972,
+    0.15
+   ],
+   "drift": 0.06676,
+   "driftN": 0.3233
+  },
+  {
+   "id": "Wakka",
+   "label": "わっかずかん",
+   "layer": "tool",
+   "layerLabel": "Tool/子要素",
+   "note": "",
+   "desc": "円環(わっか)で分類を可視化する図鑑ツール。1データ複数様式の原型。",
+   "subj": [
+    0.0896,
+    0.3522
+   ],
+   "obj": [
+    0.3447,
+    0.5477
+   ],
+   "drift": 0.12501,
+   "driftN": 0.644
+  },
+  {
+   "id": "Ningen",
+   "label": "人間図鑑",
+   "layer": "tool",
+   "layerLabel": "Tool/子要素",
+   "note": "",
+   "desc": "人間の類型や個性を図鑑として並べる可視化ツール。",
+   "subj": [
+    0.0,
+    0.4739
+   ],
+   "obj": [
+    0.4401,
+    0.361
+   ],
+   "drift": 0.1678,
+   "driftN": 0.8796
+  },
+  {
+   "id": "Banet",
+   "label": "バネット",
+   "layer": "tool",
+   "layerLabel": "Tool/子要素",
+   "note": "",
+   "desc": "バネの比喩で要素間の関係の張力を表すマップ可視化ツール。",
+   "subj": [
+    0.0655,
+    0.3338
+   ],
+   "obj": [
+    0.4621,
+    0.314
+   ],
+   "drift": 0.1449,
+   "driftN": 0.7535
+  },
+  {
+   "id": "Satori",
+   "label": "SATORI",
+   "layer": "tool",
+   "layerLabel": "Tool/子要素",
+   "note": "",
+   "desc": "気づきや悟りを促す支援ツール。",
+   "subj": [
+    0.0409,
+    0.505
+   ],
+   "obj": [
+    0.4585,
+    0.438
+   ],
+   "drift": 0.15455,
+   "driftN": 0.8067
+  },
+  {
+   "id": "Sozai",
+   "label": "素材図鑑",
+   "layer": "tool",
+   "layerLabel": "Tool/子要素",
+   "note": "",
+   "desc": "人類を構成する素材を図鑑化する出版物・ツール。",
+   "subj": [
+    0.0152,
+    0.4005
+   ],
+   "obj": [
+    0.3514,
+    0.3319
+   ],
+   "drift": 0.14655,
+   "driftN": 0.7626
+  },
+  {
+   "id": "Meguru",
+   "label": "MEGURU",
+   "layer": "tool",
+   "layerLabel": "Tool/子要素",
+   "note": "",
+   "desc": "循環(めぐる)をテーマにした巡回・還流ツール。",
+   "subj": [
+    0.0132,
+    0.5365
+   ],
+   "obj": [
+    0.5669,
+    0.5094
+   ],
+   "drift": 0.18183,
+   "driftN": 0.9568
+  },
+  {
+   "id": "Wakusei",
+   "label": "僕の惑星",
+   "layer": "tool",
+   "layerLabel": "Tool/子要素",
+   "note": "",
+   "desc": "Visionium共有ボードを惑星として可視化する母体ダッシュボード。",
+   "subj": [
+    0.0499,
+    0.5704
+   ],
+   "obj": [
+    0.0618,
+    0.5658
+   ],
+   "drift": 0.0887,
+   "driftN": 0.4441
+  },
+  {
+   "id": "VRSuite",
+   "label": "VR suite (5app)",
+   "layer": "tool",
+   "layerLabel": "Tool/子要素",
+   "note": "",
+   "desc": "VR分類法を実装した5つのアプリ群(Visualize Rule)。",
+   "subj": [
+    0.1342,
+    0.2725
+   ],
+   "obj": [
+    0.6178,
+    0.3884
+   ],
+   "drift": 0.14827,
+   "driftN": 0.772
+  },
+  {
+   "id": "VM",
+   "label": "VM (観測ログ)",
+   "layer": "tool",
+   "layerLabel": "Tool/子要素",
+   "note": "",
+   "desc": "主義や思想の観測ログを蓄積する記録ツール。",
+   "subj": [
+    0.1911,
+    0.1575
+   ],
+   "obj": [
+    0.4345,
+    0.5379
+   ],
+   "drift": 0.13513,
+   "driftN": 0.6997
+  },
+  {
+   "id": "Lexilium",
+   "label": "Lexilium",
+   "layer": "tool",
+   "layerLabel": "Tool/子要素",
+   "note": "",
+   "desc": "語彙の規範と辞書を体系化する言語プロジェクト。",
+   "subj": [
+    0.2271,
+    0.1413
+   ],
+   "obj": [
+    0.341,
+    0.2119
+   ],
+   "drift": 0.07918,
+   "driftN": 0.3916
+  },
+  {
+   "id": "GG-Visual",
+   "label": "攻略可視化",
+   "layer": "game",
+   "layerLabel": "Game子要素",
+   "note": "",
+   "desc": "ゲーム攻略やプレイの流れを可視化する取り組み。",
+   "subj": [
+    0.8881,
+    0.5675
+   ],
+   "obj": [
+    0.8088,
+    0.335
+   ],
+   "drift": 0.12861,
+   "driftN": 0.6638
+  },
+  {
+   "id": "GG-Unity",
+   "label": "Unityゲーム",
+   "layer": "game",
+   "layerLabel": "Game子要素",
+   "note": "",
+   "desc": "Unityエンジンで制作するゲーム。",
+   "subj": [
+    0.8903,
+    0.4723
+   ],
+   "obj": [
+    0.905,
+    0.3239
+   ],
+   "drift": 0.10627,
+   "driftN": 0.5408
+  },
+  {
+   "id": "GG-Board",
+   "label": "ボドゲ",
+   "layer": "game",
+   "layerLabel": "Game子要素",
+   "note": "",
+   "desc": "物理ボードゲーム。ゲームマーケット出展を狙う。",
+   "subj": [
+    0.8301,
+    0.4714
+   ],
+   "obj": [
+    0.8906,
+    0.2611
+   ],
+   "drift": 0.09043,
+   "driftN": 0.4536
+  },
+  {
+   "id": "GG-Web",
+   "label": "Webゲーム",
+   "layer": "game",
+   "layerLabel": "Game子要素",
+   "note": "",
+   "desc": "ブラウザで動くWebゲーム。",
+   "subj": [
+    0.8289,
+    0.5558
+   ],
+   "obj": [
+    0.9584,
+    0.3697
+   ],
+   "drift": 0.08334,
+   "driftN": 0.4146
+  },
+  {
+   "id": "Rikkoku",
+   "label": "六剋 RPG",
+   "layer": "game",
+   "layerLabel": "Game子要素",
+   "note": "",
+   "desc": "6つの判定軸を持つRPG。六剋。",
+   "subj": [
+    1.0,
+    0.4468
+   ],
+   "obj": [
+    0.773,
+    0.3652
+   ],
+   "drift": 0.16593,
+   "driftN": 0.8693
+  },
+  {
+   "id": "Pokechan",
+   "label": "ポケチャン",
+   "layer": "game",
+   "layerLabel": "Game子要素",
+   "note": "",
+   "desc": "ポケモン対戦の構築と実戦検証を行うハブ。",
+   "subj": [
+    0.9965,
+    0.6026
+   ],
+   "obj": [
+    0.7558,
+    0.2427
+   ],
+   "drift": 0.18493,
+   "driftN": 0.9739
+  },
+  {
+   "id": "OP-Time",
+   "label": "Time編 カイソー",
+   "layer": "opaarts",
+   "layerLabel": "Opaarts編",
+   "note": "",
+   "desc": "Opaarts の Time編。回想(カイソー)を扱う。",
+   "subj": [
+    0.3593,
+    0.9473
+   ],
+   "obj": [
+    0.7924,
+    0.575
+   ],
+   "drift": 0.14815,
+   "driftN": 0.7714
+  },
+  {
+   "id": "OP-IO",
+   "label": "IO編",
+   "layer": "opaarts",
+   "layerLabel": "Opaarts編",
+   "note": "",
+   "desc": "Opaarts の IO編。入出力をモチーフにする。",
+   "subj": [
+    0.29,
+    0.9087
+   ],
+   "obj": [
+    0.7776,
+    0.6351
+   ],
+   "drift": 0.14771,
+   "driftN": 0.769
+  },
+  {
+   "id": "OP-Retro",
+   "label": "Retro編",
+   "layer": "opaarts",
+   "layerLabel": "Opaarts編",
+   "note": "",
+   "desc": "Opaarts の Retro編。レトロ資産の継承。",
+   "subj": [
+    0.3206,
+    0.941
+   ],
+   "obj": [
+    0.8223,
+    0.6409
+   ],
+   "drift": 0.15024,
+   "driftN": 0.7829
+  },
+  {
+   "id": "Papers",
+   "label": "Papers 9篇",
+   "layer": "paper",
+   "layerLabel": "論文・書籍",
+   "note": "A/B/C/D/5-9 全提出",
+   "desc": "哲学・心理の学術論文9篇(A/B/C/D・5〜9)。投稿済シリーズ。",
+   "subj": [
+    0.5539,
+    0.1787
+   ],
+   "obj": [
+    0.1987,
+    0.1984
+   ],
+   "drift": 0.09133,
+   "driftN": 0.4585
+  },
+  {
+   "id": "KDP1",
+   "label": "パンダと哲学とAI",
+   "layer": "paper",
+   "layerLabel": "論文・書籍",
+   "note": "",
+   "desc": "Amazon KDP出版書籍『パンダと哲学とAI』。",
+   "subj": [
+    0.5212,
+    0.031
+   ],
+   "obj": [
+    0.3923,
+    0.0931
+   ],
+   "drift": 0.07195,
+   "driftN": 0.3518
+  },
+  {
+   "id": "KDP2",
+   "label": "人類の素材図鑑",
+   "layer": "paper",
+   "layerLabel": "論文・書籍",
+   "note": "",
+   "desc": "Amazon KDP出版書籍『人類の素材図鑑』。",
+   "subj": [
+    0.4962,
+    0.0
+   ],
+   "obj": [
+    0.1316,
+    0.2315
+   ],
+   "drift": 0.11711,
+   "driftN": 0.6005
+  },
+  {
+   "id": "KDP3",
+   "label": "主義絶対主義 (7月)",
+   "layer": "paper",
+   "layerLabel": "論文・書籍",
+   "note": "思想の設計書#03",
+   "desc": "思想の設計書#03『主義絶対主義』。7月刊行予定。",
+   "subj": [
+    0.366,
+    0.2774
+   ],
+   "obj": [
+    0.2307,
+    0.1453
+   ],
+   "drift": 0.00806,
+   "driftN": 0.0
+  },
+  {
+   "id": "Novel1",
+   "label": "星は知らない",
+   "layer": "paper",
+   "layerLabel": "論文・書籍",
+   "note": "",
+   "desc": "小説『星は知らない』。",
+   "subj": [
+    0.5663,
+    0.0972
+   ],
+   "obj": [
+    0.3149,
+    0.0
+   ],
+   "drift": 0.07488,
+   "driftN": 0.3679
+  },
+  {
+   "id": "Novel2",
+   "label": "0.5の魔女",
+   "layer": "paper",
+   "layerLabel": "論文・書籍",
+   "note": "",
+   "desc": "小説『0.5の魔女』。Boolean→Floatを物語で体現する。",
+   "subj": [
+    0.4609,
+    0.021
+   ],
+   "obj": [
+    0.5148,
+    0.0803
+   ],
+   "drift": 0.05946,
+   "driftN": 0.2831
+  },
+  {
+   "id": "Imasica",
+   "label": "僕のIMASICA",
+   "layer": "paper",
+   "layerLabel": "論文・書籍",
+   "note": "",
+   "desc": "連載物語プロジェクト IMASICA。星座をモチーフに据える。",
+   "subj": [
+    0.558,
+    0.0317
+   ],
+   "obj": [
+    0.5004,
+    0.1979
+   ],
+   "drift": 0.08578,
+   "driftN": 0.428
+  },
+  {
+   "id": "Backstage",
+   "label": "Backstage",
+   "layer": "tool",
+   "layerLabel": "Tool/子要素",
+   "note": "15-20sec動画",
+   "desc": "15〜20秒の短尺動画を量産する制作ライン。",
+   "subj": [
+    0.7443,
+    0.2374
+   ],
+   "obj": [
+    1.0,
+    0.6141
+   ],
+   "drift": 0.09448,
+   "driftN": 0.4759
+  },
+  {
+   "id": "DJOSA",
+   "label": "DJOSA",
+   "layer": "tool",
+   "layerLabel": "Tool/子要素",
+   "note": "",
+   "desc": "Backstage発のキャラクター。三重がけ命名系。",
+   "subj": [
+    0.8336,
+    0.1471
+   ],
+   "obj": [
+    0.8736,
+    0.5059
+   ],
+   "drift": 0.12894,
+   "driftN": 0.6656
+  },
+  {
+   "id": "MIHARASHI",
+   "label": "🔭 MIHARASHI",
+   "layer": "observation",
+   "layerLabel": "L3b観測層",
+   "note": "snapshot.py",
+   "desc": "全景観測台。snapshot.pyでNotionを集計しダッシュボード化する。",
+   "subj": [
+    0.5699,
+    0.6692
+   ],
+   "obj": [
+    0.5298,
+    0.65
+   ],
+   "drift": 0.04824,
+   "driftN": 0.2212
+  },
+  {
+   "id": "Orb",
+   "label": "Orb (Obsidian)",
+   "layer": "observation",
+   "layerLabel": "L3b観測層",
+   "note": "↪ 銀河系本体",
+   "desc": "Obsidian連携の銀河系本体メモ。受信箱と知識を蓄える。",
+   "subj": [
+    0.5486,
+    0.5139
+   ],
+   "obj": [
+    0.1138,
+    0.6068
+   ],
+   "drift": 0.09633,
+   "driftN": 0.486
+  },
+  {
+   "id": "Dararin",
+   "label": "だらりん",
+   "layer": "observation",
+   "layerLabel": "L3b観測層",
+   "note": "",
+   "desc": "脱力・怠けを肯定的に扱うテーマのツール。",
+   "subj": [
+    0.5123,
+    0.5864
+   ],
+   "obj": [
+    0.4085,
+    0.593
+   ],
+   "drift": 0.03858,
+   "driftN": 0.1681
+  },
+  {
+   "id": "Discord",
+   "label": "💬 Discord",
+   "layer": "observation",
+   "layerLabel": "L3b観測層",
+   "note": "L3b 正式格上",
+   "desc": "通知と観測の配管を束ねるDiscord(観測層L3b)。",
+   "subj": [
+    0.5746,
+    0.5301
+   ],
+   "obj": [
+    0.2864,
+    0.7678
+   ],
+   "drift": 0.08472,
+   "driftN": 0.4221
+  },
+  {
+   "id": "GTDB",
+   "label": "🍂 統合GT知見DB",
+   "layer": "compost",
+   "layerLabel": "L4腐葉土層",
+   "note": "",
+   "desc": "Grand Tipsの知見を統合し腐葉土として蓄えるDB。",
+   "subj": [
+    0.3458,
+    0.5889
+   ],
+   "obj": [
+    0.2693,
+    0.6328
+   ],
+   "drift": 0.01101,
+   "driftN": 0.0162
+  },
+  {
+   "id": "MemVault",
+   "label": "Memory Vault",
+   "layer": "compost",
+   "layerLabel": "L4腐葉土層",
+   "note": "",
+   "desc": "長期記憶を保管するメモリーの保管庫。",
+   "subj": [
+    0.4213,
+    0.6929
+   ],
+   "obj": [
+    0.2016,
+    0.7657
+   ],
+   "drift": 0.03684,
+   "driftN": 0.1585
+  },
+  {
+   "id": "HandoffIdx",
+   "label": "handoff Index",
+   "layer": "compost",
+   "layerLabel": "L4腐葉土層",
+   "note": "",
+   "desc": "セッション引き継ぎ書を一覧するインデックス。",
+   "subj": [
+    0.5112,
+    0.4935
+   ],
+   "obj": [
+    0.3696,
+    0.6868
+   ],
+   "drift": 0.04978,
+   "driftN": 0.2297
+  },
+  {
+   "id": "Archive",
+   "label": "Archive DB",
+   "layer": "compost",
+   "layerLabel": "L4腐葉土層",
+   "note": "",
+   "desc": "過去の引き継ぎや成果を退避する保管DB。",
+   "subj": [
+    0.5068,
+    0.4043
+   ],
+   "obj": [
+    0.2386,
+    0.8398
+   ],
+   "drift": 0.1001,
+   "driftN": 0.5068
+  },
+  {
+   "id": "CShared",
+   "label": "claude-shared",
+   "layer": "asset",
+   "layerLabel": "L5資産層",
+   "note": "GitHub private",
+   "desc": "Cowとチャットがファイルを交換するGitHubプライベート共有リポ。",
+   "subj": [
+    0.4495,
+    0.6185
+   ],
+   "obj": [
+    0.0583,
+    0.9047
+   ],
+   "drift": 0.07289,
+   "driftN": 0.357
+  },
+  {
+   "id": "GHPages",
+   "label": "GitHub Pages",
+   "layer": "asset",
+   "layerLabel": "L5資産層",
+   "note": "",
+   "desc": "静的サイトの無料デプロイ先(GitHub Pages)。",
+   "subj": [
+    0.4538,
+    0.3918
+   ],
+   "obj": [
+    0.1055,
+    0.738
+   ],
+   "drift": 0.08978,
+   "driftN": 0.45
+  },
+  {
+   "id": "Zenodo",
+   "label": "Zenodo",
+   "layer": "asset",
+   "layerLabel": "L5資産層",
+   "note": "",
+   "desc": "学術成果のDOIを発行・登録するアーカイブ。",
+   "subj": [
+    0.5192,
+    0.3196
+   ],
+   "obj": [
+    0.2974,
+    0.6711
+   ],
+   "drift": 0.09365,
+   "driftN": 0.4713
+  },
+  {
+   "id": "ProjectDB",
+   "label": "プロジェクトDB",
+   "layer": "operation",
+   "layerLabel": "HiCo運用柱",
+   "note": "",
+   "desc": "プロジェクト単位のメタデータを管理するDB。",
+   "subj": [
+    0.5964,
+    1.0
+   ],
+   "obj": [
+    0.4475,
+    0.8587
+   ],
+   "drift": 0.10778,
+   "driftN": 0.5491
+  },
+  {
+   "id": "HishoCoDB",
+   "label": "秘書CoDB",
+   "layer": "operation",
+   "layerLabel": "HiCo運用柱",
+   "note": "",
+   "desc": "全タスクの唯一の正本となる秘書CoタスクDB。",
+   "subj": [
+    0.4855,
+    0.8273
+   ],
+   "obj": [
+    0.4722,
+    0.9248
+   ],
+   "drift": 0.03117,
+   "driftN": 0.1273
+  },
+  {
+   "id": "SessionLog",
+   "label": "セッションログDB",
+   "layer": "operation",
+   "layerLabel": "HiCo運用柱",
+   "note": "",
+   "desc": "各作業セッションの記録を残すログDB。",
+   "subj": [
+    0.6392,
+    0.7763
+   ],
+   "obj": [
+    0.4874,
+    0.8937
+   ],
+   "drift": 0.07401,
+   "driftN": 0.3632
+  },
+  {
+   "id": "RPGDB",
+   "label": "RPG Status",
+   "layer": "operation",
+   "layerLabel": "HiCo運用柱",
+   "note": "",
+   "desc": "作業をRPGの経験値として記録するステータスDB。",
+   "subj": [
+    0.6129,
+    0.7938
+   ],
+   "obj": [
+    0.549,
+    0.8068
+   ],
+   "drift": 0.06435,
+   "driftN": 0.31
+  },
+  {
+   "id": "TrophyDB",
+   "label": "🏆 トロフィーDB",
+   "layer": "operation",
+   "layerLabel": "HiCo運用柱",
+   "note": "",
+   "desc": "達成をトロフィーとして記録するDB。",
+   "subj": [
+    0.5597,
+    0.9832
+   ],
+   "obj": [
+    0.6467,
+    0.8446
+   ],
+   "drift": 0.08749,
+   "driftN": 0.4374
+  },
+  {
+   "id": "TajuFugou",
+   "label": "多重符号化原則",
+   "layer": "philosophy",
+   "layerLabel": "L0思想層",
+   "note": "1タグだけ=化石 / 多重タグ=腐葉土",
+   "desc": "多重符号化原則。タグ1つだけは化石、多重タグは腐葉土になるという分類思想。",
+   "subj": [
+    0.224,
+    0.5162
+   ],
+   "obj": [
+    0.0312,
+    0.3102
+   ],
+   "drift": 0.04631,
+   "driftN": 0.2106
+  },
+  {
+   "id": "IFGerm",
+   "label": "IF発芽型DB",
+   "layer": "tool",
+   "layerLabel": "Tool/子要素",
+   "note": "キャラ付け・VR脚",
+   "desc": "もしも(IF)から物語やキャラを発芽させるDB。VRの脚。",
+   "subj": [
+    0.0304,
+    0.4431
+   ],
+   "obj": [
+    0.659,
+    0.3598
+   ],
+   "drift": 0.18967,
+   "driftN": 1.0
+  },
+  {
+   "id": "VRMethods",
+   "label": "VR分類法カタログ (20)",
+   "layer": "tool",
+   "layerLabel": "Tool/子要素",
+   "note": "20メソッド",
+   "desc": "Visualize Ruleの分類法を20メソッドにまとめたカタログ。",
+   "subj": [
+    0.1664,
+    0.2121
+   ],
+   "obj": [
+    0.5357,
+    0.4322
+   ],
+   "drift": 0.13425,
+   "driftN": 0.6948
+  },
+  {
+   "id": "Tanbun",
+   "label": "📔 短文辞書",
+   "layer": "compost",
+   "layerLabel": "L4腐葉土層",
+   "note": "1エントリ1行〜数行 / Tagacha+Float",
+   "desc": "1エントリが1行〜数行の横幅の短文辞書。Tagachaとフロート値を持つ。",
+   "subj": [
+    0.269,
+    0.5864
+   ],
+   "obj": [
+    0.8068,
+    0.4629
+   ],
+   "drift": 0.1265,
+   "driftN": 0.6522
+  },
+  {
+   "id": "DailyLog",
+   "label": "Daily Log DB",
+   "layer": "operation",
+   "layerLabel": "HiCo運用柱",
+   "note": "日次ログ",
+   "desc": "日々の出来事を記録する日次ログDB。",
+   "subj": [
+    0.6702,
+    0.9171
+   ],
+   "obj": [
+    0.5192,
+    0.8701
+   ],
+   "drift": 0.10054,
+   "driftN": 0.5093
+  },
+  {
+   "id": "Connect",
+   "label": "🔌 Connect DB",
+   "layer": "operation",
+   "layerLabel": "HiCo運用柱",
+   "note": "MCP/Connector",
+   "desc": "MCPやコネクタの接続状況を管理するDB。",
+   "subj": [
+    0.6192,
+    0.9648
+   ],
+   "obj": [
+    0.5752,
+    1.0
+   ],
+   "drift": 0.0737,
+   "driftN": 0.3615
+  },
+  {
+   "id": "Kakeibo",
+   "label": "家計簿DB",
+   "layer": "operation",
+   "layerLabel": "HiCo運用柱",
+   "note": "わたしのお財布",
+   "desc": "収支を記録する家計簿DB(わたしのお財布)。",
+   "subj": [
+    0.6538,
+    0.9647
+   ],
+   "obj": [
+    0.5511,
+    0.9096
+   ],
+   "drift": 0.09676,
+   "driftN": 0.4884
+  },
+  {
+   "id": "Galaxy",
+   "label": "🌌 銀河系 v0.1+",
+   "layer": "observation",
+   "layerLabel": "L3b観測層",
+   "note": "本アーティファクト表現 (自己参照)",
+   "desc": "Visionium全体構造を星図として描く銀河系の可視化(自己参照)。",
+   "subj": [
+    0.5565,
+    0.5794
+   ],
+   "obj": [
+    0.0127,
+    0.5684
+   ],
+   "drift": 0.11626,
+   "driftN": 0.5958
+  }
+ ],
+ "edges": [
+  [
+   "Visionium",
+   "MC"
+  ],
+  [
+   "Visionium",
+   "GT"
+  ],
+  [
+   "Visionium",
+   "KAIZO"
+  ],
+  [
+   "Visionium",
+   "HMT"
+  ],
+  [
+   "Visionium",
+   "RD"
+  ],
+  [
+   "Visionium",
+   "BB"
+  ],
+  [
+   "Visionium",
+   "PB"
+  ],
+  [
+   "Visionium",
+   "GG"
+  ],
+  [
+   "Visionium",
+   "OP"
+  ],
+  [
+   "Visionium",
+   "HiCo"
+  ],
+  [
+   "Visionium",
+   "DBDB"
+  ],
+  [
+   "Visionium",
+   "TagDB"
+  ],
+  [
+   "Visionium",
+   "SkillDB"
+  ],
+  [
+   "Visionium",
+   "ProtoDB"
+  ],
+  [
+   "GT",
+   "ProtoV1"
+  ],
+  [
+   "GT",
+   "BoolFloat"
+  ],
+  [
+   "GT",
+   "Humus"
+  ],
+  [
+   "GT",
+   "SansetsuMei"
+  ],
+  [
+   "ProtoV1",
+   "MC"
+  ],
+  [
+   "ProtoV1",
+   "ProtoDB"
+  ],
+  [
+   "KAIZO",
+   "Zada"
+  ],
+  [
+   "KAIZO",
+   "Iven"
+  ],
+  [
+   "HMT",
+   "Wakka"
+  ],
+  [
+   "HMT",
+   "Ningen"
+  ],
+  [
+   "HMT",
+   "Banet"
+  ],
+  [
+   "HMT",
+   "Satori"
+  ],
+  [
+   "HMT",
+   "Sozai"
+  ],
+  [
+   "HMT",
+   "Meguru"
+  ],
+  [
+   "HMT",
+   "Wakusei"
+  ],
+  [
+   "RD",
+   "VRSuite"
+  ],
+  [
+   "RD",
+   "VM"
+  ],
+  [
+   "RD",
+   "Lexilium"
+  ],
+  [
+   "VRSuite",
+   "Wakka"
+  ],
+  [
+   "VRSuite",
+   "Banet"
+  ],
+  [
+   "GG",
+   "GG-Visual"
+  ],
+  [
+   "GG",
+   "GG-Unity"
+  ],
+  [
+   "GG",
+   "GG-Board"
+  ],
+  [
+   "GG",
+   "GG-Web"
+  ],
+  [
+   "GG-Unity",
+   "Rikkoku"
+  ],
+  [
+   "GG-Visual",
+   "Pokechan"
+  ],
+  [
+   "OP",
+   "OP-Time"
+  ],
+  [
+   "OP",
+   "OP-IO"
+  ],
+  [
+   "OP",
+   "OP-Retro"
+  ],
+  [
+   "BB",
+   "Papers"
+  ],
+  [
+   "BB",
+   "KDP1"
+  ],
+  [
+   "BB",
+   "KDP2"
+  ],
+  [
+   "BB",
+   "KDP3"
+  ],
+  [
+   "BB",
+   "Novel1"
+  ],
+  [
+   "BB",
+   "Novel2"
+  ],
+  [
+   "BB",
+   "Imasica"
+  ],
+  [
+   "Papers",
+   "Zenodo"
+  ],
+  [
+   "KDP3",
+   "BoolFloat"
+  ],
+  [
+   "PB",
+   "Backstage"
+  ],
+  [
+   "Backstage",
+   "DJOSA"
+  ],
+  [
+   "Visionium",
+   "MIHARASHI"
+  ],
+  [
+   "Visionium",
+   "Orb"
+  ],
+  [
+   "Visionium",
+   "Dararin"
+  ],
+  [
+   "Visionium",
+   "Discord"
+  ],
+  [
+   "MIHARASHI",
+   "SessionLog"
+  ],
+  [
+   "MIHARASHI",
+   "RPGDB"
+  ],
+  [
+   "Visionium",
+   "GTDB"
+  ],
+  [
+   "Visionium",
+   "MemVault"
+  ],
+  [
+   "Visionium",
+   "HandoffIdx"
+  ],
+  [
+   "Visionium",
+   "Archive"
+  ],
+  [
+   "HishoCoDB",
+   "MemVault"
+  ],
+  [
+   "GT",
+   "GTDB"
+  ],
+  [
+   "Visionium",
+   "CShared"
+  ],
+  [
+   "Visionium",
+   "GHPages"
+  ],
+  [
+   "Visionium",
+   "Zenodo"
+  ],
+  [
+   "SkillDB",
+   "CShared"
+  ],
+  [
+   "HiCo",
+   "ProjectDB"
+  ],
+  [
+   "HiCo",
+   "HishoCoDB"
+  ],
+  [
+   "HiCo",
+   "SessionLog"
+  ],
+  [
+   "HiCo",
+   "RPGDB"
+  ],
+  [
+   "HiCo",
+   "TrophyDB"
+  ],
+  [
+   "Novel1",
+   "Papers"
+  ],
+  [
+   "BoolFloat",
+   "ProtoV1"
+  ],
+  [
+   "Humus",
+   "MemVault"
+  ],
+  [
+   "Humus",
+   "GTDB"
+  ],
+  [
+   "BoolFloat",
+   "TajuFugou"
+  ],
+  [
+   "GT",
+   "TajuFugou"
+  ],
+  [
+   "HMT",
+   "IFGerm"
+  ],
+  [
+   "RD",
+   "VRMethods"
+  ],
+  [
+   "VRSuite",
+   "VRMethods"
+  ],
+  [
+   "GTDB",
+   "Tanbun"
+  ],
+  [
+   "Humus",
+   "Tanbun"
+  ],
+  [
+   "BoolFloat",
+   "Tanbun"
+  ],
+  [
+   "HiCo",
+   "DailyLog"
+  ],
+  [
+   "HiCo",
+   "Connect"
+  ],
+  [
+   "HiCo",
+   "Kakeibo"
+  ],
+  [
+   "MIHARASHI",
+   "Galaxy"
+  ],
+  [
+   "Discord",
+   "Galaxy"
+  ],
+  [
+   "Visionium",
+   "Galaxy"
+  ],
+  [
+   "Galaxy",
+   "Orb"
+  ]
+ ]
+};
+const LAYER = {
+  core:'#d4a853',meta:'#7c6dab',philosophy:'#ff6b6b',state:'#f5f0e4',pillarT:'#5b9eff',
+  pillarR:'#4ade80',pillarB:'#f97316',pillarP:'#ec4899',pillarG:'#a855f7',pillarO:'#eab308',
+  operation:'#94a3b8',kaizo:'#86efac',tool:'#7dd3fc',game:'#c4b5fd',opaarts:'#fde047',
+  paper:'#fb923c',observation:'#22d3ee',compost:'#a16207',asset:'#6b7280'
+};
+const SVGNS='http://www.w3.org/2000/svg';
+const W=1000,H=700,PAD=70;
+const $=s=>document.querySelector(s);
+const byId={}; DATA.nodes.forEach(n=>byId[n.id]=n);
+const ST = JSON.parse(localStorage.getItem('galaxyDrift')||'{}');
+let t = ST.t??0, showArrow = ST.showArrow??true, showEdge = ST.showEdge??true, thr = ST.thr??0, sel=null, q='', layerFilter=null;
+const save=()=>localStorage.setItem('galaxyDrift',JSON.stringify({t,showArrow,showEdge,thr}));
+
+const map=(p)=>[PAD+p[0]*(W-2*PAD), PAD+p[1]*(H-2*PAD)];
+const lerp=(a,b,k)=>a+(b-a)*k;
+const pos=(n)=>{const s=map(n.subj),o=map(n.obj);return [lerp(s[0],o[0],t),lerp(s[1],o[1],t)];};
+const sizeFor=(l)=> l==='core'?15 : l.startsWith('pillar')?11 : (l==='philosophy'||l==='operation'||l==='kaizo'||l==='state')?8.5 : 6.5;
+// 暖色ヒートランプ cream→gold→coral（rainbow回避）
+function heat(v){const a=[245,240,228],b=[212,168,83],c=[255,107,107];let r,g,bl;
+  if(v<.5){const k=v/.5;r=lerp(a[0],b[0],k);g=lerp(a[1],b[1],k);bl=lerp(a[2],b[2],k);}
+  else{const k=(v-.5)/.5;r=lerp(b[0],c[0],k);g=lerp(b[1],c[1],k);bl=lerp(b[2],c[2],k);}
+  return `rgb(${r|0},${g|0},${bl|0})`;}
+
+const svg=$('#svg'); svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+// star field
+(function(){const g=document.createElementNS(SVGNS,'g');
+  for(let i=0;i<160;i++){const c=document.createElementNS(SVGNS,'circle');
+    c.setAttribute('cx',Math.random()*W);c.setAttribute('cy',Math.random()*H);
+    c.setAttribute('r',Math.random()*1.1+.2);c.setAttribute('fill','#f5f0e4');
+    c.setAttribute('opacity',Math.random()*.5+.08);g.appendChild(c);}
+  $('#scene').insertBefore(g,$('#gEdges'));})();
+
+const gE=$('#gEdges'),gA=$('#gArrows'),gN=$('#gNodes'),gL=$('#gLabels');
+function el(t,a){const e=document.createElementNS(SVGNS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+
+const matches=(n)=>{const ok=!q||(n.label.toLowerCase().includes(q)||(n.desc||'').toLowerCase().includes(q)||n.id.toLowerCase().includes(q));return ok&&(!layerFilter||n.layer===layerFilter);};
+
+function build(){
+  gE.innerHTML=gA.innerHTML=gN.innerHTML=gL.innerHTML='';
+  // edges (手構造)
+  DATA.edges.forEach(([s,d])=>{const A=byId[s],B=byId[d];if(!A||!B)return;
+    const p=el('path',{class:'edge','stroke-opacity':showEdge?0.16:0,'stroke-width':0.6});
+    p.dataset.s=s;p.dataset.d=d;gE.appendChild(p);});
+  // arrows subj->obj
+  DATA.nodes.forEach(n=>{const p=el('line',{class:'arrow'});p.dataset.id=n.id;gA.appendChild(p);});
+  // nodes
+  DATA.nodes.forEach(n=>{
+    const g=el('g',{}); g.style.cursor='pointer'; g.dataset.id=n.id;
+    const r=sizeFor(n.layer);
+    g.appendChild(el('circle',{class:'halo',r:r+5,fill:LAYER[n.layer]||'#999','opacity':0.10}));
+    g.appendChild(el('circle',{class:'body',r:r,fill:LAYER[n.layer]||'#999',stroke:'#0a0807','stroke-width':1.1}));
+    g.addEventListener('click',e=>{e.stopPropagation();select(n.id);});
+    gN.appendChild(g);
+    const tx=el('text',{class:'nlabel','text-anchor':'middle'});tx.textContent=n.label;tx.dataset.id=n.id;gL.appendChild(tx);
+  });
+  render();
+}
+function render(){
+  // edges
+  [...gE.children].forEach(p=>{const A=byId[p.dataset.s],B=byId[p.dataset.d];
+    const a=pos(A),b=pos(B);p.setAttribute('d',`M${a[0]},${a[1]}L${b[0]},${b[1]}`);
+    p.setAttribute('stroke-opacity',showEdge?(matches(A)&&matches(B)?0.18:0.04):0);});
+  // arrows
+  [...gA.children].forEach(l=>{const n=byId[l.dataset.id];const s=map(n.subj),o=map(n.obj);
+    const on=showArrow && n.driftN>=thr && matches(n);
+    l.setAttribute('x1',s[0]);l.setAttribute('y1',s[1]);l.setAttribute('x2',o[0]);l.setAttribute('y2',o[1]);
+    l.setAttribute('stroke',heat(n.driftN));
+    l.setAttribute('stroke-width',(0.5+n.driftN*2.6).toFixed(2));
+    l.setAttribute('stroke-opacity',on?(0.25+n.driftN*0.6).toFixed(2):0);});
+  // nodes + labels
+  [...gN.children].forEach(g=>{const n=byId[g.dataset.id];const p=pos(n);
+    g.setAttribute('transform',`translate(${p[0]},${p[1]})`);
+    const dim = (!matches(n)) || (thr>0 && n.driftN<thr && n.layer!=='core');
+    g.style.opacity = sel&&sel!==n.id?0.35:(dim?0.22:1);
+    const body=g.querySelector('.body');
+    body.setAttribute('stroke', n.driftN>=0.66?heat(n.driftN):'#0a0807');
+    body.setAttribute('stroke-width', n.driftN>=0.66?2:1.1);
+  });
+  [...gL.children].forEach(tx=>{const n=byId[tx.dataset.id];const p=pos(n);
+    const big=n.layer==='core'||n.layer.startsWith('pillar');
+    const show = big || sel===n.id || (n.driftN>=Math.max(thr,0.55)&&matches(n));
+    tx.setAttribute('x',p[0]);tx.setAttribute('y',p[1]+sizeFor(n.layer)+11);
+    tx.style.display=show?'':'none';tx.style.opacity=matches(n)?0.92:0.2;});
+}
+function select(id){sel=id;const n=byId[id];
+  $('#detail').style.display='block';
+  $('#dly').textContent=n.layerLabel;
+  $('#dttl').textContent=n.label;$('#dttl').style.color=LAYER[n.layer];
+  $('#ddesc').textContent=n.desc||n.note||'(記述なし)';
+  const rank=[...DATA.nodes].sort((a,b)=>b.drift-a.drift).findIndex(x=>x.id===id)+1;
+  $('#dmet').innerHTML=`ズレ量 <b>${n.drift.toFixed(3)}</b>（正規化 ${n.driftN.toFixed(2)}） · ズレ順位 <b>${rank}/${DATA.nodes.length}</b><br/>レイヤ: ${n.layerLabel}`;
+  render();
+}
+$('#dx').onclick=()=>{sel=null;$('#detail').style.display='none';render();};
+svg.addEventListener('click',()=>{if(sel){sel=null;$('#detail').style.display='none';render();}});
+
+// legend
+(function(){const used=[...new Set(DATA.nodes.map(n=>n.layer))];
+  const names={core:'核',meta:'メタ',philosophy:'思想',state:'状態',pillarT:'T柱',pillarR:'R柱',pillarB:'B柱',pillarP:'P柱',pillarG:'G柱',pillarO:'O柱',operation:'運用',kaizo:'KAIZO',tool:'Tool',game:'Game',opaarts:'OP編',paper:'論文書籍',observation:'観測',compost:'腐葉土',asset:'資産'};
+  $('#legend').innerHTML='<div class="lab" style="margin-bottom:4px">LAYERS</div>'+
+    used.map(l=>`<div class="li" data-l="${l}"><span class="dot" style="background:${LAYER[l]}"></span>${names[l]||l}</div>`).join('');
+  $('#legend').querySelectorAll('.li').forEach(li=>li.onclick=()=>{
+    const l=li.dataset.l; layerFilter = layerFilter===l?null:l;
+    $('#legend').querySelectorAll('.li').forEach(x=>x.style.background=x.dataset.l===layerFilter?'#d4a85133':'');
+    render();});
+})();
+
+// top drift
+(function(){const top=[...DATA.nodes].sort((a,b)=>b.drift-a.drift).slice(0,12);
+  $('#top').innerHTML='<div class="t">ズレ大 TOP12（再発見候補）</div>'+top.map(n=>
+    `<div class="item" data-id="${n.id}"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${n.label}</span><span style="color:${heat(n.driftN)}">${n.drift.toFixed(2)}</span></div><div class="bar" style="width:${(n.driftN*100).toFixed(0)}%;opacity:${0.3+n.driftN*0.7}"></div>`).join('');
+  $('#top').querySelectorAll('.item').forEach(it=>it.onclick=()=>select(it.dataset.id));})();
+
+// controls
+$('#morph').value=t;
+function setT(v){t=+v;$('#morph').value=v;
+  document.querySelectorAll('#mode button').forEach(b=>b.classList.toggle('on',+b.dataset.t===t));
+  save();render();}
+$('#morph').addEventListener('input',e=>setT(e.target.value));
+document.querySelectorAll('#mode button').forEach(b=>b.onclick=()=>setT(+b.dataset.t));
+$('#tArrow').classList.toggle('on',showArrow);
+$('#tEdge').classList.toggle('on',showEdge);
+$('#tArrow').onclick=()=>{showArrow=!showArrow;$('#tArrow').classList.toggle('on',showArrow);save();render();};
+$('#tEdge').onclick=()=>{showEdge=!showEdge;$('#tEdge').classList.toggle('on',showEdge);save();render();};
+$('#thr').value=thr;
+$('#thr').addEventListener('input',e=>{thr=+e.target.value;save();render();});
+$('#search').addEventListener('input',e=>{q=e.target.value.trim().toLowerCase();layerFilter=null;render();});
+
+$('#fmeta').textContent=`backend ${DATA.meta.backend} · ${DATA.meta.reduce.toUpperCase()} · 主観layout ${DATA.meta.subjLayout} · Procrustes差異 ${DATA.meta.procrustesDisparity} · ${DATA.meta.nodeCount}ノード · ${DATA.meta.generated}`;
+
+// zoom/pan
+let scale=1,tx=0,ty=0,drag=false,lx,ly;
+const scene=$('#scene');
+function applyT(){scene.setAttribute('transform',`translate(${tx},${ty}) scale(${scale})`);}
+svg.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY<0?1.1:0.9;
+  const r=svg.getBoundingClientRect();const mx=(e.clientX-r.left)/r.width*W,my=(e.clientY-r.top)/r.height*H;
+  tx=mx-(mx-tx)*f;ty=my-(my-ty)*f;scale*=f;scale=Math.max(0.4,Math.min(5,scale));applyT();},{passive:false});
+svg.addEventListener('pointerdown',e=>{drag=true;lx=e.clientX;ly=e.clientY;});
+window.addEventListener('pointermove',e=>{if(!drag)return;const r=svg.getBoundingClientRect();
+  tx+=(e.clientX-lx)/r.width*W;ty+=(e.clientY-ly)/r.height*H;lx=e.clientX;ly=e.clientY;applyT();});
+window.addEventListener('pointerup',()=>drag=false);
+
+build();
+</script>
+</body>
+</html>
