@@ -92,18 +92,18 @@ footer a:hover{color:var(--gold)}
   </section>
   <section class="cat">
     <h2>LIVE OPS ／ 実務</h2>
-    <div class="pipe check">
-      <span class="src">PostBoy (pbsc-daily-feed) <span class="meta">cron遅延既知。embed投稿。/tmp stale罠あり。</span></span>
-      <span class="flow">▶ forward<span class="way">──BotEvent──▶</span></span>
-      <span class="chwrap"><span class="ch">#postboy-schedule</span><span class="meta">0 7 (pbsc-daily-feed)</span></span>
-    </div>
-    <div class="pipe check">
-      <span class="src">ツール群プロモ (tool-promo-rotation) <span class="meta">成果物DB最終宣伝/宣伝回数でローテ。X+note下書き→承認制。自動投稿しない。初回6/3。</span></span>
+    <div class="pipe new">
+      <span class="src">ツール群プロモ (tool-promo-rotation) <span class="meta">成果物DB最終宣伝/宣伝回数でローテ。X+note下書き→#postboy-schedule承認制、自動Xなし。初回6/</span></span>
       <span class="flow">▶ forward<span class="way">──Webhook──▶</span></span>
       <span class="chwrap"><span class="ch">#postboy-schedule</span><span class="meta">0 8 月水金 (tool-promo-rotation)</span></span>
     </div>
     <div class="pipe check">
-      <span class="src">秘書CoDB today差分 + hardゲート期日 <span class="meta">継続着信は実画面と要突合(lastRunAt≠実着信)。lastRun 2026-05-31。</span></span>
+      <span class="src">PostBoy (pbsc-daily-feed) <span class="meta">cron遅延+/tmp stale罠(embed投稿)。【2026-06-02 Lane④突合】pbsc-daily-f</span></span>
+      <span class="flow">▶ forward<span class="way">──BotEvent──▶</span></span>
+      <span class="chwrap"><span class="ch">#postboy-schedule</span><span class="meta">0 7 (pbsc-daily-feed)</span></span>
+    </div>
+    <div class="pipe live">
+      <span class="src">秘書CoDB today差分 + hardゲート期日 <span class="meta">【2026-06-02 Lane④突合→🟢】task-inbox-daily-briefing lastRun 6/2 </span></span>
       <span class="flow">▶ forward<span class="way">──Webhook──▶</span></span>
       <span class="chwrap"><span class="ch">#task-inbox</span><span class="meta">0 7 (task-inbox-daily-briefing)</span></span>
     </div>
@@ -116,7 +116,7 @@ footer a:hover{color:var(--gold)}
       <span class="chwrap"><span class="ch">#cowork-stdout</span><span class="meta">event (hem時)</span></span>
     </div>
     <div class="pipe down">
-      <span class="src">Gmail MCP triage <span class="meta">Phase4計画済・未通電。</span></span>
+      <span class="src">Gmail MCP triage <span class="meta">Phase4設計v0確定(2026-06-02 Lane④)。日次Gmail未読/重要digest→#email-tri</span></span>
       <span class="flow">◆ observe<span class="way">┄┄未通電┄┄</span></span>
       <span class="chwrap"><span class="ch">#email-triage</span></span>
     </div>
@@ -129,18 +129,17 @@ footer a:hover{color:var(--gold)}
   <section class="cat">
     <h2>KNOWLEDGE ／ 知</h2>
     <div class="pipe down">
-      <span class="src">プロトコル / Grand Tips <span class="meta">Phase3計画済・未通電。</span></span>
+      <span class="src">プロトコル / Grand Tips <span class="meta">Phase3設計v0確定(2026-06-02 Lane④, workspace/disco/phase3-4-tsuu</span></span>
       <span class="flow">◆ observe<span class="way">┄┄未通電┄┄</span></span>
       <span class="chwrap"><span class="ch">#general</span></span>
     </div>
   </section>
   <footer>
-    正本 = <a href="https://www.notion.so/3a093c4c6e7a4d19abc1cef61dcb6119">🔌 Discord配管DB</a>（Discord実体=参照） · 9配管 / 🟢5 🟡2 🔴2 ⬜0<br>
-    自動生成 2026-06-01 19:18 JST · disco_map_gen.py（配管DB query→render→GH Pages） · 朝=forward / 夜=backward<br>
+    正本 = <a href="https://www.notion.so/3a093c4c6e7a4d19abc1cef61dcb6119">🔌 Discord配管DB</a>（Discord実体=参照） · 10配管 / 🟢6 🟡1 🔴2 ⬜1<br>
+    自動生成 2026-06-02 19:01 JST · disco_map_gen.py（配管DB query→render→GH Pages） · 朝=forward / 夜=backward<br>
     <span class="crest">osakenpiro</span> · #全人類UX改善計画
   </footer>
 </main>
-
 <!-- osakenpiro support button v1 -->
 <style>
   .osk-support-btn {
