@@ -396,7 +396,7 @@
       });
     }, []);
     const effectiveStaleSet = useMemo(() => {
-      const base = new Set(STALE_IDS);
+      const base = new Set();
       if (nodeUpdatedMap && fossilThresholdDays > 0) {
         const cutoff = Date.now() - fossilThresholdDays * 864e5;
         for (const [id, dateStr] of Object.entries(nodeUpdatedMap)) {
@@ -521,11 +521,13 @@
           return layerOK && searchOK;
         };
         const isStale = (d) => fadeStale && staleSet.has(d.id);
+        const isConcept = (d) => fadeStale && STALE_IDS.has(d.id);
         nodeG.style("opacity", (d) => {
           if (isStale(d)) return 0.25;
           return match(d) ? 1 : 0.15;
         });
         nodeG.select("circle").style("filter", (d) => isStale(d) ? "grayscale(0.85)" : null);
+        nodeG.select("circle.body").style("stroke", (d) => isConcept(d) ? "#d4a853" : null).style("stroke-width", (d) => isConcept(d) ? 2 : null).style("stroke-dasharray", (d) => isConcept(d) ? "3,2" : null);
         link.style("opacity", (d) => {
           if (isStale(d.source) || isStale(d.target)) return 0.05;
           return match(d.source) && match(d.target) ? 0.6 : 0.05;
@@ -572,7 +574,7 @@
         },
         showStale ? "ON" : "OFF"
       )),
-      showStale && /* @__PURE__ */ React.createElement("div", { className: "mb-2" }, /* @__PURE__ */ React.createElement("div", { className: "text-[9px] opacity-50 mb-1" }, effectiveStaleSet.size, "\u4EF6 \u7070\u8272 (", nodeUpdatedMap ? "JSON+hardcode" : "hardcode \u306E\u307F", ")"), /* @__PURE__ */ React.createElement("div", { className: "flex gap-1" }, [14, 30, 90, 365].map((d) => /* @__PURE__ */ React.createElement(
+      showStale && /* @__PURE__ */ React.createElement("div", { className: "mb-2" }, /* @__PURE__ */ React.createElement("div", { className: "text-[9px] opacity-50 mb-1" }, effectiveStaleSet.size, "\u4EF6 \u7070=\u9bae\u5ea6", fossilThresholdDays, "\u65e5\u8d85 \u00b7 ", STALE_IDS.size, "\u4ef6 \u70b9\u7dda=\u69cb\u60f3"), /* @__PURE__ */ React.createElement("div", { className: "flex gap-1" }, [14, 30, 90, 365].map((d) => /* @__PURE__ */ React.createElement(
         "button",
         {
           key: d,
