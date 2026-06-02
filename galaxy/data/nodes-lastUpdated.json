@@ -1,11 +1,12 @@
 {
   "_meta": {
-    "generated_at": "2026-06-02T19:58:37.827906+09:00",
-    "generator": "galaxy_push.py v1.0 (native daily, post-snapshot)",
+    "generated_at": "2026-06-02T22:06:48.635883+09:00",
+    "generator": "galaxy_push.py v1.1 (native daily, post-snapshot)",
     "spec": "node id -> ISO date (YYYY-MM-DD). 銀河系が fetch し化石化判定に使う。",
-    "node_count": 78,
-    "fetched_this_run": 76,
-    "source": "galaxy/index.html const NODES (notionId) -> Notion last_edited_time"
+    "node_count": 81,
+    "fetched_this_run": 81,
+    "source": "galaxy/index.html const NODES(notionId)->Notion last_edited / 外部=GitHub commit・Zenodo",
+    "intentionally_absent": "ProtoDB,AGENTSmd,GG-Visual,GG-Unity,GG-Board,GG-Web,OP-Time,OP-IO,OP-Retro (独自notionId無しのfacet・STALE_IDS非該当=常時通常表示)"
   },
   "Archive": "2026-06-02",
   "BB": "2026-04-21",
@@ -13,6 +14,7 @@
   "Banet": "2026-04-22",
   "BeeF": "2026-04-27",
   "BoolFloat": "2026-04-27",
+  "CShared": "2026-06-02",
   "ChakkaKeiryu": "2026-04-21",
   "ClONEPiece": "2026-04-26",
   "Cokogaku": "2026-04-26",
@@ -23,6 +25,7 @@
   "Dararin": "2026-04-23",
   "Discord": "2026-05-26",
   "GG": "2026-05-02",
+  "GHPages": "2026-06-02",
   "GT": "2026-05-05",
   "GTDB": "2026-05-01",
   "Galaxy": "2026-05-25",
@@ -84,5 +87,6 @@
   "Visionium": "2026-05-27",
   "Wakka": "2026-04-22",
   "Wakusei": "2026-03-24",
-  "Zada": "2026-05-31"
+  "Zada": "2026-05-31",
+  "Zenodo": "2026-03-19"
 }
