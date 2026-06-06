@@ -6,7 +6,7 @@
 <title>部品工場 PARTS — osakenpiro</title>
 <meta name="description" content="コピペで使えるリッチHTML部品ライブラリ。osakenpiroデザインシステム(colors_and_type.css)準拠・自己完結スニペット集。">
 <meta property="og:title" content="部品工場 PARTS — osakenpiro">
-<meta property="og:description" content="コピペ可能な自己完結HTML部品14点+ひとあかり素材棚">
+<meta property="og:description" content="コピペ可能な自己完結HTML部品18点+ひとあかり素材棚">
 <meta property="og:image" content="https://osakenpiro.github.io/parts/assets/pt_hero-lantern-desk.jpg">
 <link rel="stylesheet" href="/v2/colors_and_type.css">
 <style>
@@ -124,7 +124,7 @@
 <footer>
   <a href="https://osakenpiro.github.io/">← 玄関 osakenpiro.github.io</a>
   <span>画風『ひとあかり』/ SDXL local</span>
-  <span>built 2026-06-06 · Lane ε SES-420 / ε2 SES-429（部品14点）</span>
+  <span>built 2026-06-06 · Lane ε SES-420 / ε2 SES-429 / ε3 SES-435（部品18点）</span>
 </footer>
 </main>
 
@@ -523,6 +523,141 @@
 </div>
 </template>
 
+<template id="tpl-toggle">
+<!-- osakenpiro parts #toggle ともしびトグル | https://osakenpiro.github.io/parts/#toggle -->
+<style>
+.pt-toggle { display:inline-flex; align-items:center; gap:12px; cursor:pointer; user-select:none;
+  font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif; font-size:0.78rem;
+  color:var(--osk-fg-1,#c8b8a0); }
+.pt-toggle input { position:absolute; opacity:0; width:1px; height:1px; }
+.pt-toggle-track { position:relative; width:46px; height:24px; border-radius:12px; flex:none;
+  background:var(--osk-surface,#12121a); border:1px solid var(--osk-border,#1e1e2a);
+  transition:all .3s; }
+.pt-toggle-thumb { position:absolute; top:50%; left:3px; width:16px; height:16px; border-radius:50%;
+  transform:translateY(-50%); background:#3a3a4a;
+  box-shadow:inset 0 -2px 4px rgba(0,0,0,0.4);
+  transition:all .3s cubic-bezier(.4,0,.2,1); }
+.pt-toggle input:checked + .pt-toggle-track { border-color:rgba(212,168,83,0.5);
+  background:linear-gradient(90deg, rgba(212,168,83,0.06), rgba(212,168,83,0.2)); }
+.pt-toggle input:checked + .pt-toggle-track .pt-toggle-thumb { left:25px;
+  background:var(--osk-gold,#d4a853); box-shadow:0 0 12px rgba(212,168,83,0.7); }
+.pt-toggle input:focus-visible + .pt-toggle-track { outline:2px solid rgba(212,168,83,0.6); outline-offset:2px; }
+.pt-toggle-col { display:flex; flex-direction:column; gap:14px; }
+</style>
+<div class="pt-toggle-col">
+  <label class="pt-toggle">
+    <input type="checkbox" checked>
+    <span class="pt-toggle-track"><span class="pt-toggle-thumb"></span></span>
+    <span>通知の灯</span>
+  </label>
+  <label class="pt-toggle">
+    <input type="checkbox">
+    <span class="pt-toggle-track"><span class="pt-toggle-thumb"></span></span>
+    <span>自動hem（まだ消灯）</span>
+  </label>
+</div>
+</template>
+
+<template id="tpl-tabs">
+<!-- osakenpiro parts #tabs 栞タブ | https://osakenpiro.github.io/parts/#tabs -->
+<style>
+.pt-tabs { max-width:520px; font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif; }
+.pt-tabs > input { position:absolute; opacity:0; width:1px; height:1px; }
+.pt-tabs-bar { display:flex; gap:2px; border-bottom:1px solid var(--osk-border,#1e1e2a); }
+.pt-tabs-bar label { position:relative; padding:8px 18px 10px; font-size:0.76rem; letter-spacing:0.08em;
+  color:var(--osk-fg-2,rgba(200,184,160,0.5)); cursor:pointer; transition:color .25s; }
+.pt-tabs-bar label:hover { color:var(--osk-fg-1,#c8b8a0); }
+.pt-tabs-bar label::after { content:''; position:absolute; left:50%; bottom:-1px; width:0; height:2px;
+  background:var(--osk-gold,#d4a853); box-shadow:0 0 10px rgba(212,168,83,0.6);
+  transform:translateX(-50%); transition:width .3s; }
+#pt-tabA1:checked ~ .pt-tabs-bar label[for="pt-tabA1"],
+#pt-tabA2:checked ~ .pt-tabs-bar label[for="pt-tabA2"],
+#pt-tabA3:checked ~ .pt-tabs-bar label[for="pt-tabA3"] { color:var(--osk-gold,#d4a853); }
+#pt-tabA1:checked ~ .pt-tabs-bar label[for="pt-tabA1"]::after,
+#pt-tabA2:checked ~ .pt-tabs-bar label[for="pt-tabA2"]::after,
+#pt-tabA3:checked ~ .pt-tabs-bar label[for="pt-tabA3"]::after { width:100%; }
+.pt-tabs-panels section { display:none; padding:16px 4px 0; font-size:0.78rem; line-height:1.7;
+  color:var(--osk-fg-1,#c8b8a0); animation:ptTabIn .35s ease; }
+#pt-tabA1:checked ~ .pt-tabs-panels .pt-tabs-p1 { display:block; }
+#pt-tabA2:checked ~ .pt-tabs-panels .pt-tabs-p2 { display:block; }
+#pt-tabA3:checked ~ .pt-tabs-panels .pt-tabs-p3 { display:block; }
+@keyframes ptTabIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+</style>
+<div class="pt-tabs">
+  <input type="radio" name="pt-tabsA" id="pt-tabA1" checked>
+  <input type="radio" name="pt-tabsA" id="pt-tabA2">
+  <input type="radio" name="pt-tabsA" id="pt-tabA3">
+  <div class="pt-tabs-bar">
+    <label for="pt-tabA1">企画</label>
+    <label for="pt-tabA2">設計</label>
+    <label for="pt-tabA3">運用</label>
+  </div>
+  <div class="pt-tabs-panels">
+    <section class="pt-tabs-p1">種は苗床に。熱があるうちに動かして、Boolean ではなく Float で進み具合を測る。</section>
+    <section class="pt-tabs-p2">単一HTML・localStorage・GitHub Pages。ゼロコスト・ゼロメンテが正義。</section>
+    <section class="pt-tabs-p3">hem で記録、rehem で再点火。腐葉土は劣化させず栄養層として保持する。</section>
+  </div>
+</div>
+</template>
+
+<template id="tpl-tooltip">
+<!-- osakenpiro parts #tooltip ささやき短冊 | https://osakenpiro.github.io/parts/#tooltip -->
+<style>
+.pt-tip { position:relative; display:inline-block; cursor:help;
+  color:var(--osk-gold,#d4a853);
+  border-bottom:1px dashed rgba(212,168,83,0.5); }
+.pt-tip::after { content:attr(data-tip); position:absolute; left:50%; bottom:calc(100% + 10px);
+  transform:translateX(-50%) translateY(4px);
+  background:var(--osk-surface,#12121a); color:var(--osk-fg-1,#c8b8a0);
+  border:1px solid rgba(212,168,83,0.35); border-radius:8px;
+  padding:8px 12px; font-size:0.7rem; line-height:1.5; letter-spacing:0.04em;
+  width:max-content; max-width:240px; text-align:left; white-space:normal;
+  box-shadow:0 6px 20px rgba(0,0,0,0.5), 0 0 16px rgba(212,168,83,0.12);
+  opacity:0; pointer-events:none; transition:all .25s; z-index:5; }
+.pt-tip::before { content:''; position:absolute; left:50%; bottom:calc(100% + 5px);
+  transform:translateX(-50%); border:5px solid transparent;
+  border-top-color:rgba(212,168,83,0.35);
+  opacity:0; pointer-events:none; transition:all .25s; z-index:5; }
+.pt-tip:hover::after, .pt-tip:focus-visible::after { opacity:1; transform:translateX(-50%) translateY(0); }
+.pt-tip:hover::before, .pt-tip:focus-visible::before { opacity:1; }
+.pt-tip-line { font-size:0.8rem; line-height:2; color:var(--osk-fg-1,#c8b8a0);
+  font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif; }
+</style>
+<p class="pt-tip-line">
+  すべての判断は <span class="pt-tip" tabindex="0" data-tip="Boolean→Float の正式呼称。二値を 0.0〜1.0 の連続値に再定義する">BeeF</span> で測り、
+  終わったら <span class="pt-tip" tabindex="0" data-tip="セッションの記録呪文。MC更新+RPG XP+handoff の3点セット">hem</span> で寝かせて、
+  古い文脈は <span class="pt-tip" tabindex="0" data-tip="蓄積された文脈を劣化させず栄養層として保持する設計原則">腐葉土</span> に還す。
+</p>
+</template>
+
+<template id="tpl-pager">
+<!-- osakenpiro parts #pager 星送り | https://osakenpiro.github.io/parts/#pager -->
+<style>
+.pt-pager { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.pt-pager a { display:flex; align-items:center; justify-content:center; min-width:32px; height:32px;
+  padding:0 6px; border-radius:50%; text-decoration:none; font-size:0.74rem;
+  font-family:var(--osk-font-mono, Consolas, monospace);
+  color:var(--osk-fg-1,#c8b8a0); border:1px solid transparent; transition:all .25s; }
+.pt-pager a:hover { border-color:var(--osk-border,#1e1e2a); color:var(--osk-gold,#d4a853);
+  background:var(--osk-surface,#12121a); box-shadow:0 0 12px rgba(212,168,83,0.15); }
+.pt-pager a[aria-current="page"] { color:#08080e; background:var(--osk-gold,#d4a853);
+  border-color:var(--osk-gold,#d4a853); font-weight:bold;
+  box-shadow:0 0 16px rgba(212,168,83,0.5); }
+.pt-pager-gap { color:var(--osk-fg-2,rgba(200,184,160,0.4)); font-size:0.74rem; padding:0 2px;
+  font-family:var(--osk-font-mono, Consolas, monospace); }
+</style>
+<nav class="pt-pager" aria-label="ページ送り">
+  <a href="#pager">←</a>
+  <a href="#pager">1</a>
+  <a href="#pager" aria-current="page">2</a>
+  <a href="#pager">3</a>
+  <a href="#pager">4</a>
+  <span class="pt-pager-gap">…</span>
+  <a href="#pager">12</a>
+  <a href="#pager">→</a>
+</nav>
+</template>
+
 <!-- ============ ページ生成 ============ -->
 <script>
 var PARTS = [
@@ -553,7 +688,15 @@ var PARTS = [
   { id:'modal',        tpl:'tpl-modal',        name:'とばり窓',          en:'#modal',
     desc:'夜の帳ごしに浮かぶnative dialog。ESC・外側クリックで閉じる、JSはonclick属性だけ。', ds:'視覚比喩 / 流入退場' },
   { id:'kbd',          tpl:'tpl-kbd',          name:'呪文キー',          en:'#kbd',
-    desc:'押すと沈んで金に灯るキーキャップ。ショートカット表記にも hem/rehem 呪文の掲示にも。JS不要。', ds:'音遊び / 静止' }
+    desc:'押すと沈んで金に灯るキーキャップ。ショートカット表記にも hem/rehem 呪文の掲示にも。JS不要。', ds:'音遊び / 静止' },
+  { id:'toggle',       tpl:'tpl-toggle',       name:'ともしびトグル',    en:'#toggle',
+    desc:'ONで金に灯り、OFFで夜に還る。input:checkedだけで動くスイッチ、フォーカスリング込みでJS不要。', ds:'視覚比喩 / スライド' },
+  { id:'tabs',         tpl:'tpl-tabs',         name:'栞タブ',            en:'#tabs',
+    desc:'radio+labelだけのJS不要タブ。選んだ栞に金の紐が灯り、頁がふわりと入れ替わる。', ds:'視覚比喩 / 流入退場' },
+  { id:'tooltip',      tpl:'tpl-tooltip',      name:'ささやき短冊',      en:'#tooltip',
+    desc:'hover/フォーカスで頭上に短冊がふわり浮かぶ。data-tip属性に文言を書くだけ、JS不要。', ds:'視覚比喩 / hover展開' },
+  { id:'pager',        tpl:'tpl-pager',        name:'星送り',            en:'#pager',
+    desc:'いまいる頁だけ金に灯るページ送り。aria-current="page"を差し替えるだけ、JS不要。', ds:'視覚比喩 / hover展開' }
 ];
 
 var SHELF = [
