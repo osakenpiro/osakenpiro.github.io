@@ -157,6 +157,23 @@
     <dl class="stats" id="id-stats"></dl>
   </section>
 
+  <!-- GEN:DDTL:SECTION:START (gen_dd.py 一回限り挿入・中身はdata.js駆動) -->
+  <section class="sec" id="timeline" data-screen-label="08 Timeline">
+    <style>
+      #timeline .tl-row{display:flex;gap:14px;padding:10px 0;border-bottom:1px dashed rgba(0,0,0,.12);align-items:baseline}
+      #timeline .tl-date{font-family:ui-monospace,monospace;font-size:.78rem;letter-spacing:.06em;white-space:nowrap;min-width:7.5em;opacity:.75}
+      #timeline .tl-n{font-family:ui-monospace,monospace;font-size:.7rem;opacity:.5;margin-left:6px}
+      #timeline .tl-items{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:.85rem}
+      #timeline .tl-items a{text-decoration:none;border-bottom:1px solid rgba(0,0,0,.25)}
+      #timeline .tl-items a:hover{border-bottom-color:currentColor}
+      #timeline .tl-genesis{font-size:.85rem;opacity:.8}
+    </style>
+    <div class="kicker">VIII · TIMELINE</div>
+    <h2>年表 <small style="font-size:.55em;opacity:.6">ありか台帳に載った日 — the ledger timeline</small></h2>
+    <div id="timeline-list"></div>
+  </section>
+  <!-- GEN:DDTL:SECTION:END -->
+
   <footer class="foot">
     <span>© osakenpiro · Visionium · 2026</span>
     <em>the center is empty · the circulation constitutes existence</em>
@@ -323,6 +340,23 @@
     if (m.u.startsWith('http')) { a.target='_blank'; a.rel='noopener'; }
     links.appendChild(a);
   });
+
+  /* ---------- TIMELINE (GEN:DDTL:JS:START) ---------- */
+  (function(){
+    const list = document.getElementById('timeline-list');
+    if (!list || !D.timeline) return;
+    D.timeline.forEach(t => {
+      const row = document.createElement('div'); row.className = 'tl-row';
+      const inner = t.items && t.items.length
+        ? `<div class="tl-items">${t.items.map(i => i.url
+            ? `<a href="${i.url}" target="_blank" rel="noopener">${escapeHtml(i.ja)}</a>`
+            : `<span>${escapeHtml(i.ja)}</span>`).join('')}</div>`
+        : `<div class="tl-genesis">⭐ ${escapeHtml(t.label || '')} <span class="tl-n">${t.n}件</span></div>`;
+      row.innerHTML = `<div class="tl-date">${escapeHtml(t.d)}<span class="tl-n">×${t.n}</span></div>${inner}`;
+      list.appendChild(row);
+    });
+  })();
+  /* (GEN:DDTL:JS:END) */
 
   /* ---------- utils ---------- */
   function escapeHtml(s){
