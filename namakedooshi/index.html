@@ -9,7 +9,11 @@
 <meta property="og:description" content="全か無か、をやめる。サボっても崩れない、段階ストリーク習慣トラッカー。">
 <meta property="og:url" content="https://osakenpiro.github.io/namakedooshi/">
 <meta property="og:type" content="website">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://osakenpiro.github.io/namakedooshi/og.jpg">
+<meta property="og:image:width" content="1344">
+<meta property="og:image:height" content="768">
+<meta name="twitter:image" content="https://osakenpiro.github.io/namakedooshi/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -95,6 +99,7 @@ footer a{color:var(--gold);text-decoration:none}footer a:hover{text-decoration:u
     </div>
     <div class="actions">
       <button id="share">勢いをシェア</button>
+      <button id="sharex">𝕏でポスト</button>
       <button id="reset">全消去</button>
     </div>
   </div>
@@ -160,12 +165,16 @@ function addHabit(){const n=$('#newhabit').value.trim();if(!n)return;data.habits
 $('#add').onclick=addHabit;
 $('#newhabit').addEventListener('keydown',e=>{if(e.key==='Enter')addHabit();});
 $('#reset').onclick=()=>{if(confirm('すべての習慣と記録を消します。よい？')){data={habits:[]};save();render();toast('全消去しました');}};
-$('#share').onclick=async()=>{
-  if(!data.habits.length){toast('習慣を足してね');return;}
+function shareText(){
+  if(!data.habits.length){toast('習慣を足してね');return null;}
   const lines=data.habits.map(h=>`・${h.name}：勢い${Math.round(momentum(h)*100)}%（実効${effDays(h).toFixed(1)}日）`).join('\n');
-  const txt=`怠け通し — いまの勢い\n${lines}\n\n全か無か、をやめた習慣トラッカー。サボっても崩れない。\nhttps://osakenpiro.github.io/namakedooshi/\n#全人類UX改善`;
+  return `怠け通し — いまの勢い\n${lines}\n\n全か無か、をやめた習慣トラッカー。サボっても崩れない。\nhttps://osakenpiro.github.io/namakedooshi/\n#全人類UX改善`;
+}
+$('#share').onclick=async()=>{
+  const txt=shareText();if(!txt)return;
   try{await navigator.clipboard.writeText(txt);toast('シェア文をコピー');}catch(e){prompt('コピーしてシェア:',txt);}
 };
+$('#sharex').onclick=()=>{const txt=shareText();if(!txt)return;window.open('https://x.com/intent/post?text='+encodeURIComponent(txt),'_blank','noopener');};
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),1700);}
 
 // seed example on first visit
