@@ -974,41 +974,16 @@ a{color:inherit; text-decoration:none}
     </div>
   </div>
   <button class="pocket-btn" type="button" aria-label="ポケットを開く">
-    <svg vi
-<!-- osakenpiro support button v1 -->
-<style>
-  .osk-support-btn {
-    position: fixed;
-    bottom: 16px;
-    right: 16px;
-    background: linear-gradient(135deg, #FFDD00 0%, #FFC700 100%);
-    color: #1a1a1a;
-    padding: 10px 16px;
-    border-radius: 999px;
-    text-decoration: none;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
-    z-index: 99999;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .osk-support-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-  }
-  @media (max-width: 480px) {
-    .osk-support-btn { font-size: 12px; padding: 8px 12px; }
-  }
-</style>
-<a href="https://www.buymeacoffee.com/osakenpiro"
-   target="_blank"
-   rel="noopener noreferrer"
-   class="osk-support-btn"
-   aria-label="osakenpiroを応援する">
-  ☕ <span>応援</span>
-</a>
-<!-- /osakenpiro support button -->
+    <svg viewBox="0 0 48 48" width="26" height="26" aria-hidden="true">
+      <path d="M 6 14 L 6 28 Q 6 38 24 38 Q 42 38 42 28 L 42 14 Z" fill="currentColor"/>
+      <path d="M 4 14 L 44 14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <circle cx="16" cy="24" r="1.4" fill="var(--bg)" opacity=".8"/>
+      <circle cx="24" cy="28" r="1.3" fill="var(--bg)" opacity=".7"/>
+      <circle cx="32" cy="23" r="1.4" fill="var(--bg)" opacity=".8"/>
+    </svg>
+    <span class="pocket-label">ポケット</span>
+  </button>
+</div>
+
+</body>
+</html>
