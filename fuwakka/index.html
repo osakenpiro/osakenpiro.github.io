@@ -9,7 +9,11 @@
 <meta property="og:description" content="done/not-done をやめる。タスクを0〜100%のFloatで持つ todo。">
 <meta property="og:url" content="https://osakenpiro.github.io/fuwakka/">
 <meta property="og:type" content="website">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://osakenpiro.github.io/fuwakka/og.jpg">
+<meta property="og:image:width" content="1344">
+<meta property="og:image:height" content="768">
+<meta name="twitter:image" content="https://osakenpiro.github.io/fuwakka/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -88,6 +92,7 @@ footer{text-align:center;margin-top:36px;font-size:12.5px;color:var(--fg3);line-
   </div>
   <div class="actions">
     <button id="share">進捗をシェア</button>
+    <button id="sharex">𝕏でポスト</button>
     <button id="clear">完了(100%)を片づける</button>
     <button id="reset">全消去</button>
   </div>
@@ -143,12 +148,16 @@ $('#add').onclick=addTask;
 $('#newtask').addEventListener('keydown',e=>{if(e.key==='Enter')addTask();});
 $('#clear').onclick=()=>{const before=data.tasks.length;data.tasks=data.tasks.filter(t=>t.prog<100);save();render();toast((before-data.tasks.length)+'件を片づけた');};
 $('#reset').onclick=()=>{if(confirm('すべてのタスクを消します。よい？')){data={tasks:[]};save();render();toast('全消去');}};
-$('#share').onclick=async()=>{
-  if(!data.tasks.length){toast('タスクを足してね');return;}
+function shareText(){
+  if(!data.tasks.length){toast('タスクを足してね');return null;}
   const lines=data.tasks.map(t=>`・${t.name}：${t.prog}%`).join('\n');
-  const txt=`フワッカ — いまの進捗（全体${overall()}%）\n${lines}\n\ndone/not-done をやめた fuzzy todo。60%で止まっても失敗じゃない。\nhttps://osakenpiro.github.io/fuwakka/\n#全人類UX改善`;
+  return `フワッカ — いまの進捗（全体${overall()}%）\n${lines}\n\ndone/not-done をやめた fuzzy todo。60%で止まっても失敗じゃない。\nhttps://osakenpiro.github.io/fuwakka/\n#全人類UX改善`;
+}
+$('#share').onclick=async()=>{
+  const txt=shareText();if(!txt)return;
   try{await navigator.clipboard.writeText(txt);toast('シェア文をコピー');}catch(e){prompt('コピーしてシェア:',txt);}
 };
+$('#sharex').onclick=()=>{const txt=shareText();if(!txt)return;window.open('https://x.com/intent/post?text='+encodeURIComponent(txt),'_blank','noopener');};
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),1700);}
 
 if(!data.tasks.length){data.tasks=[{id:uid(),name:'論文の図',prog:40},{id:uid(),name:'部屋の片付け',prog:65}];save();}
