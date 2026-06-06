@@ -6,7 +6,7 @@
 <title>部品工場 PARTS — osakenpiro</title>
 <meta name="description" content="コピペで使えるリッチHTML部品ライブラリ。osakenpiroデザインシステム(colors_and_type.css)準拠・自己完結スニペット集。">
 <meta property="og:title" content="部品工場 PARTS — osakenpiro">
-<meta property="og:description" content="コピペ可能な自己完結HTML部品10点+ひとあかり素材棚">
+<meta property="og:description" content="コピペ可能な自己完結HTML部品14点+ひとあかり素材棚">
 <meta property="og:image" content="https://osakenpiro.github.io/parts/assets/pt_hero-lantern-desk.jpg">
 <link rel="stylesheet" href="/v2/colors_and_type.css">
 <style>
@@ -124,7 +124,7 @@
 <footer>
   <a href="https://osakenpiro.github.io/">← 玄関 osakenpiro.github.io</a>
   <span>画風『ひとあかり』/ SDXL local</span>
-  <span>built 2026-06-06 · Lane ε SES-420</span>
+  <span>built 2026-06-06 · Lane ε SES-420 / ε2 SES-429（部品14点）</span>
 </footer>
 </main>
 
@@ -379,6 +379,150 @@
 </div>
 </template>
 
+<template id="tpl-toast">
+<!-- osakenpiro parts #toast 流れ星トースト | https://osakenpiro.github.io/parts/#toast -->
+<style>
+.pt-toast-stack { position:fixed; right:18px; bottom:18px; z-index:9999;
+  display:flex; flex-direction:column; align-items:flex-end; gap:10px; pointer-events:none; }
+.pt-toast { pointer-events:auto; display:flex; align-items:center; gap:10px;
+  min-width:220px; max-width:340px; padding:12px 18px;
+  background:var(--osk-surface,#12121a); color:var(--osk-fg-1,#c8b8a0);
+  border:1px solid rgba(212,168,83,0.45); border-radius:10px;
+  font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif; font-size:0.75rem; line-height:1.5;
+  box-shadow:0 0 24px rgba(212,168,83,0.14), 0 10px 30px rgba(0,0,0,0.5);
+  animation:ptToastIn .45s cubic-bezier(.22,1,.36,1) both,
+            ptToastOut .6s ease var(--pt-life,3.4s) both; }
+.pt-toast .pt-ts-star { color:var(--osk-gold,#d4a853); text-shadow:0 0 10px rgba(212,168,83,0.85); }
+@keyframes ptToastIn { from { transform:translateX(60px) translateY(-30px); opacity:0; } }
+@keyframes ptToastOut { to { transform:translateY(16px); opacity:0; } }
+.pt-toast-fire { cursor:pointer; font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif;
+  font-size:0.75rem; letter-spacing:0.08em; padding:8px 18px; border-radius:20px;
+  background:transparent; color:var(--osk-fg-1,#c8b8a0);
+  border:1px solid rgba(200,184,160,0.3); transition:all .25s; margin-right:8px; }
+.pt-toast-fire:hover { border-color:var(--osk-gold,#d4a853); color:var(--osk-gold,#d4a853);
+  box-shadow:0 0 16px rgba(212,168,83,0.18); }
+</style>
+<button class="pt-toast-fire" type="button" data-msg="hem 完了。今日もえらい。">知らせを流す</button>
+<button class="pt-toast-fire" type="button" data-msg="保存した（localStorageに置いといた）">もう一発</button>
+<script>
+(function(){
+  if(!window.ptToast){
+    window.ptToast=function(msg,life){
+      var stack=document.querySelector('.pt-toast-stack');
+      if(!stack){ stack=document.createElement('div'); stack.className='pt-toast-stack';
+        document.body.appendChild(stack); }
+      var t=document.createElement('div'); t.className='pt-toast';
+      if(life) t.style.setProperty('--pt-life', life+'ms');
+      t.innerHTML='<span class="pt-ts-star">☄</span><span></span>';
+      t.lastElementChild.textContent=msg;
+      stack.appendChild(t);
+      t.addEventListener('animationend',function(e){
+        if(e.animationName==='ptToastOut') t.remove(); });
+    };
+  }
+  document.querySelectorAll('.pt-toast-fire:not([data-lit])').forEach(function(b){
+    b.dataset.lit='1';
+    b.onclick=function(){ window.ptToast(b.dataset.msg||'流れ星が走った'); };
+  });
+})();
+</script>
+</template>
+
+<template id="tpl-table">
+<!-- osakenpiro parts #table 星取表 | https://osakenpiro.github.io/parts/#table -->
+<style>
+.pt-table { width:100%; max-width:560px; border-collapse:collapse;
+  font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif; font-size:0.76rem;
+  color:var(--osk-fg-1,#c8b8a0); }
+.pt-table caption { caption-side:top; text-align:left; font-size:0.66rem; letter-spacing:0.18em;
+  color:var(--osk-gold,#d4a853); padding-bottom:10px; }
+.pt-table th { font-weight:400; font-size:0.64rem; letter-spacing:0.12em; text-align:left;
+  color:rgba(200,184,160,0.5); padding:8px 12px;
+  border-bottom:1px solid rgba(212,168,83,0.45); }
+.pt-table td { padding:10px 12px; border-bottom:1px solid var(--osk-border,#1e1e2a); }
+.pt-table tbody tr { transition:background .25s; }
+.pt-table tbody tr:hover { background:rgba(212,168,83,0.06); }
+.pt-table .pt-tb-num { font-family:Consolas,monospace; text-align:right;
+  color:var(--osk-gold,#d4a853); }
+.pt-table .pt-tb-stars { letter-spacing:3px; color:var(--osk-gold,#d4a853);
+  text-shadow:0 0 8px rgba(212,168,83,0.45); white-space:nowrap; }
+.pt-table .pt-tb-stars .off { color:rgba(200,184,160,0.22); text-shadow:none; }
+</style>
+<table class="pt-table">
+  <caption>STAR LEDGER — 星取表</caption>
+  <thead><tr><th>プロジェクト</th><th>状態</th><th style="text-align:right">Float</th><th>星取</th></tr></thead>
+  <tbody>
+    <tr><td>天人𦻙記 シナリオ</td><td>育成中</td><td class="pt-tb-num">0.72</td><td class="pt-tb-stars">★★★<span class="off">★★</span></td></tr>
+    <tr><td>0.5の魔女 改稿</td><td>とろ火</td><td class="pt-tb-num">0.40</td><td class="pt-tb-stars">★★<span class="off">★★★</span></td></tr>
+    <tr><td>部品工場</td><td>Live</td><td class="pt-tb-num">0.85</td><td class="pt-tb-stars">★★★★<span class="off">★</span></td></tr>
+  </tbody>
+</table>
+</template>
+
+<template id="tpl-modal">
+<!-- osakenpiro parts #modal とばり窓 | https://osakenpiro.github.io/parts/#modal -->
+<style>
+.pt-modal { border:1px solid rgba(212,168,83,0.4); border-radius:12px; padding:0;
+  background:var(--osk-surface,#12121a); color:var(--osk-fg-1,#c8b8a0);
+  max-width:min(420px,90vw);
+  box-shadow:0 0 70px rgba(212,168,83,0.12), 0 24px 60px rgba(0,0,0,0.6); }
+.pt-modal::backdrop { background:rgba(5,5,12,0.78); backdrop-filter:blur(3px); }
+.pt-modal[open] { animation:ptTobariIn .38s cubic-bezier(.22,1,.36,1); }
+@keyframes ptTobariIn { from { transform:translateY(18px) scale(0.97); opacity:0; } }
+.pt-modal .pt-md-body { padding:26px 28px;
+  font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif; }
+.pt-modal h3 { margin:0 0 10px; font-size:1rem; font-weight:700; letter-spacing:0.06em; }
+.pt-modal h3 .pt-md-glyph { color:var(--osk-gold,#d4a853); margin-right:8px; }
+.pt-modal p { margin:0 0 18px; font-size:0.75rem; line-height:1.7;
+  color:rgba(200,184,160,0.55); }
+.pt-md-open, .pt-md-close { cursor:pointer; font-size:0.75rem; letter-spacing:0.1em;
+  font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif;
+  padding:9px 22px; border-radius:20px; transition:all .25s; }
+.pt-md-open { background:var(--osk-gold,#d4a853); color:var(--osk-void,#08080e);
+  border:1px solid var(--osk-gold,#d4a853); font-weight:700; }
+.pt-md-open:hover { box-shadow:0 0 24px rgba(212,168,83,0.5); }
+.pt-md-close { background:transparent; color:var(--osk-fg-1,#c8b8a0);
+  border:1px solid rgba(200,184,160,0.3); }
+.pt-md-close:hover { border-color:var(--osk-gold,#d4a853); color:var(--osk-gold,#d4a853); }
+</style>
+<div class="pt-modalwrap">
+  <button class="pt-md-open" type="button"
+    onclick="this.parentElement.querySelector('.pt-modal').showModal()">とばりを下ろす</button>
+  <dialog class="pt-modal" onclick="if(event.target===this)this.close()">
+    <div class="pt-md-body">
+      <h3><span class="pt-md-glyph">◈</span>とばり窓</h3>
+      <p>native &lt;dialog&gt; なのでESCもフォーカス管理も標準装備。外側（夜の帳）をクリックしても閉じる。JSはonclick属性の2行だけ。</p>
+      <button class="pt-md-close" type="button" onclick="this.closest('dialog').close()">とじる</button>
+    </div>
+  </dialog>
+</div>
+</template>
+
+<template id="tpl-kbd">
+<!-- osakenpiro parts #kbd 呪文キー | https://osakenpiro.github.io/parts/#kbd -->
+<style>
+.pt-kbd { display:inline-block; font-family:Consolas,monospace; font-size:0.72rem;
+  color:var(--osk-fg-1,#c8b8a0);
+  background:linear-gradient(180deg, var(--osk-surface-2,#1a1a2a), var(--osk-surface,#12121a));
+  border:1px solid var(--osk-key-border,#2a2a3e);
+  border-bottom:3px solid rgba(212,168,83,0.5);
+  border-radius:6px; padding:3px 10px 2px; min-width:2em; text-align:center;
+  box-shadow:0 2px 0 rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+  vertical-align:middle; cursor:default; user-select:none; transition:all .12s; }
+.pt-kbd:active { transform:translateY(2px); border-bottom-width:1px; box-shadow:none;
+  color:var(--osk-gold,#d4a853); text-shadow:0 0 8px rgba(212,168,83,0.6); }
+.pt-kbd-gold { color:var(--osk-gold,#d4a853); border-color:rgba(212,168,83,0.45);
+  text-shadow:0 0 8px rgba(212,168,83,0.4); }
+.pt-kbd-row { display:flex; flex-wrap:wrap; gap:16px; align-items:center;
+  font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif; font-size:0.72rem;
+  color:rgba(200,184,160,0.5); }
+</style>
+<div class="pt-kbd-row">
+  <span><kbd class="pt-kbd">Ctrl</kbd> + <kbd class="pt-kbd">K</kbd> でコマンド</span>
+  <span>呪文: <kbd class="pt-kbd pt-kbd-gold">hem</kbd> <kbd class="pt-kbd pt-kbd-gold">rehem</kbd> <kbd class="pt-kbd pt-kbd-gold">miha</kbd></span>
+</div>
+</template>
+
 <!-- ============ ページ生成 ============ -->
 <script>
 var PARTS = [
@@ -401,7 +545,15 @@ var PARTS = [
   { id:'meter',        tpl:'tpl-meter',        name:'フロートゲージ',    en:'#meter',
     desc:'data-floatに0–1を書くだけで満ちる進捗ゲージ。出現時にゆっくり灯る。', ds:'機能呼称 / 脈動' },
   { id:'accordion',    tpl:'tpl-accordion',    name:'ひらきど',          en:'#accordion',
-    desc:'details/summaryのJS不要アコーディオン。◇が◆に灯って開く。', ds:'音遊び / 3D-hinge' }
+    desc:'details/summaryのJS不要アコーディオン。◇が◆に灯って開く。', ds:'音遊び / 3D-hinge' },
+  { id:'toast',        tpl:'tpl-toast',        name:'流れ星トースト',    en:'#toast',
+    desc:'右下を流れて勝手に消える知らせ。ptToast("文言")を呼ぶだけ、スタックも自動。', ds:'視覚比喩 / 流入退場' },
+  { id:'table',        tpl:'tpl-table',        name:'星取表',            en:'#table',
+    desc:'金のヘアライン罫＋★とFloat列の成績表。行ホバーで淡く灯る。JS不要。', ds:'視覚比喩 / hover展開' },
+  { id:'modal',        tpl:'tpl-modal',        name:'とばり窓',          en:'#modal',
+    desc:'夜の帳ごしに浮かぶnative dialog。ESC・外側クリックで閉じる、JSはonclick属性だけ。', ds:'視覚比喩 / 流入退場' },
+  { id:'kbd',          tpl:'tpl-kbd',          name:'呪文キー',          en:'#kbd',
+    desc:'押すと沈んで金に灯るキーキャップ。ショートカット表記にも hem/rehem 呪文の掲示にも。JS不要。', ds:'音遊び / 静止' }
 ];
 
 var SHELF = [
