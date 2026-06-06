@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>深海テスト — Shinkai Test ｜ 9つの問いで潜る6軸の自分</title>
+<meta name="description" content="9問の自由記述に答えながら水深を下りていくと、PHI/CRE/TEC/OUT/VIT/EXP の6軸であなたが見えてくる。僕の惑星の衛星。Boolean→Float。">
+<meta property="og:title" content="深海テスト — Shinkai Test">
+<meta property="og:description" content="9つの問いに自由に答えて、深海まで潜る。6軸の自分が浮かび上がる潜水型診断。">
+<meta property="og:type" content="website">
+<style>
+:root{
+  --osk-void:#0a0a0f; --osk-void-deep:#06060a; --osk-surface:#15141a; --osk-surface-hi:#1c1a23;
+  --osk-gold:#d4a853; --osk-gold-soft:rgba(212,168,83,0.12); --osk-gold-glow:rgba(212,168,83,0.25); --osk-gold-edge:rgba(212,168,83,0.45);
+  --osk-parchment:#c8b8a0; --osk-violet:#a78bfa; --osk-debris-1:#6b6b80; --osk-debris-2:#3a3530;
+  --osk-fg-1:#e8e0d0; --osk-fg-2:#b8b0a0; --osk-fg-3:#807868; --osk-dim:#5a5448;
+  --osk-border:rgba(200,184,160,0.06); --osk-border-hover:rgba(212,168,83,0.20); --osk-border-strong:rgba(212,168,83,0.45);
+  --osk-font-sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic Medium","Yu Gothic",system-ui,sans-serif;
+  --osk-font-serif:"Cormorant Garamond","Times New Roman","游明朝体","Yu Mincho","YuMincho","Hiragino Mincho ProN",serif;
+  --osk-font-mono:"JetBrains Mono","SF Mono","Menlo","Consolas",monospace;
+  --depth:0; /* 0..1, set by JS */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:
+    radial-gradient(1200px 800px at 50% calc(-10% + var(--depth)*30%), rgba(212,168,83,calc(0.05*(1 - var(--depth)))), transparent 60%),
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--osk-void) calc((1 - var(--depth))*100%), var(--osk-void-deep)) 0%,
+      var(--osk-void-deep) 100%);
+  color:var(--osk-fg-1); font-family:var(--osk-font-sans); line-height:1.7; letter-spacing:.01em;
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  min-height:100%; overflow-x:hidden;
+  transition:background 1.2s ease;
+}
+.wrap{max-width:680px;margin:0 auto;padding:48px 24px 96px;position:relative;z-index:2}
+.display{font-family:var(--osk-font-serif);font-style:italic;font-weight:300;line-height:1.05;letter-spacing:.04em}
+.caption{font-family:var(--osk-font-serif);font-size:.66rem;letter-spacing:.25em;text-transform:uppercase;color:var(--osk-dim)}
+.mono{font-family:var(--osk-font-mono);letter-spacing:.1em}
+
+/* bubbles */
+#bubbles{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.bub{position:absolute;bottom:-40px;border-radius:50%;background:radial-gradient(circle at 35% 30%, rgba(212,168,83,.18), rgba(212,168,83,.02) 70%);border:1px solid rgba(212,168,83,.07);animation:rise linear infinite}
+@keyframes rise{to{transform:translateY(-110vh) translateX(var(--drift,0px));opacity:0}}
+
+/* intro */
+.hero{text-align:center;padding:8vh 0 4vh}
+.hero h1{font-size:clamp(2.6rem,9vw,4.2rem);color:var(--osk-fg-1)}
+.hero .sub{color:var(--osk-fg-3);margin-top:18px;font-size:.98rem}
+.kicker{margin-top:6px;color:var(--osk-gold);font-size:.74rem;letter-spacing:.18em}
+.lead{color:var(--osk-fg-2);margin:34px auto 0;max-width:520px;font-size:.96rem}
+.axes-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:30px 0}
+.axis-chip{font-size:.7rem;letter-spacing:.12em;padding:5px 11px;border:1px solid var(--osk-border);border-radius:999px;color:var(--osk-fg-3)}
+.axis-chip b{color:var(--osk-gold);font-weight:500}
+
+button.cta{
+  font-family:var(--osk-font-serif);font-style:italic;font-size:1.5rem;color:var(--osk-fg-1);
+  background:transparent;border:1px solid var(--osk-gold-edge);border-radius:2px;
+  padding:14px 46px;margin-top:34px;cursor:pointer;letter-spacing:.06em;
+  transition:all .25s ease;
+}
+button.cta:hover{background:var(--osk-gold-soft);border-color:var(--osk-gold);box-shadow:0 0 24px var(--osk-gold-glow)}
+
+/* dive */
+.divehead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.depthread{text-align:right}
+.depthread .m{font-family:var(--osk-font-mono);font-size:1.5rem;color:var(--osk-gold);letter-spacing:.06em}
+.depthread .lz{font-size:.6rem;letter-spacing:.2em;color:var(--osk-dim);text-transform:uppercase}
+.qno{color:var(--osk-dim);font-size:.7rem;letter-spacing:.2em}
+.qtext{font-family:var(--osk-font-serif);font-style:italic;font-size:clamp(1.5rem,5.4vw,2.1rem);color:var(--osk-fg-1);line-height:1.3;margin:10px 0 6px}
+.qhint{color:var(--osk-fg-3);font-size:.82rem;margin-bottom:20px}
+textarea{
+  width:100%;min-height:130px;resize:vertical;background:var(--osk-surface);color:var(--osk-fg-1);
+  border:1px solid var(--osk-border);border-radius:3px;padding:16px 18px;font-family:var(--osk-font-sans);
+  font-size:1rem;line-height:1.7;outline:none;transition:border-color .2s ease}
+textarea:focus{border-color:var(--osk-border-strong);box-shadow:0 0 0 1px var(--osk-gold-soft)}
+.navrow{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+.subtle{background:transparent;border:none;color:var(--osk-fg-3);cursor:pointer;font-size:.84rem;letter-spacing:.04em}
+.subtle:hover{color:var(--osk-gold)}
+button.next{font-size:.94rem;color:var(--osk-fg-1);background:transparent;border:1px solid var(--osk-gold-edge);border-radius:2px;padding:9px 26px;cursor:pointer;letter-spacing:.06em;transition:all .2s ease}
+button.next:hover{background:var(--osk-gold-soft);border-color:var(--osk-gold)}
+button.next:disabled{opacity:.32;cursor:not-allowed}
+.gauge{height:2px;background:rgba(255,255,255,.05);border-radius:2px;margin-top:22px;overflow:hidden}
+.gauge span{display:block;height:100%;background:linear-gradient(90deg,var(--osk-gold),var(--osk-parchment));transition:width .5s ease}
+
+/* results */
+.res-h{text-align:center;margin-bottom:6px}
+.res-h .caption{display:block;margin-bottom:14px}
+.archetype{font-family:var(--osk-font-serif);font-style:italic;font-size:clamp(2rem,7vw,3rem);color:var(--osk-gold)}
+.arche-desc{color:var(--osk-fg-2);max-width:520px;margin:14px auto 0;font-size:.95rem}
+.radar-card{display:flex;justify-content:center;margin:30px 0 8px}
+svg.radar{width:min(420px,92vw);height:auto}
+.axis-list{display:grid;grid-template-columns:1fr 1fr;gap:10px 22px;max-width:480px;margin:18px auto 0}
+.axis-line{display:flex;align-items:center;gap:10px;font-size:.82rem}
+.axis-line .lab{width:38px;color:var(--osk-fg-2);font-family:var(--osk-font-mono);font-size:.7rem;letter-spacing:.08em}
+.axis-line .bar{flex:1;height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden}
+.axis-line .bar i{display:block;height:100%;background:var(--osk-gold);border-radius:3px}
+.axis-line .pct{width:34px;text-align:right;color:var(--osk-fg-3);font-family:var(--osk-font-mono);font-size:.68rem}
+.sect-t{text-align:center;color:var(--osk-dim);font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;margin:42px 0 18px}
+.tools{display:flex;flex-direction:column;gap:10px;max-width:520px;margin:0 auto}
+.tool{border:1px solid var(--osk-border);border-radius:4px;padding:14px 16px;transition:border-color .2s ease,background .2s ease}
+.tool:hover{border-color:var(--osk-border-hover);background:var(--osk-surface)}
+.tool .nm{color:var(--osk-fg-1);font-size:1rem;font-weight:500}
+.tool .nm .ax{color:var(--osk-gold);font-family:var(--osk-font-mono);font-size:.62rem;letter-spacing:.1em;margin-left:8px}
+.tool .ds{color:var(--osk-fg-3);font-size:.82rem;margin-top:3px}
+.pathtree{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:0}
+.pnode{display:flex;gap:14px;align-items:flex-start}
+.pnode .rail{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.pnode .dot{width:9px;height:9px;border-radius:50%;background:var(--osk-gold);margin-top:6px;box-shadow:0 0 8px var(--osk-gold-glow)}
+.pnode .line{width:1px;flex:1;min-height:26px;background:var(--osk-border)}
+.pnode:last-child .line{display:none}
+.pnode .body{padding-bottom:14px}
+.pnode .pm{font-family:var(--osk-font-mono);font-size:.6rem;color:var(--osk-dim);letter-spacing:.12em}
+.pnode .pq{color:var(--osk-fg-3);font-size:.82rem}
+.pnode .pa{color:var(--osk-fg-2);font-size:.86rem;margin-top:2px}
+.footrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:46px}
+.footrow button{font-size:.86rem;color:var(--osk-fg-2);background:transparent;border:1px solid var(--osk-border);border-radius:2px;padding:10px 22px;cursor:pointer;transition:all .2s ease}
+.footrow button:hover{border-color:var(--osk-gold);color:var(--osk-gold)}
+.sig{text-align:center;margin-top:54px;color:var(--osk-dim);font-size:.72rem;letter-spacing:.12em}
+.sig a{color:var(--osk-fg-3)}.sig a:hover{color:var(--osk-gold)}
+.hidden{display:none}
+.fade{animation:fade .6s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%) translateY(20px);background:var(--osk-surface-hi);border:1px solid var(--osk-border-hover);color:var(--osk-fg-1);padding:11px 22px;border-radius:3px;font-size:.84rem;opacity:0;transition:all .3s ease;z-index:50;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div id="bubbles"></div>
+
+<div class="wrap">
+  <!-- INTRO -->
+  <section id="intro" class="fade">
+    <div class="hero">
+      <div class="caption">Shinkai Test ／ 僕の惑星の衛星</div>
+      <h1 class="display">深海テスト</h1>
+      <div class="kicker mono">BOOLEAN → FLOAT</div>
+      <p class="lead">9つの問いに、自由に答える。<br>答えるたび、すこしずつ深くへ潜っていく。<br>底に着くころ、6軸のあなたが浮かびあがる。</p>
+      <div class="axes-row">
+        <span class="axis-chip"><b>PHI</b> 問い</span>
+        <span class="axis-chip"><b>CRE</b> 表現</span>
+        <span class="axis-chip"><b>TEC</b> 構築</span>
+        <span class="axis-chip"><b>OUT</b> 伝達</span>
+        <span class="axis-chip"><b>VIT</b> 継続</span>
+        <span class="axis-chip"><b>EXP</b> 探究</span>
+      </div>
+      <button class="cta" onclick="startDive()">潜る</button>
+      <p class="caption" style="margin-top:22px">回答は端末の中だけ。送信も保存もされません。</p>
+    </div>
+  </section>
+
+  <!-- DIVE -->
+  <section id="dive" class="hidden">
+    <div class="divehead">
+      <div class="qno mono" id="qno">問 01 / 09</div>
+      <div class="depthread"><div class="m" id="depthM">0m</div><div class="lz" id="zone">表層 ・ epipelagic</div></div>
+    </div>
+    <div class="qtext display" id="qtext">—</div>
+    <div class="qhint" id="qhint">—</div>
+    <textarea id="answer" placeholder="思いつくまま、ひとことでも。" oninput="onType()"></textarea>
+    <div class="navrow">
+      <button class="subtle" id="backBtn" onclick="prevQ()">← もどる</button>
+      <button class="next" id="nextBtn" onclick="nextQ()" disabled>つぎへ →</button>
+    </div>
+    <div class="gauge"><span id="gauge" style="width:0%"></span></div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="hidden"></section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============ axes & content ============ */
+const AXES = ["PHI","CRE","TEC","OUT","VIT","EXP"];
+const AXIS_JA = {PHI:"哲学・問い",CRE:"創作・表現",TEC:"技術・構築",OUT:"発信・伝達",VIT:"生命力・継続",EXP:"探究・収集"};
+
+// 9 dive questions; each has a slight axis affinity + a depth (m) + zone
+const QUESTIONS = [
+  {m:0,    zone:"表層 ・ epipelagic", q:"いま、いちばん気になっていることは？", hint:"大きくても小さくてもいい。頭の表面に浮かんでいるもの。", aff:["PHI"]},
+  {m:130,  zone:"表層 ・ epipelagic", q:"それは、なぜ気になる？", hint:"理由がうまく言えなくても、近いところを言葉にしてみる。", aff:["PHI","PHI"]},
+  {m:280,  zone:"中深層 ・ mesopelagic", q:"最近、時間を忘れて没頭したことは？", hint:"気づいたら時間が経っていた、あの感じ。", aff:["CRE","EXP"]},
+  {m:440,  zone:"中深層 ・ mesopelagic", q:"誰かに見せたい・伝えたいものはある？", hint:"作ったもの、考え、見つけたもの。なんでも。", aff:["OUT"]},
+  {m:600,  zone:"漸深層 ・ bathypelagic", q:"うまくいかなくても、また戻ってくることは？", hint:"飽きずに、何度も帰ってきてしまう場所。", aff:["VIT"]},
+  {m:760,  zone:"漸深層 ・ bathypelagic", q:"集めたくなるもの、埋めたくなる空白は？", hint:"図鑑の空欄が気になる、あの引力。", aff:["EXP","TEC"]},
+  {m:910,  zone:"深海層 ・ abyssopelagic", q:"「これは自分だ」と思える瞬間は？", hint:"らしさが出ている、と感じるとき。", aff:["PHI","OUT"]},
+  {m:1050, zone:"深海層 ・ abyssopelagic", q:"放っておいても、育ってほしいものは？", hint:"いま種でも、いつか芽吹けばいいもの。", aff:["CRE","VIT"]},
+  {m:1200, zone:"超深海 ・ hadal", q:"ここまで潜って、最後に言葉にしたいことは？", hint:"底に着いた。ひとつだけ、置いていくとしたら。", aff:["PHI","CRE"]},
+];
+const MAX_M = 1200;
+
+// keyword → axis nudges (content-sensitive branching on top of hashing)
+const KW = [
+  [/なぜ|意味|問い|哲学|本質|考え|そもそも|定義|概念/g, "PHI"],
+  [/描|物語|作品|小説|絵|デザイン|表現|創|詩|曲|キャラ/g, "CRE"],
+  [/作る|つく|コード|仕組|技術|実装|設計|ツール|構築|プログラ|システム/g, "TEC"],
+  [/伝|見せ|発信|共有|届け|投稿|話|教え|公開|シェア/g, "OUT"],
+  [/続け|毎日|習慣|生き|身体|歩|睡眠|健康|淡々|継続|ルーティン/g, "VIT"],
+  [/集め|調べ|知り|分類|図鑑|探|収集|読|データ|観察|記録/g, "EXP"],
+];
+
+// tools keyed by axis pair (driver archetypes from idea三体系)
+const TOOLS = {
+  "EXP+TEC":[["わっかずかん","集合を輪で操作する分類図鑑"],["人類の素材図鑑","ひとを素材として並べる図鑑"]],
+  "PHI+OUT":[["SATORI","問いを投げ返してくる対話ツール"],["KAGAMI","映し返しで自分を見る鏡"]],
+  "TEC+PHI":[["わたしのお財布","見えないお金の流れを可視化"],["素材図鑑","データを並べて世界を見直す"]],
+  "CRE+EXP":[["天人𦻙記","ルールの中で予想外が起きるRPG"],["バク運スカウター","運を情報量で測る遊び"]],
+  "VIT+OUT":[["あしあとマップ","通った道がそのまま残る記録"],["ぼうけんのしょ","歩みが冒険譚になる台帳"]],
+  "CRE+VIT":[["夢見る少女は眠れない","放っておくと育つ放置物語"],["RPGステータス","積み重ねが形になる6軸"]],
+};
+const ARCHE = {
+  "EXP+TEC":["図鑑を埋めるひと","空白が気になる。集めて、並べて、構造にしたくなる。世界を分類して理解する潜り方。"],
+  "PHI+OUT":["問いを投げるひと","なぜ、を手放せない。考えたことを誰かに渡して、反応を見たくなる。対話で深くなる潜り方。"],
+  "TEC+PHI":["見えないものを視るひと","構造やデータの奥にあるものを、形にして見たい。可視化で世界を変える潜り方。"],
+  "CRE+EXP":["遊びを作るひと","ルールを敷いて、その中で予想外が起きるのを見たい。創って探る潜り方。"],
+  "VIT+OUT":["足跡を残すひと","通った道が見える形で残ってほしい。続けることそのものが表現になる潜り方。"],
+  "CRE+VIT":["寝かせて育てるひと","いますぐの完成より、放っておいて育つものを愛でる。腐葉土のような潜り方。"],
+};
+
+/* ============ deterministic hashing ============ */
+function hash32(str){ // FNV-1a
+  let h = 0x811c9dc5;
+  for(let i=0;i<str.length;i++){ h ^= str.charCodeAt(i); h = Math.imul(h,0x01000193); }
+  return (h>>>0);
+}
+function mulberry(seed){ return function(){ let t = seed += 0x6D2B79F5; t = Math.imul(t ^ (t>>>15), t|1); t ^= t + Math.imul(t ^ (t>>>7), t|61); return ((t ^ (t>>>14))>>>0)/4294967296; }; }
+
+/* ============ state ============ */
+let qi = 0;
+const answers = new Array(QUESTIONS.length).fill("");
+let scores = Object.fromEntries(AXES.map(a=>[a,0]));
+
+function startDive(){
+  document.getElementById("intro").classList.add("hidden");
+  const d = document.getElementById("dive");
+  d.classList.remove("hidden"); d.classList.add("fade");
+  qi = 0; renderQ();
+}
+function setDepth(frac){ document.body.style.setProperty("--depth", frac.toFixed(3)); }
+
+function renderQ(){
+  const Q = QUESTIONS[qi];
+  document.getElementById("qno").textContent = `問 ${String(qi+1).padStart(2,"0")} / 09`;
+  document.getElementById("qtext").textContent = Q.q;
+  document.getElementById("qhint").textContent = Q.hint;
+  document.getElementById("depthM").textContent = Q.m + "m";
+  document.getElementById("zone").textContent = Q.zone;
+  const ta = document.getElementById("answer");
+  ta.value = answers[qi]; ta.focus();
+  document.getElementById("backBtn").style.visibility = qi===0 ? "hidden" : "visible";
+  document.getElementById("nextBtn").textContent = qi===QUESTIONS.length-1 ? "底へ ↓" : "つぎへ →";
+  onType();
+  setDepth(Q.m / MAX_M);
+  document.getElementById("gauge").style.width = ((qi)/(QUESTIONS.length))*100 + "%";
+  const dv=document.getElementById("dive"); dv.classList.remove("fade"); void dv.offsetWidth; dv.classList.add("fade");
+}
+function onType(){
+  const v = document.getElementById("answer").value.trim();
+  document.getElementById("nextBtn").disabled = v.length===0;
+}
+function prevQ(){ answers[qi]=document.getElementById("answer").value; if(qi>0){qi--;renderQ();} }
+function nextQ(){
+  const v = document.getElementById("answer").value.trim();
+  if(!v) return;
+  answers[qi]=document.getElementById("answer").value;
+  if(qi < QUESTIONS.length-1){ qi++; renderQ(); }
+  else { finish(); }
+}
+
+function contributionFor(text, Q){
+  const seed = hash32(text + "::" + Q.q);
+  const rnd = mulberry(seed);
+  const local = Object.fromEntries(AXES.map(a=>[a,0]));
+  // base spread: every answer seeds a small distribution across all axes (規格=共通の9問)
+  for(const a of AXES) local[a] += rnd()*0.6;
+  // question affinity (個別最適: 問いごとの傾き)
+  for(const a of Q.aff) local[a] += 1.1;
+  // length signal → VIT/OUT (書く熱量)
+  const len = Math.min(text.length, 200);
+  local.OUT += (len/200)*0.5; local.VIT += (len/200)*0.3;
+  // keyword nudges (content-sensitive branch)
+  for(const [re,a] of KW){ const m = text.match(re); if(m) local[a] += Math.min(m.length,3)*0.7; }
+  return local;
+}
+function topPairKey(sc){
+  const ordered = [...AXES].sort((a,b)=>sc[b]-sc[a]);
+  const pair = [ordered[0],ordered[1]].sort((a,b)=>AXES.indexOf(a)-AXES.indexOf(b));
+  // map to nearest defined archetype key (try both orders / fallbacks)
+  const tryKeys = [pair.join("+"), [pair[1],pair[0]].join("+")];
+  for(const k of tryKeys) if(ARCHE[k]) return k;
+  // fallback: pick the defined key sharing the dominant axis
+  const dom = ordered[0];
+  for(const k of Object.keys(ARCHE)) if(k.split("+").includes(dom)) return k;
+  return "PHI+OUT";
+}
+
+function finish(){
+  scores = Object.fromEntries(AXES.map(a=>[a,0]));
+  QUESTIONS.forEach((Q,i)=>{ const c=contributionFor(answers[i], Q); for(const a of AXES) scores[a]+=c[a]; });
+  setDepth(1);
+  document.getElementById("gauge").style.width="100%";
+  document.getElementById("dive").classList.add("hidden");
+  renderResult();
+  try{ localStorage.setItem("shinkai:last", JSON.stringify({scores,answers,ts:Date.now()})); }catch(e){}
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function normPct(sc){
+  const max = Math.max(...AXES.map(a=>sc[a]), 0.0001);
+  return Object.fromEntries(AXES.map(a=>[a, Math.round((sc[a]/max)*100)]));
+}
+function radarSVG(pct){
+  const cx=210,cy=200,R=150,n=AXES.length;
+  const ang=i=>(-Math.PI/2)+i*2*Math.PI/n;
+  const pt=(i,r)=>[cx+Math.cos(ang(i))*r, cy+Math.sin(ang(i))*r];
+  let rings="";
+  for(const f of [0.25,0.5,0.75,1]){
+    const p=AXES.map((_,i)=>pt(i,R*f).map(v=>v.toFixed(1)).join(",")).join(" ");
+    rings+=`<polygon points="${p}" fill="none" stroke="rgba(200,184,160,0.07)" stroke-width="1"/>`;
+  }
+  let spokes="",labels="";
+  AXES.forEach((a,i)=>{
+    const [x,y]=pt(i,R); spokes+=`<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(200,184,160,0.07)" stroke-width="1"/>`;
+    const [lx,ly]=pt(i,R+28);
+    labels+=`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" fill="#b8b0a0" font-family="monospace" font-size="13" letter-spacing="1" text-anchor="middle" dominant-baseline="middle">${a}</text>`;
+    labels+=`<text x="${lx.toFixed(1)}" y="${(ly+15).toFixed(1)}" fill="#5a5448" font-size="9" text-anchor="middle" dominant-baseline="middle">${pct[a]}</text>`;
+  });
+  const poly=AXES.map((a,i)=>pt(i,R*(pct[a]/100)).map(v=>v.toFixed(1)).join(",")).join(" ");
+  let dots="";
+  AXES.forEach((a,i)=>{const[x,y]=pt(i,R*(pct[a]/100));dots+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3" fill="#d4a853"/>`;});
+  return `<svg class="radar" viewBox="0 0 420 420" xmlns="http://www.w3.org/2000/svg">
+    ${rings}${spokes}
+    <polygon points="${poly}" fill="rgba(212,168,83,0.14)" stroke="#d4a853" stroke-width="2" stroke-linejoin="round"/>
+    ${dots}${labels}
+  </svg>`;
+}
+
+function renderResult(){
+  const pct = normPct(scores);
+  const key = topPairKey(scores);
+  const [aName,aDesc] = ARCHE[key];
+  const tools = TOOLS[key] || [];
+  const ordered=[...AXES].sort((a,b)=>pct[b]-pct[a]);
+  const r = document.getElementById("result");
+  r.classList.remove("hidden"); r.classList.add("fade");
+  r.innerHTML = `
+    <div class="res-h">
+      <span class="caption">水深 1200m ・ 採集結果</span>
+      <div class="archetype">${aName}</div>
+      <p class="arche-desc">${aDesc}</p>
+    </div>
+    <div class="radar-card">${radarSVG(pct)}</div>
+    <div class="axis-list">
+      ${AXES.map(a=>`<div class="axis-line"><span class="lab">${a}</span><span class="bar"><i style="width:${pct[a]}%"></i></span><span class="pct">${pct[a]}</span></div>`).join("")}
+    </div>
+    <div class="sect-t">あなたに向くかもしれない道具</div>
+    <div class="tools">
+      ${tools.map(t=>`<div class="tool"><div class="nm">${t[0]}<span class="ax">${key}</span></div><div class="ds">${t[1]}</div></div>`).join("")}
+    </div>
+    <div class="sect-t">潜った跡 ・ path</div>
+    <div class="pathtree">
+      ${QUESTIONS.map((Q,i)=>`<div class="pnode"><div class="rail"><div class="dot"></div><div class="line"></div></div><div class="body"><div class="pm">${Q.m}m</div><div class="pq">${Q.q}</div><div class="pa">${escapeHTML(trim(answers[i],64))}</div></div></div>`).join("")}
+    </div>
+    <div class="footrow">
+      <button onclick="copyShare('${aName}',${JSON.stringify(ordered.slice(0,2)).replace(/"/g,'&quot;')})">結果をコピー</button>
+      <button onclick="restart()">もう一度潜る</button>
+    </div>
+    <div class="sig">深海テスト ・ <a href="https://osakenpiro.github.io/">僕の惑星</a> の衛星 ／ <span class="mono">Boolean→Float</span> ／ @osakenpiro</div>
+  `;
+}
+function trim(s,n){ s=(s||"").replace(/\s+/g," ").trim(); return s.length>n? s.slice(0,n)+"…" : s; }
+function escapeHTML(s){ return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+function restart(){
+  qi=0; for(let i=0;i<answers.length;i++) answers[i]="";
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("intro").classList.remove("hidden");
+  document.getElementById("intro").classList.add("fade");
+  setDepth(0); window.scrollTo({top:0,behavior:"smooth"});
+}
+function copyShare(name, top){
+  const txt = `深海テストで潜ったら「${name}」だった。\n軸: ${top.join(" / ")}\n#深海テスト Boolean→Float\nhttps://osakenpiro.github.io/shinkai/`;
+  navigator.clipboard?.writeText(txt).then(()=>toast("結果をコピーしました")).catch(()=>toast("コピーできませんでした"));
+}
+function toast(m){ const t=document.getElementById("toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),1900); }
+
+/* bubbles */
+(function(){
+  const box=document.getElementById("bubbles"); const N=18;
+  for(let i=0;i<N;i++){
+    const b=document.createElement("div"); b.className="bub";
+    const sz=2+Math.random()*7; b.style.width=sz+"px"; b.style.height=sz+"px";
+    b.style.left=(Math.random()*100)+"%";
+    b.style.setProperty("--drift",(Math.random()*60-30)+"px");
+    const dur=10+Math.random()*16; b.style.animationDuration=dur+"s"; b.style.animationDelay=(-Math.random()*dur)+"s";
+    box.appendChild(b);
+  }
+})();
+// keyboard: Ctrl/Cmd+Enter to advance
+document.addEventListener("keydown",e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){ const dv=document.getElementById("dive"); if(!dv.classList.contains("hidden")){ const b=document.getElementById("nextBtn"); if(!b.disabled) nextQ(); } }
+});
+</script>
+</body>
+</html>
