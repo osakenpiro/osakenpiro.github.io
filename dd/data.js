@@ -53,6 +53,10 @@ window.OSK_DATA = {
     { icon: "🎲", ja: "バク運スカウター — 運力計測器", en: "bakuun-scouter", sub: "運の計測と運の貯金 — 遊ばない日が運になる運力計測器 · 0.90", stack: "single html · game", url: "https://osakenpiro.github.io/bakuun-scouter/", hero: true },
     { icon: "🧩", ja: "部品工場 PARTS — コピペ部品ライブラリ", en: "parts", sub: "自己完結コピペ部品10点(星灯カード/ひとあかりヘッダ/フロートつまみ/星海シート/金箔けじめ線/ふれまわり/月金ボタン… · 0.90", stack: "single html", url: "https://osakenpiro.github.io/parts/", hero: true },
     { icon: "🌌", ja: "僕の銀河系 Galaxy", en: "galaxy", sub: "Visionium全体構造をforce-directed graphで可視化(観測層L3b) · 0.87", stack: "single html", url: "https://osakenpiro.github.io/galaxy/", hero: true },
+    { icon: "☁", ja: "フワッカ FUWAKKA", en: "fuwakka", sub: "done/not-doneをやめるfuzzy todo · 0.85", stack: "single html", url: "https://osakenpiro.github.io/fuwakka/", hero: true },
+    { icon: "🎚", ja: "何度メーター NANDO-METER", en: "nandometer", sub: "迷いの要素を重みづけして確信度を0〜100%(Float)で測る · 0.85", stack: "single html", url: "https://osakenpiro.github.io/nandometer/", hero: true },
+    { icon: "🃏", ja: "帝国運用カードゲーム ECG", en: "ecg", sub: "74枚/op29種・単一HTML 134,736B(file://直開き可)・vs CPU+ホットシート2P・デッキビル… · 0.85", stack: "single html · game", url: "https://osakenpiro.github.io/ecg/", hero: true },
+    { icon: "🐢", ja: "怠け通し NAMAKE-DOOSHI", en: "namakedooshi", sub: "サボっても崩れない段階ストリーク習慣トラッカー · 0.85", stack: "single html", url: "https://osakenpiro.github.io/namakedooshi/", hero: true },
     { icon: "🌊", ja: "深海テスト — Shinkai Test", en: "shinkai", sub: "9問の潜水型6軸診断(PHI/CRE/TEC/OUT/VIT/EXP) · 0.85", stack: "single html", url: "https://osakenpiro.github.io/shinkai/", hero: true },
     { icon: "👣", ja: "あしあとマップ — Ashiato Map", en: "ashiato", sub: "地面に残すサイン · 0.80", stack: "single html", url: "https://osakenpiro.github.io/ashiato/", hero: true },
     { icon: "📖", ja: "WORKS — ぜんぶのとりせつ（トリセツ工場）", en: "works", sub: "全成果物のとりせつ（紹介ページ）一括生成層（大行軍v2 Lane ι SES-428） · 0.70", stack: "landing page", url: "https://osakenpiro.github.io/works/", hero: true },
@@ -77,9 +81,6 @@ window.OSK_DATA = {
     { icon: "🧩", ja: "生態系チェッカー", en: "ecosystem-checker", sub: "持っている道具とプランから到達度と追加機能を判定", stack: "single html", url: "https://osakenpiro.github.io/ecosystem-checker/", hero: true },
     { icon: "🌐", ja: "生態系相関総観", en: "ecosystem", sub: "データがどう巡るか、軽アニメで見る生態系フロー", stack: "single html", url: "https://osakenpiro.github.io/ecosystem/", hero: true },
     { icon: "🧪", ja: "素材図鑑（ツール版）", en: "Materials of Civilization", sub: "文明を素材の系譜として並べる(#05)", stack: "D3.js · single html", url: "https://osakenpiro.github.io/materials-of-civilization/", hero: true },
-    { icon: "☁", ja: "フワッカ FUWAKKA", en: "fuwakka", sub: "done/not-doneをやめるfuzzy todo · 0.85", stack: "single html", url: "https://osakenpiro.github.io/fuwakka/" },
-    { icon: "🎚", ja: "何度メーター NANDO-METER", en: "nandometer", sub: "迷いの要素を重みづけして確信度を0〜100%(Float)で測る · 0.85", stack: "single html", url: "https://osakenpiro.github.io/nandometer/" },
-    { icon: "🐢", ja: "怠け通し NAMAKE-DOOSHI", en: "namakedooshi", sub: "サボっても崩れない段階ストリーク習慣トラッカー · 0.85", stack: "single html", url: "https://osakenpiro.github.io/namakedooshi/" },
     { icon: "🧠", ja: "概念辞典 — 法則・効果・原理・剃刀", en: "gainen", sub: "法則・効果・原理・剃刀を一行定義+創作フックで蓄積(60件) · 0.85", stack: "—", url: "https://osakenpiro.github.io/gainen/" },
     { icon: "🏮", ja: "格言辞典 — 創作参照層", en: "kakugen", sub: "創作参照3DBの1つ · 0.80", stack: "—", url: "https://osakenpiro.github.io/kakugen/" },
     { icon: "🎨", ja: "秀逸表現辞典 — コピペ・ミーム・名セリフ・帯・書き出し", en: "hyogen", sub: "優れた表現を技法分析+短い引用(15語未満)+出典で蓄積(21件) · 0.80", stack: "—", url: "https://osakenpiro.github.io/hyogen/" },
@@ -139,6 +140,7 @@ window.OSK_DATA = {
     { d: "2026-06-03", n: 4, items: [{ ja: "格言辞典 — 創作参照層", url: "https://osakenpiro.github.io/kakugen/" }, { ja: "概念辞典 — 法則・効果・原理・剃刀", url: "https://osakenpiro.github.io/gainen/" }, { ja: "秀逸表現辞典 — コピペ・ミーム・名セリフ・帯・書き出し", url: "https://osakenpiro.github.io/hyogen/" }, { ja: "画像正本ストア（Google Drive / Visionium/images）", url: null }] },
     { d: "2026-06-04", n: 1, items: [{ ja: "A＼mI／DA＼（ア・ミ・ダ）", url: "https://kakuyomu.jp/works/2912051601256382667" }] },
     { d: "2026-06-06", n: 8, items: [{ ja: "HELLO WAR(L)D — 地図とりあい観察庭", url: "https://osakenpiro.github.io/hello-warld/" }, { ja: "x-post スキル（X投稿 Web Intent方式）", url: "https://github.com/osakenpiro/claude-shared/tree/main/skills/x-post" }, { ja: "WORKS — ぜんぶのとりせつ（トリセツ工場）", url: "https://osakenpiro.github.io/works/" }, { ja: "あしあとマップ — Ashiato Map", url: "https://osakenpiro.github.io/ashiato/" }, { ja: "深海テスト — Shinkai Test", url: "https://osakenpiro.github.io/shinkai/" }, { ja: "夢見る少女は眠れない", url: "https://osakenpiro.github.io/yumemi-shoujo/" }, { ja: "部品工場 PARTS — コピペ部品ライブラリ", url: "https://osakenpiro.github.io/parts/" }, { ja: "バク運スカウター — 運力計測器", url: "https://osakenpiro.github.io/bakuun-scouter/" }] },
+    { d: "2026-06-07", n: 1, items: [{ ja: "帝国運用カードゲーム ECG", url: "https://osakenpiro.github.io/ecg/" }] },
   ],
   // GEN:DDTL:END
 };
