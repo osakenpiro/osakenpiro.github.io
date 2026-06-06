@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>バク運スカウター — 運力計測器 — とりせつ | osakenpiro works</title>
+<meta name="description" content="きみの運力、いま何Float？ コインとカードとサイコロで運を計測する装置。">
+<meta property="og:title" content="バク運スカウター — 運力計測器 — とりせつ | osakenpiro works">
+<meta property="og:description" content="きみの運力、いま何Float？ コインとカードとサイコロで運を計測する装置。">
+<link rel="canonical" href="https://osakenpiro.github.io/works/bakuun-scouter.html">
+<!-- og:image: θ9 OGPバッチで後日付与 -->
+<style>
+:root{--osk-void:#0a0a0f;--osk-void-deep:#06060a;--osk-surface:#15141a;--osk-surface-hi:#1c1a23;
+--osk-gold:#d4a853;--osk-gold-soft:rgba(212,168,83,.12);--osk-gold-glow:rgba(212,168,83,.25);--osk-gold-edge:rgba(212,168,83,.45);
+--osk-parchment:#c8b8a0;--osk-fg-1:#e8e0d0;--osk-fg-2:#b8b0a0;--osk-fg-3:#807868;--osk-dim:#5a5448;
+--osk-border:rgba(200,184,160,.06);--osk-border-hover:rgba(212,168,83,.20);
+--serif:"Cormorant Garamond","游明朝体","Yu Mincho",YuMincho,"Hiragino Mincho ProN",serif;
+--sans:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic Medium",system-ui,sans-serif;
+--mono:"JetBrains Mono","SF Mono",Menlo,Consolas,monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--osk-void);color:var(--osk-fg-1);font-family:var(--sans);line-height:1.7;overflow-x:hidden}
+#sky{position:fixed;inset:0;z-index:0;pointer-events:none}
+.star{position:absolute;border-radius:50%;background:#e8e0d0;animation:tw 4s ease-in-out infinite}
+.star.g{background:var(--osk-gold)}
+@keyframes tw{0%,100%{opacity:.15}50%{opacity:.8}}
+main{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:40px 20px 80px}
+a{color:var(--osk-gold);text-decoration:none}
+.crumb{font-size:.78rem;color:var(--osk-fg-3);letter-spacing:.12em;margin-bottom:28px;display:block}
+.crumb:hover{color:var(--osk-gold)}
+/* ①カンバンドア */
+.kanban{position:relative;text-align:center;margin:30px auto 10px;max-width:620px}
+.chain{position:absolute;top:-26px;width:1px;height:26px;background:linear-gradient(180deg,transparent,var(--osk-gold-edge))}
+.chain.c1{left:18%}.chain.c2{right:18%}
+.plate{position:relative;display:inline-block;background:var(--osk-surface);border:1px solid var(--osk-gold-edge);
+border-radius:10px;padding:34px 48px 26px;transform:rotate(-.5deg);box-shadow:0 14px 40px rgba(0,0,0,.5)}
+.rivet{position:absolute;width:7px;height:7px;border-radius:50%;background:var(--osk-gold);opacity:.8;box-shadow:0 0 6px var(--osk-gold-glow)}
+.rivet.tl{top:9px;left:9px}.rivet.tr{top:9px;right:9px}.rivet.bl{bottom:9px;left:9px}.rivet.br{bottom:9px;right:9px}
+.k-emoji{font-size:3rem;line-height:1;margin-bottom:10px}
+h1{font-family:var(--serif);font-weight:500;font-size:clamp(1.6rem,5vw,2.4rem);letter-spacing:.04em;line-height:1.25}
+.k-sub{margin-top:12px;font-size:.74rem;letter-spacing:.25em;color:var(--osk-fg-3);text-transform:uppercase}
+.k-sub b{color:var(--osk-gold);font-weight:500}
+.badge{display:inline-block;border:1px solid var(--osk-border-hover);border-radius:999px;padding:1px 10px;margin-left:8px;font-size:.7rem;letter-spacing:.15em}
+.badge.live{color:var(--osk-gold)}.badge.wip{color:var(--osk-parchment)}
+/* ②タイポマシン調 一言 */
+.hitokoto{text-align:center;margin:52px auto 8px;max-width:720px}
+.hitokoto p{font-family:var(--serif);font-size:clamp(1.25rem,3.6vw,1.85rem);line-height:1.75;letter-spacing:.05em}
+.caret{display:inline-block;width:.55em;height:.55em;border-radius:50%;background:var(--osk-gold);margin-left:.35em;vertical-align:baseline;animation:pl 1.6s ease-in-out infinite}
+@keyframes pl{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.05)}}
+.junbi{border:1px dashed var(--osk-gold-edge);border-radius:12px;background:var(--osk-gold-soft);padding:18px 22px;text-align:center;color:var(--osk-fg-2);font-size:.92rem;max-width:560px;margin:18px auto 0}
+/* けじめ線 */
+.kejime{display:flex;align-items:center;gap:14px;margin:64px 0 34px}
+.kejime::before,.kejime::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--osk-gold-edge),transparent)}
+.kejime span{color:var(--osk-gold);font-size:.8rem;letter-spacing:.3em}
+.sec-t{text-align:center;font-size:.78rem;letter-spacing:.35em;color:var(--osk-fg-3);margin-bottom:26px}
+.sec-t b{color:var(--osk-gold);font-weight:500}
+/* ③星灯カード */
+.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+.fcard{background:var(--osk-surface);border:1px solid var(--osk-border);border-radius:12px;padding:22px 20px;transition:.35s}
+.fcard:hover{transform:translateY(-3px);border-color:var(--osk-border-hover);box-shadow:0 0 40px var(--osk-gold-soft),0 0 80px rgba(212,168,83,.06)}
+.fcard h3{font-size:1rem;color:var(--osk-gold);font-weight:500;margin-bottom:8px;letter-spacing:.04em}
+.fcard p{font-size:.86rem;color:var(--osk-fg-2)}
+/* ④マンガコマ */
+.koma-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px}
+.koma{position:relative;background:var(--osk-surface-hi);border:2px solid rgba(232,224,208,.75);border-radius:4px;
+padding:38px 18px 24px;min-height:128px;transform:rotate(var(--rot,0deg));box-shadow:5px 5px 0 rgba(0,0,0,.35)}
+.koma-num{position:absolute;top:-13px;left:-13px;width:30px;height:30px;border-radius:50%;background:var(--osk-void);
+border:2px solid var(--osk-gold);color:var(--osk-gold);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.9rem}
+.koma-sfx{position:absolute;top:8px;right:12px;font-family:var(--serif);font-style:italic;color:var(--osk-gold);font-size:.86rem;letter-spacing:.1em;opacity:.85}
+.fuki{position:relative;background:transparent;border:1.5px solid rgba(232,224,208,.85);border-radius:16px;padding:12px 16px;font-size:.9rem}
+.fuki::after{content:"";position:absolute;bottom:-9px;left:26px;width:14px;height:14px;background:var(--osk-surface-hi);
+border-right:1.5px solid rgba(232,224,208,.85);border-bottom:1.5px solid rgba(232,224,208,.85);transform:rotate(45deg) skew(8deg,8deg)}
+/* ⑤フロートゲージ */
+.gauge-wrap{max-width:560px;margin:0 auto;text-align:center}
+.gauge{height:14px;border:1px solid var(--osk-border-hover);border-radius:999px;overflow:hidden;background:var(--osk-void-deep)}
+.gfill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,rgba(212,168,83,.35),var(--osk-gold));transition:width 1.2s cubic-bezier(.22,1,.36,1)}
+.gnum{font-family:var(--mono);color:var(--osk-gold);font-size:1.05rem;margin-top:10px;letter-spacing:.08em}
+.gcap{font-size:.74rem;color:var(--osk-fg-3);margin-top:4px;letter-spacing:.12em}
+/* ⑥フロシキ値札 */
+.froshiki{position:relative;max-width:560px;margin:0 auto;background:rgba(200,184,160,.05);
+border:1px solid rgba(200,184,160,.18);border-radius:6px;padding:26px 30px 22px 96px;transform:rotate(.7deg);
+background-image:repeating-linear-gradient(0deg,rgba(200,184,160,.045) 0 1px,transparent 1px 13px),repeating-linear-gradient(90deg,rgba(200,184,160,.045) 0 1px,transparent 1px 13px)}
+.stamp{position:absolute;left:22px;top:26px;width:52px;height:52px;border:2px solid var(--osk-gold-edge);border-radius:50%;
+display:flex;align-items:center;justify-content:center;color:var(--osk-gold);font-family:var(--serif);font-size:1.5rem;transform:rotate(-9deg);opacity:.9}
+.froshiki dl{display:grid;grid-template-columns:auto 1fr;gap:5px 18px;font-size:.84rem}
+.froshiki dt{color:var(--osk-fg-3);letter-spacing:.15em}
+.froshiki dd{color:var(--osk-fg-1);font-family:var(--mono);font-size:.82rem;overflow-wrap:anywhere}
+/* ⑦ひらきど */
+.hirakido{max-width:640px;margin:0 auto 10px;border:1px solid var(--osk-border);border-radius:10px;background:var(--osk-surface);overflow:hidden}
+.hirakido summary{cursor:pointer;padding:13px 18px;font-size:.9rem;color:var(--osk-fg-2);list-style:none;transition:.25s}
+.hirakido summary::-webkit-details-marker{display:none}
+.hirakido summary:hover{color:var(--osk-fg-1);background:var(--osk-surface-hi)}
+.dia{color:var(--osk-gold);margin-right:10px}
+.hirakido[open] .d-c{display:none}.hirakido .d-o{display:none}.hirakido[open] .d-o{display:inline}
+.hirakido .hd-body{padding:4px 20px 16px;font-size:.86rem;color:var(--osk-fg-2);border-top:1px dashed var(--osk-border)}
+/* ⑧月金ボタン */
+.cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.btn-gold{background:var(--osk-gold);color:#0a0a0f;border-radius:999px;padding:13px 34px;font-size:.95rem;letter-spacing:.06em;transition:.3s;border:1px solid var(--osk-gold)}
+.btn-gold:hover{box-shadow:0 0 30px var(--osk-gold-glow);transform:translateY(-2px)}
+.btn-ghost{border:1px solid var(--osk-border-hover);color:var(--osk-fg-2);border-radius:999px;padding:13px 30px;font-size:.9rem;transition:.3s}
+.btn-ghost:hover{color:var(--osk-gold);border-color:var(--osk-gold-edge)}
+.btn-gold.off{background:transparent;color:var(--osk-fg-3);border-style:dashed;pointer-events:none}
+footer{position:relative;z-index:1;text-align:center;padding:30px 20px 50px;font-size:.74rem;color:var(--osk-dim);letter-spacing:.1em}
+footer a{color:var(--osk-fg-3)}footer a:hover{color:var(--osk-gold)}
+/* index */
+.two-layer{max-width:660px;margin:20px auto 0;text-align:center;font-size:.9rem;color:var(--osk-fg-2);border:1px solid var(--osk-border-hover);border-radius:12px;padding:16px 22px;background:var(--osk-gold-soft)}
+.two-layer b{color:var(--osk-gold);font-weight:500}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.wcard{display:flex;flex-direction:column;gap:8px;background:var(--osk-surface);border:1px solid var(--osk-border);border-radius:12px;padding:18px;transition:.35s;color:var(--osk-fg-1)}
+.wcard:hover{transform:translateY(-3px);border-color:var(--osk-border-hover);box-shadow:0 0 40px var(--osk-gold-soft),0 0 80px rgba(212,168,83,.06)}
+.w-top{display:flex;align-items:center;gap:10px}
+.w-emoji{font-size:1.5rem}.w-name{font-size:.98rem;letter-spacing:.02em}
+.w-line{font-size:.78rem;color:var(--osk-fg-3);min-height:2.4em}
+.w-meta{display:flex;align-items:center;gap:8px;font-size:.68rem;color:var(--osk-fg-3);letter-spacing:.12em}
+.mini-g{flex:1;height:4px;border-radius:99px;background:var(--osk-void-deep);overflow:hidden}
+.mini-g i{display:block;height:100%;background:var(--osk-gold);opacity:.7}
+@media(max-width:560px){.plate{padding:26px 26px 20px}.froshiki{padding:24px 22px 20px 84px}}
+</style>
+</head>
+<body>
+<div id="sky"></div>
+<main>
+<a class="crumb" href="./">← WORKS — ぜんぶの作品</a>
+<header class="kanban"><span class="chain c1"></span><span class="chain c2"></span><div class="plate"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span><div class="k-emoji">🎲</div><h1>バク運スカウター — 運力計測器</h1><div class="k-sub"><b>Hi-Me TooL</b> ・ ゲーム <span class="badge live">Live</span></div></div></header>
+<section class="hitokoto"><p>きみの運力、いま何Float？ コインとカードとサイコロで運を計測する装置。<span class="caret"></span></p></section>
+<div class="kejime"><span>◇ とくちょう</span></div>
+<div class="sec-t"><b>FEATURES</b> — 特徴3つ</div>
+<div class="feat">
+<div class="fcard"><h3>運の計測</h3><p>コイン1/2・カード1/3・サイコロ1/6。当て続けた分だけ運力が実測される。</p></div>
+<div class="fcard"><h3>運の貯金</h3><p>遊ばない日数だけ運が溜まる。放置がそのまま戦略になる。</p></div>
+<div class="fcard"><h3>バースト</h3><p>欲張ると記録ごと消える。引き際を見極めるのも運のうち。</p></div>
+</div>
+<div class="kejime"><span>◇ つかいかた</span></div>
+<div class="sec-t"><b>HOW TO</b> — 3手順</div>
+<div class="koma-row">
+<div class="koma" style="--rot:-1.2deg"><span class="koma-num">1</span><span class="koma-sfx">ぱっ</span><div class="fuki">計測をはじめる</div></div>
+<div class="koma" style="--rot:0.8deg"><span class="koma-num">2</span><span class="koma-sfx">こつこつ</span><div class="fuki">当たっているうちに「確定」するか、もう一回いくか選ぶ</div></div>
+<div class="koma" style="--rot:-0.6deg"><span class="koma-num">3</span><span class="koma-sfx">じゃーん</span><div class="fuki">何日か置いて、溜まった運でまた挑む</div></div>
+</div>
+<div class="kejime"><span>◇ かんせいど</span></div>
+<div class="sec-t"><b>FLOAT</b> — 完成度</div>
+<div class="gauge-wrap"><div class="gauge"><div class="gfill" data-float="0.60"></div></div><div class="gnum">0.60</div><div class="gcap">1.0は存在しない。それでいい。</div></div>
+<div class="kejime"><span>◇ ねふだ</span></div>
+<aside class="froshiki"><div class="stamp">T</div><dl><dt>柱</dt><dd>T（Hi-Me TooL）</dd><dt>種別</dt><dd>ゲーム</dd><dt>状態</dt><dd>Live</dd><dt>誕生日</dt><dd>2026-06-06</dd><dt>台帳ID</dt><dd>#55</dd><dt>ありか</dt><dd>osakenpiro.github.io</dd><dt>モチーフ案</dt><dd>計測器（片眼スカウター・アナログメーターの針）</dd></dl></aside>
+<div class="kejime"><span>◇ ひらきど</span></div>
+<details class="hirakido"><summary><span class="dia"><span class="d-c">◇</span><span class="d-o">◆</span></span>Q. 運って計れるの？</summary><div class="hd-body">A. 計れないから面白い。「運ゲーは理不尽でも、運も欲しい」への返歌。</div></details>
+<details class="hirakido"><summary><span class="dia"><span class="d-c">◇</span><span class="d-o">◆</span></span>台帳メモ（全文・自動転記）</summary><div class="hd-body">運の計測と運の貯金 — 遊ばない日が運になる運力計測器。MVP v1.0(SES-418 Lane β/大行軍v2 W1)。コイン1/2・カード1/3・サイコロ1/6、バースト=記録なし/確定=記録、運の貯金=放置メカ。BeeF直結(運Float=1-p^n)。ドラコロバトルと運哲学相互参照。玄関リンクはζ管轄で未掲載</div></details>
+<details class="hirakido"><summary><span class="dia"><span class="d-c">◇</span><span class="d-o">◆</span></span>このページについて</summary><div class="hd-body">成果物DB（ありか台帳）と works-copy から自動生成されたとりせつです。事実の正本はDB側、ことばの正本は works-copy 側。直しはそちらへ。</div></details>
+<div class="kejime"><span>◇ いりぐち</span></div>
+<div class="cta"><a class="btn-gold" href="https://osakenpiro.github.io/bakuun-scouter/">あそびにいく →</a><a class="btn-ghost" href="./">ぜんぶの作品へ</a></div>
+</main>
+<footer>玄関(精選) <a href="/">osakenpiro.github.io</a> ／ 完全版 <a href="./">works索引</a><br>このとりせつは 成果物DB（ありか台帳）から gen_works.py が自動生成 — 2026-06-06 14:44 JST ／ #全人類UX改善計画</footer>
+<script>
+(function(){var sky=document.getElementById('sky');if(!sky)return;
+for(var i=0;i<90;i++){var s=document.createElement('span');s.className='star'+(Math.random()<0.08?' g':'');
+var z=Math.random()*1.6+0.6;s.style.width=s.style.height=z+'px';s.style.left=Math.random()*100+'%';
+s.style.top=Math.random()*100+'%';s.style.animationDelay=(Math.random()*4)+'s';s.style.animationDuration=(3+Math.random()*4)+'s';sky.appendChild(s);}
+document.querySelectorAll('.gfill').forEach(function(g){var v=parseFloat(g.getAttribute('data-float')||'0');
+requestAnimationFrame(function(){setTimeout(function(){g.style.width=(Math.max(0,Math.min(1,v))*100)+'%';},80);});});
+})();
+</script>
+</body>
+</html>
