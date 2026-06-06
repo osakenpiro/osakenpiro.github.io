@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎨 秀逸表現辞典 — osakenpiro</title>
+<meta property="og:title" content="🎨 秀逸表現辞典 — osakenpiro">
+<meta property="og:description" content="効いた言葉の標本箱。短い引用+技法分析+創作転用で引く。">
+<meta property="og:url" content="https://osakenpiro.github.io/hyogen/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<style>
+:root{--gold:#d4a853;--void:#0a0a12;--card:#11111c;--text:#c8c8d8;--dim:#6a6a80;--line:rgba(212,168,83,.22)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI','Yu Gothic UI',sans-serif;background:var(--void);color:var(--text);min-height:100vh;
+ background-image:radial-gradient(1px 1px at 20% 30%,rgba(255,255,255,.18) 0,transparent 100%),radial-gradient(1px 1px at 70% 12%,rgba(255,255,255,.12) 0,transparent 100%),radial-gradient(1.5px 1.5px at 85% 60%,rgba(212,168,83,.18) 0,transparent 100%),radial-gradient(1px 1px at 40% 80%,rgba(255,255,255,.1) 0,transparent 100%)}
+.wrap{max-width:880px;margin:0 auto;padding:2.2rem 1rem 4rem}
+h1{color:var(--gold);font-weight:400;letter-spacing:.12em;font-size:1.6rem}
+.tagline{color:var(--dim);font-size:.85rem;margin:.4rem 0 1.4rem;line-height:1.7}
+.bar{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:.9rem}
+#q{flex:1;min-width:200px;background:var(--card);border:1px solid var(--line);border-radius:2rem;color:var(--text);padding:.55rem 1rem;font-size:.9rem;outline:none}
+#q:focus{border-color:var(--gold)}
+button{background:transparent;border:1px solid var(--line);color:var(--text);border-radius:2rem;padding:.5rem 1.1rem;cursor:pointer;font-family:inherit;font-size:.85rem;transition:.2s}
+button:hover{border-color:var(--gold);color:var(--gold)}
+.axis{margin:.35rem 0}
+.axis .lbl{color:var(--dim);font-size:.72rem;letter-spacing:.15em;margin-right:.5rem}
+.chip{display:inline-block;border:1px solid var(--line);border-radius:1rem;padding:.12rem .6rem;font-size:.74rem;color:var(--dim);margin:.15rem .2rem;cursor:pointer;transition:.15s}
+.chip.on{border-color:var(--gold);color:var(--gold);background:rgba(212,168,83,.08)}
+#count{color:var(--dim);font-size:.78rem;margin:.7rem 0 1rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:.7rem;padding:1rem 1.1rem;margin-bottom:.9rem;position:relative}
+.card.flash{border-color:var(--gold);box-shadow:0 0 22px rgba(212,168,83,.25)}
+.hd{color:var(--gold);font-size:1.02rem;margin-bottom:.3rem}
+.hd small{color:var(--dim);font-size:.74rem;margin-left:.55rem;letter-spacing:.05em}
+blockquote{border-left:2px solid var(--gold);padding:.2rem 0 .2rem .8rem;margin:.45rem 0;font-size:1.02rem;line-height:1.75}
+.main{font-size:.9rem;line-height:1.8;margin:.35rem 0}
+.hook{font-size:.85rem;line-height:1.7;color:#bfa873;margin:.35rem 0}
+.src{color:var(--dim);font-size:.74rem;margin-top:.4rem}
+.src a{color:var(--dim)}
+.tags{margin-top:.5rem}
+.tag{display:inline-block;font-size:.68rem;color:var(--dim);border:1px solid rgba(255,255,255,.08);border-radius:1rem;padding:.06rem .5rem;margin:.1rem .15rem}
+.copy{position:absolute;top:.7rem;right:.8rem;border:none;color:var(--dim);font-size:.78rem;padding:.2rem .5rem}
+.copy:hover{color:var(--gold)}
+footer{margin-top:2.5rem;color:var(--dim);font-size:.76rem;line-height:2;text-align:center}
+footer a{color:var(--dim)}footer a:hover{color:var(--gold)}
+.sisters a{margin:0 .5rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🎨 秀逸表現辞典</h1>
+<p class="tagline">コピペ・ミーム・名セリフ・帯・書き出し——なぜ刺さるかまで分解する標本箱<br><span id="meta"></span></p>
+<div class="bar"><input id="q" type="search" placeholder="ことばで探す…"><button id="rand">⚄ 一枚引く</button><button id="clear">リセット</button></div>
+<div id="axes"></div>
+<div id="count"></div>
+<div id="list"></div>
+<footer>
+<div class="sisters">創作参照層: <a href="/kakugen/">🏮 格言辞典</a><a href="/gainen/">🧠 概念辞典</a><a href="/hyogen/">🎨 秀逸表現辞典</a></div>
+<div>正本=Notion DB（編集・追加はDB側で）／同期=gen_dict.py 再実行</div>
+<div><a href="/">⌂ osakenpiro.github.io — 全部がぼく</a></div>
+</footer>
+</div>
+<script>
+const CONFIG = {"axes": [["媒体", "select"], ["技法", "multi_select"], ["概念(Float)", "multi_select"]], "head": "タイトル・通称", "sub": "媒体", "quote": "短い引用", "main": "なぜ刺さるか", "hook": "創作転用", "src": "出典", "srcUrl": "出典リンク", "mode": "hyogen", "synced": "2026-06-06 20:37 JST"};
+const DATA = [{"創作転用": "反転で効くコピーの古典。弱点開示→信頼の設計。", "出典": "Avisレンタカー 広告（1962）", "媒体": "キャッチコピー", "技法": ["落差・反転"], "Source": "種足し 2026-06-03", "なぜ刺さるか": "弱み(業界2位)を「だからこそ努力する」と強みに反転。負けを売りにする逆張り。", "短い引用": "We're only No.2. We try harder.", "概念(Float)": ["反転で効く"], "出典リンク": "", "タイトル・通称": "We're No.2. We try harder.（Avis）"}, {"創作転用": "序章を「説明」でなく「事件の真ん中」から始める。IMASICAのエピソード冲頭設計に。", "出典": "古典修辞学（ホラティウス）以来の叙事技法", "媒体": "書き出し", "技法": ["時制操作", "沈黙・余白"], "Source": "Clc", "なぜ刺さるか": "長い世界設定を一文の状況描写に圧縮し、読者をその場に放り込むin medias res（事の中へ）手法。", "短い引用": "", "概念(Float)": [], "出典リンク": "https://en.wikipedia.org/wiki/In_medias_res", "タイトル・通称": "in medias res（事の中へ始める）"}, {"創作転用": "二項分解の万能フレーム。帯・煽り・論説の決め文句に。", "出典": "構造メモ（汎用フレーム）", "媒体": "キャッチコピー", "技法": ["視点ずらし", "落差・反転"], "Source": "種足し 2026-06-03", "なぜ刺さるか": "提示された二択をどちらも否定し、第三の軸を出すと一気に視界が開ける。", "短い引用": "右でも左でもなく、前へ", "概念(Float)": ["二項分解"], "出典リンク": "", "タイトル・通称": "「AでもBでもなく」型（構造）"}, {"創作転用": "迫る状況を「二つに一つ」に圧縮する台詞設計。Boolean提示してからFloatで崩すと効く。", "出典": "バトル漫画一般の口口パターン（構造のみ）", "媒体": "名セリフ", "技法": ["反復", "落差・反転"], "Source": "Clc", "なぜ刺さるか": "否定語を重ねて「しないこと」だけを列挙し、肯定を一切言わずに覆水盆の覆えせなさを表す逆説構造。", "短い引用": "", "概念(Float)": ["反転で効く"], "出典リンク": "", "タイトル・通称": "「やらないか、やられるか」型の二揈述語"}, {"創作転用": "Hopepunk名セリフの教科書。静かな声＋断定の落差。", "出典": "井上雄彦『SLAM DUNK』安西先生", "媒体": "名セリフ", "技法": ["語り手の肉声", "落差・反転"], "Source": "種足し 2026-06-03", "なぜ刺さるか": "穏やかな口調のまま核心を刺す。希望を説教でなく“事実”として置く。", "短い引用": "あきらめたらそこで試合終了ですよ…？", "概念(Float)": ["Hopepunk種"], "出典リンク": "", "タイトル・通称": "あきらめたらそこで試合終了（名セリフ）"}, {"創作転用": "三重がけ命名の市販見本。句読点で層を足す技。", "出典": "ニトリ 企業CMコピー", "媒体": "CMコピー", "技法": ["リズム・韻", "具体と抽象"], "Source": "種足し 2026-06-03", "なぜ刺さるか": "「お値段以上」と「お、(驚き)＋ねだん以上」の二重の読み。読点ひとつで音と意味の層が増える。", "短い引用": "お、ねだん以上。ニトリ", "概念(Float)": ["三重がけ種"], "出典リンク": "", "タイトル・通称": "お、ねだん以上。（ニトリ）"}, {"創作転用": "設得のチック。説明せず「あなたが今思いついた」体で背中を押す。マーケティング語口に直結。", "出典": "JR東海「そうだ 京都、行こう。」キャンペーン", "媒体": "CMコピー", "技法": ["二人称", "リズム・韻", "体言止め"], "Source": "Clc", "なぜ刺さるか": "思いつきをそのまま口にしたような語順。設得させるのではなく、読んだ人の背中を押す語りかけ。", "短い引用": "「そうだ 京都、行こう。」", "概念(Float)": [], "出典リンク": "https://ja.wikipedia.org/wiki/そうだ_京都、行こう。", "タイトル・通称": "そうだ、京都、行こう。（JR東海）"}, {"創作転用": "ギャグ・独白体の雛形。「真面目なトーンで積み、最後の一行で崩す」リズム。※個別コピペ本文は著作権上転載せず、リンクと構造分析だけ保持。", "出典": "5ch/ネットミーム一般（個別本文は保存せず構造のみ）", "媒体": "コピペ", "技法": ["落差・反転", "具体と抽象"], "Source": "Clc", "なぜ刺さるか": "名コピペの共通構造＝「丁寧な日常描写→一行の裏切り/オチ」の落差。語り手の体温（余裕・狂気・呀咼）を一人称で漂わせる。", "短い引用": "", "概念(Float)": ["反転で効く", "腐葉土種"], "出典リンク": "", "タイトル・通称": "コピペの構造見本（構造メモ）"}, {"創作転用": "キャラの自己紹介を「リズムと生理感覚」で設計する手本。意味より音と体感で決める。※台詞本文は転載せず、リンクと技法のみ。", "出典": "荷風『ジョジョの奇妙な冒険」第5部（個別台詞本文は保存せず構造のみ）", "媒体": "名セリフ", "技法": ["リズム・韻", "反復", "語り手の肉声"], "Source": "Clc", "なぜ刺さるか": "長い供述体の名乗りがリズムを作り、最後に「骨まで腰抜け」の生理感覚で落とす。重厚な語り口そのものがキャラ表現。", "短い引用": "", "概念(Float)": ["三重がけ種"], "出典リンク": "https://ja.wikipedia.org/wiki/黄金の風", "タイトル・通称": "ジョセーフ・ジョースターの名乗り（構造）"}, {"創作転用": "「型を共有し、少しだけ崩す」笑いの構造。腐葉土設計と同型（既存の型が栄養）。", "出典": "インターネットミーム一般（個別例は保存せず構造のみ）", "媒体": "ミーム", "技法": ["反復", "落差・反転", "具体と抽象"], "Source": "Clc", "なぜ刺さるか": "ネットミームの定型句（テンプレート）は、空欄を埋めるだけで詰聖が生まれる。型が共有されているため少しの崩しで笑いが出る。", "短い引用": "", "概念(Float)": ["腐葉土種", "反転で効く"], "出典リンク": "https://ja.wikipedia.org/wiki/ミーム_(インターネット)", "タイトル・通称": "ミームテンプレート構造（型と崩し）"}, {"創作転用": "X投稿・タイトル・スローガン設計。短・リズム・体言止めの三拍子。", "出典": "広告コピー一般の型（例: 企業スローガン構造）", "媒体": "キャッチコピー", "技法": ["リズム・韻", "体言止め"], "Source": "Clc", "なぜ刺さるか": "三語の叩きつけるような短さとリズム。体言止めで余韻を残し、口中で転がしたくなる中毒性。", "短い引用": "", "概念(Float)": ["三重がけ種"], "出典リンク": "", "タイトル・通称": "三語リズム型キャッチコピー（構造）"}, {"創作転用": "個別最適の規格化を一節で言い切った手本。ランキング否定×自己肯定の両立。", "出典": "SMAP「世界に一つだけの花」(作詞:槇原敬之)", "媒体": "歌詞", "技法": ["具体と抽象", "反復"], "Source": "種足し 2026-06-03", "なぜ刺さるか": "「1位か否か」という序列(Boolean)を「それぞれ違う花」という個別性(Float)へ丸ごと置換した。", "短い引用": "もともと特別なオンリーワン", "概念(Float)": ["Boolean→Float種", "二項分解"], "出典リンク": "", "タイトル・通称": "世界に一つだけの花（歌詞）"}, {"創作転用": "KDP・Wickの帯・説明文設計に直結。「この本はあなたの話」と名指す。", "出典": "書籍帯・POP一般の型（個別文言は保存せず構造のみ）", "媒体": "帯", "技法": ["二人称", "具体と抽象"], "Source": "Clc", "なぜ刺さるか": "本の中身を語らず、読者に「あなたの話」だと思わせる二人称型帯の型。内容要約ではなく読者の感情を名指しする。", "短い引用": "", "概念(Float)": ["三重がけ種", "Hopepunk種"], "出典リンク": "", "タイトル・通称": "二人称呼びかけ型の帯（構造）"}, {"創作転用": "タイトル＝問いかけ型。読者を「あなた」と名指しして巻き込むタイトル設計の見本。三重がけ命名と相性。", "出典": "吉野源三郎『君たちはどう生きるか」", "媒体": "タイトル", "技法": ["二人称", "沈黙・余白"], "Source": "Clc", "なぜ刺さるか": "タイトルそのものが読者への直接の問い。二人称「君」で距離を一気に詰め、答えを与えず余白で考えさせる。", "短い引用": "", "概念(Float)": ["三重がけ種", "Hopepunk種"], "出典リンク": "https://ja.wikipedia.org/wiki/君たちはどう生きるか", "タイトル・通称": "君たちはどう生きるか（タイトル）"}, {"創作転用": "非人間視点キャラの導入。断定→即否定の二段構えで語り手の性格を一文で見せる。", "出典": "夏目漱石『吾輩は猫である」冲頭文", "媒体": "書き出し", "技法": ["視点ずらし", "落差・反転"], "Source": "Clc", "なぜ刺さるか": "名乗りを「ある」と言い切りながら「名前はまだない」と即座に裏切る落差。猫の一人称という視点設定そのものがフック。", "短い引用": "「吾輩は猫である。名前はまだない」", "概念(Float)": ["反転で効く"], "出典リンク": "https://ja.wikipedia.org/wiki/吾輩は猫である", "タイトル・通称": "吾輩は猫であるの書き出し"}, {"創作転用": "説明しすぎない描写訓練。表面の7割を削り、残り3割で水面下を示唆する。", "出典": "ヘミングウェイの文体論（氷山説）", "媒体": "タイトル", "技法": ["沈黙・余白", "具体と抽象"], "Source": "Clc", "なぜ刺さるか": "「何を言わないか」で語る手法。重要な事実をあえて伏せ、読者に推論させる。余白が情報量を生む。", "短い引用": "", "概念(Float)": ["Boolean→Float種"], "出典リンク": "https://en.wikipedia.org/wiki/Iceberg_theory", "タイトル・通称": "氷山理論（海面下を語らない）"}, {"創作転用": "三重がけ命名の実装例。「魔女×0.5」「星×知らない」のような衝突を組む。", "出典": "造語・造語タイトルの一般手法（構造のみ）", "媒体": "タイトル", "技法": ["落差・反転", "具体と抽象"], "Source": "Clc", "なぜ刺さるか": "異質な二語をぶつけて新しい意味を生む造語。聴いた瞬間に意味を推測させる為、記憶に強く残る。", "短い引用": "", "概念(Float)": ["三重がけ種"], "出典リンク": "", "タイトル・通称": "異質の二語連結タイトル（造語）"}, {"創作転用": "腐葉土＝歴史の厚みを冒頭で背負わせる型。叙事の重力。", "出典": "平家物語 冒頭（作者未詳・13世紀）", "媒体": "書き出し", "技法": ["リズム・韻", "具体と抽象"], "Source": "種足し 2026-06-03", "なぜ刺さるか": "鐘の“音”から“諸行無常”の抽象へ一息で跳ぶ。冒頭で時間の厚みと滅びの予感を据える。", "短い引用": "祇園精舎の鐘の声、諸行無常の響きあり", "概念(Float)": ["腐葉土種"], "出典リンク": "", "タイトル・通称": "祇園精舎の鐘の声（平家物語 書き出し）"}, {"創作転用": "状況を説明せず「欠落」を提示して読者に埋めさせる冲頭。IMASICAの謎提示に。", "出典": "ミステリ小説一般の冲頭型（構造のみ）", "媒体": "書き出し", "技法": ["沈黙・余白", "視点ずらし"], "Source": "Clc", "なぜ刺さるか": "一文で「記憶喜失」という大設定を提示し、読者を不安と謎に一気に巻き込む。状況説明をしないことで加速する。", "短い引用": "", "概念(Float)": ["三重がけ種"], "出典リンク": "", "タイトル・通称": "記憶喜失型の書き出し（構造）"}, {"創作転用": "IMASICAのシーン転換で「境界を抜ける一文」手法。異世界・別ステージへの入り口に。", "出典": "川端康成『雪国』冲頭文", "媒体": "書き出し", "技法": ["時制操作", "視点ずらし", "体言止め"], "Source": "Clc", "なぜ刺さるか": "トンネルを抜ける一文で読者を物理的に雪国へ「移動」させる。暗黒→白への視覚的落差。主語を置かず読者の視点をそのまま車窓にする。", "短い引用": "「国境の長いトンネルを抜けると雪国であった」", "概念(Float)": ["三重がけ種"], "出典リンク": "https://ja.wikipedia.org/wiki/雪国_(小説)", "タイトル・通称": "雪国の書き出し"}, {"創作転用": "章の冲頭一文を末尾で反復し、意味を反転させる。連載の回収演出に。", "出典": "修辞技法一般（epanalepsis / 首尾煩法）", "媒体": "書き出し", "技法": ["反復", "落差・反転"], "Source": "Clc", "なぜ刺さるか": "同じ語句を冲頭と末尾に配してループを閉じる。状況は変わらないのに意味が反転している余韻を生む。", "短い引用": "", "概念(Float)": ["腐葉土種", "反転で効く"], "出典リンク": "https://en.wikipedia.org/wiki/Epanalepsis", "タイトル・通称": "首尾煩法（冲頭と末尾を揃える）"}];
+const state = {q:"", sel:{}};
+CONFIG.axes.forEach(a=>state.sel[a[0]]=new Set());
+const $=s=>document.querySelector(s);
+function axisValues(key){const s=new Set();DATA.forEach(d=>{const v=d[key];if(Array.isArray(v))v.forEach(x=>s.add(x));else if(v)s.add(v);});return [...s].sort();}
+function buildAxes(){const host=$("#axes");CONFIG.axes.forEach(([key])=>{const div=document.createElement("div");div.className="axis";div.innerHTML='<span class="lbl">'+key+'</span>';axisValues(key).forEach(v=>{const c=document.createElement("span");c.className="chip";c.textContent=v;c.onclick=()=>{state.sel[key].has(v)?state.sel[key].delete(v):state.sel[key].add(v);c.classList.toggle("on");render();};div.appendChild(c);});host.appendChild(div);});}
+function match(d){const q=state.q.trim().toLowerCase();if(q){const blob=Object.values(d).flat().join(" ").toLowerCase();if(!blob.includes(q))return false;}
+for(const [key] of CONFIG.axes){const sel=state.sel[key];if(sel.size){const v=d[key];const arr=Array.isArray(v)?v:[v];if(!arr.some(x=>sel.has(x)))return false;}}return true;}
+function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function copyText(d){if(CONFIG.mode==="hyogen")return d[CONFIG.quote]+"\n— "+(d[CONFIG.src]||"")+"（"+d[CONFIG.head]+"）";return d[CONFIG.head]+(d[CONFIG.sub]?"（"+d[CONFIG.sub]+"）":"")+" — "+d[CONFIG.main];}
+function card(d,i){const tags=[];CONFIG.axes.forEach(([key])=>{const v=d[key];(Array.isArray(v)?v:v?[v]:[]).forEach(x=>tags.push(x));});
+let h='<div class="card" data-i="'+i+'"><button class="copy" title="コピー">写</button>';
+h+='<div class="hd">'+esc(d[CONFIG.head])+(d[CONFIG.sub]?'<small>'+esc(Array.isArray(d[CONFIG.sub])?d[CONFIG.sub].join("・"):d[CONFIG.sub])+'</small>':'')+'</div>';
+if(CONFIG.quote&&d[CONFIG.quote])h+='<blockquote>'+esc(d[CONFIG.quote])+'</blockquote>';
+if(d[CONFIG.main])h+='<p class="main">'+esc(d[CONFIG.main])+'</p>';
+if(d[CONFIG.hook])h+='<p class="hook">💡 '+esc(d[CONFIG.hook])+'</p>';
+let src='';if(CONFIG.src&&d[CONFIG.src])src+=esc(d[CONFIG.src]);
+if(d[CONFIG.srcUrl])src+=(src?' ':'')+'<a href="'+esc(d[CONFIG.srcUrl])+'" target="_blank" rel="noopener">↗出典</a>';
+if(src)h+='<div class="src">'+src+'</div>';
+h+='<div class="tags">'+tags.map(t=>'<span class="tag">'+esc(t)+'</span>').join('')+'</div></div>';return h;}
+let view=[];
+function render(){view=DATA.filter(match);$("#list").innerHTML=view.map((d,i)=>card(d,i)).join("");$("#count").textContent=view.length+" / "+DATA.length+" 件";
+document.querySelectorAll(".copy").forEach(b=>b.onclick=e=>{const i=+e.target.closest(".card").dataset.i;navigator.clipboard.writeText(copyText(view[i]));e.target.textContent="✓";setTimeout(()=>e.target.textContent="写",900);});}
+$("#q").addEventListener("input",e=>{state.q=e.target.value;render();});
+$("#rand").onclick=()=>{if(!view.length)return;const i=Math.floor(Math.random()*view.length);const el=document.querySelectorAll(".card")[i];el.scrollIntoView({behavior:"smooth",block:"center"});el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),1600);};
+$("#clear").onclick=()=>{state.q="";$("#q").value="";Object.values(state.sel).forEach(s=>s.clear());document.querySelectorAll(".chip.on").forEach(c=>c.classList.remove("on"));render();};
+$("#meta").textContent=DATA.length+"件 ／ 最終同期 "+CONFIG.synced;
+buildAxes();render();
+</script>
+</body>
+</html>
