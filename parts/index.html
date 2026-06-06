@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>部品工場 PARTS — osakenpiro</title>
+<meta name="description" content="コピペで使えるリッチHTML部品ライブラリ。osakenpiroデザインシステム(colors_and_type.css)準拠・自己完結スニペット集。">
+<meta property="og:title" content="部品工場 PARTS — osakenpiro">
+<meta property="og:description" content="コピペ可能な自己完結HTML部品10点+ひとあかり素材棚">
+<meta property="og:image" content="https://osakenpiro.github.io/parts/assets/pt_hero-lantern-desk.jpg">
+<link rel="stylesheet" href="/v2/colors_and_type.css">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--osk-void, #08080e);
+    color: var(--osk-fg-1, #c8b8a0);
+    font-family: var(--osk-font-sans, 'Zen Kaku Gothic New','Yu Gothic UI',sans-serif);
+    line-height: var(--osk-lh-body, 1.6);
+    min-height: 100vh;
+  }
+  #pageStars { position:fixed; inset:0; pointer-events:none; z-index:0; }
+  main { position:relative; z-index:1; max-width:980px; margin:0 auto; padding:0 20px 80px; }
+
+  /* page hero */
+  .page-hero {
+    margin:24px 0 40px; border-radius:12px; overflow:hidden; position:relative;
+    border:1px solid var(--osk-border, #1e1e2a); min-height:300px;
+    display:flex; align-items:flex-end;
+    background:#0a0a0f url('assets/pt_hero-lantern-desk.jpg') center/cover no-repeat;
+  }
+  .page-hero::after { content:''; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(8,8,14,0.1) 0%, rgba(8,8,14,0.55) 60%, rgba(8,8,14,0.92) 100%); }
+  .page-hero-inner { position:relative; z-index:1; padding:48px 32px 28px; }
+  .page-hero h1 { font-size:2.2rem; font-weight:300; letter-spacing:0.25em; color:#fff;
+    text-shadow:0 0 30px rgba(212,168,83,0.4); }
+  .page-hero h1 .gold { color:var(--osk-gold, #d4a853); }
+  .page-hero p { font-size:0.8rem; letter-spacing:0.1em; color:rgba(255,255,255,0.75); margin-top:8px; }
+
+  .lede { font-size:0.85rem; color:var(--osk-fg-2, rgba(200,184,160,0.5)); margin-bottom:28px; }
+  .lede a { color:var(--osk-gold, #d4a853); text-decoration:none; }
+
+  /* TOC chips */
+  .toc { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:56px; }
+  .toc a {
+    font-size:0.72rem; letter-spacing:0.08em; text-decoration:none;
+    color:var(--osk-fg-1, #c8b8a0); background:var(--osk-surface, #12121a);
+    border:1px solid var(--osk-border, #1e1e2a); border-radius:20px; padding:6px 14px;
+    transition:all .25s;
+  }
+  .toc a:hover { border-color:var(--osk-gold, #d4a853); color:var(--osk-gold, #d4a853);
+    box-shadow:0 0 16px rgba(212,168,83,0.15); }
+
+  /* part section */
+  .part { margin-bottom:72px; scroll-margin-top:24px; }
+  .part-head { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; margin-bottom:6px; }
+  .part-head h2 { font-size:1.3rem; font-weight:400; letter-spacing:0.08em; }
+  .part-head .pid { font-family:var(--osk-font-mono, Consolas, monospace); font-size:0.7rem;
+    color:var(--osk-gold, #d4a853); opacity:0.8; }
+  .part-desc { font-size:0.8rem; color:var(--osk-fg-2, rgba(200,184,160,0.5)); margin-bottom:16px; }
+  .demo {
+    border:1px dashed rgba(140,160,180,0.25); border-radius:12px; padding:28px 24px;
+    background:rgba(18,18,26,0.4); margin-bottom:10px; overflow:hidden;
+  }
+  .codewrap { position:relative; }
+  .codewrap pre {
+    background:#0d0d14; border:1px solid var(--osk-border, #1e1e2a); border-radius:8px;
+    padding:16px; max-height:300px; overflow:auto; font-family:var(--osk-font-mono, Consolas, monospace);
+    font-size:0.7rem; line-height:1.5; color:#9a9ab0; white-space:pre; tab-size:2;
+  }
+  .copybtn {
+    position:absolute; top:10px; right:10px; cursor:pointer;
+    font-size:0.7rem; letter-spacing:0.08em; font-family:inherit;
+    color:var(--osk-void, #08080e); background:var(--osk-gold, #d4a853);
+    border:none; border-radius:20px; padding:6px 16px; transition:all .2s;
+  }
+  .copybtn:hover { box-shadow:0 0 20px rgba(212,168,83,0.45); }
+  .copybtn.done { background:#10b981; color:#fff; }
+  .part-meta { font-size:0.65rem; color:var(--osk-fg-3, rgba(200,184,160,0.35)); margin-top:8px; }
+  .part-meta a { color:var(--osk-fg-2, rgba(200,184,160,0.5)); }
+
+  /* material shelf */
+  .shelf { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; }
+  .shelf figure { border:1px solid var(--osk-border, #1e1e2a); border-radius:8px; overflow:hidden;
+    background:var(--osk-surface, #12121a); transition:all .3s; }
+  .shelf figure:hover { border-color:var(--osk-gold, #d4a853); box-shadow:0 0 24px rgba(212,168,83,0.18); }
+  .shelf img { display:block; width:100%; aspect-ratio:7/4; object-fit:cover; cursor:pointer; }
+  .shelf figcaption { font-size:0.62rem; padding:7px 10px; color:var(--osk-fg-2, rgba(200,184,160,0.5));
+    font-family:var(--osk-font-mono, Consolas, monospace); }
+
+  footer { margin-top:80px; padding-top:24px; border-top:1px solid var(--osk-border, #1e1e2a);
+    font-size:0.7rem; color:var(--osk-fg-3, rgba(200,184,160,0.35)); display:flex; gap:18px; flex-wrap:wrap; }
+  footer a { color:var(--osk-fg-2, rgba(200,184,160,0.5)); text-decoration:none; }
+  footer a:hover { color:var(--osk-gold, #d4a853); }
+
+  h2.shelf-title, h2.sec-title { font-size:1.3rem; font-weight:400; letter-spacing:0.08em; margin-bottom:6px; }
+</style>
+</head>
+<body>
+<div id="pageStars"></div>
+<main>
+
+<header class="page-hero">
+  <div class="page-hero-inner">
+    <h1>部品<span class="gold">工場</span> <span style="font-size:1rem;letter-spacing:0.3em;opacity:0.7">PARTS</span></h1>
+    <p>コピペで使える自己完結HTML部品 — osakenpiroデザインシステム準拠</p>
+  </div>
+</header>
+
+<p class="lede">
+  各部品は <strong>そのままコピペで動く</strong>（CSS変数は <a href="/v2/colors_and_type.css">colors_and_type.css</a> 準拠・フォールバック内蔵なので単体でも崩れない）。
+  パターン台帳は <a href="https://app.notion.com/p/bb83e6543e2b41e6b488090d82918072">🪄 Origin ポケットDs</a> に二重符号化。実装=このリポ／パターン=Ds。
+</p>
+
+<nav class="toc" id="toc"></nav>
+
+<div id="sections"></div>
+
+<section class="part" id="shelf">
+  <h2 class="shelf-title">ひとあかり素材棚 <span class="pid" style="font-family:Consolas,monospace;font-size:0.7rem;color:#d4a853">#shelf</span></h2>
+  <p class="part-desc">ローカルSDXL(animagine XL3.1)で生成した『ひとあかり』背景素材。正本はDrive(Visionium/images/parts)、ここにあるのは確定版。クリックで原寸。ヘッダ・カード背景・OGPに自由に使い回す。</p>
+  <div class="shelf" id="shelfGrid"></div>
+</section>
+
+<footer>
+  <a href="https://osakenpiro.github.io/">← 玄関 osakenpiro.github.io</a>
+  <span>画風『ひとあかり』/ SDXL local</span>
+  <span>built 2026-06-06 · Lane ε SES-420</span>
+</footer>
+</main>
+
+<!-- ============ 部品テンプレート(これが配布実体) ============ -->
+
+<template id="tpl-card">
+<!-- osakenpiro parts #card 星灯カード | https://osakenpiro.github.io/parts/#card -->
+<style>
+.pt-card { display:block; max-width:340px; background:var(--osk-surface,#12121a);
+  border:1px solid var(--osk-border,#1e1e2a); border-radius:12px; padding:20px 22px;
+  color:var(--osk-fg-1,#c8b8a0); font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif;
+  text-decoration:none; transition:all .35s ease; }
+.pt-card:hover { border-color:var(--osk-gold,#d4a853); transform:translateY(-3px);
+  box-shadow:0 0 40px rgba(212,168,83,0.12), 0 0 80px rgba(212,168,83,0.04); }
+.pt-card h3 { margin:0 0 6px; font-size:1rem; font-weight:700; letter-spacing:0.05em; }
+.pt-card h3 .pt-card-glyph { color:var(--osk-gold,#d4a853); margin-right:8px; }
+.pt-card p { margin:0; font-size:0.72rem; line-height:1.6; color:rgba(200,184,160,0.45); }
+</style>
+<a class="pt-card" href="#">
+  <h3><span class="pt-card-glyph">◈</span>星灯カード</h3>
+  <p>ホバーで金のオーラが灯るカード。リンク・ツール一覧・作品グリッドの基本単位。中身は自由。</p>
+</a>
+</template>
+
+<template id="tpl-hero">
+<!-- osakenpiro parts #hero ひとあかりヘッダ | https://osakenpiro.github.io/parts/#hero -->
+<style>
+.pt-hero { position:relative; border-radius:12px; overflow:hidden; min-height:260px;
+  display:flex; align-items:flex-end; border:1px solid var(--osk-border,#1e1e2a);
+  background:#0a0a0f url('https://osakenpiro.github.io/parts/assets/pt_hero-star-horizon.jpg') center/cover no-repeat; }
+.pt-hero::after { content:''; position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(8,8,14,0.05) 0%, rgba(8,8,14,0.5) 55%, rgba(8,8,14,0.9) 100%); }
+.pt-hero-inner { position:relative; z-index:1; padding:40px 28px 22px;
+  font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif; }
+.pt-hero-inner h1 { margin:0; font-size:1.9rem; font-weight:300; letter-spacing:0.2em; color:#fff;
+  text-shadow:0 0 28px rgba(212,168,83,0.4); }
+.pt-hero-inner h1 em { font-style:normal; color:var(--osk-gold,#d4a853); }
+.pt-hero-inner p { margin:6px 0 0; font-size:0.75rem; letter-spacing:0.12em; color:rgba(255,255,255,0.72); }
+</style>
+<header class="pt-hero">
+  <div class="pt-hero-inner">
+    <h1>ひと<em>あかり</em>ヘッダ</h1>
+    <p>画像一枚＋グラデで成立する全幅ヒーロー。LPの顔。</p>
+  </div>
+</header>
+</template>
+
+<template id="tpl-float-slider">
+<!-- osakenpiro parts #float-slider フロートつまみ | https://osakenpiro.github.io/parts/#float-slider -->
+<style>
+.pt-fslider { max-width:420px; font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif;
+  color:var(--osk-fg-1,#c8b8a0); }
+.pt-fslider-row { display:flex; align-items:center; gap:14px; }
+.pt-fslider-val { font-family:Consolas,monospace; font-size:1.5rem; min-width:3.2em; text-align:right;
+  color:var(--osk-gold,#d4a853); text-shadow:0 0 18px rgba(212,168,83,0.35); }
+.pt-fslider input[type=range] { flex:1; -webkit-appearance:none; appearance:none; height:4px;
+  border-radius:2px; outline:none;
+  background:linear-gradient(90deg, var(--osk-gold,#d4a853) 50%, #1e1e2a 50%); }
+.pt-fslider input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; appearance:none;
+  width:18px; height:18px; border-radius:50%; background:var(--osk-gold,#d4a853);
+  border:2px solid #08080e; box-shadow:0 0 14px rgba(212,168,83,0.6); cursor:pointer; }
+.pt-fslider input[type=range]::-moz-range-thumb { width:16px; height:16px; border-radius:50%;
+  background:var(--osk-gold,#d4a853); border:2px solid #08080e; cursor:pointer; }
+.pt-fslider-labels { display:flex; justify-content:space-between; font-size:0.62rem;
+  color:rgba(200,184,160,0.4); margin-top:6px; letter-spacing:0.08em; }
+</style>
+<div class="pt-fslider">
+  <div class="pt-fslider-row">
+    <input type="range" min="0" max="1000" value="500"
+      oninput="const v=(this.value/1000); this.parentElement.querySelector('.pt-fslider-val').textContent=v.toFixed(2); this.style.background='linear-gradient(90deg, var(--osk-gold,#d4a853) '+(v*100)+'%, #1e1e2a '+(v*100)+'%)';">
+    <span class="pt-fslider-val">0.50</span>
+  </div>
+  <div class="pt-fslider-labels"><span>0.0 — まだ</span><span>Boolean→Float</span><span>1.0 — 仕様として不在</span></div>
+</div>
+</template>
+
+<template id="tpl-starfield">
+<!-- osakenpiro parts #starfield 星海シート | https://osakenpiro.github.io/parts/#starfield -->
+<style>
+.pt-starfield { position:relative; min-height:220px; border-radius:12px; overflow:hidden;
+  background:var(--osk-void,#08080e); border:1px solid var(--osk-border,#1e1e2a); }
+.pt-starfield .pt-sf-layer { position:absolute; inset:0; }
+.pt-starfield .pt-sf-star { position:absolute; border-radius:50%; background:#c8b8a0;
+  animation:ptTwinkle 4s ease-in-out infinite; }
+.pt-starfield .pt-sf-star.gold { background:var(--osk-gold,#d4a853);
+  box-shadow:0 0 6px rgba(212,168,83,0.8); }
+@keyframes ptTwinkle { 0%,100%{opacity:0.25} 50%{opacity:1} }
+</style>
+<div class="pt-starfield">
+  <div class="pt-sf-layer"></div>
+</div>
+<script>
+(function(){
+  var hosts=document.querySelectorAll('.pt-starfield .pt-sf-layer:not([data-lit])');
+  hosts.forEach(function(layer){
+    layer.dataset.lit='1';
+    for(var i=0;i<90;i++){
+      var s=document.createElement('span'); s.className='pt-sf-star'+(Math.random()<0.08?' gold':'');
+      var sz=(Math.random()*2+0.5);
+      s.style.cssText='left:'+(Math.random()*100)+'%;top:'+(Math.random()*100)+'%;width:'+sz+'px;height:'+sz+'px;'
+        +'animation-delay:'+(Math.random()*4)+'s;animation-duration:'+(2.5+Math.random()*4)+'s;';
+      layer.appendChild(s);
+    }
+  });
+})();
+</script>
+</template>
+
+<template id="tpl-divider">
+<!-- osakenpiro parts #divider 金箔けじめ線 | https://osakenpiro.github.io/parts/#divider -->
+<style>
+.pt-divider { display:flex; align-items:center; gap:14px; margin:28px 0;
+  color:var(--osk-gold,#d4a853); }
+.pt-divider::before, .pt-divider::after { content:''; flex:1; height:1px;
+  background:linear-gradient(90deg, transparent, rgba(212,168,83,0.55), transparent); }
+.pt-divider .pt-dv-core { font-size:0.7rem; letter-spacing:0.3em; text-transform:uppercase;
+  text-shadow:0 0 12px rgba(212,168,83,0.5); font-family:'Zen Kaku Gothic New',sans-serif; white-space:nowrap; }
+</style>
+<div class="pt-divider"><span class="pt-dv-core">◇ けじめ ◇</span></div>
+</template>
+
+<template id="tpl-share">
+<!-- osakenpiro parts #share ふれまわりボタン | https://osakenpiro.github.io/parts/#share -->
+<style>
+.pt-share { display:flex; gap:10px; flex-wrap:wrap; font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif; }
+.pt-share button, .pt-share a { cursor:pointer; text-decoration:none; font-family:inherit;
+  font-size:0.72rem; letter-spacing:0.08em; padding:8px 18px; border-radius:20px;
+  background:var(--osk-surface,#12121a); color:var(--osk-fg-1,#c8b8a0);
+  border:1px solid var(--osk-border,#1e1e2a); transition:all .25s; }
+.pt-share button:hover, .pt-share a:hover { border-color:var(--osk-gold,#d4a853);
+  color:var(--osk-gold,#d4a853); box-shadow:0 0 16px rgba(212,168,83,0.2); }
+</style>
+<div class="pt-share">
+  <a class="pt-share-x" href="#" target="_blank" rel="noopener">𝕏 でふれまわる</a>
+  <button class="pt-share-copy" type="button">🔗 リンクをコピー</button>
+  <button class="pt-share-native" type="button">📨 共有…</button>
+</div>
+<script>
+(function(){
+  document.querySelectorAll('.pt-share:not([data-lit])').forEach(function(box){
+    box.dataset.lit='1';
+    var url=location.href.split('#')[0], title=document.title;
+    box.querySelector('.pt-share-x').href='https://twitter.com/intent/tweet?text='
+      +encodeURIComponent(title)+'&url='+encodeURIComponent(url);
+    box.querySelector('.pt-share-copy').onclick=function(){
+      navigator.clipboard.writeText(url).then(function(){ alert('コピーした: '+url); });
+    };
+    var nb=box.querySelector('.pt-share-native');
+    if(navigator.share){ nb.onclick=function(){ navigator.share({title:title,url:url}); }; }
+    else { nb.style.display='none'; }
+  });
+})();
+</script>
+</template>
+
+<template id="tpl-buttons">
+<!-- osakenpiro parts #buttons 月金ボタン | https://osakenpiro.github.io/parts/#buttons -->
+<style>
+.pt-btn { display:inline-block; cursor:pointer; text-decoration:none; text-align:center;
+  font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif; font-size:0.78rem;
+  letter-spacing:0.12em; padding:10px 26px; border-radius:20px; transition:all .25s; }
+.pt-btn-gold { background:var(--osk-gold,#d4a853); color:var(--osk-void,#08080e);
+  border:1px solid var(--osk-gold,#d4a853); font-weight:700; }
+.pt-btn-gold:hover { box-shadow:0 0 28px rgba(212,168,83,0.5); transform:translateY(-2px); }
+.pt-btn-ghost { background:transparent; color:var(--osk-fg-1,#c8b8a0);
+  border:1px solid rgba(200,184,160,0.3); }
+.pt-btn-ghost:hover { border-color:var(--osk-gold,#d4a853); color:var(--osk-gold,#d4a853);
+  box-shadow:0 0 16px rgba(212,168,83,0.18); }
+</style>
+<a class="pt-btn pt-btn-gold" href="#">あそびにいく</a>
+<a class="pt-btn pt-btn-ghost" href="#">くわしく</a>
+</template>
+
+<template id="tpl-badge">
+<!-- osakenpiro parts #badge BeeFバッジ | https://osakenpiro.github.io/parts/#badge -->
+<style>
+.pt-badge { display:inline-flex; align-items:center; gap:7px;
+  font-family:Consolas,monospace; font-size:0.7rem; padding:4px 12px;
+  border-radius:4px; background:var(--osk-surface-2,#1a1a2a);
+  border:1px solid var(--osk-key-border,#2a2a3e); color:var(--osk-fg-1,#c8b8a0); }
+.pt-badge .pt-bg-dot { width:8px; height:8px; border-radius:50%;
+  background:var(--osk-gold,#d4a853); box-shadow:0 0 8px rgba(212,168,83,0.7); }
+.pt-badge .pt-bg-val { color:var(--osk-gold,#d4a853); font-weight:700; }
+.pt-badge[data-float="low"] .pt-bg-dot { opacity:0.35; box-shadow:none; }
+.pt-badge[data-float="low"] .pt-bg-val { opacity:0.6; }
+</style>
+<span class="pt-badge"><span class="pt-bg-dot"></span>熱量 <span class="pt-bg-val">0.85</span></span>
+<span class="pt-badge" data-float="low"><span class="pt-bg-dot"></span>進捗 <span class="pt-bg-val">0.30</span></span>
+<span class="pt-badge"><span class="pt-bg-dot"></span>beef率 <span class="pt-bg-val">0.70</span></span>
+</template>
+
+<template id="tpl-meter">
+<!-- osakenpiro parts #meter フロートゲージ | https://osakenpiro.github.io/parts/#meter -->
+<style>
+.pt-meter { max-width:420px; font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif;
+  color:var(--osk-fg-1,#c8b8a0); margin-bottom:14px; }
+.pt-meter-head { display:flex; justify-content:space-between; font-size:0.7rem;
+  letter-spacing:0.08em; margin-bottom:6px; }
+.pt-meter-head .pt-mt-val { font-family:Consolas,monospace; color:var(--osk-gold,#d4a853); }
+.pt-meter-bar { height:6px; border-radius:3px; background:var(--osk-surface-2,#1a1a2a);
+  border:1px solid var(--osk-border,#1e1e2a); overflow:hidden; }
+.pt-meter-fill { height:100%; width:0; border-radius:3px;
+  background:linear-gradient(90deg, rgba(212,168,83,0.35), var(--osk-gold,#d4a853));
+  box-shadow:0 0 12px rgba(212,168,83,0.5); transition:width 1.2s cubic-bezier(.22,1,.36,1); }
+</style>
+<div class="pt-meter" data-float="0.72">
+  <div class="pt-meter-head"><span>天人𦻙記 シナリオ</span><span class="pt-mt-val">0.72</span></div>
+  <div class="pt-meter-bar"><div class="pt-meter-fill"></div></div>
+</div>
+<div class="pt-meter" data-float="0.4">
+  <div class="pt-meter-head"><span>0.5の魔女 改稿</span><span class="pt-mt-val">0.40</span></div>
+  <div class="pt-meter-bar"><div class="pt-meter-fill"></div></div>
+</div>
+<script>
+(function(){
+  document.querySelectorAll('.pt-meter:not([data-lit])').forEach(function(m){
+    m.dataset.lit='1';
+    var f=Math.max(0,Math.min(1,parseFloat(m.dataset.float)||0));
+    m.querySelector('.pt-mt-val').textContent=f.toFixed(2);
+    requestAnimationFrame(function(){ setTimeout(function(){
+      m.querySelector('.pt-meter-fill').style.width=(f*100)+'%'; },80); });
+  });
+})();
+</script>
+</template>
+
+<template id="tpl-accordion">
+<!-- osakenpiro parts #accordion ひらきど | https://osakenpiro.github.io/parts/#accordion -->
+<style>
+.pt-acc { max-width:560px; font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif; }
+.pt-acc details { background:var(--osk-surface,#12121a); border:1px solid var(--osk-border,#1e1e2a);
+  border-radius:8px; margin-bottom:8px; overflow:hidden; transition:border-color .3s; }
+.pt-acc details[open] { border-color:rgba(212,168,83,0.45); }
+.pt-acc summary { cursor:pointer; list-style:none; padding:13px 16px; font-size:0.8rem;
+  letter-spacing:0.05em; color:var(--osk-fg-1,#c8b8a0); display:flex; align-items:center; gap:10px; }
+.pt-acc summary::-webkit-details-marker { display:none; }
+.pt-acc summary::before { content:'◇'; color:var(--osk-gold,#d4a853); font-size:0.7rem;
+  transition:transform .3s; }
+.pt-acc details[open] summary::before { content:'◆'; text-shadow:0 0 10px rgba(212,168,83,0.6); }
+.pt-acc .pt-acc-body { padding:0 16px 14px 38px; font-size:0.74rem; line-height:1.7;
+  color:rgba(200,184,160,0.55); }
+</style>
+<div class="pt-acc">
+  <details open>
+    <summary>ひらきど、とは</summary>
+    <div class="pt-acc-body">details/summary だけで動くアコーディオン。JS不要。FAQ・更新履歴・ネタバレ防止に。</div>
+  </details>
+  <details>
+    <summary>なぜ「開き戸」？</summary>
+    <div class="pt-acc-body">音(ひらきど)×意味(開く戸)×構造(開閉UI)の三重がけ。◇が開くと◆になって灯る。</div>
+  </details>
+</div>
+</template>
+
+<!-- ============ ページ生成 ============ -->
+<script>
+var PARTS = [
+  { id:'card',         tpl:'tpl-card',         name:'星灯カード',        en:'#card',
+    desc:'ホバーで金のオーラが灯る基本カード。リンク集・作品グリッドの最小単位。', ds:'視覚比喩 / hover展開' },
+  { id:'hero',         tpl:'tpl-hero',         name:'ひとあかりヘッダ',  en:'#hero',
+    desc:'ひとあかり画像一枚＋下グラデで成立する全幅ヒーロー。画像URLを差し替えて使う。', ds:'視覚比喩 / 静止' },
+  { id:'float-slider', tpl:'tpl-float-slider', name:'フロートつまみ',    en:'#float-slider',
+    desc:'0.00–1.00を直接さわるBeeF入力。Boolean→Floatの思想をUIに落とす一番の近道。', ds:'機能呼称 / 脈動' },
+  { id:'starfield',    tpl:'tpl-starfield',    name:'星海シート',        en:'#starfield',
+    desc:'素のJSで90粒の星瞬き。コンテナに敷くだけ。金の星は8%だけ混ざる。', ds:'視覚比喩 / 脈動' },
+  { id:'divider',      tpl:'tpl-divider',      name:'金箔けじめ線',      en:'#divider',
+    desc:'透ける金のヘアライン＋中央飾り。セクションの「けじめ」をつける。', ds:'視覚比喩 / 静止' },
+  { id:'share',        tpl:'tpl-share',        name:'ふれまわりボタン',  en:'#share',
+    desc:'X投稿・リンクコピー・Web Share。URLとタイトルは自動取得。', ds:'音遊び / hover展開' },
+  { id:'buttons',      tpl:'tpl-buttons',      name:'月金ボタン',        en:'#buttons',
+    desc:'金ピル(主役)とゴースト(脇役)の二段構え。CTAはこの2つで足りる。', ds:'機能呼称 / hover展開' },
+  { id:'badge',        tpl:'tpl-badge',        name:'BeeFバッジ',        en:'#badge',
+    desc:'Float値の値札チップ。data-float="low"で灯を落とせる。熱量・進捗・beef率に。', ds:'機能呼称 / 静止' },
+  { id:'meter',        tpl:'tpl-meter',        name:'フロートゲージ',    en:'#meter',
+    desc:'data-floatに0–1を書くだけで満ちる進捗ゲージ。出現時にゆっくり灯る。', ds:'機能呼称 / 脈動' },
+  { id:'accordion',    tpl:'tpl-accordion',    name:'ひらきど',          en:'#accordion',
+    desc:'details/summaryのJS不要アコーディオン。◇が◆に灯って開く。', ds:'音遊び / 3D-hinge' }
+];
+
+var SHELF = [
+  'hero-lantern-desk','hero-star-horizon','banner-void-nebula','bg-window-rain',
+  'bg-bookshelf-dim','bg-tea-steam','bg-lighthouse-far','bg-festival-lantern',
+  'bg-snow-streetlamp','bg-desert-campfire','bg-aurora-thread','bg-koi-pond-moon'
+];
+
+function dedent(src){
+  var lines = src.replace(/^\n+|\s+$/g,'').split('\n');
+  return lines.join('\n');
+}
+
+(function build(){
+  var toc = document.getElementById('toc');
+  var root = document.getElementById('sections');
+  PARTS.forEach(function(p){
+    var a=document.createElement('a'); a.href='#'+p.id; a.textContent=p.name; toc.appendChild(a);
+
+    var tpl=document.getElementById(p.tpl);
+    var src=dedent(tpl.innerHTML);
+
+    var sec=document.createElement('section'); sec.className='part'; sec.id=p.id;
+    sec.innerHTML =
+      '<div class="part-head"><h2>'+p.name+'</h2><span class="pid">'+p.en+'</span></div>'+
+      '<p class="part-desc">'+p.desc+'</p>'+
+      '<div class="demo"></div>'+
+      '<div class="codewrap"><pre></pre><button class="copybtn" type="button">copy</button></div>'+
+      '<p class="part-meta">Origin ポケットDs: '+p.ds+' · <a href="https://app.notion.com/p/bb83e6543e2b41e6b488090d82918072" target="_blank" rel="noopener">台帳</a></p>';
+    root.appendChild(sec);
+
+    sec.querySelector('.demo').appendChild(tpl.content.cloneNode(true));
+    // template経由のscriptは実行されないので作り直して発火させる
+    sec.querySelectorAll('.demo script').forEach(function(old){
+      var s=document.createElement('script'); s.textContent=old.textContent;
+      old.parentNode.replaceChild(s,old);
+    });
+    sec.querySelector('pre').textContent=src;
+    var btn=sec.querySelector('.copybtn');
+    btn.onclick=function(){
+      navigator.clipboard.writeText(src).then(function(){
+        btn.textContent='copied!'; btn.classList.add('done');
+        setTimeout(function(){ btn.textContent='copy'; btn.classList.remove('done'); },1600);
+      });
+    };
+  });
+
+  // toc: shelf
+  var sa=document.createElement('a'); sa.href='#shelf'; sa.textContent='素材棚'; toc.appendChild(sa);
+
+  // material shelf
+  var grid=document.getElementById('shelfGrid');
+  SHELF.forEach(function(n){
+    var fig=document.createElement('figure');
+    fig.innerHTML='<img loading="lazy" src="assets/pt_'+n+'.jpg" alt="'+n+'" '+
+      'onclick="window.open(this.src,\'_blank\')">'+
+      '<figcaption>pt_'+n+'.jpg</figcaption>';
+    grid.appendChild(fig);
+  });
+
+  // page background stars (dogfood of #starfield)
+  var bg=document.getElementById('pageStars');
+  for(var i=0;i<140;i++){
+    var s=document.createElement('span');
+    var sz=(Math.random()*2+0.4), gold=Math.random()<0.06;
+    s.style.cssText='position:absolute;border-radius:50%;'+
+      'left:'+(Math.random()*100)+'%;top:'+(Math.random()*100)+'%;'+
+      'width:'+sz+'px;height:'+sz+'px;'+
+      'background:'+(gold?'#d4a853':'#c8b8a0')+';'+
+      (gold?'box-shadow:0 0 6px rgba(212,168,83,0.8);':'')+
+      'opacity:'+(0.15+Math.random()*0.5)+';'+
+      'animation:ptTwinklePage '+(2.5+Math.random()*4)+'s ease-in-out '+(Math.random()*4)+'s infinite;';
+    bg.appendChild(s);
+  }
+  var st=document.createElement('style');
+  st.textContent='@keyframes ptTwinklePage{0%,100%{opacity:0.12}50%{opacity:0.75}}';
+  document.head.appendChild(st);
+})();
+</script>
+</body>
+</html>
