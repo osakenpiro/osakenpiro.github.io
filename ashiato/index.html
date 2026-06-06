@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>あしあとマップ — Ashiato Map ｜ 地面に残すサイン</title>
+<meta name="description" content="行った場所に、ダクソ式定型文の足あとを残す。足あとには いのち(vitality 0.0〜1.0) があり、放っておくと色褪せ、なでると蘇る。すべて端末の中。Boolean→Float。">
+<meta property="og:title" content="あしあとマップ — Ashiato Map">
+<meta property="og:description" content="地面に残すサイン。足あとは放っておくと色褪せ、なでると蘇る。">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{
+  --osk-void:#0a0a0f; --osk-void-deep:#06060a; --osk-surface:#15141a; --osk-surface-hi:#1c1a23;
+  --osk-gold:#d4a853; --osk-gold-soft:rgba(212,168,83,0.12); --osk-gold-glow:rgba(212,168,83,0.25); --osk-gold-edge:rgba(212,168,83,0.45);
+  --osk-parchment:#c8b8a0; --osk-fg-1:#e8e0d0; --osk-fg-2:#b8b0a0; --osk-fg-3:#807868; --osk-dim:#5a5448;
+  --osk-border:rgba(200,184,160,0.1); --osk-border-strong:rgba(212,168,83,0.45);
+  --serif:"Cormorant Garamond","Times New Roman","游明朝体","Yu Mincho","YuMincho","Hiragino Mincho ProN",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic Medium",system-ui,sans-serif;
+  --mono:"JetBrains Mono","SF Mono","Menlo","Consolas",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--osk-void);color:var(--osk-fg-1);font-family:var(--sans);line-height:1.6}
+
+/* header */
+#hd{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;gap:14px;
+  padding:10px 16px;background:linear-gradient(180deg,rgba(6,6,10,0.92),rgba(6,6,10,0.75) 70%,transparent);pointer-events:none}
+#hd>*{pointer-events:auto}
+#hd h1{font-family:var(--serif);font-style:italic;font-weight:300;font-size:1.35rem;letter-spacing:.04em;color:var(--osk-fg-1)}
+#hd .cap{font-family:var(--serif);font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--osk-dim)}
+#tabs{margin-left:auto;display:flex;gap:6px}
+.tabb{font-size:.78rem;letter-spacing:.08em;color:var(--osk-fg-3);background:rgba(10,10,15,.6);border:1px solid var(--osk-border);
+  border-radius:999px;padding:6px 14px;cursor:pointer;transition:all .2s ease}
+.tabb.on{color:var(--osk-gold);border-color:var(--osk-gold-edge)}
+.tabb:hover{color:var(--osk-gold)}
+
+/* map */
+#map{position:fixed;inset:0;z-index:1;background:var(--osk-void-deep)}
+.leaflet-container{background:var(--osk-void-deep);font-family:var(--sans)}
+.leaflet-popup-content-wrapper{background:var(--osk-surface);color:var(--osk-fg-1);border:1px solid var(--osk-border-strong);border-radius:6px;box-shadow:0 8px 32px rgba(0,0,0,.6)}
+.leaflet-popup-tip{background:var(--osk-surface)}
+.leaflet-popup-content{margin:14px 16px;line-height:1.6}
+.leaflet-control-attribution{background:rgba(6,6,10,.7)!important;color:#5a5448!important;font-size:9px!important}
+.leaflet-control-attribution a{color:#807868!important}
+.leaflet-control-zoom a{background:var(--osk-surface)!important;color:var(--osk-fg-2)!important;border-color:var(--osk-border)!important}
+
+/* popup card */
+.pp .msg{font-family:var(--serif);font-style:italic;font-size:1.12rem;color:var(--osk-fg-1);line-height:1.45}
+.pp .meta{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;color:var(--osk-dim);margin-top:6px}
+.pp img{width:100%;max-width:240px;border-radius:4px;display:block;margin:10px 0 2px;border:1px solid var(--osk-border)}
+.vrow{display:flex;align-items:center;gap:8px;margin-top:10px}
+.vbar{flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+.vbar i{display:block;height:100%;background:linear-gradient(90deg,var(--osk-gold),var(--osk-parchment));border-radius:3px}
+.vnum{font-family:var(--mono);font-size:.66rem;color:var(--osk-fg-3)}
+.pp .acts{display:flex;gap:8px;margin-top:10px}
+.bn{font-size:.78rem;color:var(--osk-fg-1);background:transparent;border:1px solid var(--osk-gold-edge);border-radius:3px;padding:6px 14px;cursor:pointer;transition:all .2s}
+.bn:hover{background:var(--osk-gold-soft)}
+.bn.ghost{border-color:var(--osk-border);color:var(--osk-fg-3)}
+.handtag{display:inline-block;font-size:.58rem;letter-spacing:.14em;color:var(--osk-dim);border:1px dashed var(--osk-border);border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+
+/* FAB */
+#fab{position:fixed;right:18px;bottom:26px;z-index:1001;font-family:var(--serif);font-style:italic;font-size:1.02rem;
+  color:var(--osk-void-deep);background:var(--osk-gold);border:none;border-radius:999px;padding:14px 22px;cursor:pointer;
+  box-shadow:0 4px 24px var(--osk-gold-glow);letter-spacing:.04em;transition:transform .15s ease}
+#fab:hover{transform:translateY(-2px)}
+#fab:disabled{opacity:.5}
+
+/* composer sheet */
+#sheet{position:fixed;left:0;right:0;bottom:0;z-index:1002;background:var(--osk-surface);border-top:1px solid var(--osk-border-strong);
+  border-radius:14px 14px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .3s ease;max-height:82vh;overflow-y:auto}
+#sheet.open{transform:none}
+#sheet h2{font-family:var(--serif);font-style:italic;font-weight:300;font-size:1.2rem;margin-bottom:2px}
+#sheet .sub{font-size:.74rem;color:var(--osk-fg-3);margin-bottom:14px}
+.gram{display:grid;grid-template-columns:1.3fr .7fr 1.3fr;gap:8px}
+.gram label{display:block;font-family:var(--mono);font-size:.56rem;letter-spacing:.16em;color:var(--osk-dim);margin-bottom:4px;text-transform:uppercase}
+select{width:100%;background:var(--osk-void);color:var(--osk-fg-1);border:1px solid var(--osk-border);border-radius:4px;
+  padding:10px 8px;font-size:.95rem;font-family:var(--sans);outline:none}
+select:focus{border-color:var(--osk-border-strong)}
+#preview{font-family:var(--serif);font-style:italic;font-size:1.45rem;text-align:center;color:var(--osk-gold);margin:16px 0 4px;min-height:2rem}
+.prow{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.filebtn{font-size:.8rem;color:var(--osk-fg-2);border:1px dashed var(--osk-border);border-radius:4px;padding:8px 14px;cursor:pointer}
+.filebtn:hover{border-color:var(--osk-gold-edge);color:var(--osk-gold)}
+#photoprev{height:54px;border-radius:4px;border:1px solid var(--osk-border);display:none}
+#dots{font-size:.8rem;color:var(--osk-fg-3);display:flex;align-items:center;gap:6px;margin-left:auto}
+#dots input{accent-color:var(--osk-gold)}
+.shrow{display:flex;gap:10px;margin-top:16px}
+.shrow .bn{flex:1;padding:11px}
+.bn.primary{background:var(--osk-gold);color:var(--osk-void-deep);border-color:var(--osk-gold);font-weight:500}
+.bn.primary:hover{background:var(--osk-parchment)}
+#sheetnote{font-size:.66rem;color:var(--osk-dim);margin-top:10px;text-align:center}
+
+/* zukan */
+#zukan{position:fixed;inset:0;z-index:999;background:linear-gradient(180deg,var(--osk-void) 0%,var(--osk-void-deep) 100%);
+  overflow-y:auto;padding:74px 18px 100px;display:none}
+#zukan.open{display:block}
+#zukan .stats{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;color:var(--osk-fg-3);margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px;max-width:980px;margin:0 auto}
+.card{border:1px solid var(--osk-border);border-radius:6px;background:var(--osk-surface);overflow:hidden;transition:border-color .2s}
+.card:hover{border-color:var(--osk-gold-edge)}
+.card .ph{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:var(--osk-void-deep)}
+.card .noph{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;color:var(--osk-dim);font-size:1.6rem;background:var(--osk-void-deep)}
+.card .bd{padding:10px 12px}
+.card .m{font-family:var(--serif);font-style:italic;font-size:.95rem;line-height:1.35}
+.card .dt{font-family:var(--mono);font-size:.56rem;letter-spacing:.1em;color:var(--osk-dim);margin-top:4px}
+.card .vrow{margin-top:8px}
+.card .acts{display:flex;gap:6px;margin-top:8px}
+.card .bn{font-size:.66rem;padding:4px 10px}
+.arch-h{font-family:var(--serif);font-style:italic;color:var(--osk-dim);font-size:.95rem;margin:26px auto 10px;max-width:980px}
+.empty{color:var(--osk-fg-3);text-align:center;margin-top:18vh;font-size:.95rem}
+.empty .big{font-size:2.4rem;margin-bottom:10px}
+
+/* hint / toast / privacy */
+#hint{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);z-index:998;background:rgba(21,20,26,.92);
+  border:1px solid var(--osk-border);border-radius:8px;padding:10px 18px;font-size:.8rem;color:var(--osk-fg-2);max-width:88vw;text-align:center}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(16px);background:var(--osk-surface-hi);
+  border:1px solid var(--osk-border-strong);color:var(--osk-fg-1);padding:10px 20px;border-radius:4px;font-size:.82rem;
+  opacity:0;transition:all .3s ease;z-index:2000;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#priv{position:fixed;left:14px;bottom:8px;z-index:900;font-size:.58rem;letter-spacing:.08em;color:var(--osk-dim);pointer-events:none}
+@media (max-width:560px){ #hd h1{font-size:1.15rem} .gram{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<header id="hd">
+  <div><h1>あしあとマップ</h1><div class="cap">Ashiato — 地面に残すサイン</div></div>
+  <nav id="tabs">
+    <button class="tabb on" id="tabMap" onclick="showTab('map')">地図</button>
+    <button class="tabb" id="tabZukan" onclick="showTab('zukan')">図鑑</button>
+    <button class="tabb" onclick="exportAll()">書き出し</button>
+    <button class="tabb" onclick="document.getElementById('importFile').click()">読み込み</button>
+  </nav>
+</header>
+
+<div id="map"></div>
+<div id="zukan"></div>
+<div id="hint">🦶 右下のボタンで、いまいる場所に足あとを残せます。<br>地図を長押し（右クリック）すると「手置き」もできます。</div>
+<button id="fab" onclick="beginCheckin()">🦶 足あとを残す</button>
+
+<div id="sheet">
+  <h2 id="sheetTitle">足あとを残す</h2>
+  <div class="sub" id="sheetSub">ことばは定型文から組む——だから荒れない（ダクソ式）。</div>
+  <div class="gram">
+    <div><label>名詞 / noun</label><select id="selN"></select></div>
+    <div><label>助詞 / joshi</label><select id="selJ"></select></div>
+    <div><label>述語 / predicate</label><select id="selP"></select></div>
+  </div>
+  <div id="preview">—</div>
+  <div class="prow">
+    <label class="filebtn">📷 写真を添える<input type="file" id="photoIn" accept="image/*" capture="environment" style="display:none"></label>
+    <img id="photoprev" alt="">
+    <label id="dots"><input type="checkbox" id="lingerChk">…… を添える</label>
+  </div>
+  <div class="shrow">
+    <button class="bn ghost" onclick="closeSheet()">やめる</button>
+    <button class="bn primary" id="leaveBtn" onclick="leaveFootprint()">ここに残す</button>
+  </div>
+  <div id="sheetnote">—</div>
+</div>
+
+<input type="file" id="importFile" accept="application/json" style="display:none">
+<div id="toast"></div>
+<div id="priv">すべて端末の中。サーバーには何も送りません。</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+"use strict";
+/* ============================================================
+   あしあとマップ MVP — 単一HTML / localStorage+IndexedDB / D1・共有層はv2
+   Vitality(いのち) = Boolean→Float: 減衰 -0.003/日, 閲覧 +0.01, なでる +0.05
+   表示: ≥0.6カラー / 0.3-0.6セピア / 0.1-0.3モノクロ / 0.01-0.1輪郭 / <0.01アーカイブ
+   ============================================================ */
+const DECAY_PER_DAY = 0.003, RECOVER_VIEW = 0.01, RECOVER_PET = 0.05;
+const HAND_START_V = 0.7; // 手置き=その場性のFloatペナルティ（共有版では三点照合）
+const LSK = "ashiato:posts";
+
+/* ---------- 定型文 語彙（和風・詩的トーン） ---------- */
+const NOUNS = ["光","風","道","影","海","山","空","雨","月","星","桜","紅葉","雪","朝","夕暮れ","夜","静けさ","ざわめき","祭り","猫","鳥","犬","湯気","灯り","路地","階段","橋","鳥居","本","音楽","珈琲","パン","ごはん","湯","花","木","石","水","記憶","約束","別れ","出会い","旅","家","駅","電車","声","笑い","涙","祈り"];
+const JOSHI = ["が","は","の","に","を","と","も","しか","だけ","さえ"];
+const PREDS = ["ある","あった","ない","ここにある","待っている","香る","揺れる","滲む","沁みる","降っている","通り過ぎた","眠っている","目覚める","還ってくる","始まる","終わらない","続いている","消えない","美しい","なつかしい","やさしい","さびしい","まぶしい","あたたかい","つめたい","しずか","とおい","ちかい","好きだ","忘れない"];
+
+/* ---------- IndexedDB (写真) ---------- */
+let _db=null;
+function idb(){ return _db ? Promise.resolve(_db) : new Promise((res,rej)=>{
+  const r=indexedDB.open("ashiato",1);
+  r.onupgradeneeded=()=>{ r.result.createObjectStore("photos"); };
+  r.onsuccess=()=>{ _db=r.result; res(_db); };
+  r.onerror=()=>rej(r.error);
+});}
+function idbPut(k,v){ return idb().then(db=>new Promise((res,rej)=>{ const tx=db.transaction("photos","readwrite"); tx.objectStore("photos").put(v,k); tx.oncomplete=()=>res(); tx.onerror=()=>rej(tx.error); })); }
+function idbGet(k){ return idb().then(db=>new Promise((res,rej)=>{ const tx=db.transaction("photos","readonly"); const q=tx.objectStore("photos").get(k); q.onsuccess=()=>res(q.result||null); q.onerror=()=>rej(q.error); })); }
+function idbDel(k){ return idb().then(db=>new Promise((res,rej)=>{ const tx=db.transaction("photos","readwrite"); tx.objectStore("photos").delete(k); tx.oncomplete=()=>res(); tx.onerror=()=>rej(tx.error); })); }
+
+/* ---------- posts (localStorage) ---------- */
+let posts=[];
+function loadPosts(){ try{ posts=JSON.parse(localStorage.getItem(LSK)||"[]"); }catch(e){ posts=[]; } }
+function savePosts(){ try{ localStorage.setItem(LSK, JSON.stringify(posts)); }catch(e){ toast("保存できませんでした（容量？）"); } }
+function decayAll(){
+  const now=Date.now();
+  for(const p of posts){
+    const days=Math.max(0,(now-(p.vAt||p.ts))/864e5);
+    p.v=Math.max(0, +(p.v - DECAY_PER_DAY*days).toFixed(4)); p.vAt=now;
+  }
+  savePosts();
+}
+function recover(p, amt){ p.v=Math.min(1, +(p.v+amt).toFixed(4)); p.vAt=Date.now(); savePosts(); }
+
+/* ---------- 写真処理: 1080 WebP q0.7 + 256 thumb（圧縮三段構えの保存層） ---------- */
+function fileToImage(file){ return new Promise((res,rej)=>{ const u=URL.createObjectURL(file); const im=new Image(); im.onload=()=>{ URL.revokeObjectURL(u); res(im); }; im.onerror=rej; im.src=u; }); }
+function shrink(img,maxW){
+  const sc=Math.min(1, maxW/Math.max(img.naturalWidth,img.naturalHeight));
+  const w=Math.max(1,Math.round(img.naturalWidth*sc)), h=Math.max(1,Math.round(img.naturalHeight*sc));
+  const c=document.createElement("canvas"); c.width=w; c.height=h;
+  c.getContext("2d").drawImage(img,0,0,w,h);
+  let d=c.toDataURL("image/webp",0.7);
+  if(!d.startsWith("data:image/webp")) d=c.toDataURL("image/jpeg",0.78);
+  return d;
+}
+/* 輪郭 (sobel) — 最終劣化段。thumbから生成しキャッシュ */
+function makeOutline(thumbURL){ return new Promise((res,rej)=>{
+  const im=new Image();
+  im.onload=()=>{
+    const s=256, c=document.createElement("canvas");
+    const sc=Math.min(1,s/Math.max(im.naturalWidth,im.naturalHeight));
+    const w=Math.max(8,Math.round(im.naturalWidth*sc)), h=Math.max(8,Math.round(im.naturalHeight*sc));
+    c.width=w; c.height=h; const ctx=c.getContext("2d");
+    ctx.drawImage(im,0,0,w,h);
+    const src=ctx.getImageData(0,0,w,h).data;
+    const g=new Float32Array(w*h);
+    for(let i=0;i<w*h;i++){ g[i]=(src[i*4]*0.299+src[i*4+1]*0.587+src[i*4+2]*0.114); }
+    const out=ctx.createImageData(w,h); const o=out.data;
+    for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){
+      const i=y*w+x;
+      const gx=-g[i-w-1]-2*g[i-1]-g[i+w-1]+g[i-w+1]+2*g[i+1]+g[i+w+1];
+      const gy=-g[i-w-1]-2*g[i-w]-g[i-w+1]+g[i+w-1]+2*g[i+w]+g[i+w+1];
+      const m=Math.sqrt(gx*gx+gy*gy);
+      const k=i*4, on=m>90;
+      o[k]=on?200:10; o[k+1]=on?184:10; o[k+2]=on?160:15; o[k+3]=255;
+    }
+    ctx.putImageData(out,0,0);
+    let d=c.toDataURL("image/webp",0.7); if(!d.startsWith("data:image/webp")) d=c.toDataURL("image/jpeg",0.7);
+    res(d);
+  };
+  im.onerror=rej; im.src=thumbURL;
+});}
+
+/* ---------- vitality → 表示（連続フィルタ＝Float） ---------- */
+function bandName(v){ return v>=0.6?"カラー":v>=0.3?"セピア":v>=0.1?"モノクロ":v>=0.01?"輪郭":"アーカイブ"; }
+function agedFilter(v){
+  if(v>=0.6) return "none";
+  if(v>=0.3) return `sepia(${((0.6-v)/0.3).toFixed(2)})`;
+  if(v>=0.1) return `sepia(1) grayscale(${((0.3-v)/0.2).toFixed(2)}) contrast(0.92) brightness(0.92)`;
+  return "OUTLINE";
+}
+async function agedSrc(p){ // returns {src, filter} or null
+  if(!p.hasPhoto) return null;
+  const rec=await idbGet(p.id); if(!rec) return null;
+  const f=agedFilter(p.v);
+  if(f==="OUTLINE"){
+    if(!rec.outline){ try{ rec.outline=await makeOutline(rec.thumb); await idbPut(p.id,rec); }catch(e){ return {src:rec.thumb, filter:"grayscale(1) contrast(1.4) brightness(0.6)"}; } }
+    return {src:rec.outline, filter:"none"};
+  }
+  return {src:rec.thumb, filter:f};
+}
+
+/* ---------- map ---------- */
+let map, markers={};
+function initMap(){
+  map=L.map("map",{zoomControl:true, attributionControl:true}).setView([35.6812,139.7671],12);
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains:"abcd", maxZoom:19
+  }).addTo(map);
+  map.on("contextmenu",e=>{ openSheet({hand:true, lat:e.latlng.lat, lng:e.latlng.lng}); });
+  if(posts.length){ const last=posts[posts.length-1]; map.setView([last.lat,last.lng],14); }
+}
+function pinStyle(p){
+  const v=Math.max(p.v,0.04);
+  return { radius:6+5*p.v, color:"#d4a853", weight:p.hand?1.5:2, opacity:Math.max(v,0.08),
+    fillColor:"#d4a853", fillOpacity:0.18+0.3*p.v, dashArray:p.hand?"3 4":null };
+}
+function renderPins(){
+  for(const id in markers){ map.removeLayer(markers[id]); } markers={};
+  for(const p of posts){
+    if(p.v<0.01) continue; // アーカイブは地図から消える（図鑑にだけ残る）
+    const mk=L.circleMarker([p.lat,p.lng], pinStyle(p)).addTo(map);
+    mk.on("click",()=>openDetail(p, mk));
+    markers[p.id]=mk;
+  }
+  document.getElementById("hint").style.display = posts.length? "none":"block";
+}
+async function openDetail(p, mk){
+  recover(p, RECOVER_VIEW); // 閲覧で +0.01（忘却からの救出）
+  if(mk) mk.setStyle(pinStyle(p));
+  const ph=await agedSrc(p);
+  const el=document.createElement("div"); el.className="pp";
+  el.innerHTML = `
+    <div class="msg">${esc(p.msg)}${p.hand?'<span class="handtag">手置き</span>':""}</div>
+    <div class="meta">${fmtDate(p.ts)} ・ ${bandName(p.v)}</div>
+    ${ph?`<img src="${ph.src}" style="filter:${ph.filter}" alt="">`:""}
+    <div class="vrow"><div class="vbar"><i style="width:${(p.v*100).toFixed(0)}%"></i></div><span class="vnum">いのち ${p.v.toFixed(2)}</span></div>
+    <div class="acts">
+      <button class="bn" data-act="pet">🖐 なでる +0.05</button>
+      <button class="bn ghost" data-act="del">消す</button>
+    </div>`;
+  el.querySelector('[data-act="pet"]').onclick=()=>{ recover(p,RECOVER_PET); toast(`なでた。いのち ${p.v.toFixed(2)}`); map.closePopup(); if(markers[p.id]) markers[p.id].setStyle(pinStyle(p)); };
+  el.querySelector('[data-act="del"]').onclick=async()=>{ if(!confirm("この足あとを消す？（もどせない）"))return; posts=posts.filter(x=>x.id!==p.id); savePosts(); await idbDel(p.id); map.closePopup(); renderPins(); renderZukan(); };
+  L.popup({maxWidth:280}).setLatLng([p.lat,p.lng]).setContent(el).openOn(map);
+}
+
+/* ---------- composer ---------- */
+let pendingPhoto=null, sheetCtx=null;
+function fillSelects(){
+  const fill=(id,arr)=>{ const s=document.getElementById(id); s.innerHTML=arr.map(w=>`<option>${w}</option>`).join(""); };
+  fill("selN",NOUNS); fill("selJ",JOSHI); fill("selP",PREDS);
+  ["selN","selJ","selP","lingerChk"].forEach(id=>document.getElementById(id).addEventListener("change",updatePreview));
+}
+function composed(){
+  const n=document.getElementById("selN").value, j=document.getElementById("selJ").value, p=document.getElementById("selP").value;
+  return n+j+p+(document.getElementById("lingerChk").checked?"……":"");
+}
+function updatePreview(){ document.getElementById("preview").textContent=composed(); }
+function randomize(){
+  const r=a=>a[Math.floor(Math.random()*a.length)];
+  document.getElementById("selN").value=r(NOUNS); document.getElementById("selJ").value=r(JOSHI); document.getElementById("selP").value=r(PREDS);
+  updatePreview();
+}
+function beginCheckin(){
+  const fab=document.getElementById("fab"); fab.disabled=true; fab.textContent="現在地を探しています…";
+  if(!navigator.geolocation){ fab.disabled=false; fab.textContent="🦶 足あとを残す"; toast("この端末では現在地が取れません。長押しで手置きできます"); return; }
+  navigator.geolocation.getCurrentPosition(pos=>{
+    fab.disabled=false; fab.textContent="🦶 足あとを残す";
+    openSheet({hand:false, lat:pos.coords.latitude, lng:pos.coords.longitude});
+  },err=>{
+    fab.disabled=false; fab.textContent="🦶 足あとを残す";
+    toast("現在地が取れませんでした。地図を長押しで「手置き」できます");
+  },{enableHighAccuracy:true, timeout:10000, maximumAge:30000});
+}
+function openSheet(ctx){
+  sheetCtx=ctx; pendingPhoto=null;
+  document.getElementById("photoprev").style.display="none";
+  document.getElementById("photoIn").value="";
+  randomize();
+  document.getElementById("sheetTitle").textContent = ctx.hand? "手置きの足あと":"足あとを残す";
+  document.getElementById("sheetSub").textContent = ctx.hand? "ここにいた、ことにする。手置きは いのち0.70 から始まる（その場性もFloat）。":"ことばは定型文から組む——だから荒れない（ダクソ式）。";
+  document.getElementById("sheetnote").textContent = `${ctx.lat.toFixed(5)}, ${ctx.lng.toFixed(5)} ・ ${ctx.hand?"手置き":"現在地"} ・ 写真は端末内に1080pxで保存`;
+  document.getElementById("sheet").classList.add("open");
+  map.setView([ctx.lat,ctx.lng], Math.max(map.getZoom(),15));
+}
+function closeSheet(){ document.getElementById("sheet").classList.remove("open"); sheetCtx=null; }
+document.addEventListener("DOMContentLoaded",()=>{
+  document.getElementById("photoIn").addEventListener("change",async e=>{
+    const f=e.target.files && e.target.files[0]; if(!f) return;
+    try{
+      const img=await fileToImage(f);
+      pendingPhoto={ full:shrink(img,1080), thumb:shrink(img,256) };
+      const pv=document.getElementById("photoprev"); pv.src=pendingPhoto.thumb; pv.style.display="block";
+    }catch(err){ toast("写真を読めませんでした"); }
+  });
+  document.getElementById("importFile").addEventListener("change",importAll);
+});
+async function leaveFootprint(){
+  if(!sheetCtx) return;
+  const p={ id:"a"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+    lat:sheetCtx.lat, lng:sheetCtx.lng, msg:composed(), ts:Date.now(),
+    v: sheetCtx.hand? HAND_START_V:1.0, vAt:Date.now(), hand:!!sheetCtx.hand, hasPhoto:!!pendingPhoto };
+  if(pendingPhoto){ try{ await idbPut(p.id,{full:pendingPhoto.full, thumb:pendingPhoto.thumb}); }catch(e){ p.hasPhoto=false; toast("写真の保存に失敗（本文のみ残します）"); } }
+  posts.push(p); savePosts(); closeSheet(); renderPins(); renderZukan();
+  toast(p.hand? "手置きの足あとを置いた（0.70）":"足あとを残した（1.00）");
+}
+
+/* ---------- 図鑑 ---------- */
+function showTab(t){
+  document.getElementById("tabMap").classList.toggle("on",t==="map");
+  document.getElementById("tabZukan").classList.toggle("on",t==="zukan");
+  document.getElementById("zukan").classList.toggle("open",t==="zukan");
+  document.getElementById("fab").style.display = t==="map"? "block":"none";
+  if(t==="zukan") renderZukan();
+  if(t==="map") setTimeout(()=>map.invalidateSize(),60);
+}
+async function renderZukan(){
+  const z=document.getElementById("zukan");
+  if(!posts.length){ z.innerHTML='<div class="empty"><div class="big">👣</div>まだ足あとがない。<br>地図に戻って、最初のひとつを。</div>'; return; }
+  const live=posts.filter(p=>p.v>=0.01).sort((a,b)=>b.ts-a.ts);
+  const arch=posts.filter(p=>p.v<0.01).sort((a,b)=>b.ts-a.ts);
+  const avg=posts.reduce((s,p)=>s+p.v,0)/posts.length;
+  let html=`<div class="stats">足あと ${posts.length} ・ 平均いのち ${avg.toFixed(2)} ・ 減衰 −0.003/日</div><div class="grid">`;
+  for(const p of live){ html+=await cardHTML(p,false); }
+  html+="</div>";
+  if(arch.length){ html+=`<div class="arch-h">アーカイブ — 公共の記憶は風化し、個人の記憶は残る（${arch.length}）</div><div class="grid">`;
+    for(const p of arch){ html+=await cardHTML(p,true); } html+="</div>"; }
+  z.innerHTML=html;
+  z.querySelectorAll("[data-pet]").forEach(b=>b.onclick=()=>{ const p=posts.find(x=>x.id===b.dataset.pet); if(p){ recover(p,RECOVER_PET); toast(`なでた。いのち ${p.v.toFixed(2)}`); renderZukan(); renderPins(); } });
+  z.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{ const p=posts.find(x=>x.id===b.dataset.go); if(p){ showTab("map"); map.setView([p.lat,p.lng],16); setTimeout(()=>openDetail(p, markers[p.id]),250); } });
+}
+async function cardHTML(p,archived){
+  const ph=await agedSrc(p);
+  const img = ph? `<img class="ph" src="${ph.src}" style="filter:${ph.filter}" alt="">` : `<div class="noph">👣</div>`;
+  return `<div class="card" style="opacity:${archived?0.55:1}">
+    ${img}
+    <div class="bd">
+      <div class="m">${esc(p.msg)}${p.hand?'<span class="handtag">手置き</span>':""}</div>
+      <div class="dt">${fmtDate(p.ts)} ・ ${bandName(p.v)}</div>
+      <div class="vrow"><div class="vbar"><i style="width:${(p.v*100).toFixed(0)}%"></i></div><span class="vnum">${p.v.toFixed(2)}</span></div>
+      <div class="acts"><button class="bn" data-pet="${p.id}">🖐 なでる</button><button class="bn ghost" data-go="${p.id}">地図へ</button></div>
+    </div></div>`;
+}
+
+/* ---------- export / import ---------- */
+async function exportAll(){
+  const photos={};
+  for(const p of posts){ if(p.hasPhoto){ const r=await idbGet(p.id); if(r) photos[p.id]={full:r.full,thumb:r.thumb}; } }
+  const blob=new Blob([JSON.stringify({app:"ashiato",ver:1,exported:new Date().toISOString(),posts,photos})],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download=`ashiato-export-${new Date().toISOString().slice(0,10)}.json`; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+  toast("書き出しました（JSON・写真込み）");
+}
+async function importAll(e){
+  const f=e.target.files && e.target.files[0]; if(!f) return;
+  try{
+    const d=JSON.parse(await f.text());
+    if(d.app!=="ashiato" || !Array.isArray(d.posts)) throw 0;
+    const have=new Set(posts.map(p=>p.id)); let n=0;
+    for(const p of d.posts){ if(!have.has(p.id)){ posts.push(p); n++; if(d.photos && d.photos[p.id]) await idbPut(p.id,d.photos[p.id]); } }
+    savePosts(); renderPins(); renderZukan(); toast(`読み込みました（+${n}）`);
+  }catch(err){ toast("読み込めませんでした（形式違い？）"); }
+  e.target.value="";
+}
+
+/* ---------- utils ---------- */
+function esc(s){ return (s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+function fmtDate(ts){ const d=new Date(ts); return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; }
+let _tt=null;
+function toast(m){ const t=document.getElementById("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove("show"),2200); }
+
+/* ---------- boot ---------- */
+loadPosts(); decayAll(); fillSelects(); initMap(); renderPins(); updatePreview();
+</script>
+</body>
+</html>
