@@ -747,6 +747,63 @@ a{color:inherit; text-decoration:none}
   .door{ min-height: 430px;}
   .door:hover{ transform: perspective(1600px) rotateY(-10deg);}
 }
+
+/* ===== λ-2a pillar-stones (SES-451 G2承認・編集はgen_entrance.py側で) ===== */
+:root{
+  --osk-pillar-t:#8c9cab; --osk-pillar-r:#9d87b8; --osk-pillar-b:#7da58f;
+  --osk-pillar-p:#c08a6a; --osk-pillar-g:#8689b8; --osk-pillar-o:#6f9f9b;
+  --osk-pillar-t-soft:rgba(140,156,171,.08); --osk-pillar-r-soft:rgba(157,135,184,.08);
+  --osk-pillar-b-soft:rgba(125,165,143,.08); --osk-pillar-p-soft:rgba(192,138,106,.08);
+  --osk-pillar-g-soft:rgba(134,137,184,.08); --osk-pillar-o-soft:rgba(111,159,155,.08);
+  --osk-pillar-t-ink:#5b6b7a; --osk-pillar-r-ink:#6d5b8a; --osk-pillar-b-ink:#527a64;
+  --osk-pillar-p-ink:#9a6347; --osk-pillar-g-ink:#5a5d8a; --osk-pillar-o-ink:#46706c;
+}
+@media (prefers-color-scheme: dark){:root{
+  --osk-pillar-t-ink:#8c9cab; --osk-pillar-r-ink:#9d87b8; --osk-pillar-b-ink:#7da58f;
+  --osk-pillar-p-ink:#c08a6a; --osk-pillar-g-ink:#8689b8; --osk-pillar-o-ink:#6f9f9b;
+}}
+.s1{ color: var(--osk-pillar-t-ink);}
+.s2{ color: var(--osk-pillar-r-ink);}
+.s3{ color: var(--osk-pillar-b-ink);}
+.s4{ color: var(--osk-pillar-p-ink);}
+.s5{ color: var(--osk-pillar-g-ink);}
+.keyrow .k.t1 .letter{ color: var(--osk-pillar-t-ink);}
+.keyrow .k.t2 .letter{ color: var(--osk-pillar-r-ink);}
+.keyrow .k.t3 .letter{ color: var(--osk-pillar-b-ink);}
+.keyrow .k.t4 .letter{ color: var(--osk-pillar-p-ink);}
+.keyrow .k.t5 .letter{ color: var(--osk-pillar-g-ink);}
+.s1 .inner ul li{ border-left:3px solid var(--osk-pillar-t); padding-left:10px;}
+.s2 .inner ul li{ border-left:3px solid var(--osk-pillar-r); padding-left:10px;}
+.s3 .inner ul li{ border-left:3px solid var(--osk-pillar-b); padding-left:10px;}
+.s4 .inner ul li{ border-left:3px solid var(--osk-pillar-p); padding-left:10px;}
+.s5 .inner ul li{ border-left:3px solid var(--osk-pillar-g); padding-left:10px;}
+.s1 .inner ul li:hover{ background:var(--osk-pillar-t-soft);}
+.s2 .inner ul li:hover{ background:var(--osk-pillar-r-soft);}
+.s3 .inner ul li:hover{ background:var(--osk-pillar-b-soft);}
+.s4 .inner ul li:hover{ background:var(--osk-pillar-p-soft);}
+.s5 .inner ul li:hover{ background:var(--osk-pillar-g-soft);}
+.pfuda{ display:inline-block; font-family:var(--sans); font-size:10px; letter-spacing:.08em;
+  padding:2px 8px; border-radius:3px; vertical-align:2px; margin-left:10px; font-weight:700;}
+.bands{ border-top:1px solid var(--ink); padding:56px 24px 64px; background:var(--paper);}
+.bands .binner{ max-width:1100px; margin:0 auto;}
+.bands .band{ padding:18px 0 14px; border-top:1px solid var(--rule);}
+.bands .band:first-child{ border-top:0; padding-top:0;}
+.bands .bl{ font-family:var(--mono); font-size:12px; letter-spacing:.18em; color:var(--gold);}
+.bands .bl small{ color:var(--sub); letter-spacing:.06em; margin-left:10px; font-size:11px;}
+.bands .bi{ display:flex; flex-wrap:wrap; gap:8px 22px; margin-top:10px;}
+.bands .bi a{ display:inline-flex; align-items:baseline; gap:7px; font-family:var(--mincho);
+  font-weight:700; font-size:16px; color:var(--ink); text-decoration:none;}
+.bands .bi a:hover{ color:var(--gold);}
+.bands .bi .bdot{ width:8px; height:8px; border-radius:2px; flex:none; align-self:center;}
+@media (min-width: 881px){
+  .keyrow{ grid-template-columns: repeat(5, 1fr);}
+}
+@media (max-width: 880px){
+  .keyrow .k:nth-child(-n+4){ border-bottom: 1px solid var(--rule);}
+  .keyrow .k:nth-child(2), .keyrow .k:nth-child(4){ border-right: 0;}
+  .keyrow .k.t5{ grid-column: 1 / -1; border-right: 0; border-bottom: 0;}
+  .bands{ padding:40px 20px 48px;}
+}
 </style>
 </head>
 <body>
@@ -764,16 +821,17 @@ a{color:inherit; text-decoration:none}
       哲学・創作・実装を<em>分離しない</em>単一人格。
     </div>
 
-    <div class="keyrow" aria-label="Visionium TRBP">
+    <div class="keyrow" aria-label="Visionium TRBPG">
       <a class="k t1" href="#tool"><span class="letter">T</span><span class="name">TOOL</span></a>
       <a class="k t2" href="#redesign"><span class="letter">R</span><span class="name">REDESIGN</span></a>
       <a class="k t3" href="#bookbug"><span class="letter">B</span><span class="name">BOOKBUG</span></a>
       <a class="k t4" href="#postboy"><span class="letter">P</span><span class="name">POSTBOY</span></a>
+      <a class="k t5" href="#game"><span class="letter">G</span><span class="name">GAME</span></a>
     </div>
   </div>
 
   <div class="bottombar">
-    <span>VISIONIUM / 4 柱 / 0.0 → 1.0</span>
+    <span>VISIONIUM / 5 柱 / 0.0 → 1.0</span>
     <span class="scroll">SCROLL ↓</span>
     <span>ORCID 0009-0004-9167-3186</span>
   </div>
@@ -784,7 +842,7 @@ a{color:inherit; text-decoration:none}
   <div class="glyph right">工</div>
   <div class="inner">
     <div>
-      <div class="label">PILLAR 01 · T</div>
+      <div class="label">PILLAR 01 · T<span class="pfuda" style="background:var(--osk-pillar-t);color:#23303a">鋼</span></div>
       <h2>🛠️ Hi-Me TooL<span class="tag">秘め道具</span></h2>
       <div class="rom">HIMITSU × TOOL — ひみつーる</div>
       <div class="bubble">
@@ -792,19 +850,12 @@ a{color:inherit; text-decoration:none}
       </div>
     </div>
     <ul>
-<!-- GEN:T:START 成果物DBから自動生成(2026-06-07 09:08 JST) 編集はDB側で / KEEP行は温存 -->
-      <li style="position:relative"><a href="/rikkoku/"><span class="idx">⚔️</span><span class="ti">六剋（りくこく）<small>斬・刺・打・固・軟・翻の六属性が剋しあう Boolean→Float RPG</small></span><span class="arr">→</span></a><a href="/works/rikkoku.html" title="とりせつ — 六剋（りくこく）" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
-      <li style="position:relative"><a href="/ecg/"><span class="idx">🃏</span><span class="ti">帝国運用カードゲーム ECG<small>74枚/op29種・単一HTML 134,736B(file://直開き可)・vs CPU+ホットシート2P・デッキ…</small></span><span class="arr">→</span></a><a href="/works/ecg.html" title="とりせつ — 帝国運用カードゲーム ECG" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
+<!-- GEN:T:START 成果物DBから自動生成(2026-06-07 12:56 JST) 編集はDB側で / KEEP行は温存 -->
       <li style="position:relative"><a href="/shinkai/"><span class="idx">🌊</span><span class="ti">深海テスト — Shinkai Test<small>9問の潜水型6軸診断(PHI/CRE/TEC/OUT/VIT/EXP)</small></span><span class="arr">→</span></a><a href="/works/shinkai.html" title="とりせつ — 深海テスト — Shinkai Test" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
-      <li style="position:relative"><a href="/hello-warld/"><span class="idx">🌍</span><span class="ti">HELLO WAR(L)D — 地図とりあい観察庭<small>P0ソロ観察庭（大行軍v2 Laneδ、SES-404土地神分身 2026-06-06、commit c73a581…</small></span><span class="arr">→</span></a><a href="/works/hello-warld.html" title="とりせつ — HELLO WAR(L)D — 地図とりあい観察庭" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
       <li style="position:relative"><a href="/amaccha-nigaccha/"><span class="idx">🍵</span><span class="ti">あまっちゃ／にがっちゃ<small>抹茶の甘さを0.0〜1.0で選ぶ Boolean→Float飲料UX試作</small></span><span class="arr">→</span></a><a href="/works/amaccha-nigaccha.html" title="とりせつ — あまっちゃ／にがっちゃ" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
-      <li style="position:relative"><a href="/bakuun-scouter/"><span class="idx">🎲</span><span class="ti">バク運スカウター — 運力計測器<small>運の計測と運の貯金 — 遊ばない日が運になる運力計測器</small></span><span class="arr">→</span></a><a href="/works/bakuun-scouter.html" title="とりせつ — バク運スカウター — 運力計測器" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
       <li style="position:relative"><a href="/ashiato/"><span class="idx">👣</span><span class="ti">あしあとマップ — Ashiato Map<small>地面に残すサイン</small></span><span class="arr">→</span></a><a href="/works/ashiato.html" title="とりせつ — あしあとマップ — Ashiato Map" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
-      <li style="position:relative"><a href="/yumemi-shoujo/"><span class="idx">💤</span><span class="ti">夢見る少女は眠れない<small>起こさないで遊ぶ二重放置ゲー — 少女が自然に目覚めるのを待つと夢が聞ける</small></span><span class="arr">→</span></a><a href="/works/yumemi-shoujo.html" title="とりせつ — 夢見る少女は眠れない" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
       <li style="position:relative"><a href="/MIERU/"><span class="idx">📊</span><span class="ti">MIERU（見える）<small>CSVをアップロードして可視化するツール</small></span><span class="arr">→</span></a><a href="/works/mieru.html" title="とりせつ — MIERU（見える）" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
       <li style="position:relative"><a href="/wakkazukan/"><span class="idx">🔵</span><span class="ti">わっかずかん<small>同心円でカテゴリを並べる視覚分類器(#01分類わっか)</small></span><span class="arr">→</span></a><a href="/works/wakkazukan.html" title="とりせつ — わっかずかん" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
-      <li style="position:relative"><a href="/vr-akinator/"><span class="idx">🧙</span><span class="ti">VR Akinator<small>分類法のメタ分類(双子構造の片割れ)</small></span><span class="arr">→</span></a><a href="/works/vr-akinator.html" title="とりせつ — VR Akinator" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
-      <li style="position:relative"><a href="/ecosystem-checker/"><span class="idx">🧩</span><span class="ti">生態系チェッカー<small>持っている道具とプランから到達度と追加機能を判定</small></span><span class="arr">→</span></a><a href="/works/ecosystem-checker.html" title="とりせつ — 生態系チェッカー" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
       <li style="position:relative"><a href="/materials-of-civilization/"><span class="idx">🧪</span><span class="ti">素材図鑑（ツール版）<small>文明を素材の系譜として並べる(#05)</small></span><span class="arr">→</span></a><a href="/works/materials-of-civilization.html" title="とりせつ — 素材図鑑（ツール版）" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
       <li style="position:relative"><a href="/breathe/"><span class="idx">🫁</span><span class="ti">Breathe<small>4-7-8/Box/Calm 呼吸法ガイド</small></span><span class="arr">→</span></a><a href="/works/breathe.html" title="とりせつ — Breathe" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
       <li style="position:relative"><div style="padding:14px 2px 8px;font-family:var(--mono);font-size:11px;letter-spacing:.13em;color:var(--gold)">BeeF 実用三姉妹 — 二値をやめる実践セット</div><div style="display:flex;align-items:stretch"><a href="/nandometer/" style="flex:1;display:flex;gap:9px;align-items:flex-start;padding:2px 0 14px;padding-right:12px;"><span class="idx">🎚</span><span class="ti" style="font-size:17px">何度メーター<small>迷い→確信度%</small></span><span class="arr" style="font-size:18px;margin-left:auto">→</span></a><a href="/fuwakka/" style="flex:1;display:flex;gap:9px;align-items:flex-start;padding:2px 0 14px;border-left:1px solid var(--rule);padding-left:12px;padding-right:12px;"><span class="idx">☁</span><span class="ti" style="font-size:17px">フワッカ<small>fuzzy todo</small></span><span class="arr" style="font-size:18px;margin-left:auto">→</span></a><a href="/namakedooshi/" style="flex:1;display:flex;gap:9px;align-items:flex-start;padding:2px 0 14px;border-left:1px solid var(--rule);padding-left:12px;"><span class="idx">🐢</span><span class="ti" style="font-size:17px">怠け通し<small>サボれる習慣</small></span><span class="arr" style="font-size:18px;margin-left:auto">→</span></a></div></li>
@@ -818,23 +869,16 @@ a{color:inherit; text-decoration:none}
   <div class="glyph left">再</div>
   <div class="inner">
     <div>
-      <div class="label">PILLAR 02 · R</div>
+      <div class="label">PILLAR 02 · R<span class="pfuda" style="background:var(--osk-pillar-r);color:#312643">紫水晶</span></div>
       <h2>🎨 Re:DeSign<span class="tag">系譜</span></h2>
       <div class="rom">RE — DESIGN</div>
       <div class="bubble">
-        デザインを良し悪しではなく<em>系譜</em>で捉え直す。Hi-Me TooL の双子として置かれる、デザインのメタカタログ。
+        デザインを良し悪しではなく<em>系譜</em>で捉え直す。Hi-Me TooL の双子として置かれる、デザインのメタカタログ。 構造系の道具——works・DD・総観——は、柱の下の<a href="#bands">帯</a>へ。
       </div>
     </div>
     <ul>
-<!-- GEN:R:START 成果物DBから自動生成(2026-06-07 09:08 JST) 編集はDB側で / KEEP行は温存 -->
+<!-- GEN:R:START 成果物DBから自動生成(2026-06-07 12:56 JST) 編集はDB側で / KEEP行は温存 -->
       <li style="position:relative"><a href="/galaxy/"><span class="idx">🌌</span><span class="ti">僕の銀河系 Galaxy<small>Visionium全体構造をforce-directed graphで可視化(観測層L3b)</small></span><span class="arr">→</span></a><a href="/works/galaxy.html" title="とりせつ — 僕の銀河系 Galaxy" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
-      <li style="position:relative"><a href="/ecosystem/"><span class="idx">🌐</span><span class="ti">生態系相関総観<small>データがどう巡るか、軽アニメで見る生態系フロー</small></span><span class="arr">→</span></a><a href="/works/ecosystem.html" title="とりせつ — 生態系相関総観" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
-      <li style="position:relative"><a href="/works/"><span class="idx">📖</span><span class="ti">WORKS — ぜんぶのとりせつ（トリセツ工場）<small>全成果物のとりせつ（紹介ページ）一括生成層（大行軍v2 Lane ι SES-428）</small></span><span class="arr">→</span></a><a href="/works/works.html" title="とりせつ — WORKS — ぜんぶのとりせつ（トリセツ工場）" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
-      <li style="position:relative"><a href="/dd/"><span class="idx">📚</span><span class="ti">DD（Design Dashboard）<small>横断索引+年表ホスト（θ3打ち直し SES-437・2026-06-07）</small></span><span class="arr">→</span></a><a href="/works/dd.html" title="とりせつ — DD（Design Dashboard）" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
-      <li style="position:relative"><a href="/re-design/queue-dashboard.html"><span class="idx">🔁</span><span class="ti">Queue Dashboard<small>見直し待ち案件、優先度と放置年数</small></span><span class="arr">→</span></a><a href="/works/re-design-queue-dashboard.html" title="とりせつ — Queue Dashboard" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
-      <li style="position:relative"><a href="/big-light/"><span class="idx">🔆</span><span class="ti">big-light（ビッグライト）<small>ビッグライトモード共通規格(CSS/JSライブラリ、CDN配布、MIT)</small></span><span class="arr">→</span></a><a href="/works/big-light.html" title="とりせつ — big-light（ビッグライト）" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
-      <li style="position:relative"><a href="/ecosystem/topology.html"><span class="idx">🗂</span><span class="ti">役割分化地図<small>誰が何を担当するか、Visioniumを7層構造で解剖</small></span><span class="arr">→</span></a><a href="/works/ecosystem-topology.html" title="とりせつ — 役割分化地図" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
-      <li style="position:relative"><a href="/parts/"><span class="idx">🧩</span><span class="ti">部品工場 PARTS — コピペ部品ライブラリ<small>自己完結コピペ部品10点(星灯カード/ひとあかりヘッダ/フロートつまみ/星海シート/金箔けじめ線/ふれまわり/月金ボ…</small></span><span class="arr">→</span></a><a href="/works/parts.html" title="とりせつ — 部品工場 PARTS — コピペ部品ライブラリ" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
       <!-- GEN:R:END -->
     </ul>
   </div>
@@ -845,7 +889,7 @@ a{color:inherit; text-decoration:none}
   <div class="glyph right">読</div>
   <div class="inner">
     <div>
-      <div class="label">PILLAR 03 · B</div>
+      <div class="label">PILLAR 03 · B<span class="pfuda" style="background:var(--osk-pillar-b);color:#1f3a2b">緑青</span></div>
       <h2>📚 BookBug<span class="tag">読む</span></h2>
       <div class="rom">BOOK + BUG</div>
       <div class="bubble">
@@ -853,9 +897,7 @@ a{color:inherit; text-decoration:none}
       </div>
     </div>
     <ul>
-<!-- GEN:B:START 成果物DBから自動生成(2026-06-07 09:08 JST) 編集はDB側で / KEEP行は温存 -->
-      <li style="position:relative"><a href="https://kakuyomu.jp/works/2912051601256382667"><span class="idx">◇</span><span class="ti">A＼mI／DA＼（ア・ミ・ダ）<small>2026-06-04公開・完結済全5話(15,412字)</small></span><span class="arr">→</span></a><a href="/works/kakuyomu-2912051601256382667.html" title="とりせつ — A＼mI／DA＼（ア・ミ・ダ）" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
-      <li style="position:relative"><a href="/jikoshoukai/"><span class="idx">🏛</span><span class="ti">じこしょうかいシリーズ（絵本全17巻）<small>絵本シリーズ全１７巻ポータル(85キャラ)</small></span><span class="arr">→</span></a><a href="/works/jikoshoukai.html" title="とりせつ — じこしょうかいシリーズ（絵本全17巻）" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
+<!-- GEN:B:START 成果物DBから自動生成(2026-06-07 12:56 JST) 編集はDB側で / KEEP行は温存 -->
       <li style="position:relative"><a href="https://orcid.org/0009-0004-9167-3186"><span class="idx">📄</span><span class="ti">Visionium 論文群<small>論文10本(Paper 5-10 + A-D)・ORCID / Zenodo DOI</small></span><span class="arr">→</span></a><a href="/works/orcid-0009-0004-9167-3186.html" title="とりせつ — Visionium 論文群" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
       <li style="position:relative"><a href="/godwiki/"><span class="idx">📜</span><span class="ti">godwiki（神話DB）<small>ギリシャ・北欧・日本の神話エピソードDB(24件)</small></span><span class="arr">→</span></a><a href="/works/godwiki.html" title="とりせつ — godwiki（神話DB）" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
       <li><a href="/materials-of-civilization/"><span class="idx">📘</span><span class="ti">素材図鑑 読み物版<small>ツールと同じ素材を、長尺エッセイで読み抜ける</small></span><span class="arr">→</span></a></li> <!-- KEEP -->
@@ -870,7 +912,7 @@ a{color:inherit; text-decoration:none}
   <div class="glyph left">届</div>
   <div class="inner">
     <div>
-      <div class="label">PILLAR 04 · P</div>
+      <div class="label">PILLAR 04 · P<span class="pfuda" style="background:var(--osk-pillar-p);color:#42230f">銅</span></div>
       <h2>📮 Postboy<span class="tag">届ける</span></h2>
       <div class="rom">POST + BOY</div>
       <div class="bubble">
@@ -878,12 +920,10 @@ a{color:inherit; text-decoration:none}
       </div>
     </div>
     <ul>
-<!-- GEN:P:START 成果物DBから自動生成(2026-06-07 09:08 JST) 編集はDB側で / KEEP行は温存 -->
+<!-- GEN:P:START 成果物DBから自動生成(2026-06-07 12:56 JST) 編集はDB側で / KEEP行は温存 -->
       <li style="position:relative"><a href="/portfolio-demos/"><span class="idx">🎨</span><span class="ti">ポートフォリオデモ（制作デモ）<small>制作デモ(ベーカリーLPこむぎ日和/SaaS LP FlowTask)</small></span><span class="arr">→</span></a><a href="/works/portfolio-demos.html" title="とりせつ — ポートフォリオデモ（制作デモ）" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
       <li style="position:relative"><a href="/attara-iina/"><span class="idx">💡</span><span class="ti">あったらいいな図鑑<small>みんなの『あんなこといいな』を投稿で集める</small></span><span class="arr">→</span></a><a href="/works/attara-iina.html" title="とりせつ — あったらいいな図鑑" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
       <li style="position:relative"><a href="/hearing-sheet/"><span class="idx">📋</span><span class="ti">Web制作ヒアリングシート<small>LP/Web制作案件の初回ヒアリングフォーム</small></span><span class="arr">→</span></a><a href="/works/hearing-sheet.html" title="とりせつ — Web制作ヒアリングシート" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
-      <li style="position:relative"><a href="https://www.amazon.co.jp/dp/B0GT4HJBF4"><span class="idx">📕</span><span class="ti">パンダと哲学とAI（KDP）<small>KDP書籍</small></span><span class="arr">→</span></a><a href="/works/amazon-b0gt4hjbf4.html" title="とりせつ — パンダと哲学とAI（KDP）" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
-      <li style="position:relative"><a href="https://www.amazon.co.jp/dp/B0GX2X9YF3"><span class="idx">📗</span><span class="ti">人類の素材図鑑（KDP）<small>KDP書籍</small></span><span class="arr">→</span></a><a href="/works/amazon-b0gx2x9yf3.html" title="とりせつ — 人類の素材図鑑（KDP）" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
       <li><a href="https://twitter.com/osakenpiro"><span class="idx">𝕏</span><span class="ti">X<small>@osakenpiro — 開発ログ・引用・思索のスナップショット</small></span><span class="arr">→</span></a></li> <!-- KEEP -->
       <li><a href="https://www.tiktok.com/@panio54"><span class="idx">♪</span><span class="ti">TikTok<small>@panio54 — 口語のほうの osakenpiro</small></span><span class="arr">→</span></a></li> <!-- KEEP -->
       <li><a href="https://note.com/osakenpiro"><span class="idx">✎</span><span class="ti">note<small>note.com/osakenpiro</small></span><span class="arr">→</span></a></li> <!-- KEEP -->
@@ -892,6 +932,57 @@ a{color:inherit; text-decoration:none}
     </ul>
   </div>
 </section>
+
+<!-- ========== G (λ-2a ensure) ========== -->
+<section class="slab s5" id="game">
+  <div class="glyph right">遊</div>
+  <div class="inner">
+    <div>
+      <div class="label">PILLAR 05 · G<span class="pfuda" style="background:var(--osk-pillar-g);color:#262943">蛍石</span></div>
+      <h2>🎮 Gaming Gathering<span class="tag">遊技場</span></h2>
+      <div class="rom">GAMING × GATHERING — あそびのつどい</div>
+      <div class="bubble">
+        勝ち負けの二値の手前にある<em>駆け引き・運・配置</em>を、そのまま遊べる形にする区画。盤と駒とルールの実験場。
+      </div>
+    </div>
+    <ul>
+<!-- GEN:G:START 成果物DBから自動生成(2026-06-07 12:56 JST) 編集はDB側で / KEEP行は温存 -->
+      <li style="position:relative"><a href="/rikkoku/"><span class="idx">⚔️</span><span class="ti">六剋（りくこく）<small>斬・刺・打・固・軟・翻の六属性が剋しあう Boolean→Float RPG</small></span><span class="arr">→</span></a><a href="/works/rikkoku.html" title="とりせつ — 六剋（りくこく）" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
+      <li style="position:relative"><a href="/ecg/"><span class="idx">🃏</span><span class="ti">帝国運用カードゲーム ECG<small>74枚/op29種・単一HTML 154,014B(file://可)・vs CPU+2P・デッキビルダー・神話残篇…</small></span><span class="arr">→</span></a><a href="/works/ecg.html" title="とりせつ — 帝国運用カードゲーム ECG" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
+      <li style="position:relative"><a href="/hello-warld/"><span class="idx">🌍</span><span class="ti">HELLO WAR(L)D — 地図とりあい観察庭<small>P0ソロ観察庭（大行軍v2 Laneδ、SES-404土地神分身 2026-06-06、commit c73a581…</small></span><span class="arr">→</span></a><a href="/works/hello-warld.html" title="とりせつ — HELLO WAR(L)D — 地図とりあい観察庭" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
+      <li style="position:relative"><a href="/bakuun-scouter/"><span class="idx">🎲</span><span class="ti">バク運スカウター — 運力計測器<small>運の計測と運の貯金 — 遊ばない日が運になる運力計測器</small></span><span class="arr">→</span></a><a href="/works/bakuun-scouter.html" title="とりせつ — バク運スカウター — 運力計測器" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
+      <li style="position:relative"><a href="/yumemi-shoujo/"><span class="idx">💤</span><span class="ti">夢見る少女は眠れない<small>起こさないで遊ぶ二重放置ゲー — 少女が自然に目覚めるのを待つと夢が聞ける</small></span><span class="arr">→</span></a><a href="/works/yumemi-shoujo.html" title="とりせつ — 夢見る少女は眠れない" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
+      <li style="position:relative"><a href="/vr-akinator/"><span class="idx">🧙</span><span class="ti">VR Akinator<small>分類法のメタ分類(双子構造の片割れ)</small></span><span class="arr">→</span></a><a href="/works/vr-akinator.html" title="とりせつ — VR Akinator" aria-label="とりせつ" style="position:absolute;right:52px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;text-decoration:none;z-index:2;padding:6px">📖</a></li>
+      <!-- GEN:G:END -->
+    </ul>
+  </div>
+</section>
+
+<!-- ========== 帯 (λ-2a ensure) ========== -->
+<section class="bands" id="bands">
+  <div class="binner">
+    <!-- GEN:BANDS:START 成果物DBから自動生成(2026-06-07 12:56 JST) 編集はDB側/帯構成はBANDS config -->
+      <div class="band"><span class="bl">🧭 案内所<small>どこになにがあるか</small></span>
+        <div class="bi"><a href="/works/"><span class="bdot" style="background:var(--osk-pillar-r,#9d87b8)"></span>📖 WORKS</a>
+          <a href="/moon/"><span class="bdot" style="background:var(--osk-pillar-t,#8c9cab)"></span>🌙 月</a>
+          <a href="/dd/"><span class="bdot" style="background:var(--osk-pillar-r,#9d87b8)"></span>📚 DD</a>
+          <a href="/ecosystem/"><span class="bdot" style="background:var(--osk-pillar-r,#9d87b8)"></span>🌐 生態系相関総観</a>
+          <a href="/ecosystem/topology.html"><span class="bdot" style="background:var(--osk-pillar-r,#9d87b8)"></span>🗂 役割分化地図</a>
+          <a href="/ecosystem-checker/"><span class="bdot" style="background:var(--osk-pillar-t,#8c9cab)"></span>🧩 生態系チェッカー</a></div></div>
+      <div class="band"><span class="bl">🧰 どうぐばこ<small>作る人の道具</small></span>
+        <div class="bi"><a href="/parts/"><span class="bdot" style="background:var(--osk-pillar-r,#9d87b8)"></span>🧩 部品工場 PARTS</a>
+          <a href="/big-light/"><span class="bdot" style="background:var(--osk-pillar-r,#9d87b8)"></span>🔆 big-light</a>
+          <a href="/re-design/queue-dashboard.html"><span class="bdot" style="background:var(--osk-pillar-r,#9d87b8)"></span>🔁 Queue Dashboard</a></div></div>
+      <div class="band"><span class="bl">📚 ほんだな<small>読みもの</small></span>
+        <div class="bi"><a href="https://www.amazon.co.jp/dp/B0GT4HJBF4"><span class="bdot" style="background:var(--osk-pillar-p,#c08a6a)"></span>📕 パンダと哲学とAI</a>
+          <a href="https://www.amazon.co.jp/dp/B0GX2X9YF3"><span class="bdot" style="background:var(--osk-pillar-p,#c08a6a)"></span>📗 人類の素材図鑑</a>
+          <a href="https://kakuyomu.jp/works/2912051601256382667"><span class="bdot" style="background:var(--osk-pillar-b,#7da58f)"></span>◇ A＼mI／DA＼</a>
+          <a href="/jikoshoukai/"><span class="bdot" style="background:var(--osk-pillar-b,#7da58f)"></span>🏛 じこしょうかいシリーズ</a></div></div>
+      <!-- GEN:BANDS:END -->
+  </div>
+</section>
+
+
 
 <!-- ========== SIDE DOOR (どこでもドア風) ========== -->
 <section class="doors single">
