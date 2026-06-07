@@ -1,0 +1,91 @@
+{
+  "meta": {
+    "era": "1965 昭和40 — 高度成長",
+    "year": 1965,
+    "version": "v1",
+    "note": "確度0.6中心（裏取りv2で確定予定）。国鉄=物流の王、DC/携帯/太陽光/LNGなし、電話=交換局経由、原子力商用化前(東海1966)。schema=現代と同一(f/auto/dday/shape)。"
+  },
+  "layers": [
+    { "id": "power", "name": "電力", "color": "#d9a543", "order": 0 },
+    { "id": "water", "name": "水道", "color": "#5b9bd0", "order": 1 },
+    { "id": "data",  "name": "通信", "color": "#a583cf", "order": 2 },
+    { "id": "logi",  "name": "物流", "color": "#79b873", "order": 3 },
+    { "id": "life",  "name": "生物圏", "color": "#6cae9a", "order": 4 }
+  ],
+  "nodes": [
+    { "id": "thermal",  "layer": "power", "label": "石炭・石油火力",   "x": 0.20, "y": 0.20, "f": 0.90, "auto": 0.08, "dday": 2, "desc": "石炭の貨車とボイラーマン——人手の塊。落ちたら再起動する者はいない" },
+    { "id": "hydro",    "layer": "power", "label": "水力(主力級)",     "x": 0.95, "y": 0.26, "f": 0.80, "auto": 0.40, "dday": 2, "shape": "tri", "desc": "佐久間ダムの時代——水力はまだ系統の背骨のひとつ" },
+    { "id": "dispatch", "layer": "power", "label": "給電指令所",       "x": 0.45, "y": 0.07, "f": 0.95, "auto": 0.08, "dday": 1.5, "desc": "需給調整は手動寄り。自動化前夜——人が消えると現代より早く系統が傾く" },
+    { "id": "sub",      "layer": "power", "label": "基幹変電所",       "x": 0.38, "y": 0.26, "f": 0.80, "auto": 0.40, "dday": 2, "desc": "保護継電はあるが粗い。傾いた系統を立て直す自動化はまだ薄い" },
+    { "id": "grid",     "layer": "power", "label": "配電網",           "x": 0.58, "y": 0.33, "f": 0.70, "auto": 0.35, "dday": 2, "desc": "柱上トランスの毛細血管。冷蔵庫普及率はまだ5割——ゾンビ需要も小さい" },
+
+    { "id": "source",    "layer": "water", "label": "水源(ダム・河川)", "x": 0.96, "y": 0.55, "f": 0.80, "auto": 0.95, "dday": 40000, "shape": "tri", "desc": "山の水瓶(発生源)。重力はいつの時代もタダ" },
+    { "id": "purify",    "layer": "water", "label": "浄水場",          "x": 0.80, "y": 0.62, "f": 0.80, "auto": 0.10, "dday": 2, "desc": "電動ポンプと塩素。水道は1965年でもう電気でできている" },
+    { "id": "reservoir", "layer": "water", "label": "配水池",          "x": 0.66, "y": 0.52, "f": 0.65, "auto": 0.60, "dday": 3, "desc": "高台の貯金箱。停電後も残圧で1〜2日" },
+    { "id": "bldgA",     "layer": "water", "label": "直結給水の家",    "x": 0.52, "y": 0.63, "f": 0.65, "auto": 0.40, "dday": 3, "desc": "街はほぼ低層——タワマンも増圧ポンプもまだ無い" },
+    { "id": "bldgB",     "layer": "water", "label": "受水槽ビル",      "x": 0.43, "y": 0.55, "f": 0.35, "auto": 0.50, "dday": 4, "desc": "丸の内のビル街など、まだ少数派" },
+    { "id": "sewage",    "layer": "water", "label": "下水処理場",      "x": 0.24, "y": 0.72, "f": 0.35, "auto": 0.10, "dday": 2, "desc": "普及率はまだ低い——汲取りも現役の時代" },
+
+    { "id": "cable", "layer": "data", "label": "海底ケーブル(電話)", "x": 0.05, "y": 0.80, "f": 0.50, "auto": 0.50, "dday": 3, "shape": "tri", "desc": "TPC-1開通(1964)——太平洋を声が渡り始めたばかり" },
+    { "id": "denwa", "layer": "data", "label": "電話交換局",         "x": 0.21, "y": 0.84, "f": 0.85, "auto": 0.30, "dday": 2.5, "desc": "クロスバー交換機へ移行中。交換手とバッテリー室——半自動の心臓" },
+    { "id": "bcast", "layer": "data", "label": "放送局(TV黄金期)",   "x": 0.33, "y": 0.90, "f": 0.75, "auto": 0.50, "dday": 2.5, "desc": "街頭テレビから茶の間へ。生放送比率が高い=人が消えると死ぬ部分が多い" },
+    { "id": "jjy",   "layer": "data", "label": "JJY標準電波塔",      "x": 0.76, "y": 0.86, "f": 0.50, "auto": 0.85, "dday": 6, "shape": "tri", "desc": "標準時の発生源。この時代からすでに少人数運用" },
+    { "id": "phone", "layer": "data", "label": "電話機・受像機",     "x": 0.62, "y": 0.92, "f": 0.60, "auto": 0.20, "dday": 2.5, "desc": "黒電話は交換局から給電——交換局が死ぬと同時に黙る" },
+
+    { "id": "rail",     "layer": "logi", "label": "国鉄(中央線)",    "x": 0.70, "y": 0.40, "f": 0.90, "auto": 0.05, "dday": 0.03, "desc": "貨物も旅客も国鉄が王者。運転士が消えれば、王国は一瞬で静止する" },
+    { "id": "truck",    "layer": "logi", "label": "幹線トラック網",  "x": 0.53, "y": 0.46, "f": 0.50, "auto": 0.00, "dday": 0.03, "desc": "名神が開通したばかり。トラックはまだ挑戦者" },
+    { "id": "port",     "layer": "logi", "label": "港湾",            "x": 0.08, "y": 0.50, "f": 0.80, "auto": 0.05, "dday": 0.5, "shape": "tri", "desc": "輸入の玄関(発生源)。荷役は人手——ガントリークレーン自動化は遠い未来" },
+    { "id": "market",   "layer": "logi", "label": "中央卸売市場",    "x": 0.29, "y": 0.46, "f": 0.75, "auto": 0.00, "dday": 0.3, "desc": "未明が本番なのは今と同じ。担ぎと仲卸の人海" },
+    { "id": "store",    "layer": "logi", "label": "商店街",          "x": 0.63, "y": 0.58, "f": 0.70, "auto": 0.00, "dday": 0.4, "desc": "対面販売の街。24時間の灯りはまだ無い——夜は店も街も眠る" },
+    { "id": "refinery", "layer": "logi", "label": "製油所・油槽所",  "x": 0.15, "y": 0.62, "f": 0.70, "auto": 0.05, "dday": 0.7, "desc": "モータリゼーション初期。石油は急成長中の血液" },
+    { "id": "gs",       "layer": "logi", "label": "ガソリンスタンド", "x": 0.45, "y": 0.71, "f": 0.50, "auto": 0.10, "dday": 2, "desc": "マイカー元年前夜。地下タンクの構造は今と同じ" },
+    { "id": "umi",      "layer": "logi", "label": "海・漁場",        "x": 0.02, "y": 0.38, "f": 0.80, "auto": 0.05, "dday": 0.04, "shape": "tri", "desc": "漁獲量世界一級の時代。魚は脊椎動物＝(c)勾配で消失" },
+    { "id": "chikusan", "layer": "logi", "label": "牧場・畜産",      "x": 0.14, "y": 0.34, "f": 0.50, "auto": 0.10, "dday": 0.05, "shape": "tri", "desc": "食の洋風化が始まったところ。家畜は(c)勾配で消失" },
+    { "id": "nouchi",   "layer": "logi", "label": "田畑(農地)",      "x": 0.28, "y": 0.33, "f": 0.80, "auto": 0.30, "dday": 1, "shape": "tri", "desc": "兼業化が始まるが、まだ国民の3割が農に関わる" },
+
+    { "id": "pollin",   "layer": "life", "label": "送粉(蜂・虫)",     "x": 0.86, "y": 0.74, "f": 0.70, "auto": 1.00, "dday": 40000, "shape": "tri", "desc": "無償の物流。1965も2026も、虫は同じ仕事をしている" },
+    { "id": "wildgrow", "layer": "life", "label": "自家・風媒の植生", "x": 0.94, "y": 0.86, "f": 0.80, "auto": 1.00, "dday": 40000, "shape": "tri", "desc": "人がいなくても勝手に実る。時代に関係なく" },
+    { "id": "decay",    "layer": "life", "label": "腐敗・分解(菌類)", "x": 0.80, "y": 0.93, "f": 0.60, "auto": 1.00, "dday": 40000, "desc": "掃除屋は不変。人類の痕跡を最初に食べる" }
+  ],
+  "edges": [
+    { "from": "thermal",  "to": "sub",    "f": 0.95 },
+    { "from": "hydro",    "to": "sub",    "f": 0.80 },
+    { "from": "dispatch", "to": "thermal","f": 0.85 },
+    { "from": "dispatch", "to": "sub",    "f": 0.75 },
+    { "from": "sub",      "to": "grid",   "f": 0.90 },
+
+    { "from": "source",    "to": "purify",    "f": 0.85 },
+    { "from": "purify",    "to": "reservoir", "f": 0.85 },
+    { "from": "reservoir", "to": "bldgA",     "f": 0.70 },
+    { "from": "reservoir", "to": "bldgB",     "f": 0.40 },
+    { "from": "bldgA",     "to": "sewage",    "f": 0.40 },
+
+    { "from": "grid", "to": "purify", "f": 0.85, "cross": true, "note": "浄水ポンプは1965でも電気——停電=断水の起点" },
+    { "from": "grid", "to": "denwa",  "f": 0.70, "cross": true, "note": "交換局の本線。切れたらバッテリー室の砂時計" },
+    { "from": "grid", "to": "rail",   "f": 0.70, "cross": true, "note": "中央線は電化済——電気が死ねば電車も死ぬ" },
+    { "from": "grid", "to": "store",  "f": 0.45, "cross": true },
+    { "from": "grid", "to": "sewage", "f": 0.35, "cross": true },
+
+    { "from": "cable", "to": "denwa", "f": 0.50 },
+    { "from": "denwa", "to": "phone", "f": 0.75 },
+    { "from": "bcast", "to": "phone", "f": 0.65 },
+    { "from": "jjy",   "to": "phone", "f": 0.40 },
+
+    { "from": "port",     "to": "refinery", "f": 0.60 },
+    { "from": "port",     "to": "market",   "f": 0.70 },
+    { "from": "market",   "to": "rail",     "f": 0.70, "note": "市場→国鉄貨物——鉄道が食の大動脈" },
+    { "from": "rail",     "to": "store",    "f": 0.60 },
+    { "from": "market",   "to": "truck",    "f": 0.55 },
+    { "from": "truck",    "to": "store",    "f": 0.55 },
+    { "from": "refinery", "to": "gs",       "f": 0.60 },
+    { "from": "gs",       "to": "truck",    "f": 0.50 },
+    { "from": "umi",      "to": "market",   "f": 0.75 },
+    { "from": "chikusan", "to": "market",   "f": 0.50 },
+    { "from": "nouchi",   "to": "market",   "f": 0.75 },
+
+    { "from": "wildgrow", "to": "pollin",   "f": 0.60 },
+    { "from": "pollin",   "to": "wildgrow", "f": 0.60 },
+    { "from": "wildgrow", "to": "decay",    "f": 0.50 },
+    { "from": "pollin",   "to": "market",   "f": 0.35, "cross": true, "note": "送粉が食を支える構図は時代不変" }
+  ]
+}
