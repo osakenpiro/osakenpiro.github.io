@@ -773,3 +773,10 @@ a.tool-row[class*="dd-p-"]{ border-left:3px solid var(--dd-pi); }
 @media (prefers-reduced-motion: reduce){
   .tool-row:hover{ transform:none; }
 }
+
+/* lambda-3 (SES-466) motif koma - jitsubutsu-Br motif (works/images/motif/*_sq.jpg) as 40px koma. rows without it keep emoji icon */
+.tool-row .icon.dd-comic{
+  width:40px; height:40px; border-radius:7px;
+  background-size:cover; background-position:center;
+  box-shadow:0 1px 3px rgba(44,44,42,.28);
+}
