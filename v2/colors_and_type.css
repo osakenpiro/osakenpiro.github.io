@@ -307,3 +307,51 @@
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(4px); }
 }
+
+/* =========================================================
+   Pillar colors — TRBP柱色 (Lane λ-1 / SES-447 / 2026-06-07)
+   G1裁定=案D 鉱物標本: 金は聖域、他の鉱物が周回する。
+   小面積原則: 塗るのはチップ・帯3px・左罫3px・ドットのみ。
+   hover光/CTA/Float数字は --osk-gold の聖域のまま。
+   ========================================================= */
+
+:root {
+  /* ── Color · Pillar (mineral specimen, low-chroma) ───── */
+  --osk-pillar-t:        #8c9cab;   /* T Hi-Me TooL — 鋼 steel */
+  --osk-pillar-r:        #9d87b8;   /* R Re:DeSign — 紫水晶 amethyst */
+  --osk-pillar-b:        #7da58f;   /* B BookBug — 緑青 verdigris */
+  --osk-pillar-p:        #c08a6a;   /* P Postboy — 銅 copper */
+  --osk-pillar-t-soft:   rgba(140,156,171,0.08);   /* 8% glow */
+  --osk-pillar-r-soft:   rgba(157,135,184,0.08);
+  --osk-pillar-b-soft:   rgba(125,165,143,0.08);
+  --osk-pillar-p-soft:   rgba(192,138,106,0.08);
+}
+
+/* Pillar chip — void form: line + text, for dark surfaces */
+.osk-pillar-chip {
+  display: inline-block;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  padding: 2px 9px;
+  border-radius: 10px;
+  border: 1px solid var(--osk-pillar, var(--osk-gold));
+  color: var(--osk-pillar, var(--osk-gold));
+  opacity: 0.92;
+}
+
+/* Pillar chip — paper form: solid tone + ink text, for DD post-it surfaces */
+.osk-pillar-chip--paper {
+  border: none;
+  background: var(--osk-pillar, #d9d9d9);
+  color: #2c2c2a;
+  border-radius: 2px;
+  padding: 2px 10px;
+  box-shadow: 0 2px 4px rgba(60,50,30,0.25);
+  opacity: 1;
+}
+
+/* Per-pillar modifiers — set --osk-pillar on chip/band/tab/rule */
+.osk-pillar--t { --osk-pillar: var(--osk-pillar-t); --osk-pillar-soft: var(--osk-pillar-t-soft); }
+.osk-pillar--r { --osk-pillar: var(--osk-pillar-r); --osk-pillar-soft: var(--osk-pillar-r-soft); }
+.osk-pillar--b { --osk-pillar: var(--osk-pillar-b); --osk-pillar-soft: var(--osk-pillar-b-soft); }
+.osk-pillar--p { --osk-pillar: var(--osk-pillar-p); --osk-pillar-soft: var(--osk-pillar-p-soft); }
