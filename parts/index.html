@@ -6,7 +6,7 @@
 <title>部品工場 PARTS — osakenpiro</title>
 <meta name="description" content="コピペで使えるリッチHTML部品ライブラリ。osakenpiroデザインシステム(colors_and_type.css)準拠・自己完結スニペット集。">
 <meta property="og:title" content="部品工場 PARTS — osakenpiro">
-<meta property="og:description" content="コピペ可能な自己完結HTML部品32点+ひとあかり素材棚24枚">
+<meta property="og:description" content="コピペ可能な自己完結HTML部品36点+ひとあかり素材棚24枚">
 <meta property="og:image" content="https://osakenpiro.github.io/parts/assets/pt_hero-lantern-desk.jpg">
 <link rel="stylesheet" href="/v2/colors_and_type.css">
 <style>
@@ -124,7 +124,7 @@
 <footer>
   <a href="https://osakenpiro.github.io/">← 玄関 osakenpiro.github.io</a>
   <span>画風『ひとあかり』/ SDXL local</span>
-  <span>built 2026-06-07 · Lane ε SES-420 / ε2 SES-429 / ε3 SES-435 / λ-1 SES-447 / ε4 SES-448 / ε5 SES-453 / ε6 SES-456（部品28点） / ε7 SES-464（素材棚24枚） / ε8 SES-469（部品30点） / ε9 SES-472（部品32点）</span>
+  <span>built 2026-06-07 · Lane ε SES-420 / ε2 SES-429 / ε3 SES-435 / λ-1 SES-447 / ε4 SES-448 / ε5 SES-453 / ε6 SES-456（部品28点） / ε7 SES-464（素材棚24枚） / ε8 SES-469（部品30点） / ε9 SES-472（部品32点） / ε10 SES-473（部品36点）</span>
 </footer>
 </main>
 
@@ -1234,6 +1234,241 @@
 </div>
 </template>
 
+<template id="tpl-telescope">
+<!-- osakenpiro parts #telescope テレスコープビュー | https://osakenpiro.github.io/parts/#telescope -->
+<style>
+.pt-tele { max-width:400px; margin-inline:auto; }
+.pt-tele-scope { position:relative; aspect-ratio:1; border-radius:50%; overflow:hidden;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(212,168,83,0.06), transparent 58%),
+    repeating-linear-gradient(0deg, rgba(200,184,160,0.07) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(90deg, rgba(200,184,160,0.07) 0 1px, transparent 1px 26px),
+    radial-gradient(circle at 50% 50%, #10131c 0%, #070a12 78%);
+  border:3px solid rgba(200,184,160,0.28);
+  box-shadow:inset 0 0 0 6px rgba(0,0,0,0.5), inset 0 0 60px rgba(0,0,0,0.72), 0 10px 30px rgba(0,0,0,0.45);
+  transition:box-shadow .35s ease; }
+.pt-tele:hover .pt-tele-scope { box-shadow:inset 0 0 0 6px rgba(0,0,0,0.5),
+  inset 0 0 60px rgba(0,0,0,0.66), 0 10px 34px rgba(0,0,0,0.5), 0 0 0 3px rgba(212,168,83,0.28); }
+.pt-tele-field { position:absolute; inset:0; display:flex; flex-direction:column;
+  justify-content:center; gap:9px; padding:0 17%; transition:transform .45s ease; }
+.pt-tele:hover .pt-tele-field { transform:scale(1.055); }
+.pt-tele-row { display:grid; grid-template-columns:1fr auto; gap:3px 8px; align-items:baseline; }
+.pt-tele-name { font-size:0.6rem; letter-spacing:0.16em; color:var(--osk-fg-1,#c8b8a0); }
+.pt-tele-val { font-family:var(--osk-font-mono,Consolas,monospace); font-size:0.62rem; color:var(--osk-gold,#d4a853); }
+.pt-tele-bar { grid-column:1 / -1; height:5px; border-radius:3px; background:rgba(200,184,160,0.13);
+  position:relative; overflow:hidden; }
+.pt-tele-bar i { position:absolute; inset:0; width:calc(var(--v,0.5)*100%); border-radius:3px;
+  background:linear-gradient(90deg, rgba(212,168,83,0.5), var(--osk-gold,#d4a853));
+  box-shadow:0 0 8px rgba(212,168,83,0.4); }
+.pt-tele-cross { position:absolute; inset:0; pointer-events:none; }
+.pt-tele-cross::before { content:''; position:absolute; left:50%; top:4%; bottom:4%; width:1px;
+  background:rgba(216,90,48,0.32); }
+.pt-tele-cross::after { content:''; position:absolute; top:50%; left:4%; right:4%; height:1px;
+  background:rgba(216,90,48,0.32); }
+.pt-tele-ret { position:absolute; left:50%; top:50%; width:19%; aspect-ratio:1;
+  transform:translate(-50%,-50%); border:1px solid rgba(216,90,48,0.45); border-radius:50%; pointer-events:none; }
+.pt-tele-deg { position:absolute; inset:0; pointer-events:none;
+  font-family:var(--osk-font-mono,Consolas,monospace); font-size:0.5rem; color:rgba(200,184,160,0.42); }
+.pt-tele-deg b { position:absolute; font-weight:400; }
+.pt-tele-cap { display:flex; justify-content:space-between; margin-top:10px;
+  font-family:var(--osk-font-mono,Consolas,monospace); font-size:0.58rem; letter-spacing:0.14em;
+  color:rgba(200,184,160,0.55); }
+@media (prefers-reduced-motion: reduce){ .pt-tele-scope, .pt-tele-field { transition:none; } }
+@media (max-width:560px){ .pt-tele-field { gap:7px; } .pt-tele-name { font-size:0.55rem; } }
+</style>
+<div class="pt-tele">
+  <div class="pt-tele-scope">
+    <div class="pt-tele-field">
+      <div class="pt-tele-row"><span class="pt-tele-name">普通教</span><span class="pt-tele-val">0.92</span><span class="pt-tele-bar"><i style="--v:0.92"></i></span></div>
+      <div class="pt-tele-row"><span class="pt-tele-name">PEACE PIECE</span><span class="pt-tele-val">0.84</span><span class="pt-tele-bar"><i style="--v:0.84"></i></span></div>
+      <div class="pt-tele-row"><span class="pt-tele-name">ECG</span><span class="pt-tele-val">0.78</span><span class="pt-tele-bar"><i style="--v:0.78"></i></span></div>
+      <div class="pt-tele-row"><span class="pt-tele-name">ひとRe:</span><span class="pt-tele-val">0.55</span><span class="pt-tele-bar"><i style="--v:0.55"></i></span></div>
+      <div class="pt-tele-row"><span class="pt-tele-name">夢見る少女</span><span class="pt-tele-val">0.31</span><span class="pt-tele-bar"><i style="--v:0.31"></i></span></div>
+    </div>
+    <span class="pt-tele-cross"></span>
+    <span class="pt-tele-ret"></span>
+    <div class="pt-tele-deg">
+      <b style="left:50%;top:5%;transform:translateX(-50%)">000</b>
+      <b style="right:5.5%;top:50%;transform:translateY(-50%)">090</b>
+      <b style="left:50%;bottom:5%;transform:translateX(-50%)">180</b>
+      <b style="left:5.5%;top:50%;transform:translateY(-50%)">270</b>
+    </div>
+  </div>
+  <div class="pt-tele-cap"><span>OSK OBSERVATORY</span><span>接近天体 5 — hoverで寄る</span></div>
+</div>
+</template>
+
+<template id="tpl-ufo">
+<!-- osakenpiro parts #ufo ユーフォ | https://osakenpiro.github.io/parts/#ufo -->
+<style>
+.pt-ufo { max-width:340px; margin-inline:auto; text-align:center; padding-top:6px; }
+.pt-ufo-ship { position:relative; width:120px; height:52px; margin:0 auto;
+  animation:ptUfoBob 3.4s ease-in-out infinite; }
+.pt-ufo-dome { position:absolute; left:50%; top:0; width:52px; height:38px;
+  transform:translateX(-50%); border-radius:26px 26px 4px 4px;
+  background:radial-gradient(circle at 38% 28%, rgba(232,220,200,0.55), rgba(120,140,170,0.16) 72%);
+  border:1px solid rgba(200,184,160,0.4); }
+.pt-ufo-body { position:absolute; left:0; bottom:4px; width:120px; height:26px; border-radius:50%;
+  background:linear-gradient(180deg, #3a4256, #161b28 70%);
+  border:1px solid rgba(200,184,160,0.35); box-shadow:0 4px 10px rgba(0,0,0,0.5); }
+.pt-ufo-lamps { position:absolute; left:50%; bottom:8px; transform:translateX(-50%);
+  display:flex; gap:15px; }
+.pt-ufo-lamps i { width:6px; height:6px; border-radius:50%;
+  background:var(--osk-gold,#d4a853); box-shadow:0 0 6px rgba(212,168,83,0.8);
+  animation:ptUfoBlink 1.6s infinite; }
+.pt-ufo-lamps i:nth-child(2){ animation-delay:.55s;
+  background:var(--osk-coral,#d85a30); box-shadow:0 0 6px rgba(216,90,48,0.8); }
+.pt-ufo-lamps i:nth-child(3){ animation-delay:1.1s; }
+.pt-ufo-beam { width:172px; height:118px; margin:-4px auto 0;
+  clip-path:polygon(39% 0, 61% 0, 100% 100%, 0 100%);
+  background:linear-gradient(180deg, rgba(212,168,83,0.5), rgba(212,168,83,0.05));
+  animation:ptUfoBeam 2.6s ease-in-out infinite; }
+.pt-ufo-cargo { position:relative; margin:-46px auto 0; width:210px; padding:11px 14px 10px;
+  border-radius:6px; background:rgba(232,220,200,0.06);
+  border:1px solid rgba(212,168,83,0.42); box-shadow:0 0 18px rgba(212,168,83,0.16); }
+.pt-ufo-tag { display:block; font-family:var(--osk-font-mono,Consolas,monospace); font-size:0.55rem;
+  letter-spacing:0.22em; color:var(--osk-coral,#d85a30); margin-bottom:4px; }
+.pt-ufo-name { display:block; font-weight:700; font-size:0.85rem; color:var(--osk-fg-0,#e8dcc8); }
+.pt-ufo-date { display:block; margin-top:3px; font-family:var(--osk-font-mono,Consolas,monospace);
+  font-size:0.55rem; color:var(--osk-fg-1,#c8b8a0); opacity:0.7; }
+.pt-ufo-cap { display:block; margin-top:12px; font-size:0.62rem; letter-spacing:0.12em;
+  color:var(--osk-fg-1,#c8b8a0); opacity:0.75; }
+@keyframes ptUfoBob { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
+@keyframes ptUfoBlink { 0%,100%{ opacity:1; } 50%{ opacity:0.25; } }
+@keyframes ptUfoBeam { 0%,100%{ opacity:0.55; } 50%{ opacity:1; } }
+@media (prefers-reduced-motion: reduce){
+  .pt-ufo-ship, .pt-ufo-lamps i, .pt-ufo-beam { animation:none; } }
+</style>
+<div class="pt-ufo">
+  <div class="pt-ufo-ship"><span class="pt-ufo-dome"></span><span class="pt-ufo-body"></span>
+    <span class="pt-ufo-lamps"><i></i><i></i><i></i></span></div>
+  <div class="pt-ufo-beam"></div>
+  <div class="pt-ufo-cargo">
+    <span class="pt-ufo-tag">NEW ARRIVAL</span>
+    <span class="pt-ufo-name">部品工場 ε10 着荷</span>
+    <span class="pt-ufo-date">2026-06-07 · 円盤の下に降りてくる</span>
+  </div>
+  <span class="pt-ufo-cap">未知からの来訪 — 新着はビームで照らされる</span>
+</div>
+</template>
+
+<template id="tpl-roketchi">
+<!-- osakenpiro parts #roketchi ロケッチ | https://osakenpiro.github.io/parts/#roketchi -->
+<style>
+.pt-rkt { max-width:300px; margin-inline:auto; text-align:center; }
+.pt-rkt-pad { position:relative; height:172px; display:flex; align-items:flex-end; justify-content:center;
+  border:1px solid rgba(200,184,160,0.2); border-radius:8px; overflow:hidden;
+  background:linear-gradient(180deg, #0b0e16, #131826); }
+.pt-rkt-ground { position:absolute; left:0; right:0; bottom:0; height:24px;
+  background:linear-gradient(180deg, rgba(200,184,160,0.15), rgba(200,184,160,0.04));
+  border-top:1px solid rgba(200,184,160,0.3); }
+.pt-rkt-count { position:absolute; right:12px; top:10px;
+  font-family:var(--osk-font-mono,Consolas,monospace); font-size:0.6rem; letter-spacing:0.18em;
+  color:var(--osk-fg-1,#c8b8a0); opacity:0.7; transition:color .3s ease; }
+.pt-rkt:hover .pt-rkt-count { color:var(--osk-coral,#d85a30); opacity:1; }
+.pt-rkt-ship { position:relative; width:46px; height:94px; margin-bottom:24px;
+  transition:transform .5s cubic-bezier(.34,1.3,.4,1); }
+.pt-rkt:hover .pt-rkt-ship { transform:translateY(-26px); }
+.pt-rkt-hull { position:absolute; inset:0 8px;
+  border-radius:50% 50% 14% 14% / 38% 38% 8% 8%;
+  background:linear-gradient(90deg, #8e96a8, #e8dcc8 45%, #767e90);
+  border:1px solid rgba(20,24,34,0.55); }
+.pt-rkt-win { position:absolute; left:50%; top:25px; width:14px; aspect-ratio:1;
+  transform:translateX(-50%); border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #cfe3ef, #2a3a52 72%);
+  border:2px solid var(--osk-gold,#d4a853); }
+.pt-rkt-fin { position:absolute; bottom:-2px; width:14px; height:30px;
+  background:var(--osk-coral,#d85a30); }
+.pt-rkt-fin.l { left:-5px; border-radius:80% 0 0 30%; }
+.pt-rkt-fin.r { right:-5px; border-radius:0 80% 30% 0; }
+.pt-rkt-flame { position:absolute; left:50%; bottom:-27px; width:18px; height:30px;
+  transform:translateX(-50%) scaleY(0.22); transform-origin:top; opacity:0.25;
+  background:radial-gradient(circle at 50% 16%, #f4e2b8, var(--osk-gold,#d4a853) 42%, var(--osk-coral,#d85a30) 74%, transparent 96%);
+  border-radius:50% 50% 50% 50% / 26% 26% 74% 74%;
+  transition:transform .4s ease, opacity .4s ease; }
+.pt-rkt:hover .pt-rkt-flame { transform:translateX(-50%) scaleY(1); opacity:1; }
+.pt-rkt-cap { display:block; margin-top:10px; font-size:0.62rem; letter-spacing:0.12em;
+  color:var(--osk-fg-1,#c8b8a0); opacity:0.75; }
+@media (prefers-reduced-motion: reduce){
+  .pt-rkt-ship, .pt-rkt-flame, .pt-rkt-count { transition:none; } }
+</style>
+<div class="pt-rkt">
+  <div class="pt-rkt-pad">
+    <span class="pt-rkt-ground"></span>
+    <span class="pt-rkt-count">T-3 ··· 2 ··· 1</span>
+    <div class="pt-rkt-ship">
+      <span class="pt-rkt-hull"></span>
+      <span class="pt-rkt-win"></span>
+      <span class="pt-rkt-fin l"></span><span class="pt-rkt-fin r"></span>
+      <span class="pt-rkt-flame"></span>
+    </div>
+  </div>
+  <span class="pt-rkt-cap">hoverで点火 — 新プロジェクト、打ち上げ</span>
+</div>
+</template>
+
+<template id="tpl-koma">
+<!-- osakenpiro parts #koma マンガコマ | https://osakenpiro.github.io/parts/#koma -->
+<style>
+.pt-koma { max-width:520px; margin-inline:auto; position:relative; padding:14px 14px 26px;
+  border-radius:4px; background:var(--osk-washi,#efe7d4); color:#1c1814;
+  font-family:var(--osk-font-serif,'Hiragino Mincho ProN','Yu Mincho',serif);
+  box-shadow:0 6px 18px rgba(0,0,0,0.35); }
+.pt-koma-grid { display:grid; grid-template-columns:1.25fr 1fr; grid-auto-rows:128px; gap:9px; }
+.pt-koma-cell { position:relative; border:2.5px solid #1c1814; background:#f7f1e3;
+  overflow:hidden; padding:10px; transition:transform .25s ease, box-shadow .25s ease; }
+.pt-koma-cell:hover { transform:translateY(-3px); box-shadow:4px 5px 0 rgba(28,24,20,0.85); z-index:1; }
+.pt-koma-wide { grid-column:1 / -1; }
+.pt-koma-nar { position:absolute; left:-1px; top:-1px; background:#1c1814; color:#f7f1e3;
+  font-size:0.6rem; letter-spacing:0.14em; padding:3px 9px; }
+.pt-koma-fuki { position:absolute; left:50%; top:54%; transform:translate(-50%,-50%);
+  background:#fff; border:2px solid #1c1814; border-radius:50%;
+  padding:20px 22px; font-weight:700; font-size:0.85rem; line-height:1.5;
+  text-align:center; white-space:nowrap; }
+.pt-koma-fuki::after { content:''; position:absolute; left:16%; bottom:-11px; width:15px; height:15px;
+  background:#fff; border-right:2px solid #1c1814; border-bottom:2px solid #1c1814;
+  transform:skewX(-20deg) rotate(40deg); }
+.pt-koma-sfx { position:absolute; right:7px; bottom:5px; font-weight:900; font-size:1.45rem;
+  transform:rotate(-8deg); color:var(--osk-coral,#d85a30);
+  text-shadow:1px 1px 0 #1c1814, -1px 1px 0 #1c1814, 1px -1px 0 #1c1814, -1px -1px 0 #1c1814; }
+.pt-koma-burst { display:grid; place-items:center;
+  background:
+    radial-gradient(circle at 50% 50%, #f7f1e3 0 30%, rgba(247,241,227,0.55) 44%, transparent 64%),
+    repeating-conic-gradient(from 0deg at 50% 50%, #1c1814 0deg 1.4deg, transparent 1.4deg 8deg),
+    #f7f1e3; }
+.pt-koma-item { font-weight:900; font-size:1.25rem; letter-spacing:0.06em; }
+.pt-koma-pg { position:absolute; bottom:5px; left:50%; transform:translateX(-50%);
+  font-size:0.6rem; color:rgba(28,24,20,0.6); }
+.pt-koma::after { content:''; position:absolute; right:0; bottom:0; width:34px; height:34px;
+  border-top-left-radius:6px;
+  background:linear-gradient(315deg, rgba(28,24,20,0.34) 0 49%, rgba(28,24,20,0.16) 50%, var(--osk-washi,#efe7d4) 51%);
+  box-shadow:-2px -2px 5px rgba(0,0,0,0.14); transition:width .3s ease, height .3s ease; }
+.pt-koma:hover::after { width:54px; height:54px; }
+@media (prefers-reduced-motion: reduce){
+  .pt-koma-cell, .pt-koma::after { transition:none; } }
+@media (max-width:560px){ .pt-koma-grid { grid-auto-rows:108px; }
+  .pt-koma-fuki { padding:14px 14px; font-size:0.75rem; }
+  .pt-koma-sfx { font-size:1.15rem; } }
+</style>
+<div class="pt-koma">
+  <div class="pt-koma-grid">
+    <div class="pt-koma-cell pt-koma-wide">
+      <span class="pt-koma-nar">ある日の部品工場</span>
+      <span class="pt-koma-fuki">ひみつどうぐ、<br>あるよ。</span>
+      <span class="pt-koma-sfx">ﾄﾞﾝ!</span>
+    </div>
+    <div class="pt-koma-cell pt-koma-burst">
+      <span class="pt-koma-item">SATORI</span>
+    </div>
+    <div class="pt-koma-cell">
+      <span class="pt-koma-fuki" style="left:50%;top:48%;">コピペで<br>持ち帰り自由</span>
+      <span class="pt-koma-sfx">ｷﾗｰﾝ</span>
+    </div>
+  </div>
+  <span class="pt-koma-pg">— 8 —</span>
+</div>
+</template>
+
 <!-- ============ ページ生成 ============ -->
 <script>
 var PARTS = [
@@ -1301,6 +1536,15 @@ var PARTS = [
     desc:'中心星のまわりをプロジェクト惑星が公転する模型。速さ=熱量、軌道=抽象度、大きさ=規模。hoverで止まって読める。CSSだけ、JS不要。', ds:'視覚比喩 / rotation' },
   { id:'mushipin',     tpl:'tpl-mushipin',     name:'ムシピン',          en:'#mushipin',
     desc:'ピンで留めた作品の標本箱。ガラス蓋の光沢ごしに等間隔で陳列、hoverで標本がそっと起き上がる。CSSだけ、JS不要。', ds:'視覚比喩 / hover展開' }
+,
+  { id:'telescope',    tpl:'tpl-telescope',    name:'テレスコープビュー',  en:'#telescope',
+    desc:'望遠鏡の観測画面でプロジェクトを覗くKPIビュー。十字線+方眼+数字グリッドにFloat進捗バー5系統。hoverでぐっと寄る。CSSだけ、JS不要。', ds:'視覚比喩 / hover展開' },
+  { id:'ufo',          tpl:'tpl-ufo',          name:'ユーフォ',          en:'#ufo',
+    desc:'円盤の下からビームが降りて、新着がそこに照らされる到来フィード。ランプ明滅+ふわふわ浮遊の脈動。CSSだけ、JS不要。', ds:'視覚比喩 / 脈動' },
+  { id:'roketchi',     tpl:'tpl-roketchi',     name:'ロケッチ',          en:'#roketchi',
+    desc:'発射台で待つロケットがhoverで点火・浮上するアクショントリガー。新プロジェクト打ち上げ/外部遷移の合図に。CSSだけ、JS不要。', ds:'視覚比喩 / hover展開' },
+  { id:'koma',         tpl:'tpl-koma',         name:'マンガコマ',        en:'#koma',
+    desc:'漫画のコマ割り+吹き出し+効果音+ページめくり角。ひみつどうぐ系譜のツール陳列向け。hoverでコマが浮く。CSSだけ、JS不要。', ds:'視覚比喩 / hover展開' }
 ];
 
 var SHELF = [
