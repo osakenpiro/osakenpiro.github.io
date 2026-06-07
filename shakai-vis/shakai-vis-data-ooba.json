@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "era": "大葉 2126 — 人なき緑（大場不郎の世界）",
+    "year": 2126,
+    "version": "v1",
+    "note": "ひとRe:本編の舞台＝人類消失後100年の緑の世界。大場(おおば)の音に葉を当てた時代名。インフラは廃墟化(低f)、生物圏と不郎が主役(高f)。現代→大葉の補間で『網が細り緑が育つ』。schema=現代同一。"
+  },
+  "layers": [
+    { "id": "power", "name": "電力(絶)", "color": "#d9a543", "order": 0 },
+    { "id": "water", "name": "水", "color": "#5b9bd0", "order": 1 },
+    { "id": "data",  "name": "通信(絶)", "color": "#a583cf", "order": 2 },
+    { "id": "logi",  "name": "残骸", "color": "#79b873", "order": 3 },
+    { "id": "life",  "name": "緑", "color": "#6cae9a", "order": 4 }
+  ],
+  "nodes": [
+    { "id": "grid",   "layer": "power", "label": "廃・配電網",     "x": 0.58, "y": 0.33, "f": 0.10, "auto": 0.40, "dday": 2, "desc": "錆びた毛細血管。もう何も流れない。20年で電線は空から消えた" },
+    { "id": "dc",     "layer": "data",  "label": "沈黙のDC",       "x": 0.21, "y": 0.84, "f": 0.08, "auto": 0.50, "dday": 5, "desc": "最後の白い点が落ちて久しい。クラウドの墓標" },
+    { "id": "rail",   "layer": "logi",  "label": "草に埋もれた線路", "x": 0.70, "y": 0.40, "f": 0.10, "auto": 0.05, "dday": 0.03, "desc": "甲州道中→中央線→緑の回廊。三度名を変えた道が、また自然へ" },
+    { "id": "market", "layer": "logi",  "label": "市場跡",         "x": 0.29, "y": 0.46, "f": 0.10, "auto": 0.00, "dday": 0.3, "desc": "蔦に覆われた河岸の記憶。未明の喧騒はもうない" },
+    { "id": "haikyo", "layer": "logi",  "label": "廃墟群",         "x": 0.45, "y": 0.62, "f": 0.35, "auto": 1.00, "dday": 40000, "desc": "RC中性化→鉄筋爆裂。タワマンだけが森から突き出て、窓から風が抜ける" },
+
+    { "id": "source", "layer": "water", "label": "水源(河川・湧水)", "x": 0.96, "y": 0.55, "f": 0.65, "auto": 0.95, "dday": 40000, "shape": "tri", "desc": "重力は人類後も止まらない。緑を潤し、不郎の喉を潤し続ける" },
+
+    { "id": "pollin",   "layer": "life", "label": "送粉(蜂・虫)",     "x": 0.86, "y": 0.74, "f": 0.95, "auto": 1.00, "dday": 40000, "shape": "tri", "desc": "人なき世界の主役。蜂と虫が無償の物流を回し続ける——唯一止まらなかったインフラ" },
+    { "id": "wildgrow", "layer": "life", "label": "緑（覆い尽くす）", "x": 0.94, "y": 0.86, "f": 1.00, "auto": 1.00, "dday": 40000, "shape": "tri", "desc": "イネも雑草も街路樹も。100年でビルを呑み、街を森へ還す" },
+    { "id": "decay",    "layer": "life", "label": "分解(菌類)",      "x": 0.80, "y": 0.93, "f": 0.85, "auto": 1.00, "dday": 40000, "desc": "人類の最終痕跡を、いちばん最後まで食べ続ける掃除屋" },
+    { "id": "tsuta",    "layer": "life", "label": "蔦・苔",          "x": 0.64, "y": 0.72, "f": 0.70, "auto": 1.00, "dday": 40000, "shape": "tri", "desc": "廃墟を覆う緑の前線。コンクリの目地から忍び込み、街を一枚ずつ緑に塗り替える" },
+    { "id": "furo",     "layer": "life", "label": "大場不郎(最後の手)", "x": 0.50, "y": 0.54, "f": 1.00, "auto": 1.00, "dday": 40000, "desc": "最後のひとり、最後の手。120年を生き、世界を看取る。隅から中央へ——人が消えるほど、彼が世界の中心になる" },
+    { "id": "youhou",   "layer": "life", "label": "養蜂(不郎の巣箱)", "x": 0.68, "y": 0.46, "f": 0.60, "auto": 1.00, "dday": 40000, "desc": "飼いならした蜂で送粉に手を入れる——関与度ゼロの世界に戻ってきた、一点だけの人の手" },
+    { "id": "kioku",    "layer": "life", "label": "記録「Re:」",      "x": 0.34, "y": 0.36, "f": 0.55, "auto": 1.00, "dday": 40000, "desc": "『世界寿命』＋『ひとRe:日々』。読む者があれば受取人が成立する＝人類の最終地層" }
+  ],
+  "edges": [
+    { "from": "source",   "to": "wildgrow", "f": 0.50, "cross": true, "note": "水が緑を潤す" },
+    { "from": "wildgrow", "to": "pollin",   "f": 0.70, "note": "花→蜜" },
+    { "from": "pollin",   "to": "wildgrow", "f": 0.70, "note": "受粉→結実（無人で回る生命の環）" },
+    { "from": "wildgrow", "to": "decay",    "f": 0.60, "note": "枯死→分解" },
+    { "from": "wildgrow", "to": "tsuta",    "f": 0.60, "note": "緑が蔦を伸ばす" },
+    { "from": "tsuta",    "to": "haikyo",   "f": 0.60, "note": "蔦が廃墟を覆う＝街を森へ" },
+    { "from": "decay",    "to": "haikyo",   "f": 0.50, "note": "分解が廃墟を食う" },
+    { "from": "furo",     "to": "youhou",   "f": 0.70, "note": "養蜂——不郎の手" },
+    { "from": "youhou",   "to": "pollin",   "f": 0.60, "note": "飼いならした蜂が送粉を助ける＝送粉の部分的再人間化" },
+    { "from": "furo",     "to": "wildgrow", "f": 0.50, "note": "稲作・採取" },
+    { "from": "furo",     "to": "kioku",    "f": 0.60, "note": "世界寿命＋ひとRe:日々を遺す" }
+  ]
+}
