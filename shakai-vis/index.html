@@ -29,6 +29,8 @@
   .controls{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-left:auto}
   .grp{display:flex; gap:4px; align-items:center; padding-right:10px; border-right:1px solid var(--line)}
   .grp:last-child{border-right:none; padding-right:0}
+  .eside{font-size:10px; color:var(--dim); letter-spacing:.04em; white-space:nowrap}
+  #eraRange{width:120px; accent-color:var(--gold); height:3px; cursor:pointer}
   button{
     background:transparent; color:var(--dim); border:1px solid var(--line); border-radius:3px;
     font-size:11px; padding:3px 9px; cursor:pointer; font-family:inherit; letter-spacing:.04em;
@@ -75,7 +77,7 @@
     display:flex; gap:15px; align-items:center; font-size:10px; color:var(--dim); flex-wrap:wrap;
   }
   .lg{display:flex; align-items:center; gap:6px}
-  .gradbar{width:74px; height:6px; border-radius:3px; background:linear-gradient(90deg,#2a2b38,#d4a853)}
+  .gradbar{width:74px; height:6px; border-radius:3px; background:linear-gradient(90deg,#2a2b38,#d4a543)}
   .ldash{display:inline-block; width:20px; height:0; border-top:2px dashed var(--dim)}
   .ldot{display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--life)}
   .ltri{display:inline-block; width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-bottom:9px solid var(--dim)}
@@ -87,6 +89,11 @@
   <h1>社会考証ビジュアライザ<span class="sub">ひとRe: 世界観構築</span></h1>
   <div class="era" id="era">—</div>
   <div class="controls">
+    <div class="grp" id="eraGrp" style="display:none">
+      <span class="eside">江戸</span>
+      <input type="range" id="eraRange" min="0" max="1000" value="1000" aria-label="時代スライダー">
+      <span class="eside">現代</span>
+    </div>
     <div class="grp">
       <button id="vTop" class="act">トップ視点</button>
       <button id="vSide">断面（横階層）</button>
@@ -119,7 +126,7 @@
   <span class="lg"><span class="ltri"></span> 発生源（△）</span>
   <span class="lg"><span class="ldash"></span> レイヤー間依存</span>
   <span class="lg"><span class="ldot"></span> 生物圏（無人で不滅）</span>
-  <span>チップ＝表示切替／2回押し＝単独／本丸☠＝人類消失シミュ</span>
+  <span>時代スライダー＝江戸⇄1965⇄現代を補間／本丸☠＝人類消失シミュ／ノードにマウス＝考証</span>
   <span class="credit">HC: 🍵ボク × 🔧ツルこ ／ 🌞タバネさん見守り</span>
 </footer>
 
@@ -240,33 +247,38 @@
   "use strict";
   var LSKEY = "shakai-vis-v0";
 
-  var DATA = JSON.parse(document.getElementById("dataEmbed").textContent);
-  try {
-    fetch("shakai-vis-data-modern.json")
-      .then(function(r){ return r.ok ? r.json() : null; })
-      .then(function(j){ if (j && j.nodes) { DATA = j; buildModel(); layout(); buildChips(); } })
-      .catch(function(){});
-  } catch(e) {}
+  /* ---------- era data ---------- */
+  var EMB = JSON.parse(document.getElementById("dataEmbed").textContent);
+  var eraDefs = [
+    { id: "edo",    year: 1850, url: "shakai-vis-data-edo.json" },
+    { id: "s40",    year: 1965, url: "shakai-vis-data-1965.json" },
+    { id: "modern", year: 2026, url: "shakai-vis-data-modern.json" }
+  ];
+  var eraData = { modern: EMB };
+  function availEras(){ return eraDefs.filter(function(e){ return !!eraData[e.id]; }); }
 
-  var state = { view: "top", anim: true, on: { }, solo: null, honmaru: false, clock: 0.0, simPlay: false };
-  DATA.layers.forEach(function(L){ state.on[L.id] = true; });
+  /* ---------- state ---------- */
+  var state = { view: "top", anim: true, on: { }, solo: null, honmaru: false, clock: 0.0, simPlay: false, era: 1 };
   try {
     var saved = JSON.parse(localStorage.getItem(LSKEY) || "null");
     if (saved) {
       if (saved.view === "top" || saved.view === "side") state.view = saved.view;
       if (typeof saved.anim === "boolean") state.anim = saved.anim;
-      if (saved.on) DATA.layers.forEach(function(L){ if (typeof saved.on[L.id] === "boolean") state.on[L.id] = saved.on[L.id]; });
+      if (saved.on) { for (var sk in saved.on) { if (typeof saved.on[sk] === "boolean") state.on[sk] = saved.on[sk]; } }
       if (typeof saved.solo === "string") state.solo = saved.solo;
+      if (typeof saved.era === "number" && saved.era >= 0 && saved.era <= 1) state.era = saved.era;
     }
   } catch(e) {}
-  function save(){ try { localStorage.setItem(LSKEY, JSON.stringify({ view:state.view, anim:state.anim, on:state.on, solo:state.solo })); } catch(e){} }
+  function save(){ try { localStorage.setItem(LSKEY, JSON.stringify({ view:state.view, anim:state.anim, on:state.on, solo:state.solo, era:state.era })); } catch(e){} }
 
+  /* ---------- helpers ---------- */
   function hex2rgb(h){ h = h.replace("#",""); return [parseInt(h.substr(0,2),16), parseInt(h.substr(2,2),16), parseInt(h.substr(4,2),16)]; }
   var BG = hex2rgb("#0b0c14"); var GREY = [110,112,124]; var IVORY = [232,226,213]; var GOLD = [212,168,83];
   function mix(c1, c2, t){ return "rgb(" + Math.round(c1[0]+(c2[0]-c1[0])*t) + "," + Math.round(c1[1]+(c2[1]-c1[1])*t) + "," + Math.round(c1[2]+(c2[2]-c1[2])*t) + ")"; }
   function rgba(c, a){ return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")"; }
   function mulberry32(s){ return function(){ s |= 0; s = s + 0x6D2B79F5 | 0; var t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
+  /* ---------- 本丸モード: 時間軸 ---------- */
   var DAY_MIN = 0.02, DAY_MAX = 36500; var LMIN = Math.log(DAY_MIN), LMAX = Math.log(DAY_MAX);
   function clockDays(){ return Math.exp(LMIN + (LMAX - LMIN) * state.clock); }
   function dayLabel(d){
@@ -276,6 +288,17 @@
     var y = d / 365; return "Year " + (y < 10 ? y.toFixed(1) : Math.round(y));
   }
   function phaseCaption(d){
+    if (nearestEraId === "edo") {
+      if (d < 0.1) return "<b>消失の刻</b> 飛脚も河岸も廻船も、その場で止まる——人力の社会に猶予はない";
+      if (d < 30)  return "<b>その後</b> 玉川上水だけが、誰もいない江戸に水を運び続ける";
+      return "<b>歳月</b> 残るのは水と、虫と、緑。木と紙の都は現代より速く土に還る";
+    }
+    if (nearestEraId === "s40") {
+      if (d < 1)  return "<b>Day 0</b> 運転士と交換手が消える。国鉄と電話が最初に黙る";
+      if (d < 3)  return "<b>Day 1-2</b> 石炭火力が無人で燃え尽き、街の灯が消える——DCの72hという尾は無い";
+      if (d < 60) return "<b>Week</b> 1965の崩落は現代より短く済む。自動化の借金がまだ小さい";
+      return "<b>歳月</b> 残るものは現代と同じ——水源、送粉、植生、分解";
+    }
     if (d < 0.05) return "<b>4:44</b> 全員が消えた瞬間。走行中の車と電車が、ノーブレーキで止まる";
     if (d < 1)    return "<b>Day 0</b> 機械だけが生きている朝。物流の人手（運転士・港湾・市場）と、海・畜産が真っ先に消える";
     if (d < 2)    return "<b>Day 1</b> 太陽光フラッド。昼の電気が暴れ、自動保護が乱暴に系統を削る";
@@ -288,33 +311,128 @@
     if (d < 11000)return "<b>Year 10-30</b> 緑の都市。20年で街の空から電線が消える";
     return "<b>Year 30+</b> 観測者の黄昏。止まらないのは——送粉、植生、分解、そして最後の手ひとつ";
   }
-  function nodeAlive(n){ return !state.honmaru || clockDays() < (n.dday != null ? n.dday : DAY_MAX + 1); }
 
-  var layersById = {}, nodesById = {}, model = { nodes: [], edges: [] };
-  function buildModel(){
-    layersById = {}; nodesById = {};
-    DATA.layers.forEach(function(L){ L.rgb = hex2rgb(L.color); layersById[L.id] = L; });
-    model.nodes = DATA.nodes.map(function(n){ var m = Object.assign({}, n); m.L = layersById[n.layer]; m.cx = 0; m.cy = 0; m.tx = 0; m.ty = 0; m.placed = false; nodesById[n.id] = m; return m; });
-    DATA.layers.forEach(function(L){ var ns = model.nodes.filter(function(n){ return n.layer === L.id; }).sort(function(a,b){ return a.y - b.y; }); ns.forEach(function(n,i){ n.bandRel = ns.length > 1 ? i/(ns.length-1) : 0.5; }); });
-    model.edges = DATA.edges.map(function(e,i){ var a = nodesById[e.from], b = nodesById[e.to]; var m = Object.assign({}, e); m.a = a; m.b = b; m.bend = (i % 2 === 0 ? 1 : -1) * (e.cross ? 0.14 : 0.09); var count = 1 + Math.round((e.f || 0.5) * 3); m.parts = []; var rnd = mulberry32(1000 + i); for (var k = 0; k < count; k++) { m.parts.push({ t: rnd(), v: (0.0018 + (e.f||0.5)*0.0035) * (0.6 + 0.5*rnd()) }); } return m; }).filter(function(e){ return e.a && e.b; });
+  /* ---------- union model（全時代ID突合） ---------- */
+  var layersById = {}, unionLayers = [], model = { nodes: [], edges: [] };
+  function repNode(n){ return n.eras.modern || n.eras.s40 || n.eras.edo; }
+  function rebuildAll(){
+    var avail = availEras();
+    var lmap = {};
+    avail.forEach(function(ed){
+      (eraData[ed.id].layers || []).forEach(function(L){
+        var u = lmap[L.id] || (lmap[L.id] = { id: L.id, names: {} });
+        u.color = L.color; u.order = L.order; u.names[ed.id] = L.name;
+      });
+    });
+    unionLayers = Object.keys(lmap).map(function(k){ return lmap[k]; }).sort(function(a,b){ return a.order - b.order; });
+    layersById = {};
+    unionLayers.forEach(function(L){ L.rgb = hex2rgb(L.color); layersById[L.id] = L; if (state.on[L.id] == null) state.on[L.id] = true; });
+
+    var old = {}; model.nodes.forEach(function(n){ old[n.id] = n; });
+    var nmap = {};
+    avail.forEach(function(ed){
+      eraData[ed.id].nodes.forEach(function(n){
+        var u = nmap[n.id] || (nmap[n.id] = { id: n.id, eras: {} });
+        u.eras[ed.id] = n; u.layer = n.layer; if (n.shape) u.shape = n.shape;
+      });
+    });
+    model.nodes = Object.keys(nmap).map(function(k){
+      var u = nmap[k]; u.L = layersById[u.layer];
+      var o = old[u.id];
+      u.cx = o ? o.cx : 0; u.cy = o ? o.cy : 0; u.placed = o ? !!o.placed : false;
+      return u;
+    });
+    unionLayers.forEach(function(L){
+      var ns = model.nodes.filter(function(n){ return n.layer === L.id; })
+                          .sort(function(a,b){ return repNode(a).y - repNode(b).y; });
+      ns.forEach(function(n,i){ n.bandRel = ns.length > 1 ? i/(ns.length-1) : 0.5; });
+    });
+    var nodesById = {}; model.nodes.forEach(function(n){ nodesById[n.id] = n; });
+    var oldE = {}; model.edges.forEach(function(e){ oldE[e.from + "|" + e.to] = e; });
+    var emap = {};
+    avail.forEach(function(ed){
+      eraData[ed.id].edges.forEach(function(e){
+        var key = e.from + "|" + e.to;
+        var u = emap[key] || (emap[key] = { from: e.from, to: e.to, eras: {}, cross: false });
+        u.eras[ed.id] = e; if (e.cross) u.cross = true;
+      });
+    });
+    model.edges = Object.keys(emap).map(function(k, i){
+      var u = emap[k];
+      u.a = nodesById[u.from]; u.b = nodesById[u.to];
+      u.bend = (i % 2 === 0 ? 1 : -1) * (u.cross ? 0.14 : 0.09);
+      var o = oldE[k];
+      if (o && o.parts) { u.parts = o.parts; }
+      else {
+        var mf = 0; for (var ek in u.eras) { if ((u.eras[ek].f || 0) > mf) mf = u.eras[ek].f; }
+        mf = mf || 0.5;
+        var count = 1 + Math.round(mf * 3); u.parts = [];
+        var rnd = mulberry32(1000 + i);
+        for (var pk = 0; pk < count; pk++) { u.parts.push({ t: rnd(), v: (0.0018 + mf * 0.0035) * (0.6 + 0.5 * rnd()) }); }
+      }
+      return u;
+    }).filter(function(e){ return e.a && e.b; });
+    buildChips();
+    syncEraUI();
   }
-  buildModel();
 
+  /* ---------- era 補間 ---------- */
+  var curBr = null, nearestEraId = "modern";
+  function eraBracket(){
+    var avail = availEras();
+    if (avail.length < 2) { var e0 = avail[0]; return { A: e0, B: e0, t: 0, year: e0.year }; }
+    var seg = 1 / (avail.length - 1);
+    var s = Math.max(0, Math.min(1, state.era));
+    var i = Math.min(Math.floor(s / seg), avail.length - 2);
+    var t = (s - i * seg) / seg;
+    return { A: avail[i], B: avail[i+1], t: t, year: Math.round(avail[i].year + (avail[i+1].year - avail[i].year) * t) };
+  }
+  function nodeVals(n){
+    var a = n.eras[curBr.A.id], b = n.eras[curBr.B.id];
+    var fa = a ? a.f : 0, fb = b ? b.f : 0, t = curBr.t;
+    var f = fa + (fb - fa) * t;
+    var src = t < 0.5 ? (a || b) : (b || a);
+    var both = a && b;
+    return {
+      f: f, on: f > 0.02,
+      x: both ? a.x + (b.x - a.x) * t : src.x,
+      y: both ? a.y + (b.y - a.y) * t : src.y,
+      auto: both ? (a.auto + (b.auto - a.auto) * t) : src.auto,
+      dday: both ? (a.dday + (b.dday - a.dday) * t) : src.dday,
+      label: src.label, desc: src.desc
+    };
+  }
+  function edgeF(e){
+    var a = e.eras[curBr.A.id], b = e.eras[curBr.B.id];
+    var fa = a ? (a.f || 0.5) : 0, fb = b ? (b.f || 0.5) : 0;
+    return fa + (fb - fa) * curBr.t;
+  }
+  function eraBadgeText(){
+    var mA = eraData[curBr.A.id].meta, mB = eraData[curBr.B.id].meta;
+    if (curBr.t < 0.04) return (mA && mA.era) || curBr.A.id;
+    if (curBr.t > 0.96) return (mB && mB.era) || curBr.B.id;
+    return "補間 " + curBr.year + "年";
+  }
+  function nodeAlive(n){ return !state.honmaru || clockDays() < ((n.v && n.v.dday != null) ? n.v.dday : DAY_MAX + 1); }
+
+  /* ---------- canvas ---------- */
   var cv = document.getElementById("cv"), ctx = cv.getContext("2d");
   var W = 0, H = 0, DPR = 1, stars = [];
-  function resize(){ DPR = window.devicePixelRatio || 1; var r = cv.parentElement.getBoundingClientRect(); W = Math.max(300, r.width); H = Math.max(240, r.height); cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); var rnd = mulberry32(44); stars = []; for (var i = 0; i < 130; i++) { stars.push({ x: rnd()*W, y: rnd()*H, r: 0.4 + rnd()*0.9, a: 0.08 + rnd()*0.25 }); } layout(); }
-
-  var PAD = { l: 70, r: 70, t: 56, b: 44 };
-  function layout(){
-    var iw = W - PAD.l - PAD.r, ih = H - PAD.t - PAD.b;
-    if (state.view === "top") { model.nodes.forEach(function(n){ n.tx = PAD.l + n.x * iw; n.ty = PAD.t + n.y * ih; }); }
-    else { var bh = ih / DATA.layers.length; model.nodes.forEach(function(n){ var bi = n.L.order; n.tx = PAD.l + n.x * iw; n.ty = PAD.t + bi * bh + bh * (0.22 + n.bandRel * 0.56); }); }
-    model.nodes.forEach(function(n){ if (!n.placed) { n.cx = n.tx; n.cy = n.ty; n.placed = true; } });
+  function resize(){
+    DPR = window.devicePixelRatio || 1;
+    var r = cv.parentElement.getBoundingClientRect();
+    W = Math.max(300, r.width); H = Math.max(240, r.height);
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    var rnd = mulberry32(44); stars = [];
+    for (var i = 0; i < 130; i++) { stars.push({ x: rnd()*W, y: rnd()*H, r: 0.4 + rnd()*0.9, a: 0.08 + rnd()*0.25 }); }
   }
+  var PAD = { l: 70, r: 70, t: 56, b: 44 };
 
   function layerAlpha(id){ if (state.solo) return id === state.solo ? 1 : 0.05; return state.on[id] ? 1 : 0; }
   function edgeAlpha(e){ return Math.min(layerAlpha(e.a.layer), layerAlpha(e.b.layer)); }
 
+  /* ---------- draw ---------- */
   var hover = null, lastFrame = 0;
   function bezier(e, t){ var x0 = e.a.cx, y0 = e.a.cy, x1 = e.b.cx, y1 = e.b.cy; var mx = (x0+x1)/2, my = (y0+y1)/2; var dx = x1-x0, dy = y1-y0, d = Math.sqrt(dx*dx+dy*dy) || 1; var cx = mx + (-dy/d) * d * e.bend, cy = my + (dx/d) * d * e.bend; var u = 1-t; return [u*u*x0 + 2*u*t*cx + t*t*x1, u*u*y0 + 2*u*t*cy + t*t*y1, cx, cy]; }
   function pathNode(cx, cy, r, shape){
@@ -335,68 +453,137 @@
     var hm = state.honmaru;
     if (hm && state.simPlay) { state.clock += dt / 24; if (state.clock >= 1) { state.clock = 1; state.simPlay = false; syncUI(); } simRange.value = Math.round(state.clock * 1000); }
     var dnow = hm ? clockDays() : 0;
+
+    curBr = eraBracket();
+    var nid = curBr.t < 0.5 ? curBr.A.id : curBr.B.id;
+    if (nid !== nearestEraId) { nearestEraId = nid; updateChipNames(); }
+
+    /* pass1: 補間値＋座標 */
+    var iw = W - PAD.l - PAD.r, ih = H - PAD.t - PAD.b;
+    var bh = ih / (unionLayers.length || 1);
+    model.nodes.forEach(function(n){
+      var v = nodeVals(n); n.v = v;
+      var tx, ty;
+      if (state.view === "top") { tx = PAD.l + v.x * iw; ty = PAD.t + v.y * ih; }
+      else { var bi = n.L.order; tx = PAD.l + v.x * iw; ty = PAD.t + bi * bh + bh * (0.22 + n.bandRel * 0.56); }
+      if (!n.placed) { n.cx = tx; n.cy = ty; n.placed = true; }
+      n.cx += (tx - n.cx) * 0.13; n.cy += (ty - n.cy) * 0.13;
+    });
+
     ctx.clearRect(0, 0, W, H);
     for (var i = 0; i < stars.length; i++) { var s = stars[i]; ctx.globalAlpha = s.a; ctx.fillStyle = "#cfc8b8"; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.2832); ctx.fill(); }
     ctx.globalAlpha = 1;
+
     if (state.view === "side") {
-      var ih = H - PAD.t - PAD.b, bh = ih / DATA.layers.length;
-      DATA.layers.forEach(function(L){ var y0 = PAD.t + L.order * bh; var a = layerAlpha(L.id); ctx.fillStyle = rgba(L.rgb, 0.035 * (a > 0.5 ? 1 : 0.4)); ctx.fillRect(PAD.l - 46, y0 + 3, W - PAD.l - PAD.r + 92, bh - 6); ctx.fillStyle = rgba(L.rgb, a > 0.5 ? 0.85 : 0.18); ctx.font = "600 11px sans-serif"; ctx.textAlign = "left"; ctx.textBaseline = "top"; ctx.fillText(L.name, 14, y0 + 8); ctx.strokeStyle = rgba(L.rgb, 0.12); ctx.beginPath(); ctx.moveTo(8, y0 + 2); ctx.lineTo(W - 8, y0 + 2); ctx.stroke(); });
+      unionLayers.forEach(function(L){
+        var y0 = PAD.t + L.order * bh;
+        var a = layerAlpha(L.id);
+        ctx.fillStyle = rgba(L.rgb, 0.035 * (a > 0.5 ? 1 : 0.4));
+        ctx.fillRect(PAD.l - 46, y0 + 3, W - PAD.l - PAD.r + 92, bh - 6);
+        ctx.fillStyle = rgba(L.rgb, a > 0.5 ? 0.85 : 0.18);
+        ctx.font = "600 11px sans-serif";
+        ctx.textAlign = "left"; ctx.textBaseline = "top";
+        ctx.fillText(chipName(L), 14, y0 + 8);
+        ctx.strokeStyle = rgba(L.rgb, 0.12);
+        ctx.beginPath(); ctx.moveTo(8, y0 + 2); ctx.lineTo(W - 8, y0 + 2); ctx.stroke();
+      });
     }
+
     model.edges.forEach(function(e){
+      if (!e.a.v || !e.b.v || !e.a.v.on || !e.b.v.on) return;
+      var ef = edgeF(e); if (ef <= 0.02) return;
       var a = edgeAlpha(e); if (a <= 0) return;
       var dead = hm && (!nodeAlive(e.a) || !nodeAlive(e.b));
       var p0 = bezier(e, 0);
       if (dead) { ctx.strokeStyle = rgba(GREY, 0.12 * a); }
       else { var g = ctx.createLinearGradient(e.a.cx, e.a.cy, e.b.cx, e.b.cy); g.addColorStop(0, rgba(e.a.L.rgb, 0.55 * a)); g.addColorStop(1, rgba(e.b.L.rgb, 0.55 * a)); ctx.strokeStyle = g; }
-      ctx.lineWidth = 0.8 + (e.f || 0.5) * 2.2; ctx.setLineDash(e.cross ? [5, 5] : []);
+      ctx.lineWidth = 0.8 + ef * 2.2; ctx.setLineDash(e.cross ? [5, 5] : []);
       ctx.beginPath(); ctx.moveTo(e.a.cx, e.a.cy); ctx.quadraticCurveTo(p0[2], p0[3], e.b.cx, e.b.cy); ctx.stroke(); ctx.setLineDash([]);
     });
+
     model.edges.forEach(function(e){
+      if (!e.a.v || !e.b.v || !e.a.v.on || !e.b.v.on) return;
+      var ef = edgeF(e); if (ef <= 0.02) return;
       var a = edgeAlpha(e); if (a <= 0.06) return;
       if (hm && (!nodeAlive(e.a) || !nodeAlive(e.b))) return;
-      e.parts.forEach(function(p){ if (state.anim) { p.t += p.v; if (p.t > 1) p.t -= 1; } var pos = bezier(e, p.t); var col = [ Math.round(e.a.L.rgb[0] + (e.b.L.rgb[0]-e.a.L.rgb[0]) * p.t), Math.round(e.a.L.rgb[1] + (e.b.L.rgb[1]-e.a.L.rgb[1]) * p.t), Math.round(e.a.L.rgb[2] + (e.b.L.rgb[2]-e.a.L.rgb[2]) * p.t) ]; ctx.fillStyle = rgba(col, 0.9 * a); ctx.beginPath(); ctx.arc(pos[0], pos[1], 1.1 + (e.f || 0.5) * 1.7, 0, 6.2832); ctx.fill(); });
+      e.parts.forEach(function(p){ if (state.anim) { p.t += p.v; if (p.t > 1) p.t -= 1; } var pos = bezier(e, p.t); var col = [ Math.round(e.a.L.rgb[0] + (e.b.L.rgb[0]-e.a.L.rgb[0]) * p.t), Math.round(e.a.L.rgb[1] + (e.b.L.rgb[1]-e.a.L.rgb[1]) * p.t), Math.round(e.a.L.rgb[2] + (e.b.L.rgb[2]-e.a.L.rgb[2]) * p.t) ]; ctx.fillStyle = rgba(col, 0.9 * a); ctx.beginPath(); ctx.arc(pos[0], pos[1], 1.1 + ef * 1.7, 0, 6.2832); ctx.fill(); });
     });
+
     ctx.textAlign = "center"; ctx.textBaseline = "top";
     model.nodes.forEach(function(n){
+      var v = n.v; if (!v || !v.on) return;
       var la = layerAlpha(n.layer); if (la <= 0) return;
-      n.cx += (n.tx - n.cx) * 0.13; n.cy += (n.ty - n.cy) * 0.13;
-      var r = 6 + n.f * 9; var alive = nodeAlive(n); var isFuro = n.id === "furo"; var a = la * (alive ? 1 : 0.30);
-      var halo = isFuro || (!hm && n.f >= 0.95) || (hm && alive && (n.auto != null && n.auto >= 0.95));
+      var r = 6 + v.f * 9; var alive = nodeAlive(n); var isFuro = n.id === "furo"; var a = la * (alive ? 1 : 0.30);
+      var halo = isFuro || (!hm && v.f >= 0.95) || (hm && alive && (v.auto != null && v.auto >= 0.95));
       if (halo && la > 0.5) { var hc = isFuro ? GOLD : n.L.rgb; ctx.strokeStyle = rgba(hc, 0.20); ctx.beginPath(); ctx.arc(n.cx, n.cy, r + 6 + Math.sin(now/600) * 1.5, 0, 6.2832); ctx.stroke(); }
       var body;
-      if (isFuro) body = mix(BG, IVORY, 0.30 + 0.60 * n.f);
+      if (isFuro) body = mix(BG, IVORY, 0.30 + 0.60 * v.f);
       else if (!alive) body = mix(BG, GREY, 0.18);
-      else body = mix(BG, n.L.rgb, 0.25 + 0.75 * n.f);
+      else body = mix(BG, n.L.rgb, 0.25 + 0.75 * v.f);
       ctx.globalAlpha = a; ctx.fillStyle = body; pathNode(n.cx, n.cy, r, n.shape); ctx.fill();
       ctx.lineWidth = n === hover ? 2 : 1.2; var strokeC = isFuro ? GOLD : (alive ? n.L.rgb : GREY); ctx.strokeStyle = rgba(strokeC, n === hover ? 1 : (alive ? 0.85 : 0.5)); pathNode(n.cx, n.cy, r, n.shape); ctx.stroke();
-      ctx.fillStyle = n === hover ? "#fff" : (alive ? rgba(IVORY, 0.55 + 0.45 * n.f) : rgba(GREY, 0.8)); ctx.font = (n === hover ? "600 " : "") + "11px sans-serif"; ctx.fillText(n.label, n.cx, n.cy + r + 4); ctx.globalAlpha = 1;
+      ctx.fillStyle = n === hover ? "#fff" : (alive ? rgba(IVORY, 0.55 + 0.45 * v.f) : rgba(GREY, 0.8)); ctx.font = (n === hover ? "600 " : "") + "11px sans-serif"; ctx.fillText(v.label, n.cx, n.cy + r + 4); ctx.globalAlpha = 1;
     });
+
     if (hm) { eraEl.textContent = "☠ 人類消失 ／ " + dayLabel(dnow); simClock.textContent = dayLabel(dnow); simCap.innerHTML = phaseCaption(dnow); simStat.innerHTML = buildStat(dnow); }
+    else if (availEras().length >= 2) { eraEl.textContent = eraBadgeText(); }
     requestAnimationFrame(draw);
   }
-  function buildStat(d){ var iA = 0, iT = 0, lA = 0, lT = 0; model.nodes.forEach(function(n){ var on = d < (n.dday != null ? n.dday : DAY_MAX + 1); if (n.layer === "life") { lT++; if (on) lA++; } else { iT++; if (on) iA++; } }); return '社会インフラ 稼働 <span class="' + (iA > 0 ? 'alive' : 'dead') + '">' + iA + '</span> / ' + iT + '　｜　生物圏 <span class="alive">' + lA + '/' + lT + '</span> 不変'; }
+  function buildStat(d){
+    var iA = 0, iT = 0, lA = 0, lT = 0;
+    model.nodes.forEach(function(n){
+      if (!n.v || !n.v.on) return;
+      var on = d < ((n.v.dday != null) ? n.v.dday : DAY_MAX + 1);
+      if (n.layer === "life") { lT++; if (on) lA++; } else { iT++; if (on) iA++; }
+    });
+    return '社会インフラ 稼働 <span class="' + (iA > 0 ? 'alive' : 'dead') + '">' + iA + '</span> / ' + iT + '　｜　生物圏 <span class="alive">' + lA + '/' + lT + '</span> 不変';
+  }
 
+  /* ---------- tooltip ---------- */
   var tip = document.getElementById("tip");
   cv.addEventListener("mousemove", function(ev){
     var rect = cv.getBoundingClientRect(); var mx = ev.clientX - rect.left, my = ev.clientY - rect.top; hover = null; var best = 1e9;
-    model.nodes.forEach(function(n){ if (layerAlpha(n.layer) <= 0.05) return; var r = 6 + n.f * 9 + 7; var d = (n.cx-mx)*(n.cx-mx) + (n.cy-my)*(n.cy-my); if (d < r*r && d < best) { best = d; hover = n; } });
-    if (hover) {
-      var pct = Math.round(hover.f * 100); var apct = hover.auto != null ? Math.round(hover.auto * 100) : null;
+    model.nodes.forEach(function(n){
+      if (!n.v || !n.v.on) return;
+      if (layerAlpha(n.layer) <= 0.05) return;
+      var r = 6 + n.v.f * 9 + 7;
+      var d = (n.cx-mx)*(n.cx-mx) + (n.cy-my)*(n.cy-my);
+      if (d < r*r && d < best) { best = d; hover = n; }
+    });
+    if (hover && hover.v) {
+      var v = hover.v;
+      var pct = Math.round(v.f * 100); var apct = v.auto != null ? Math.round(v.auto * 100) : null;
       var role = hover.shape === "tri" ? " △発生源" : "";
-      var html = '<div class="t">' + hover.label + role + '</div>' + '<div class="l" style="color:' + hover.L.color + '">' + hover.L.name + 'レイヤー ／ 濃度Float ' + hover.f.toFixed(2) + '</div>' + '<div class="bar"><i style="width:' + pct + '%;background:' + hover.L.color + '"></i></div>';
-      if (apct != null) { html += '<div class="l" style="color:var(--dim)">自動運転Float（無人継続度） ' + hover.auto.toFixed(2) + '</div>' + '<div class="bar"><i style="width:' + apct + '%;background:#6cae9a"></i></div>'; }
-      html += '<div class="d">' + (hover.desc || "") + '</div>';
-      if (state.honmaru) { var on = clockDays() < (hover.dday != null ? hover.dday : DAY_MAX + 1); var st = hover.dday >= DAY_MAX ? '<span class="alive">止まらない（無人で不滅）</span>' : (on ? '<span class="alive">稼働中</span>　停止予測 ' + dayLabel(hover.dday) : '<span class="dead">停止済</span>　' + dayLabel(hover.dday) + ' に死亡'); html += '<div class="st">本丸: ' + st + '</div>'; }
+      var html = '<div class="t">' + v.label + role + '</div>' + '<div class="l" style="color:' + (layersById[hover.layer]||{}).color + '">' + chipName(layersById[hover.layer]) + 'レイヤー ／ 濃度Float ' + v.f.toFixed(2) + '</div>' + '<div class="bar"><i style="width:' + pct + '%;background:' + (layersById[hover.layer]||{}).color + '"></i></div>';
+      if (apct != null) { html += '<div class="l" style="color:var(--dim)">自動運転Float（無人継続度） ' + v.auto.toFixed(2) + '</div>' + '<div class="bar"><i style="width:' + apct + '%;background:#6cae9a"></i></div>'; }
+      html += '<div class="d">' + (v.desc || "") + '</div>';
+      if (state.honmaru) { var on = clockDays() < ((v.dday != null) ? v.dday : DAY_MAX + 1); var st = v.dday >= DAY_MAX ? '<span class="alive">止まらない（無人で不滅）</span>' : (on ? '<span class="alive">稼働中</span>　停止予測 ' + dayLabel(v.dday) : '<span class="dead">停止済</span>　' + dayLabel(v.dday) + ' に死亡'); html += '<div class="st">本丸: ' + st + '</div>'; }
       tip.innerHTML = html; tip.style.display = "block"; var tw = tip.offsetWidth, th = tip.offsetHeight; var lx = mx + 16, ly = my + 14; if (lx + tw > W - 8) lx = mx - tw - 16; if (ly + th > H - 8) ly = my - th - 14; tip.style.left = lx + "px"; tip.style.top = ly + "px"; cv.style.cursor = "pointer";
     } else { tip.style.display = "none"; cv.style.cursor = "default"; }
   });
   cv.addEventListener("mouseleave", function(){ hover = null; tip.style.display = "none"; });
 
+  /* ---------- UI ---------- */
   var chipsEl = document.getElementById("chips"); var chipTimers = {};
+  function chipName(L){ if (!L) return ""; return L.names[nearestEraId] || L.names.modern || L.names[Object.keys(L.names)[0]] || L.id; }
   function buildChips(){
     chipsEl.innerHTML = "";
-    DATA.layers.forEach(function(L){ var b = document.createElement("button"); b.className = "chip"; b.style.color = L.color; b.innerHTML = '<span class="dot"></span>' + L.name; b.addEventListener("click", function(){ clearTimeout(chipTimers[L.id]); chipTimers[L.id] = setTimeout(function(){ if (state.solo) state.solo = null; else state.on[L.id] = !state.on[L.id]; syncUI(); save(); }, 230); }); b.addEventListener("dblclick", function(){ clearTimeout(chipTimers[L.id]); state.solo = (state.solo === L.id) ? null : L.id; syncUI(); save(); }); b.dataset.layer = L.id; chipsEl.appendChild(b); });
+    unionLayers.forEach(function(L){
+      var b = document.createElement("button");
+      b.className = "chip"; b.style.color = L.color;
+      b.innerHTML = '<span class="dot"></span><span class="cname">' + chipName(L) + '</span>';
+      b.addEventListener("click", function(){ clearTimeout(chipTimers[L.id]); chipTimers[L.id] = setTimeout(function(){ if (state.solo) state.solo = null; else state.on[L.id] = !state.on[L.id]; syncUI(); save(); }, 230); });
+      b.addEventListener("dblclick", function(){ clearTimeout(chipTimers[L.id]); state.solo = (state.solo === L.id) ? null : L.id; syncUI(); save(); });
+      b.dataset.layer = L.id;
+      chipsEl.appendChild(b);
+    });
     syncUI();
+  }
+  function updateChipNames(){
+    Array.prototype.forEach.call(chipsEl.children, function(b){
+      var L = layersById[b.dataset.layer]; if (!L) return;
+      var s = b.querySelector(".cname"); if (s) s.textContent = chipName(L);
+    });
   }
   var vTop = document.getElementById("vTop"), vSide = document.getElementById("vSide");
   var bAll = document.getElementById("bAll"), bAnim = document.getElementById("bAnim");
@@ -404,8 +591,15 @@
   var sim = document.getElementById("sim"), simRange = document.getElementById("simRange");
   var simPlayBtn = document.getElementById("simPlay"), simClock = document.getElementById("simClock");
   var simCap = document.getElementById("simCap"), simStat = document.getElementById("simStat");
+  var eraGrp = document.getElementById("eraGrp"), eraRange = document.getElementById("eraRange");
+  function syncEraUI(){
+    var multi = availEras().length >= 2;
+    eraGrp.style.display = multi ? "flex" : "none";
+    eraRange.value = Math.round(state.era * 1000);
+    if (!multi && !state.honmaru) eraEl.textContent = (eraData.modern.meta && eraData.modern.meta.era) || "";
+  }
   function syncUI(){
-    if (!state.honmaru) eraEl.textContent = (DATA.meta && DATA.meta.era) || "";
+    if (!state.honmaru && availEras().length < 2) eraEl.textContent = (eraData.modern.meta && eraData.modern.meta.era) || "";
     vTop.classList.toggle("act", state.view === "top"); vSide.classList.toggle("act", state.view === "side");
     bAnim.classList.toggle("act", state.anim); bAnim.textContent = state.anim ? "流れ ▶" : "流れ ⏸";
     bHonmaru.classList.toggle("act", state.honmaru); sim.classList.toggle("on", state.honmaru);
@@ -413,16 +607,30 @@
     if (state.honmaru) simRange.value = Math.round(state.clock * 1000);
     Array.prototype.forEach.call(chipsEl.children, function(b){ var id = b.dataset.layer; b.classList.toggle("solo", state.solo === id); b.classList.toggle("on", state.solo ? state.solo === id : state.on[id]); b.classList.toggle("off", state.solo ? state.solo !== id : !state.on[id]); });
   }
-  vTop.addEventListener("click", function(){ state.view = "top"; layout(); syncUI(); save(); });
-  vSide.addEventListener("click", function(){ state.view = "side"; layout(); syncUI(); save(); });
-  bAll.addEventListener("click", function(){ state.solo = null; DATA.layers.forEach(function(L){ state.on[L.id] = true; }); syncUI(); save(); });
+  vTop.addEventListener("click", function(){ state.view = "top"; syncUI(); save(); });
+  vSide.addEventListener("click", function(){ state.view = "side"; syncUI(); save(); });
+  bAll.addEventListener("click", function(){ state.solo = null; unionLayers.forEach(function(L){ state.on[L.id] = true; }); syncUI(); save(); });
   bAnim.addEventListener("click", function(){ state.anim = !state.anim; syncUI(); save(); });
-  bHonmaru.addEventListener("click", function(){ state.honmaru = !state.honmaru; if (!state.honmaru) { state.simPlay = false; eraEl.textContent = (DATA.meta && DATA.meta.era) || ""; } syncUI(); });
+  bHonmaru.addEventListener("click", function(){ state.honmaru = !state.honmaru; if (!state.honmaru) { state.simPlay = false; if (availEras().length < 2) eraEl.textContent = (eraData.modern.meta && eraData.modern.meta.era) || ""; } syncUI(); });
   simRange.addEventListener("input", function(){ state.clock = (+simRange.value) / 1000; state.simPlay = false; syncUI(); });
   simPlayBtn.addEventListener("click", function(){ if (state.clock >= 1) state.clock = 0; state.simPlay = !state.simPlay; syncUI(); });
+  eraRange.addEventListener("input", function(){ state.era = (+eraRange.value) / 1000; save(); });
 
+  /* ---------- era fetch（file://では静かに現代単独へフォールバック） ---------- */
+  eraDefs.forEach(function(ed){
+    try {
+      fetch(ed.url)
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(j){ if (j && j.nodes) { eraData[ed.id] = j; rebuildAll(); } })
+        .catch(function(){});
+    } catch(e) {}
+  });
+
+  /* ---------- boot ---------- */
   window.addEventListener("resize", resize);
-  buildChips(); resize(); requestAnimationFrame(draw);
+  rebuildAll();
+  resize();
+  requestAnimationFrame(draw);
 })();
 </script>
 </body>
