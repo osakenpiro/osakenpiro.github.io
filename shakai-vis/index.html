@@ -41,6 +41,7 @@
   #bHonmaru.act{color:#e8b9a0; border-color:#c87a55; background:rgba(200,122,85,.08)}
   #bTenote.act{color:#e0b15a; border-color:#c8923f; background:rgba(208,150,60,.08)}
   #bFault.act{color:#e89a9a; border-color:#b85a5a; background:rgba(184,90,90,.08)}
+  #bPhantom.act{color:#cfc8d8; border-color:#7d7790; background:rgba(150,140,180,.10)}
   .chip{display:flex; align-items:center; gap:5px}
   .chip .dot{width:8px; height:8px; border-radius:50%; background:currentColor; display:inline-block}
   .chip.on{color:var(--ink)}
@@ -109,6 +110,7 @@
       <button id="bTenote" title="人がいないと動かない＝人の手依存を常時強調">人の手 ✋</button>
       <button id="bHonmaru" title="人類消失後、何が止まり、何が止まらないかをシミュレート">本丸 ☠</button>
       <button id="bFault" title="ノードをクリックで停止→下流へカスケード波及">障害 ⚡</button>
+      <button id="bPhantom" title="不郎が感じる『もう一人』——いるはずのない気配を重ねる">幻 👁</button>
     </div>
   </div>
 </header>
@@ -279,7 +281,7 @@
   function availEras(){ return eraDefs.filter(function(e){ return !!eraData[e.id]; }); }
 
   /* ---------- state ---------- */
-  var state = { view: "top", anim: true, on: { }, solo: null, honmaru: false, clock: 0.0, simPlay: false, era: 0.667, tenote: false, fault: false, faults: [] };
+  var state = { view: "top", anim: true, on: { }, solo: null, honmaru: false, clock: 0.0, simPlay: false, era: 0.667, tenote: false, fault: false, faults: [], phantom: false };
   try {
     var saved = JSON.parse(localStorage.getItem(LSKEY) || "null");
     if (saved) {
@@ -295,6 +297,12 @@
   /* ---------- helpers ---------- */
   function hex2rgb(h){ h = h.replace("#",""); return [parseInt(h.substr(0,2),16), parseInt(h.substr(2,2),16), parseInt(h.substr(4,2),16)]; }
   var BG = hex2rgb("#0b0c14"); var GREY = [110,112,124]; var IVORY = [232,226,213]; var GOLD = [212,168,83];
+  var PHANTOMS = [
+    { label: "もう一人",        x: 0.40, y: 0.50 },
+    { label: "夜の物音",        x: 0.30, y: 0.28 },
+    { label: "記憶にない一手",  x: 0.63, y: 0.40 },
+    { label: "裏の数え手",      x: 0.30, y: 0.74 }
+  ];
   function mix(c1, c2, t){ return "rgb(" + Math.round(c1[0]+(c2[0]-c1[0])*t) + "," + Math.round(c1[1]+(c2[1]-c1[1])*t) + "," + Math.round(c1[2]+(c2[2]-c1[2])*t) + ")"; }
   function rgba(c, a){ return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")"; }
   function mulberry32(s){ return function(){ s |= 0; s = s + 0x6D2B79F5 | 0; var t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -572,8 +580,26 @@
       ctx.fillStyle = n === hover ? "#fff" : (alive ? rgba(IVORY, 0.55 + 0.45 * v.f) : rgba(GREY, 0.8)); ctx.font = (n === hover ? "600 " : "") + "11px sans-serif"; ctx.fillText(v.label, n.cx, n.cy + r + 4); ctx.globalAlpha = 1;
     });
 
+    if (state.phantom) {
+      var fu = null; for (var pi = 0; pi < model.nodes.length; pi++) { if (model.nodes[pi].id === "furo") { fu = model.nodes[pi]; break; } }
+      var iw2 = W - PAD.l - PAD.r, ih2 = H - PAD.t - PAD.b;
+      ctx.textAlign = "center";
+      for (var q = 0; q < PHANTOMS.length; q++) {
+        var ph = PHANTOMS[q];
+        var px = PAD.l + (ph.x + Math.sin(now/1300 + q*1.7) * 0.012) * iw2;
+        var py = PAD.t + (ph.y + Math.cos(now/1600 + q*2.3) * 0.012) * ih2;
+        var fl = 0.10 + 0.26 * (0.5 + 0.5 * Math.sin(now/700 + q*1.9));
+        if (fu && fu.v && fu.v.on) { ctx.strokeStyle = rgba(IVORY, fl*0.45); ctx.setLineDash([3,5]); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(fu.cx, fu.cy); ctx.lineTo(px, py); ctx.stroke(); ctx.setLineDash([]); }
+        ctx.strokeStyle = rgba(IVORY, fl); ctx.setLineDash([2,4]); ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(px, py, 9, 0, 6.2832); ctx.stroke(); ctx.setLineDash([]);
+        ctx.fillStyle = rgba(IVORY, fl*0.7); ctx.textBaseline = "middle"; ctx.font = "600 12px sans-serif"; ctx.fillText("？", px, py);
+        ctx.fillStyle = rgba(IVORY, fl); ctx.textBaseline = "top"; ctx.font = "11px sans-serif"; ctx.fillText(ph.label, px, py + 13);
+      }
+      ctx.textBaseline = "top";
+    }
+
     if (hm) { eraEl.textContent = "☠ 人類消失 ／ " + dayLabel(dnow); simClock.textContent = dayLabel(dnow); simCap.innerHTML = phaseCaption(dnow); simStat.innerHTML = buildStat(dnow); }
     else if (state.fault) { eraEl.textContent = "⚡ 障害注入 ／ 停止 " + Object.keys(faultDead).length + " 基（クリックで注入/解除）"; }
+    else if (state.phantom) { eraEl.textContent = "👁 もう一人 ／ いるはずのない気配（本物か、こじつけか）"; }
     else if (state.tenote) { eraEl.textContent = "✋ 人の手 ／ " + (availEras().length >= 2 ? eraBadgeText() : "輪が濃いほど人依存"); }
     else if (availEras().length >= 2) { eraEl.textContent = eraBadgeText(); }
     requestAnimationFrame(draw);
@@ -646,6 +672,7 @@
   var bHonmaru = document.getElementById("bHonmaru"); var eraEl = document.getElementById("era");
   var bTenote = document.getElementById("bTenote");
   var bFault = document.getElementById("bFault");
+  var bPhantom = document.getElementById("bPhantom");
   var sim = document.getElementById("sim"), simRange = document.getElementById("simRange");
   var simPlayBtn = document.getElementById("simPlay"), simClock = document.getElementById("simClock");
   var simCap = document.getElementById("simCap"), simStat = document.getElementById("simStat");
@@ -663,6 +690,7 @@
     bHonmaru.classList.toggle("act", state.honmaru); sim.classList.toggle("on", state.honmaru);
     bTenote.classList.toggle("act", state.tenote);
     bFault.classList.toggle("act", state.fault);
+    bPhantom.classList.toggle("act", state.phantom);
     simPlayBtn.classList.toggle("act", state.simPlay); simPlayBtn.textContent = state.simPlay ? "⏱ 停止" : "⏱ 自動";
     if (state.honmaru) simRange.value = Math.round(state.clock * 1000);
     Array.prototype.forEach.call(chipsEl.children, function(b){ var id = b.dataset.layer; b.classList.toggle("solo", state.solo === id); b.classList.toggle("on", state.solo ? state.solo === id : state.on[id]); b.classList.toggle("off", state.solo ? state.solo !== id : !state.on[id]); });
@@ -674,6 +702,7 @@
   bHonmaru.addEventListener("click", function(){ state.honmaru = !state.honmaru; if (!state.honmaru) { state.simPlay = false; if (availEras().length < 2) eraEl.textContent = (eraData.modern.meta && eraData.modern.meta.era) || ""; } syncUI(); });
   bTenote.addEventListener("click", function(){ state.tenote = !state.tenote; syncUI(); });
   bFault.addEventListener("click", function(){ state.fault = !state.fault; if (!state.fault) state.faults = []; syncUI(); });
+  bPhantom.addEventListener("click", function(){ state.phantom = !state.phantom; syncUI(); });
   simRange.addEventListener("input", function(){ state.clock = (+simRange.value) / 1000; state.simPlay = false; syncUI(); });
   simPlayBtn.addEventListener("click", function(){ if (state.clock >= 1) state.clock = 0; state.simPlay = !state.simPlay; syncUI(); });
   eraRange.addEventListener("input", function(){ state.era = (+eraRange.value) / 1000; save(); });
