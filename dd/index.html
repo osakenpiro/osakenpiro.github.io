@@ -259,14 +259,15 @@
 
   /* ---------- TOOLS (placeholder rows) ---------- */
   const tGrid = document.getElementById('tools-grid');
+  const DD_PILLARS = { T:['鋼','#8c9cab','#23303a'], R:['紫水晶','#9d87b8','#312643'], B:['緑青','#7da58f','#1f3a2b'], P:['銅','#c08a6a','#42230f'], G:['蛍石','#8689b8','#262943'], O:['孔雀石','#6f9f9b','#16302d'] }; /* λ-2c SES-465 柱札(鉱物名/solid/最暗ink)=gen_works PILLAR_CHIP同値 */
   D.tools.forEach(t => {
     const el = document.createElement('a');
-    el.className = 'tool-row' + (t.pending ? ' pending' : '');
+    el.className = 'tool-row' + (t.pending ? ' pending' : '') + (t.pillar && DD_PILLARS[t.pillar] ? ' dd-p-' + t.pillar.toLowerCase() : '');
     el.href = t.url || '#';
     if (t.url && t.url.startsWith('http')) { el.target = '_blank'; el.rel = 'noopener'; }
     el.innerHTML = `
       <div class="icon">${escapeHtml(t.icon)}</div>
-      <div class="name">${escapeHtml(t.ja)}<small>${escapeHtml(t.en)} — ${escapeHtml(t.sub)}</small></div>
+      <div class="name">${escapeHtml(t.ja)}${t.pillar && DD_PILLARS[t.pillar] ? `<span class="dd-pchip" style="background:${DD_PILLARS[t.pillar][1]};color:${DD_PILLARS[t.pillar][2]}">${DD_PILLARS[t.pillar][0]}</span>` : ''}<small>${escapeHtml(t.en)} — ${escapeHtml(t.sub)}</small></div>
       <div class="stack">${escapeHtml(t.stack)}</div>
     `;
     tGrid.appendChild(el);
