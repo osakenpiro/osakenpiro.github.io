@@ -6,7 +6,7 @@
 <title>部品工場 PARTS — osakenpiro</title>
 <meta name="description" content="コピペで使えるリッチHTML部品ライブラリ。osakenpiroデザインシステム(colors_and_type.css)準拠・自己完結スニペット集。">
 <meta property="og:title" content="部品工場 PARTS — osakenpiro">
-<meta property="og:description" content="コピペ可能な自己完結HTML部品18点+ひとあかり素材棚">
+<meta property="og:description" content="コピペ可能な自己完結HTML部品19点+ひとあかり素材棚">
 <meta property="og:image" content="https://osakenpiro.github.io/parts/assets/pt_hero-lantern-desk.jpg">
 <link rel="stylesheet" href="/v2/colors_and_type.css">
 <style>
@@ -124,7 +124,7 @@
 <footer>
   <a href="https://osakenpiro.github.io/">← 玄関 osakenpiro.github.io</a>
   <span>画風『ひとあかり』/ SDXL local</span>
-  <span>built 2026-06-06 · Lane ε SES-420 / ε2 SES-429 / ε3 SES-435（部品18点）</span>
+  <span>built 2026-06-06 · Lane ε SES-420 / ε2 SES-429 / ε3 SES-435 / λ-1 SES-447（部品19点）</span>
 </footer>
 </main>
 
@@ -658,6 +658,68 @@
 </nav>
 </template>
 
+<template id="tpl-pillar-fuda">
+<div class="pt-fuda" style="font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif;">
+  <style>
+    .pt-fuda{
+      /* 柱色4変数 — v2/colors_and_type.css 準拠・fallback内蔵(案D鉱物標本) */
+      --fuda-t:var(--osk-pillar-t,#8c9cab); /* T 鋼 */
+      --fuda-r:var(--osk-pillar-r,#9d87b8); /* R 紫水晶 */
+      --fuda-b:var(--osk-pillar-b,#7da58f); /* B 緑青 */
+      --fuda-p:var(--osk-pillar-p,#c08a6a); /* P 銅 */
+      display:flex;flex-direction:column;gap:16px;
+    }
+    .pt-fuda .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+    .pt-fuda .lbl{font-size:0.6rem;letter-spacing:0.15em;color:rgba(200,184,160,0.35);
+      text-transform:uppercase;min-width:6.5em;}
+    /* ① チップ void型 = 線+文字 */
+    .pt-fuda-chip{display:inline-block;font-size:0.6rem;letter-spacing:0.08em;
+      padding:2px 9px;border-radius:10px;border:1px solid var(--pc,#d4a853);
+      color:var(--pc,#d4a853);opacity:0.92;}
+    /* ① チップ 紙型 = solid+ink (DDのpost-it面用) */
+    .pt-fuda-chip--paper{display:inline-block;font-size:0.6rem;letter-spacing:0.05em;
+      background:var(--pc,#d9d9d9);color:#2c2c2a;border-radius:2px;padding:2px 10px;
+      box-shadow:0 2px 4px rgba(60,50,30,0.25);}
+    .pt-fuda .paper-strip{background:#faf7ef;border-radius:4px;padding:8px 12px;
+      display:inline-flex;gap:10px;flex-wrap:wrap;}
+    /* ② 帯 3px */
+    .pt-fuda-band{height:3px;border-radius:2px;flex:1;min-width:120px;
+      background:linear-gradient(90deg,transparent,var(--pc,#d4a853) 18%,var(--pc,#d4a853) 82%,transparent);}
+    /* ③ タブ = ドット+輪郭 */
+    .pt-fuda-tab{display:inline-flex;gap:7px;align-items:center;border:1px solid #1e1e2a;
+      border-radius:18px;padding:0.35rem 1rem;font-size:0.7rem;letter-spacing:0.06em;
+      color:rgba(200,184,160,0.5);cursor:pointer;background:transparent;font-family:inherit;
+      transition:border-color 0.25s,color 0.25s;}
+    .pt-fuda-tab .dot{width:8px;height:8px;border-radius:50%;background:var(--pc,#d4a853);}
+    .pt-fuda-tab:hover,.pt-fuda-tab.cur{border-color:var(--pc,#d4a853);color:var(--pc,#d4a853);}
+  </style>
+  <div class="row"><span class="lbl">chip / void</span>
+    <span class="pt-fuda-chip" style="--pc:var(--fuda-t)">T · Hi-Me TooL</span>
+    <span class="pt-fuda-chip" style="--pc:var(--fuda-r)">R · Re:DeSign</span>
+    <span class="pt-fuda-chip" style="--pc:var(--fuda-b)">B · BookBug</span>
+    <span class="pt-fuda-chip" style="--pc:var(--fuda-p)">P · Postboy</span>
+  </div>
+  <div class="row"><span class="lbl">chip / paper</span>
+    <span class="paper-strip">
+      <span class="pt-fuda-chip--paper" style="--pc:var(--fuda-t)">T · TooL</span>
+      <span class="pt-fuda-chip--paper" style="--pc:var(--fuda-r)">R · DeSign</span>
+      <span class="pt-fuda-chip--paper" style="--pc:var(--fuda-b)">B · Book</span>
+      <span class="pt-fuda-chip--paper" style="--pc:var(--fuda-p)">P · Post</span>
+    </span>
+  </div>
+  <div class="row"><span class="lbl">band / 3px</span>
+    <span class="pt-fuda-band" style="--pc:var(--fuda-t)"></span>
+    <span class="pt-fuda-band" style="--pc:var(--fuda-p)"></span>
+  </div>
+  <div class="row"><span class="lbl">tab / dot</span>
+    <button class="pt-fuda-tab cur" style="--pc:var(--fuda-t)" type="button"><span class="dot"></span>Hi-Me TooL</button>
+    <button class="pt-fuda-tab" style="--pc:var(--fuda-r)" type="button"><span class="dot"></span>Re:DeSign</button>
+    <button class="pt-fuda-tab" style="--pc:var(--fuda-b)" type="button"><span class="dot"></span>BookBug</button>
+    <button class="pt-fuda-tab" style="--pc:var(--fuda-p)" type="button"><span class="dot"></span>Postboy</button>
+  </div>
+</div>
+</template>
+
 <!-- ============ ページ生成 ============ -->
 <script>
 var PARTS = [
@@ -696,7 +758,9 @@ var PARTS = [
   { id:'tooltip',      tpl:'tpl-tooltip',      name:'ささやき短冊',      en:'#tooltip',
     desc:'hover/フォーカスで頭上に短冊がふわり浮かぶ。data-tip属性に文言を書くだけ、JS不要。', ds:'視覚比喩 / hover展開' },
   { id:'pager',        tpl:'tpl-pager',        name:'星送り',            en:'#pager',
-    desc:'いまいる頁だけ金に灯るページ送り。aria-current="page"を差し替えるだけ、JS不要。', ds:'視覚比喩 / hover展開' }
+    desc:'いまいる頁だけ金に灯るページ送り。aria-current="page"を差し替えるだけ、JS不要。', ds:'視覚比喩 / hover展開' },
+  { id:'pillar-fuda',  tpl:'tpl-pillar-fuda',  name:'柱札',              en:'#pillar-fuda',
+    desc:'TRBP四柱を名乗る札（はしらふだ）。チップ(void/紙)・帯3px・タブの3変形。鉱物標本=金は聖域・--osk-pillar-* fallback内蔵。', ds:'視覚比喩 / hover展開' }
 ];
 
 var SHELF = [
