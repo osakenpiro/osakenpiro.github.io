@@ -6,7 +6,7 @@
 <title>部品工場 PARTS — osakenpiro</title>
 <meta name="description" content="コピペで使えるリッチHTML部品ライブラリ。osakenpiroデザインシステム(colors_and_type.css)準拠・自己完結スニペット集。">
 <meta property="og:title" content="部品工場 PARTS — osakenpiro">
-<meta property="og:description" content="コピペ可能な自己完結HTML部品25点+ひとあかり素材棚">
+<meta property="og:description" content="コピペ可能な自己完結HTML部品27点+ひとあかり素材棚">
 <meta property="og:image" content="https://osakenpiro.github.io/parts/assets/pt_hero-lantern-desk.jpg">
 <link rel="stylesheet" href="/v2/colors_and_type.css">
 <style>
@@ -124,7 +124,7 @@
 <footer>
   <a href="https://osakenpiro.github.io/">← 玄関 osakenpiro.github.io</a>
   <span>画風『ひとあかり』/ SDXL local</span>
-  <span>built 2026-06-06 · Lane ε SES-420 / ε2 SES-429 / ε3 SES-435 / λ-1 SES-447 / ε4 SES-448（部品25点）</span>
+  <span>built 2026-06-06 · Lane ε SES-420 / ε2 SES-429 / ε3 SES-435 / λ-1 SES-447 / ε4 SES-448 / ε5 SES-453（部品27点）</span>
 </footer>
 </main>
 
@@ -882,6 +882,77 @@
 </div>
 </template>
 
+<template id="tpl-nefuda">
+<!-- osakenpiro parts #nefuda フロシキ値札 | https://osakenpiro.github.io/parts/#nefuda -->
+<style>
+.pt-nefuda { position:relative; max-width:480px; margin:0;
+  background:rgba(200,184,160,0.05); border:1px solid rgba(200,184,160,0.18);
+  border-radius:6px; padding:22px 26px 20px 88px; transform:rotate(0.7deg);
+  background-image:repeating-linear-gradient(0deg,rgba(200,184,160,0.045) 0 1px,transparent 1px 13px),
+    repeating-linear-gradient(90deg,rgba(200,184,160,0.045) 0 1px,transparent 1px 13px);
+  font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif; }
+.pt-nefuda-hole { position:absolute; right:14px; top:14px; width:9px; height:9px;
+  border-radius:50%; background:var(--osk-void,#08080e);
+  border:2px solid rgba(200,184,160,0.3); box-shadow:inset 0 1px 2px rgba(0,0,0,0.5); }
+.pt-nefuda-stamp { position:absolute; left:20px; top:22px; width:50px; height:50px;
+  border:2px solid rgba(212,168,83,0.45); border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--osk-gold,#d4a853); font-size:1.35rem; transform:rotate(-9deg); opacity:0.9; }
+.pt-nefuda dl { margin:0; display:grid; grid-template-columns:auto 1fr; gap:5px 16px; font-size:0.8rem; }
+.pt-nefuda dt { color:rgba(200,184,160,0.45); letter-spacing:0.15em; }
+.pt-nefuda dd { margin:0; color:var(--osk-fg-1,#c8b8a0);
+  font-family:var(--osk-font-mono,Consolas,monospace); font-size:0.78rem; overflow-wrap:anywhere; }
+@media (max-width:560px){ .pt-nefuda { padding:20px 18px 18px 80px; } }
+</style>
+<aside class="pt-nefuda">
+  <span class="pt-nefuda-hole"></span>
+  <div class="pt-nefuda-stamp">T</div>
+  <dl>
+    <dt>柱</dt><dd>T（Hi-Me TooL）</dd>
+    <dt>種別</dt><dd>部品ライブラリ</dd>
+    <dt>誕生日</dt><dd>2026-06-06</dd>
+    <dt>完成度</dt><dd>0.90</dd>
+  </dl>
+</aside>
+</template>
+
+<template id="tpl-kanban">
+<!-- osakenpiro parts #kanban カンバンドア | https://osakenpiro.github.io/parts/#kanban -->
+<style>
+.pt-kanban { position:relative; text-align:center; margin:26px auto 0; max-width:520px;
+  font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif; }
+.pt-kanban-chain { position:absolute; top:-24px; width:1px; height:24px;
+  background:linear-gradient(180deg,transparent,rgba(212,168,83,0.45)); }
+.pt-kanban-chain.c1 { left:18%; } .pt-kanban-chain.c2 { right:18%; }
+.pt-kanban-plate { position:relative; display:inline-block;
+  background:var(--osk-surface,#12121a); border:1px solid rgba(212,168,83,0.3);
+  border-radius:10px; padding:26px 40px 20px; transform:rotate(-0.5deg);
+  box-shadow:0 12px 34px rgba(0,0,0,0.5); transition:transform .35s, box-shadow .35s; }
+.pt-kanban-plate:hover { transform:rotate(0deg) translateY(-2px);
+  box-shadow:0 16px 40px rgba(0,0,0,0.55), 0 0 40px rgba(212,168,83,0.12); }
+.pt-kanban-rivet { position:absolute; width:6px; height:6px; border-radius:50%;
+  background:var(--osk-gold,#d4a853); opacity:0.8; box-shadow:0 0 6px rgba(212,168,83,0.5); }
+.pt-kanban-rivet.tl{top:8px;left:8px} .pt-kanban-rivet.tr{top:8px;right:8px}
+.pt-kanban-rivet.bl{bottom:8px;left:8px} .pt-kanban-rivet.br{bottom:8px;right:8px}
+.pt-kanban-emoji { font-size:2.4rem; line-height:1; margin-bottom:8px; }
+.pt-kanban-title { margin:0; font-size:1.4rem; letter-spacing:0.05em;
+  color:var(--osk-fg-1,#c8b8a0); font-weight:500; }
+.pt-kanban-sub { margin-top:9px; font-size:0.64rem; letter-spacing:0.25em;
+  color:rgba(200,184,160,0.45); text-transform:uppercase; }
+.pt-kanban-sub b { color:var(--osk-gold,#d4a853); font-weight:500; }
+</style>
+<header class="pt-kanban">
+  <span class="pt-kanban-chain c1"></span><span class="pt-kanban-chain c2"></span>
+  <div class="pt-kanban-plate">
+    <span class="pt-kanban-rivet tl"></span><span class="pt-kanban-rivet tr"></span>
+    <span class="pt-kanban-rivet bl"></span><span class="pt-kanban-rivet br"></span>
+    <div class="pt-kanban-emoji">&#x1F6E0;</div>
+    <h2 class="pt-kanban-title">部品工場</h2>
+    <div class="pt-kanban-sub"><b>PARTS</b> ・ コピペ部品ライブラリ</div>
+  </div>
+</header>
+</template>
+
 <!-- ============ ページ生成 ============ -->
 <script>
 var PARTS = [
@@ -934,7 +1005,11 @@ var PARTS = [
   { id:'skeleton',     tpl:'tpl-skeleton',     name:'待ちぼうけ',        en:'#skeleton',
     desc:'中身が来るまで金の薄明かりが往復する待ち姿。aria-busy付き、形は組み替え自由。CSSだけ、JS不要。', ds:'音遊び / 脈動' },
   { id:'setrow',       tpl:'tpl-setrow',       name:'組ちょうちん',      en:'#setrow',
-    desc:'関連リンクを一本の紐に束ねるセット行。玄関BeeF三姉妹行(SES-438)の昇格。flexだけ、JS不要。', ds:'視覚比喩 / hover展開' }
+    desc:'関連リンクを一本の紐に束ねるセット行。玄関BeeF三姉妹行(SES-438)の昇格。flexだけ、JS不要。', ds:'視覚比喩 / hover展開' },
+  { id:'nefuda',       tpl:'tpl-nefuda',       name:'フロシキ値札',      en:'#nefuda',
+    desc:'方眼紙に丸スタンプと紐穴。dt/ddを書き換えるだけで何の値札にもなるメタ情報札。CSSだけ、JS不要。', ds:'視覚比喩 / rotation' },
+  { id:'kanban',       tpl:'tpl-kanban',       name:'カンバンドア',      en:'#kanban',
+    desc:'鎖で吊った鋲打ち看板。ページの入口に掛ける。hoverでまっすぐ向き直る。CSSだけ、JS不要。', ds:'視覚比喩 / hover展開' }
 ];
 
 var SHELF = [
