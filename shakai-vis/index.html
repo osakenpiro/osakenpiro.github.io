@@ -40,6 +40,7 @@
   button.act{color:var(--gold); border-color:var(--gold)}
   #bHonmaru.act{color:#e8b9a0; border-color:#c87a55; background:rgba(200,122,85,.08)}
   #bTenote.act{color:#e0b15a; border-color:#c8923f; background:rgba(208,150,60,.08)}
+  #bFault.act{color:#e89a9a; border-color:#b85a5a; background:rgba(184,90,90,.08)}
   .chip{display:flex; align-items:center; gap:5px}
   .chip .dot{width:8px; height:8px; border-radius:50%; background:currentColor; display:inline-block}
   .chip.on{color:var(--ink)}
@@ -107,6 +108,7 @@
     <div class="grp">
       <button id="bTenote" title="人がいないと動かない＝人の手依存を常時強調">人の手 ✋</button>
       <button id="bHonmaru" title="人類消失後、何が止まり、何が止まらないかをシミュレート">本丸 ☠</button>
+      <button id="bFault" title="ノードをクリックで停止→下流へカスケード波及">障害 ⚡</button>
     </div>
   </div>
 </header>
@@ -261,7 +263,7 @@
   function availEras(){ return eraDefs.filter(function(e){ return !!eraData[e.id]; }); }
 
   /* ---------- state ---------- */
-  var state = { view: "top", anim: true, on: { }, solo: null, honmaru: false, clock: 0.0, simPlay: false, era: 0.667, tenote: false };
+  var state = { view: "top", anim: true, on: { }, solo: null, honmaru: false, clock: 0.0, simPlay: false, era: 0.667, tenote: false, fault: false, faults: [] };
   try {
     var saved = JSON.parse(localStorage.getItem(LSKEY) || "null");
     if (saved) {
@@ -417,7 +419,29 @@
     if (curBr.t > 0.96) return (mB && mB.era) || curBr.B.id;
     return "補間 " + curBr.year + "年";
   }
-  function nodeAlive(n){ return !state.honmaru || clockDays() < ((n.v && n.v.dday != null) ? n.v.dday : DAY_MAX + 1); }
+  var faultDead = {};
+  function computeFaultDead(){
+    var dead = {}; for (var i = 0; i < state.faults.length; i++) dead[state.faults[i]] = 1;
+    var changed = true, guard = 0;
+    while (changed && guard++ < 80) {
+      changed = false;
+      model.nodes.forEach(function(n){
+        if (dead[n.id] || !n.v || !n.v.on) return;
+        if (n.v.auto != null && n.v.auto >= 0.9) return;
+        var crossIn = model.edges.filter(function(e){ return e.b === n && e.cross && e.a.v && e.a.v.on && edgeF(e) > 0.02; });
+        var sameIn = model.edges.filter(function(e){ return e.b === n && !e.cross && e.a.layer === n.layer && e.a.v && e.a.v.on && edgeF(e) > 0.02; });
+        var dieCross = crossIn.some(function(e){ return dead[e.a.id]; });
+        var dieSame = sameIn.length > 0 && sameIn.every(function(e){ return dead[e.a.id]; });
+        if (dieCross || dieSame) { dead[n.id] = 1; changed = true; }
+      });
+    }
+    return dead;
+  }
+  function nodeAlive(n){
+    if (state.honmaru && clockDays() >= ((n.v && n.v.dday != null) ? n.v.dday : DAY_MAX + 1)) return false;
+    if (state.fault && faultDead[n.id]) return false;
+    return true;
+  }
 
   /* ---------- canvas ---------- */
   var cv = document.getElementById("cv"), ctx = cv.getContext("2d");
@@ -473,6 +497,8 @@
       if (!n.placed) { n.cx = tx; n.cy = ty; n.placed = true; }
       n.cx += (tx - n.cx) * 0.13; n.cy += (ty - n.cy) * 0.13;
     });
+
+    faultDead = state.fault ? computeFaultDead() : {};
 
     ctx.clearRect(0, 0, W, H);
     for (var i = 0; i < stars.length; i++) { var s = stars[i]; ctx.globalAlpha = s.a; ctx.fillStyle = "#cfc8b8"; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.2832); ctx.fill(); }
@@ -531,6 +557,7 @@
     });
 
     if (hm) { eraEl.textContent = "☠ 人類消失 ／ " + dayLabel(dnow); simClock.textContent = dayLabel(dnow); simCap.innerHTML = phaseCaption(dnow); simStat.innerHTML = buildStat(dnow); }
+    else if (state.fault) { eraEl.textContent = "⚡ 障害注入 ／ 停止 " + Object.keys(faultDead).length + " 基（クリックで注入/解除）"; }
     else if (state.tenote) { eraEl.textContent = "✋ 人の手 ／ " + (availEras().length >= 2 ? eraBadgeText() : "輪が濃いほど人依存"); }
     else if (availEras().length >= 2) { eraEl.textContent = eraBadgeText(); }
     requestAnimationFrame(draw);
@@ -568,6 +595,13 @@
     } else { tip.style.display = "none"; cv.style.cursor = "default"; }
   });
   cv.addEventListener("mouseleave", function(){ hover = null; tip.style.display = "none"; });
+  cv.addEventListener("click", function(ev){
+    if (!state.fault) return;
+    var rect = cv.getBoundingClientRect(); var mx = ev.clientX - rect.left, my = ev.clientY - rect.top;
+    var best = 1e9, hit = null;
+    model.nodes.forEach(function(n){ if (!n.v || !n.v.on || layerAlpha(n.layer) <= 0.05) return; var r = 6 + n.v.f * 9 + 8; var d = (n.cx-mx)*(n.cx-mx) + (n.cy-my)*(n.cy-my); if (d < r*r && d < best) { best = d; hit = n; } });
+    if (hit) { var idx = state.faults.indexOf(hit.id); if (idx >= 0) state.faults.splice(idx, 1); else state.faults.push(hit.id); }
+  });
 
   /* ---------- UI ---------- */
   var chipsEl = document.getElementById("chips"); var chipTimers = {};
@@ -595,6 +629,7 @@
   var bAll = document.getElementById("bAll"), bAnim = document.getElementById("bAnim");
   var bHonmaru = document.getElementById("bHonmaru"); var eraEl = document.getElementById("era");
   var bTenote = document.getElementById("bTenote");
+  var bFault = document.getElementById("bFault");
   var sim = document.getElementById("sim"), simRange = document.getElementById("simRange");
   var simPlayBtn = document.getElementById("simPlay"), simClock = document.getElementById("simClock");
   var simCap = document.getElementById("simCap"), simStat = document.getElementById("simStat");
@@ -611,6 +646,7 @@
     bAnim.classList.toggle("act", state.anim); bAnim.textContent = state.anim ? "流れ ▶" : "流れ ⏸";
     bHonmaru.classList.toggle("act", state.honmaru); sim.classList.toggle("on", state.honmaru);
     bTenote.classList.toggle("act", state.tenote);
+    bFault.classList.toggle("act", state.fault);
     simPlayBtn.classList.toggle("act", state.simPlay); simPlayBtn.textContent = state.simPlay ? "⏱ 停止" : "⏱ 自動";
     if (state.honmaru) simRange.value = Math.round(state.clock * 1000);
     Array.prototype.forEach.call(chipsEl.children, function(b){ var id = b.dataset.layer; b.classList.toggle("solo", state.solo === id); b.classList.toggle("on", state.solo ? state.solo === id : state.on[id]); b.classList.toggle("off", state.solo ? state.solo !== id : !state.on[id]); });
@@ -621,6 +657,7 @@
   bAnim.addEventListener("click", function(){ state.anim = !state.anim; syncUI(); save(); });
   bHonmaru.addEventListener("click", function(){ state.honmaru = !state.honmaru; if (!state.honmaru) { state.simPlay = false; if (availEras().length < 2) eraEl.textContent = (eraData.modern.meta && eraData.modern.meta.era) || ""; } syncUI(); });
   bTenote.addEventListener("click", function(){ state.tenote = !state.tenote; syncUI(); });
+  bFault.addEventListener("click", function(){ state.fault = !state.fault; if (!state.fault) state.faults = []; syncUI(); });
   simRange.addEventListener("input", function(){ state.clock = (+simRange.value) / 1000; state.simPlay = false; syncUI(); });
   simPlayBtn.addEventListener("click", function(){ if (state.clock >= 1) state.clock = 0; state.simPlay = !state.simPlay; syncUI(); });
   eraRange.addEventListener("input", function(){ state.era = (+eraRange.value) / 1000; save(); });
