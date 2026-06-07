@@ -1,0 +1,71 @@
+{
+  "meta": {
+    "era": "江戸 1850 — 人力の都",
+    "year": 1850,
+    "version": "v1",
+    "note": "確度0.6中心（裏取りv2で確定予定）。電気・ガス・電信なし。上水=玉川/神田(重力)、報せ=飛脚、物流=廻船と街道。人力社会=消失で即静止、残るのは水と生物圏。schema=現代と同一。"
+  },
+  "layers": [
+    { "id": "power", "name": "火と力", "color": "#d9a543", "order": 0 },
+    { "id": "water", "name": "上水", "color": "#5b9bd0", "order": 1 },
+    { "id": "data",  "name": "報せ", "color": "#a583cf", "order": 2 },
+    { "id": "logi",  "name": "物流", "color": "#79b873", "order": 3 },
+    { "id": "life",  "name": "生物圏", "color": "#6cae9a", "order": 4 }
+  ],
+  "nodes": [
+    { "id": "takigi", "layer": "power", "label": "薪炭",        "x": 0.06, "y": 0.30, "f": 0.80, "auto": 0.05, "dday": 0.5, "shape": "tri", "desc": "山から町へ、煮炊きと暖の源(発生源)。樵と炭焼きが消えれば供給は止まる——蓄えだけが残る" },
+    { "id": "suisha", "layer": "power", "label": "水車",        "x": 0.95, "y": 0.26, "f": 0.45, "auto": 0.55, "dday": 30, "desc": "川が回す製粉・精米。人が消えても当分回り続ける——詰まって止まるまで" },
+    { "id": "akari",  "layer": "power", "label": "行灯・蝋燭",  "x": 0.58, "y": 0.33, "f": 0.55, "auto": 0.00, "dday": 0.05, "desc": "火を点す者がいなければ、夜は完全な闇——消失の夜、江戸は一瞬で暗い" },
+
+    { "id": "source", "layer": "water", "label": "水源(多摩川・湧水)", "x": 0.96, "y": 0.55, "f": 0.80, "auto": 0.95, "dday": 40000, "shape": "tri", "desc": "山の水瓶(発生源)。重力はいつの時代もタダ" },
+    { "id": "josui",  "layer": "water", "label": "玉川上水",          "x": 0.80, "y": 0.62, "f": 0.85, "auto": 0.85, "dday": 3650, "shape": "tri", "desc": "羽村から四谷大木戸まで43km、勾配だけで水を運ぶ。水番が消えても当分流れる——重力に給料はいらない" },
+    { "id": "ido",    "layer": "water", "label": "井戸・上水樋",      "x": 0.66, "y": 0.52, "f": 0.70, "auto": 0.90, "dday": 40000, "shape": "tri", "desc": "町々の水栓。汲む者が消えても、水はそこにあり続ける" },
+
+    { "id": "hikyaku",   "layer": "data", "label": "飛脚",          "x": 0.48, "y": 0.82, "f": 0.80, "auto": 0.00, "dday": 0.02, "desc": "江戸-京都を最速3日半。情報網そのものが人間の脚——消失と同時に日本の通信は完全停止" },
+    { "id": "kawaraban", "layer": "data", "label": "高札・瓦版",    "x": 0.33, "y": 0.90, "f": 0.45, "auto": 0.00, "dday": 0.1, "desc": "刷る者も貼る者もいない。最後の瓦版が往来に残る" },
+    { "id": "jjy",       "layer": "data", "label": "時の鐘",        "x": 0.76, "y": 0.86, "f": 0.60, "auto": 0.00, "dday": 0.05, "shape": "tri", "desc": "標準時の発生源・人力版。撞く者が消えれば、江戸の時間はその朝で止まる（2026年のJJYと同じ場所に立つ、時報の先祖）" },
+    { "id": "noroshi",   "layer": "data", "label": "狼煙・火の見",  "x": 0.05, "y": 0.80, "f": 0.30, "auto": 0.00, "dday": 0.02, "desc": "火事と急報の網。見張りなき火の見櫓は、ただの櫓" },
+
+    { "id": "port",     "layer": "logi", "label": "湊・廻船問屋",      "x": 0.08, "y": 0.50, "f": 0.80, "auto": 0.05, "dday": 0.3, "shape": "tri", "desc": "菱垣廻船・樽廻船の玄関(発生源)。江戸の米と酒はここから上がる" },
+    { "id": "kaisen",   "layer": "logi", "label": "廻船",              "x": 0.41, "y": 0.44, "f": 0.70, "auto": 0.05, "dday": 0.2, "desc": "帆は風で進むが、舵は人——主なき船は漂流し、やがて座礁して終わる" },
+    { "id": "rail",     "layer": "logi", "label": "街道(甲州道中)",    "x": 0.70, "y": 0.40, "f": 0.70, "auto": 0.00, "dday": 0.1, "desc": "幹線交通路の先祖。宿場が繋ぐ人馬のリレー——2026年の中央線とほぼ同じ道筋を走る" },
+    { "id": "truck",    "layer": "logi", "label": "大八車・人馬",      "x": 0.53, "y": 0.46, "f": 0.60, "auto": 0.00, "dday": 0.02, "desc": "都市内輸送の主役は人の脚と牛馬。消失と同時に荷は路上で止まる" },
+    { "id": "market",   "layer": "logi", "label": "河岸(魚河岸・米河岸)", "x": 0.29, "y": 0.46, "f": 0.80, "auto": 0.00, "dday": 0.3, "desc": "日本橋の魚河岸——夜明け前が本番なのは、今も昔も変わらない" },
+    { "id": "store",    "layer": "logi", "label": "商店・棚店",        "x": 0.63, "y": 0.58, "f": 0.60, "auto": 0.00, "dday": 0.3, "desc": "対面と掛け売りの商い。店は人そのもの" },
+    { "id": "umi",      "layer": "logi", "label": "海・漁場",          "x": 0.02, "y": 0.38, "f": 0.70, "auto": 0.05, "dday": 0.04, "shape": "tri", "desc": "江戸前の魚(発生源)。魚は脊椎動物＝(c)勾配で消失" },
+    { "id": "chikusan", "layer": "logi", "label": "牛馬",              "x": 0.14, "y": 0.34, "f": 0.30, "auto": 0.05, "dday": 0.05, "shape": "tri", "desc": "食肉はまだ薄く、牛馬は動力。それも(c)勾配で消える——車の絶滅と同義" },
+    { "id": "nouchi",   "layer": "logi", "label": "田畑",              "x": 0.28, "y": 0.33, "f": 0.90, "auto": 0.30, "dday": 1, "shape": "tri", "desc": "人口の8割が農——社会そのものが農地の上に建っている" },
+
+    { "id": "pollin",   "layer": "life", "label": "送粉(蜂・虫)",     "x": 0.86, "y": 0.74, "f": 0.70, "auto": 1.00, "dday": 40000, "shape": "tri", "desc": "無償の物流。1850も2026も、虫は同じ仕事をしている" },
+    { "id": "wildgrow", "layer": "life", "label": "自家・風媒の植生", "x": 0.94, "y": 0.86, "f": 0.80, "auto": 1.00, "dday": 40000, "shape": "tri", "desc": "人がいなくても勝手に実る。時代に関係なく" },
+    { "id": "decay",    "layer": "life", "label": "腐敗・分解(菌類)", "x": 0.80, "y": 0.93, "f": 0.60, "auto": 1.00, "dday": 40000, "desc": "掃除屋は不変。木と紙の都は、現代より速く土に還る" }
+  ],
+  "edges": [
+    { "from": "source", "to": "josui", "f": 0.80 },
+    { "from": "josui",  "to": "ido",   "f": 0.65 },
+
+    { "from": "takigi", "to": "akari", "f": 0.50 },
+    { "from": "takigi", "to": "store", "f": 0.45 },
+    { "from": "suisha", "to": "nouchi","f": 0.40 },
+
+    { "from": "hikyaku", "to": "kawaraban", "f": 0.50 },
+    { "from": "noroshi", "to": "hikyaku",   "f": 0.30 },
+    { "from": "jjy",     "to": "market",    "f": 0.30, "note": "刻を知らせる——市も商いも鐘の音で動く" },
+
+    { "from": "kaisen", "to": "port",   "f": 0.75 },
+    { "from": "port",   "to": "market", "f": 0.70 },
+    { "from": "market", "to": "truck",  "f": 0.50 },
+    { "from": "truck",  "to": "store",  "f": 0.50 },
+    { "from": "rail",   "to": "store",  "f": 0.50 },
+    { "from": "rail",   "to": "hikyaku","f": 0.40, "note": "飛脚は街道を走る" },
+
+    { "from": "umi",      "to": "market", "f": 0.70 },
+    { "from": "chikusan", "to": "nouchi", "f": 0.35, "note": "牛馬は農の動力" },
+    { "from": "nouchi",   "to": "market", "f": 0.80 },
+
+    { "from": "wildgrow", "to": "pollin",   "f": 0.60 },
+    { "from": "pollin",   "to": "wildgrow", "f": 0.60 },
+    { "from": "wildgrow", "to": "decay",    "f": 0.50 },
+    { "from": "pollin",   "to": "market",   "f": 0.35, "cross": true, "note": "送粉→青物河岸。構図は時代不変" }
+  ]
+}
