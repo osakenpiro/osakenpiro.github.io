@@ -39,6 +39,7 @@
   button:hover{color:var(--ink); border-color:var(--dim)}
   button.act{color:var(--gold); border-color:var(--gold)}
   #bHonmaru.act{color:#e8b9a0; border-color:#c87a55; background:rgba(200,122,85,.08)}
+  #bTenote.act{color:#e0b15a; border-color:#c8923f; background:rgba(208,150,60,.08)}
   .chip{display:flex; align-items:center; gap:5px}
   .chip .dot{width:8px; height:8px; border-radius:50%; background:currentColor; display:inline-block}
   .chip.on{color:var(--ink)}
@@ -91,8 +92,8 @@
   <div class="controls">
     <div class="grp" id="eraGrp" style="display:none">
       <span class="eside">江戸</span>
-      <input type="range" id="eraRange" min="0" max="1000" value="1000" aria-label="時代スライダー">
-      <span class="eside">現代</span>
+      <input type="range" id="eraRange" min="0" max="1000" value="667" aria-label="時代スライダー">
+      <span class="eside">大葉</span>
     </div>
     <div class="grp">
       <button id="vTop" class="act">トップ視点</button>
@@ -104,6 +105,7 @@
       <button id="bAnim" class="act">流れ ▶</button>
     </div>
     <div class="grp">
+      <button id="bTenote" title="人がいないと動かない＝人の手依存を常時強調">人の手 ✋</button>
       <button id="bHonmaru" title="人類消失後、何が止まり、何が止まらないかをシミュレート">本丸 ☠</button>
     </div>
   </div>
@@ -252,13 +254,14 @@
   var eraDefs = [
     { id: "edo",    year: 1850, url: "shakai-vis-data-edo.json" },
     { id: "s40",    year: 1965, url: "shakai-vis-data-1965.json" },
-    { id: "modern", year: 2026, url: "shakai-vis-data-modern.json" }
+    { id: "modern", year: 2026, url: "shakai-vis-data-modern.json" },
+    { id: "ooba",   year: 2126, url: "shakai-vis-data-ooba.json" }
   ];
   var eraData = { modern: EMB };
   function availEras(){ return eraDefs.filter(function(e){ return !!eraData[e.id]; }); }
 
   /* ---------- state ---------- */
-  var state = { view: "top", anim: true, on: { }, solo: null, honmaru: false, clock: 0.0, simPlay: false, era: 1 };
+  var state = { view: "top", anim: true, on: { }, solo: null, honmaru: false, clock: 0.0, simPlay: false, era: 0.667, tenote: false };
   try {
     var saved = JSON.parse(localStorage.getItem(LSKEY) || "null");
     if (saved) {
@@ -517,6 +520,7 @@
       var r = 6 + v.f * 9; var alive = nodeAlive(n); var isFuro = n.id === "furo"; var a = la * (alive ? 1 : 0.30);
       var halo = isFuro || (!hm && v.f >= 0.95) || (hm && alive && (v.auto != null && v.auto >= 0.95));
       if (halo && la > 0.5) { var hc = isFuro ? GOLD : n.L.rgb; ctx.strokeStyle = rgba(hc, 0.20); ctx.beginPath(); ctx.arc(n.cx, n.cy, r + 6 + Math.sin(now/600) * 1.5, 0, 6.2832); ctx.stroke(); }
+      if (state.tenote && la > 0.5) { var dep = 1 - (v.auto != null ? v.auto : 1); if (dep > 0.05) { ctx.lineWidth = 1 + dep * 4; ctx.strokeStyle = rgba([224,121,74], (0.22 + 0.6 * dep) * (alive ? 1 : 0.5)); ctx.beginPath(); ctx.arc(n.cx, n.cy, r + 3 + dep * 4, 0, 6.2832); ctx.stroke(); } }
       var body;
       if (isFuro) body = mix(BG, IVORY, 0.30 + 0.60 * v.f);
       else if (!alive) body = mix(BG, GREY, 0.18);
@@ -527,6 +531,7 @@
     });
 
     if (hm) { eraEl.textContent = "☠ 人類消失 ／ " + dayLabel(dnow); simClock.textContent = dayLabel(dnow); simCap.innerHTML = phaseCaption(dnow); simStat.innerHTML = buildStat(dnow); }
+    else if (state.tenote) { eraEl.textContent = "✋ 人の手 ／ " + (availEras().length >= 2 ? eraBadgeText() : "輪が濃いほど人依存"); }
     else if (availEras().length >= 2) { eraEl.textContent = eraBadgeText(); }
     requestAnimationFrame(draw);
   }
@@ -589,6 +594,7 @@
   var vTop = document.getElementById("vTop"), vSide = document.getElementById("vSide");
   var bAll = document.getElementById("bAll"), bAnim = document.getElementById("bAnim");
   var bHonmaru = document.getElementById("bHonmaru"); var eraEl = document.getElementById("era");
+  var bTenote = document.getElementById("bTenote");
   var sim = document.getElementById("sim"), simRange = document.getElementById("simRange");
   var simPlayBtn = document.getElementById("simPlay"), simClock = document.getElementById("simClock");
   var simCap = document.getElementById("simCap"), simStat = document.getElementById("simStat");
@@ -604,6 +610,7 @@
     vTop.classList.toggle("act", state.view === "top"); vSide.classList.toggle("act", state.view === "side");
     bAnim.classList.toggle("act", state.anim); bAnim.textContent = state.anim ? "流れ ▶" : "流れ ⏸";
     bHonmaru.classList.toggle("act", state.honmaru); sim.classList.toggle("on", state.honmaru);
+    bTenote.classList.toggle("act", state.tenote);
     simPlayBtn.classList.toggle("act", state.simPlay); simPlayBtn.textContent = state.simPlay ? "⏱ 停止" : "⏱ 自動";
     if (state.honmaru) simRange.value = Math.round(state.clock * 1000);
     Array.prototype.forEach.call(chipsEl.children, function(b){ var id = b.dataset.layer; b.classList.toggle("solo", state.solo === id); b.classList.toggle("on", state.solo ? state.solo === id : state.on[id]); b.classList.toggle("off", state.solo ? state.solo !== id : !state.on[id]); });
@@ -613,6 +620,7 @@
   bAll.addEventListener("click", function(){ state.solo = null; unionLayers.forEach(function(L){ state.on[L.id] = true; }); syncUI(); save(); });
   bAnim.addEventListener("click", function(){ state.anim = !state.anim; syncUI(); save(); });
   bHonmaru.addEventListener("click", function(){ state.honmaru = !state.honmaru; if (!state.honmaru) { state.simPlay = false; if (availEras().length < 2) eraEl.textContent = (eraData.modern.meta && eraData.modern.meta.era) || ""; } syncUI(); });
+  bTenote.addEventListener("click", function(){ state.tenote = !state.tenote; syncUI(); });
   simRange.addEventListener("input", function(){ state.clock = (+simRange.value) / 1000; state.simPlay = false; syncUI(); });
   simPlayBtn.addEventListener("click", function(){ if (state.clock >= 1) state.clock = 0; state.simPlay = !state.simPlay; syncUI(); });
   eraRange.addEventListener("input", function(){ state.era = (+eraRange.value) / 1000; save(); });
