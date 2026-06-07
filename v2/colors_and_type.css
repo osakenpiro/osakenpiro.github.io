@@ -355,3 +355,18 @@
 .osk-pillar--r { --osk-pillar: var(--osk-pillar-r); --osk-pillar-soft: var(--osk-pillar-r-soft); }
 .osk-pillar--b { --osk-pillar: var(--osk-pillar-b); --osk-pillar-soft: var(--osk-pillar-b-soft); }
 .osk-pillar--p { --osk-pillar: var(--osk-pillar-p); --osk-pillar-soft: var(--osk-pillar-p-soft); }
+
+/* ───────────────────────────────────────────
+   λ-2b (SES-461) — G/O pillar colors, append-only
+   G2裁定 2026-06-07 (むつあかり v1 追補消化)
+   ─────────────────────────────────────────── */
+:root {
+  --osk-pillar-g:        #8689b8;   /* G Gaming Gathering — 蛍石 fluorite */
+  --osk-pillar-o:        #6f9f9b;   /* O Opaarts — 孔雀石 malachite */
+  --osk-pillar-g-soft:   rgba(134,137,184,0.08);   /* 8% glow */
+  --osk-pillar-o-soft:   rgba(111,159,155,0.08);
+  --osk-pillar-g-ink:    #5a5d8a;   /* light/paper text correction — dark surfaces use raw mineral */
+  --osk-pillar-o-ink:    #46706c;
+}
+.osk-pillar--g { --osk-pillar: var(--osk-pillar-g); --osk-pillar-soft: var(--osk-pillar-g-soft); }
+.osk-pillar--o { --osk-pillar: var(--osk-pillar-o); --osk-pillar-soft: var(--osk-pillar-o-soft); }
