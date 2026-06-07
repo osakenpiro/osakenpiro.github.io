@@ -6,7 +6,7 @@
 <title>部品工場 PARTS — osakenpiro</title>
 <meta name="description" content="コピペで使えるリッチHTML部品ライブラリ。osakenpiroデザインシステム(colors_and_type.css)準拠・自己完結スニペット集。">
 <meta property="og:title" content="部品工場 PARTS — osakenpiro">
-<meta property="og:description" content="コピペ可能な自己完結HTML部品19点+ひとあかり素材棚">
+<meta property="og:description" content="コピペ可能な自己完結HTML部品25点+ひとあかり素材棚">
 <meta property="og:image" content="https://osakenpiro.github.io/parts/assets/pt_hero-lantern-desk.jpg">
 <link rel="stylesheet" href="/v2/colors_and_type.css">
 <style>
@@ -124,7 +124,7 @@
 <footer>
   <a href="https://osakenpiro.github.io/">← 玄関 osakenpiro.github.io</a>
   <span>画風『ひとあかり』/ SDXL local</span>
-  <span>built 2026-06-06 · Lane ε SES-420 / ε2 SES-429 / ε3 SES-435 / λ-1 SES-447（部品19点）</span>
+  <span>built 2026-06-06 · Lane ε SES-420 / ε2 SES-429 / ε3 SES-435 / λ-1 SES-447 / ε4 SES-448（部品25点）</span>
 </footer>
 </main>
 
@@ -720,6 +720,168 @@
 </div>
 </template>
 
+
+<template id="tpl-breadcrumb">
+<!-- osakenpiro parts #breadcrumb みちしるべ | https://osakenpiro.github.io/parts/#breadcrumb -->
+<style>
+.pt-crumb { display:flex; align-items:center; flex-wrap:wrap; gap:2px;
+  font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif; font-size:0.74rem; }
+.pt-crumb a { color:var(--osk-fg-2,rgba(200,184,160,0.55)); text-decoration:none;
+  padding:4px 8px; border-radius:6px; transition:all .25s; }
+.pt-crumb a:hover { color:var(--osk-gold,#d4a853); background:var(--osk-surface,#12121a); }
+.pt-crumb a:focus-visible { outline:2px solid rgba(212,168,83,0.6); outline-offset:1px; }
+.pt-crumb-sep { color:rgba(212,168,83,0.4); font-size:0.66rem; user-select:none; }
+.pt-crumb [aria-current="page"] { color:var(--osk-gold,#d4a853); padding:4px 8px; }
+.pt-crumb [aria-current="page"]::before { content:'◆ '; font-size:0.6rem; vertical-align:1px; }
+</style>
+<nav class="pt-crumb" aria-label="現在地">
+  <a href="#breadcrumb">玄関</a><span class="pt-crumb-sep">›</span>
+  <a href="#breadcrumb">works</a><span class="pt-crumb-sep">›</span>
+  <a href="#breadcrumb">部品工場</a><span class="pt-crumb-sep">›</span>
+  <span aria-current="page">みちしるべ</span>
+</nav>
+</template>
+
+<template id="tpl-progress">
+<!-- osakenpiro parts #progress 宿場すごろく | https://osakenpiro.github.io/parts/#progress -->
+<style>
+.pt-prog { display:flex; list-style:none; margin:0; padding:0; max-width:480px;
+  font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif; }
+.pt-prog li { flex:1; position:relative; text-align:center; font-size:0.68rem;
+  color:var(--osk-fg-2,rgba(200,184,160,0.4)); padding-top:26px; }
+.pt-prog li::before { content:''; position:absolute; top:9px; left:calc(-50% + 9px); right:calc(50% + 9px);
+  height:1px; background:var(--osk-border,#1e1e2a); }
+.pt-prog li:first-child::before { display:none; }
+.pt-prog li::after { content:''; position:absolute; top:4px; left:50%; transform:translateX(-50%);
+  width:10px; height:10px; border-radius:50%; background:var(--osk-surface,#12121a);
+  border:1px solid var(--osk-border,#1e1e2a); transition:all .3s; }
+.pt-prog li.done { color:var(--osk-fg-1,#c8b8a0); }
+.pt-prog li.done::before { background:rgba(212,168,83,0.45); }
+.pt-prog li.done::after { background:rgba(212,168,83,0.55); border-color:rgba(212,168,83,0.55); }
+.pt-prog li[aria-current="step"] { color:var(--osk-gold,#d4a853); }
+.pt-prog li[aria-current="step"]::before { background:rgba(212,168,83,0.45); }
+.pt-prog li[aria-current="step"]::after { background:var(--osk-gold,#d4a853);
+  border-color:var(--osk-gold,#d4a853);
+  animation:ptShukuba 2.4s ease-in-out infinite; }
+@keyframes ptShukuba { 0%,100%{ box-shadow:0 0 8px rgba(212,168,83,0.4) }
+  50%{ box-shadow:0 0 18px rgba(212,168,83,0.85) } }
+</style>
+<ol class="pt-prog">
+  <li class="done">構想</li>
+  <li class="done">下書き</li>
+  <li aria-current="step">推敲</li>
+  <li>公開</li>
+  <li>ふれまわり</li>
+</ol>
+</template>
+
+<template id="tpl-tagcloud">
+<!-- osakenpiro parts #tagcloud 言の葉雲 | https://osakenpiro.github.io/parts/#tagcloud -->
+<style>
+.pt-cloud { display:flex; flex-wrap:wrap; align-items:baseline; gap:10px 16px; max-width:440px;
+  font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif; }
+.pt-cloud a { --w:0.5; text-decoration:none; line-height:1.3;
+  font-size:calc(0.62rem + 0.55rem * var(--w));
+  color:rgba(200,184,160, calc(0.35 + 0.55 * var(--w)));
+  transition:all .3s; }
+.pt-cloud a:hover { color:var(--osk-gold,#d4a853); text-shadow:0 0 14px rgba(212,168,83,0.5); }
+.pt-cloud a:focus-visible { outline:2px solid rgba(212,168,83,0.6); outline-offset:2px; }
+</style>
+<nav class="pt-cloud" aria-label="タグ">
+  <a href="#tagcloud" style="--w:1">Boolean→Float</a>
+  <a href="#tagcloud" style="--w:0.55">ひとあかり</a>
+  <a href="#tagcloud" style="--w:0.8">部品工場</a>
+  <a href="#tagcloud" style="--w:0.3">三重がけ命名</a>
+  <a href="#tagcloud" style="--w:0.65">腐葉土設計</a>
+  <a href="#tagcloud" style="--w:0.4">RealTwin</a>
+  <a href="#tagcloud" style="--w:0.9">全人類UX改善</a>
+  <a href="#tagcloud" style="--w:0.25">星海</a>
+</nav>
+</template>
+
+<template id="tpl-quote">
+<!-- osakenpiro parts #quote ことだま行灯 | https://osakenpiro.github.io/parts/#quote -->
+<style>
+.pt-quote { position:relative; max-width:420px; margin:0; padding:18px 22px 16px 30px;
+  background:var(--osk-surface,#12121a); border:1px solid var(--osk-border,#1e1e2a);
+  border-left:3px solid rgba(212,168,83,0.55); border-radius:0 12px 12px 0;
+  box-shadow:inset 0 0 30px rgba(212,168,83,0.04);
+  font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif; }
+.pt-quote::before { content:'〝'; position:absolute; top:6px; left:8px;
+  font-size:1.6rem; line-height:1; color:rgba(212,168,83,0.35); }
+.pt-quote p { margin:0; font-size:0.82rem; line-height:1.9; color:var(--osk-fg-1,#c8b8a0); }
+.pt-quote footer { margin-top:10px; font-size:0.66rem; color:rgba(200,184,160,0.45); }
+.pt-quote footer::before { content:'— '; color:rgba(212,168,83,0.6); }
+</style>
+<blockquote class="pt-quote">
+  <p>完璧より勢い。熱があるうちに動く。</p>
+  <footer>osakenpiro 設計原則「熱があるうちに」</footer>
+</blockquote>
+</template>
+
+<template id="tpl-skeleton">
+<!-- osakenpiro parts #skeleton 待ちぼうけ | https://osakenpiro.github.io/parts/#skeleton -->
+<style>
+.pt-skel-card { max-width:340px; padding:20px 22px; border-radius:12px;
+  background:var(--osk-surface,#12121a); border:1px solid var(--osk-border,#1e1e2a); }
+.pt-skel { position:relative; overflow:hidden; border-radius:6px;
+  background:rgba(200,184,160,0.07); }
+.pt-skel::after { content:''; position:absolute; inset:0;
+  background:linear-gradient(100deg, transparent 30%, rgba(212,168,83,0.10) 50%, transparent 70%);
+  transform:translateX(-100%); animation:ptMachiboke 1.8s ease-in-out infinite; }
+@keyframes ptMachiboke { to { transform:translateX(100%) } }
+.pt-skel-ava { width:40px; height:40px; border-radius:50%; flex:none; }
+.pt-skel-line { height:12px; margin-top:10px; }
+</style>
+<div class="pt-skel-card" aria-busy="true" aria-label="読み込み中">
+  <div style="display:flex; gap:12px; align-items:center">
+    <div class="pt-skel pt-skel-ava"></div>
+    <div style="flex:1">
+      <div class="pt-skel pt-skel-line" style="width:55%; margin-top:0"></div>
+      <div class="pt-skel pt-skel-line" style="width:35%"></div>
+    </div>
+  </div>
+  <div class="pt-skel pt-skel-line" style="margin-top:16px"></div>
+  <div class="pt-skel pt-skel-line" style="width:85%"></div>
+  <div class="pt-skel pt-skel-line" style="width:60%"></div>
+</div>
+</template>
+
+<template id="tpl-setrow">
+<!-- osakenpiro parts #setrow 組ちょうちん | https://osakenpiro.github.io/parts/#setrow -->
+<style>
+.pt-setrow { max-width:640px; border:1px solid var(--osk-border,#1e1e2a); border-radius:12px;
+  background:var(--osk-surface,#12121a); padding:14px 18px 6px;
+  font-family:'Zen Kaku Gothic New','Yu Gothic UI',sans-serif; }
+.pt-setrow-label { font-family:var(--osk-font-mono,Consolas,monospace); font-size:0.64rem;
+  letter-spacing:0.13em; color:var(--osk-gold,#d4a853); padding-bottom:8px; }
+.pt-setrow-row { display:flex; align-items:stretch; }
+.pt-setrow-row a { flex:1; display:flex; gap:9px; align-items:flex-start; text-decoration:none;
+  padding:4px 12px 14px; color:var(--osk-fg-1,#c8b8a0); transition:all .25s; }
+.pt-setrow-row a:first-child { padding-left:0; }
+.pt-setrow-row a + a { border-left:1px solid var(--osk-border,#1e1e2a); }
+.pt-setrow-ti { font-size:0.82rem; line-height:1.4; transition:color .25s; }
+.pt-setrow-ti small { display:block; font-size:0.62rem; color:rgba(200,184,160,0.45); }
+.pt-setrow-arr { margin-left:auto; color:rgba(212,168,83,0.5); transition:all .25s; }
+.pt-setrow-row a:hover .pt-setrow-ti { color:var(--osk-gold,#d4a853); }
+.pt-setrow-row a:hover .pt-setrow-arr { color:var(--osk-gold,#d4a853); transform:translateX(3px); }
+.pt-setrow-row a:focus-visible { outline:2px solid rgba(212,168,83,0.6); outline-offset:2px; border-radius:6px; }
+@media (max-width:560px){
+  .pt-setrow-row { flex-direction:column; }
+  .pt-setrow-row a { padding-left:0; }
+  .pt-setrow-row a + a { border-left:none; border-top:1px solid var(--osk-border,#1e1e2a); padding-top:12px; }
+}
+</style>
+<div class="pt-setrow">
+  <div class="pt-setrow-label">BeeF 実用三姉妹 — 二値をやめる実践セット</div>
+  <div class="pt-setrow-row">
+    <a href="#setrow"><span>🎚</span><span class="pt-setrow-ti">何度メーター<small>迷い→確信度%</small></span><span class="pt-setrow-arr">→</span></a>
+    <a href="#setrow"><span>☁</span><span class="pt-setrow-ti">フワッカ<small>fuzzy todo</small></span><span class="pt-setrow-arr">→</span></a>
+    <a href="#setrow"><span>🐢</span><span class="pt-setrow-ti">怠け通し<small>サボれる習慣</small></span><span class="pt-setrow-arr">→</span></a>
+  </div>
+</div>
+</template>
+
 <!-- ============ ページ生成 ============ -->
 <script>
 var PARTS = [
@@ -760,7 +922,19 @@ var PARTS = [
   { id:'pager',        tpl:'tpl-pager',        name:'星送り',            en:'#pager',
     desc:'いまいる頁だけ金に灯るページ送り。aria-current="page"を差し替えるだけ、JS不要。', ds:'視覚比喩 / hover展開' },
   { id:'pillar-fuda',  tpl:'tpl-pillar-fuda',  name:'柱札',              en:'#pillar-fuda',
-    desc:'TRBP四柱を名乗る札（はしらふだ）。チップ(void/紙)・帯3px・タブの3変形。鉱物標本=金は聖域・--osk-pillar-* fallback内蔵。', ds:'視覚比喩 / hover展開' }
+    desc:'TRBP四柱を名乗る札（はしらふだ）。チップ(void/紙)・帯3px・タブの3変形。鉱物標本=金は聖域・--osk-pillar-* fallback内蔵。', ds:'視覚比喩 / hover展開' },
+  { id:'breadcrumb',   tpl:'tpl-breadcrumb',   name:'みちしるべ',        en:'#breadcrumb',
+    desc:'帰り道がいつでも見える道標ナビ。現在地だけ◆が灯る。aria-current="page"を置くだけ、JS不要。', ds:'視覚比喩 / hover展開' },
+  { id:'progress',     tpl:'tpl-progress',     name:'宿場すごろく',      en:'#progress',
+    desc:'旅程の宿場がひとつずつ灯る段階プログレス。いまの宿だけ脈打つ。class="done"とaria-currentだけ、JS不要。', ds:'視覚比喩 / 脈動' },
+  { id:'tagcloud',     tpl:'tpl-tagcloud',     name:'言の葉雲',          en:'#tagcloud',
+    desc:'重みFloat(--w:0〜1)で文字が育つタグの雲。連続値の見える化=BeeFの入口。hoverで金に灯る、JS不要。', ds:'視覚比喩 / hover展開' },
+  { id:'quote',        tpl:'tpl-quote',        name:'ことだま行灯',      en:'#quote',
+    desc:'言葉ひとつを行灯にともす引用枠。金の灯芯(左罫)と〝の言霊マーク。blockquoteそのまま、JS不要。', ds:'音遊び / 静止' },
+  { id:'skeleton',     tpl:'tpl-skeleton',     name:'待ちぼうけ',        en:'#skeleton',
+    desc:'中身が来るまで金の薄明かりが往復する待ち姿。aria-busy付き、形は組み替え自由。CSSだけ、JS不要。', ds:'音遊び / 脈動' },
+  { id:'setrow',       tpl:'tpl-setrow',       name:'組ちょうちん',      en:'#setrow',
+    desc:'関連リンクを一本の紐に束ねるセット行。玄関BeeF三姉妹行(SES-438)の昇格。flexだけ、JS不要。', ds:'視覚比喩 / hover展開' }
 ];
 
 var SHELF = [
