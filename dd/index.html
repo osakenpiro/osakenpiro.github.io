@@ -266,7 +266,7 @@
     el.href = t.url || '#';
     if (t.url && t.url.startsWith('http')) { el.target = '_blank'; el.rel = 'noopener'; }
     el.innerHTML = `
-      <div class="icon">${escapeHtml(t.icon)}</div>
+      ${t.comic ? `<div class="icon dd-comic" style="background-image:url('${t.comic}')" aria-hidden="true"></div>` : `<div class="icon">${escapeHtml(t.icon)}</div>`}
       <div class="name">${escapeHtml(t.ja)}${t.pillar && DD_PILLARS[t.pillar] ? `<span class="dd-pchip" style="background:${DD_PILLARS[t.pillar][1]};color:${DD_PILLARS[t.pillar][2]}">${DD_PILLARS[t.pillar][0]}</span>` : ''}<small>${escapeHtml(t.en)} — ${escapeHtml(t.sub)}</small></div>
       <div class="stack">${escapeHtml(t.stack)}</div>
     `;
