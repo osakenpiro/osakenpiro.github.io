@@ -10,7 +10,10 @@
     { "id": "water", "name": "水道", "color": "#5b9bd0", "order": 1 },
     { "id": "data",  "name": "通信", "color": "#a583cf", "order": 2 },
     { "id": "logi",  "name": "物流", "color": "#79b873", "order": 3 },
-    { "id": "life",  "name": "生物圏", "color": "#6cae9a", "order": 4 }
+    { "id": "life",  "name": "生物圏", "color": "#6cae9a", "order": 4 },
+    { "id": "food",  "name": "食料", "color": "#cf9d6b", "order": 5 },
+    { "id": "money", "name": "金融", "color": "#9f93b0", "order": 6 },
+    { "id": "people","name": "人流", "color": "#c98a8a", "order": 7 }
   ],
   "nodes": [
     { "id": "thermal",  "layer": "power", "label": "石炭・石油火力",   "x": 0.20, "y": 0.20, "f": 0.90, "auto": 0.08, "dday": 2, "desc": "石炭の貨車とボイラーマン——人手の塊。落ちたら再起動する者はいない" },
@@ -45,7 +48,11 @@
 
     { "id": "pollin",   "layer": "life", "label": "送粉(蜂・虫)",     "x": 0.86, "y": 0.74, "f": 0.70, "auto": 1.00, "dday": 40000, "shape": "tri", "desc": "無償の物流。1965も2026も、虫は同じ仕事をしている" },
     { "id": "wildgrow", "layer": "life", "label": "自家・風媒の植生", "x": 0.94, "y": 0.86, "f": 0.80, "auto": 1.00, "dday": 40000, "shape": "tri", "desc": "人がいなくても勝手に実る。時代に関係なく" },
-    { "id": "decay",    "layer": "life", "label": "腐敗・分解(菌類)", "x": 0.80, "y": 0.93, "f": 0.60, "auto": 1.00, "dday": 40000, "desc": "掃除屋は不変。人類の痕跡を最初に食べる" }
+    { "id": "decay",    "layer": "life", "label": "腐敗・分解(菌類)", "x": 0.80, "y": 0.93, "f": 0.60, "auto": 1.00, "dday": 40000, "desc": "掃除屋は不変。人類の痕跡を最初に食べる" },
+    { "id": "shoku",    "layer": "food",   "label": "台所・自炊",     "x": 0.56, "y": 0.72, "f": 0.75, "auto": 0.10, "dday": 1, "desc": "自炊が中心。冷蔵庫普及途上＝買い置きと乾物の文化が強い" },
+    { "id": "gaishoku", "layer": "food",   "label": "食堂・大衆酒場", "x": 0.49, "y": 0.80, "f": 0.40, "auto": 0.00, "dday": 0.5, "desc": "定食屋と大衆酒場。外食はまだ贅沢寄り" },
+    { "id": "kane",     "layer": "money",  "label": "銀行・現金",     "x": 0.10, "y": 0.42, "f": 0.65, "auto": 0.10, "dday": 0.7, "desc": "窓口と現金経済。カードもATMもまだ無い。札束と通帳の時代" },
+    { "id": "ido",      "layer": "people", "label": "通勤電車",       "x": 0.55, "y": 0.16, "f": 0.80, "auto": 0.00, "dday": 0.04, "desc": "団地と衛星都市からの大量通勤。すし詰めの国鉄＝人流の主役" }
   ],
   "edges": [
     { "from": "thermal",  "to": "sub",    "f": 0.95 },
@@ -86,6 +93,10 @@
     { "from": "wildgrow", "to": "pollin",   "f": 0.60 },
     { "from": "pollin",   "to": "wildgrow", "f": 0.60 },
     { "from": "wildgrow", "to": "decay",    "f": 0.50 },
-    { "from": "pollin",   "to": "market",   "f": 0.35, "cross": true, "note": "送粉が食を支える構図は時代不変" }
+    { "from": "pollin",   "to": "market",   "f": 0.35, "cross": true, "note": "送粉が食を支える構図は時代不変" },
+    { "from": "market",   "to": "shoku", "f": 0.60, "cross": true },
+    { "from": "gaishoku", "to": "shoku", "f": 0.35 },
+    { "from": "kane",     "to": "market","f": 0.50, "cross": true },
+    { "from": "rail",     "to": "ido",   "f": 0.70, "cross": true, "note": "通勤は国鉄に乗る" }
   ]
 }
