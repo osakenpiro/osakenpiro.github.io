@@ -6,7 +6,7 @@
 <title>部品工場 PARTS — osakenpiro</title>
 <meta name="description" content="コピペで使えるリッチHTML部品ライブラリ。osakenpiroデザインシステム(colors_and_type.css)準拠・自己完結スニペット集。">
 <meta property="og:title" content="部品工場 PARTS — osakenpiro">
-<meta property="og:description" content="コピペ可能な自己完結HTML部品27点+ひとあかり素材棚">
+<meta property="og:description" content="コピペ可能な自己完結HTML部品28点+ひとあかり素材棚">
 <meta property="og:image" content="https://osakenpiro.github.io/parts/assets/pt_hero-lantern-desk.jpg">
 <link rel="stylesheet" href="/v2/colors_and_type.css">
 <style>
@@ -124,7 +124,7 @@
 <footer>
   <a href="https://osakenpiro.github.io/">← 玄関 osakenpiro.github.io</a>
   <span>画風『ひとあかり』/ SDXL local</span>
-  <span>built 2026-06-06 · Lane ε SES-420 / ε2 SES-429 / ε3 SES-435 / λ-1 SES-447 / ε4 SES-448 / ε5 SES-453（部品27点）</span>
+  <span>built 2026-06-07 · Lane ε SES-420 / ε2 SES-429 / ε3 SES-435 / λ-1 SES-447 / ε4 SES-448 / ε5 SES-453 / ε6 SES-456（部品28点）</span>
 </footer>
 </main>
 
@@ -952,6 +952,42 @@
   </div>
 </header>
 </template>
+<template id="tpl-typo">
+<!-- osakenpiro parts #typo タイポマシン | https://osakenpiro.github.io/parts/#typo -->
+<style>
+.pt-typo { position:relative; text-align:center; padding:46px 18px 40px; overflow:hidden;
+  font-family:var(--osk-font-mincho, 'Zen Old Mincho','Yu Mincho','Hiragino Mincho ProN',serif); }
+.pt-typo-glyph { position:absolute; top:50%; left:50%; transform:translate(-50%,-54%);
+  font-weight:900; font-size:clamp(150px,42vw,380px); line-height:1;
+  color:color-mix(in srgb, currentColor 9%, transparent);
+  user-select:none; pointer-events:none; z-index:0; }
+.pt-typo-stage { position:relative; z-index:1; }
+.pt-typo-rubi { display:block; margin-bottom:12px;
+  font-family:var(--osk-font-mono, ui-monospace,monospace); font-size:12px;
+  letter-spacing:.5em; opacity:.55; white-space:nowrap; }
+.pt-typo-big { font-weight:900; font-size:clamp(54px,12vw,140px); line-height:.92;
+  letter-spacing:-.04em; user-select:none; }
+.pt-typo-big .x { display:inline-block; color:var(--osk-coral, #d85a30);
+  transform-origin:50% 60%; animation:ptTypoTilt 5.4s ease-in-out infinite; }
+.pt-typo-big .dot { display:inline-block; width:.18em; height:.18em; border-radius:50%;
+  background:var(--osk-gold, #d4a853); vertical-align:.08em; margin-left:.02em;
+  animation:ptTypoPulse 4s ease-in-out infinite; }
+.pt-typo-sub { margin-top:18px; font-size:clamp(15px,2.2vw,20px); opacity:.78; }
+.pt-typo-sub em { font-style:normal; opacity:1;
+  background:linear-gradient(transparent 86%, color-mix(in srgb, var(--osk-gold,#d4a853) 65%, transparent) 86%); }
+@keyframes ptTypoTilt { 0%,100% { transform:rotate(-4deg) translateY(0); } 50% { transform:rotate(6deg) translateY(-8px); } }
+@keyframes ptTypoPulse { 0%,100% { opacity:.3; transform:scale(1); } 50% { opacity:1; transform:scale(1.15); } }
+@media (prefers-reduced-motion: reduce) { .pt-typo-big .x, .pt-typo-big .dot { animation:none; } }
+</style>
+<div class="pt-typo">
+  <span class="pt-typo-glyph" aria-hidden="true">言</span>
+  <div class="pt-typo-stage">
+    <span class="pt-typo-rubi">ko — to — ba — ga — shu — yaku</span>
+    <div class="pt-typo-big" aria-label="言葉が主役">言葉<span class="x">が</span>主役<span class="dot"></span></div>
+    <div class="pt-typo-sub">飾りを<em>足さない</em>。文字を大きくする。</div>
+  </div>
+</div>
+</template>
 
 <!-- ============ ページ生成 ============ -->
 <script>
@@ -1009,7 +1045,9 @@ var PARTS = [
   { id:'nefuda',       tpl:'tpl-nefuda',       name:'フロシキ値札',      en:'#nefuda',
     desc:'方眼紙に丸スタンプと紐穴。dt/ddを書き換えるだけで何の値札にもなるメタ情報札。CSSだけ、JS不要。', ds:'視覚比喩 / rotation' },
   { id:'kanban',       tpl:'tpl-kanban',       name:'カンバンドア',      en:'#kanban',
-    desc:'鎖で吊った鋲打ち看板。ページの入口に掛ける。hoverでまっすぐ向き直る。CSSだけ、JS不要。', ds:'視覚比喩 / hover展開' }
+    desc:'鎖で吊った鋲打ち看板。ページの入口に掛ける。hoverでまっすぐ向き直る。CSSだけ、JS不要。', ds:'視覚比喩 / hover展開' },
+  { id:'typo',         tpl:'tpl-typo',         name:'タイポマシン',      en:'#typo',
+    desc:'巨大明朝の言葉そのものが主役のヒーロー。助詞が一字だけ傾ぎ、金の句点が脈打つ。玄関「全部がぼく」の部品昇格。CSSだけ、JS不要。', ds:'視覚比喩 / 脈動' }
 ];
 
 var SHELF = [
