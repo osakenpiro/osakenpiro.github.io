@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>社会考証ビジュアライザ — ひとRe:</title>
+<style>
+  :root{
+    --bg:#0b0c14; --panel:#12131e; --gold:#d4a853; --ink:#e8e2d5; --dim:#8a8576;
+    --line:#2a2b38; --life:#6cae9a;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",system-ui,sans-serif;
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  header{
+    padding:10px 16px 8px; border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap; background:var(--panel);
+  }
+  h1{font-size:15px; font-weight:600; letter-spacing:.08em; color:var(--gold); white-space:nowrap}
+  h1 .sub{font-size:11px; color:var(--dim); letter-spacing:.04em; margin-left:8px; font-weight:400}
+  .era{
+    font-size:11px; color:var(--ink); border:1px solid var(--gold); border-radius:3px;
+    padding:2px 8px; letter-spacing:.06em; white-space:nowrap;
+  }
+  .controls{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-left:auto}
+  .grp{display:flex; gap:4px; align-items:center; padding-right:10px; border-right:1px solid var(--line)}
+  .grp:last-child{border-right:none; padding-right:0}
+  button{
+    background:transparent; color:var(--dim); border:1px solid var(--line); border-radius:3px;
+    font-size:11px; padding:3px 9px; cursor:pointer; font-family:inherit; letter-spacing:.04em;
+    transition:color .15s,border-color .15s,background .15s; user-select:none;
+  }
+  button:hover{color:var(--ink); border-color:var(--dim)}
+  button.act{color:var(--gold); border-color:var(--gold)}
+  #bHonmaru.act{color:#e8b9a0; border-color:#c87a55; background:rgba(200,122,85,.08)}
+  .chip{display:flex; align-items:center; gap:5px}
+  .chip .dot{width:8px; height:8px; border-radius:50%; background:currentColor; display:inline-block}
+  .chip.on{color:var(--ink)}
+  .chip.off{opacity:.38}
+  .chip.solo{box-shadow:0 0 0 1px var(--gold) inset; color:var(--gold)}
+  main{flex:1; position:relative; min-height:0}
+  canvas{position:absolute; inset:0; width:100%; height:100%; display:block}
+  #tip{
+    position:absolute; pointer-events:none; display:none; max-width:300px; z-index:5;
+    background:rgba(14,15,24,.94); border:1px solid var(--line); border-left:3px solid var(--gold);
+    border-radius:4px; padding:8px 10px; font-size:11px; line-height:1.6;
+  }
+  #tip .t{font-size:12px; font-weight:600; margin-bottom:2px}
+  #tip .l{font-size:10px; letter-spacing:.06em; margin-bottom:4px}
+  #tip .bar{height:4px; background:var(--line); border-radius:2px; margin:3px 0 2px; overflow:hidden}
+  #tip .bar i{display:block; height:100%; border-radius:2px}
+  #tip .d{color:var(--dim); margin-top:4px}
+  #tip .st{font-size:10px; margin-top:4px; letter-spacing:.03em}
+  #tip .st .alive{color:var(--life)} #tip .st .dead{color:#c88}
+  .simwrap{
+    position:absolute; left:50%; transform:translateX(-50%); bottom:14px; width:min(700px,93%); z-index:6;
+    background:rgba(14,15,24,.93); border:1px solid var(--line); border-left:3px solid #c87a55;
+    border-radius:6px; padding:9px 13px 10px; display:none;
+  }
+  .simwrap.on{display:block}
+  .simrow{display:flex; align-items:center; gap:11px}
+  .simrow .clock{font-size:13px; color:#e8b9a0; font-weight:600; letter-spacing:.05em; white-space:nowrap; min-width:128px}
+  .simrow input[type=range]{flex:1; accent-color:#c87a55; height:3px; cursor:pointer}
+  .simrow .play{white-space:nowrap}
+  .simcap{font-size:10.5px; color:var(--dim); margin-top:6px; line-height:1.55}
+  .simcap b{color:var(--ink); font-weight:600}
+  .simstat{font-size:10px; color:var(--dim); margin-top:4px; letter-spacing:.03em}
+  .simstat .alive{color:var(--life); font-weight:600} .simstat .dead{color:#9a5b5b; font-weight:600}
+  footer{
+    padding:6px 16px; border-top:1px solid var(--line); background:var(--panel);
+    display:flex; gap:15px; align-items:center; font-size:10px; color:var(--dim); flex-wrap:wrap;
+  }
+  .lg{display:flex; align-items:center; gap:6px}
+  .gradbar{width:74px; height:6px; border-radius:3px; background:linear-gradient(90deg,#2a2b38,#d4a853)}
+  .ldash{display:inline-block; width:20px; height:0; border-top:2px dashed var(--dim)}
+  .ldot{display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--life)}
+  .ltri{display:inline-block; width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-bottom:9px solid var(--dim)}
+  .credit{margin-left:auto; letter-spacing:.04em}
+</style>
+</head>
+<body>
+<header>
+  <h1>社会考証ビジュアライザ<span class="sub">ひとRe: 世界観構築</span></h1>
+  <div class="era" id="era">—</div>
+  <div class="controls">
+    <div class="grp">
+      <button id="vTop" class="act">トップ視点</button>
+      <button id="vSide">断面（横階層）</button>
+    </div>
+    <div class="grp" id="chips"></div>
+    <div class="grp">
+      <button id="bAll">すべて</button>
+      <button id="bAnim" class="act">流れ ▶</button>
+    </div>
+    <div class="grp">
+      <button id="bHonmaru" title="人類消失後、何が止まり、何が止まらないかをシミュレート">本丸 ☠</button>
+    </div>
+  </div>
+</header>
+<main>
+  <canvas id="cv"></canvas>
+  <div id="tip"></div>
+  <div class="simwrap" id="sim">
+    <div class="simrow">
+      <span class="clock" id="simClock">消失 +0時間</span>
+      <input type="range" id="simRange" min="0" max="1000" value="0" aria-label="消失からの経過時間">
+      <button class="play" id="simPlay">⏱ 自動</button>
+    </div>
+    <div class="simcap" id="simCap"></div>
+    <div class="simstat" id="simStat"></div>
+  </div>
+</main>
+<footer>
+  <span class="lg"><span class="gradbar"></span> 濃度Float 0→1</span>
+  <span class="lg"><span class="ltri"></span> 発生源（△）</span>
+  <span class="lg"><span class="ldash"></span> レイヤー間依存</span>
+  <span class="lg"><span class="ldot"></span> 生物圏（無人で不滅）</span>
+  <span>チップ＝表示切替／2回押し＝単独／本丸☠＝人類消失シミュ</span>
+  <span class="credit">HC: 🍵ボク × 🔧ツルこ ／ 🌞タバネさん見守り</span>
+</footer>
+
+<script type="application/json" id="dataEmbed">
+{
+  "meta": {
+    "era": "現代 2026 — 正常運転",
+    "version": "v3",
+    "note": "ひとRe: 社会全体考証ビジュアライザ用データ正本。f=濃度Float(0-1)。auto=自動運転Float/無人継続度(0-1)。dday=人類消失後の停止予測日(本丸モード,log日数)。shape=ノード役割(tri=発生源/省略=設備○)。lifeレイヤ=生物圏(auto1.0/不滅)。descは考証メモ(裏取りノートv1/72時間v0準拠)。"
+  },
+  "layers": [
+    { "id": "power", "name": "電力", "color": "#d9a543", "order": 0 },
+    { "id": "water", "name": "水道", "color": "#5b9bd0", "order": 1 },
+    { "id": "data",  "name": "データ", "color": "#a583cf", "order": 2 },
+    { "id": "logi",  "name": "物流", "color": "#79b873", "order": 3 },
+    { "id": "life",  "name": "生物圏", "color": "#6cae9a", "order": 4 }
+  ],
+  "nodes": [
+    { "id": "lng",      "layer": "power", "label": "LNG基地",        "x": 0.06, "y": 0.30, "f": 0.85, "auto": 0.15, "dday": 1.5, "shape": "tri", "desc": "海から来る燃料の玄関(発生源)。気化・送出の運用は人間——火力と都市ガスの上流。無人で送出は止まるが、導管残圧でガスは数日生きる" },
+    { "id": "thermal",  "layer": "power", "label": "火力発電所",      "x": 0.20, "y": 0.20, "f": 0.95, "auto": 0.10, "dday": 2, "desc": "系統の主力。落ちたら人間が再起動する前提の機械(ラチェット原理の急所)。無人継続度は最底辺" },
+    { "id": "solar",    "layer": "power", "label": "太陽光発電群",    "x": 0.88, "y": 0.10, "f": 0.70, "auto": 0.45, "dday": 1.5, "shape": "tri", "desc": "太陽という発生源。パネルは無人で発電するが、昼の過剰を人間の出力制御が捌いている。Day1にフラッド→保護トリップ→Day2に系統連系停止" },
+    { "id": "hydro",    "layer": "power", "label": "水力・揚水",      "x": 0.95, "y": 0.26, "f": 0.60, "auto": 0.40, "dday": 2, "shape": "tri", "desc": "山の電池(発生源)。自動応答で系統の揺れを数時間だけ支えられる。判断は人間" },
+    { "id": "dispatch", "layer": "power", "label": "給電指令所",      "x": 0.45, "y": 0.07, "f": 1.00, "auto": 0.10, "dday": 2, "desc": "需給バランスの中枢。秒単位は自動(AGC)、判断は人間——社会で最も濃い「人の手」。f1.00だが無人継続度はほぼ0=即死の頂点" },
+    { "id": "sub",      "layer": "power", "label": "基幹変電所",      "x": 0.38, "y": 0.26, "f": 0.85, "auto": 0.50, "dday": 2, "desc": "送電の関節。UFR/UFLS=自動の安全装置がここに棲む(北海道2018: 傾いた系統は18分で死ぬ)" },
+    { "id": "grid",     "layer": "power", "label": "配電網",          "x": 0.58, "y": 0.33, "f": 0.75, "auto": 0.40, "dday": 2, "desc": "柱上トランスの毛細血管。冷蔵庫と門灯の帝国を養う。Day2日没＝東京の死亡時刻、ここで街の電気が消える" },
+
+    { "id": "source",    "layer": "water", "label": "水源(ダム・河川)", "x": 0.96, "y": 0.55, "f": 0.80, "auto": 0.95, "dday": 40000, "shape": "tri", "desc": "山の水瓶(発生源)。重力はいつでも無料(深大寺湧水群は無電力で湧き続ける)——水そのものは止まらない。止まるのは『届ける』方" },
+    { "id": "purify",    "layer": "water", "label": "浄水場",          "x": 0.80, "y": 0.62, "f": 0.90, "auto": 0.10, "dday": 2, "desc": "大電力でポンプと薬品注入——水道は実は電気でできている。停電で死ぬ" },
+    { "id": "reservoir", "layer": "water", "label": "配水池",          "x": 0.66, "y": 0.52, "f": 0.70, "auto": 0.60, "dday": 3, "desc": "高台の貯金箱。停電後も残圧で半日〜2日だけ水が出る" },
+    { "id": "bldgA",     "layer": "water", "label": "直結直圧の家",    "x": 0.52, "y": 0.63, "f": 0.50, "auto": 0.40, "dday": 3, "desc": "3階まで。配水池が生きる限り出る——Day 2〜3にジワ死(彼のアパートはこれ)" },
+    { "id": "bldgB",     "layer": "water", "label": "受水槽ビル",      "x": 0.43, "y": 0.55, "f": 0.50, "auto": 0.50, "dday": 4, "desc": "屋上タンクの重力給水で停電後も1〜2日延命" },
+    { "id": "bldgC",     "layer": "water", "label": "タワマン(増圧)",  "x": 0.34, "y": 0.64, "f": 0.50, "auto": 0.05, "dday": 2, "desc": "増圧ポンプ依存=停電と同時に即死。建物ごとに水の死ぬ日が違う" },
+    { "id": "sewage",    "layer": "water", "label": "下水処理場",      "x": 0.24, "y": 0.72, "f": 0.60, "auto": 0.10, "dday": 2, "desc": "電力で浄化して川へ返す。止まると都市は下流から臭い始める" },
+
+    { "id": "cable", "layer": "data", "label": "海底ケーブル陸揚局", "x": 0.05, "y": 0.80, "f": 0.85, "auto": 0.50, "dday": 3, "shape": "tri", "desc": "大陸との神経の発生源(陸揚局)。電源が生きる限り、世界と繋がっている" },
+    { "id": "dc",    "layer": "data", "label": "データセンター",     "x": 0.21, "y": 0.84, "f": 0.90, "auto": 0.50, "dday": 5, "desc": "クラウドの実体。非常用発電72h=「三日あれば助けが来る」という人類の約束の長さ。補給なしで5日前後に落ちる" },
+    { "id": "bts",   "layer": "data", "label": "携帯基地局",         "x": 0.48, "y": 0.82, "f": 0.80, "auto": 0.40, "dday": 2.8, "desc": "蓄電池は原則3h、駅前など重要局のみ24h——Day 3朝、最後のアンテナ1本" },
+    { "id": "bcast", "layer": "data", "label": "放送マスター",       "x": 0.33, "y": 0.90, "f": 0.60, "auto": 0.85, "dday": 3, "desc": "APS/APCで送出は全自動(高auto)。録画番組は流れ続け、死ぬのは生放送だけ。だが電源が落ちれば止まる" },
+    { "id": "jjy",   "layer": "data", "label": "JJY標準電波塔",      "x": 0.76, "y": 0.86, "f": 0.50, "auto": 0.90, "dday": 6, "shape": "tri", "desc": "標準時の発生源。最初から無人だった施設(高auto)。全国の電波時計の親(福島40kHz+佐賀60kHz)。系統死+非常電源切れでDay3〜7に停波" },
+    { "id": "phone", "layer": "data", "label": "スマホ・端末",       "x": 0.62, "y": 0.92, "f": 0.70, "auto": 0.30, "dday": 3, "desc": "社会の末端神経。botと予約投稿=人がいなくても喋り続けるゾンビ層。電池が切れて順に黙る" },
+
+    { "id": "umi",      "layer": "logi", "label": "海・漁場",        "x": 0.02, "y": 0.38, "f": 0.60, "auto": 0.05, "dday": 0.04, "shape": "tri", "desc": "魚介の発生源。漁は人手＝即停止。さらに魚は脊椎動物＝(c)勾配で消失（虫と違い残らない）——海から食材が消える" },
+    { "id": "chikusan", "layer": "logi", "label": "牧場・畜産",      "x": 0.14, "y": 0.34, "f": 0.60, "auto": 0.10, "dday": 0.05, "shape": "tri", "desc": "食肉・卵・乳の発生源。家畜は動物＝(c)勾配で消失。世話する人手も即消える——動物性タンパクの供給線が真っ先に断たれる" },
+    { "id": "nouchi",   "layer": "logi", "label": "田畑(農地)",      "x": 0.28, "y": 0.33, "f": 0.65, "auto": 0.30, "dday": 1, "shape": "tri", "desc": "穀物・野菜の発生源。作物=植物は残るが(→生物圏/自家・風媒の植生)、灌漑・収穫の管理農業は人手で停止。秋に無人の田で稲だけが勝手に実る" },
+    { "id": "port",     "layer": "logi", "label": "港湾",            "x": 0.08, "y": 0.50, "f": 0.85, "auto": 0.05, "dday": 0.5, "shape": "tri", "desc": "島国の胃袋の入口(発生源/輸入)。食料も燃料も、ほぼ全てがここから上陸する。荷役は人手＝消失で即停止" },
+    { "id": "refinery", "layer": "logi", "label": "製油所・油槽所",  "x": 0.15, "y": 0.62, "f": 0.80, "auto": 0.05, "dday": 0.7, "desc": "ガソリン・軽油・灯油の源。製造は人手で即停止。但し既存在庫の実用限度は半年(機械の黄昏の時計)" },
+    { "id": "market",   "layer": "logi", "label": "中央卸売市場",    "x": 0.29, "y": 0.46, "f": 0.70, "auto": 0.00, "dday": 0.3, "desc": "未明3〜5時が本番。仲卸=眠る世界を翌日へ引き継ぐ「夜の部」の住人。人が消えれば機能ゼロ" },
+    { "id": "center",   "layer": "logi", "label": "物流センター",    "x": 0.41, "y": 0.44, "f": 0.80, "auto": 0.15, "dday": 0.5, "desc": "在庫の心臓。仕分けは自動化が進むが、最後にトラックへ載せるのは人" },
+    { "id": "truck",    "layer": "logi", "label": "幹線トラック網",  "x": 0.53, "y": 0.46, "f": 0.75, "auto": 0.00, "dday": 0.03, "desc": "未明の高速は物流ゴールデンタイム——4:44、彼らがいちばん多く走っていた。運転士消失で30分以内に全停止" },
+    { "id": "rail",     "layer": "logi", "label": "鉄道(中央線)",    "x": 0.70, "y": 0.40, "f": 0.65, "auto": 0.05, "dday": 0.03, "desc": "三鷹発東京行き始発4:39。EB装置=人が消えると自動で停まる安全装置。即・線路上に静止" },
+    { "id": "store",    "layer": "logi", "label": "コンビニ・スーパー", "x": 0.63, "y": 0.58, "f": 0.70, "auto": 0.10, "dday": 0.5, "desc": "夜勤納品が済んだ直後の棚=完璧に整列した朝。都市の台所。補給停止＝Day0、冷蔵は停電で死ぬ(中身は当面使える)" },
+    { "id": "gs",       "layer": "logi", "label": "ガソリンスタンド", "x": 0.45, "y": 0.71, "f": 0.60, "auto": 0.10, "dday": 2, "desc": "ポンプは電気依存(停電で死ぬ)。但し地下タンク=温度安定・大量の備蓄庫、手汲みで車と重機の寿命を約1年延ばせる" },
+
+    { "id": "pollin",   "layer": "life", "label": "送粉(蜂・虫)",     "x": 0.86, "y": 0.74, "f": 0.70, "auto": 1.00, "dday": 40000, "shape": "tri", "desc": "蜂と虫の無償の物流(発生源)。人間の運用ゼロで回り続けた唯一のインフラ。(c)勾配消失で虫は残存→送粉は弱まりつつ続く。世界の作物種の約75%・食料の約1/3が依存(『蜂が消えたら人類4年』はEinstein誤帰属・誇張=確度0.4／依存自体は実在=確度0.7)" },
+    { "id": "wildgrow", "layer": "life", "label": "自家・風媒の植生", "x": 0.94, "y": 0.86, "f": 0.80, "auto": 1.00, "dday": 40000, "shape": "tri", "desc": "イネ(自家受粉)・雑草・街路樹の発生源。人がいなくても虫がいなくても勝手に実り、20年で電線を、100年でビルを呑む" },
+    { "id": "decay",    "layer": "life", "label": "腐敗・分解(菌類)", "x": 0.80, "y": 0.93, "f": 0.60, "auto": 1.00, "dday": 40000, "desc": "微生物は残存(B案前提)。腐敗時計を回し、死体なき世界の掃除屋。止まらないどころか、人類の痕跡を最初に食べる" },
+    { "id": "furo",     "layer": "life", "label": "大場不郎(最後の手)", "x": 0.965, "y": 0.66, "f": 1.00, "auto": 1.00, "dday": 40000, "desc": "複雑性勾配を踏み外した唯一の例外。20歳で成人＝地球の2兆回転と同期。虫を飼いならし送粉に手を入れる——関与度ゼロの世界に、人の手がひとつだけ戻る" }
+  ],
+  "edges": [
+    { "from": "lng",      "to": "thermal",   "f": 0.90 },
+    { "from": "thermal",  "to": "sub",       "f": 0.95 },
+    { "from": "solar",    "to": "sub",       "f": 0.70 },
+    { "from": "hydro",    "to": "sub",       "f": 0.60 },
+    { "from": "sub",      "to": "grid",      "f": 0.90 },
+    { "from": "dispatch", "to": "thermal",   "f": 0.80 },
+    { "from": "dispatch", "to": "solar",     "f": 0.70 },
+    { "from": "dispatch", "to": "sub",       "f": 0.75 },
+
+    { "from": "source",    "to": "purify",    "f": 0.85 },
+    { "from": "purify",    "to": "reservoir", "f": 0.85 },
+    { "from": "reservoir", "to": "bldgA",     "f": 0.60 },
+    { "from": "reservoir", "to": "bldgB",     "f": 0.55 },
+    { "from": "reservoir", "to": "bldgC",     "f": 0.55 },
+    { "from": "bldgA",     "to": "sewage",    "f": 0.50 },
+    { "from": "bldgB",     "to": "sewage",    "f": 0.45 },
+
+    { "from": "cable", "to": "dc",    "f": 0.85 },
+    { "from": "dc",    "to": "bts",   "f": 0.80 },
+    { "from": "bts",   "to": "phone", "f": 0.80 },
+    { "from": "dc",    "to": "bcast", "f": 0.55 },
+    { "from": "bcast", "to": "phone", "f": 0.50 },
+    { "from": "jjy",   "to": "phone", "f": 0.40 },
+
+    { "from": "umi",      "to": "market",   "f": 0.55 },
+    { "from": "chikusan", "to": "market",   "f": 0.55 },
+    { "from": "nouchi",   "to": "market",   "f": 0.60 },
+    { "from": "port",     "to": "refinery", "f": 0.70 },
+    { "from": "port",     "to": "center",   "f": 0.80 },
+    { "from": "market",   "to": "truck",    "f": 0.65 },
+    { "from": "center",   "to": "truck",    "f": 0.85 },
+    { "from": "truck",    "to": "store",    "f": 0.80 },
+    { "from": "refinery", "to": "gs",       "f": 0.70 },
+    { "from": "gs",       "to": "truck",    "f": 0.60 },
+    { "from": "rail",     "to": "center",   "f": 0.50 },
+
+    { "from": "grid", "to": "purify", "f": 0.90, "cross": true, "note": "浄水ポンプは大口電力——停電=水道の死の起点" },
+    { "from": "grid", "to": "sewage", "f": 0.60, "cross": true },
+    { "from": "grid", "to": "bts",    "f": 0.80, "cross": true, "note": "基地局の本線。切れたら蓄電池3hの砂時計が返る" },
+    { "from": "grid", "to": "dc",     "f": 0.85, "cross": true, "note": "切れたら非常用ディーゼル72hの約束が始まる" },
+    { "from": "grid", "to": "rail",   "f": 0.80, "cross": true },
+    { "from": "grid", "to": "store",  "f": 0.65, "cross": true, "note": "冷蔵冷凍=腐敗時計の電源" },
+    { "from": "dc",   "to": "dispatch", "f": 0.70, "cross": true, "note": "制御も監視も通信の上に乗っている" },
+    { "from": "refinery", "to": "dc", "f": 0.45, "cross": true, "note": "非常用発電の軽油補給——物流が止まると72hが本当の期限になる" },
+    { "from": "lng",  "to": "grid",   "f": 0.50, "cross": false, "note": "都市ガス導管(ガバナはガス圧駆動で電気不要・停電でも数日〜数週間生きる)" },
+
+    { "from": "wildgrow", "to": "pollin",   "f": 0.60, "note": "花→蜜（植物と送粉の相互依存）" },
+    { "from": "pollin",   "to": "wildgrow", "f": 0.60, "note": "受粉→結実（無人で回る生命の環）" },
+    { "from": "wildgrow", "to": "decay",    "f": 0.50, "note": "枯死→分解（掃除屋へ）" },
+    { "from": "furo",     "to": "pollin",   "f": 0.50, "note": "養蜂——飼いならした虫で送粉を部分的に再人間化" },
+    { "from": "furo",     "to": "wildgrow", "f": 0.45, "note": "稲作・採取——建設第九の手が生き物を扱う手へ" },
+    { "from": "pollin",   "to": "market",   "f": 0.35, "cross": true, "note": "送粉が食料の約1/3を支える=ミツバチ絶滅ロジックの核。市場(人手)は消えても、食料の土台は虫が回し続ける" }
+  ]
+}
+</script>
+
+<script>
+(function(){
+  "use strict";
+  var LSKEY = "shakai-vis-v0";
+
+  var DATA = JSON.parse(document.getElementById("dataEmbed").textContent);
+  try {
+    fetch("shakai-vis-data-modern.json")
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(j){ if (j && j.nodes) { DATA = j; buildModel(); layout(); buildChips(); } })
+      .catch(function(){});
+  } catch(e) {}
+
+  var state = { view: "top", anim: true, on: { }, solo: null, honmaru: false, clock: 0.0, simPlay: false };
+  DATA.layers.forEach(function(L){ state.on[L.id] = true; });
+  try {
+    var saved = JSON.parse(localStorage.getItem(LSKEY) || "null");
+    if (saved) {
+      if (saved.view === "top" || saved.view === "side") state.view = saved.view;
+      if (typeof saved.anim === "boolean") state.anim = saved.anim;
+      if (saved.on) DATA.layers.forEach(function(L){ if (typeof saved.on[L.id] === "boolean") state.on[L.id] = saved.on[L.id]; });
+      if (typeof saved.solo === "string") state.solo = saved.solo;
+    }
+  } catch(e) {}
+  function save(){ try { localStorage.setItem(LSKEY, JSON.stringify({ view:state.view, anim:state.anim, on:state.on, solo:state.solo })); } catch(e){} }
+
+  function hex2rgb(h){ h = h.replace("#",""); return [parseInt(h.substr(0,2),16), parseInt(h.substr(2,2),16), parseInt(h.substr(4,2),16)]; }
+  var BG = hex2rgb("#0b0c14"); var GREY = [110,112,124]; var IVORY = [232,226,213]; var GOLD = [212,168,83];
+  function mix(c1, c2, t){ return "rgb(" + Math.round(c1[0]+(c2[0]-c1[0])*t) + "," + Math.round(c1[1]+(c2[1]-c1[1])*t) + "," + Math.round(c1[2]+(c2[2]-c1[2])*t) + ")"; }
+  function rgba(c, a){ return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")"; }
+  function mulberry32(s){ return function(){ s |= 0; s = s + 0x6D2B79F5 | 0; var t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+  var DAY_MIN = 0.02, DAY_MAX = 36500; var LMIN = Math.log(DAY_MIN), LMAX = Math.log(DAY_MAX);
+  function clockDays(){ return Math.exp(LMIN + (LMAX - LMIN) * state.clock); }
+  function dayLabel(d){
+    if (d < 1) return "消失 +" + Math.max(1, Math.round(d * 24)) + "時間";
+    if (d < 60) return "Day " + Math.ceil(d);
+    if (d < 400) return "Day " + Math.round(d) + "（" + (d/30).toFixed(1) + "ヶ月）";
+    var y = d / 365; return "Year " + (y < 10 ? y.toFixed(1) : Math.round(y));
+  }
+  function phaseCaption(d){
+    if (d < 0.05) return "<b>4:44</b> 全員が消えた瞬間。走行中の車と電車が、ノーブレーキで止まる";
+    if (d < 1)    return "<b>Day 0</b> 機械だけが生きている朝。物流の人手（運転士・港湾・市場）と、海・畜産が真っ先に消える";
+    if (d < 2)    return "<b>Day 1</b> 太陽光フラッド。昼の電気が暴れ、自動保護が乱暴に系統を削る";
+    if (d < 3)    return "<b>Day 2 日没</b> 東京の死亡時刻。灯りは夜にではなく、太陽と一緒に消える";
+    if (d < 6)    return "<b>Day 3-5</b> 基地局→DC→病院。非常電源が『三日の約束』通りに尽き、最後の白い点が落ちる";
+    if (d < 60)   return "<b>Week 1-4</b> 腐敗と静寂。冷蔵が死に、都市ガスの火が日に日に痩せる";
+    if (d < 400)  return "<b>Year 0.5</b> 機械の黄昏が近い。ガソリンの実用限度は半年——重機とドライブに締切";
+    if (d < 1500) return "<b>Year 1-3</b> エンジン音のする最後の年。灯油・プロパンが文明の火に交代";
+    if (d < 4000) return "<b>Year 3-10</b> 江戸化。木造が腐り落ち、東部が湿地へ還る";
+    if (d < 11000)return "<b>Year 10-30</b> 緑の都市。20年で街の空から電線が消える";
+    return "<b>Year 30+</b> 観測者の黄昏。止まらないのは——送粉、植生、分解、そして最後の手ひとつ";
+  }
+  function nodeAlive(n){ return !state.honmaru || clockDays() < (n.dday != null ? n.dday : DAY_MAX + 1); }
+
+  var layersById = {}, nodesById = {}, model = { nodes: [], edges: [] };
+  function buildModel(){
+    layersById = {}; nodesById = {};
+    DATA.layers.forEach(function(L){ L.rgb = hex2rgb(L.color); layersById[L.id] = L; });
+    model.nodes = DATA.nodes.map(function(n){ var m = Object.assign({}, n); m.L = layersById[n.layer]; m.cx = 0; m.cy = 0; m.tx = 0; m.ty = 0; m.placed = false; nodesById[n.id] = m; return m; });
+    DATA.layers.forEach(function(L){ var ns = model.nodes.filter(function(n){ return n.layer === L.id; }).sort(function(a,b){ return a.y - b.y; }); ns.forEach(function(n,i){ n.bandRel = ns.length > 1 ? i/(ns.length-1) : 0.5; }); });
+    model.edges = DATA.edges.map(function(e,i){ var a = nodesById[e.from], b = nodesById[e.to]; var m = Object.assign({}, e); m.a = a; m.b = b; m.bend = (i % 2 === 0 ? 1 : -1) * (e.cross ? 0.14 : 0.09); var count = 1 + Math.round((e.f || 0.5) * 3); m.parts = []; var rnd = mulberry32(1000 + i); for (var k = 0; k < count; k++) { m.parts.push({ t: rnd(), v: (0.0018 + (e.f||0.5)*0.0035) * (0.6 + 0.5*rnd()) }); } return m; }).filter(function(e){ return e.a && e.b; });
+  }
+  buildModel();
+
+  var cv = document.getElementById("cv"), ctx = cv.getContext("2d");
+  var W = 0, H = 0, DPR = 1, stars = [];
+  function resize(){ DPR = window.devicePixelRatio || 1; var r = cv.parentElement.getBoundingClientRect(); W = Math.max(300, r.width); H = Math.max(240, r.height); cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); var rnd = mulberry32(44); stars = []; for (var i = 0; i < 130; i++) { stars.push({ x: rnd()*W, y: rnd()*H, r: 0.4 + rnd()*0.9, a: 0.08 + rnd()*0.25 }); } layout(); }
+
+  var PAD = { l: 70, r: 70, t: 56, b: 44 };
+  function layout(){
+    var iw = W - PAD.l - PAD.r, ih = H - PAD.t - PAD.b;
+    if (state.view === "top") { model.nodes.forEach(function(n){ n.tx = PAD.l + n.x * iw; n.ty = PAD.t + n.y * ih; }); }
+    else { var bh = ih / DATA.layers.length; model.nodes.forEach(function(n){ var bi = n.L.order; n.tx = PAD.l + n.x * iw; n.ty = PAD.t + bi * bh + bh * (0.22 + n.bandRel * 0.56); }); }
+    model.nodes.forEach(function(n){ if (!n.placed) { n.cx = n.tx; n.cy = n.ty; n.placed = true; } });
+  }
+
+  function layerAlpha(id){ if (state.solo) return id === state.solo ? 1 : 0.05; return state.on[id] ? 1 : 0; }
+  function edgeAlpha(e){ return Math.min(layerAlpha(e.a.layer), layerAlpha(e.b.layer)); }
+
+  var hover = null, lastFrame = 0;
+  function bezier(e, t){ var x0 = e.a.cx, y0 = e.a.cy, x1 = e.b.cx, y1 = e.b.cy; var mx = (x0+x1)/2, my = (y0+y1)/2; var dx = x1-x0, dy = y1-y0, d = Math.sqrt(dx*dx+dy*dy) || 1; var cx = mx + (-dy/d) * d * e.bend, cy = my + (dx/d) * d * e.bend; var u = 1-t; return [u*u*x0 + 2*u*t*cx + t*t*x1, u*u*y0 + 2*u*t*cy + t*t*y1, cx, cy]; }
+  function pathNode(cx, cy, r, shape){
+    ctx.beginPath();
+    if (shape === "tri") {
+      var R = r * 1.30;
+      ctx.moveTo(cx, cy - R);
+      ctx.lineTo(cx + R * 0.92, cy + R * 0.70);
+      ctx.lineTo(cx - R * 0.92, cy + R * 0.70);
+      ctx.closePath();
+    } else {
+      ctx.arc(cx, cy, r, 0, 6.2832);
+    }
+  }
+  function draw(now){
+    now = now || 0;
+    var dt = lastFrame ? (now - lastFrame) / 1000 : 0; lastFrame = now;
+    var hm = state.honmaru;
+    if (hm && state.simPlay) { state.clock += dt / 24; if (state.clock >= 1) { state.clock = 1; state.simPlay = false; syncUI(); } simRange.value = Math.round(state.clock * 1000); }
+    var dnow = hm ? clockDays() : 0;
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < stars.length; i++) { var s = stars[i]; ctx.globalAlpha = s.a; ctx.fillStyle = "#cfc8b8"; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.2832); ctx.fill(); }
+    ctx.globalAlpha = 1;
+    if (state.view === "side") {
+      var ih = H - PAD.t - PAD.b, bh = ih / DATA.layers.length;
+      DATA.layers.forEach(function(L){ var y0 = PAD.t + L.order * bh; var a = layerAlpha(L.id); ctx.fillStyle = rgba(L.rgb, 0.035 * (a > 0.5 ? 1 : 0.4)); ctx.fillRect(PAD.l - 46, y0 + 3, W - PAD.l - PAD.r + 92, bh - 6); ctx.fillStyle = rgba(L.rgb, a > 0.5 ? 0.85 : 0.18); ctx.font = "600 11px sans-serif"; ctx.textAlign = "left"; ctx.textBaseline = "top"; ctx.fillText(L.name, 14, y0 + 8); ctx.strokeStyle = rgba(L.rgb, 0.12); ctx.beginPath(); ctx.moveTo(8, y0 + 2); ctx.lineTo(W - 8, y0 + 2); ctx.stroke(); });
+    }
+    model.edges.forEach(function(e){
+      var a = edgeAlpha(e); if (a <= 0) return;
+      var dead = hm && (!nodeAlive(e.a) || !nodeAlive(e.b));
+      var p0 = bezier(e, 0);
+      if (dead) { ctx.strokeStyle = rgba(GREY, 0.12 * a); }
+      else { var g = ctx.createLinearGradient(e.a.cx, e.a.cy, e.b.cx, e.b.cy); g.addColorStop(0, rgba(e.a.L.rgb, 0.55 * a)); g.addColorStop(1, rgba(e.b.L.rgb, 0.55 * a)); ctx.strokeStyle = g; }
+      ctx.lineWidth = 0.8 + (e.f || 0.5) * 2.2; ctx.setLineDash(e.cross ? [5, 5] : []);
+      ctx.beginPath(); ctx.moveTo(e.a.cx, e.a.cy); ctx.quadraticCurveTo(p0[2], p0[3], e.b.cx, e.b.cy); ctx.stroke(); ctx.setLineDash([]);
+    });
+    model.edges.forEach(function(e){
+      var a = edgeAlpha(e); if (a <= 0.06) return;
+      if (hm && (!nodeAlive(e.a) || !nodeAlive(e.b))) return;
+      e.parts.forEach(function(p){ if (state.anim) { p.t += p.v; if (p.t > 1) p.t -= 1; } var pos = bezier(e, p.t); var col = [ Math.round(e.a.L.rgb[0] + (e.b.L.rgb[0]-e.a.L.rgb[0]) * p.t), Math.round(e.a.L.rgb[1] + (e.b.L.rgb[1]-e.a.L.rgb[1]) * p.t), Math.round(e.a.L.rgb[2] + (e.b.L.rgb[2]-e.a.L.rgb[2]) * p.t) ]; ctx.fillStyle = rgba(col, 0.9 * a); ctx.beginPath(); ctx.arc(pos[0], pos[1], 1.1 + (e.f || 0.5) * 1.7, 0, 6.2832); ctx.fill(); });
+    });
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    model.nodes.forEach(function(n){
+      var la = layerAlpha(n.layer); if (la <= 0) return;
+      n.cx += (n.tx - n.cx) * 0.13; n.cy += (n.ty - n.cy) * 0.13;
+      var r = 6 + n.f * 9; var alive = nodeAlive(n); var isFuro = n.id === "furo"; var a = la * (alive ? 1 : 0.30);
+      var halo = isFuro || (!hm && n.f >= 0.95) || (hm && alive && (n.auto != null && n.auto >= 0.95));
+      if (halo && la > 0.5) { var hc = isFuro ? GOLD : n.L.rgb; ctx.strokeStyle = rgba(hc, 0.20); ctx.beginPath(); ctx.arc(n.cx, n.cy, r + 6 + Math.sin(now/600) * 1.5, 0, 6.2832); ctx.stroke(); }
+      var body;
+      if (isFuro) body = mix(BG, IVORY, 0.30 + 0.60 * n.f);
+      else if (!alive) body = mix(BG, GREY, 0.18);
+      else body = mix(BG, n.L.rgb, 0.25 + 0.75 * n.f);
+      ctx.globalAlpha = a; ctx.fillStyle = body; pathNode(n.cx, n.cy, r, n.shape); ctx.fill();
+      ctx.lineWidth = n === hover ? 2 : 1.2; var strokeC = isFuro ? GOLD : (alive ? n.L.rgb : GREY); ctx.strokeStyle = rgba(strokeC, n === hover ? 1 : (alive ? 0.85 : 0.5)); pathNode(n.cx, n.cy, r, n.shape); ctx.stroke();
+      ctx.fillStyle = n === hover ? "#fff" : (alive ? rgba(IVORY, 0.55 + 0.45 * n.f) : rgba(GREY, 0.8)); ctx.font = (n === hover ? "600 " : "") + "11px sans-serif"; ctx.fillText(n.label, n.cx, n.cy + r + 4); ctx.globalAlpha = 1;
+    });
+    if (hm) { eraEl.textContent = "☠ 人類消失 ／ " + dayLabel(dnow); simClock.textContent = dayLabel(dnow); simCap.innerHTML = phaseCaption(dnow); simStat.innerHTML = buildStat(dnow); }
+    requestAnimationFrame(draw);
+  }
+  function buildStat(d){ var iA = 0, iT = 0, lA = 0, lT = 0; model.nodes.forEach(function(n){ var on = d < (n.dday != null ? n.dday : DAY_MAX + 1); if (n.layer === "life") { lT++; if (on) lA++; } else { iT++; if (on) iA++; } }); return '社会インフラ 稼働 <span class="' + (iA > 0 ? 'alive' : 'dead') + '">' + iA + '</span> / ' + iT + '　｜　生物圏 <span class="alive">' + lA + '/' + lT + '</span> 不変'; }
+
+  var tip = document.getElementById("tip");
+  cv.addEventListener("mousemove", function(ev){
+    var rect = cv.getBoundingClientRect(); var mx = ev.clientX - rect.left, my = ev.clientY - rect.top; hover = null; var best = 1e9;
+    model.nodes.forEach(function(n){ if (layerAlpha(n.layer) <= 0.05) return; var r = 6 + n.f * 9 + 7; var d = (n.cx-mx)*(n.cx-mx) + (n.cy-my)*(n.cy-my); if (d < r*r && d < best) { best = d; hover = n; } });
+    if (hover) {
+      var pct = Math.round(hover.f * 100); var apct = hover.auto != null ? Math.round(hover.auto * 100) : null;
+      var role = hover.shape === "tri" ? " △発生源" : "";
+      var html = '<div class="t">' + hover.label + role + '</div>' + '<div class="l" style="color:' + hover.L.color + '">' + hover.L.name + 'レイヤー ／ 濃度Float ' + hover.f.toFixed(2) + '</div>' + '<div class="bar"><i style="width:' + pct + '%;background:' + hover.L.color + '"></i></div>';
+      if (apct != null) { html += '<div class="l" style="color:var(--dim)">自動運転Float（無人継続度） ' + hover.auto.toFixed(2) + '</div>' + '<div class="bar"><i style="width:' + apct + '%;background:#6cae9a"></i></div>'; }
+      html += '<div class="d">' + (hover.desc || "") + '</div>';
+      if (state.honmaru) { var on = clockDays() < (hover.dday != null ? hover.dday : DAY_MAX + 1); var st = hover.dday >= DAY_MAX ? '<span class="alive">止まらない（無人で不滅）</span>' : (on ? '<span class="alive">稼働中</span>　停止予測 ' + dayLabel(hover.dday) : '<span class="dead">停止済</span>　' + dayLabel(hover.dday) + ' に死亡'); html += '<div class="st">本丸: ' + st + '</div>'; }
+      tip.innerHTML = html; tip.style.display = "block"; var tw = tip.offsetWidth, th = tip.offsetHeight; var lx = mx + 16, ly = my + 14; if (lx + tw > W - 8) lx = mx - tw - 16; if (ly + th > H - 8) ly = my - th - 14; tip.style.left = lx + "px"; tip.style.top = ly + "px"; cv.style.cursor = "pointer";
+    } else { tip.style.display = "none"; cv.style.cursor = "default"; }
+  });
+  cv.addEventListener("mouseleave", function(){ hover = null; tip.style.display = "none"; });
+
+  var chipsEl = document.getElementById("chips"); var chipTimers = {};
+  function buildChips(){
+    chipsEl.innerHTML = "";
+    DATA.layers.forEach(function(L){ var b = document.createElement("button"); b.className = "chip"; b.style.color = L.color; b.innerHTML = '<span class="dot"></span>' + L.name; b.addEventListener("click", function(){ clearTimeout(chipTimers[L.id]); chipTimers[L.id] = setTimeout(function(){ if (state.solo) state.solo = null; else state.on[L.id] = !state.on[L.id]; syncUI(); save(); }, 230); }); b.addEventListener("dblclick", function(){ clearTimeout(chipTimers[L.id]); state.solo = (state.solo === L.id) ? null : L.id; syncUI(); save(); }); b.dataset.layer = L.id; chipsEl.appendChild(b); });
+    syncUI();
+  }
+  var vTop = document.getElementById("vTop"), vSide = document.getElementById("vSide");
+  var bAll = document.getElementById("bAll"), bAnim = document.getElementById("bAnim");
+  var bHonmaru = document.getElementById("bHonmaru"); var eraEl = document.getElementById("era");
+  var sim = document.getElementById("sim"), simRange = document.getElementById("simRange");
+  var simPlayBtn = document.getElementById("simPlay"), simClock = document.getElementById("simClock");
+  var simCap = document.getElementById("simCap"), simStat = document.getElementById("simStat");
+  function syncUI(){
+    if (!state.honmaru) eraEl.textContent = (DATA.meta && DATA.meta.era) || "";
+    vTop.classList.toggle("act", state.view === "top"); vSide.classList.toggle("act", state.view === "side");
+    bAnim.classList.toggle("act", state.anim); bAnim.textContent = state.anim ? "流れ ▶" : "流れ ⏸";
+    bHonmaru.classList.toggle("act", state.honmaru); sim.classList.toggle("on", state.honmaru);
+    simPlayBtn.classList.toggle("act", state.simPlay); simPlayBtn.textContent = state.simPlay ? "⏱ 停止" : "⏱ 自動";
+    if (state.honmaru) simRange.value = Math.round(state.clock * 1000);
+    Array.prototype.forEach.call(chipsEl.children, function(b){ var id = b.dataset.layer; b.classList.toggle("solo", state.solo === id); b.classList.toggle("on", state.solo ? state.solo === id : state.on[id]); b.classList.toggle("off", state.solo ? state.solo !== id : !state.on[id]); });
+  }
+  vTop.addEventListener("click", function(){ state.view = "top"; layout(); syncUI(); save(); });
+  vSide.addEventListener("click", function(){ state.view = "side"; layout(); syncUI(); save(); });
+  bAll.addEventListener("click", function(){ state.solo = null; DATA.layers.forEach(function(L){ state.on[L.id] = true; }); syncUI(); save(); });
+  bAnim.addEventListener("click", function(){ state.anim = !state.anim; syncUI(); save(); });
+  bHonmaru.addEventListener("click", function(){ state.honmaru = !state.honmaru; if (!state.honmaru) { state.simPlay = false; eraEl.textContent = (DATA.meta && DATA.meta.era) || ""; } syncUI(); });
+  simRange.addEventListener("input", function(){ state.clock = (+simRange.value) / 1000; state.simPlay = false; syncUI(); });
+  simPlayBtn.addEventListener("click", function(){ if (state.clock >= 1) state.clock = 0; state.simPlay = !state.simPlay; syncUI(); });
+
+  window.addEventListener("resize", resize);
+  buildChips(); resize(); requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>
