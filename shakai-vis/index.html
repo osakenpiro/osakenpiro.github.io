@@ -389,6 +389,7 @@
   }
   function nodeVals(n){
     var a = n.eras[curBr.A.id], b = n.eras[curBr.B.id];
+    if (!a && !b) return { f: 0, on: false, x: 0.5, y: 0.5, auto: 0, dday: 0, label: "", desc: "" };
     var fa = a ? a.f : 0, fb = b ? b.f : 0, t = curBr.t;
     var f = fa + (fb - fa) * t;
     var src = t < 0.5 ? (a || b) : (b || a);
