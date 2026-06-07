@@ -42,6 +42,8 @@
   #bTenote.act{color:#e0b15a; border-color:#c8923f; background:rgba(208,150,60,.08)}
   #bFault.act{color:#e89a9a; border-color:#b85a5a; background:rgba(184,90,90,.08)}
   #bPhantom.act{color:#cfc8d8; border-color:#7d7790; background:rgba(150,140,180,.10)}
+  #bDiurnal.act{color:#c9b06a; border-color:#a8893f; background:rgba(200,160,70,.08)}
+  #bKosho.act{color:#cf9d6b; border-color:#a87a4a; background:rgba(190,140,80,.08)}
   .chip{display:flex; align-items:center; gap:5px}
   .chip .dot{width:8px; height:8px; border-radius:50%; background:currentColor; display:inline-block}
   .chip.on{color:var(--ink)}
@@ -111,6 +113,9 @@
       <button id="bHonmaru" title="人類消失後、何が止まり、何が止まらないかをシミュレート">本丸 ☠</button>
       <button id="bFault" title="ノードをクリックで停止→下流へカスケード波及">障害 ⚡</button>
       <button id="bPhantom" title="不郎が感じる『もう一人』——いるはずのない気配を重ねる">幻 👁</button>
+      <button id="bDiurnal" title="昼夜サイクル：時間帯で流れが脈動。4:44=物流ゴールデンタイム">昼夜 🌗</button>
+      <button id="bKosho" title="考証モード：ノードをクリックで出典を開く">考証 📖</button>
+      <button id="bPng" title="現在の画面をPNGで保存">📷</button>
     </div>
   </div>
 </header>
@@ -281,7 +286,7 @@
   function availEras(){ return eraDefs.filter(function(e){ return !!eraData[e.id]; }); }
 
   /* ---------- state ---------- */
-  var state = { view: "top", anim: true, on: { }, solo: null, honmaru: false, clock: 0.0, simPlay: false, era: 0.667, tenote: false, fault: false, faults: [], phantom: false };
+  var state = { view: "top", anim: true, on: { }, solo: null, honmaru: false, clock: 0.0, simPlay: false, era: 0.667, tenote: false, fault: false, faults: [], phantom: false, diurnal: false, kosho: false };
   try {
     var saved = JSON.parse(localStorage.getItem(LSKEY) || "null");
     if (saved) {
@@ -303,6 +308,9 @@
     { label: "記憶にない一手",  x: 0.63, y: 0.40 },
     { label: "裏の数え手",      x: 0.30, y: 0.74 }
   ];
+  var dayT = 0.30;
+  function dayAct(h){ if (h < 4) return 0.10; if (h < 7) return 0.10 + (h-4)/3*0.55; if (h < 10) return 0.65 + (h-7)/3*0.30; if (h < 17) return 0.95; if (h < 20) return 0.95 - (h-17)/3*0.45; if (h < 23) return 0.50 - (h-20)/3*0.34; return 0.12; }
+  var KOSHO = { dispatch:{c:0.75,u:"https://www.occto.or.jp/iinkai/hokkaido_kensho/"}, thermal:{c:0.75,u:"https://www.occto.or.jp/iinkai/hokkaido_kensho/"}, grid:{c:0.75,u:"https://www.iee.jp/"}, bts:{c:0.85,u:"https://24wireless.info/basestation-power-supply"}, dc:{c:0.85,u:"https://www.mhlw.go.jp/content/10802000/000511801.pdf"}, jjy:{c:0.70,u:"https://jjy.nict.go.jp/jjy/index.html"}, rail:{c:0.90,u:"https://www.jreast-timetable.jp/timetable/list1463.html"}, bldgC:{c:0.85,u:"https://anabuki-m.jp/"}, bldgA:{c:0.85,u:"https://anabuki-m.jp/"}, lng:{c:0.60,u:"https://www.gas.or.jp/gastodokumade/kyokyu/"}, gs:{c:0.80,u:"https://clicccar.com/2020/12/27/1042468/"}, pollin:{c:0.90,u:"https://www.ipbes.net/node/11774"}, source:{c:0.75,u:"https://www.waterworks.metro.tokyo.lg.jp/suigen/topic/09"}, josui:{c:0.90,u:"https://www.waterworks.metro.tokyo.lg.jp/kouhou/meisho/tamagawa"}, purify:{c:0.75,u:"https://www.city.mitaka.lg.jp/c_service/102/102461.html"}, bcast:{c:0.85,u:"https://jpn.nec.com/bv/hoso/product/tvmaster.html"} };
   function mix(c1, c2, t){ return "rgb(" + Math.round(c1[0]+(c2[0]-c1[0])*t) + "," + Math.round(c1[1]+(c2[1]-c1[1])*t) + "," + Math.round(c1[2]+(c2[2]-c1[2])*t) + ")"; }
   function rgba(c, a){ return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")"; }
   function mulberry32(s){ return function(){ s |= 0; s = s + 0x6D2B79F5 | 0; var t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
@@ -505,6 +513,9 @@
     var hm = state.honmaru;
     if (hm && state.simPlay) { state.clock += dt / 24; if (state.clock >= 1) { state.clock = 1; state.simPlay = false; syncUI(); } simRange.value = Math.round(state.clock * 1000); }
     var dnow = hm ? clockDays() : 0;
+    if (state.diurnal) { dayT += dt / 26; if (dayT >= 1) dayT -= 1; }
+    var act = state.diurnal ? dayAct(dayT * 24) : 1;
+    var actMul = state.diurnal ? (0.30 + 1.6 * act) : 1;
 
     curBr = eraBracket();
     var nid = curBr.t < 0.5 ? curBr.A.id : curBr.B.id;
@@ -525,7 +536,7 @@
     faultDead = state.fault ? computeFaultDead() : {};
 
     ctx.clearRect(0, 0, W, H);
-    for (var i = 0; i < stars.length; i++) { var s = stars[i]; ctx.globalAlpha = s.a; ctx.fillStyle = "#cfc8b8"; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.2832); ctx.fill(); }
+    for (var i = 0; i < stars.length; i++) { var s = stars[i]; ctx.globalAlpha = s.a * (state.diurnal ? (0.35 + 1.3 * (1 - act)) : 1); ctx.fillStyle = "#cfc8b8"; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.2832); ctx.fill(); }
     ctx.globalAlpha = 1;
 
     if (state.view === "side") {
@@ -560,7 +571,7 @@
       var ef = edgeF(e); if (ef <= 0.02) return;
       var a = edgeAlpha(e); if (a <= 0.06) return;
       if (hm && (!nodeAlive(e.a) || !nodeAlive(e.b))) return;
-      e.parts.forEach(function(p){ if (state.anim) { p.t += p.v; if (p.t > 1) p.t -= 1; } var pos = bezier(e, p.t); var col = [ Math.round(e.a.L.rgb[0] + (e.b.L.rgb[0]-e.a.L.rgb[0]) * p.t), Math.round(e.a.L.rgb[1] + (e.b.L.rgb[1]-e.a.L.rgb[1]) * p.t), Math.round(e.a.L.rgb[2] + (e.b.L.rgb[2]-e.a.L.rgb[2]) * p.t) ]; ctx.fillStyle = rgba(col, 0.9 * a); ctx.beginPath(); ctx.arc(pos[0], pos[1], 1.1 + ef * 1.7, 0, 6.2832); ctx.fill(); });
+      e.parts.forEach(function(p){ if (state.anim) { p.t += p.v * actMul; if (p.t > 1) p.t -= 1; } var pos = bezier(e, p.t); var col = [ Math.round(e.a.L.rgb[0] + (e.b.L.rgb[0]-e.a.L.rgb[0]) * p.t), Math.round(e.a.L.rgb[1] + (e.b.L.rgb[1]-e.a.L.rgb[1]) * p.t), Math.round(e.a.L.rgb[2] + (e.b.L.rgb[2]-e.a.L.rgb[2]) * p.t) ]; ctx.fillStyle = rgba(col, 0.9 * a); ctx.beginPath(); ctx.arc(pos[0], pos[1], 1.1 + ef * 1.7, 0, 6.2832); ctx.fill(); });
     });
 
     ctx.textAlign = "center"; ctx.textBaseline = "top";
@@ -600,7 +611,9 @@
     if (hm) { eraEl.textContent = "☠ 人類消失 ／ " + dayLabel(dnow); simClock.textContent = dayLabel(dnow); simCap.innerHTML = phaseCaption(dnow); simStat.innerHTML = buildStat(dnow); }
     else if (state.fault) { eraEl.textContent = "⚡ 障害注入 ／ 停止 " + Object.keys(faultDead).length + " 基（クリックで注入/解除）"; }
     else if (state.phantom) { eraEl.textContent = "👁 もう一人 ／ いるはずのない気配（本物か、こじつけか）"; }
+    else if (state.diurnal) { var dh = dayT*24, dH = Math.floor(dh), dM = Math.floor((dh-dH)*60); eraEl.textContent = "🌗 " + (dH<10?"0":"") + dH + ":" + (dM<10?"0":"") + dM + ((dh>4.4 && dh<4.95) ? " ／ 4:44 物流ゴールデンタイム＝消失の刻" : ""); }
     else if (state.tenote) { eraEl.textContent = "✋ 人の手 ／ " + (availEras().length >= 2 ? eraBadgeText() : "輪が濃いほど人依存"); }
+    else if (state.kosho) { eraEl.textContent = "📖 考証モード ／ ノードをクリックで出典を開く"; }
     else if (availEras().length >= 2) { eraEl.textContent = eraBadgeText(); }
     requestAnimationFrame(draw);
   }
@@ -632,17 +645,20 @@
       var html = '<div class="t">' + v.label + role + '</div>' + '<div class="l" style="color:' + (layersById[hover.layer]||{}).color + '">' + chipName(layersById[hover.layer]) + 'レイヤー ／ 濃度Float ' + v.f.toFixed(2) + '</div>' + '<div class="bar"><i style="width:' + pct + '%;background:' + (layersById[hover.layer]||{}).color + '"></i></div>';
       if (apct != null) { html += '<div class="l" style="color:var(--dim)">自動運転Float（無人継続度） ' + v.auto.toFixed(2) + '</div>' + '<div class="bar"><i style="width:' + apct + '%;background:#6cae9a"></i></div>'; }
       html += '<div class="d">' + (v.desc || "") + '</div>';
+      var ks = KOSHO[hover.id]; if (ks) { html += '<div class="l" style="color:var(--dim);margin-top:4px">考証 確度 ' + ks.c.toFixed(2) + (state.kosho ? '（📖クリックで出典）' : '（考証📖で出典へ）') + '</div><div class="bar"><i style="width:' + Math.round(ks.c*100) + '%;background:#cf9d6b"></i></div>'; }
       if (state.honmaru) { var on = clockDays() < ((v.dday != null) ? v.dday : DAY_MAX + 1); var st = v.dday >= DAY_MAX ? '<span class="alive">止まらない（無人で不滅）</span>' : (on ? '<span class="alive">稼働中</span>　停止予測 ' + dayLabel(v.dday) : '<span class="dead">停止済</span>　' + dayLabel(v.dday) + ' に死亡'); html += '<div class="st">本丸: ' + st + '</div>'; }
       tip.innerHTML = html; tip.style.display = "block"; var tw = tip.offsetWidth, th = tip.offsetHeight; var lx = mx + 16, ly = my + 14; if (lx + tw > W - 8) lx = mx - tw - 16; if (ly + th > H - 8) ly = my - th - 14; tip.style.left = lx + "px"; tip.style.top = ly + "px"; cv.style.cursor = "pointer";
     } else { tip.style.display = "none"; cv.style.cursor = "default"; }
   });
   cv.addEventListener("mouseleave", function(){ hover = null; tip.style.display = "none"; });
   cv.addEventListener("click", function(ev){
-    if (!state.fault) return;
+    if (!state.fault && !state.kosho) return;
     var rect = cv.getBoundingClientRect(); var mx = ev.clientX - rect.left, my = ev.clientY - rect.top;
     var best = 1e9, hit = null;
     model.nodes.forEach(function(n){ if (!n.v || !n.v.on || layerAlpha(n.layer) <= 0.05) return; var r = 6 + n.v.f * 9 + 8; var d = (n.cx-mx)*(n.cx-mx) + (n.cy-my)*(n.cy-my); if (d < r*r && d < best) { best = d; hit = n; } });
-    if (hit) { var idx = state.faults.indexOf(hit.id); if (idx >= 0) state.faults.splice(idx, 1); else state.faults.push(hit.id); }
+    if (!hit) return;
+    if (state.kosho) { var ks = KOSHO[hit.id]; if (ks && ks.u) window.open(ks.u, "_blank", "noopener"); return; }
+    var idx = state.faults.indexOf(hit.id); if (idx >= 0) state.faults.splice(idx, 1); else state.faults.push(hit.id);
   });
 
   /* ---------- UI ---------- */
@@ -673,6 +689,9 @@
   var bTenote = document.getElementById("bTenote");
   var bFault = document.getElementById("bFault");
   var bPhantom = document.getElementById("bPhantom");
+  var bDiurnal = document.getElementById("bDiurnal");
+  var bKosho = document.getElementById("bKosho");
+  var bPng = document.getElementById("bPng");
   var sim = document.getElementById("sim"), simRange = document.getElementById("simRange");
   var simPlayBtn = document.getElementById("simPlay"), simClock = document.getElementById("simClock");
   var simCap = document.getElementById("simCap"), simStat = document.getElementById("simStat");
@@ -691,6 +710,8 @@
     bTenote.classList.toggle("act", state.tenote);
     bFault.classList.toggle("act", state.fault);
     bPhantom.classList.toggle("act", state.phantom);
+    bDiurnal.classList.toggle("act", state.diurnal);
+    bKosho.classList.toggle("act", state.kosho);
     simPlayBtn.classList.toggle("act", state.simPlay); simPlayBtn.textContent = state.simPlay ? "⏱ 停止" : "⏱ 自動";
     if (state.honmaru) simRange.value = Math.round(state.clock * 1000);
     Array.prototype.forEach.call(chipsEl.children, function(b){ var id = b.dataset.layer; b.classList.toggle("solo", state.solo === id); b.classList.toggle("on", state.solo ? state.solo === id : state.on[id]); b.classList.toggle("off", state.solo ? state.solo !== id : !state.on[id]); });
@@ -703,6 +724,9 @@
   bTenote.addEventListener("click", function(){ state.tenote = !state.tenote; syncUI(); });
   bFault.addEventListener("click", function(){ state.fault = !state.fault; if (!state.fault) state.faults = []; syncUI(); });
   bPhantom.addEventListener("click", function(){ state.phantom = !state.phantom; syncUI(); });
+  bDiurnal.addEventListener("click", function(){ state.diurnal = !state.diurnal; syncUI(); });
+  bKosho.addEventListener("click", function(){ state.kosho = !state.kosho; cv.style.cursor = state.kosho ? "pointer" : "default"; syncUI(); });
+  bPng.addEventListener("click", function(){ try { var a = document.createElement("a"); a.download = "shakai-vis-" + Date.now() + ".png"; a.href = cv.toDataURL("image/png"); document.body.appendChild(a); a.click(); document.body.removeChild(a); } catch(e){} });
   simRange.addEventListener("input", function(){ state.clock = (+simRange.value) / 1000; state.simPlay = false; syncUI(); });
   simPlayBtn.addEventListener("click", function(){ if (state.clock >= 1) state.clock = 0; state.simPlay = !state.simPlay; syncUI(); });
   eraRange.addEventListener("input", function(){ state.era = (+eraRange.value) / 1000; save(); });
