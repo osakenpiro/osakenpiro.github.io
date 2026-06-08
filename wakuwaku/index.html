@@ -159,6 +159,19 @@ header.top{margin-bottom:22px;}
   border-radius:5px;padding:3px 0;cursor:pointer;transition:.15s;letter-spacing:.02em;}
 .beat:hover{border-color:var(--gold-line);}
 .beat.on{color:var(--void);background:var(--gold);border-color:var(--gold);font-weight:600;}
+.brick.needkiten{border-color:rgba(201,122,90,.42);}
+.brick.needkiten .beat:nth-child(3){border-color:var(--kyu);color:var(--kyu);}
+
+/* per-chapter diagnostic readout (診断オン時のみ) */
+.cdiag{width:100%;margin:-2px 0 12px;padding:8px 11px;border:1px dashed var(--line2);
+  border-radius:9px;background:rgba(201,122,90,.05);font-size:11.5px;line-height:1.6;
+  color:var(--ink-dim);letter-spacing:.02em;}
+.cdiag .tag{display:inline-block;margin-right:12px;white-space:nowrap;}
+.cdiag .tag b{font-family:var(--serif);font-size:13px;}
+.cdiag .warn{color:var(--kyu);}
+.cdiag .ok{color:var(--gold-bright);}
+.cdiag .mute{color:var(--ink-faint);}
+.cdiag .hint{display:block;margin-top:5px;color:var(--ink-faint);font-style:italic;}
 
 .addchap{margin-top:18px;}
 footer.foot{margin-top:34px;border-top:1px solid var(--line);padding-top:16px;color:var(--ink-faint);font-size:12px;line-height:1.8;}
@@ -256,8 +269,9 @@ function build52(){
   return {version:1, title:"", charTarget:100000, chapters:chs};
 }
 function buildJHK(){
-  // 序3章×3話 / 破7章×5話 / 急3章×4話
-  const plan=[3,3,3, 5,5,5,5,5,5,5, 4,4,4];
+  // 序破急＝緩急の呼吸。序はゆるく立ち上げ、破の中盤で密度の山（中間山場）、急は枠を圧縮して加速。
+  // 13章＝序3／破7／急3（位置ベースの色帯 roleOf と一致）。山は第7章（破の中央＝6話）。
+  const plan=[3,3,4,  4,5,5,6,5,5,4,  4,3,2];  // 序10 ／ 破34 ／ 急9 ＝ 53枠
   const chs=plan.map((eps,n)=>newChapter(n,eps));
   return {version:1, title:"", charTarget:100000, chapters:chs};
 }
@@ -265,9 +279,19 @@ let state=load();
 
 function load(){
   try{const s=JSON.parse(localStorage.getItem(KEY));
-    if(s&&s.chapters&&s.chapters.length) return s;
+    if(s&&s.chapters&&s.chapters.length) return normalize(s);
   }catch(e){}
   return build52();
+}
+function normalize(s){
+  s.chapters.forEach(c=>{
+    if(typeof c.diag!=="boolean") c.diag=false;
+    c.episodes.forEach(e=>{
+      if(!Array.isArray(e.beats)) e.beats=[false,false,false,false];
+      while(e.beats.length<4) e.beats.push(false);
+    });
+  });
+  return s;
 }
 function save(){
   try{localStorage.setItem(KEY,JSON.stringify(state)); setSave("保存済 "+new Date().toLocaleTimeString("ja-JP"));}
@@ -284,6 +308,38 @@ function totals(){
   return {ep,fl,done,remaining:ep-done};
 }
 function stageIdx(v){let best=0,bd=9;STAGES.forEach((s,i)=>{const d=Math.abs(s.v-v);if(d<bd){bd=d;best=i;}});return best;}
+function chapterDiag(c){
+  let content=0,noKiten=0,blank=0,full=0;
+  c.episodes.forEach(e=>{
+    const has=!e.seed&&(e.logline||"").trim().length>0;
+    if(!has)return;
+    content++;
+    const on=e.beats.filter(Boolean).length;
+    if(on===4)full++;
+    if(e.float>=1)return;        // 完成枠は中だるみ診断の対象外
+    if(!e.beats[2])noKiten++;
+    if(on===0)blank++;
+  });
+  return {content,noKiten,blank,full};
+}
+function buildDiag(c){
+  const d=chapterDiag(c);
+  const el=document.createElement("div");el.className="cdiag";
+  if(d.content===0){
+    el.innerHTML='<span class="hint" style="margin-top:0">診断：まだ中身が無い。ログラインを置いてから4ビートを当てる。</span>';
+    return el;
+  }
+  let html='<span class="tag '+(d.noKiten?"warn":"ok")+'">転機なし <b>'+d.noKiten+'</b>枠</span>';
+  if(d.blank) html+='<span class="tag mute">ビート未割当 '+d.blank+'枠</span>';
+  html+='<span class="tag '+(d.full===d.content?"ok":"mute")+'">4ビート揃い '+d.full+'/'+d.content+'枠</span>';
+  let hint;
+  if(d.noKiten===0) hint='転機は全枠にある。中だるみの芽は無い。';
+  else if(d.noKiten>=Math.ceil(d.content/2)) hint='転機が薄い章。中だるみ候補——枠を割るか、転機を一つ足す。';
+  else hint='縁が朱の枠に転機を一つ。無理なら隣へ畳む。';
+  html+='<span class="hint">'+hint+'</span>';
+  el.innerHTML=html;
+  return el;
+}
 
 /* ---------- render ---------- */
 function updateMeter(){
@@ -328,11 +384,14 @@ function render(){
     rc.onclick=()=>{if(confirm("「"+(c.title||"この章")+"」を消す？"))(state.chapters.splice(ci,1),save(),render());};
     tools.append(dg,ae,rc);head.appendChild(tools);
     ch.appendChild(head);
+    if(c.diag) ch.appendChild(buildDiag(c));
     // bricks
     const bricks=document.createElement("div");bricks.className="bricks";
     c.episodes.forEach((e,ei)=>{
       const b=document.createElement("div");
-      b.className="brick"+(e.float>=1?" done":"")+(c.diag?" diag":"");
+      const hasContent=!e.seed&&(e.logline||"").trim().length>0;
+      const needKiten=c.diag&&hasContent&&e.float<1&&!e.beats[2];
+      b.className="brick"+(e.float>=1?" done":"")+(c.diag?" diag":"")+(needKiten?" needkiten":"");
       b.style.background="linear-gradient(to top, var(--gold-soft) "+(e.float*100)+"%, transparent "+(e.float*100)+"%)";
       // epno + star + remove
       const top=document.createElement("div");top.className="epno";
@@ -409,7 +468,7 @@ function toMarkdown(){
 document.getElementById("worktitle").oninput=e=>{state.title=e.target.value;save();};
 document.getElementById("chartarget").oninput=e=>{state.charTarget=parseInt(e.target.value||0,10);save();updateMeter();};
 document.getElementById("preset52").onclick=()=>{if(confirm("13章×4話（52枠）で作り直す？ 今の内容は消えます。")){state=build52();save();render();toast("52枠を用意した");}};
-document.getElementById("presetJHK").onclick=()=>{if(confirm("序破急（緩急つき）で作り直す？ 今の内容は消えます。")){state=buildJHK();save();render();toast("序破急で組み直した");}};
+document.getElementById("presetJHK").onclick=()=>{if(confirm("序破急（緩急つき）で作り直す？ 今の内容は消えます。")){state=buildJHK();save();render();toast("序破急で組み直した（破の中盤に山）");}};
 document.getElementById("addChap").onclick=()=>{state.chapters.push(newChapter(state.chapters.length,4));save();render();};
 document.getElementById("expJson").onclick=()=>{download("wakuwaku_"+(state.title||"skeleton")+".json",JSON.stringify(state,null,2));toast("JSONを書き出した");};
 document.getElementById("expMd").onclick=()=>{download("wakuwaku_"+(state.title||"skeleton")+".md",toMarkdown(),"text/markdown");toast("Markdownを書き出した");};
