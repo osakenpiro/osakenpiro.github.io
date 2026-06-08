@@ -484,10 +484,16 @@
     W = Math.max(300, r.width); H = Math.max(240, r.height);
     cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    /* 狭幅(モバイル)では余白を詰めてグラフに面積を譲り、文字も一段小さく */
+    var narrow = W < 560;
+    PAD.l = narrow ? 14 : 70; PAD.r = narrow ? 14 : 70;
+    PAD.t = narrow ? 46 : 56; PAD.b = narrow ? 34 : 44;
+    LBL_FONT_PX = narrow ? 10 : 11;
     var rnd = mulberry32(44); stars = [];
     for (var i = 0; i < 130; i++) { stars.push({ x: rnd()*W, y: rnd()*H, r: 0.4 + rnd()*0.9, a: 0.08 + rnd()*0.25 }); }
   }
   var PAD = { l: 70, r: 70, t: 56, b: 44 };
+  var LBL_FONT_PX = 11;
 
   function layerAlpha(id){ if (state.solo) return id === state.solo ? 1 : 0.05; return state.on[id] ? 1 : 0; }
   function edgeAlpha(e){ return Math.min(layerAlpha(e.a.layer), layerAlpha(e.b.layer)); }
@@ -592,21 +598,27 @@
       ctx.globalAlpha = 1;
       labelQ.push({ x: n.cx, y: n.cy + r + 4, text: v.label,
         fill: n === hover ? "#fff" : (alive ? rgba(IVORY, 0.55 + 0.45 * v.f) : rgba(GREY, 0.8)),
-        font: (n === hover ? "600 " : "") + "11px sans-serif", alpha: a,
+        font: (n === hover ? "600 " : "") + LBL_FONT_PX + "px sans-serif", alpha: a,
         prio: n === hover ? 1e9 : (alive ? 1 : 0) + v.f });
     });
-    /* ---- ラベル衝突回避: 優先度(hover>生存×濃度Float)の高い順に置き、既存ラベルと重なる弱いラベルは省く ---- */
+    /* ---- ラベル衝突回避: 優先度(hover>生存×濃度Float)順に配置。重なる弱いラベルは少しずらし、逃げ場が無ければ落とす ---- */
     labelQ.sort(function(p, q){ return q.prio - p.prio; });
     var placedL = [];
+    var lblH = LBL_FONT_PX + 2;
+    var offs = [0, lblH, lblH * 2, -(lblH + 12), lblH * 3];
     for (var li = 0; li < labelQ.length; li++) {
       var Lb = labelQ[li]; ctx.font = Lb.font;
       var lw = ctx.measureText(Lb.text).width;
-      var lx0 = Lb.x - lw / 2 - 2, lx1 = Lb.x + lw / 2 + 2, ly0 = Lb.y - 1, ly1 = Lb.y + 13;
-      var clash = false;
-      for (var pj = 0; pj < placedL.length; pj++) { var P = placedL[pj]; if (lx0 < P.x1 && lx1 > P.x0 && ly0 < P.y1 && ly1 > P.y0) { clash = true; break; } }
-      if (clash && Lb.prio < 1e8) continue;
-      placedL.push({ x0: lx0, y0: ly0, x1: lx1, y1: ly1 });
-      ctx.globalAlpha = Lb.alpha; ctx.fillStyle = Lb.fill; ctx.fillText(Lb.text, Lb.x, Lb.y);
+      var slotY = null, shifted = false;
+      for (var oi = 0; oi < offs.length; oi++) {
+        var yy = Lb.y + offs[oi];
+        var lx0 = Lb.x - lw / 2 - 2, lx1 = Lb.x + lw / 2 + 2, ly0 = yy - 1, ly1 = yy + lblH;
+        var clash = false;
+        for (var pj = 0; pj < placedL.length; pj++) { var P = placedL[pj]; if (lx0 < P.x1 && lx1 > P.x0 && ly0 < P.y1 && ly1 > P.y0) { clash = true; break; } }
+        if (!clash) { slotY = yy; shifted = oi > 0; placedL.push({ x0: lx0, y0: ly0, x1: lx1, y1: ly1 }); break; }
+      }
+      if (slotY === null) { if (Lb.prio < 1e8) continue; slotY = Lb.y; }
+      ctx.globalAlpha = Lb.alpha * (shifted ? 0.8 : 1); ctx.fillStyle = Lb.fill; ctx.fillText(Lb.text, Lb.x, slotY);
     }
     ctx.globalAlpha = 1;
 
