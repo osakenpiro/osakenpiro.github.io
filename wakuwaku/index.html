@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ワクワク｜52枠スケルトン</title>
+<meta name="description" content="長編の白紙恐怖を消す、枠(わく)を先に埋めるスケルトン・ダッシュボード。章×話の可変グリッドに1行ログラインを先置きして、埋まるほど壁が立ち上がる。Boolean→Float / 全人類UX改善。">
+<meta property="og:title" content="ワクワク｜52枠スケルトン">
+<meta property="og:description" content="枠を先に埋めて白紙恐怖を消す。埋まるほど壁になる、長編のための進捗ダッシュボード。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://osakenpiro.github.io/wakuwaku/">
+<meta property="og:image" content="https://osakenpiro.github.io/ogp.png">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+:root{
+  --void:#0d0d12; --void2:#15151f; --panel:#1a1a25; --panel2:#20202d;
+  --ink:#e9e5d9; --ink-dim:#9a9588; --ink-faint:#5f5b51;
+  --gold:#d4a853; --gold-bright:#e7c477;
+  --gold-soft:rgba(212,168,83,.16); --gold-mid:rgba(212,168,83,.34); --gold-line:rgba(212,168,83,.42);
+  --line:rgba(233,229,217,.10); --line2:rgba(233,229,217,.18);
+  --jo:#6f9bb0; --ha:#d4a853; --kyu:#c97a5a;
+  --serif:"Yu Mincho","YuMincho","Hiragino Mincho ProN","Noto Serif JP",serif;
+  --sans:"Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic","Noto Sans JP",sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(1.4px 1.4px at 18% 24%, rgba(255,255,255,.55), transparent),
+    radial-gradient(1.2px 1.2px at 68% 58%, rgba(255,255,255,.40), transparent),
+    radial-gradient(1px 1px at 42% 82%, rgba(255,255,255,.32), transparent),
+    radial-gradient(1px 1px at 85% 30%, rgba(255,255,255,.30), transparent),
+    radial-gradient(1px 1px at 30% 50%, rgba(255,255,255,.22), transparent),
+    radial-gradient(1400px 900px at 50% -12%, var(--void2), var(--void) 70%);
+  background-attachment:fixed;
+  color:var(--ink); font-family:var(--sans); line-height:1.65;
+  -webkit-font-smoothing:antialiased; font-size:15px;
+}
+a{color:var(--gold);}
+.wrap{max-width:1180px;margin:0 auto;padding:30px 22px 80px;}
+
+/* ---------- header ---------- */
+header.top{margin-bottom:22px;}
+.brand{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+.brand h1{
+  font-family:var(--serif); font-weight:600; font-size:30px; letter-spacing:.06em;
+  margin:0; color:var(--gold-bright);
+  text-shadow:0 0 24px rgba(212,168,83,.25);
+}
+.brand .sub{color:var(--ink-dim);font-size:12.5px;letter-spacing:.04em;}
+.worktitle{
+  margin-top:14px; width:100%;
+  background:transparent;border:none;border-bottom:1px solid var(--line2);
+  color:var(--ink);font-family:var(--serif);font-size:21px;letter-spacing:.04em;
+  padding:6px 2px;outline:none;
+}
+.worktitle:focus{border-bottom-color:var(--gold-line);}
+.worktitle::placeholder{color:var(--ink-faint);}
+
+/* ---------- wall meter ---------- */
+.meter{
+  margin-top:20px;border:1px solid var(--line2);border-radius:14px;
+  background:linear-gradient(180deg,var(--panel),rgba(26,26,37,.55));
+  padding:18px 20px;backdrop-filter:blur(2px);
+}
+.meter .row1{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.bignum{font-family:var(--serif);font-size:40px;line-height:1;color:var(--gold-bright);}
+.bignum small{font-size:16px;color:var(--ink-dim);margin-left:4px;font-family:var(--sans);}
+.zeigarnik{color:var(--ink);font-size:14px;}
+.zeigarnik b{color:var(--gold-bright);font-size:17px;font-family:var(--serif);}
+.zeigarnik .dim{color:var(--ink-dim);}
+.wallbar{
+  margin-top:14px;height:14px;border-radius:8px;overflow:hidden;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 22px,transparent 22px 24px),var(--void2);
+  border:1px solid var(--line2);position:relative;
+}
+.wallfill{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,var(--gold),var(--gold-bright));
+  box-shadow:0 0 18px rgba(212,168,83,.5);
+  transition:width .5s cubic-bezier(.2,.8,.2,1);
+}
+.legend{margin-top:12px;display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-dim);}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block;border:1px solid var(--gold-line);}
+
+/* ---------- toolbar ---------- */
+.toolbar{margin:22px 0 10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.btn{
+  background:var(--panel2);border:1px solid var(--line2);color:var(--ink);
+  font-family:var(--sans);font-size:12.5px;padding:7px 13px;border-radius:9px;cursor:pointer;
+  transition:.15s;letter-spacing:.02em;
+}
+.btn:hover{border-color:var(--gold-line);color:var(--gold-bright);}
+.btn.gold{border-color:var(--gold-line);color:var(--gold-bright);}
+.btn.ghost{background:transparent;}
+.sep{flex:1 1 auto;}
+.tnum{width:78px;background:var(--void2);border:1px solid var(--line2);color:var(--ink);
+  border-radius:8px;padding:6px 8px;font-size:13px;outline:none;font-family:var(--sans);}
+.tnum:focus{border-color:var(--gold-line);}
+.tlabel{font-size:12px;color:var(--ink-dim);}
+
+/* ---------- chapters / bricks ---------- */
+.chapters{margin-top:14px;display:flex;flex-direction:column;gap:18px;}
+.chapter{border:1px solid var(--line);border-radius:13px;background:rgba(20,20,29,.5);padding:12px 13px 14px;}
+.chapter.jo{border-left:3px solid var(--jo);}
+.chapter.ha{border-left:3px solid var(--ha);}
+.chapter.kyu{border-left:3px solid var(--kyu);}
+.chead{display:flex;align-items:center;gap:9px;margin-bottom:11px;flex-wrap:wrap;}
+.badge{font-size:11px;font-family:var(--serif);padding:2px 9px;border-radius:20px;letter-spacing:.12em;}
+.badge.jo{color:var(--jo);border:1px solid var(--jo);}
+.badge.ha{color:var(--ha);border:1px solid var(--ha);}
+.badge.kyu{color:var(--kyu);border:1px solid var(--kyu);}
+.ctitle{flex:1 1 220px;min-width:160px;background:transparent;border:none;border-bottom:1px solid transparent;
+  color:var(--ink);font-family:var(--serif);font-size:17px;letter-spacing:.04em;padding:3px 2px;outline:none;}
+.ctitle:hover{border-bottom-color:var(--line2);}
+.ctitle:focus{border-bottom-color:var(--gold-line);}
+.cmeta{font-size:11px;color:var(--ink-faint);}
+.ctools{display:flex;gap:5px;}
+.minibtn{background:transparent;border:1px solid var(--line2);color:var(--ink-dim);border-radius:7px;
+  font-size:11px;padding:4px 8px;cursor:pointer;transition:.15s;white-space:nowrap;}
+.minibtn:hover{border-color:var(--gold-line);color:var(--gold-bright);}
+.minibtn.on{border-color:var(--gold-line);color:var(--gold-bright);background:var(--gold-soft);}
+
+.bricks{display:flex;flex-wrap:wrap;gap:10px;}
+.brick{
+  position:relative;flex:1 1 180px;min-width:170px;max-width:260px;
+  border:1px solid var(--line2);border-radius:10px;overflow:hidden;
+  background:linear-gradient(to top, var(--gold-soft) 0%, transparent 0%);
+  padding:10px 11px 8px;min-height:108px;display:flex;flex-direction:column;gap:7px;
+  transition:border-color .2s, box-shadow .3s;
+}
+.brick.done{border-color:var(--gold-line);box-shadow:0 0 16px rgba(212,168,83,.18) inset, 0 0 10px rgba(212,168,83,.12);}
+.brick .epno{font-size:10.5px;color:var(--ink-faint);font-family:var(--serif);letter-spacing:.1em;display:flex;justify-content:space-between;align-items:center;}
+.brick .star{color:var(--gold-bright);opacity:0;font-size:12px;transition:.3s;}
+.brick.done .star{opacity:1;}
+.logline{
+  flex:1 1 auto;background:transparent;border:none;color:var(--ink);
+  font-family:var(--sans);font-size:13px;line-height:1.5;padding:0;outline:none;resize:none;width:100%;
+  overflow:hidden;
+}
+.logline::placeholder{color:var(--ink-faint);}
+.logline.seed{color:var(--ink-dim);font-style:italic;}
+.stagetrack{display:flex;gap:3px;margin-top:auto;}
+.seg{flex:1;height:7px;border-radius:3px;background:var(--void2);border:1px solid var(--line2);cursor:pointer;transition:.15s;}
+.seg:hover{border-color:var(--gold-line);}
+.seg.fill{background:var(--gold);border-color:var(--gold);}
+.stagelabel{font-size:10px;color:var(--ink-dim);text-align:right;height:13px;}
+.removeep{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:50%;
+  background:rgba(0,0,0,.35);border:1px solid var(--line2);color:var(--ink-dim);font-size:11px;line-height:1;
+  cursor:pointer;opacity:0;transition:.15s;}
+.brick:hover .removeep{opacity:1;}
+.removeep:hover{color:var(--kyu);border-color:var(--kyu);}
+
+/* diagnostic 4-beat */
+.beats{display:none;gap:4px;margin-top:2px;}
+.brick.diag .beats{display:flex;}
+.beat{flex:1;font-size:9.5px;text-align:center;color:var(--ink-faint);border:1px solid var(--line2);
+  border-radius:5px;padding:3px 0;cursor:pointer;transition:.15s;letter-spacing:.02em;}
+.beat:hover{border-color:var(--gold-line);}
+.beat.on{color:var(--void);background:var(--gold);border-color:var(--gold);font-weight:600;}
+
+.addchap{margin-top:18px;}
+footer.foot{margin-top:34px;border-top:1px solid var(--line);padding-top:16px;color:var(--ink-faint);font-size:12px;line-height:1.8;}
+footer.foot .phil{color:var(--ink-dim);font-family:var(--serif);}
+.savestate{color:var(--ink-faint);font-size:11px;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--panel2);border:1px solid var(--gold-line);color:var(--gold-bright);
+  padding:9px 18px;border-radius:10px;font-size:13px;opacity:0;transition:.3s;pointer-events:none;z-index:50;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+@media(max-width:560px){
+  .brand h1{font-size:24px;} .bignum{font-size:32px;}
+  .brick{min-width:140px;flex-basis:140px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>ワクワク</h1>
+      <span class="sub">52枠スケルトン ／ 白紙恐怖を消す進捗ダッシュボード</span>
+    </div>
+    <input class="worktitle" id="worktitle" placeholder="作品タイトルを入力…" autocomplete="off">
+    <div class="meter">
+      <div class="row1">
+        <div class="bignum" id="pct">0<small>% 充填</small></div>
+        <div class="zeigarnik" id="zeig"></div>
+      </div>
+      <div class="wallbar"><div class="wallfill" id="wallfill"></div></div>
+      <div class="legend">
+        <span><i style="background:transparent"></i>0.0 未着手</span>
+        <span><i style="background:rgba(212,168,83,.2)"></i>0.2 ログライン</span>
+        <span><i style="background:rgba(212,168,83,.5)"></i>0.5 構想</span>
+        <span><i style="background:rgba(212,168,83,.8)"></i>0.8 執筆中</span>
+        <span><i style="background:var(--gold)"></i>1.0 完成</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <button class="btn gold" id="preset52">13章×4話 (52枠)</button>
+    <button class="btn" id="presetJHK">序破急（緩急つき）</button>
+    <span class="sep"></span>
+    <span class="tlabel">目標字数</span>
+    <input class="tnum" id="chartarget" type="number" min="0" step="1000" value="100000">
+    <span class="tlabel" id="perframe"></span>
+  </div>
+  <div class="toolbar" style="margin-top:0;">
+    <button class="btn ghost" id="expJson">JSON書き出し</button>
+    <button class="btn ghost" id="impJson">JSON読み込み</button>
+    <button class="btn ghost" id="expMd">構成をMarkdownで</button>
+    <span class="sep"></span>
+    <button class="btn ghost" id="resetAll" style="color:var(--kyu);border-color:rgba(201,122,90,.4);">最初から</button>
+  </div>
+
+  <div class="chapters" id="chapters"></div>
+  <div class="addchap"><button class="btn" id="addChap">＋ 章を足す</button></div>
+
+  <footer class="foot">
+    <div class="phil">枠(わく)が埋まるほど、ワクワクする。完成は0か1ではなく、0.0→1.0のあいだにある。</div>
+    <div style="margin-top:6px;">埋まった枠は壁になり、空いた枠が次の一歩を呼ぶ（ツァイガルニク逆利用・§12.5装飾化）。型は鎖ではなく診断チェック——［診断］は中だるみ章にだけ当てる。</div>
+    <div style="margin-top:8px;" class="savestate" id="savestate">この端末に自動保存中（localStorage）。</div>
+    <div style="margin-top:4px;color:var(--ink-faint);">Hi-Me TooL ／ #全人類UX改善計画 — <a href="https://osakenpiro.github.io/" target="_blank" rel="noopener">osakenpiro</a></div>
+  </footer>
+</div>
+<div class="toast" id="toast"></div>
+<input type="file" id="fileInput" accept="application/json" style="display:none;">
+
+<script>
+"use strict";
+const KEY="wakuwaku.v1";
+const STAGES=[{v:0,label:"未着手"},{v:0.2,label:"ログライン"},{v:0.5,label:"構想"},{v:0.8,label:"執筆中"},{v:1.0,label:"完成"}];
+const SEED=[
+  "舞台と空気を見せる：どこで・誰が・どんな日常か",
+  "出来事が動く：会話か事件で場を転がす",
+  "小さな転機：予想が一つ裏切られる",
+  "次へ引く：伏線かフックを一つ落とす"
+];
+const BEATS=["場面設定","会話/出来事","転機","伏線"];
+let uid=Math.floor(Math.random()*1e6);
+const nid=()=>"x"+(uid++).toString(36)+Date.now().toString(36).slice(-3);
+
+/* ---------- state ---------- */
+function newEpisode(i){
+  return {id:nid(), logline:SEED[i%SEED.length], seed:true, float:0, beats:[false,false,false,false]};
+}
+function newChapter(n,eps){
+  const c={id:nid(), title:"第"+(n+1)+"章", diag:false, episodes:[]};
+  for(let i=0;i<eps;i++) c.episodes.push(newEpisode(i));
+  return c;
+}
+function build52(){
+  const chs=[];
+  for(let n=0;n<13;n++) chs.push(newChapter(n,4));
+  return {version:1, title:"", charTarget:100000, chapters:chs};
+}
+function buildJHK(){
+  // 序3章×3話 / 破7章×5話 / 急3章×4話
+  const plan=[3,3,3, 5,5,5,5,5,5,5, 4,4,4];
+  const chs=plan.map((eps,n)=>newChapter(n,eps));
+  return {version:1, title:"", charTarget:100000, chapters:chs};
+}
+let state=load();
+
+function load(){
+  try{const s=JSON.parse(localStorage.getItem(KEY));
+    if(s&&s.chapters&&s.chapters.length) return s;
+  }catch(e){}
+  return build52();
+}
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(state)); setSave("保存済 "+new Date().toLocaleTimeString("ja-JP"));}
+  catch(e){setSave("保存に失敗（容量？）");}
+}
+function setSave(t){document.getElementById("savestate").textContent="この端末に自動保存中（localStorage）｜"+t;}
+
+/* ---------- helpers ---------- */
+function roleOf(i,n){const band=Math.max(1,Math.ceil(n*0.23)); if(i<band)return"jo"; if(i>=n-band)return"kyu"; return"ha";}
+const roleJP={jo:"序",ha:"破",kyu:"急"};
+function totals(){
+  let ep=0,fl=0,done=0;
+  state.chapters.forEach(c=>c.episodes.forEach(e=>{ep++;fl+=e.float;if(e.float>=1)done++;}));
+  return {ep,fl,done,remaining:ep-done};
+}
+function stageIdx(v){let best=0,bd=9;STAGES.forEach((s,i)=>{const d=Math.abs(s.v-v);if(d<bd){bd=d;best=i;}});return best;}
+
+/* ---------- render ---------- */
+function updateMeter(){
+  const t=totals();
+  const pct=t.ep?Math.round(t.fl/t.ep*100):0;
+  document.getElementById("pct").innerHTML=pct+'<small>% 充填</small>';
+  document.getElementById("wallfill").style.width=pct+"%";
+  const z=document.getElementById("zeig");
+  if(t.remaining===0&&t.ep>0){
+    z.innerHTML='<b>壁が完成した。</b> <span class="dim">'+t.ep+'枠すべて埋まっている。</span>';
+  }else{
+    z.innerHTML='壁はあと <b>'+t.remaining+'</b> 枠。 <span class="dim">'+t.done+'/'+t.ep+' 枠が完成・構造充填 '+pct+'%</span>';
+  }
+  const ct=state.charTarget||0;
+  document.getElementById("perframe").textContent= t.ep? ("1枠あたり ≈ "+Math.round(ct/t.ep).toLocaleString("ja-JP")+"字 ／ 全"+t.ep+"枠"):"";
+}
+function render(){
+  document.getElementById("worktitle").value=state.title||"";
+  document.getElementById("chartarget").value=state.charTarget||0;
+  const root=document.getElementById("chapters");
+  root.innerHTML="";
+  const n=state.chapters.length;
+  state.chapters.forEach((c,ci)=>{
+    const role=roleOf(ci,n);
+    const ch=document.createElement("div");
+    ch.className="chapter "+role;
+    // head
+    const head=document.createElement("div");head.className="chead";
+    head.innerHTML='<span class="badge '+role+'">'+roleJP[role]+'</span>';
+    const ti=document.createElement("input");ti.className="ctitle";ti.value=c.title;ti.placeholder="章タイトル";
+    ti.oninput=()=>{c.title=ti.value;save();};
+    head.appendChild(ti);
+    const meta=document.createElement("span");meta.className="cmeta";meta.textContent=c.episodes.length+"話";
+    head.appendChild(meta);
+    const tools=document.createElement("div");tools.className="ctools";
+    const dg=document.createElement("button");dg.className="minibtn"+(c.diag?" on":"");dg.textContent="診断";
+    dg.title="4ビート診断（中だるみ章だけに当てる）";
+    dg.onclick=()=>{c.diag=!c.diag;save();render();};
+    const ae=document.createElement("button");ae.className="minibtn";ae.textContent="＋話";
+    ae.onclick=()=>{c.episodes.push(newEpisode(c.episodes.length));save();render();};
+    const rc=document.createElement("button");rc.className="minibtn";rc.textContent="章を消す";
+    rc.onclick=()=>{if(confirm("「"+(c.title||"この章")+"」を消す？"))(state.chapters.splice(ci,1),save(),render());};
+    tools.append(dg,ae,rc);head.appendChild(tools);
+    ch.appendChild(head);
+    // bricks
+    const bricks=document.createElement("div");bricks.className="bricks";
+    c.episodes.forEach((e,ei)=>{
+      const b=document.createElement("div");
+      b.className="brick"+(e.float>=1?" done":"")+(c.diag?" diag":"");
+      b.style.background="linear-gradient(to top, var(--gold-soft) "+(e.float*100)+"%, transparent "+(e.float*100)+"%)";
+      // epno + star + remove
+      const top=document.createElement("div");top.className="epno";
+      top.innerHTML='<span>'+(ci+1)+'-'+(ei+1)+'</span><span class="star">✶</span>';
+      b.appendChild(top);
+      const rm=document.createElement("button");rm.className="removeep";rm.textContent="×";rm.title="この枠を消す";
+      rm.onclick=()=>{c.episodes.splice(ei,1);save();render();};
+      b.appendChild(rm);
+      // logline
+      const tl=document.createElement("textarea");tl.className="logline"+(e.seed?" seed":"");tl.rows=2;
+      tl.value=e.logline;tl.placeholder="〔ここで何が起きる？ 1行で〕";
+      tl.onfocus=()=>{if(e.seed){tl.classList.remove("seed");}};
+      tl.oninput=()=>{e.logline=tl.value;e.seed=false;tl.classList.remove("seed");autoGrow(tl);save();};
+      b.appendChild(tl);
+      // beats (diagnostic)
+      const bt=document.createElement("div");bt.className="beats";
+      BEATS.forEach((nm,k)=>{
+        const bb=document.createElement("div");bb.className="beat"+(e.beats[k]?" on":"");bb.textContent=nm;
+        bb.title=nm;
+        bb.onclick=()=>{e.beats[k]=!e.beats[k];save();render();};
+        bt.appendChild(bb);
+      });
+      b.appendChild(bt);
+      // stage track
+      const lbl=document.createElement("div");lbl.className="stagelabel";lbl.textContent=STAGES[stageIdx(e.float)].label;
+      b.appendChild(lbl);
+      const track=document.createElement("div");track.className="stagetrack";
+      const cur=stageIdx(e.float);
+      STAGES.forEach((s,si)=>{
+        if(si===0)return; // 0=未着手 has no segment, represented by empty
+        const sg=document.createElement("div");sg.className="seg"+(si<=cur?" fill":"");
+        sg.title=s.label;
+        sg.onclick=()=>{ e.float = (stageIdx(e.float)===si)? STAGES[si-1].v : s.v; e.seed=false; save(); render(); };
+        track.appendChild(sg);
+      });
+      b.appendChild(track);
+      bricks.appendChild(b);
+    });
+    ch.appendChild(bricks);
+    root.appendChild(ch);
+  });
+  updateMeter();
+  // autogrow existing
+  document.querySelectorAll(".logline").forEach(autoGrow);
+}
+function autoGrow(t){t.style.height="auto";t.style.height=Math.max(36,t.scrollHeight)+"px";}
+
+/* ---------- toast ---------- */
+let toT;
+function toast(m){const el=document.getElementById("toast");el.textContent=m;el.classList.add("show");
+  clearTimeout(toT);toT=setTimeout(()=>el.classList.remove("show"),1800);}
+
+/* ---------- export / import ---------- */
+function download(name,text,type){
+  const blob=new Blob([text],{type:type||"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1500);
+}
+function toMarkdown(){
+  let md="# "+(state.title||"無題")+"\n\n";
+  const t=totals();md+="> 構造充填 "+(t.ep?Math.round(t.fl/t.ep*100):0)+"% ／ "+t.done+"/"+t.ep+" 枠完成 ／ 目標 "+(state.charTarget||0).toLocaleString("ja-JP")+"字\n\n";
+  const n=state.chapters.length;
+  state.chapters.forEach((c,ci)=>{
+    md+="## "+(c.title||("第"+(ci+1)+"章"))+"　["+roleJP[roleOf(ci,n)]+"]\n\n";
+    c.episodes.forEach((e,ei)=>{
+      md+="- **"+(ci+1)+"-"+(ei+1)+"**（"+STAGES[stageIdx(e.float)].label+"）"+(e.logline||"")+"\n";
+    });
+    md+="\n";
+  });
+  return md;
+}
+
+/* ---------- wire ---------- */
+document.getElementById("worktitle").oninput=e=>{state.title=e.target.value;save();};
+document.getElementById("chartarget").oninput=e=>{state.charTarget=parseInt(e.target.value||0,10);save();updateMeter();};
+document.getElementById("preset52").onclick=()=>{if(confirm("13章×4話（52枠）で作り直す？ 今の内容は消えます。")){state=build52();save();render();toast("52枠を用意した");}};
+document.getElementById("presetJHK").onclick=()=>{if(confirm("序破急（緩急つき）で作り直す？ 今の内容は消えます。")){state=buildJHK();save();render();toast("序破急で組み直した");}};
+document.getElementById("addChap").onclick=()=>{state.chapters.push(newChapter(state.chapters.length,4));save();render();};
+document.getElementById("expJson").onclick=()=>{download("wakuwaku_"+(state.title||"skeleton")+".json",JSON.stringify(state,null,2));toast("JSONを書き出した");};
+document.getElementById("expMd").onclick=()=>{download("wakuwaku_"+(state.title||"skeleton")+".md",toMarkdown(),"text/markdown");toast("Markdownを書き出した");};
+document.getElementById("impJson").onclick=()=>document.getElementById("fileInput").click();
+document.getElementById("fileInput").onchange=ev=>{
+  const f=ev.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{const s=JSON.parse(r.result);if(s.chapters){state=s;save();render();toast("読み込んだ");}else toast("形式が違う");}catch(e){toast("JSONが壊れている");}};
+  r.readAsText(f);ev.target.value="";
+};
+document.getElementById("resetAll").onclick=()=>{if(confirm("すべて消して最初から？")){localStorage.removeItem(KEY);state=build52();save();render();toast("リセットした");}};
+
+render();
+</script>
+</body>
+</html>
