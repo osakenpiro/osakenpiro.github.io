@@ -185,6 +185,11 @@ footer.foot .phil{color:var(--ink-dim);font-family:var(--serif);}
   .brand h1{font-size:24px;} .bignum{font-size:32px;}
   .brick{min-width:140px;flex-basis:140px;}
 }
+@media(max-width:400px){
+  .wrap{padding:24px 14px 70px;}
+  .brick{min-width:120px;flex-basis:120px;}
+  .beat{font-size:9px;letter-spacing:0;}
+}
 </style>
 </head>
 <body>
@@ -250,7 +255,8 @@ const SEED=[
   "小さな転機：予想が一つ裏切られる",
   "次へ引く：伏線かフックを一つ落とす"
 ];
-const BEATS=["場面設定","会話/出来事","転機","伏線"];
+const BEATS=["場面","会話","転機","伏線"];
+const BEATS_FULL=["場面設定","会話/出来事","転機","伏線"];
 let uid=Math.floor(Math.random()*1e6);
 const nid=()=>"x"+(uid++).toString(36)+Date.now().toString(36).slice(-3);
 
@@ -410,7 +416,7 @@ function render(){
       const bt=document.createElement("div");bt.className="beats";
       BEATS.forEach((nm,k)=>{
         const bb=document.createElement("div");bb.className="beat"+(e.beats[k]?" on":"");bb.textContent=nm;
-        bb.title=nm;
+        bb.title=BEATS_FULL[k];
         bb.onclick=()=>{e.beats[k]=!e.beats[k];save();render();};
         bt.appendChild(bb);
       });
