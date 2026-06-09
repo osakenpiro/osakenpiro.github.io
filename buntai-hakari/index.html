@@ -87,6 +87,8 @@ details.settings summary{cursor:pointer;font-family:var(--mono);font-size:.72rem
 .vocab{margin-top:8px;display:flex;flex-wrap:wrap;gap:7px}
 .vocab span{font-family:var(--mono);font-size:.78rem;background:#13111b;border:1px solid var(--line);border-radius:20px;padding:3px 11px;color:var(--ink-dim)}
 .vocab span b{color:var(--gold-soft)}
+.reduce{margin-top:16px;border-top:1px dashed var(--line);padding-top:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.reduce-info{font-size:.86rem;color:var(--ink-dim)} .reduce-info b{color:var(--gold-soft);font-family:var(--mono)}
 footer{text-align:center;margin-top:40px;color:var(--ink-dim);font-size:.74rem;font-family:var(--mono);letter-spacing:.08em}
 footer a{color:var(--gold)}
 .hidden{display:none}
@@ -151,6 +153,11 @@ h3.sec{font-size:.78rem;font-family:var(--mono);letter-spacing:.12em;color:var(-
         <div class="chip" id="chip-long"><div class="k">65字超えの文</div><div class="v" id="m-long">–</div></div>
         <div class="chip" id="chip-excess"><div class="k">過剰読点 候補</div><div class="v" id="m-excess">–</div></div>
         <div class="chip" id="chip-pov"><div class="k">視点リーク</div><div class="v" id="m-pov">–</div></div>
+      </div>
+      <div id="reduce" class="reduce">
+        <div class="reduce-info">読点削減モード（純削除invariant）：主語直後／を・に＋、の過剰読点 <b id="r-n">0</b> 個を消すと、読点率 <b id="r-from">–</b> → <b id="r-to">–</b></div>
+        <button class="ghost" id="r-copy">削減後の本文をコピー</button>
+        <span class="muted" id="r-msg"></span>
       </div>
     </div>
 
@@ -238,6 +245,7 @@ function analyze(raw){
     longSents,sents,excess,povHits,ttr,top,commaFit,longFit,excessFit,povFit,score};
 }
 
+function reduceExcess(t){return t.replace(/([一-龠ぁ-んァ-ヴー一-龥A-Za-z0-9]{1,8})(は|が)、/g,'$1$2').replace(/(を|に|へ)、/g,'$1');}
 function renderHL(raw,a){
   const c=a.c;
   // operate on body (heading lines removed for fairness but show original-ish)
@@ -287,6 +295,12 @@ function paint(a,raw){
   $('hl').innerHTML=renderHL(raw,a)||'<span class="muted">（本文なし）</span>';
   $('m-ttr').textContent=a.ttr.toFixed(2);
   $('vocab').innerHTML=a.top.length? a.top.map(([w,n])=>`<span>${esc(w)} <b>×${n}</b></span>`).join('') : '<span class="muted">頻出語なし</span>';
+  const rbBody=reduceExcess(bodyLines(raw)); const rChars=noWS(rbBody).length;
+  const rCommas=(rbBody.match(/、/g)||[]).length; const rRate=rChars? rCommas/rChars*100:0;
+  window._reduced=reduceExcess(raw);
+  $('r-n').textContent=a.commas-rCommas;
+  $('r-from').textContent=a.commaPct.toFixed(2)+'%';
+  $('r-to').textContent=rRate.toFixed(2)+'%';
   save(raw);
 }
 
@@ -307,6 +321,7 @@ $('sample').onclick=()=>{$('src').value=SAMPLE;run();};
 $('clear').onclick=()=>{$('src').value='';$('out').classList.add('hidden');save('');};
 $('src').addEventListener('input',()=>{clearTimeout(window._t);window._t=setTimeout(run,250);});
 ['cf-target','cf-tol','cf-max','cf-long','cf-pov'].forEach(id=>$(id).addEventListener('input',()=>{clearTimeout(window._t);window._t=setTimeout(run,250);}));
+$('r-copy').onclick=async()=>{const t=window._reduced||$('src').value;try{await navigator.clipboard.writeText(t);$('r-msg').textContent='コピーした（'+t.length+'字・要見直し）';}catch(e){$('src').value=t;run();$('r-msg').textContent='クリップボード不可→本文欄に反映した';}setTimeout(()=>$('r-msg').textContent='',2800);};
 $('share').onclick=()=>{const a=$('out').classList.contains('hidden')?null:analyze($('src').value);
   const t=a?`文体測りで測った: 文体Float ${a.score.toFixed(2)} / 読点率 ${a.commaPct.toFixed(1)}%`:'文体測り — 原稿の文体をFloatで測るツール';
   window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(t+' #全人類UX改善')+'&url='+encodeURIComponent('https://osakenpiro.github.io/buntai-hakari/'),'_blank');};
