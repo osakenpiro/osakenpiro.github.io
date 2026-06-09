@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文体測り — Bun-tai Hakari</title>
+<meta name="description" content="自分の原稿の読点率・65字超え・過剰読点・視点リーク・語彙偏りをFloatで測る文体メトリクス・チェッカー。#全人類UX改善">
+<meta property="og:title" content="文体測り — Bun-tai Hakari">
+<meta property="og:description" content="原稿を貼るだけ。読点率・65字超え・過剰読点・視点リークをFloatで可視化する文体チェッカー。">
+<meta property="og:url" content="https://osakenpiro.github.io/buntai-hakari/">
+<meta property="og:type" content="website">
+<style>
+:root{
+  --void:#0c0b10; --void2:#15131c; --panel:#1b1825; --line:#2c2838;
+  --ink:#e9e4d8; --ink-dim:#9a9385; --gold:#d4a853; --gold-soft:#e7c98a;
+  --bad:#b9603f; --warn:#c79a4e; --good:#d4a853;
+  --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--void);color:var(--ink);
+  font-family:"Hiragino Mincho ProN","Yu Mincho",serif;line-height:1.7}
+body{background:
+  radial-gradient(1px 1px at 20% 30%,rgba(231,201,138,.5),transparent),
+  radial-gradient(1px 1px at 70% 20%,rgba(231,201,138,.35),transparent),
+  radial-gradient(1px 1px at 40% 70%,rgba(231,201,138,.3),transparent),
+  radial-gradient(1px 1px at 85% 60%,rgba(231,201,138,.4),transparent),
+  radial-gradient(1px 1px at 55% 45%,rgba(231,201,138,.25),transparent),
+  var(--void)}
+.wrap{max-width:980px;margin:0 auto;padding:38px 20px 80px}
+header{text-align:center;margin-bottom:8px}
+h1{font-size:2.1rem;letter-spacing:.18em;margin:0;color:var(--gold-soft);font-weight:600}
+h1 .en{display:block;font-family:var(--mono);font-size:.72rem;letter-spacing:.4em;color:var(--ink-dim);margin-top:8px}
+.tag{font-size:.74rem;color:var(--ink-dim);letter-spacing:.05em;margin-top:10px}
+.tag b{color:var(--gold)}
+.card{background:linear-gradient(180deg,var(--panel),var(--void2));border:1px solid var(--line);
+  border-radius:14px;padding:20px;margin-top:22px;box-shadow:0 1px 0 rgba(231,201,138,.06) inset}
+label{font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;color:var(--ink-dim);text-transform:uppercase}
+textarea{width:100%;min-height:200px;margin-top:8px;background:#0f0e15;color:var(--ink);
+  border:1px solid var(--line);border-radius:10px;padding:14px;font-family:inherit;font-size:1rem;line-height:1.9;resize:vertical}
+textarea:focus{outline:none;border-color:var(--gold)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+button{font-family:var(--mono);letter-spacing:.1em;font-size:.78rem;cursor:pointer;
+  background:var(--gold);color:#1a1409;border:none;border-radius:9px;padding:11px 20px;font-weight:700;transition:.15s}
+button:hover{background:var(--gold-soft)}
+button.ghost{background:transparent;color:var(--gold);border:1px solid var(--line)}
+button.ghost:hover{border-color:var(--gold);background:rgba(212,168,83,.07)}
+.muted{color:var(--ink-dim);font-size:.78rem}
+details.settings{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
+details.settings summary{cursor:pointer;font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;color:var(--ink-dim)}
+.settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-top:14px}
+.settings-grid .f{display:flex;flex-direction:column;gap:5px}
+.settings-grid input,.settings-grid textarea{background:#0f0e15;border:1px solid var(--line);color:var(--ink);
+  border-radius:7px;padding:8px;font-family:var(--mono);font-size:.85rem}
+.settings-grid textarea{min-height:56px;line-height:1.5;font-family:inherit}
+
+/* ---- main dial ---- */
+.dial{display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+.gauge{position:relative;width:150px;height:150px;flex:0 0 auto}
+.gauge svg{transform:rotate(-90deg)}
+.gauge .val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.gauge .val b{font-size:1.9rem;color:var(--gold-soft);font-family:var(--mono);line-height:1}
+.gauge .val small{font-size:.64rem;color:var(--ink-dim);font-family:var(--mono);letter-spacing:.1em;margin-top:5px}
+.dial-info h2{margin:.1em 0;font-size:1.15rem;color:var(--ink)}
+.dial-info .float{font-family:var(--mono);font-size:.82rem;color:var(--ink-dim)}
+.dial-info .float b{color:var(--gold-soft)}
+.verdict{display:inline-block;margin-top:8px;font-size:.78rem;font-family:var(--mono);padding:3px 10px;border-radius:20px;border:1px solid}
+.v-good{color:var(--good);border-color:var(--good)} .v-warn{color:var(--warn);border-color:var(--warn)} .v-bad{color:var(--bad);border-color:var(--bad)}
+
+/* ---- metric chips ---- */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:20px}
+.chip{background:#13111b;border:1px solid var(--line);border-radius:10px;padding:13px}
+.chip .k{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;color:var(--ink-dim);text-transform:uppercase}
+.chip .v{font-size:1.5rem;color:var(--ink);font-family:var(--mono);margin-top:4px}
+.chip .v small{font-size:.7rem;color:var(--ink-dim)}
+.chip.flag .v{color:var(--warn)} .chip.bad .v{color:var(--bad)}
+.bar{height:4px;border-radius:3px;background:#2a2636;margin-top:9px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--gold)}
+
+/* ---- highlighted text ---- */
+.hl{margin-top:8px;background:#0f0e15;border:1px solid var(--line);border-radius:10px;padding:16px 18px;
+  line-height:2.1;font-size:1rem;max-height:420px;overflow:auto;white-space:pre-wrap}
+.sent.long{background:rgba(185,96,63,.16);box-shadow:inset 0 -1px 0 var(--bad);border-radius:3px}
+.cflag{color:#1a1409;background:var(--warn);border-radius:3px;padding:0 1px;font-weight:700}
+.pov{color:#1a1409;background:var(--gold-soft);border-radius:3px;padding:0 2px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:.72rem;color:var(--ink-dim);font-family:var(--mono)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.vocab{margin-top:8px;display:flex;flex-wrap:wrap;gap:7px}
+.vocab span{font-family:var(--mono);font-size:.78rem;background:#13111b;border:1px solid var(--line);border-radius:20px;padding:3px 11px;color:var(--ink-dim)}
+.vocab span b{color:var(--gold-soft)}
+footer{text-align:center;margin-top:40px;color:var(--ink-dim);font-size:.74rem;font-family:var(--mono);letter-spacing:.08em}
+footer a{color:var(--gold)}
+.hidden{display:none}
+h3.sec{font-size:.78rem;font-family:var(--mono);letter-spacing:.12em;color:var(--ink-dim);text-transform:uppercase;margin:22px 0 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>文体測り<span class="en">BUN-TAI HAKARI</span></h1>
+    <div class="tag">原稿を貼ると、読点率・65字超え・過剰読点・視点リークを <b>Float</b> で測る。<b>#全人類UX改善</b></div>
+  </header>
+
+  <div class="card">
+    <label for="src">原稿（地の文）を貼る</label>
+    <textarea id="src" placeholder="ここに本文を貼り付け。markdownの見出し行(# …)は自動で字数から除外します。"></textarea>
+    <div class="row">
+      <button id="run">測る</button>
+      <button class="ghost" id="sample">サンプルを入れる</button>
+      <button class="ghost" id="clear">消す</button>
+      <span class="muted" id="livenote">入力中もリアルタイムで更新</span>
+    </div>
+
+    <details class="settings">
+      <summary>⚙ 閾値カスタム（規格の個別最適化 — あなたの基準で測る）</summary>
+      <div class="settings-grid">
+        <div class="f"><label>読点率 目標 %</label><input id="cf-target" type="number" step="0.1" value="3.5"></div>
+        <div class="f"><label>許容幅 ±pt</label><input id="cf-tol" type="number" step="0.1" value="1.0"></div>
+        <div class="f"><label>読点率 上限(超=入れすぎ)%</label><input id="cf-max" type="number" step="0.1" value="6.0"></div>
+        <div class="f"><label>1文 長すぎ閾値(字)</label><input id="cf-long" type="number" value="65"></div>
+        <div class="f" style="grid-column:1/-1"><label>視点リーク語（改行区切り・地の文に出たら警告）</label><textarea id="cf-pov" placeholder="例: 〜だった のちに 実は（空でも構造タグ【】〔〕は常に検出）"></textarea></div>
+      </div>
+    </details>
+  </div>
+
+  <div id="out" class="hidden">
+    <!-- main dial -->
+    <div class="card">
+      <div class="dial">
+        <div class="gauge">
+          <svg width="150" height="150" viewBox="0 0 150 150">
+            <circle cx="75" cy="75" r="64" fill="none" stroke="#2a2636" stroke-width="13"/>
+            <circle id="g-arc" cx="75" cy="75" r="64" fill="none" stroke="var(--gold)" stroke-width="13"
+              stroke-linecap="round" stroke-dasharray="402" stroke-dashoffset="402"/>
+          </svg>
+          <div class="val"><b id="g-score">–</b><small>文体Float</small></div>
+        </div>
+        <div class="dial-info">
+          <h2>読点率 <span id="m-comma-pct" class="float"></span></h2>
+          <div class="float">目標 <b id="m-target"></b> ／ 適合度 <b id="m-comma-fit"></b></div>
+          <div id="m-verdict"></div>
+          <div class="muted" style="margin-top:10px;max-width:440px">主ダイヤル＝読点率（、÷地の文字数）。基準3.5%はIMASICA文体ガイドv0の作者承認値。閾値は⚙で変えられる。</div>
+        </div>
+      </div>
+
+      <div class="metrics">
+        <div class="chip"><div class="k">地の文 字数</div><div class="v" id="m-chars">–</div></div>
+        <div class="chip"><div class="k">読点 、 / 句点 。</div><div class="v" id="m-marks">–</div></div>
+        <div class="chip"><div class="k">句読点密度</div><div class="v" id="m-density">–</div></div>
+        <div class="chip"><div class="k">平均文長</div><div class="v" id="m-avglen">–</div></div>
+        <div class="chip"><div class="k">会話率</div><div class="v" id="m-dialog">–</div></div>
+        <div class="chip" id="chip-long"><div class="k">65字超えの文</div><div class="v" id="m-long">–</div></div>
+        <div class="chip" id="chip-excess"><div class="k">過剰読点 候補</div><div class="v" id="m-excess">–</div></div>
+        <div class="chip" id="chip-pov"><div class="k">視点リーク</div><div class="v" id="m-pov">–</div></div>
+      </div>
+    </div>
+
+    <!-- highlighted -->
+    <div class="card">
+      <h3 class="sec">ハイライト（問題箇所）</h3>
+      <div class="legend">
+        <span><i style="background:rgba(185,96,63,.5)"></i>65字超えの文</span>
+        <span><i style="background:var(--warn)"></i>過剰読点（主語直後 / を・に＋、 / 三重）</span>
+        <span><i style="background:var(--gold-soft)"></i>視点リーク・構造タグ</span>
+      </div>
+      <div class="hl" id="hl"></div>
+      <h3 class="sec">語彙偏り（簡易・漢字/カナ連の頻出）</h3>
+      <div class="float muted" style="margin-top:6px">異なり語率(TTR) <b id="m-ttr" style="color:var(--gold-soft)"></b>（高いほど語彙が多様）。下は頻出語：</div>
+      <div class="vocab" id="vocab"></div>
+    </div>
+  </div>
+
+  <div class="row" id="share-row" style="justify-content:center;margin-top:22px">
+    <button class="ghost" id="share">Xでシェア</button>
+  </div>
+
+  <footer>
+    文体測り / Bun-tai Hakari — <a href="https://osakenpiro.github.io/" target="_blank" rel="noopener">osakenpiro</a> ／ Boolean→Float ／ データはブラウザ内のみ（localStorage）
+  </footer>
+</div>
+
+<script>
+const STORAGE_KEY='buntai-hakari-v1';
+const $=id=>document.getElementById(id);
+const cfg=()=>({
+  target:+$('cf-target').value||3.5, tol:+$('cf-tol').value||1.0,
+  max:+$('cf-max').value||6.0, long:+$('cf-long').value||65,
+  pov:$('cf-pov').value.split('\n').map(s=>s.trim()).filter(Boolean)
+});
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function bodyLines(raw){return raw.split('\n').filter(l=>!/^\s*#{1,6}\s/.test(l)).join('\n');}
+function noWS(s){return s.replace(/\s/g,'');}
+
+function analyze(raw){
+  const c=cfg();
+  const body=bodyLines(raw);
+  const chars=noWS(body).length||0;
+  const commas=(body.match(/、/g)||[]).length;
+  const periods=(body.match(/。/g)||[]).length;
+  const commaPct=chars? commas/chars*100 :0;
+  const density=chars? (commas+periods)/chars*100 :0;
+  // sentences
+  const sents=body.split('。').map(s=>s.trim()).filter(s=>noWS(s).length>0);
+  const sentCount=sents.length||0;
+  const avgLen=sentCount? chars/sentCount :0;
+  // dialogue
+  let dlg=0;(body.match(/[「『][^」』]*[」』]/g)||[]).forEach(m=>dlg+=noWS(m).length);
+  const dialogPct=chars? dlg/chars*100 :0;
+  // long sentences
+  const longSents=sents.filter(s=>noWS(s).length>c.long);
+  // excess comma patterns
+  const reSubj=/([一-龠ぁ-んァ-ヴー一-龥A-Za-z0-9]{1,8})(は|が)、/g;
+  const reObj=/(を|に|へ)、/g;
+  let excess=0;
+  sents.forEach(s=>{
+    excess+=(s.match(reSubj)||[]).length;
+    excess+=(s.match(reObj)||[]).length;
+    if((s.match(/、/g)||[]).length>=3) excess+=1; // triple-comma sentence
+  });
+  // pov leak: structure tags + user words
+  let povHits=0;
+  povHits+=(body.match(/[【〔][^】〕]*[】〕]/g)||[]).length;
+  povHits+=(body.match(/<[^<>\n]{1,30}>/g)||[]).length;
+  c.pov.forEach(w=>{povHits+=(body.split(w).length-1);});
+  // vocab skew
+  const runs=body.match(/[一-龠々ァ-ヴー]{2,}/g)||[];
+  const freq={};runs.forEach(r=>freq[r]=(freq[r]||0)+1);
+  const ttr=runs.length? Object.keys(freq).length/runs.length :1;
+  const top=Object.entries(freq).filter(([,n])=>n>=3).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  // fits (Float 0-1)
+  const dev=Math.abs(commaPct-c.target);
+  let commaFit=dev<=c.tol?1:Math.max(0,1-(dev-c.tol)/(c.tol*3));
+  if(commaPct>c.max) commaFit=Math.min(commaFit,Math.max(0,1-(commaPct-c.max)/c.max));
+  const longFit=sentCount?Math.max(0,1-longSents.length/sentCount*4):1;
+  const excessFit=commas?Math.max(0,1-excess/commas*1.5):1;
+  const povFit=povHits===0?1:Math.max(0,1-povHits*0.15);
+  const score=0.4*commaFit+0.2*longFit+0.2*excessFit+0.2*povFit;
+  return {c,chars,commas,periods,commaPct,density,sentCount,avgLen,dialogPct,
+    longSents,sents,excess,povHits,ttr,top,commaFit,longFit,excessFit,povFit,score};
+}
+
+function renderHL(raw,a){
+  const c=a.c;
+  // operate on body (heading lines removed for fairness but show original-ish)
+  const body=bodyLines(raw);
+  const parts=body.split('。');
+  let html='';
+  parts.forEach((sRaw,i)=>{
+    const hasPeriod = i<parts.length-1;
+    let s=esc(sRaw);
+    // excess comma highlight
+    s=s.replace(/([一-龠ぁ-んァ-ヴー一-龥A-Za-z0-9]{1,8})(は|が)、/g,'$1$2<span class="cflag">、</span>');
+    s=s.replace(/(を|に|へ)、/g,'$1<span class="cflag">、</span>');
+    // pov structure tags
+    s=s.replace(/(【[^】]*】|〔[^〕]*〕)/g,'<span class="pov">$1</span>');
+    c.pov.forEach(w=>{ if(w){const re=new RegExp('('+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','g'); s=s.replace(re,'<span class="pov">$1</span>');}});
+    const isLong=noWS(sRaw).length>c.long;
+    const txt=s+(hasPeriod?'。':'');
+    html+= isLong? `<span class="sent long">${txt}</span>` : `<span class="sent">${txt}</span>`;
+  });
+  return html;
+}
+
+function paint(a,raw){
+  $('out').classList.remove('hidden');
+  $('g-score').textContent=a.score.toFixed(2);
+  $('g-arc').style.strokeDashoffset=(402*(1-a.score)).toFixed(1);
+  $('g-arc').setAttribute('stroke', a.score>=.75?'var(--good)':a.score>=.5?'var(--warn)':'var(--bad)');
+  $('m-comma-pct').textContent=a.commaPct.toFixed(2)+'%';
+  $('m-target').textContent=a.c.target+'% ±'+a.c.tol;
+  $('m-comma-fit').textContent=a.commaFit.toFixed(2);
+  const vEl=$('m-verdict');
+  let vc='v-good',vt='ちょうどいい';
+  if(a.commaPct>a.c.max){vc='v-bad';vt='読点が多い（入れすぎ）';}
+  else if(Math.abs(a.commaPct-a.c.target)>a.c.tol){vc=a.commaPct>a.c.target?'v-warn':'v-warn';vt=a.commaPct>a.c.target?'やや多め':'やや少なめ';}
+  vEl.className='verdict '+vc; vEl.textContent=vt;
+  $('m-chars').textContent=a.chars.toLocaleString();
+  $('m-marks').innerHTML=a.commas+' <small>/</small> '+a.periods;
+  $('m-density').innerHTML=a.density.toFixed(1)+'<small>%</small>';
+  $('m-avglen').innerHTML=a.avgLen.toFixed(1)+'<small>字</small>';
+  $('m-dialog').innerHTML=a.dialogPct.toFixed(1)+'<small>%</small>';
+  $('m-long').innerHTML=a.longSents.length+' <small>/ '+a.sentCount+'文</small>';
+  $('chip-long').className='chip'+(a.longSents.length?' flag':'');
+  $('m-excess').textContent=a.excess;
+  $('chip-excess').className='chip'+(a.excess>0?' flag':'');
+  $('m-pov').textContent=a.povHits;
+  $('chip-pov').className='chip'+(a.povHits>0?' bad':'');
+  $('hl').innerHTML=renderHL(raw,a)||'<span class="muted">（本文なし）</span>';
+  $('m-ttr').textContent=a.ttr.toFixed(2);
+  $('vocab').innerHTML=a.top.length? a.top.map(([w,n])=>`<span>${esc(w)} <b>×${n}</b></span>`).join('') : '<span class="muted">頻出語なし</span>';
+  save(raw);
+}
+
+function run(){const raw=$('src').value; if(!noWS(bodyLines(raw))){$('out').classList.add('hidden');return;} paint(analyze(raw),raw);}
+function save(raw){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({raw,c:{
+  target:$('cf-target').value,tol:$('cf-tol').value,max:$('cf-max').value,long:$('cf-long').value,pov:$('cf-pov').value}}));}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+  if(d.c){$('cf-target').value=d.c.target;$('cf-tol').value=d.c.tol;$('cf-max').value=d.c.max;$('cf-long').value=d.c.long;$('cf-pov').value=d.c.pov||'';}
+  if(d.raw){$('src').value=d.raw;run();}}catch(e){}}
+
+const SAMPLE=`ぼくは、ゆっくりと、顔を、あげた。窓の外には、街が広がっていて、その向こうに、海が見えた。
+誰もいない部屋のなかで、ぼくはひとり、笛を、ふきながら、誰かが来るのを待っていたのだけれど、結局その日は誰も来ず、ただ時間だけが過ぎていって、気がつけば外はすっかり暗くなっていて、ぼくはようやく立ち上がって、電気をつけた。
+【ここで回想に入る】
+「おなかすいた」と、まいが言った。`;
+
+$('run').onclick=run;
+$('sample').onclick=()=>{$('src').value=SAMPLE;run();};
+$('clear').onclick=()=>{$('src').value='';$('out').classList.add('hidden');save('');};
+$('src').addEventListener('input',()=>{clearTimeout(window._t);window._t=setTimeout(run,250);});
+['cf-target','cf-tol','cf-max','cf-long','cf-pov'].forEach(id=>$(id).addEventListener('input',()=>{clearTimeout(window._t);window._t=setTimeout(run,250);}));
+$('share').onclick=()=>{const a=$('out').classList.contains('hidden')?null:analyze($('src').value);
+  const t=a?`文体測りで測った: 文体Float ${a.score.toFixed(2)} / 読点率 ${a.commaPct.toFixed(1)}%`:'文体測り — 原稿の文体をFloatで測るツール';
+  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(t+' #全人類UX改善')+'&url='+encodeURIComponent('https://osakenpiro.github.io/buntai-hakari/'),'_blank');};
+load();
+</script>
+</body>
+</html>
