@@ -42,7 +42,7 @@ for s in sp:
         m = re.search(re.escape(pname) + r"[:：]\s*([0-9.]+)", s["pm"])
         edges.append([rid[-8:], float(m.group(1)) if m else 0.5])
     s["p"] = edges; del s["rel"], s["pid"]
-GATES = ["知識","信仰規範","法","統治","組織","経済","規格","遊戯"]
+GATES = ["知識","信仰規範","法","統治","組織","経済","規格","遊戯","電子"]
 sp.sort(key=lambda s: (GATES.index(s["g"]) if s["g"] in GATES else 99, s["x"]))
 html_path = HERE / "index.html"
 h = html_path.read_text(encoding="utf-8")
