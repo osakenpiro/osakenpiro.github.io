@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>文体測り — Bun-tai Hakari — とりせつ | osakenpiro works</title>
-<meta name="description" content="原稿の読点率(主ダイヤル=、÷地の文字数・基準3.5%=IMASICA文体ガイドv0作者承認)・65字超・過剰読点(主語直後/を…">
+<meta name="description" content="原稿を貼ると、読点率や長すぎる文がFloatで見える文体の量り。">
 <meta property="og:title" content="文体測り — Bun-tai Hakari — とりせつ | osakenpiro works">
-<meta property="og:description" content="原稿の読点率(主ダイヤル=、÷地の文字数・基準3.5%=IMASICA文体ガイドv0作者承認)・65字超・過剰読点(主語直後/を…">
+<meta property="og:description" content="原稿を貼ると、読点率や長すぎる文がFloatで見える文体の量り。">
 <link rel="canonical" href="https://osakenpiro.github.io/works/buntai-hakari.html">
 <!-- og:image: θ9 OGPバッチで後日付与 -->
 <style>
@@ -151,22 +151,34 @@ background-size:cover;background-position:center;overflow:hidden;box-shadow:0 18
 <main>
 <a class="crumb" href="./">← WORKS — ぜんぶの作品</a>
 <header class="kanban"><span class="chain c1"></span><span class="chain c2"></span><div class="plate has-p p-t"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span><div class="k-emoji">📐</div><h1>文体測り — Bun-tai Hakari</h1><div class="k-sub"><b>Hi-Me TooL</b><span class="pfuda" style="background:var(--osk-pillar-t);color:#23303a">鋼</span> ・ HTMLツール <span class="badge live">Live</span></div></div></header>
-<section class="hitokoto"><p>原稿の読点率(主ダイヤル=、÷地の文字数・基準3.5%=IMASICA文体ガイドv0作者承認)・65字超・過剰読点(主語直後/を…<span class="caret"></span></p></section>
-<div class="junbi">このとりせつはまだ手書きされていません。台帳の記録から骨格だけ立てています。<br>（works-copy/buntai-hakari.md を置くと、ここに血が通います）</div>
-<div class="kejime"><span>◇ だいちょうより</span></div>
-<div class="feat"><div class="fcard"><h3>台帳メモ</h3><p>原稿の読点率(主ダイヤル=、÷地の文字数・基準3.5%=IMASICA文体ガイドv0作者承認)・65字超・過剰読点(主語直後/を・に＋、/三重)・視点リーク・語彙偏りをFloat可視化。読点削減モード(純削除invariant)搭載=過剰読点だけ消して率プレビュー＋コピー。閾値カスタム(規格の個別最適化)・localStorage永続。SES-511生態系監査の種カード「文体測り」(君らしさ0.9</p></div></div>
+<section class="hitokoto"><p>原稿を貼ると、読点率や長すぎる文がFloatで見える文体の量り。<span class="caret"></span></p></section>
+<div class="kejime"><span>◇ とくちょう</span></div>
+<div class="sec-t"><b>FEATURES</b> — 特徴3つ</div>
+<div class="feat">
+<div class="fcard"><h3>主ダイヤル=読点率</h3><p>、÷地の文字数。基準3.5%はIMASICA文体ガイドの作者承認値。</p></div>
+<div class="fcard"><h3>読点削減モード</h3><p>純削除invariant。過剰読点だけ消して、率のプレビューつきでコピーできる。</p></div>
+<div class="fcard"><h3>規格の個別最適化</h3><p>閾値は⚙でぜんぶ自分の基準に変えられる。設定はlocalStorageに残る。</p></div>
+</div>
+<div class="kejime"><span>◇ つかいかた</span></div>
+<div class="sec-t"><b>HOW TO</b> — 3手順</div>
+<div class="koma-row">
+<div class="koma" style="--rot:-1.2deg"><span class="koma-num">1</span><span class="koma-sfx">ぱっ</span><div class="fuki">地の文を貼る（入力中もリアルタイム更新）</div></div>
+<div class="koma" style="--rot:0.8deg"><span class="koma-num">2</span><span class="koma-sfx">こつこつ</span><div class="fuki">ダイヤルとハイライトで、65字超え・過剰読点・視点リークを見る</div></div>
+<div class="koma" style="--rot:-0.6deg"><span class="koma-num">3</span><span class="koma-sfx">じゃーん</span><div class="fuki">削減モードで読点を整えて、本文をコピーして帰る</div></div>
+</div>
 <div class="kejime"><span>◇ かんせいど</span></div>
 <div class="sec-t"><b>FLOAT</b> — 完成度</div>
 <div class="gauge-wrap"><div class="gauge"><div class="gfill" data-float="0.85"></div></div><div class="gnum">0.85</div><div class="gcap">1.0は存在しない。それでいい。</div></div>
 <div class="kejime"><span>◇ ねふだ</span></div>
-<aside class="froshiki has-p p-t"><div class="stamp">T</div><dl><dt>柱</dt><dd>T（Hi-Me TooL）</dd><dt>種別</dt><dd>HTMLツール</dd><dt>状態</dt><dd>Live</dd><dt>誕生日</dt><dd>2026-06-09</dd><dt>台帳ID</dt><dd>#66</dd><dt>ありか</dt><dd>osakenpiro.github.io</dd></dl></aside>
+<aside class="froshiki has-p p-t"><div class="stamp">T</div><dl><dt>柱</dt><dd>T（Hi-Me TooL）</dd><dt>種別</dt><dd>HTMLツール</dd><dt>状態</dt><dd>Live</dd><dt>誕生日</dt><dd>2026-06-09</dd><dt>台帳ID</dt><dd>#66</dd><dt>ありか</dt><dd>osakenpiro.github.io</dd><dt>モチーフ案</dt><dd>台所の量り（原稿を載せる皿と、ゆれる針）</dd></dl></aside>
 <div class="kejime"><span>◇ ひらきど</span></div>
+<details class="hirakido"><summary><span class="dia"><span class="d-c">◇</span><span class="d-o">◆</span></span>Q. 原稿はどこかに送られる？</summary><div class="hd-body">A. 送られない。データはブラウザ内（localStorage）だけ。</div></details>
 <details class="hirakido"><summary><span class="dia"><span class="d-c">◇</span><span class="d-o">◆</span></span>台帳メモ（全文・自動転記）</summary><div class="hd-body">原稿の読点率(主ダイヤル=、÷地の文字数・基準3.5%=IMASICA文体ガイドv0作者承認)・65字超・過剰読点(主語直後/を・に＋、/三重)・視点リーク・語彙偏りをFloat可視化。読点削減モード(純削除invariant)搭載=過剰読点だけ消して率プレビュー＋コピー。閾値カスタム(規格の個別最適化)・localStorage永続。SES-511生態系監査の種カード「文体測り」(君らしさ0.9/総合0.84=HelloSoftware第一号)を実装。</div></details>
 <details class="hirakido"><summary><span class="dia"><span class="d-c">◇</span><span class="d-o">◆</span></span>このページについて</summary><div class="hd-body">成果物DB（ありか台帳）と works-copy から自動生成されたとりせつです。事実の正本はDB側、ことばの正本は works-copy 側。直しはそちらへ。</div></details>
 <div class="kejime"><span>◇ いりぐち</span></div>
 <div class="cta"><a class="btn-gold" href="https://osakenpiro.github.io/buntai-hakari/">あそびにいく →</a><a class="btn-ghost" href="./">ぜんぶの作品へ</a></div>
 </main>
-<footer>玄関(精選) <a href="/">osakenpiro.github.io</a> ／ 完全版 <a href="./">works索引</a><br>このとりせつは 成果物DB（ありか台帳）から gen_works.py が自動生成 — 2026-06-10 20:00 JST ／ #全人類UX改善計画</footer>
+<footer>玄関(精選) <a href="/">osakenpiro.github.io</a> ／ 完全版 <a href="./">works索引</a><br>このとりせつは 成果物DB（ありか台帳）から gen_works.py が自動生成 — 2026-06-10 23:09 JST ／ #全人類UX改善計画</footer>
 <script>
 (function(){var sky=document.getElementById('sky');if(!sky)return;
 for(var i=0;i<90;i++){var s=document.createElement('span');s.className='star'+(Math.random()<0.08?' g':'');
