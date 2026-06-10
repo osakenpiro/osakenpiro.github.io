@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FABULA — システムの分類学</title>
+<meta property="og:title" content="FABULA — システムの分類学">
+<meta property="og:description" content="憲法も会社もTCP/IPも一本の系統樹に。線の太さ=現役規定力Float、交雑と再発芽を編む、あらゆるシステムの家系図。">
+<style>
+:root{--bg:#07070d;--line:#cfc8b6;--dim:#6e6859;--gold:#d4a853;--tx:#e8e4da;--sub:#9a937f;--panel:#13131d;--bd:#2a2a3a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--tx);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+#stars span{position:absolute;background:#fff;border-radius:50%}
+header{position:relative;z-index:2;padding:28px 24px 10px;max-width:1100px;margin:0 auto}
+h1{font-family:"Hiragino Mincho ProN","Yu Mincho",serif;font-size:30px;letter-spacing:.06em}
+h1 .gold{color:var(--gold)}
+.tag{color:var(--sub);font-size:13px;margin-top:6px;line-height:1.7}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;font-size:11.5px;color:var(--sub)}
+.chip{border:1px solid var(--bd);border-radius:999px;padding:3px 10px;background:rgba(19,19,29,.7)}
+.chip b{color:var(--gold);font-weight:600}
+.chip a{color:var(--gold);text-decoration:none}
+.wrap{position:relative;z-index:1;overflow-x:auto;margin-top:8px;padding-bottom:30px}
+svg{display:block;margin:0 auto}
+.band{font-size:13px;fill:var(--sub);letter-spacing:.2em;font-weight:600}
+.era{font-size:10px;fill:#56503f}
+.eline{stroke:#1d1d2a;stroke-width:1}
+.nline{stroke:#3a3526;stroke-width:1.2}
+.vlabel{font-size:11.5px;fill:#d8d2c2;writing-mode:vertical-rl;text-orientation:mixed;letter-spacing:.12em}
+.fl{font-size:9.5px;fill:var(--dim)}
+#tip{position:fixed;z-index:9;display:none;max-width:300px;background:var(--panel);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;font-size:12px;line-height:1.75;box-shadow:0 8px 30px rgba(0,0,0,.55)}
+#tip h3{font-size:14px;margin-bottom:2px;color:var(--gold);font-family:serif}
+#tip .meta{color:var(--sub);font-size:11px;margin-bottom:6px}
+#tip .bar{height:6px;background:#23232f;border-radius:3px;margin:4px 0 8px;overflow:hidden}
+#tip .bar i{display:block;height:100%;background:var(--gold)}
+#tip .tale{color:var(--tx)}
+#tip .pm{color:var(--sub);font-size:11px;margin-top:6px}
+footer{position:relative;z-index:2;text-align:center;color:#56503f;font-size:11px;padding:18px 0 36px;line-height:2}
+footer a{color:var(--sub)}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<header>
+<h1><span class="gold">FABULA</span> — システムの分類学</h1>
+<div class="tag">電子が空気と同じ濃度になった星の、あらゆるシステム（法・統治・組織・経済・規格…）の系統樹。<br>上=古代 ↓=現代　／　幹の太さ=<b>現役規定力 Float</b>　／　<span style="color:var(--gold)">金</span>=交雑・再発芽　／　◇=絶滅→腐葉土</div>
+<div class="chips">
+<span class="chip"><b id="cnt">34</b> 種</span>
+<span class="chip"><b>8</b> 門</span>
+<span class="chip">― 太さ=規定力</span>
+<span class="chip" style="color:var(--gold)">- - 再発芽・弱継承</span>
+<span class="chip">合流=交雑（複数親）</span>
+<span class="chip">正本: <a href="https://www.notion.so/37b2b7e543e0814e9392cbdfd67ba242" target="_blank">Notion 種DB</a></span>
+</div>
+</header>
+<div class="wrap"><svg id="tree" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<div id="tip"></div>
+<footer>FABULA v0 — 種をひとつ植えると、樹がひとつ育つ。<br>Fable 5 initiation / SES-520 / <a href="https://osakenpiro.github.io/" target="_blank">osakenpiro</a> #全人類UX改善計画</footer>
+<script>
+const DATA=/*GEN:DATA*/[{"id": "moji", "n": "文字", "g": "知識", "x": 100, "b": -3200, "d": null, "f": 0.99, "s": "現役", "p": [], "pm": "", "t": "メソポタミアの粘土板で、声が時間を超えられるようになった。以後すべてのシステムの培地。"}, {"id": "univ", "n": "大学", "g": "知識", "x": 155, "b": 1088, "d": null, "f": 0.85, "s": "現役", "p": [["guild", 0.7], ["roma", 0.4]], "pm": "ギルド:0.7｜ローマ法:0.4", "t": "ボローニャで学生たちが組合(universitas)を結成。ギルドの子が、失伝したローマ法を発掘する装置になった。"}, {"id": "peer", "n": "査読", "g": "知識", "x": 205, "b": 1665, "d": null, "f": 0.8, "s": "現役", "p": [["univ", 0.8]], "pm": "大学:0.8", "t": "王立協会Phil. Trans.が「印刷前に同業者が読む」を発明。真理のゲートキーパー。"}, {"id": "wiki", "n": "Wiki", "g": "知識", "x": 250, "b": 2001, "d": null, "f": 0.7, "s": "現役", "p": [["tcpip", 0.6], ["peer", 0.3]], "pm": "TCP/IP:0.6｜査読:0.3", "t": "百科全書の編集権を全人類に開放した。査読の民主化変異体。"}, {"id": "vinaya", "n": "仏教戒律", "g": "信仰規範", "x": 310, "b": -480, "d": null, "f": 0.4, "s": "現役", "p": [], "pm": "", "t": "サンガの運用ルール律蔵。最古級の「組織運営マニュアル」。"}, {"id": "canon", "n": "教会法", "g": "信仰規範", "x": 355, "b": 1140, "d": null, "f": 0.3, "s": "現役", "p": [["roma", 0.6]], "pm": "ローマ法:0.6", "t": "グラティアヌス教令集。ローマ法の技術で信仰を法典化し、のちに大陸法へ養分を返した。"}, {"id": "rights", "n": "人権レジーム", "g": "信仰規範", "x": 400, "b": 1948, "d": null, "f": 0.8, "s": "現役", "p": [["rikken", 0.7]], "pm": "近代立憲制:0.7", "t": "世界人権宣言。国家の上位に「人間そのもの」を置いた逆転の系。"}, {"id": "hamu", "n": "ハンムラビ法典", "g": "法", "x": 455, "b": -1750, "d": -539, "f": 0.0, "s": "絶滅", "p": [], "pm": "", "t": "「目には目を」。最古の成文法は絶滅したが、刑は法に書いてある分だけ、という思想は腐葉土に残った。"}, {"id": "roma", "n": "ローマ法", "g": "法", "x": 505, "b": -450, "d": 600, "f": 0.6, "s": "再発芽", "p": [["hamu", 0.2]], "pm": "ハンムラビ法典:0.2", "t": "十二表法から大全まで千年。西ローマと共に一度死に、500年後ボローニャの写本から再発芽した、系統樹最大の不死鳥。"}, {"id": "tairiku", "n": "大陸法", "g": "法", "x": 545, "b": 1088, "d": null, "f": 0.9, "s": "現役", "p": [["roma", 0.8], ["canon", 0.4]], "pm": "ローマ法:0.8｜教会法:0.4", "t": "ボローニャでローマ法が再発芽し、教会法と交雑。ナポレオン法典で世界に播種された。"}, {"id": "kenpo", "n": "日本国憲法", "g": "法", "x": 580, "b": 1946, "d": null, "f": 0.8, "s": "現役", "p": [["tairiku", 0.5], ["common", 0.5]], "pm": "大陸法:0.5｜コモン・ロー:0.5", "t": "明治憲法(プロイセン系)の幹にGHQ草案(英米系)が接ぎ木された交雑種。以後80年変異なし。"}, {"id": "common", "n": "コモン・ロー", "g": "法", "x": 615, "b": 1066, "d": null, "f": 0.9, "s": "現役", "p": [], "pm": "", "t": "ノルマン征服後、判例の積み重ねが法になった。書かれた理性ではなく、記憶された理性の系統。"}, {"id": "islam", "n": "イスラーム法", "g": "法", "x": 660, "b": 622, "d": null, "f": 0.7, "s": "現役", "p": [], "pm": "", "t": "クルアーンとスンナから法学者が編んだ。国家より長持ちする法の実例。"}, {"id": "tribe", "n": "部族合議", "g": "統治", "x": 715, "b": -10000, "d": null, "f": 0.3, "s": "現役", "p": [], "pm": "", "t": "焚き火を囲む円。すべての統治システムの共通祖先。"}, {"id": "king", "n": "王権", "g": "統治", "x": 760, "b": -3000, "d": null, "f": 0.2, "s": "現役", "p": [["tribe", 0.3]], "pm": "部族合議:0.3", "t": "「決める一人」を固定する変異。神授で正当化され、立憲制に飼いならされて現存。"}, {"id": "repub", "n": "ローマ共和政", "g": "統治", "x": 805, "b": -509, "d": -27, "f": 0.0, "s": "絶滅", "p": [["tribe", 0.3]], "pm": "部族合議:0.3", "t": "SPQR。帝政に絶滅させられたが、1800年後アメリカ建国者たちが腐葉土から掘り出した。"}, {"id": "ritsuryo", "n": "律令制", "g": "統治", "x": 850, "b": 701, "d": 1185, "f": 0.05, "s": "絶滅", "p": [["kanryo", 0.7]], "pm": "官僚制:0.7", "t": "唐の官僚制を日本へ移植した規格輸入。形骸化して絶滅したが「省」の名は今も生きる。"}, {"id": "rikken", "n": "近代立憲制", "g": "統治", "x": 895, "b": 1787, "d": null, "f": 0.95, "s": "現役", "p": [["repub", 0.5], ["common", 0.4]], "pm": "ローマ共和政:0.5｜コモン・ロー:0.4", "t": "権力を文書で縛る。共和政の再発芽×権利章典の交雑。現在の統治門の最太幹。"}, {"id": "intl", "n": "国際機構", "g": "統治", "x": 940, "b": 1920, "d": null, "f": 0.6, "s": "現役", "p": [["rikken", 0.6]], "pm": "近代立憲制:0.6", "t": "国家の上に議席を作る実験。連盟は一度絶滅し、国連として再発芽した。"}, {"id": "kanryo", "n": "官僚制", "g": "組織", "x": 995, "b": -221, "d": null, "f": 0.95, "s": "現役", "p": [], "pm": "", "t": "秦の郡県制と文書行政。王朝は何度も死んだが、官僚制は一度も死んでいない。"}, {"id": "guild", "n": "ギルド", "g": "組織", "x": 1040, "b": 1100, "d": 1791, "f": 0.1, "s": "絶滅", "p": [], "pm": "", "t": "同業者の掟。ル・シャプリエ法で処刑されたが、大学・労組・資格制度に子孫を残した。"}, {"id": "army", "n": "常備軍", "g": "組織", "x": 1085, "b": 1648, "d": null, "f": 0.8, "s": "現役", "p": [["kanryo", 0.6]], "pm": "官僚制:0.6", "t": "戦争を常設の行政にした。近代国家の骨格形成者。"}, {"id": "dao", "n": "DAO", "g": "組織", "x": 1130, "b": 2016, "d": null, "f": 0.3, "s": "現役", "p": [["kaisha", 0.5], ["chain", 0.7]], "pm": "株式会社:0.5｜ブロックチェーン:0.7", "t": "定款をコードで書く株式会社の変異体。The DAO事件で生後すぐ大怪我した若芽。"}, {"id": "kahei", "n": "貨幣", "g": "経済", "x": 1185, "b": -600, "d": null, "f": 0.98, "s": "現役", "p": [], "pm": "", "t": "リディアのエレクトロン貨。信頼を持ち運べる規格にした、経済門の根。"}, {"id": "boki", "n": "複式簿記", "g": "経済", "x": 1230, "b": 1494, "d": null, "f": 0.9, "s": "現役", "p": [["kahei", 0.5]], "pm": "貨幣:0.5", "t": "パチョーリが商人の知恵を印刷。富に左右対称の文法を与えた。"}, {"id": "kaisha", "n": "株式会社", "g": "経済", "x": 1275, "b": 1602, "d": null, "f": 0.95, "s": "現役", "p": [["guild", 0.5], ["kahei", 0.4]], "pm": "ギルド:0.5｜貨幣:0.4", "t": "VOC。リスクを株式に切り分けたら、人間より長生きする人格が生まれた。"}, {"id": "chuo", "n": "中央銀行", "g": "経済", "x": 1320, "b": 1694, "d": null, "f": 0.9, "s": "現役", "p": [["kaisha", 0.6], ["king", 0.4]], "pm": "株式会社:0.6｜王権:0.4", "t": "イングランド銀行=戦費調達の株式会社が、いつのまにか貨幣の蛇口を握った。"}, {"id": "crypto", "n": "暗号通貨", "g": "経済", "x": 1365, "b": 2009, "d": null, "f": 0.4, "s": "現役", "p": [["kahei", 0.6], ["chain", 0.8]], "pm": "貨幣:0.6｜ブロックチェーン:0.8", "t": "サトシの白書9頁。中央銀行への不信から、貨幣がプロトコルへ先祖返りした変異。"}, {"id": "calen", "n": "グレゴリオ暦", "g": "規格", "x": 1420, "b": 1582, "d": null, "f": 0.98, "s": "現役", "p": [], "pm": "", "t": "教皇の改暦が、宗教を超えて全地球の時間OSになった。"}, {"id": "metre", "n": "メートル法", "g": "規格", "x": 1465, "b": 1795, "d": null, "f": 0.95, "s": "現役", "p": [], "pm": "", "t": "革命フランスが、王の足ではなく地球の子午線を物差しにした。"}, {"id": "tcpip", "n": "TCP/IP", "g": "規格", "x": 1510, "b": 1974, "d": null, "f": 0.97, "s": "現役", "p": [], "pm": "", "t": "誰の許可もいらない接続規格。史上最速で地球を覆った幹。"}, {"id": "chain", "n": "ブロックチェーン", "g": "規格", "x": 1555, "b": 2008, "d": null, "f": 0.5, "s": "現役", "p": [["tcpip", 0.7]], "pm": "TCP/IP:0.7", "t": "合意のアルゴリズム化。台帳が初めて、誰のものでもなくなった。"}, {"id": "ban", "n": "盤上遊戯", "g": "遊戯", "x": 1605, "b": -3100, "d": null, "f": 0.6, "s": "現役", "p": [], "pm": "", "t": "セネト。ルールに従って遊ぶ、という発明。最古の自発的システム。"}, {"id": "sport", "n": "近代スポーツ規則", "g": "遊戯", "x": 1650, "b": 1863, "d": null, "f": 0.85, "s": "現役", "p": [["ban", 0.3]], "pm": "盤上遊戯:0.3", "t": "FAがパブごとに違うフットボールを単一規格化。規格の個別最適化の好例。"}]/*GEN:END*/;
+const W=1700,TOP=120,SPAN=1430,BOT=TOP+SPAN,H=BOT+85;
+const ANCH=[[-10000,0],[-3000,.06],[-1000,.10],[-500,.13],[0,.20],[500,.26],[1000,.33],[1300,.40],[1500,.47],[1700,.56],[1800,.64],[1900,.74],[1950,.82],[2000,.92],[2026,1]];
+function yY(y){y=Math.max(-10000,Math.min(2026,y));for(let i=1;i<ANCH.length;i++){const a=ANCH[i-1],b=ANCH[i];if(y<=b[0])return TOP+(a[1]+(b[1]-a[1])*(y-a[0])/(b[0]-a[0]))*SPAN}return BOT}
+const fY=y=>y<0?"BC"+(-y):""+y;
+const M={};DATA.forEach(s=>M[s.id]=s);
+const svg=document.getElementById('tree');
+svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('width',W);svg.setAttribute('height',H);
+const NS='http://www.w3.org/2000/svg';
+function el(t,a,parent){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(parent||svg).appendChild(e);return e}
+// era lines
+ANCH.forEach(([y,t],i)=>{const yy=yY(y);el('line',{x1:60,y1:yy,x2:W-10,y2:yy,class:y===2026?'nline':'eline'});el('text',{x:8,y:yy+3,class:'era'}).textContent=(y===2026?'現在':fY(y))});
+// gate bands
+const gates={};DATA.forEach(s=>{(gates[s.g]=gates[s.g]||[]).push(s.x)});
+for(const g in gates){const xs=gates[g];const mid=(Math.min(...xs)+Math.max(...xs))/2;el('text',{x:mid,y:78,'text-anchor':'middle',class:'band'}).textContent=g+'門';el('line',{x1:Math.min(...xs)-22,y1:88,x2:Math.max(...xs)+22,y2:88,stroke:'#23222e','stroke-width':1})}
+// edges (under trunks)
+const eg=el('g',{});
+DATA.forEach(s=>{(s.p||[]).forEach(([pid,w])=>{const par=M[pid];if(!par)return;const cy=yY(s.b),cx=s.x,px=par.x;const revival=par.d!=null&&par.d<s.b;const sy=revival?yY(par.d):cy;const far=Math.abs(px-cx)>450;const d=(px===cx)?`M${px},${sy} L${cx},${cy}`:`M${px},${sy} C${px},${sy+55} ${cx},${cy-55} ${cx},${cy}`;el('path',{d,fill:'none',stroke:revival?'var(--gold)':'var(--line)','stroke-width':(.8+2.2*w).toFixed(2),'stroke-dasharray':(revival||w<.35)?'4 5':'none',opacity:far?.3:(revival?.8:.5)},eg)})});
+// trunks + nodes + labels
+DATA.forEach(s=>{const x=s.x,y1=yY(s.b),dead=s.d!=null,y2=dead?yY(s.d):BOT;
+el('line',{x1:x,y1,x2:x,y2,stroke:dead?'var(--dim)':'var(--line)','stroke-width':dead?1.3:(1+4.2*s.f).toFixed(2),'stroke-linecap':'round',opacity:.85});
+if(dead)el('path',{d:`M${x},${y2+2} l5.5,5.5 l-5.5,5.5 l-5.5,-5.5 z`,fill:'none',stroke:'var(--dim)','stroke-width':1.4});
+else el('text',{x,y:BOT+16,'text-anchor':'middle',class:'fl'}).textContent=s.f.toFixed(2);
+const hy=(s.p&&s.p.length>=2)||s.s==='再発芽';
+el('circle',{cx:x,cy:y1,r:hy?5:3.5,fill:hy?'var(--gold)':'var(--line)'});
+el('text',{x:x+8,y:y1+10,class:'vlabel'}).textContent=s.n;
+const hit=el('rect',{x:x-10,y:y1-12,width:20,height:(y2-y1)+24,fill:'transparent',style:'cursor:pointer'});
+hit.addEventListener('mousemove',e=>showTip(s,e));hit.addEventListener('mouseleave',hideTip);
+hit.addEventListener('click',e=>{e.stopPropagation();pin=!pin||cur!==s;cur=s;showTip(s,e,true)});
+});
+// tooltip
+const tip=document.getElementById('tip');let pin=false,cur=null;
+function showTip(s,e,force){if(pin&&!force)return;cur=s;
+tip.innerHTML=`<h3>${s.n}</h3><div class="meta">${s.g}門 ・ ${fY(s.b)} – ${s.d!=null?fY(s.d):'現在'} ・ ${s.s}</div>規定力 ${s.f.toFixed(2)}<div class="bar"><i style="width:${(s.f*100).toFixed(0)}%"></i></div><div class="tale">${s.t}</div>${s.pm?`<div class="pm">親: ${s.pm}</div>`:''}`;
+tip.style.display='block';const r=tip.getBoundingClientRect();
+let tx=e.clientX+16,ty=e.clientY+14;
+if(tx+r.width>innerWidth-8)tx=e.clientX-r.width-12;if(ty+r.height>innerHeight-8)ty=e.clientY-r.height-12;
+tip.style.left=tx+'px';tip.style.top=ty+'px'}
+function hideTip(){if(!pin)tip.style.display='none'}
+document.body.addEventListener('click',()=>{pin=false;tip.style.display='none'});
+document.getElementById('cnt').textContent=DATA.length;
+// stars
+const st=document.getElementById('stars');for(let i=0;i<110;i++){const sp=document.createElement('span');const z=Math.random();sp.style.cssText=`left:${Math.random()*100}%;top:${Math.random()*100}%;width:${1+z}px;height:${1+z}px;opacity:${.08+Math.random()*.35}`;st.appendChild(sp)}
+</script>
+</body>
+</html>
