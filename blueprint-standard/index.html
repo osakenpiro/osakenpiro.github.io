@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ブループリント標準 v0.1 — Ap→Bp | osakenpiro</title>
+<meta property="og:title" content="ブループリント標準（Bp Standard）v0.1">
+<meta property="og:description" content="アプリ（Ap）の後継としてのブループリント（Bp）。完成品を配布する時代から、雛形を流通させAIが各ユーザー専用に駆動する時代へ。流通フォーマットの先行定義。">
+<meta property="og:url" content="https://osakenpiro.github.io/blueprint-standard/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<style>
+  :root { --ink:#2a2a33; --accent:#8a93d8; --bg:#fafaf7; --soft:#eef0fa; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif; color:var(--ink); background:var(--bg); line-height:1.85; }
+  main { max-width:720px; margin:0 auto; padding:2.5rem 1.25rem 4rem; }
+  h1 { font-size:1.6rem; line-height:1.5; border-bottom:3px solid var(--accent); padding-bottom:.5rem; }
+  h1 small { display:block; font-size:.85rem; font-weight:normal; color:#777; margin-top:.3rem; }
+  h2 { font-size:1.15rem; margin-top:2.4rem; border-left:5px solid var(--accent); padding-left:.6rem; }
+  blockquote { background:var(--soft); border-radius:8px; padding:1rem 1.2rem; margin:1.2rem 0; font-size:.95rem; }
+  table { width:100%; border-collapse:collapse; font-size:.9rem; }
+  th,td { border:1px solid #ddd; padding:.5rem .6rem; text-align:left; vertical-align:top; }
+  th { background:var(--soft); white-space:nowrap; }
+  pre { background:#2d2d3a; color:#e8e8f0; padding:1rem; border-radius:8px; overflow-x:auto; font-size:.82rem; line-height:1.6; }
+  ol li, ul li { margin:.4rem 0; }
+  footer { text-align:center; font-size:.8rem; color:#888; margin-top:3.5rem; }
+  footer a { color:var(--accent); }
+  .pill { display:inline-block; background:var(--accent); color:#fff; border-radius:999px; padding:.1rem .7rem; font-size:.78rem; margin-right:.4rem; }
+</style>
+</head>
+<body>
+<main>
+<h1>ブループリント標準（Bp Standard）v0.1
+<small>osakenpiro — 流通フォーマットの先行定義 / 2026-06-12 初版</small></h1>
+
+<blockquote>
+<strong>Ap（アプリ）の後継としての Bp（ブループリント）。</strong><br>
+完成品を配布する時代から、雛形を流通させ AI が各ユーザー専用に駆動する時代へ。<br>
+アプリが「溶ける」なら、溶けたあとに残って流通するのは Bp だ。
+</blockquote>
+
+<h2>0. 位置づけ</h2>
+<ul>
+<li><strong>Ap→Bp</strong>：Application の後継としての Blueprint。流通単位の世代交代。</li>
+<li>「溶けるアプリ」＝やりたいことに対して AI がその場でツールを設計する未来（cf. Interop Tokyo 2026 嶋是一氏講演）。Bp はその未来で流通する規格側。</li>
+<li>「個別最適の規格化／規格の個別最適化」のハード実装。</li>
+<li>外部採用が 0.0 でも、内部統一規格として独立に有用（Float 的保険）。</li>
+</ul>
+
+<h2>1. 用語</h2>
+<table>
+<tr><th>用語</th><th>定義</th></tr>
+<tr><td>Bp</td><td>流通単位となる雛形定義。データ構造・様式・AI駆動フックを含む宣言的ドキュメント</td></tr>
+<tr><td>駆動（drive）</td><td>AI が Bp を読み、ユーザー文脈に合わせて実体（ツール・UI・手順）をその場で生成すること</td></tr>
+<tr><td>溶けるアプリ</td><td>都度生成パラダイム。Bp は溶けたあとに残る規格側</td></tr>
+</table>
+
+<h2>2. Bp ドキュメント構造（v0.1 必須5フィールド）</h2>
+<pre>meta:
+  id: ...            # 一意ID
+  name: ...          # 三重がけ命名（音韻×意味×構造）
+  version: 0.1
+  author: ...
+  license: ...
+data:                # データ構造定義（構造は1つ）
+  schema: { ... }
+views:               # 様式定義（様式は複数）
+  - name: ...
+    layout: ...
+storage:             # 永続化スキーマ
+  kind: localStorage # ローカル主権が既定
+  key: ...
+ai_hooks:            # AI駆動フック＝AIが埋める箇所の宣言
+  - slot: ...
+    intent: ...      # 何を満たすべきか（実装でなく意図を書く）
+    constraints: [ ... ]
+    freedom: 0.0-1.0 # AIがどこまで逸脱してよいか（Boolean→Float）</pre>
+
+<h2>3. 設計原則</h2>
+<ol>
+<li><strong>データ構造1つ・様式複数</strong> — 同じデータから複数の view を切り出す。</li>
+<li><strong>宣言的</strong> — Bp は「何を」を書く。「どう」は駆動時に AI とユーザー文脈が決める。</li>
+<li><strong>ローカル主権</strong> — ユーザーデータは端末側（localStorage 等）。サーバーに送らない。</li>
+<li><strong>ゼロコスト互換</strong> — 駆動結果は単一 HTML + GitHub Pages で実体化できること。</li>
+<li><strong>Boolean→Float</strong> — 駆動の自由度をフィールドごとに 0.0〜1.0 で宣言する。固定すべき箇所と AI に委ねる箇所を、二値でなく連続値で示す。</li>
+</ol>
+
+<h2>4. 適用第一陣</h2>
+<p>Hi-Me TooL 群（<a href="https://osakenpiro.github.io/kagami/">KAGAMI</a> / <a href="https://osakenpiro.github.io/bouken-no-sho/">ぼうけんのしょ</a> / <a href="https://osakenpiro.github.io/hirameki/">HIRAMEKI</a> / <a href="https://osakenpiro.github.io/hibiki/">HIBIKI</a> / <a href="https://osakenpiro.github.io/mieru/">MIERU</a> ほか）を雛形化対象として棚卸し中。いずれも「単一HTML + localStorage + データ構造1つ・様式複数」で実装済みのため、Bp 化の検証母体に適する。</p>
+
+<h2>5. 背景ロードマップ（3段）</h2>
+<p><span class="pill">1</span>AI スマホ（App ストアなし／Bp 取引）<br>
+<span class="pill">2</span>胸ポケット録音録画デバイス<br>
+<span class="pill">3</span>脇に浮くドローン AI</p>
+<p>ハード（端末）は待ち、ソフト規格は今蒔く。</p>
+
+<h2>6. リスク明示</h2>
+<ul>
+<li>Bp 市場の成立は大手 OS の動向に依存する。ただし外部採用が 0 でも内部統一規格として独立に有用。</li>
+<li>v0.1 は spec のみ。市場・OS 待ちの段階で実装に過剰投資しない。</li>
+</ul>
+
+<h2>改訂履歴</h2>
+<ul>
+<li><strong>v0.1</strong>（2026-06-12）: 初版公開。Interop Tokyo 2026「溶けるアプリ」講演を契機に前倒し文書化。</li>
+</ul>
+
+<footer>
+<a href="https://osakenpiro.github.io/boku-no-wakusei/">僕の惑星（osakenpiro 公転型リンクハブ）</a><br>
+osakenpiro（長田謙志郎）/ X: @osakenpiro / 「想像の創造」
+</footer>
+</main>
+</body>
+</html>
