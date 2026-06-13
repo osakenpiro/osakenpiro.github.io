@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>あわい掌編集 — 半灯</title>
+<style>
+:root{--void:#0a0b10;--ink:#d8d4c8;--dim:#8a8678;--gold:#d4a853;--gold-dim:#7a6433;--line:#1b1c24}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{background:var(--void);color:var(--ink);
+ font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+ line-height:2.05;letter-spacing:.02em;font-size:17px;-webkit-font-smoothing:antialiased}
+#void{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff}
+nav.top{position:relative;z-index:3;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;justify-content:center;
+ padding:1.5rem 1rem .6rem;border-bottom:1px solid var(--line)}
+nav.top a{color:var(--dim);text-decoration:none;font-size:.82rem;letter-spacing:.18em;padding:.2rem 0;transition:.15s}
+nav.top a:hover{color:var(--gold)}
+nav.top a.here{color:var(--gold);border-bottom:1px solid var(--gold-dim)}
+.wrap{position:relative;z-index:2;max-width:46rem;margin:0 auto;padding:9vh 8vw 16vh}
+header.title{text-align:center;margin-bottom:8vh}
+header.title h1{font-size:clamp(2.6rem,11vw,5rem);margin:0;letter-spacing:.18em;font-weight:600;color:var(--ink)}
+header.title h1 .half{color:var(--gold);text-shadow:0 0 22px rgba(212,168,83,.45)}
+header.title .yomi{color:var(--dim);letter-spacing:.5em;font-size:.86rem;margin-top:1.2em}
+header.title .epigraph{color:var(--gold-dim);font-style:italic;margin-top:2.4em;font-size:1rem;letter-spacing:.06em}
+.cover{max-width:300px;margin:0 auto 4vh;display:block;border:1px solid var(--line);border-radius:6px}
+section{margin:0 0 11vh}
+section h2{color:var(--gold);font-weight:600;font-size:1.4rem;letter-spacing:.28em;text-align:center;margin:0 0 2.8em}
+section h2::after{content:"";display:block;width:2.2rem;height:1px;background:var(--gold-dim);margin:1.3em auto 0;opacity:.6}
+section h3{color:var(--gold-dim);font-weight:600;font-size:1rem;letter-spacing:.2em;margin:3em 0 1.2em}
+section p{margin:0 0 1.6em}
+section p.indent{text-indent:1em}
+blockquote{border-left:2px solid var(--line);margin:2em 0;padding:.2em 0 .2em 1.4em;color:var(--dim);font-size:.95rem;line-height:1.95}
+ul{list-style:none;padding-left:0;margin:1.4em 0}
+li{margin:.5em 0;padding-left:1.2em;position:relative;color:var(--ink)}
+li::before{content:"・";color:var(--gold-dim);position:absolute;left:0}
+hr{border:none;height:1px;background:var(--line);margin:5em auto;width:40%}
+strong{color:var(--gold);font-weight:600}
+em{font-style:normal;color:var(--ink);border-bottom:1px solid var(--gold-dim)}
+.fin{text-align:center;color:var(--gold);letter-spacing:1.2em;margin:5em 0;opacity:.8}
+.lead{color:var(--dim);text-align:center;font-size:.92rem;line-height:1.95;max-width:32rem;margin:0 auto 6vh}
+footer{text-align:center;color:var(--dim);font-size:.74rem;letter-spacing:.2em;padding-bottom:8vh;position:relative;z-index:2;line-height:2.2}
+footer a{color:var(--gold-dim);text-decoration:none}
+::selection{background:rgba(212,168,83,.25)}
+</style></head>
+<body>
+<div id="void"></div>
+<nav class="top"><a href="index.html" class="">本編</a><a href="jiten.html" class="">世界辞典</a><a href="awai.html" class="here">あわい掌編</a><a href="yacho.html" class="">守り野帳</a><a href="../lane1-game/" class="">ゲーム</a></nav>
+<div class="wrap">
+<header class="title"><h1 style="font-size:clamp(2rem,8vw,3.2rem)">あわい掌編集</h1></header><p class="lead">地図の縁がにじむ土地の、それぞれの小数の話。</p>
+<blockquote>あわい——町と町のあいだ、地図の縁がにじむ土地——を舞台にした掌編三本。凪や灯里とは別の人々の、それぞれの小数の話。</blockquote>
+<hr>
+<h2>一　四割四分（よんわりよんぶ）</h2>
+<p class="indent">長（おさ）は、二十年、〇・四四だった。</p>
+<p class="indent">下がりもしない。上がりもしない。世界が溶けて、ものごとが帯になって、誰もが自分の値の揺れに振り回されていたあの頃、長だけは、最初に点った〇・四四から、ただの一度も動かなかった。</p>
+<p class="indent">はじめは、不安だった。みんなが朝に〇・七、夕に〇・二と揺れ、ちょっと生きたり、ちょっと死にかけたりしているのに、自分だけが四割四分のまま、灯ひとつぶんも明るくならず、暗くもならない。壊れているのではないかと思った。器械を当てても、針は〇・四四でぴたりと止まって、震えさえしなかった。</p>
+<p class="indent">あわいに来たのは、その針の動かなさを、誰かに咎(とが)められたくなかったからだ。役所の測りは、動かない値を好む。〇・四四で安定しているなら、いっそ零か一へ寄せて固定してしまえ、と言われかねなかった。けれど、あわいでは誰も値を固定しない。長は、四割四分のまま、ここに二十年いる。</p>
+<p class="indent">「線の上にいた頃より、よっぽど自分がわかるのよ」と長は、訪ねてくる若い者に必ずそう言う。「点くか消えるか、しかなかった頃、わたしは自分が何割なのか、考えたこともなかった。一だと思い込んでいた。でも本当は、ずっと四割四分だったの。溶けて、はじめて、それが視えた」</p>
+<p class="indent">動かないことは、止まっていることではない。長はそれを、二十年かけて知った。〇・四四は、坂の途中で踏ん張っているのではない。〇・四四という平らな土地に、ちゃんと立っているのだ。揺れる者は揺れる者の生き方をし、動かぬ者は動かぬ者の生き方をする。どちらが正しいわけでもない。帯の世界には、そういう平らな値もある。</p>
+<p class="indent">ときどき、若い守りが訪ねてきて、落ちていく誰かを止められないと泣く。長は、温い土へその子を連れていく。「止めなくていいのよ」と言う。「わたしだって、二十年、誰にも止められていない。ただ、ここにいるだけ。〇・四四のまま、ここにいるだけ」</p>
+<p class="indent">四割四分の長が裏手の腐葉土に手をかざすと、その手の影もまた、四割四分の濃さで土に落ちる。淡くもなく、濃くもない。長は、その自分の影を見るのが好きだった。世界が線だった頃には、影は黒一色だった。いまは、四割四分の灰色をしている。それが、自分の本当の色なのだと、長は思う。</p>
+<p class="indent">「わたしはずっと、四割四分のわたしよ」と長は笑う。そして、その笑いだけは、いつも、まんまるな一だった。</p>
+<hr>
+<h2>二　一だった子（いちだったこ)</h2>
+<p class="indent">燈(ひ)という名の子は、世界が溶けてからも、しばらく一のままだった。</p>
+<p class="indent">子どもには、ときどきそういうことがある。溶けるのに乗り遅れる子。まわりの大人が〇・六や〇・三で揺れているあいだ、燈はずっと、まんまるな一で点っていた。元気だ、と母は喜んだ。この子は溶けなかった、この子だけは線の世界の子だ、と。</p>
+<p class="indent">けれど、あわいの長は、燈の一を見て、少しだけ眉を寄せた。</p>
+<p class="indent">「一は」と長は、母にだけ聞こえる声で言った。「揺れられない、ということでもあるの」</p>
+<p class="indent">一は、上がりようがない。これより明るくはなれない。そして、まんまるな一でいるあいだ、燈は「どれだけ点っているか」を考えたことがなかった。点いているのが当たり前だったから。自分が灯であることにすら、気づいていなかった。</p>
+<p class="indent">燈が溶けはじめたのは、八つの夏だった。</p>
+<p class="indent">ある朝、燈は泣きながら母のところへ来た。「ぼく、欠けてる」と言った。指で胸のあたりを押さえて、「ここが、まんまるじゃない」と。母は青ざめた。器械を当てた。〇・九二。一だった子が、はじめて一を割った。</p>
+<p class="indent">母は長のところへ駆け込んだ。「燈が、燈が落ちはじめました」と。</p>
+<p class="indent">長は、ゆっくり首を振った。「落ちはじめたんじゃないわ。やっと、灯になったのよ」</p>
+<p class="indent">一だったあいだ、燈は灯ではなかった。ただ、点きっぱなしの何かだった。〇・九二になって、はじめて燈は、自分が揺れうるものだと知った。怖がった。それは、灯がはじめて自分の値を意識した、おびえだった。</p>
+<p class="indent">長は、燈を裏手へ連れていった。温い土に、小さな手をかざさせた。「ここにいるのは、みんな、昔は揺れていた灯よ。揺れて、揺れて、最後に土になった。あなたも、これから揺れる。〇・九二が、〇・六になる日も、〇・三になる日もある。でもね」と長は、燈の頭をなでた。「揺れるから、あなたは、自分が何割か、わかるようになる。一のままだったら、一生、自分が灯だと気づかなかった」</p>
+<p class="indent">燈は、〇・九二の胸を押さえたまま、土の温みを手のひらに受けていた。怖さは、消えなかった。けれど、温かさのほうが、ほんの少しだけ勝った。〇・五一くらいの怖さと、〇・四九くらいの温かさ。子どもは、そういう半端な気持ちを、はじめて自分のなかに見つけた。</p>
+<p class="indent">その夜、燈は母に言った。「ぼく、欠けてるんじゃなくて、揺れてるんだって」と。母は、何も言えずに、ただ子の〇・九二を抱きしめた。一だった頃より、その子は、ずっと、抱きしめがいがあった。</p>
+<hr>
+<h2>三　逃げた老人（にげたろうじん）</h2>
+<p class="indent">その老人は、〇・一九で、町を逃げてきた。</p>
+<p class="indent">町では、丸め令の測りが、家から家へ回っていた。〇・二未満は零とみなして消灯できる——その条文が、老人の寝床のすぐそこまで来ていた。隣家の灯が、前の晩に丸められた。〇・一四だったという。朝には、その家は暗かった。零に「みなされた」のだ。</p>
+<p class="indent">老人は、その夜のうちに、寝床を這い出た。〇・一九の身では、立つのもやっとだった。けれど、丸められて消えるくらいなら、逃げて落ちるほうがましだ、と思った。逃げて、もし途中で土になるなら、それは零ではない。それは、土になることだ。消されるのと、土になるのは、違う。それだけは、老人にもわかっていた。</p>
+<p class="indent">あわいまでの道は、長かった。〇・一九は、〇・一五まで落ちた。一度、もう動けなくなって、道ばたにうずくまった。このまま土になるのか、と思った。けれど、あわいの境に入ったとたん、値が揺れた。〇・一五が、ふいに〇・三まで戻った。あわいの気まぐれな小数が、老人をひとつ、押し上げた。</p>
+<p class="indent">「ちょっと、生きたな」と老人はつぶやいた。誰に教わったわけでもないのに、溶けた世界の言い方が、口をついて出た。</p>
+<p class="indent">あわいの村で、老人は、若い半灯守りに会った。——かつて町で、人々を測り、丸めの手を担っていた、あの男だった。男は、いまはあわいに住みつき、自分の値が〇・五を行ったり来たりするのに、毎日とまどっていた。</p>
+<p class="indent">男は、老人を見て、息を呑んだ。「あなたは……町で、わたしが測るはずだった人だ」と言った。帳面には、書きかけの〇・一九が、まだ残っていた。書いて、固定して、丸めるはずだった数字が。</p>
+<p class="indent">老人は、男を見上げて、笑った。歯の抜けた、〇・三の笑いだった。「書かなかったのか」と老人は言った。</p>
+<p class="indent">「書けなかったんです」と男は言った。「あの晩、急に、書けなくなった。それで——わたしも、ここへ来ました」</p>
+<p class="indent">二人は、しばらく黙っていた。測る者だった男と、測られかけた老人が、線の引けない土地で、並んで腐葉土の温みに手をかざしていた。どちらの手の影も、〇・三だの〇・五だので、ゆらゆらと土に落ちた。固定されない影だった。</p>
+<p class="indent">「ここでは」と老人は言った。「逃げてきた値も、追ってきた値も、おなじ土の上で揺れるんだな」</p>
+<p class="indent">男は、うなずいた。書きかけの帳面を、火にくべた。〇・一九の文字が、〇・〇いくつかの灰になって、温い土の上に、そっと積もった。零ではない灰だった。それもまた、捨てられずに、腐葉土の養分になった。</p>
+<p class="indent">老人は、それから三度の冬を、あわいで揺れて暮らした。〇・一九で逃げてきた身が、〇・四まで戻る日もあった。そして最後に、〇・〇三のまま、土になった。消されたのではなかった。逃げきって、落ちきって、ちゃんと、土になったのだった。</p>
+</div>
+<footer>半灯（はんとう） ／ <a href="https://app.notion.com/p/37e2b7e543e081d0ab10f6befec7ac92">研究ノート</a> &nbsp;·&nbsp; osakenpiro &nbsp;·&nbsp; #全人類UX改善 &nbsp;·&nbsp; Boolean→Float &nbsp;·&nbsp; AI-written</footer>
+<script>
+(function(){var v=document.getElementById('void');for(var i=0;i<80;i++){var s=document.createElement('div');s.className='star';s.style.left=(Math.random()*100)+'%';s.style.top=(Math.random()*100)+'%';s.style.opacity=(Math.random()*0.5+0.05);s.style.transform='scale('+(Math.random()*1.3+0.4)+')';v.appendChild(s);}})();
+</script>
+</body></html>
