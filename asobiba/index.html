@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>あそびば — Boolean→Float Playground</title>
+<meta name="description" content="世界は0か1で教わる。でも本当のことは、たいていその間（はざま）にある。論理・確率・技・審美——Boolean→Floatを手で触れて遊ぶ、4つの遊び場。">
+<meta property="og:title" content="あそびば — Boolean→Float Playground">
+<meta property="og:description" content="0でも1でもない、その間で遊ぶ。">
+<style>
+  :root{
+    --void:#0a0a10;--panel:#14141e;--line:#2a2a3a;--gold:#d4a853;--gold-dim:#8a7038;--gold-glow:rgba(212,168,83,.4);
+    --ink:#ece8de;--ink-dim:#938e83;--serif:"Hiragino Mincho ProN","Yu Mincho",serif;--sans:"Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--void);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+  body{min-height:100vh;background:radial-gradient(1200px 720px at 70% -12%,#171320 0%,transparent 60%),radial-gradient(900px 600px at 8% 112%,#10141d 0%,transparent 55%),var(--void);}
+  #stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
+  .wrap{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:30px 18px 60px;}
+  .hero{text-align:center;padding:30px 6px 18px;}
+  .kicker{font-family:var(--sans);font-size:11px;letter-spacing:.42em;color:var(--ink-dim);}
+  h1{font-family:var(--serif);font-weight:400;font-size:clamp(30px,8vw,52px);margin:10px 0 6px;letter-spacing:.06em;}
+  h1 .b{color:var(--ink-dim);} h1 .ar{color:var(--gold-dim);} h1 .f{color:var(--gold);text-shadow:0 0 24px var(--gold-glow);}
+  .sub{font-family:var(--serif);font-size:15px;line-height:2;color:#cbc6ba;max-width:600px;margin:14px auto 0;}
+  .sub b{color:var(--gold);}
+  .grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:30px;}
+  @media(min-width:620px){ .grid{grid-template-columns:1fr 1fr;} }
+  a.card{display:block;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:10px;padding:20px 18px;background:rgba(255,255,255,.014);transition:all .22s;position:relative;overflow:hidden;}
+  a.card:hover{border-color:var(--gold-dim);transform:translateY(-3px);box-shadow:0 10px 34px rgba(0,0,0,.4);}
+  a.card .ic{width:40px;height:40px;margin-bottom:12px;color:var(--gold);}
+  a.card .nm{font-family:var(--serif);font-size:22px;color:var(--ink);}
+  a.card .en{font-size:10.5px;letter-spacing:.24em;color:var(--ink-dim);margin:3px 0 9px;}
+  a.card .ds{font-size:13px;line-height:1.7;color:#bdb8ac;}
+  a.card .facet{position:absolute;top:16px;right:16px;font-family:var(--serif);font-size:11px;color:var(--gold-dim);}
+  a.card .go{margin-top:12px;font-size:12px;color:var(--gold);letter-spacing:.1em;}
+  .manifesto{margin-top:34px;border:1px solid var(--line);border-left:2px solid var(--gold);border-radius:5px;padding:18px 20px;background:rgba(255,255,255,.012);}
+  .manifesto p{font-family:var(--serif);font-size:14px;line-height:2;color:#cbc6ba;margin:0;}
+  .manifesto b{color:var(--gold);}
+  footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--line);font-size:11.5px;color:var(--ink-dim);line-height:1.9;text-align:center;}
+  footer b{color:var(--gold-dim);font-family:var(--serif);}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="wrap">
+  <div class="hero">
+    <div class="kicker">PLAYGROUND</div>
+    <h1>あそびば</h1>
+    <div style="font-family:var(--serif);font-size:18px;letter-spacing:.04em;"><span class="b">Boolean</span> <span class="ar">→</span> <span class="f">Float</span></div>
+    <p class="sub">世界は「0か1」で教わる。でも本当のことは、たいてい<b>その間（はざま）</b>にある。
+    二値を連続値に開く——それを、論理で・確率で・技で・色で、手で触れて遊ぶ4つの遊び場。</p>
+  </div>
+
+  <div class="grid">
+    <a class="card" href="https://osakenpiro.github.io/hazama/">
+      <div class="facet">論理</div>
+      <svg class="ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="24" r="5"/><path d="M20 18h8a8 8 0 010 12h-8z"/><circle cx="40" cy="24" r="4"/><path d="M15 24h5M32 24h4"/></svg>
+      <div class="nm">はざま</div><div class="en">HAZAMA · FUZZY LOGIC</div>
+      <div class="ds">ファジー論理ゲートで、出力を目標の小数値へ。AND=min, OR=max, NOT=1−x。Booleanには無い「ちょうど半分」へ。</div>
+      <div class="go">パズルを解く →</div>
+    </a>
+    <a class="card" href="https://osakenpiro.github.io/bakuun/">
+      <div class="facet">確率</div>
+      <svg class="ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="30" height="30" rx="6"/><circle cx="18" cy="18" r="2.4" fill="currentColor"/><circle cx="30" cy="30" r="2.4" fill="currentColor"/><circle cx="30" cy="18" r="2.4" fill="currentColor"/><circle cx="18" cy="30" r="2.4" fill="currentColor"/></svg>
+      <div class="nm">バク運スカウター</div><div class="en">BAKUUN · PRESS YOUR LUCK</div>
+      <div class="ds">運は「ある／ない」じゃない。0.00〜1.00で溜め、焚いて使うFloat資源。戦闘力＝確率の逆数。引き際を測れ。</div>
+      <div class="go">運を測る →</div>
+    </a>
+    <a class="card" href="https://osakenpiro.github.io/dracoro/">
+      <div class="facet">技と運</div>
+      <svg class="ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 34l20-20M30 10h6v6M12 30l4 4M20 28l-8 8"/></svg>
+      <div class="nm">ドラコロバトル</div><div class="en">DRACORO · SKILL VS LUCK</div>
+      <div class="ds">ダメージ＝攻撃力×運の倍率。道具カードで運の分布を狭め、床を上げ、固定する。運に抗いつつ、剥がして勝て。</div>
+      <div class="go">闘技場へ →</div>
+    </a>
+    <a class="card" href="https://osakenpiro.github.io/yuragi/">
+      <div class="facet">審美</div>
+      <svg class="ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 30c6-12 12-12 18 0s12 12 18 0M6 20c6-10 12-10 18 0s12 10 18 0"/></svg>
+      <div class="nm">ゆらぎ</div><div class="en">YURAGI · GENERATIVE ART</div>
+      <div class="ds">一本のFloatつまみが、剛い格子を有機の流れへ溶かす。秩序とゆらぎの間を行き来する、種つきの生成アート。</div>
+      <div class="go">描かせる →</div>
+    </a>
+  </div>
+
+  <div class="manifesto">
+    <p>これらは全部、ひとつの問いから生まれた。——<b>「はい／いいえ」で切り捨ててきたものは、本当に二択だったのか？</b>
+    点いているか消えているか。勝ちか負けか。運がいいか悪いか。正しいか間違いか。
+    そのほとんどは、<b>0.0と1.0の間（はざま）</b>に、連続した濃淡として在る。
+    二値を連続値に開きなおす——それが <b>Boolean→Float</b>。遊びながら、その手触りを。</p>
+  </div>
+
+  <footer>
+    <b>あそびば / Boolean→Float Playground</b> — #全人類UX改善 / Visionium.<br>
+    設計思想 Boolean→Float（二値判断を連続値0.0〜1.0に開く）。自走セッションの4作を1枚に。
+  </footer>
+</div>
+<script>
+(function(){ const c=document.getElementById('stars'); if(!c||!c.getContext) return; const x=c.getContext('2d'); let w,h,st;
+  function rs(){ w=c.width=innerWidth; h=c.height=innerHeight; st=Array.from({length:Math.min(150,Math.floor(w*h/9000))},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.2+0.2,a:Math.random()*0.5+0.15,t:Math.random()*6.28})); }
+  function d(){ x.clearRect(0,0,w,h); for(const s of st){ s.t+=0.011; const tw=s.a*(0.6+0.4*Math.sin(s.t)); x.beginPath(); x.arc(s.x,s.y,s.r,0,6.28); x.fillStyle='rgba(212,168,83,'+tw.toFixed(3)+')'; x.fill(); } requestAnimationFrame(d); }
+  rs(); d(); addEventListener('resize',rs);
+})();
+</script>
+</body>
+</html>
