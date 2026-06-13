@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>バク運スカウター — 運をFloatで計測する</title>
+<meta name="description" content="運は『ある／ない』の二値じゃない。0.00〜1.00で溜まり、焚いて使うFloat資源。戦闘力＝確率の逆数。引き際の心理を測る、放置で運が溜まるスカウター。">
+<meta property="og:title" content="バク運スカウター">
+<meta property="og:description" content="運をFloatで計測する。引き際は、いつ？">
+<style>
+  :root{
+    --void:#0a0a10; --panel:#14141e; --line:#2a2a3a; --gold:#d4a853; --gold-dim:#8a7038;
+    --gold-glow:rgba(212,168,83,.4); --ink:#ece8de; --ink-dim:#938e83; --ok:#7fd4a8; --warn:#d97b6c; --hot:#e0a93a;
+    --serif:"Hiragino Mincho ProN","Yu Mincho",serif; --sans:"Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+    --mono:ui-monospace,"SFMono-Regular",Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--void);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+  body{min-height:100vh;background:radial-gradient(1100px 640px at 72% -12%,#171320 0%,transparent 60%),radial-gradient(820px 540px at 8% 112%,#10141d 0%,transparent 55%),var(--void);}
+  #stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
+  .wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:20px 16px 56px;}
+  header{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px;flex-wrap:wrap;}
+  .logo{font-family:var(--serif);font-size:26px;letter-spacing:.16em;color:var(--gold);text-shadow:0 0 16px var(--gold-glow);}
+  .logo small{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.36em;color:var(--ink-dim);margin-top:3px;}
+  .tag{margin-left:auto;font-family:var(--serif);font-size:12px;color:var(--ink-dim);}
+  .lead{font-family:var(--serif);font-size:13.5px;line-height:1.95;color:#cbc6ba;margin:16px 0 8px;}
+  .lead b{color:var(--gold);}
+
+  /* reservoir */
+  .res{margin:18px 0 10px;border:1px solid var(--line);border-radius:8px;padding:14px 15px;background:rgba(255,255,255,.012);}
+  .res .row{display:flex;align-items:baseline;gap:8px;margin-bottom:8px;}
+  .res .lbl{font-size:11px;letter-spacing:.18em;color:var(--ink-dim);}
+  .res .val{margin-left:auto;font-family:var(--mono);font-size:20px;color:var(--gold);}
+  .track{height:11px;border-radius:6px;background:#1b1b27;border:1px solid var(--line);overflow:hidden;position:relative;}
+  .track i{position:absolute;inset:0 auto 0 0;border-radius:6px;background:linear-gradient(90deg,var(--gold-dim),var(--gold));transition:width .5s linear;}
+  .res .sub{display:flex;justify-content:space-between;margin-top:7px;font-size:11px;color:var(--ink-dim);}
+  .res .sub b{color:var(--ink);font-family:var(--mono);}
+  .shields{letter-spacing:2px;}
+
+  /* scouter */
+  .scouter{margin:14px 0;border:1px solid var(--gold-dim);border-radius:10px;padding:20px 16px;text-align:center;
+    background:radial-gradient(420px 200px at 50% 0%,rgba(212,168,83,.07),transparent 70%),linear-gradient(180deg,#11111b,#0c0c14);position:relative;overflow:hidden;}
+  .scouter::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.18) 2px 4px);pointer-events:none;opacity:.5;}
+  .scouter .cap{font-size:10.5px;letter-spacing:.32em;color:var(--ink-dim);}
+  .power{font-family:var(--mono);font-size:clamp(40px,13vw,68px);font-weight:700;color:var(--gold);text-shadow:0 0 26px var(--gold-glow);line-height:1.05;margin:4px 0;font-variant-numeric:tabular-nums;transition:color .15s;}
+  .power.flash{color:#fff;}
+  .flavor{font-family:var(--serif);font-size:14px;color:#d8d2c4;min-height:20px;}
+  .meas-info{display:flex;justify-content:center;gap:18px;margin-top:12px;font-size:11.5px;color:var(--ink-dim);}
+  .meas-info b{color:var(--ink);font-family:var(--mono);}
+  .bustgauge{margin-top:12px;}
+  .bustgauge .l{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-dim);letter-spacing:.12em;margin-bottom:4px;}
+  .bustgauge .l b{font-family:var(--mono);}
+  .track.bust i{background:linear-gradient(90deg,#6a9ac0,var(--warn));transition:width .3s,background .3s;}
+
+  .acts{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:120px;cursor:pointer;border:1px solid var(--gold-dim);background:transparent;color:var(--gold);
+    padding:14px 10px;border-radius:5px;letter-spacing:.1em;font-size:15px;font-family:var(--sans);transition:all .2s;}
+  .btn:hover{background:var(--gold);color:var(--void);box-shadow:0 0 22px var(--gold-glow);}
+  .btn.lock{border-color:var(--ok);color:var(--ok);} .btn.lock:hover{background:var(--ok);color:var(--void);box-shadow:0 0 22px rgba(127,212,168,.4);}
+  .btn.ghost{border-color:var(--line);color:var(--ink-dim);} .btn.ghost:hover{background:rgba(255,255,255,.03);color:var(--ink);box-shadow:none;}
+  .btn:disabled{opacity:.32;cursor:not-allowed;}
+  .btn .s{display:block;font-size:10.5px;color:var(--ink-dim);margin-top:3px;letter-spacing:.05em;}
+  .btn:hover .s{color:inherit;opacity:.8;}
+
+  .guard{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--ink-dim);justify-content:center;}
+  .guard input{accent-color:var(--gold);width:15px;height:15px;}
+  .result{margin-top:14px;padding:12px 14px;border-radius:6px;border:1px solid var(--line);font-size:13.5px;line-height:1.7;display:none;}
+  .result.show{display:block;}
+  .result.win{border-color:var(--ok);background:rgba(127,212,168,.05);} .result.win b{color:var(--ok);}
+  .result.bust{border-color:var(--warn);background:rgba(217,123,108,.05);} .result.bust b{color:var(--warn);}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px;}
+  .stat{border:1px solid var(--line);border-radius:6px;padding:11px;text-align:center;background:rgba(255,255,255,.01);}
+  .stat .k{font-size:10px;letter-spacing:.14em;color:var(--ink-dim);}
+  .stat .v{font-family:var(--mono);font-size:20px;color:var(--gold);margin-top:3px;}
+  footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--line);font-size:11px;color:var(--ink-dim);line-height:1.85;}
+  footer b{color:var(--gold-dim);font-family:var(--serif);}
+  .note{font-size:11.5px;color:var(--ink-dim);line-height:1.8;margin-top:10px;}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="wrap">
+  <header>
+    <div class="logo">バク運スカウター<small>BAKUUN SCOUTER</small></div>
+    <div class="tag">運を、測る</div>
+  </header>
+
+  <p class="lead">運は「ある／ない」の二値じゃない。<b>0.00〜1.00で溜まり、焚いて使うFloat資源</b>だ。
+  スカウターは戦闘力＝<b>確率の逆数</b>を読み上げる——深く潜るほど、その光景は「めったに見られない」＝数字が跳ね上がる。
+  だが奥には<b>バク散</b>が待つ。どこで<b>確定</b>するか。引き際を、測れ。</p>
+
+  <!-- reservoir -->
+  <div class="res">
+    <div class="row"><span class="lbl">運リザーブ　LUCK</span><span class="val" id="resVal">0.00</span></div>
+    <div class="track"><i id="resFill" style="width:0%"></i></div>
+    <div class="sub"><span>放置で溜まる（満タン≒45分）</span><span>守れる回数 <b id="guardCount">0</b>　<span class="shields" id="shieldDots"></span></span></div>
+  </div>
+
+  <!-- scouter -->
+  <div class="scouter">
+    <div class="cap">戦闘力　POWER LEVEL</div>
+    <div class="power" id="power">—</div>
+    <div class="flavor" id="flavor">「計測開始」で運を読む</div>
+    <div class="meas-info" id="measInfo" style="visibility:hidden;">潜行 <b id="depth">0</b> 手　/　今回 <b id="cur">0</b></div>
+    <div class="bustgauge" id="bustWrap" style="visibility:hidden;">
+      <div class="l"><span>次のバク散率　BUST</span><b id="bustVal">0%</b></div>
+      <div class="track bust"><i id="bustFill" style="width:0%"></i></div>
+    </div>
+  </div>
+
+  <div class="acts" id="acts"></div>
+  <div class="guard"><label><input type="checkbox" id="guardChk" checked> バク散を運で守る（自動・1回 −0.25）</label></div>
+  <div class="result" id="result"></div>
+
+  <div class="stats">
+    <div class="stat"><div class="k">最高記録　BEST</div><div class="v" id="stBest">0</div></div>
+    <div class="stat"><div class="k">計測回数</div><div class="v" id="stMeas">0</div></div>
+    <div class="stat"><div class="k">バク散</div><div class="v" id="stBust">0</div></div>
+  </div>
+
+  <p class="note">引き際の最適点（EVの境目）は<b style="color:var(--ink)">およそ8手目</b>。それより浅いと「まだ伸びる」、深いと「もう引くべき」。
+  でも運リザーブが満タンなら、守りを焚いて奥へ踏み込める。これが<b style="color:var(--ink)">Boolean→Float</b>——勝ち負けの二値を、連続値の資源管理に開く。</p>
+
+  <footer>
+    <b>バク運スカウター / BAKUUN SCOUTER</b> — 運をFloatで計測する press-your-luck。<br>
+    戦闘力＝確率の逆数（×500基準・1手ごと×1.6）／バク散率＝1手ごと+5%／確定で記録。
+    放置でリザーブ充填（オフライン中も加算）。設計思想：Boolean→Float。#全人類UX改善 / Visionium・アイデア苗床 #0.8。
+  </footer>
+</div>
+
+<script>
+/* ============ engine (identical to /tmp/bakuun_engine.cjs) ============ */
+const CFG={ base:500, growth:1.6, baseBust:0.10, bustRise:0.05, bustCap:0.92, consolation:0.15, shieldCost:0.25, accrualPerSec:1/2700 };
+function bustProb(k){ return Math.min(CFG.bustCap, Math.max(0, CFG.baseBust + CFG.bustRise*(k-1))); }
+function survive(k){ return 1-bustProb(k); }
+function powerAfter(p){ return Math.round(CFG.base*Math.pow(CFG.growth,p)); }
+function accrue(res, secs){ return Math.min(1, Math.max(0, res + secs*CFG.accrualPerSec)); }
+
+/* ============ persistence ============ */
+const KEY='bakuun_v1';
+let S = loadState();
+function loadState(){
+  let s={reservoir:0,lastTs:Date.now(),best:0,measures:0,busts:0};
+  try{ const r=JSON.parse(localStorage.getItem(KEY)); if(r) s=Object.assign(s,r); }catch(e){}
+  // offline accrual
+  const elapsed=Math.max(0,(Date.now()-(s.lastTs||Date.now()))/1000);
+  s.reservoir=accrue(s.reservoir||0, elapsed); s.lastTs=Date.now();
+  return s;
+}
+function save(){ S.lastTs=Date.now(); try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+
+/* ============ session state ============ */
+let measuring=false, pushes=0, power=CFG.base, roundOver=false;
+
+/* ============ flavor ============ */
+function flavorFor(v){
+  if(v<=0) return '—';
+  if(v<1000) return 'ふつう。まだ序の口。';
+  if(v<3000) return 'ちょっと運がいい。';
+  if(v<8000) return 'のってきた。引くか、攻めるか。';
+  if(v<20000) return '爆運（ばくおん）。スカウターが熱い。';
+  if(v<80000) return '天運。ここまで来たか。';
+  return '計測不能……スカウターが軋んでいる。';
+}
+
+/* ============ render ============ */
+function render(){
+  document.getElementById('resVal').textContent=S.reservoir.toFixed(2);
+  document.getElementById('resFill').style.width=(S.reservoir*100)+'%';
+  const guards=Math.floor(S.reservoir/CFG.shieldCost);
+  document.getElementById('guardCount').textContent=guards;
+  document.getElementById('shieldDots').textContent='◆'.repeat(guards)+'◇'.repeat(Math.max(0,4-guards));
+  document.getElementById('stBest').textContent=S.best.toLocaleString();
+  document.getElementById('stMeas').textContent=S.measures;
+  document.getElementById('stBust').textContent=S.busts;
+  // scouter
+  const pw=document.getElementById('power');
+  if(measuring){ pw.textContent=power.toLocaleString(); document.getElementById('flavor').textContent=flavorFor(power); }
+  else if(roundOver){ /* leave last */ }
+  else { pw.textContent='—'; }
+  document.getElementById('measInfo').style.visibility=measuring?'visible':'hidden';
+  document.getElementById('bustWrap').style.visibility=measuring?'visible':'hidden';
+  if(measuring){
+    document.getElementById('depth').textContent=pushes;
+    document.getElementById('cur').textContent=power.toLocaleString();
+    const nb=bustProb(pushes+1);
+    document.getElementById('bustVal').textContent=Math.round(nb*100)+'%';
+    document.getElementById('bustFill').style.width=(nb*100)+'%';
+  }
+  renderActs();
+}
+function renderActs(){
+  const a=document.getElementById('acts');
+  if(!measuring){
+    a.innerHTML='<button class="btn" onclick="startMeasure()">計測開始<span class="s">運を読みにいく</span></button>';
+  } else {
+    a.innerHTML='<button class="btn" onclick="pushUp()">上げる<span class="s">×1.6・バク散の危険</span></button>'+
+      '<button class="btn lock" onclick="lockIn()">確定<span class="s">いまの戦闘力を記録</span></button>';
+  }
+}
+
+/* ============ actions ============ */
+function startMeasure(){
+  measuring=true; roundOver=false; pushes=0; power=CFG.base;
+  document.getElementById('result').className='result';
+  render();
+}
+function pushUp(){
+  if(!measuring) return;
+  const k=pushes+1;
+  const roll=Math.random();
+  if(roll < bustProb(k)){
+    // bust attempt — try to guard
+    const guard=document.getElementById('guardChk').checked;
+    if(guard && S.reservoir >= CFG.shieldCost){
+      S.reservoir-=CFG.shieldCost; save();
+      pushes=k; power=Math.round(power*CFG.growth);
+      flash(); render();
+      toast('運で守った（−0.25）');
+      return;
+    }
+    // real bust
+    const lost=power; power=Math.floor(power*CFG.consolation);
+    measuring=false; roundOver=true; S.busts++; S.measures++; save();
+    render();
+    document.getElementById('power').textContent=power.toLocaleString();
+    showResult('bust','<b>バク散。</b> '+lost.toLocaleString()+' が弾けて、手元に残ったのは慰めの '+power.toLocaleString()+'（15%）。'+
+      (S.reservoir>=CFG.shieldCost?'':' 運リザーブが尽きていた。放置して溜め直そう。'));
+    return;
+  }
+  // success
+  pushes=k; power=Math.round(power*CFG.growth); flash(); render();
+}
+function lockIn(){
+  if(!measuring) return;
+  measuring=false; roundOver=true; S.measures++;
+  const rec = power>S.best; if(rec) S.best=power;
+  save(); render();
+  document.getElementById('power').textContent=power.toLocaleString();
+  showResult('win','<b>確定。</b> 戦闘力 '+power.toLocaleString()+' を記録。'+(rec?' — 自己ベスト更新！':'')+
+    ' 引き際の見極め、'+ (pushes>=8?'攻めたね。':'堅実。') );
+}
+function flash(){ const p=document.getElementById('power'); p.classList.add('flash'); setTimeout(()=>p.classList.remove('flash'),130); }
+function showResult(cls,html){ const r=document.getElementById('result'); r.className='result show '+cls; r.innerHTML=html; }
+let toastT=null;
+function toast(msg){ const f=document.getElementById('flavor'); const prev=f.textContent; f.textContent=msg; f.style.color='var(--ok)';
+  clearTimeout(toastT); toastT=setTimeout(()=>{ f.style.color=''; f.textContent=flavorFor(power); },900); }
+
+/* ============ idle accrual tick ============ */
+setInterval(()=>{ if(S.reservoir<1){ S.reservoir=accrue(S.reservoir,1); save(); if(!measuring||true) render(); } }, 1000);
+
+/* ============ starfield ============ */
+(function(){ const c=document.getElementById('stars'); if(!c||!c.getContext) return; const x=c.getContext('2d'); let w,h,st;
+  function rs(){ w=c.width=innerWidth; h=c.height=innerHeight; st=Array.from({length:Math.min(120,Math.floor(w*h/11000))},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.1+0.2,a:Math.random()*0.5+0.15,t:Math.random()*6.28})); }
+  function d(){ x.clearRect(0,0,w,h); for(const s of st){ s.t+=0.01; const tw=s.a*(0.6+0.4*Math.sin(s.t)); x.beginPath(); x.arc(s.x,s.y,s.r,0,6.28); x.fillStyle='rgba(212,168,83,'+tw.toFixed(3)+')'; x.fill(); } requestAnimationFrame(d); }
+  rs(); d(); addEventListener('resize',rs);
+})();
+
+render();
+</script>
+</body>
+</html>
