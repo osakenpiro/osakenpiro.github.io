@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ドラコロバトル — 運を剥がすデュエル</title>
+<meta name="description" content="ダメージは運の倍率しだい。だが運は『ある／ない』じゃない——道具カードで分布を狭め、床を上げ、天井を破り、固定する。運を剥がして勝て。Boolean→Floatの闘技場。">
+<meta property="og:title" content="ドラコロバトル">
+<meta property="og:description" content="運は剥がせる。連続値の闘技場へ。">
+<style>
+  :root{
+    --void:#0a0a10;--panel:#14141e;--line:#2a2a3a;--gold:#d4a853;--gold-dim:#8a7038;--gold-glow:rgba(212,168,83,.4);
+    --ink:#ece8de;--ink-dim:#938e83;--ok:#7fd4a8;--warn:#d97b6c;--foe:#c98a7a;--you:#7fb0d4;
+    --serif:"Hiragino Mincho ProN","Yu Mincho",serif;--sans:"Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;--mono:ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--void);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+  body{min-height:100vh;background:radial-gradient(1100px 640px at 72% -12%,#1a1422 0%,transparent 60%),radial-gradient(820px 540px at 8% 112%,#101620 0%,transparent 55%),var(--void);}
+  #stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
+  .wrap{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:18px 15px 50px;}
+  header{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:11px;flex-wrap:wrap;}
+  .logo{font-family:var(--serif);font-size:25px;letter-spacing:.14em;color:var(--gold);text-shadow:0 0 16px var(--gold-glow);}
+  .logo small{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.34em;color:var(--ink-dim);margin-top:3px;}
+  .tag{margin-left:auto;font-family:var(--serif);font-size:12px;color:var(--ink-dim);}
+  .lead{font-family:var(--serif);font-size:13px;line-height:1.9;color:#cbc6ba;margin:13px 0 6px;}
+  .lead b{color:var(--gold);}
+
+  .combatant{margin:10px 0;border:1px solid var(--line);border-radius:8px;padding:11px 13px;background:rgba(255,255,255,.012);}
+  .combatant .top{display:flex;align-items:baseline;gap:8px;}
+  .combatant .nm{font-family:var(--serif);font-size:17px;}
+  .combatant.you .nm{color:var(--you);} .combatant.foe .nm{color:var(--foe);}
+  .combatant .hpv{margin-left:auto;font-family:var(--mono);font-size:15px;color:var(--ink);}
+  .hpbar{height:13px;border-radius:7px;background:#1b1b27;border:1px solid var(--line);overflow:hidden;margin-top:7px;}
+  .hpbar i{display:block;height:100%;border-radius:7px;transition:width .45s cubic-bezier(.4,0,.2,1);}
+  .you .hpbar i{background:linear-gradient(90deg,#4a7aa0,var(--you));}
+  .foe .hpbar i{background:linear-gradient(90deg,#a06050,var(--foe));}
+
+  /* luck dial */
+  .dial{margin:14px 0;border:1px solid var(--gold-dim);border-radius:8px;padding:13px 14px;background:linear-gradient(180deg,#11111b,#0c0c14);}
+  .dial .l{display:flex;justify-content:space-between;font-size:10.5px;letter-spacing:.16em;color:var(--ink-dim);margin-bottom:7px;}
+  .dial .l b{color:var(--gold);font-family:var(--mono);font-size:14px;letter-spacing:0;}
+  .dialtrack{position:relative;height:22px;border-radius:5px;background:#181824;border:1px solid var(--line);overflow:hidden;}
+  .dialtrack .range{position:absolute;top:0;bottom:0;background:var(--gold-glow);opacity:.32;}
+  .dialtrack .one{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--ink-dim);left:45.45%;}/*1.0 on 0..2.2*/
+  .dialtrack .mark{position:absolute;top:-3px;bottom:-3px;width:3px;background:var(--gold);box-shadow:0 0 10px var(--gold-glow);transition:left .5s cubic-bezier(.34,1.4,.64,1);left:45%;}
+  .dialscale{display:flex;justify-content:space-between;font-size:9.5px;color:var(--ink-dim);margin-top:3px;font-family:var(--mono);}
+
+  .hand{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 6px;}
+  .card{flex:1;min-width:88px;border:1px solid var(--line);border-radius:7px;padding:9px 8px;cursor:pointer;background:rgba(255,255,255,.012);transition:all .18s;text-align:center;}
+  .card:hover{border-color:var(--gold-dim);transform:translateY(-2px);}
+  .card.sel{border-color:var(--gold);background:rgba(212,168,83,.08);box-shadow:0 0 16px var(--gold-glow);}
+  .card .cn{font-family:var(--serif);font-size:15px;color:var(--gold);}
+  .card .cd{font-size:10px;color:var(--ink-dim);line-height:1.45;margin-top:4px;}
+  .handempty{color:var(--ink-dim);font-size:12px;padding:8px;}
+
+  .acts{display:flex;gap:10px;margin-top:12px;}
+  .btn{flex:1;cursor:pointer;border:1px solid var(--gold-dim);background:transparent;color:var(--gold);padding:14px;border-radius:5px;letter-spacing:.1em;font-size:15px;font-family:var(--sans);transition:all .2s;}
+  .btn:hover{background:var(--gold);color:var(--void);box-shadow:0 0 22px var(--gold-glow);}
+  .btn.ghost{border-color:var(--line);color:var(--ink-dim);} .btn.ghost:hover{background:rgba(255,255,255,.03);color:var(--ink);box-shadow:none;}
+  .btn:disabled{opacity:.32;cursor:not-allowed;}
+
+  .log{margin-top:14px;border:1px solid var(--line);border-radius:7px;padding:10px 12px;background:rgba(0,0,0,.18);height:118px;overflow-y:auto;font-size:12.5px;line-height:1.7;}
+  .log .e{margin:2px 0;color:var(--ink-dim);}
+  .log .e b{color:var(--ink);} .log .e.you b{color:var(--you);} .log .e.foe b{color:var(--foe);}
+  .log .e.big{color:var(--gold);}
+
+  .over{margin-top:14px;border-radius:8px;padding:16px;text-align:center;display:none;}
+  .over.show{display:block;} .over.win{border:1px solid var(--ok);background:rgba(127,212,168,.06);} .over.lose{border:1px solid var(--warn);background:rgba(217,123,108,.06);}
+  .over h2{font-family:var(--serif);font-weight:400;margin:0 0 6px;font-size:24px;} .over.win h2{color:var(--ok);} .over.lose h2{color:var(--warn);}
+  .over p{font-size:13px;color:var(--ink-dim);margin:0 0 12px;}
+
+  .stats{display:flex;gap:10px;margin-top:16px;}
+  .stat{flex:1;border:1px solid var(--line);border-radius:6px;padding:10px;text-align:center;}
+  .stat .k{font-size:10px;letter-spacing:.14em;color:var(--ink-dim);} .stat .v{font-family:var(--mono);font-size:19px;color:var(--gold);margin-top:3px;}
+  footer{margin-top:30px;padding-top:13px;border-top:1px solid var(--line);font-size:11px;color:var(--ink-dim);line-height:1.85;}
+  footer b{color:var(--gold-dim);font-family:var(--serif);}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="wrap">
+  <header>
+    <div class="logo">ドラコロバトル<small>DRACORO ARENA</small></div>
+    <div class="tag">運を、剥がせ</div>
+  </header>
+
+  <p class="lead">ダメージ＝攻撃力 ×<b> 運の倍率</b>。倍率は <b>0.50〜1.50</b> で揺れる。だが運は「ある／ない」の二値じゃない——
+  道具カードで<b>分布を狭め</b>、床を上げ、天井を破り、いっそ<b>1.00に固定</b>する。運を剥がして、闘技場を制せ。</p>
+
+  <div class="combatant you" id="cYou">
+    <div class="top"><span class="nm">あなた</span><span class="hpv"><span id="pHp">100</span> / 100</span></div>
+    <div class="hpbar"><i id="pHpBar" style="width:100%"></i></div>
+  </div>
+  <div class="combatant foe" id="cFoe">
+    <div class="top"><span class="nm">コロ（闘技場の主）</span><span class="hpv"><span id="aHp">100</span> / 100</span></div>
+    <div class="hpbar"><i id="aHpBar" style="width:100%"></i></div>
+  </div>
+
+  <div class="dial">
+    <div class="l"><span>運の倍率　LUCK ×</span><b id="dialVal">—</b></div>
+    <div class="dialtrack"><div class="range" id="dialRange"></div><div class="one"></div><div class="mark" id="dialMark"></div></div>
+    <div class="dialscale"><span>0.0</span><span>1.0</span><span>2.2</span></div>
+  </div>
+
+  <div class="hand" id="hand"></div>
+  <div class="acts" id="acts"></div>
+
+  <div class="over" id="over"><h2 id="overH">—</h2><p id="overP"></p><button class="btn" onclick="newGame()">再戦</button></div>
+
+  <div class="log" id="log"></div>
+
+  <div class="stats">
+    <div class="stat"><div class="k">勝利</div><div class="v" id="stWin">0</div></div>
+    <div class="stat"><div class="k">連勝</div><div class="v" id="stStreak">0</div></div>
+    <div class="stat"><div class="k">最高連勝</div><div class="v" id="stBest">0</div></div>
+  </div>
+
+  <footer>
+    <b>ドラコロバトル / DRACORO ARENA</b> — 運の倍率（連続Float）をカードで再形成する skill-vs-luck デュエル。<br>
+    固定=運を消す/床上げ=下振れ防止/天井破り=大振り解禁/再抽選=高い方/鏡=前回再現/相手固定=敵の運を0.70に抑える。
+    設計思想：Boolean→Float。#全人類UX改善 / Visionium・アイデア苗床 #0.7。
+  </footer>
+</div>
+
+<script>
+/* ===== engine (identical to /tmp/dracoro_engine.cjs) ===== */
+const DEF={ hp:100, atk:18, lo:0.5, hi:1.5, foeLockF:0.7, floorLo:0.9, ceilHi:2.2 };
+const CARDS={
+  lock:{name:'固定',desc:'運を消す。×1.00確定'},
+  floor:{name:'床上げ',desc:'最低×0.90'},
+  ceil:{name:'天井破り',desc:'最高×2.20'},
+  reroll:{name:'再抽選',desc:'2回振り高い方'},
+  mirror:{name:'鏡',desc:'前回の倍率を再現'},
+  foelock:{name:'相手固定',desc:'敵の次を×0.70に'},
+};
+const CARD_KEYS=Object.keys(CARDS);
+function baseSpec(){ return {lo:DEF.lo,hi:DEF.hi,lock:false,reroll:false,mirror:false}; }
+function applyCard(spec,key){
+  if(key==='lock') spec.lock=true; else if(key==='floor') spec.lo=Math.max(spec.lo,DEF.floorLo);
+  else if(key==='ceil') spec.hi=Math.max(spec.hi,DEF.ceilHi); else if(key==='reroll') spec.reroll=true;
+  else if(key==='mirror') spec.mirror=true; return spec;
+}
+function rollFactor(spec,rng,prevF,foeCap){
+  let f;
+  if(spec.lock) f=1.0; else{ let r1=spec.lo+rng()*(spec.hi-spec.lo);
+    if(spec.reroll){ const r2=spec.lo+rng()*(spec.hi-spec.lo); r1=Math.max(r1,r2); }
+    if(spec.mirror && prevF!=null) r1=prevF; f=r1; }
+  if(foeCap!=null) f=Math.min(f,foeCap);
+  return Math.max(0,Math.min(3,f));
+}
+
+/* ===== persistence ===== */
+const KEY='dracoro_v1';
+let ST=(()=>{ try{return Object.assign({wins:0,losses:0,streak:0,best:0},JSON.parse(localStorage.getItem(KEY))||{});}catch(e){return {wins:0,losses:0,streak:0,best:0};} })();
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(ST)); }catch(e){} }
+
+/* ===== game state ===== */
+let P,A,pHand,aHand,pPrevF,aPrevF,pFoeCap,aFoeCap,sel,phase;
+function newGame(){
+  P={hp:DEF.hp,atk:DEF.atk}; A={hp:DEF.hp,atk:DEF.atk};
+  pHand=deal(3); aHand=deal(3); pPrevF=null; aPrevF=null; pFoeCap=null; aFoeCap=null; sel=null; phase='player';
+  document.getElementById('over').className='over';
+  document.getElementById('log').innerHTML='';
+  logMsg('','闘技場が静まる。先手はあなた。','big');
+  setDial(null,baseSpec()); render();
+}
+function deal(n){ const h=[]; for(let i=0;i<n;i++) h.push(CARD_KEYS[Math.floor(Math.random()*CARD_KEYS.length)]); return h; }
+
+/* ===== rendering ===== */
+function pct(hp){ return Math.max(0,hp)/DEF.hp*100; }
+function render(){
+  document.getElementById('pHp').textContent=Math.max(0,P.hp); document.getElementById('pHpBar').style.width=pct(P.hp)+'%';
+  document.getElementById('aHp').textContent=Math.max(0,A.hp); document.getElementById('aHpBar').style.width=pct(A.hp)+'%';
+  document.getElementById('stWin').textContent=ST.wins; document.getElementById('stStreak').textContent=ST.streak; document.getElementById('stBest').textContent=ST.best;
+  renderHand(); renderActs();
+}
+function renderHand(){
+  const h=document.getElementById('hand');
+  if(phase!=='player'){ h.innerHTML='<div class="handempty">…コロの番</div>'; return; }
+  if(!pHand.length){ h.innerHTML='<div class="handempty">手札なし — そのまま攻撃</div>'; return; }
+  h.innerHTML=pHand.map((k,i)=>'<div class="card'+(sel===i?' sel':'')+'" onclick="selectCard('+i+')"><div class="cn">'+CARDS[k].name+'</div><div class="cd">'+CARDS[k].desc+'</div></div>').join('');
+}
+function renderActs(){
+  const a=document.getElementById('acts');
+  if(phase==='player') a.innerHTML='<button class="btn" onclick="playerAttack()">攻撃する'+(sel!=null?'（'+CARDS[pHand[sel]].name+'を切る）':'')+'</button>';
+  else a.innerHTML='<button class="btn ghost" disabled>コロの行動中…</button>';
+}
+function selectCard(i){ if(phase!=='player')return; sel=(sel===i?null:i); renderHand(); renderActs(); }
+function setDial(f,spec){
+  const r=document.getElementById('dialRange'), m=document.getElementById('dialMark'), v=document.getElementById('dialVal');
+  const lo=spec.lock?1.0:spec.lo, hi=spec.lock?1.0:spec.hi;
+  r.style.left=(lo/2.2*100)+'%'; r.style.width=Math.max(0.6,(hi-lo)/2.2*100)+'%';
+  if(f==null){ v.textContent='—'; m.style.left=(1.0/2.2*100)+'%'; }
+  else{ v.textContent='×'+f.toFixed(2); m.style.left=(f/2.2*100)+'%'; }
+}
+function logMsg(cls,msg,extra){ const l=document.getElementById('log'); const e=document.createElement('div'); e.className='e '+(cls||'')+(extra?(' '+extra):''); e.innerHTML=msg; l.appendChild(e); l.scrollTop=l.scrollHeight; }
+
+/* ===== turns ===== */
+function playerAttack(){
+  if(phase!=='player') return;
+  let spec=baseSpec(), played=null;
+  if(sel!=null){ const k=pHand[sel]; played=k; pHand.splice(sel,1); sel=null; if(k==='foelock'){ aFoeCap=DEF.foeLockF; logMsg('you','<b>あなた</b>は相手固定を切った。コロの次の運を抑える。'); } else { applyCard(spec,k); logMsg('you','<b>あなた</b>は'+CARDS[k].name+'を切った。'); } }
+  const f=rollFactor(spec,Math.random,pPrevF,pFoeCap); pFoeCap=null; pPrevF=f;
+  const dmg=Math.round(P.atk*f); A.hp-=dmg; setDial(f,spec);
+  logMsg('you','<b>あなた</b>の攻撃　運×'+f.toFixed(2)+' → <b>'+dmg+'</b> ダメージ', dmg>=P.atk*1.6?'big':'');
+  render();
+  if(A.hp<=0){ endGame('win'); return; }
+  phase='ai'; render(); setTimeout(aiTurn,640);
+}
+function aiTurn(){
+  let spec=baseSpec();
+  const k=aiPick();
+  if(k){ aHand.splice(aHand.indexOf(k),1); if(k==='foelock'){ pFoeCap=DEF.foeLockF; logMsg('foe','<b>コロ</b>は相手固定。あなたの次の運を抑える。'); } else { applyCard(spec,k); logMsg('foe','<b>コロ</b>は'+CARDS[k].name+'を切った。'); } }
+  const f=rollFactor(spec,Math.random,aPrevF,aFoeCap); aFoeCap=null; aPrevF=f;
+  const dmg=Math.round(A.atk*f); P.hp-=dmg; setDial(f,spec);
+  logMsg('foe','<b>コロ</b>の攻撃　運×'+f.toFixed(2)+' → <b>'+dmg+'</b> ダメージ', dmg>=A.atk*1.6?'big':'');
+  render();
+  if(P.hp<=0){ endGame('lose'); return; }
+  if(pHand.length<5) pHand.push(CARD_KEYS[Math.floor(Math.random()*CARD_KEYS.length)]);
+  if(aHand.length<5) aHand.push(CARD_KEYS[Math.floor(Math.random()*CARD_KEYS.length)]);
+  phase='player'; render();
+}
+function aiPick(){
+  if(A.hp<P.hp && aHand.includes('ceil')) return 'ceil';
+  if(A.hp<P.hp && aHand.includes('reroll')) return 'reroll';
+  if(P.hp<=P.atk*1.6 && aHand.includes('foelock')) return 'foelock';
+  if(A.hp>=P.hp && aHand.includes('lock')) return 'lock';
+  return aHand[0]||null;
+}
+function endGame(r){
+  phase='over';
+  const o=document.getElementById('over');
+  if(r==='win'){ ST.wins++; ST.streak++; if(ST.streak>ST.best) ST.best=ST.streak; o.className='over show win';
+    document.getElementById('overH').textContent='勝利';
+    document.getElementById('overP').textContent='運を剥がしきった。連勝 '+ST.streak+'。'; logMsg('','コロが膝をついた。','big'); }
+  else{ ST.losses++; ST.streak=0; o.className='over show lose';
+    document.getElementById('overH').textContent='敗北';
+    document.getElementById('overP').textContent='運に呑まれた。もう一度、分布を握りにいこう。'; logMsg('','視界が暗転する。','big'); }
+  save(); render();
+}
+
+/* ===== starfield ===== */
+(function(){ const c=document.getElementById('stars'); if(!c||!c.getContext) return; const x=c.getContext('2d'); let w,h,st;
+  function rs(){ w=c.width=innerWidth; h=c.height=innerHeight; st=Array.from({length:Math.min(120,Math.floor(w*h/11000))},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.1+0.2,a:Math.random()*0.5+0.15,t:Math.random()*6.28})); }
+  function d(){ x.clearRect(0,0,w,h); for(const s of st){ s.t+=0.01; const tw=s.a*(0.6+0.4*Math.sin(s.t)); x.beginPath(); x.arc(s.x,s.y,s.r,0,6.28); x.fillStyle='rgba(212,168,83,'+tw.toFixed(3)+')'; x.fill(); } requestAnimationFrame(d); }
+  rs(); d(); addEventListener('resize',rs);
+})();
+
+newGame();
+</script>
+</body>
+</html>
