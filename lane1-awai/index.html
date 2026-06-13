@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>あわい — Float field / 二値が溶ける庭</title>
+<style>
+:root{--void:#0a0b10;--ink:#d8d4c8;--dim:#8a8678;--gold:#d4a853;--gold-dim:#7a6433;--line:#1b1c24}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{background:var(--void);color:var(--ink);
+ font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;letter-spacing:.02em;
+ display:flex;flex-direction:column;min-height:100%;overflow-x:hidden}
+header{text-align:center;padding:3.4vh 1rem 1.2vh;position:relative;z-index:2}
+h1{margin:0;font-size:clamp(1.8rem,5vw,2.8rem);letter-spacing:.32em;font-weight:600}
+h1 .g{color:var(--gold)}
+.sub{color:var(--dim);letter-spacing:.3em;font-size:.74rem;margin-top:.8em}
+.stage{position:relative;flex:1;min-height:54vh;margin:1.5vh 2vw;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#070709}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:crosshair}
+#field{filter:blur(7px) saturate(1.05)}
+.hud{position:absolute;left:0;right:0;bottom:0;z-index:3;display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;
+ align-items:center;justify-content:center;padding:.9rem 1rem;background:linear-gradient(180deg,rgba(7,7,9,0),rgba(7,7,9,.82) 40%)}
+.hud .grp{display:flex;align-items:center;gap:.5rem;font-size:.78rem;color:var(--dim);letter-spacing:.08em}
+.hud .val{color:var(--gold);font-variant-numeric:tabular-nums;min-width:3.4em;text-align:right}
+input[type=range]{accent-color:var(--gold);width:120px}
+button{font-family:inherit;cursor:pointer;border-radius:7px;border:1px solid var(--line);background:#13141d;color:var(--ink);
+ padding:.42rem .8rem;font-size:.78rem;letter-spacing:.06em;transition:.15s}
+button:hover{border-color:var(--gold-dim);color:var(--gold)}
+.read{position:absolute;top:.8rem;left:1rem;z-index:3;font-size:.74rem;color:var(--dim);letter-spacing:.1em;line-height:1.9}
+.read b{color:var(--gold);font-weight:600;font-variant-numeric:tabular-nums}
+.hint{position:absolute;top:.8rem;right:1rem;z-index:3;font-size:.7rem;color:var(--dim);letter-spacing:.1em;text-align:right;opacity:.8;max-width:14rem}
+footer{text-align:center;color:var(--dim);font-size:.72rem;letter-spacing:.18em;padding:1.4vh 1rem 3vh;position:relative;z-index:2}
+footer a{color:var(--gold-dim);text-decoration:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>あ<span class="g">わ</span>い</h1>
+  <div class="sub">二 値 が 溶 け て 、 世 界 が F l o a t に な る 庭</div>
+</header>
+
+<div class="stage" id="stage">
+  <canvas id="field"></canvas>
+  <canvas id="ink"></canvas>
+  <div class="read">
+    平均Float度 <b id="r-avg">—</b><br>
+    二値のままの率 <b id="r-bin">—</b><br>
+    溶け <b id="r-melt">—</b>
+  </div>
+  <div class="hint">なでる＝灯をともす（油）<br>クリック＝その辺を丸める（0/1へ）</div>
+  <div class="hud">
+    <div class="grp">溶解 <input id="melt" type="range" min="0" max="100" value="14"><span class="val" id="melt-v">.14</span></div>
+    <div class="grp">揺らぎ <input id="drift" type="range" min="0" max="100" value="22"><span class="val" id="drift-v">.22</span></div>
+    <button id="reset">線に戻す（全部0/1）</button>
+    <button id="meltall">いっせいに溶かす</button>
+    <button id="seed">種をまく</button>
+  </div>
+</div>
+
+<footer>あわい ／ <a href="../lane1-hantou/">『半灯』の世界</a> &nbsp;·&nbsp; <a href="../lane1-game/">ゲーム</a> &nbsp;·&nbsp; osakenpiro &nbsp;·&nbsp; Boolean→Float</footer>
+
+<script>
+(function(){
+  "use strict";
+  var GW=92, GH=54;                 // field grid resolution
+  var field=document.getElementById('field'), ink=document.getElementById('ink');
+  var fctx=field.getContext('2d'), ictx=ink.getContext('2d');
+  var stage=document.getElementById('stage');
+  var off=document.createElement('canvas'); off.width=GW; off.height=GH;
+  var octx=off.getContext('2d');
+  var img=octx.createImageData(GW,GH);
+
+  var v=new Float32Array(GW*GH);    // float values 0..1
+  var tmp=new Float32Array(GW*GH);
+  var meltRate=0.14, driftAmt=0.22;
+  var GOLD=[212,168,83];
+
+  function idx(x,y){return y*GW+x;}
+  function randomBinary(){ for(var i=0;i<v.length;i++) v[i]=Math.random()<0.5?0:1; }
+  function seedClusters(){
+    // a few soft gaussian seeds on a dark field — "種をまく"
+    v.fill(0.02);
+    var n=6+((Math.random()*5)|0);
+    for(var k=0;k<n;k++){
+      var cx=Math.random()*GW, cy=Math.random()*GH, r=6+Math.random()*12, amp=0.6+Math.random()*0.4;
+      for(var y=0;y<GH;y++)for(var x=0;x<GW;x++){
+        var d2=(x-cx)*(x-cx)+(y-cy)*(y-cy);
+        v[idx(x,y)]=Math.min(1, v[idx(x,y)]+amp*Math.exp(-d2/(2*r*r)));
+      }
+    }
+  }
+
+  // time-varying drift via cheap value noise
+  var t=0;
+  function driftAt(x,y){
+    return (Math.sin((x*0.21)+t*0.7)+Math.sin((y*0.27)-t*0.5)+Math.sin((x*0.07+y*0.09)+t*0.9))/3;
+  }
+
+  function step(){
+    t+=0.016;
+    // diffusion toward neighbour average = "melting" binary into continuous
+    for(var y=0;y<GH;y++){
+      for(var x=0;x<GW;x++){
+        var i=idx(x,y);
+        var xm=x>0?x-1:x, xp=x<GW-1?x+1:x, ym=y>0?y-1:y, yp=y<GH-1?y+1:y;
+        var avg=(v[idx(xm,y)]+v[idx(xp,y)]+v[idx(x,ym)]+v[idx(x,yp)])*0.25;
+        var nv=v[i]+meltRate*(avg-v[i]);
+        nv+=driftAmt*0.012*driftAt(x,y);
+        if(nv<0)nv=0; else if(nv>1)nv=1;
+        tmp[i]=nv;
+      }
+    }
+    var t2=v; v=tmp; tmp=t2; // swap (note: closures use v via outer — reassign below)
+    window.__v=v;
+  }
+
+  function render(){
+    var d=img.data;
+    for(var i=0,p=0;i<v.length;i++,p+=4){
+      var val=v[i];
+      // gentle gamma so low values still glow a little (ひとあかり)
+      var g=Math.pow(val,0.8);
+      d[p]=GOLD[0]*g; d[p+1]=GOLD[1]*g; d[p+2]=GOLD[2]*g; d[p+3]=255;
+    }
+    octx.putImageData(img,0,0);
+    fctx.imageSmoothingEnabled=true;
+    fctx.clearRect(0,0,field.width,field.height);
+    fctx.drawImage(off,0,0,GW,GH,0,0,field.width,field.height);
+  }
+
+  // readouts
+  var rAvg=document.getElementById('r-avg'), rBin=document.getElementById('r-bin'), rMelt=document.getElementById('r-melt');
+  var statTick=0;
+  function stats(){
+    if((statTick++ %12)!==0) return;
+    var sum=0, bin=0;
+    for(var i=0;i<v.length;i++){var val=v[i];sum+=val; if(val<0.06||val>0.94)bin++;}
+    rAvg.textContent=(sum/v.length).toFixed(3);
+    rBin.textContent=Math.round(100*bin/v.length)+'%';
+    rMelt.textContent=meltRate.toFixed(2);
+  }
+
+  function loop(){ step(); render(); stats(); requestAnimationFrame(loop); }
+
+  // ---- interaction ----
+  function sizeCanvases(){
+    var r=stage.getBoundingClientRect();
+    [field,ink].forEach(function(c){ c.width=Math.max(2,r.width); c.height=Math.max(2,r.height); });
+  }
+  window.addEventListener('resize', sizeCanvases);
+
+  function cellFromEvent(e){
+    var r=stage.getBoundingClientRect();
+    var px=(e.clientX-r.left)/r.width, py=(e.clientY-r.top)/r.height;
+    return {gx:px*GW, gy:py*GH, sx:(e.clientX-r.left), sy:(e.clientY-r.top)};
+  }
+  var raising=false;
+  function raise(gx,gy,amount,radius){
+    var R=radius||5;
+    for(var y=Math.max(0,(gy-R)|0);y<Math.min(GH,gy+R);y++)
+      for(var x=Math.max(0,(gx-R)|0);x<Math.min(GW,gx+R);x++){
+        var d2=(x-gx)*(x-gx)+(y-gy)*(y-gy);
+        if(d2>R*R)continue;
+        var w=1-Math.sqrt(d2)/R;
+        var i=idx(x,y); v[i]=Math.min(1, v[i]+amount*w);
+      }
+  }
+  function roundRegion(gx,gy){
+    var R=7;
+    for(var y=Math.max(0,(gy-R)|0);y<Math.min(GH,gy+R);y++)
+      for(var x=Math.max(0,(gx-R)|0);x<Math.min(GW,gx+R);x++){
+        var d2=(x-gx)*(x-gx)+(y-gy)*(y-gy); if(d2>R*R)continue;
+        var i=idx(x,y); v[i]=v[i]>=0.5?1:0;   // 丸め: snap to nearest binary
+      }
+    pulseInk(gx/GW, gy/GH);
+  }
+  // a faint ring when you round (the "line" returning)
+  var rings=[];
+  function pulseInk(px,py){ rings.push({px:px,py:py,r:0,a:0.5}); }
+  function drawInk(){
+    ictx.clearRect(0,0,ink.width,ink.height);
+    for(var k=rings.length-1;k>=0;k--){
+      var ri=rings[k]; ri.r+=2.4; ri.a-=0.012;
+      if(ri.a<=0){rings.splice(k,1);continue;}
+      ictx.beginPath();
+      ictx.arc(ri.px*ink.width, ri.py*ink.height, ri.r, 0, Math.PI*2);
+      ictx.strokeStyle='rgba(212,168,83,'+ri.a.toFixed(3)+')'; ictx.lineWidth=1; ictx.stroke();
+    }
+    requestAnimationFrame(drawInk);
+  }
+
+  stage.addEventListener('mousemove',function(e){
+    var c=cellFromEvent(e); raise(c.gx,c.gy, raising?0.16:0.07, 5);
+  });
+  stage.addEventListener('mousedown',function(e){ raising=true; });
+  window.addEventListener('mouseup',function(){ raising=false; });
+  stage.addEventListener('click',function(e){ var c=cellFromEvent(e); roundRegion(c.gx,c.gy); });
+  stage.addEventListener('touchmove',function(e){ if(e.touches[0]){var c=cellFromEvent(e.touches[0]); raise(c.gx,c.gy,0.14,5);} e.preventDefault(); },{passive:false});
+
+  document.getElementById('melt').oninput=function(e){ meltRate=e.target.value/100; document.getElementById('melt-v').textContent=meltRate.toFixed(2).replace('0.','.'); };
+  document.getElementById('drift').oninput=function(e){ driftAmt=e.target.value/100; document.getElementById('drift-v').textContent=driftAmt.toFixed(2).replace('0.','.'); };
+  document.getElementById('reset').onclick=function(){ randomBinary(); };
+  document.getElementById('meltall').onclick=function(){ meltRate=Math.min(0.5, meltRate+0.18); document.getElementById('melt').value=meltRate*100; document.getElementById('melt-v').textContent=meltRate.toFixed(2).replace('0.','.'); };
+  document.getElementById('seed').onclick=function(){ seedClusters(); };
+
+  // boot
+  sizeCanvases(); seedClusters(); requestAnimationFrame(loop); requestAnimationFrame(drawInk);
+})();
+</script>
+</body>
+</html>
