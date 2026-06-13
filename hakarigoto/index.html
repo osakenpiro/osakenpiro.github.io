@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>はかりごと — Float Scales｜二択を Float で測る意思決定ツール</title>
+<meta name="description" content="「AかBか」で悩む判断を、複数の評価軸で 0.0–1.0 のスライダーに開き、重み付き加重平均で「今の自分の Float 位置」を可視化する。Boolean→Float / #全人類UX改善">
+<meta property="og:title" content="はかりごと — Float Scales">
+<meta property="og:description" content="二択を Float で測る。評価軸×重みの加重平均で、今の自分の答えを可視化する意思決定ツール。">
+<meta property="og:url" content="https://osakenpiro.github.io/hakarigoto/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,400;1,600&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0a0a0f;--void-deep:#06060a;--surface:#15141a;--surface-hi:#1c1a23;
+  --gold:#d4a853;--gold-soft:rgba(212,168,83,.10);--gold-edge:rgba(212,168,83,.40);
+  --parchment:#c8b8a0;--violet:#a78bfa;
+  --debris1:#6b6b80;--debris2:#3a3530;
+  --fg1:#e8e0d0;--fg2:#b8b0a0;--fg3:#807868;--dim:#5a5448;
+  --line:rgba(200,184,160,.07);--line-hover:rgba(212,168,83,.20);
+  --serif:"Cormorant Garamond","Yu Mincho",serif;
+  --sans:"Noto Sans JP","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:radial-gradient(130% 100% at 80% -10%,#13131c 0%,var(--void) 55%,var(--void-deep) 100%);
+  background-attachment:fixed;color:var(--fg1);font-family:var(--sans);
+  line-height:1.7;min-height:100vh;-webkit-text-size-adjust:100%
+}
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    radial-gradient(1.4px 1.4px at 8% 14%,rgba(232,224,208,.5),transparent),
+    radial-gradient(1.2px 1.2px at 78% 9%,rgba(232,224,208,.4),transparent),
+    radial-gradient(1.5px 1.5px at 62% 58%,rgba(212,168,83,.40),transparent),
+    radial-gradient(1.1px 1.1px at 28% 72%,rgba(232,224,208,.3),transparent),
+    radial-gradient(1.3px 1.3px at 92% 44%,rgba(200,184,160,.25),transparent),
+    radial-gradient(1px 1px at 48% 25%,rgba(167,139,250,.20),transparent),
+    radial-gradient(1.2px 1.2px at 18% 88%,rgba(232,224,208,.2),transparent),
+    radial-gradient(1px 1px at 70% 82%,rgba(212,168,83,.25),transparent)
+}
+.wrap{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:44px 20px 100px}
+
+/* Header */
+header{text-align:center;margin-bottom:36px}
+.kicker{font-size:11px;letter-spacing:.32em;color:var(--gold);text-transform:uppercase;font-weight:500}
+h1{font-family:var(--serif);font-style:italic;font-weight:600;font-size:clamp(44px,12vw,72px);
+   line-height:1;margin:8px 0 4px;letter-spacing:.01em;color:var(--fg1)}
+.sub{font-size:clamp(13px,3.5vw,16px);color:var(--fg3);letter-spacing:.08em}
+.tagline{font-size:14px;color:var(--fg2);margin-top:14px;line-height:1.8}
+.tagline b{color:var(--gold);font-weight:500}
+
+/* Panel */
+.panel{background:linear-gradient(170deg,var(--surface) 0%,rgba(21,20,26,.7) 100%);
+  border:1px solid var(--line);border-radius:16px;padding:26px;margin-top:20px}
+.panel-title{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--fg3);
+  margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.panel-title::before{content:"";width:16px;height:1px;background:var(--gold);flex-shrink:0}
+
+/* Choice inputs */
+.choices{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:4px}
+.choice-wrap{position:relative}
+.choice-label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--fg3);
+  margin-bottom:5px;padding-left:2px}
+.choice-label.b-label{text-align:right;padding-right:2px}
+.choice-inp{width:100%;background:var(--void);border:1px solid var(--line);border-radius:10px;
+  color:var(--fg1);font-family:var(--sans);font-size:15px;padding:11px 13px;
+  transition:border-color .2s}
+.choice-inp:focus{outline:none;border-color:var(--gold-edge)}
+.choice-inp::placeholder{color:var(--dim)}
+.vs{text-align:center;font-family:var(--serif);font-style:italic;font-size:22px;
+  color:var(--debris1);line-height:1;padding-top:20px}
+
+/* Axes */
+.axis{background:var(--void);border:1px solid var(--line);border-radius:12px;
+  padding:16px;margin-bottom:12px;position:relative;transition:border-color .2s}
+.axis:hover{border-color:var(--line-hover)}
+.axis-header{display:flex;gap:10px;align-items:flex-start;margin-bottom:14px}
+.axis-name{flex:1;background:transparent;border:none;border-bottom:1px solid var(--line);
+  color:var(--fg1);font-family:var(--sans);font-size:14px;padding:4px 2px 7px;width:100%;
+  transition:border-color .2s}
+.axis-name:focus{outline:none;border-color:var(--gold-edge)}
+.axis-name::placeholder{color:var(--dim)}
+.axis-del{background:none;border:none;color:var(--debris1);font-size:16px;cursor:pointer;
+  padding:4px 2px;line-height:1;flex-shrink:0;margin-top:2px;transition:color .2s}
+.axis-del:hover{color:var(--gold)}
+
+/* Weight row */
+.weight-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.weight-label{font-size:11px;color:var(--fg3);flex-shrink:0;letter-spacing:.08em}
+.weight-val{font-size:12px;color:var(--gold);font-variant-numeric:tabular-nums;
+  flex-shrink:0;width:28px;text-align:right}
+input[type=range].weight-slider{flex:1;height:4px;border-radius:2px;
+  -webkit-appearance:none;appearance:none;background:#26242e;outline:none}
+input[type=range].weight-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;
+  border-radius:50%;background:var(--parchment);border:2px solid var(--void);cursor:pointer}
+input[type=range].weight-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+  background:var(--parchment);border:2px solid var(--void);cursor:pointer}
+
+/* Position slider */
+.pos-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--fg3);margin-bottom:3px}
+.pos-labels .pos-a{font-weight:500}
+.pos-labels .pos-b{font-weight:500;text-align:right}
+.pos-labels .pos-val{color:var(--gold);font-variant-numeric:tabular-nums}
+input[type=range].pos-slider{width:100%;height:8px;border-radius:4px;
+  -webkit-appearance:none;appearance:none;outline:none;cursor:pointer;
+  background:linear-gradient(90deg,#2a2035 0%,#26242e 50%,#2a2820 100%)}
+input[type=range].pos-slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;
+  border-radius:50%;background:var(--gold);border:2px solid var(--void);cursor:pointer;
+  box-shadow:0 0 0 1px var(--gold-edge)}
+input[type=range].pos-slider::-moz-range-thumb{width:22px;height:22px;border-radius:50%;
+  background:var(--gold);border:2px solid var(--void);cursor:pointer}
+
+.addbtn{width:100%;background:transparent;border:1px dashed rgba(212,168,83,.3);
+  color:var(--gold);border-radius:10px;padding:12px;font-family:var(--sans);font-size:14px;
+  cursor:pointer;margin-top:4px;transition:all .2s;letter-spacing:.06em}
+.addbtn:hover{background:var(--gold-soft);border-color:var(--gold-edge)}
+
+/* Scale / Result */
+.scale-wrap{margin-top:10px}
+.scale-vis{position:relative;height:80px;margin:20px 0 10px}
+/* Beam SVG container */
+.beam-svg{width:100%;height:80px;display:block}
+.float-readout{text-align:center;margin:4px 0 0}
+.float-big{font-family:var(--serif);font-style:italic;font-size:clamp(52px,14vw,82px);
+  font-weight:600;line-height:1;color:var(--gold);font-variant-numeric:tabular-nums}
+.float-big small{font-size:0.35em;color:var(--fg2);vertical-align:super;font-style:normal}
+.verdict{text-align:center;margin:10px 0 0}
+.verdict-label{font-size:18px;font-weight:500;color:var(--fg1);letter-spacing:.04em}
+.verdict-sub{font-size:13px;color:var(--fg3);margin-top:5px;line-height:1.6}
+
+/* Axis breakdown */
+.breakdown{margin-top:20px}
+.bk-title{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--fg3);
+  margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.bk-title::before{content:"";width:12px;height:1px;background:var(--debris1)}
+.bk-row{display:flex;align-items:center;gap:10px;font-size:12px;margin-bottom:8px}
+.bk-name{flex:0 0 36%;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk-bar-wrap{flex:1;height:7px;border-radius:4px;background:#1e1c24;position:relative;overflow:hidden}
+.bk-bar-fill{position:absolute;top:0;bottom:0;border-radius:4px;background:var(--gold);
+  transition:width .4s cubic-bezier(.4,0,.2,1),left .4s cubic-bezier(.4,0,.2,1);opacity:.8}
+.bk-center{position:absolute;top:0;bottom:0;left:50%;width:1px;background:rgba(200,184,160,.2)}
+.bk-pct{flex:0 0 40px;text-align:right;color:var(--gold);font-variant-numeric:tabular-nums}
+.bk-w{flex:0 0 28px;text-align:right;color:var(--debris1);font-size:11px}
+
+/* Actions */
+.actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.actions button{flex:1;min-width:100px;border-radius:10px;padding:12px 10px;
+  font-family:var(--sans);font-size:13px;cursor:pointer;border:1px solid var(--line);
+  background:var(--surface-hi);color:var(--fg2);transition:all .2s;letter-spacing:.04em}
+.actions button.primary{background:var(--gold);color:#1a1407;border-color:var(--gold);font-weight:700}
+.actions button:hover:not(.primary){border-color:var(--gold-edge);color:var(--fg1)}
+.actions button.primary:hover{opacity:.9}
+
+/* Share output */
+.share-out{background:var(--void);border:1px solid var(--line);border-radius:10px;
+  padding:14px;margin-top:14px;font-size:12px;color:var(--fg3);word-break:break-all;
+  display:none;line-height:1.7;white-space:pre-wrap}
+
+/* History */
+.hist-list{margin-top:4px}
+.hist-item{display:flex;align-items:center;gap:12px;padding:11px 14px;
+  border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer;
+  background:var(--void);transition:border-color .2s}
+.hist-item:hover{border-color:var(--line-hover)}
+.hist-info{flex:1;min-width:0}
+.hist-q{font-size:13px;color:var(--fg1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-meta{font-size:11px;color:var(--fg3);margin-top:2px}
+.hist-score{font-family:var(--serif);font-style:italic;font-size:22px;color:var(--gold);
+  flex-shrink:0;font-variant-numeric:tabular-nums}
+.hist-del{background:none;border:none;color:var(--debris1);cursor:pointer;font-size:14px;
+  flex-shrink:0;padding:4px;transition:color .2s}
+.hist-del:hover{color:var(--gold)}
+.hist-empty{font-size:13px;color:var(--dim);text-align:center;padding:20px 0}
+
+/* Toast */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--surface-hi);border:1px solid var(--gold-edge);border-radius:10px;
+  padding:10px 20px;font-size:13px;color:var(--fg1);opacity:0;transition:all .3s;
+  pointer-events:none;z-index:999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Nav tabs */
+.tabs{display:flex;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:4px;margin-top:-6px}
+.tab{flex:1;padding:10px;background:transparent;border:none;color:var(--fg3);
+  font-family:var(--sans);font-size:13px;cursor:pointer;letter-spacing:.06em;transition:all .2s}
+.tab.active{background:var(--gold-soft);color:var(--gold);font-weight:500}
+.tab:hover:not(.active){background:rgba(200,184,160,.04);color:var(--fg2)}
+
+/* Responsive */
+@media(max-width:500px){
+  .choices{grid-template-columns:1fr;gap:6px}
+  .vs{padding-top:0;font-size:16px}
+  .choice-label.b-label{text-align:left}
+  .bk-name{flex:0 0 30%}
+}
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="wrap">
+  <header>
+    <div class="kicker">Boolean → Float</div>
+    <h1>はかりごと</h1>
+    <div class="sub">Float Scales</div>
+    <p class="tagline">
+      「AかBか」で悩む判断を、評価軸×重みの<b>加重平均</b>に開く。<br>
+      二択(Boolean)を捨て、<b>今の自分のFloat位置</b>を測る。
+    </p>
+  </header>
+
+  <!-- Tab switcher -->
+  <div class="tabs">
+    <button class="tab active" id="tab-edit" onclick="switchTab('edit')">▷ 判断を作る</button>
+    <button class="tab" id="tab-hist" onclick="switchTab('hist')">◎ 保存した判断</button>
+  </div>
+
+  <!-- EDIT TAB -->
+  <div id="pane-edit">
+    <!-- Choices -->
+    <div class="panel">
+      <div class="panel-title">選択肢</div>
+      <div class="choices">
+        <div class="choice-wrap">
+          <div class="choice-label">A — 左端 (0.0)</div>
+          <input class="choice-inp" id="labelA" type="text" placeholder="選択肢 A" maxlength="40" oninput="render()">
+        </div>
+        <div class="vs">vs</div>
+        <div class="choice-wrap">
+          <div class="choice-label b-label">B — 右端 (1.0)</div>
+          <input class="choice-inp" id="labelB" type="text" placeholder="選択肢 B" maxlength="40" oninput="render()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Axes -->
+    <div class="panel">
+      <div class="panel-title">評価軸</div>
+      <div id="axes-list"></div>
+      <button class="addbtn" onclick="addAxis()">＋ 評価軸を追加</button>
+    </div>
+
+    <!-- Result -->
+    <div class="panel" id="result-panel">
+      <div class="panel-title">Float 位置</div>
+      <div class="scale-wrap">
+        <svg class="beam-svg" id="beam-svg" viewBox="0 0 600 90" xmlns="http://www.w3.org/2000/svg">
+          <!-- fulcrum -->
+          <polygon id="fulcrum" points="300,72 291,88 309,88" fill="#3a3530"/>
+          <line x1="291" y1="88" x2="309" y2="88" stroke="#5a5448" stroke-width="1.5"/>
+          <!-- beam -->
+          <line id="beam-line" x1="60" y1="44" x2="540" y2="44" stroke="#3a3530" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- pans -->
+          <circle id="pan-a" cx="60" cy="52" r="22" fill="none" stroke="#6b6b80" stroke-width="1.5"/>
+          <circle id="pan-b" cx="540" cy="52" r="22" fill="none" stroke="#6b6b80" stroke-width="1.5"/>
+          <!-- labels on pans -->
+          <text id="pan-a-txt" x="60" y="57" text-anchor="middle" font-size="11" fill="#807868" font-family="system-ui">A</text>
+          <text id="pan-b-txt" x="540" y="57" text-anchor="middle" font-size="11" fill="#807868" font-family="system-ui">B</text>
+          <!-- needle -->
+          <line id="needle" x1="300" y1="72" x2="300" y2="18" stroke="#d4a853" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+          <!-- pivot dot -->
+          <circle cx="300" cy="72" r="5" fill="#d4a853" opacity="0.9"/>
+          <!-- float marker on beam -->
+          <circle id="float-dot" cx="300" cy="44" r="7" fill="#d4a853"/>
+        </svg>
+
+        <div class="float-readout">
+          <div class="float-big" id="float-num">—</div>
+        </div>
+        <div class="verdict" id="verdict-area"></div>
+      </div>
+
+      <!-- Breakdown -->
+      <div class="breakdown">
+        <div class="bk-title">軸別内訳</div>
+        <div id="bk-list"></div>
+      </div>
+
+      <div class="actions">
+        <button onclick="saveSession()">💾 保存</button>
+        <button onclick="copyShare()">🔗 テキスト共有</button>
+        <button onclick="copyURL()">📎 URL共有</button>
+        <button class="primary" onclick="resetAll()">新しい判断</button>
+      </div>
+      <div class="share-out" id="share-out"></div>
+    </div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div id="pane-hist" style="display:none">
+    <div class="panel">
+      <div class="panel-title">保存した判断</div>
+      <div class="hist-list" id="hist-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ──────────────────────────────────────────
+const STORAGE_KEY = 'hakarigoto_v1';
+let axes = [];
+let nextId = 1;
+
+function uid(){ return nextId++ }
+
+function getState(){
+  return {
+    labelA: document.getElementById('labelA').value,
+    labelB: document.getElementById('labelB').value,
+    axes: axes.map(a=>({id:a.id,name:a.name,weight:a.weight,pos:a.pos}))
+  };
+}
+
+// ── Init ───────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', ()=>{
+  // Check URL params first
+  const urlState = parseURLParams();
+  if(urlState){
+    loadState(urlState);
+  } else {
+    // Load from localStorage if available
+    try{
+      const saved = localStorage.getItem(STORAGE_KEY+'_draft');
+      if(saved) loadState(JSON.parse(saved));
+      else seedDefault();
+    }catch(e){ seedDefault(); }
+  }
+  render();
+});
+
+function seedDefault(){
+  document.getElementById('labelA').value = '';
+  document.getElementById('labelB').value = '';
+  axes = [];
+  addAxis('重要度', 3, 0.5);
+  addAxis('コスト', 2, 0.5);
+  addAxis('直感', 1, 0.5);
+}
+
+// ── Axis CRUD ─────────────────────────────────────
+function addAxis(name='', weight=2, pos=0.5){
+  axes.push({id:uid(), name, weight, pos});
+  renderAxes();
+  render();
+}
+
+function removeAxis(id){
+  if(axes.length<=1){ toast('評価軸は最低1つ必要です'); return; }
+  axes = axes.filter(a=>a.id!==id);
+  renderAxes();
+  render();
+}
+
+function axisChange(id, field, val){
+  const a = axes.find(x=>x.id===id);
+  if(!a) return;
+  a[field] = field==='name' ? val : parseFloat(val);
+  if(field!=='name') render();
+  autosaveDraft();
+}
+
+// ── Render axes DOM ────────────────────────────────
+function renderAxes(){
+  const la = document.getElementById('labelA').value || 'A';
+  const lb = document.getElementById('labelB').value || 'B';
+  const el = document.getElementById('axes-list');
+  el.innerHTML = '';
+  axes.forEach(a=>{
+    const div = document.createElement('div');
+    div.className = 'axis';
+    div.dataset.id = a.id;
+    div.innerHTML = `
+      <div class="axis-header">
+        <input class="axis-name" type="text" placeholder="軸の名前（例：コスト / 直感 / 将来性）"
+          value="${esc(a.name)}" maxlength="30"
+          oninput="axisChange(${a.id},'name',this.value)" onchange="render()">
+        <button class="axis-del" onclick="removeAxis(${a.id})" title="この軸を削除">✕</button>
+      </div>
+      <div class="weight-row">
+        <span class="weight-label">重み</span>
+        <input type="range" class="weight-slider" min="1" max="5" step="1" value="${a.weight}"
+          oninput="axisChange(${a.id},'weight',this.value);this.nextElementSibling.textContent=this.value">
+        <span class="weight-val">${a.weight}</span>
+      </div>
+      <div class="pos-labels">
+        <span class="pos-a">${esc(la)}</span>
+        <span class="pos-val" id="pos-val-${a.id}">${a.pos.toFixed(2)}</span>
+        <span class="pos-b">${esc(lb)}</span>
+      </div>
+      <input type="range" class="pos-slider" min="0" max="1" step="0.01" value="${a.pos}"
+        oninput="axisChange(${a.id},'pos',this.value);document.getElementById('pos-val-${a.id}').textContent=parseFloat(this.value).toFixed(2);render()">
+    `;
+    el.appendChild(div);
+  });
+}
+
+// ── Compute & render result ────────────────────────
+function render(){
+  // Keep axes names in sync with DOM (after renderAxes replaces innerHTML)
+  document.querySelectorAll('.axis').forEach(div=>{
+    const id = parseInt(div.dataset.id);
+    const a = axes.find(x=>x.id===id);
+    if(a){
+      const inp = div.querySelector('.axis-name');
+      if(inp && inp.value !== undefined) a.name = inp.value;
+    }
+  });
+
+  const la = document.getElementById('labelA').value || 'A';
+  const lb = document.getElementById('labelB').value || 'B';
+
+  // Weighted average
+  let totalW = 0, weightedSum = 0;
+  axes.forEach(a=>{
+    totalW += a.weight;
+    weightedSum += a.pos * a.weight;
+  });
+  const fval = totalW > 0 ? weightedSum / totalW : 0.5;
+
+  // Float display
+  document.getElementById('float-num').innerHTML =
+    `${fval.toFixed(2)}<small>/ 1.0</small>`;
+
+  // Beam animation
+  animateBeam(fval, la, lb);
+
+  // Verdict
+  renderVerdict(fval, la, lb);
+
+  // Breakdown
+  renderBreakdown(la, lb);
+
+  // Update axis pos-labels if A/B labels changed
+  document.querySelectorAll('.pos-labels .pos-a').forEach(el=>el.textContent=la);
+  document.querySelectorAll('.pos-labels .pos-b').forEach(el=>el.textContent=lb);
+
+  autosaveDraft();
+}
+
+function animateBeam(fval, la, lb){
+  // fval: 0=full A, 1=full B
+  // Beam tilts: A heavy when fval<0.5 (A pan goes down), B heavy when fval>0.5
+  const tilt = (fval - 0.5) * 30; // degrees, positive = B side down
+  const cx = 300;
+  // Beam endpoints rotate around fulcrum at (300, 72)
+  const beamHalfW = 240;
+  const rad = tilt * Math.PI / 180;
+  const ax1 = cx - beamHalfW * Math.cos(rad);
+  const ay1 = 72 - beamHalfW * Math.sin(-rad);  // A side
+  const bx1 = cx + beamHalfW * Math.cos(rad);
+  const by1 = 72 + beamHalfW * Math.sin(-rad);  // B side
+
+  const beamLine = document.getElementById('beam-line');
+  beamLine.setAttribute('x1', ax1.toFixed(1));
+  beamLine.setAttribute('y1', ay1.toFixed(1));
+  beamLine.setAttribute('x2', bx1.toFixed(1));
+  beamLine.setAttribute('y2', by1.toFixed(1));
+
+  // Pans follow beam ends (offset downward from beam)
+  const panOffset = 14;
+  const panA = document.getElementById('pan-a');
+  const panATxt = document.getElementById('pan-a-txt');
+  panA.setAttribute('cx', ax1.toFixed(1));
+  panA.setAttribute('cy', (ay1 + panOffset).toFixed(1));
+  panATxt.setAttribute('x', ax1.toFixed(1));
+  panATxt.setAttribute('y', (ay1 + panOffset + 4).toFixed(1));
+  panATxt.textContent = la.length > 6 ? la.slice(0,5)+'…' : la;
+
+  const panB = document.getElementById('pan-b');
+  const panBTxt = document.getElementById('pan-b-txt');
+  panB.setAttribute('cx', bx1.toFixed(1));
+  panB.setAttribute('cy', (by1 + panOffset).toFixed(1));
+  panBTxt.setAttribute('x', bx1.toFixed(1));
+  panBTxt.setAttribute('y', (by1 + panOffset + 4).toFixed(1));
+  panBTxt.textContent = lb.length > 6 ? lb.slice(0,5)+'…' : lb;
+
+  // Float dot on beam at fval position
+  const fdx = ax1 + (bx1 - ax1) * fval;
+  const fdy = ay1 + (by1 - ay1) * fval;
+  const fd = document.getElementById('float-dot');
+  fd.setAttribute('cx', fdx.toFixed(1));
+  fd.setAttribute('cy', fdy.toFixed(1));
+
+  // Needle direction
+  const needle = document.getElementById('needle');
+  // Needle goes from fulcrum (300,72) upward, leaning toward the heavier side
+  const needleAngle = -tilt * 1.5 * Math.PI / 180;
+  const needleLen = 54;
+  const ntx = 300 + Math.sin(needleAngle) * needleLen;
+  const nty = 72 - Math.cos(needleAngle) * needleLen;
+  needle.setAttribute('x2', ntx.toFixed(1));
+  needle.setAttribute('y2', nty.toFixed(1));
+
+  // Color pans based on weight
+  const intensity = Math.abs(fval - 0.5) * 2; // 0..1
+  if(fval < 0.5){
+    // A heavier (lower)
+    panA.setAttribute('stroke', `rgba(212,168,83,${0.3+intensity*0.5})`);
+    panB.setAttribute('stroke', '#3a3530');
+  } else if(fval > 0.5){
+    panB.setAttribute('stroke', `rgba(212,168,83,${0.3+intensity*0.5})`);
+    panA.setAttribute('stroke', '#3a3530');
+  } else {
+    panA.setAttribute('stroke', '#6b6b80');
+    panB.setAttribute('stroke', '#6b6b80');
+  }
+}
+
+function renderVerdict(fval, la, lb){
+  const el = document.getElementById('verdict-area');
+  let label='', sub='';
+  const pct = Math.round(fval * 100);
+
+  if(fval < 0.15){
+    label = `強く「${la}」`;
+    sub = `Float ${fval.toFixed(2)} — A 寄りが明確。`;
+  } else if(fval < 0.35){
+    label = `「${la}」寄り`;
+    sub = `Float ${fval.toFixed(2)} — A に傾いている。`;
+  } else if(fval < 0.45){
+    label = `やや「${la}」`;
+    sub = `Float ${fval.toFixed(2)} — わずかに A 側。再考の余地あり。`;
+  } else if(fval <= 0.55){
+    label = '拮抗 — まだ答えは出ていない';
+    sub = `Float ${fval.toFixed(2)} — 0.5 付近。軸を増やすか、重みを調整してみる。`;
+  } else if(fval < 0.65){
+    label = `やや「${lb}」`;
+    sub = `Float ${fval.toFixed(2)} — わずかに B 側。`;
+  } else if(fval < 0.85){
+    label = `「${lb}」寄り`;
+    sub = `Float ${fval.toFixed(2)} — B に傾いている。`;
+  } else {
+    label = `強く「${lb}」`;
+    sub = `Float ${fval.toFixed(2)} — B 寄りが明確。`;
+  }
+
+  el.innerHTML = `<div class="verdict-label">${label}</div>
+    <div class="verdict-sub">${sub}</div>`;
+}
+
+function renderBreakdown(la, lb){
+  const el = document.getElementById('bk-list');
+  el.innerHTML = '';
+  if(axes.length === 0) return;
+  axes.forEach(a=>{
+    const nm = a.name || '(軸)';
+    const pct = Math.round(a.pos * 100);
+    // Bar: center at 50%, filled toward whichever side
+    const row = document.createElement('div');
+    row.className = 'bk-row';
+    // Bar fill: from center toward pos
+    let fillStyle = '';
+    if(a.pos <= 0.5){
+      const w = (0.5 - a.pos) * 100;
+      fillStyle = `left:${a.pos*100}%;width:${w}%`;
+    } else {
+      const w = (a.pos - 0.5) * 100;
+      fillStyle = `left:50%;width:${w}%`;
+    }
+    row.innerHTML = `
+      <div class="bk-name" title="${esc(nm)}">${esc(nm)}</div>
+      <div class="bk-bar-wrap">
+        <div class="bk-bar-fill" style="${fillStyle}"></div>
+        <div class="bk-center"></div>
+      </div>
+      <div class="bk-pct">${pct}<span style="font-size:10px;color:var(--fg3)">%</span></div>
+      <div class="bk-w" title="重み">×${a.weight}</div>
+    `;
+    el.appendChild(row);
+  });
+}
+
+// ── localStorage ───────────────────────────────────
+function autosaveDraft(){
+  try{ localStorage.setItem(STORAGE_KEY+'_draft', JSON.stringify(getState())); }catch(e){}
+}
+
+function saveSession(){
+  const state = getState();
+  const la = state.labelA || 'A';
+  const lb = state.labelB || 'B';
+  if(!la && !lb){ toast('選択肢 A / B を入力してください'); return; }
+
+  // Compute float for summary
+  let tw=0,ws=0;
+  state.axes.forEach(a=>{ tw+=a.weight; ws+=a.pos*a.weight; });
+  const fval = tw>0 ? ws/tw : 0.5;
+
+  const record = {
+    id: Date.now(),
+    labelA: la, labelB: lb,
+    axes: state.axes,
+    fval,
+    date: new Date().toLocaleDateString('ja-JP')
+  };
+
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY+'_hist') || '[]';
+    const hist = JSON.parse(raw);
+    hist.unshift(record);
+    if(hist.length > 30) hist.length = 30; // cap
+    localStorage.setItem(STORAGE_KEY+'_hist', JSON.stringify(hist));
+    toast('保存しました');
+  }catch(e){ toast('保存に失敗しました'); }
+}
+
+function loadState(state){
+  document.getElementById('labelA').value = state.labelA || '';
+  document.getElementById('labelB').value = state.labelB || '';
+  axes = [];
+  nextId = 1;
+  (state.axes||[]).forEach(a=>{
+    axes.push({id:uid(), name:a.name||'', weight:parseFloat(a.weight)||2, pos:parseFloat(a.pos)||0.5});
+  });
+  if(axes.length===0) addAxis('重要度',3,0.5);
+  renderAxes();
+  render();
+}
+
+// ── History tab ────────────────────────────────────
+function renderHist(){
+  const el = document.getElementById('hist-list');
+  el.innerHTML = '';
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY+'_hist') || '[]';
+    const hist = JSON.parse(raw);
+    if(hist.length===0){
+      el.innerHTML = '<div class="hist-empty">保存した判断はまだありません。<br>「保存」ボタンで記録できます。</div>';
+      return;
+    }
+    hist.forEach(r=>{
+      const it = document.createElement('div');
+      it.className = 'hist-item';
+      const la = r.labelA||'A', lb = r.labelB||'B';
+      it.innerHTML = `
+        <div class="hist-info">
+          <div class="hist-q">${esc(la)} vs ${esc(lb)}</div>
+          <div class="hist-meta">${r.date} · 軸 ${r.axes.length}本 · Float ${r.fval.toFixed(2)}</div>
+        </div>
+        <div class="hist-score">${r.fval.toFixed(2)}</div>
+        <button class="hist-del" onclick="deleteHist(${r.id},event)" title="削除">✕</button>
+      `;
+      it.addEventListener('click', e=>{
+        if(e.target.classList.contains('hist-del')) return;
+        loadState(r);
+        switchTab('edit');
+      });
+      el.appendChild(it);
+    });
+  }catch(e){ el.innerHTML = '<div class="hist-empty">読み込みエラー</div>'; }
+}
+
+function deleteHist(id, e){
+  e.stopPropagation();
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY+'_hist') || '[]';
+    const hist = JSON.parse(raw).filter(r=>r.id!==id);
+    localStorage.setItem(STORAGE_KEY+'_hist', JSON.stringify(hist));
+    renderHist();
+  }catch(e){}
+}
+
+// ── Share ──────────────────────────────────────────
+function buildShareText(){
+  const la = document.getElementById('labelA').value || 'A';
+  const lb = document.getElementById('labelB').value || 'B';
+  let tw=0,ws=0;
+  axes.forEach(a=>{ tw+=a.weight; ws+=a.pos*a.weight; });
+  const fval = tw>0 ? ws/tw : 0.5;
+  const pct = Math.round(fval*100);
+
+  let txt = `【はかりごと — Float ${fval.toFixed(2)}】\n`;
+  txt += `${la} ⟵ ${pct}% ⟶ ${lb}\n\n`;
+  txt += `評価軸:\n`;
+  axes.forEach(a=>{
+    const nm = a.name||'(軸)';
+    const p = Math.round(a.pos*100);
+    txt += `・${nm}（重み×${a.weight}）: ${p}%\n`;
+  });
+  txt += `\n#全人類UX改善 #BooleanToFloat\nhttps://osakenpiro.github.io/hakarigoto/`;
+  return txt;
+}
+
+function copyShare(){
+  const txt = buildShareText();
+  const el = document.getElementById('share-out');
+  el.textContent = txt;
+  el.style.display = 'block';
+  navigator.clipboard.writeText(txt).then(()=>toast('テキストをコピーしました'))
+    .catch(()=>{ /* already shown in textarea */ });
+}
+
+function buildShareURL(){
+  const state = getState();
+  const compressed = btoa(encodeURIComponent(JSON.stringify(state)));
+  return `${location.href.split('?')[0]}?d=${compressed}`;
+}
+
+function parseURLParams(){
+  try{
+    const params = new URLSearchParams(location.search);
+    const d = params.get('d');
+    if(!d) return null;
+    return JSON.parse(decodeURIComponent(atob(d)));
+  }catch(e){ return null; }
+}
+
+function copyURL(){
+  const url = buildShareURL();
+  navigator.clipboard.writeText(url).then(()=>toast('URLをコピーしました'))
+    .catch(()=>{ toast('URLのコピーに失敗しました'); });
+}
+
+// ── Misc ───────────────────────────────────────────
+function resetAll(){
+  document.getElementById('labelA').value = '';
+  document.getElementById('labelB').value = '';
+  document.getElementById('share-out').style.display = 'none';
+  axes = [];
+  nextId = 1;
+  addAxis('重要度',3,0.5);
+  addAxis('コスト',2,0.5);
+  addAxis('直感',1,0.5);
+  renderAxes();
+  render();
+}
+
+function switchTab(t){
+  document.getElementById('pane-edit').style.display = t==='edit' ? '' : 'none';
+  document.getElementById('pane-hist').style.display = t==='hist' ? '' : 'none';
+  document.getElementById('tab-edit').classList.toggle('active', t==='edit');
+  document.getElementById('tab-hist').classList.toggle('active', t==='hist');
+  if(t==='hist') renderHist();
+}
+
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2400);
+}
+
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Initial render
+renderAxes();
+</script>
+</body>
+</html>
