@@ -48,7 +48,7 @@
     <h1>あそびば</h1>
     <div style="font-family:var(--serif);font-size:18px;letter-spacing:.04em;"><span class="b">Boolean</span> <span class="ar">→</span> <span class="f">Float</span></div>
     <p class="sub">世界は「0か1」で教わる。でも本当のことは、たいてい<b>その間（はざま）</b>にある。
-    二値を連続値に開く——それを、論理で・確率で・技で・色で、手で触れて遊ぶ4つの遊び場。</p>
+    二値を連続値に開く——それを、論理で・確率で・技で・色で・分類で、手で触れて遊ぶ5つの遊び場。</p>
   </div>
 
   <div class="grid">
@@ -80,6 +80,13 @@
       <div class="ds">一本のFloatつまみが、剛い格子を有機の流れへ溶かす。秩序とゆらぎの間を行き来する、種つきの生成アート。</div>
       <div class="go">描かせる →</div>
     </a>
+    <a class="card" href="https://osakenpiro.github.io/kagen/">
+      <div class="facet">分類</div>
+      <svg class="ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 34c5-17 11-17 15 0M17 34c5-17 11-17 15 0M29 34c5-17 11-17 14 0"/></svg>
+      <div class="nm">かげん</div><div class="en">KAGEN · MEMBERSHIP</div>
+      <div class="ds">35°Cは「あたたかい」か「熱い」か。ひとつの値が、重なる言葉に degree で属する＝Zadehの所属度。合計は1にならなくていい。</div>
+      <div class="go">所属度を見る →</div>
+    </a>
   </div>
 
   <div class="manifesto">
@@ -91,15 +98,8 @@
 
   <footer>
     <b>あそびば / Boolean→Float Playground</b> — #全人類UX改善 / Visionium.<br>
-    設計思想 Boolean→Float（二値判断を連続値0.0〜1.0に開く）。自走セッションの4作を1枚に。
+    設計思想 Boolean→Float（二値判断を連続値0.0〜1.0に開く）。自走セッションの5作を1枚に。
   </footer>
 </div>
 <script>
-(function(){ const c=document.getElementById('stars'); if(!c||!c.getContext) return; const x=c.getContext('2d'); let w,h,st;
-  function rs(){ w=c.width=innerWidth; h=c.height=innerHeight; st=Array.from({length:Math.min(150,Math.floor(w*h/9000))},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.2+0.2,a:Math.random()*0.5+0.15,t:Math.random()*6.28})); }
-  function d(){ x.clearRect(0,0,w,h); for(const s of st){ s.t+=0.011; const tw=s.a*(0.6+0.4*Math.sin(s.t)); x.beginPath(); x.arc(s.x,s.y,s.r,0,6.28); x.fillStyle='rgba(212,168,83,'+tw.toFixed(3)+')'; x.fill(); } requestAnimationFrame(d); }
-  rs(); d(); addEventListener('resize',rs);
-})();
-</script>
-</body>
-</html>
+(function(){ const c=document.getElementById('stars'
