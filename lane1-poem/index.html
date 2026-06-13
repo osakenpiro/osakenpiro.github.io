@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>半灯詩片 — Float poem sifter</title>
+<style>
+:root{--void:#0a0b10;--ink:#d8d4c8;--dim:#8a8678;--gold:#d4a853;--gold-dim:#7a6433;--line:#1b1c24;--panel:#11121a}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{background:radial-gradient(circle at 50% 4%,#15131d 0%,var(--void) 60%);color:var(--ink);
+ font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;letter-spacing:.03em;min-height:100vh}
+#void{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}.star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff}
+.wrap{position:relative;z-index:2;max-width:40rem;margin:0 auto;padding:9vh 7vw 14vh}
+header{text-align:center;margin-bottom:6vh}
+h1{font-size:clamp(2rem,7vw,3.1rem);margin:0;letter-spacing:.26em;font-weight:600}
+h1 .g{color:var(--gold);text-shadow:0 0 20px rgba(212,168,83,.4)}
+.yomi{color:var(--dim);letter-spacing:.4em;font-size:.78rem;margin-top:1em}
+.lead{color:var(--dim);font-size:.84rem;line-height:1.95;text-align:center;max-width:28rem;margin:2.4vh auto 0}
+.poem{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:3rem 2rem 2rem;margin:5vh 0 2vh;position:relative;min-height:13rem;
+ display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.poem .glow{position:absolute;left:50%;top:-20%;transform:translateX(-50%);width:80%;height:60%;border-radius:50%;filter:blur(40px);pointer-events:none}
+.poem p{margin:.35em 0;font-size:1.32rem;line-height:2.1;text-align:center;position:relative;z-index:2;letter-spacing:.04em}
+.poem .meta{margin-top:1.8rem;text-align:center;color:var(--dim);font-size:.72rem;letter-spacing:.2em;position:relative;z-index:2}
+.poem .meta b{color:var(--gold);font-variant-numeric:tabular-nums}
+.bar{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;margin-top:1vh}
+button{font-family:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:#13141d;color:var(--ink);
+ padding:.6rem 1.2rem;font-size:.86rem;letter-spacing:.1em;transition:.15s}
+button:hover{border-color:var(--gold-dim);color:var(--gold)}
+button.primary{border-color:var(--gold-dim);color:var(--gold);padding:.7rem 1.8rem;letter-spacing:.2em}
+.kept{margin-top:7vh}
+.kept h2{color:var(--gold-dim);font-size:.76rem;letter-spacing:.26em;text-align:center;text-transform:uppercase;font-weight:600}
+.kept .k{border-top:1px solid var(--line);padding:1.4rem 0;color:var(--ink);font-size:.96rem;line-height:1.95;text-align:center;white-space:pre-line}
+.kept .k .v{color:var(--gold-dim);font-size:.7rem;letter-spacing:.2em;display:block;margin-top:.6rem}
+footer{text-align:center;color:var(--dim);font-size:.72rem;letter-spacing:.2em;margin-top:8vh;position:relative;z-index:2}
+footer a{color:var(--gold-dim);text-decoration:none}
+</style>
+</head>
+<body>
+<div id="void"></div>
+<div class="wrap">
+  <header>
+    <h1>半灯<span class="g">詩片</span></h1>
+    <div class="yomi">は ん と う ・ し へ ん</div>
+    <div class="lead">『半灯』の世界の語彙から、短い詩を何片も生成し、いちばん「灯っている」一片を<b>ふるい分けて</b>差し出す機械。— 物語の Boolean→Float を、動くコードに。</div>
+  </header>
+
+  <div class="poem" id="poem">
+    <div class="glow" id="glow"></div>
+    <p>　</p><p>　</p><p>　</p>
+    <div class="meta"></div>
+  </div>
+
+  <div class="bar">
+    <button class="primary" id="gen">もう一片、汲む</button>
+    <button id="keep">この片を留める</button>
+    <button id="copy">写す</button>
+  </div>
+
+  <div class="kept" id="keptwrap" style="display:none">
+    <h2>留めた詩片</h2>
+    <div id="kept"></div>
+    <div class="bar" style="margin-top:1.5rem"><button id="clear">留めをすべて流す</button></div>
+  </div>
+
+  <footer>半灯詩片 ／ <a href="../lane1/">半灯宇宙</a> &nbsp;·&nbsp; osakenpiro &nbsp;·&nbsp; Boolean→Float &nbsp;·&nbsp; procedurally generated</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var V=document.getElementById('void');
+  for(var i=0;i<70;i++){var s=document.createElement('div');s.className='star';s.style.left=(Math.random()*100)+'%';s.style.top=(Math.random()*100)+'%';s.style.opacity=(Math.random()*0.5+0.05);V.appendChild(s);}
+
+  function pick(a){return a[(Math.random()*a.length)|0];}
+  function chance(p){return Math.random()<p;}
+
+  // ---- word banks (drawn from the 半灯 world) ----
+  var 対象=["軒の灯","玄関の半灯","この夜の灯","あなた","角の灯","湯","信号","扉","わたしの値","約束","あの人の灯","遠い窓の灯"];
+  var 値=["〇・三七","〇・五","〇・四","〇・一六","〇・〇三","〇・四四","〇・二九","〇・九九九","〇・〇一","半分"];
+  var 動詞=["迷っている","揺れている","沈んでいく","ともっている","消えそこねている","灯りきれない","帯のなかにいる","坂を下りていく","ひとつ呼吸する"];
+  var 場=["あわい","腐葉土のそば","線の引けない場所","閾のあった場所","溶けた世界","霧の村","坂のいちばん下"];
+  var 誰か=["凪","長","老いた灯守り","誰か","あなた","わたし","測りに来た男"];
+  var 倫理=["丸めなくていい","零にはしない","無いことにはしない","そのままでいい","終わりは決めない","まだ点っている","上げも下げもしない"];
+  var 温度=["温かい","ほの明るい","まだ温い","冷たくない"];
+  var 灯動詞=["点っている","灯っている","生きている","在る"];
+
+  // ---- line grammars ----
+  var L1=[
+    function(){return pick(対象)+"は、"+pick(値)+"で"+pick(動詞)+"。";},
+    function(){return pick(値)+"。"+pick(対象)+"の、いまの正直な値。";},
+    function(){return pick(場)+"では、"+pick(対象)+"も"+pick(動詞)+"。";},
+    function(){return "その夜、"+pick(対象)+"は"+pick(値)+"だった。";}
+  ];
+  var L2=[
+    function(){return pick(誰か)+"は「"+pick(倫理)+"」と言った。";},
+    function(){return "点くか消えるかではなく、どれだけ"+pick(灯動詞)+"か。";},
+    function(){return pick(値)+"は、丸めるべき端数ではない。";},
+    function(){return "零ではないものを、無いことにはできない。";},
+    function(){return "またぐべき線は、もう、ない。";}
+  ];
+  var L3=[
+    function(){return "それでも、足もとは"+pick(温度)+"。";},
+    function(){return pick(倫理)+"。——それだけが、確かなこと。";},
+    function(){return "半分の灯が、線のない夜を照らしている。";},
+    function(){return "落ちることは、消えることではない。";},
+    function(){return pick(誰か)+"は、その手前まで、そばにいた。";}
+  ];
+
+  function makePoem(){
+    var lines=[pick(L1)(),pick(L2)(),pick(L3)()];
+    // an internal float value: where this poem sits between 線(0) and 帯(1)
+    var floatness=Math.round((0.2+Math.random()*0.75)*100)/100;
+    return {lines:lines, f:floatness};
+  }
+
+  // ---- the story sifter: generate N candidates, score, keep the "most lit" ----
+  function score(p){
+    var text=p.lines.join("");
+    var s=0;
+    // variety: distinct 2-grams (rough)
+    var seen={},g=0;
+    for(var i=0;i<text.length-1;i++){var k=text.substr(i,2);if(!seen[k]){seen[k]=1;g++;}}
+    s+=g*0.4;
+    // a "turn" (けれど/でも/それでも/——) lands better
+    if(/それでも|けれど|——|ない。/.test(text)) s+=6;
+    // presence of a concrete number warms it
+    if(/〇・/.test(text)) s+=4;
+    // avoid two identical-feeling lines
+    if(p.lines[0]!==p.lines[1] && p.lines[1]!==p.lines[2]) s+=3;
+    // float closeness to a poetic 0.5-ish band
+    s+= (1-Math.abs(p.f-0.5))*3;
+    return s;
+  }
+  function sift(n){
+    var best=null,bestS=-1,pool=[];
+    for(var i=0;i<n;i++){var p=makePoem();var sc=score(p);pool.push(sc);if(sc>bestS){bestS=sc;best=p;}}
+    best.n=n; best.rank=bestS.toFixed(1);
+    return best;
+  }
+
+  var cur=null;
+  function render(p){
+    cur=p;
+    var box=document.getElementById('poem');
+    var ps=box.querySelectorAll('p');
+    for(var i=0;i<3;i++) ps[i].textContent=p.lines[i];
+    var col='rgba(212,168,83,'+(0.10+p.f*0.4)+')';
+    document.getElementById('glow').style.background='radial-gradient(circle,'+col+',rgba(212,168,83,0) 70%)';
+    box.querySelector('.meta').innerHTML='Float <b>'+p.f.toFixed(2)+'</b> &nbsp;·&nbsp; '+p.n+'片から選ばれた一片';
+  }
+
+  // ---- keep / storage ----
+  var KEY="hantoushihen.kept.v1";
+  function load(){try{return JSON.parse(localStorage.getItem(KEY)||"[]");}catch(e){return[];}}
+  function save(a){try{localStorage.setItem(KEY,JSON.stringify(a));}catch(e){}}
+  function renderKept(){
+    var a=load(); var w=document.getElementById('keptwrap'), c=document.getElementById('kept');
+    if(!a.length){w.style.display='none';return;}
+    w.style.display='block'; c.innerHTML='';
+    a.slice().reverse().forEach(function(p){
+      var d=document.createElement('div');d.className='k';
+      d.textContent=p.lines.join("\n");
+      var v=document.createElement('span');v.className='v';v.textContent='Float '+p.f.toFixed(2);
+      d.appendChild(v); c.appendChild(d);
+    });
+  }
+
+  document.getElementById('gen').onclick=function(){ render(sift(7)); };
+  document.getElementById('keep').onclick=function(){ if(!cur)return; var a=load(); a.push({lines:cur.lines,f:cur.f}); if(a.length>30)a.shift(); save(a); renderKept(); };
+  document.getElementById('copy').onclick=function(){ if(!cur)return; var t=cur.lines.join("\n"); if(navigator.clipboard)navigator.clipboard.writeText(t); var b=this; var o=b.textContent; b.textContent='写した'; setTimeout(function(){b.textContent=o;},1200); };
+  document.getElementById('clear').onclick=function(){ save([]); renderKept(); };
+
+  render(sift(7)); renderKept();
+})();
+</script>
+</body>
+</html>
