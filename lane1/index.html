@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>半灯宇宙 — Lane① / osakenpiro</title>
+<style>
+:root{--void:#0a0b10;--ink:#d8d4c8;--dim:#8a8678;--gold:#d4a853;--gold-dim:#7a6433;--line:#1b1c24;--panel:#11121a}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%}
+body{background:radial-gradient(circle at 50% 6%,#15131d 0%,var(--void) 58%);color:var(--ink);
+ font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;letter-spacing:.02em;min-height:100vh}
+#void{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}.star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff}
+.wrap{position:relative;z-index:2;max-width:52rem;margin:0 auto;padding:11vh 6vw 14vh}
+header{text-align:center;margin-bottom:9vh;position:relative}
+.lamp{width:140px;height:140px;margin:0 auto 3vh;position:relative}
+.lamp .halo{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,rgba(212,168,83,.4),rgba(212,168,83,0) 68%);animation:breathe 5.5s ease-in-out infinite}
+.lamp svg{position:absolute;inset:0}
+@keyframes breathe{0%,100%{opacity:.5;transform:scale(.97)}50%{opacity:.95;transform:scale(1.04)}}
+h1{font-size:clamp(2.4rem,9vw,4rem);margin:0;letter-spacing:.2em;font-weight:600}
+h1 .g{color:var(--gold);text-shadow:0 0 22px rgba(212,168,83,.45)}
+.yomi{color:var(--dim);letter-spacing:.42em;font-size:.82rem;margin-top:1.2em}
+.tag{color:var(--gold-dim);font-style:italic;margin-top:2.4em;font-size:1rem;letter-spacing:.05em}
+.float{color:var(--dim);font-size:.72rem;letter-spacing:.3em;margin-top:2.2em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(15rem,1fr));gap:1rem;margin-top:2vh}
+a.card{display:block;text-decoration:none;background:var(--panel);border:1px solid var(--line);border-radius:13px;
+ padding:1.3rem 1.4rem;color:var(--ink);transition:.18s;position:relative;overflow:hidden}
+a.card:hover{border-color:var(--gold-dim);transform:translateY(-2px)}
+a.card .k{font-size:.68rem;letter-spacing:.22em;color:var(--gold-dim);text-transform:uppercase}
+a.card .t{font-size:1.3rem;letter-spacing:.1em;margin:.5rem 0 .3rem;color:var(--ink)}
+a.card .t .g{color:var(--gold)}
+a.card .d{font-size:.82rem;color:var(--dim);line-height:1.85}
+a.card .arrow{position:absolute;right:1.1rem;bottom:1rem;color:var(--gold-dim);font-size:.9rem;opacity:0;transition:.18s}
+a.card:hover .arrow{opacity:1;right:.9rem}
+.sec{color:var(--gold-dim);font-size:.74rem;letter-spacing:.28em;text-align:center;margin:8vh 0 3vh;text-transform:uppercase}
+.sec::before,.sec::after{content:"";display:inline-block;width:2rem;height:1px;background:var(--line);vertical-align:middle;margin:0 1rem}
+.note{color:var(--dim);text-align:center;font-size:.84rem;line-height:2;max-width:32rem;margin:5vh auto 0}
+.note b{color:var(--gold)}
+footer{text-align:center;color:var(--dim);font-size:.72rem;letter-spacing:.2em;margin-top:8vh;line-height:2.1}
+footer a{color:var(--gold-dim);text-decoration:none}
+</style>
+</head>
+<body>
+<div id="void"></div>
+<div class="wrap">
+  <header>
+    <div class="lamp">
+      <div class="halo"></div>
+      <svg viewBox="0 0 140 140"><circle cx="70" cy="70" r="54" fill="none" stroke="#7a6433" stroke-opacity=".25" stroke-width="2"/>
+      <path d="M 16 70 A 54 54 0 0 1 124 70" fill="none" stroke="#d4a853" stroke-width="2.4"/>
+      <circle cx="70" cy="16" r="4.5" fill="#f0d79a"/><circle cx="70" cy="16" r="2" fill="#fff"/></svg>
+    </div>
+    <h1>半<span class="g">灯</span>宇宙</h1>
+    <div class="yomi">は ん と う ・ う ち ゅ う</div>
+    <div class="tag">二値が溶けて、世界がFloatになった頃の——ひとつづきの作品群。</div>
+    <div class="float">L A N E ① &nbsp;·&nbsp; 0.5 &nbsp;—&nbsp; Boolean → Float</div>
+  </header>
+
+  <div class="sec">読む</div>
+  <div class="grid">
+    <a class="card" href="../lane1-hantou/"><div class="k">短編小説</div><div class="t">半<span class="g">灯</span></div><div class="d">二値が溶けた世界の半灯守り・凪が、落ちていく灯里を「丸めず」看取る話。全六章。</div><div class="arrow">▸</div></a>
+    <a class="card" href="../lane1-fables/"><div class="k">寓話集</div><div class="t">規格と<span class="g">熱</span></div><div class="d">五つの設計原理を、それぞれ独立した奇譚・職人譚に。半灯とは別世界・別トーン。</div><div class="arrow">▸</div></a>
+    <a class="card" href="../lane1-hantou/jiten.html"><div class="k">辞典</div><div class="t">世界<span class="g">辞典</span></div><div class="d">Floatになった頃の、ことばの帳面。27語に音・意・構造を添えて。</div><div class="arrow">▸</div></a>
+    <a class="card" href="../lane1-hantou/awai.html"><div class="k">掌編</div><div class="t">あわい<span class="g">掌編集</span></div><div class="d">地図の縁がにじむ土地の、凪と灯里とは別の人々の、それぞれの小数の話。三本。</div><div class="arrow">▸</div></a>
+    <a class="card" href="../lane1-hantou/yacho.html"><div class="k">手帳</div><div class="t">守り<span class="g">野帳</span></div><div class="d">半灯守りの実務手帳。測り方、油の足し方、丸めない倫理、腐葉土の手入れ。</div><div class="arrow">▸</div></a>
+  </div>
+
+  <div class="sec">さわる</div>
+  <div class="grid">
+    <a class="card" href="../lane1-game/"><div class="k">ゲーム</div><div class="t">半灯<span class="g">守り</span></div><div class="d">夜ごと灯のFloat値を見て、油を足す／見守る／丸める。勝敗のない、丸めない夜のゲーム。</div><div class="arrow">▸</div></a>
+    <a class="card" href="../lane1-awai/"><div class="k">生成アート</div><div class="t">あ<span class="g">わ</span>い</div><div class="d">二値の格子が連続のFloatフィールドへ溶けていく庭。なでて灯し、クリックで丸める。</div><div class="arrow">▸</div></a>
+  </div>
+
+  <div class="sec">考える</div>
+  <div class="grid">
+    <a class="card" href="https://app.notion.com/p/37e2b7e543e081d0ab10f6befec7ac92"><div class="k">研究ノート / Notion</div><div class="t">看取りの<span class="g">Float</span></div><div class="d">Boolean→Floatを多値論理（Łukasiewicz→Zadeh）×continuing bonds×griefbot倫理の交点に置く。</div><div class="arrow">▸</div></a>
+  </div>
+
+  <div class="note">これらはすべて、ひとつの設計原理 <b>Boolean→Float</b>（二値判断を 0.0–1.0 の連続値へ）から生えた。点くか消えるかではなく、どれだけ点っているか——を、物語にも、ゲームにも、絵にも、論にもしてみた一夜の実験です。</div>
+
+  <footer>半灯宇宙 ／ Lane① token-sprint &nbsp;·&nbsp; 2026-06-14 &nbsp;·&nbsp; <a href="https://osakenpiro.github.io/">僕の惑星</a> &nbsp;·&nbsp; #全人類UX改善 &nbsp;·&nbsp; AI-written / generated</footer>
+</div>
+<script>
+(function(){var v=document.getElementById('void');for(var i=0;i<90;i++){var s=document.createElement('div');s.className='star';s.style.left=(Math.random()*100)+'%';s.style.top=(Math.random()*100)+'%';s.style.opacity=(Math.random()*0.5+0.05);s.style.transform='scale('+(Math.random()*1.3+0.4)+')';v.appendChild(s);}})();
+</script>
+</body>
+</html>
