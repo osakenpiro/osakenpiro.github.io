@@ -69,6 +69,16 @@ const NS='http://www.w3.org/2000/svg';
 function el(t,a,parent){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(parent||svg).appendChild(e);return e}
 // era lines
 ANCH.forEach(([y,t],i)=>{const yy=yY(y);el('line',{x1:60,y1:yy,x2:W-10,y2:yy,class:y===2026?'nline':'eline'});el('text',{x:8,y:yy+3,class:'era'}).textContent=(y===2026?'現在':fY(y))});
+// era event bands (歴史イベント横帯 / GEN外定数)
+const EVENTS=[
+  {y:1450,label:'印刷術 →',color:'rgba(42,34,53,0.85)'},
+  {y:1648,label:'国家主権 →',color:'rgba(26,34,53,0.75)'},
+  {y:1760,label:'産業革命 →',color:'rgba(26,40,32,0.75)'},
+  {y:1990,label:'Internet →',color:'rgba(13,26,42,0.85)'},
+  {y:2020,label:'AI →',color:'rgba(32,13,26,0.6)'},
+];
+const evg=el('g',{});
+EVENTS.forEach(ev=>{const yy=yY(ev.y);el('rect',{x:60,y:yy-1,width:W-70,height:20,fill:ev.color,rx:2},evg);el('text',{x:W-14,y:yy+13,'text-anchor':'end',style:'font-size:10px;fill:#6e6255;letter-spacing:.08em;font-family:serif'},evg).textContent=ev.label;});
 // gate bands
 const gates={};DATA.forEach(s=>{(gates[s.g]=gates[s.g]||[]).push(s.x)});
 for(const g in gates){const xs=gates[g];const mid=(Math.min(...xs)+Math.max(...xs))/2;el('text',{x:mid,y:78,'text-anchor':'middle',class:'band'}).textContent=g+'門';el('line',{x1:Math.min(...xs)-22,y1:88,x2:Math.max(...xs)+22,y2:88,stroke:'#23222e','stroke-width':1})}
