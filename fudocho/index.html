@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>腐土帖 — Fudo-cho</title>
+<style>
+/* ─── osakenpiro design system ─── */
+:root {
+  --osk-void:        #0a0a0f;
+  --osk-void-deep:   #06060a;
+  --osk-surface:     #15141a;
+  --osk-surface-hi:  #1c1a23;
+  --osk-gold:        #d4a853;
+  --osk-parchment:   #c8b8a0;
+  --osk-violet:      #a78bfa;
+  --osk-debris-1:    #6b6b80;
+  --osk-debris-2:    #3a3530;
+  --osk-fg-1:        #e8e0d0;
+  --osk-fg-2:        #b8b0a0;
+  --osk-fg-3:        #807868;
+  --osk-dim:         #5a5448;
+  --osk-border:      rgba(200,184,160,0.06);
+  --osk-border-h:    rgba(212,168,83,0.20);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--osk-void-deep);
+  color: var(--osk-fg-1);
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", system-ui, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── Stars background ─── */
+#stars {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--osk-parchment);
+  opacity: 0;
+  animation: twinkle var(--dur, 4s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0; }
+  50% { opacity: var(--max-op, 0.4); }
+}
+
+/* ─── Layout ─── */
+#app {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+/* ─── Header ─── */
+header {
+  text-align: center;
+  padding: 2rem 0 1.5rem;
+  border-bottom: 1px solid var(--osk-border);
+  margin-bottom: 2rem;
+}
+.title-ja {
+  font-family: "Cormorant Garamond", "Hiragino Mincho ProN", Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 2.6rem;
+  color: var(--osk-gold);
+  letter-spacing: 0.15em;
+  line-height: 1.1;
+}
+.title-en {
+  font-size: 0.7rem;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: var(--osk-fg-3);
+  margin-top: 0.35rem;
+}
+.tagline {
+  font-size: 0.78rem;
+  color: var(--osk-fg-3);
+  margin-top: 0.8rem;
+  letter-spacing: 0.05em;
+}
+.heat-legend {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  color: var(--osk-fg-3);
+}
+.legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+
+/* ─── Add form ─── */
+#add-form {
+  background: var(--osk-surface);
+  border: 1px solid var(--osk-border);
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.5rem;
+  transition: border-color 0.2s;
+}
+#add-form:focus-within {
+  border-color: var(--osk-border-h);
+}
+#memo-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--osk-fg-1);
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 3.5rem;
+  line-height: 1.6;
+}
+#memo-input::placeholder { color: var(--osk-dim); }
+.form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.importance-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--osk-fg-3);
+}
+.imp-btn {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--osk-border);
+  background: var(--osk-void);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem;
+  color: var(--osk-fg-3);
+  transition: all 0.15s;
+  position: relative;
+}
+.imp-btn::after {
+  content: attr(data-label);
+  font-size: 0.6rem;
+}
+.imp-btn.active {
+  border-color: var(--osk-gold);
+  color: var(--osk-gold);
+  background: rgba(212,168,83,0.08);
+}
+.imp-btn:hover:not(.active) {
+  border-color: var(--osk-border-h);
+  color: var(--osk-fg-2);
+}
+#add-btn {
+  background: rgba(212,168,83,0.12);
+  border: 1px solid rgba(212,168,83,0.35);
+  color: var(--osk-gold);
+  border-radius: 6px;
+  padding: 0.45rem 1.1rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+#add-btn:hover {
+  background: rgba(212,168,83,0.2);
+  border-color: var(--osk-gold);
+}
+
+/* ─── Search ─── */
+#search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--osk-surface);
+  border: 1px solid var(--osk-border);
+  border-radius: 8px;
+  padding: 0.5rem 0.9rem;
+  margin-bottom: 1.5rem;
+  transition: border-color 0.2s;
+}
+#search-bar:focus-within { border-color: var(--osk-border-h); }
+#search-bar span { color: var(--osk-dim); font-size: 0.85rem; }
+#search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--osk-fg-1);
+  font-size: 0.88rem;
+  font-family: inherit;
+}
+#search-input::placeholder { color: var(--osk-dim); }
+
+/* ─── Zone headers ─── */
+.zone-header {
+  font-size: 0.65rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--osk-debris-1);
+  margin: 0.5rem 0 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.zone-header::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--osk-border);
+}
+.zone-count {
+  font-size: 0.6rem;
+  color: var(--osk-dim);
+  letter-spacing: 0;
+}
+
+/* ─── Memo list ─── */
+#surface-list, #humus-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ─── Memo card ─── */
+.memo-card {
+  background: var(--osk-surface);
+  border: 1px solid var(--osk-border);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: border-color 0.15s, opacity 0.4s, transform 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.memo-card::before {
+  /* heat bar — left edge */
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--heat-color, var(--osk-debris-2));
+  border-radius: 8px 0 0 8px;
+  transition: background 0.4s;
+}
+.memo-card:hover {
+  border-color: var(--osk-border-h);
+}
+.memo-card:hover::before {
+  background: var(--osk-gold);
+}
+
+.memo-body {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: inherit;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.memo-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.55rem;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.meta-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.heat-float {
+  font-size: 0.62rem;
+  color: var(--osk-debris-1);
+  font-family: "JetBrains Mono", "SF Mono", monospace;
+  letter-spacing: 0.02em;
+}
+.heat-bar-wrap {
+  width: 52px;
+  height: 4px;
+  background: var(--osk-void-deep);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.heat-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--heat-color, var(--osk-debris-2));
+  transition: width 0.4s, background 0.4s;
+}
+.touch-count {
+  font-size: 0.6rem;
+  color: var(--osk-dim);
+}
+.memo-date {
+  font-size: 0.62rem;
+  color: var(--osk-dim);
+}
+
+/* importance pip */
+.imp-pip {
+  display: inline-block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--osk-gold);
+  margin-left: 0.2rem;
+  vertical-align: middle;
+  opacity: 0;
+}
+.memo-card[data-imp="1"] .imp-pip { opacity: 0.4; }
+.memo-card[data-imp="2"] .imp-pip { opacity: 0.7; }
+.memo-card[data-imp="3"] .imp-pip { opacity: 1; }
+
+/* ─── Humus zone ─── */
+#humus-zone {
+  margin-top: 2rem;
+}
+/* Humus cards: smaller, more muted, sinking feel */
+#humus-list .memo-card {
+  font-size: 0.82rem;
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 0.3rem;
+}
+#humus-list .memo-body {
+  font-size: 0.82rem;
+  color: var(--osk-fg-3);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+#humus-list .memo-card:hover .memo-body {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+/* ─── Delete area ─── */
+.delete-btn {
+  font-size: 0.62rem;
+  color: var(--osk-dim);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  font-family: inherit;
+  transition: color 0.15s;
+}
+.delete-btn:hover { color: var(--osk-violet); }
+
+/* ─── Empty state ─── */
+.empty-state {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--osk-dim);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  line-height: 1.8;
+}
+
+/* ─── Float badge (on interaction) ─── */
+@keyframes float-pulse {
+  0% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-4px) scale(1.01); }
+  100% { transform: translateY(0) scale(1); }
+}
+.memo-card.just-floated {
+  animation: float-pulse 0.35s ease-out;
+  border-color: rgba(212,168,83,0.35);
+}
+
+/* ─── Tooltip for heat concept ─── */
+.concept-strip {
+  background: var(--osk-surface);
+  border: 1px solid var(--osk-border);
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  font-size: 0.72rem;
+  color: var(--osk-fg-3);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.concept-strip strong { color: var(--osk-gold); font-weight: 600; }
+
+/* ─── Footer ─── */
+footer {
+  text-align: center;
+  margin-top: 3rem;
+  font-size: 0.62rem;
+  color: var(--osk-dim);
+  letter-spacing: 0.12em;
+}
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<div id="app">
+  <header>
+    <div class="title-ja">腐土帖</div>
+    <div class="title-en">Fudo-cho · Humus Memo</div>
+    <div class="tagline">削除しない。沈む。浮かぶ。</div>
+    <div class="heat-legend">
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--osk-gold)"></div>
+        <span>熱い — 浮上</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--osk-parchment)"></div>
+        <span>温い — 中層</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:var(--osk-debris-2)"></div>
+        <span>冷えた — 腐葉土層</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="concept-strip">
+    メモは消えない。<strong>heat</strong>（重要度 × 鮮度 × 接触頻度）が
+    <strong>0.0–1.0</strong> で沈降度を決める。
+    放置すると静かに沈み、触れると浮かぶ。
+  </div>
+
+  <div id="add-form">
+    <textarea id="memo-input" placeholder="メモを書く…" rows="3"></textarea>
+    <div class="form-footer">
+      <div class="importance-selector">
+        <span>重要度:</span>
+        <button class="imp-btn active" data-val="1" data-label="◦" title="低"></button>
+        <button class="imp-btn" data-val="2" data-label="◈" title="中"></button>
+        <button class="imp-btn" data-val="3" data-label="◆" title="高"></button>
+      </div>
+      <button id="add-btn">+ 投じる</button>
+    </div>
+  </div>
+
+  <div id="search-bar">
+    <span>⌕</span>
+    <input type="text" id="search-input" placeholder="腐葉土を掘る…">
+  </div>
+
+  <div id="surface-zone">
+    <div class="zone-header">
+      表層 <span class="zone-count" id="surface-count"></span>
+    </div>
+    <div id="surface-list"></div>
+  </div>
+
+  <div id="humus-zone">
+    <div class="zone-header">
+      腐葉土層 <span class="zone-count" id="humus-count"></span>
+    </div>
+    <div id="humus-list"></div>
+  </div>
+
+  <footer>Fudo-cho · Boolean → Float · osakenpiro 2026</footer>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   腐土帖 — Fudo-cho
+   Humus Memo: heat-based soft-sinking memos
+   Boolean(消す/残す) → Float(沈降度 0.0–1.0)
+   ═══════════════════════════════════════════════════ */
+
+const STORAGE_KEY = 'fudocho_v1';
+const HUMUS_THRESHOLD = 0.35; // heat below this → humus layer
+const DECAY_RATE = 0.018;     // heat lost per day of inactivity
+const TOUCH_BOOST = 0.25;     // heat gained per tap/touch
+const IMP_WEIGHT  = [0, 0.28, 0.50, 1.0]; // importance multiplier base
+
+/* ── Stars ── */
+(function buildStars() {
+  const el = document.getElementById('stars');
+  const N = 80;
+  for (let i = 0; i < N; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2 + 0.5;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --dur:${3 + Math.random()*5}s;
+      --delay:${Math.random()*6}s;
+      --max-op:${0.15 + Math.random()*0.35};
+    `;
+    el.appendChild(s);
+  }
+})();
+
+/* ── Data layer ── */
+function load() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+function save(memos) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(memos));
+}
+
+/* ── Heat calculation ──
+   heat = importance_base * recency_factor * touch_factor
+   recency_factor = exp(-DECAY_RATE * days_since_touch)
+   touch_factor   = 1 + 0.15 * log(1 + touches)
+   Result clamped 0.0–1.0
+*/
+function computeHeat(memo) {
+  const now = Date.now();
+  const daysSince = (now - (memo.lastTouch || memo.created)) / 86400000;
+  const recency = Math.exp(-DECAY_RATE * daysSince);
+  const touchBonus = 1 + 0.15 * Math.log1p(memo.touches || 0);
+  const impBase = IMP_WEIGHT[memo.importance] || IMP_WEIGHT[1];
+  const raw = impBase * recency * touchBonus;
+  return Math.min(1, Math.max(0, raw));
+}
+
+function heatColor(h) {
+  // cold (debris) → warm (parchment) → hot (gold)
+  if (h >= 0.65) return '#d4a853';       // gold
+  if (h >= 0.35) return '#c8b8a0';       // parchment
+  return '#3a3530';                        // debris-2
+}
+
+/* ── Touch a memo (float it) ── */
+function touchMemo(id) {
+  const memos = load();
+  const m = memos.find(x => x.id === id);
+  if (!m) return;
+  m.touches = (m.touches || 0) + 1;
+  m.lastTouch = Date.now();
+  save(memos);
+  render();
+  // visual feedback: bounce the card
+  const card = document.querySelector(`.memo-card[data-id="${id}"]`);
+  if (card) {
+    card.classList.remove('just-floated');
+    void card.offsetWidth;
+    card.classList.add('just-floated');
+    setTimeout(() => card.classList.remove('just-floated'), 400);
+  }
+}
+
+/* ── Delete ── */
+function deleteMemo(id) {
+  const memos = load().filter(x => x.id !== id);
+  save(memos);
+  render();
+}
+
+/* ── Add ── */
+let currentImp = 1;
+
+document.querySelectorAll('.imp-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.imp-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentImp = parseInt(btn.dataset.val, 10);
+  });
+});
+
+document.getElementById('add-btn').addEventListener('click', addMemo);
+document.getElementById('memo-input').addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') addMemo();
+});
+
+function addMemo() {
+  const text = document.getElementById('memo-input').value.trim();
+  if (!text) return;
+  const memos = load();
+  const now = Date.now();
+  memos.unshift({
+    id: now + Math.random().toString(36).slice(2, 7),
+    text,
+    importance: currentImp,
+    created: now,
+    lastTouch: now,
+    touches: 0,
+  });
+  save(memos);
+  document.getElementById('memo-input').value = '';
+  render();
+}
+
+/* ── Search ── */
+let searchQuery = '';
+document.getElementById('search-input').addEventListener('input', e => {
+  searchQuery = e.target.value.toLowerCase();
+  render();
+});
+
+/* ── Render ── */
+function render() {
+  const memos = load().map(m => ({ ...m, heat: computeHeat(m) }));
+
+  // if searching, show ALL (no sinking) matching query
+  let surface, humus;
+  if (searchQuery) {
+    const matched = memos.filter(m => m.text.toLowerCase().includes(searchQuery));
+    surface = matched;
+    humus = [];
+  } else {
+    memos.sort((a, b) => b.heat - a.heat);
+    surface = memos.filter(m => m.heat >= HUMUS_THRESHOLD);
+    humus   = memos.filter(m => m.heat <  HUMUS_THRESHOLD);
+  }
+
+  renderList('surface-list', surface);
+  renderList('humus-list', humus);
+  document.getElementById('surface-count').textContent = surface.length ? `(${surface.length})` : '';
+  document.getElementById('humus-count').textContent   = humus.length   ? `(${humus.length})`   : '';
+}
+
+function renderList(containerId, memos) {
+  const el = document.getElementById(containerId);
+  if (!memos.length) {
+    el.innerHTML = `<div class="empty-state">ここは空だ。<br><span style="font-size:0.7em">触れるたびに浮かび上がる</span></div>`;
+    return;
+  }
+  el.innerHTML = memos.map(m => cardHTML(m)).join('');
+
+  // bind events after render
+  el.querySelectorAll('.memo-card').forEach(card => {
+    const id = card.dataset.id;
+    card.addEventListener('click', e => {
+      if (e.target.closest('.delete-btn')) return;
+      touchMemo(id);
+    });
+    const del = card.querySelector('.delete-btn');
+    if (del) del.addEventListener('click', e => {
+      e.stopPropagation();
+      if (confirm('このメモを完全に削除しますか？\n（腐葉土に降ろすのは自動です。削除は不可逆です。）')) {
+        deleteMemo(id);
+      }
+    });
+  });
+}
+
+function fmt(ts) {
+  const d = new Date(ts);
+  return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function cardHTML(m) {
+  const h = m.heat;
+  const hc = heatColor(h);
+  const pct = Math.round(h * 100);
+  const barW = pct;
+  const opacity = 0.35 + h * 0.65; // 0.35 (cold) → 1.0 (hot)
+  const pips = '<span class="imp-pip"></span>'.repeat(m.importance);
+  return `
+<div class="memo-card"
+     data-id="${escHtml(m.id)}"
+     data-imp="${m.importance}"
+     style="--heat-color:${hc}; opacity:${opacity.toFixed(2)};">
+  <div class="memo-body">${escHtml(m.text)}${pips}</div>
+  <div class="memo-meta">
+    <div class="meta-left">
+      <span class="heat-float">h=${h.toFixed(2)}</span>
+      <div class="heat-bar-wrap">
+        <div class="heat-bar-fill" style="width:${barW}%; background:${hc};"></div>
+      </div>
+      <span class="touch-count">×${m.touches || 0}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+      <span class="memo-date">${fmt(m.created)}</span>
+      <button class="delete-btn" title="完全削除">✕</button>
+    </div>
+  </div>
+</div>`;
+}
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── Initial render ── */
+render();
+</script>
+</body>
+</html>
