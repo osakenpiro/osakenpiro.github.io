@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>世界辞典 — 半灯</title>
+<style>
+:root{--void:#0a0b10;--ink:#d8d4c8;--dim:#8a8678;--gold:#d4a853;--gold-dim:#7a6433;--line:#1b1c24}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{background:var(--void);color:var(--ink);
+ font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+ line-height:2.05;letter-spacing:.02em;font-size:17px;-webkit-font-smoothing:antialiased}
+#void{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff}
+nav.top{position:relative;z-index:3;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;justify-content:center;
+ padding:1.5rem 1rem .6rem;border-bottom:1px solid var(--line)}
+nav.top a{color:var(--dim);text-decoration:none;font-size:.82rem;letter-spacing:.18em;padding:.2rem 0;transition:.15s}
+nav.top a:hover{color:var(--gold)}
+nav.top a.here{color:var(--gold);border-bottom:1px solid var(--gold-dim)}
+.wrap{position:relative;z-index:2;max-width:46rem;margin:0 auto;padding:9vh 8vw 16vh}
+header.title{text-align:center;margin-bottom:8vh}
+header.title h1{font-size:clamp(2.6rem,11vw,5rem);margin:0;letter-spacing:.18em;font-weight:600;color:var(--ink)}
+header.title h1 .half{color:var(--gold);text-shadow:0 0 22px rgba(212,168,83,.45)}
+header.title .yomi{color:var(--dim);letter-spacing:.5em;font-size:.86rem;margin-top:1.2em}
+header.title .epigraph{color:var(--gold-dim);font-style:italic;margin-top:2.4em;font-size:1rem;letter-spacing:.06em}
+.cover{max-width:300px;margin:0 auto 4vh;display:block;border:1px solid var(--line);border-radius:6px}
+section{margin:0 0 11vh}
+section h2{color:var(--gold);font-weight:600;font-size:1.4rem;letter-spacing:.28em;text-align:center;margin:0 0 2.8em}
+section h2::after{content:"";display:block;width:2.2rem;height:1px;background:var(--gold-dim);margin:1.3em auto 0;opacity:.6}
+section h3{color:var(--gold-dim);font-weight:600;font-size:1rem;letter-spacing:.2em;margin:3em 0 1.2em}
+section p{margin:0 0 1.6em}
+section p.indent{text-indent:1em}
+blockquote{border-left:2px solid var(--line);margin:2em 0;padding:.2em 0 .2em 1.4em;color:var(--dim);font-size:.95rem;line-height:1.95}
+ul{list-style:none;padding-left:0;margin:1.4em 0}
+li{margin:.5em 0;padding-left:1.2em;position:relative;color:var(--ink)}
+li::before{content:"・";color:var(--gold-dim);position:absolute;left:0}
+hr{border:none;height:1px;background:var(--line);margin:5em auto;width:40%}
+strong{color:var(--gold);font-weight:600}
+em{font-style:normal;color:var(--ink);border-bottom:1px solid var(--gold-dim)}
+.fin{text-align:center;color:var(--gold);letter-spacing:1.2em;margin:5em 0;opacity:.8}
+.lead{color:var(--dim);text-align:center;font-size:.92rem;line-height:1.95;max-width:32rem;margin:0 auto 6vh}
+footer{text-align:center;color:var(--dim);font-size:.74rem;letter-spacing:.2em;padding-bottom:8vh;position:relative;z-index:2;line-height:2.2}
+footer a{color:var(--gold-dim);text-decoration:none}
+::selection{background:rgba(212,168,83,.25)}
+</style></head>
+<body>
+<div id="void"></div>
+<nav class="top"><a href="index.html" class="">本編</a><a href="jiten.html" class="here">世界辞典</a><a href="awai.html" class="">あわい掌編</a><a href="yacho.html" class="">守り野帳</a><a href="../lane1-game/" class="">ゲーム</a></nav>
+<div class="wrap">
+<header class="title"><h1 style="font-size:clamp(2rem,8vw,3.2rem)">世界辞典</h1></header><p class="lead">二値が溶けてFloatになった頃の、ことばの帳面。</p>
+<blockquote>『半灯』の世界——二値が溶けてFloatになった頃の、ことばの帳面。各語に音・意・構造、あるいは定義と例文を添える。</blockquote>
+<hr>
+<h2>溶（と）ける</h2>
+<ul>
+<li><strong>音</strong>：ける ＝ 解ける。約束も、氷も、境も。</li>
+<li><strong>意</strong>：線が幅を持つこと。点くか消えるかの二択が失われ、あいだに無限の小数が湧くこと。</li>
+<li><strong>構造</strong>：Boolean → Float への相転移。世界が「どちらか」を問うのをやめ、「どれだけ」を問うようになった出来事そのもの。</li>
+<li>例文：「三年前に、約束が溶けた。破られず、守られず、〇・四のあたりで宙づりになった。」</li>
+</ul>
+<h2>Float度（フロートど）</h2>
+<p>灯や人や物が、いまどれだけ点っているかを表す連続値。零から一までのあいだの、いっさいの小数。〇・〇〇一も〇・四も〇・九九九も、それぞれ正式な値として認められる。役所は「Float化」と呼び、人々はただ「溶けた」と呼んだ。古い世界の「点く／消える」は、この物差しの両端だけを切り取った、ひどく粗い目盛りだった。</p>
+<h2>線（せん）</h2>
+<p>溶ける前の世界の物差し。ここから先は真、ここから手前は偽。またぐ瞬間だけが劇的で、あとは自分がどちら側にいるかを疑わずに済んだ。試験は受かるか落ちるか。灯は点くか消えるか。人は生きているか死んでいるか。——線のいちばんの楽さは、終わりを自分で決めなくていいことだった。</p>
+<h2>帯（おび）</h2>
+<p>線が幅を持ったもの。真と偽のあいだに横たわる、小数の領域。「帯は、しんどい」と老灯守りは言う。どこにいるか、いつも自分で決めなければならないから。線は楽で、帯は自由で、自由はいつも少しだけ重い。</p>
+<h2>閾（しきい）</h2>
+<ul>
+<li><strong>音</strong>：しきい ＝ 敷居。またぐべき一本。</li>
+<li><strong>意</strong>：真と偽を分けていた境目の一線。溶ける前は、世界じゅうにこれが引かれていた。</li>
+<li><strong>構造</strong>：幅ゼロの境界。Float化とは、すべての閾が幅を持ち、〇から一までへ引き伸ばされたこと。</li>
+<li>例文：「閾が消えた世界では、別れの瞬間さえ、もう来ないのかもしれない。」</li>
+</ul>
+<h2>半灯（はんとう）</h2>
+<ul>
+<li><strong>音</strong>：はんとう ＝ 半島。陸でも海でもない、あいだの地形。</li>
+<li><strong>意</strong>：半分だけ点った明かり。〇でも一でもない光量。〇・五。</li>
+<li><strong>構造</strong>：Boolean→Float そのもの。欠けた一でも、零になりそこねた失敗でもなく、それ自身の値。半島が陸の失敗でも海の失敗でもなく、ただ陸と海のあいだの地形であるように。</li>
+<li>例文：「半灯は、欠けた一ではない。零になりそこなった失敗でもない。〇・一六は、〇・一六という正しい値だ。」</li>
+</ul>
+<h2>半灯（はんとう）守り</h2>
+<p>町じゅうの灯のFloat値を読んで回る職。落ちすぎたものには油を足し、上がりすぎたものは少し落とす。古老いわく、灯は人の心とつながっている。灯の値を見ていると、その家の人間がいま世界のどのあたりに点っているのか、なんとなく察してしまう。丸め令ののちは、測って丸める手を担わされる立場にもなった。——だからこそ、測らないという抵抗が生まれた。</p>
+<h2>灯守り（ひもり）</h2>
+<p>半灯守りの古い呼び名、あるいはあわいでの呼び方。役所の徽章を持たず、ただ灯のそばに居つづける者を指すこともある。あわいの灯守りたちは、誰の値も読み上げず、ただ油を足し、土を手入れする。</p>
+<h2>油（あぶら）</h2>
+<p>落ちた灯を持ち上げるために足すもの。ただし無理に足せば灯は明るくなるが嘘になる。「嘘の一より、本当の〇・三七のほうがいい」が半灯守りの第一の教え。油は値を上げる道具であると同時に、いつ足さないかを選ぶ道具でもある。足さないこともまた、ひとつの手当てだ。</p>
+<h2>測（はか）る</h2>
+<p>灯のFloat値を読み、帳面に書きつけること。あわいでは小数が気まぐれに逃げるが、測って帳面に書いた瞬間、値は固定される。逃げられなくなる。それゆえ「測らない」「書かない」ことが、灯を丸めから逃がすただひとつの抵抗になる。読まなければ、無いことにできない。</p>
+<h2>丸（まる）め</h2>
+<ul>
+<li><strong>音</strong>：まるめ ＝ 円めて角を消す。端数を、無いことにする。</li>
+<li><strong>意</strong>：Float値を、いちばん近いBooleanへ戻すこと。〇・一九を、面倒だから〇にすること。</li>
+<li><strong>構造</strong>：Float→Boolean の逆流。溶けた世界が最も警戒する行為。「〇・〇一を、無いことにするな。一に満たないものを、無いことにするな。」</li>
+<li>例文：「丸めれば消える、けれど勝手に丸めるな。」</li>
+</ul>
+<h2>丸め令（まるめれい）</h2>
+<p>正式名〈境界回復に関する暫定措置〉。春の終わりに役所が出した条例。〇・二未満の灯は零とみなして消灯でき、〇・八超の灯は一とみなして定灯できる、とする。目的は「世界の境界を回復し、市民の混乱を鎮める」こと。——要するに、世界をまた線に戻したいのだ。帯がしんどい者たちのための、楽になるための法。</p>
+<h2>消灯（しょうとう）</h2>
+<p>丸め令における、〇・二未満の灯を零とみなして消す措置。零でないものを、人の手で零にすること。条文は「とることが <em>できる</em>」であって「とらねばならない」ではない。とるかどうかは、測った者が決める。——この一語のすきまに、抵抗の余地がある。</p>
+<h2>定灯（じょうとう）</h2>
+<p>丸め令における、〇・八超の灯を一とみなして固定する措置。消灯の対をなす。落ちきらないものを消すのと同じ手つきで、点りきらないものを「完全に点いた」ことにする。上向きの丸めもまた、嘘の一をつくる。</p>
+<h2>零（れい）とみなす</h2>
+<p>丸めの言いかえ。「みなす」がこの語の急所で、実際に零なのではなく、零ということに <em>する</em>。〇・〇三の光は確かに在るのに、面倒だから、線が恋しいから、無いことにする。腐葉土の温みを捨てるとは、すなわちこの「みなす」を積み重ねることだ。</p>
+<h2>端数（はすう）</h2>
+<p>線の世界が切り捨てたがる、一に満たない値。けれどあわいでは、端数こそが本体だ。「丸めるべき端数ではなく、灯里そのものだ」。誰かのいまの正直な値を端数と呼ぶとき、その人を半分、無いことにしている。</p>
+<h2>あわい</h2>
+<ul>
+<li><strong>音</strong>：あわい ＝ 間・淡い。陸と海の縁が滲むあたり。</li>
+<li><strong>意</strong>：町と町のあいだ、地図の縁がにじむ土地。半島のように、陸でも海でもない場所が、世界が溶けてからそこここに湧いた。</li>
+<li><strong>構造</strong>：丸めの届かない領域。灯のFloat値が一日に何度も気まぐれに変わり、測ろうとした端から数字が逃げる。安定しないかわりに、誰も丸められない。</li>
+<li>例文：「線の引かれていない場所。丸めようのない場所。——あわい、へ。」</li>
+</ul>
+<h2>腐葉土（ふようど）</h2>
+<ul>
+<li><strong>音</strong>：ふようど ＝ 腐る・養う・土。腐ることが養うことになる層。</li>
+<li><strong>意</strong>：零になりきれず、けれどもう点れもしない、〇・〇いくつかの灯たちが幾層にも積もって土になりかけたもの。劣化ではなく、次の養分。</li>
+<li><strong>構造</strong>：腐葉土設計そのもの。落ちた値を捨てず、低く広い温みとして保つ。零に丸めればこの層も消える。「あなたの足もとが温いのは、昔だれかが点っていた名残りよ。」</li>
+<li>例文：「落ちることは、消えることじゃない。点れなくなった灯は、ここで土になる。土は、次の灯を育てる。」</li>
+</ul>
+<h2>看取（みと）り</h2>
+<p>落ちていく灯のそばに、丸めずに居つづけること。終わらせるのではなく、終わりをこちらで決めないこと。「灯里がいつ土になるかは、灯里が決める。わたしは、その手前まで、そばにいる。」——溶けた世界では、看取りもまた点くか消えるかではなく、どれだけそばにいられたか、で測られる。</p>
+<h2>土（つち）になる</h2>
+<p>灯が零をまたがずに、ゆっくりと腐葉土の層へ降りていくこと。消えるのとは違う。〇・〇三のまま目を覚まさなくなった灯は、消えたのではなく、土になったのだと数える。土になった灯は温かく、ほの明るい。先に土になったすべての灯の総和に、新しいひとつが加わる。</p>
+<h2>徽章（きしょう）</h2>
+<p>役所が有資格の半灯守りに与える印。線の世界の名残りで、規則の証。あわいのような線の引けない場所では、ふだん役に立たない。ただし「同業者の測定は互いに優先される」といった但し書きを盾にとるとき、この古い印が、灯をひとつ丸めから救うこともある。線の遺物を、線に抗うために使う。</p>
+<h2>但（ただ）し書き</h2>
+<p>条文のすきま。「とることができる」「同業者の測定は優先される」といった、解釈の余地を残す一文。線の世界がうっかり残していった帯。凪の抵抗は、ここに足をかけて立っている。法をやぶるのではなく、法のすきまに点る。</p>
+<h2>ちょっと生きた</h2>
+<ul>
+<li><strong>音</strong>：ちょっといきた ＝ 完了でも未完了でもない、半分の動詞。</li>
+<li><strong>意</strong>：揺れて、ふいに値が戻った一瞬を指す、溶けた世界の言い方。「生きた」ではなく「ちょっと生きた」。</li>
+<li><strong>構造</strong>：動詞のFloat化。行為さえも〇か一かではなく、どれだけ、で語られる。</li>
+<li>例文：「『いま、ちょっと、生きたわ』と。生きた、ではなく、ちょっと生きた。」</li>
+</ul>
+<h2>定灯（じょうとう）地区／未測定地区</h2>
+<p>役所の用語。定灯地区は丸めが完了し、灯がすべて〇か一に固定された区画。未測定地区は、まだ測りの届いていない区画——あわいを含む。役所は「境界回復にまいりました」と言って未測定地区へ入ってくる。彼らにとって帯は、未完了の線にすぎない。</p>
+<h2>把手（とって）</h2>
+<p>溶ける前、灯を点け消しした道具。上げれば一、下げれば零。世界がそういう約束で動いていた頃の象徴。「把手を上げれば一、下げれば零——そんな世界は、もう還らない。還らなくて、いい。」もはや誰も把手を探さない。点け消しではなく、どれだけ、を手当てする時代になった。</p>
+<h2>〇・五（れいてんご）の不安定</h2>
+<p>帯のちょうど真ん中の値。最も自由で、最も落ち着かない。あわいで測定器を当てると、針はしばしば〇・五のあたりで迷うように震える。線を引きに来た者の手の甲さえ、この土地では〇・五を行き来する。半灯のともしびが〇・五で点りつづけるのは、答えではなく、いちばん古い問いそのものを灯しておくためだ。</p>
+<h2>ともしび</h2>
+<p>物語の最後に、村のはずれの腐葉土のそばに置かれた、半分だけ点る灯。〇・五。誰かがそばを通るとほんの少し明るくなり、通り過ぎるともとの半分に戻る。「ひとつの、消えない、半分の明かり。」零に丸められなかったものたちの総和の、いちばん上で点る、たったひとつの問いの答え。</p>
+</div>
+<footer>半灯（はんとう） ／ <a href="https://app.notion.com/p/37e2b7e543e081d0ab10f6befec7ac92">研究ノート</a> &nbsp;·&nbsp; osakenpiro &nbsp;·&nbsp; #全人類UX改善 &nbsp;·&nbsp; Boolean→Float &nbsp;·&nbsp; AI-written</footer>
+<script>
+(function(){var v=document.getElementById('void');for(var i=0;i<80;i++){var s=document.createElement('div');s.className='star';s.style.left=(Math.random()*100)+'%';s.style.top=(Math.random()*100)+'%';s.style.opacity=(Math.random()*0.5+0.05);s.style.transform='scale('+(Math.random()*1.3+0.4)+')';v.appendChild(s);}})();
+</script>
+</body></html>
