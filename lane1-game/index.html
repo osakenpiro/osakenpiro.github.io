@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>半灯守り — 丸めない夜のゲーム</title>
+<style>
+:root{
+  --void:#0a0b10; --void2:#0e0f17; --panel:#12131c; --ink:#d8d4c8; --dim:#8a8678;
+  --gold:#d4a853; --gold-dim:#7a6433; --line:#1d1e28;
+  --warm:#caa15a; --cool:#5c6b82; --danger:#9a5b4a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:radial-gradient(circle at 50% 0%, #14131c 0%, var(--void) 60%);
+  color:var(--ink); font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;
+  letter-spacing:.02em; -webkit-font-smoothing:antialiased; min-height:100%;
+}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff}
+.wrap{position:relative;z-index:2;max-width:60rem;margin:0 auto;padding:4vh 5vw 12vh}
+header{text-align:center;margin-bottom:3vh}
+h1{font-size:clamp(2.2rem,7vw,3.4rem);margin:0;letter-spacing:.2em;font-weight:600}
+h1 .g{color:var(--gold);text-shadow:0 0 20px rgba(212,168,83,.4)}
+.sub{color:var(--dim);letter-spacing:.35em;font-size:.78rem;margin-top:1em}
+/* meters */
+.meters{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin:3vh 0}
+.meter{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:.8rem 1.1rem;min-width:8.5rem;text-align:center}
+.meter .lab{color:var(--dim);font-size:.7rem;letter-spacing:.2em}
+.meter .val{font-size:1.5rem;color:var(--gold);margin-top:.2em;font-variant-numeric:tabular-nums}
+.floatbar{height:6px;border-radius:3px;margin-top:.5rem;background:linear-gradient(90deg,var(--cool),var(--warm));position:relative;opacity:.85}
+.floatbar .mark{position:absolute;top:-3px;width:2px;height:12px;background:#fff;border-radius:1px;box-shadow:0 0 6px #fff}
+.night-label{text-align:center;color:var(--dim);letter-spacing:.3em;font-size:.85rem;margin:1vh 0 3vh}
+/* lamp grid */
+.lamps{display:grid;grid-template-columns:repeat(auto-fill,minmax(15rem,1fr));gap:1rem}
+.lamp{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1.1rem;position:relative;overflow:hidden;transition:border-color .4s}
+.lamp .glow{position:absolute;left:50%;top:-30%;transform:translateX(-50%);width:120%;height:80%;border-radius:50%;pointer-events:none;filter:blur(8px)}
+.lamp .name{font-size:.78rem;color:var(--dim);letter-spacing:.15em;min-height:1.1em}
+.lamp .num{font-size:2.4rem;color:var(--ink);font-variant-numeric:tabular-nums;margin:.1em 0;position:relative;z-index:2}
+.lamp .drift{font-size:.72rem;letter-spacing:.1em;position:relative;z-index:2}
+.drift.fall{color:var(--danger)} .drift.rise{color:var(--warm)} .drift.hold{color:var(--cool)}
+.lamp .acts{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem;position:relative;z-index:2}
+button{font-family:inherit;cursor:pointer;border-radius:7px;border:1px solid var(--line);background:#171823;color:var(--ink);padding:.4rem .7rem;font-size:.8rem;letter-spacing:.05em;transition:.15s}
+button:hover{border-color:var(--gold-dim);color:var(--gold)}
+button:disabled{opacity:.3;cursor:not-allowed}
+button.warn:hover{border-color:var(--danger);color:#c98}
+.primary{background:linear-gradient(180deg,#1c1b22,#15141b);border-color:var(--gold-dim);color:var(--gold);padding:.7rem 1.6rem;font-size:.95rem;letter-spacing:.2em}
+.bar{text-align:center;margin:4vh 0 2vh}
+.note{color:var(--dim);font-size:.8rem;text-align:center;line-height:1.9;max-width:34rem;margin:1.5vh auto}
+.log{max-width:40rem;margin:4vh auto 0;border-top:1px solid var(--line);padding-top:2vh}
+.log h3{color:var(--gold-dim);font-size:.8rem;letter-spacing:.2em;font-weight:600;text-align:center}
+.log .line{color:var(--dim);font-size:.82rem;line-height:1.95;padding:.1em 0;border-bottom:1px dotted #16171f}
+.ending{background:var(--panel);border:1px solid var(--gold-dim);border-radius:14px;padding:2.5rem;margin:4vh auto;max-width:40rem;line-height:2.1;display:none}
+.ending h2{color:var(--gold);letter-spacing:.2em;text-align:center;font-weight:600}
+.ending p{color:var(--ink)}
+.humus-layer{height:10px;border-radius:0 0 12px 12px;background:linear-gradient(180deg,#2a2114,#1a140c);margin:3vh -5vw -12vh;position:relative;z-index:1}
+footer{text-align:center;color:var(--dim);font-size:.72rem;letter-spacing:.2em;margin-top:6vh}
+footer a{color:var(--gold-dim);text-decoration:none}
+.intro{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:2rem;max-width:38rem;margin:0 auto 3vh;line-height:2.05;color:var(--dim);font-size:.92rem}
+.intro b{color:var(--gold);font-weight:600}
+.toprow{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;max-width:40rem;margin:0 auto 1vh}
+.small{font-size:.74rem;color:var(--dim)}
+</style>
+</head>
+<body>
+<div id="stars"></div>
+<div class="wrap">
+  <header>
+    <h1>半<span class="g">灯</span>守り</h1>
+    <div class="sub">は ん と う も り &nbsp;—&nbsp; 丸 め な い 夜 の ゲ ー ム</div>
+  </header>
+
+  <div id="intro" class="intro">
+    世界が溶けて、灯は「点く / 消える」をやめた。いまはどれも、<b>0 と 1 のあいだ</b>の小数で点っている。<br><br>
+    あなたは <b>半灯守り</b>。夜ごとに灯を見て回り、落ちすぎたものに<b>油</b>を足す。役所は <b>丸め令</b> を出した——〇.二未満は零とみなして消してよい、と。だが、丸めるかどうかは<b>あなたが決める</b>。<br><br>
+    零に丸められず静かに落ちた灯は、<b>腐葉土</b>になる。土は温く、次の灯を育てる。丸めた灯は、土にならない。<br><br>
+    勝ち負けはない。あるのは、世界がどれだけ <b>帯（Float）</b> のままでいられたか、だけ。
+    <div class="bar" style="margin-bottom:0"><button class="primary" id="start">夜を始める</button></div>
+  </div>
+
+  <div id="game" style="display:none">
+    <div class="meters">
+      <div class="meter"><div class="lab">油</div><div class="val" id="m-oil">—</div></div>
+      <div class="meter"><div class="lab">腐葉土の温み</div><div class="val" id="m-humus">—</div></div>
+      <div class="meter" style="min-width:12rem">
+        <div class="lab">世界の Float 度</div><div class="val" id="m-float">—</div>
+        <div class="floatbar"><div class="mark" id="floatmark"></div></div>
+        <div class="small" id="float-word" style="margin-top:.4rem"></div>
+      </div>
+    </div>
+    <div class="night-label" id="nightlabel">第一夜</div>
+    <div class="lamps" id="lamps"></div>
+    <div class="bar">
+      <button class="primary" id="next">夜を明かす ▸</button>
+      <div class="note" id="hint"></div>
+    </div>
+    <div class="ending" id="ending"></div>
+    <div class="log"><h3>夜の覚え書き</h3><div id="log"></div></div>
+  </div>
+
+  <footer>半灯守り ／ <a href="../lane1-hantou/">原作『半灯』を読む</a> &nbsp;·&nbsp; osakenpiro &nbsp;·&nbsp; #全人類UX改善 &nbsp;·&nbsp; Boolean→Float</footer>
+</div>
+<div class="humus-layer"></div>
+
+<script>
+(function(){
+  "use strict";
+  // ---------- starfield ----------
+  var sc=document.getElementById('stars');
+  for(var i=0;i<70;i++){var s=document.createElement('div');s.className='star';
+    s.style.left=(Math.random()*100)+'%';s.style.top=(Math.random()*100)+'%';
+    s.style.opacity=(Math.random()*0.5+0.05);s.style.transform='scale('+(Math.random()*1.3+0.4)+')';sc.appendChild(s);}
+
+  // ---------- names for "named" lamps (emotional weight) ----------
+  var NAMES=["灯里","ともし","なずな","くらげ","みなも","しろ","ゆう","あおい","ひので","まひる","やしろ","とう"];
+  var KEY="hantoumori.save.v1";
+  var ARC=12; // nights in the main arc
+
+  var S=null;
+  function fresh(){
+    return {night:1, oil:5, humus:0, floatness:0.5, lamps:[], log:[], idc:0, ended:false, namedUsed:[]};
+  }
+  function load(){ try{var r=localStorage.getItem(KEY); if(r){return JSON.parse(r);} }catch(e){} return null; }
+  function save(){ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
+
+  function rnd(a,b){return a+Math.random()*(b-a);}
+  function clamp(x,a,b){return Math.max(a,Math.min(b,x));}
+  function round2(x){return Math.round(x*100)/100;}
+
+  function newLamp(opts){
+    opts=opts||{};
+    var drift = opts.drift!==undefined?opts.drift : (Math.random()<0.55?-1:(Math.random()<0.5?0:1));
+    var val = opts.val!==undefined?opts.val : round2(rnd(0.25,0.9));
+    var named = opts.named!==undefined?opts.named:(Math.random()<0.22);
+    var name="";
+    if(named){
+      var pool=NAMES.filter(function(n){return S.namedUsed.indexOf(n)<0;});
+      if(pool.length){name=pool[(Math.random()*pool.length)|0]; S.namedUsed.push(name);}
+    }
+    return {id:++S.idc, val:round2(val), drift:drift, name:name, born:S.night, touched:false};
+  }
+
+  function spawnNight(){
+    // carry persistent lamps; add a few new each night
+    var add = S.night===1?3:(1+ (Math.random()<0.6?1:0) + (Math.random()<0.3?1:0));
+    for(var i=0;i<add;i++) S.lamps.push(newLamp(S.night===1 && i===0?{named:true,val:0.55,drift:-1}:{}));
+  }
+
+  function floatWord(f){
+    if(f<0.2) return "世界はほとんど《線》に戻った";
+    if(f<0.4) return "境界が固くなりつつある";
+    if(f<0.6) return "線と帯のあいだ";
+    if(f<0.8) return "世界は《帯》のまま息をしている";
+    return "世界は深く《帯》——どの灯も、自分の小数で点る";
+  }
+
+  // ---------- actions ----------
+  function addOil(l){
+    if(S.oil<=0||S.ended) return;
+    S.oil--; l.val=round2(clamp(l.val+rnd(0.12,0.22),0,1)); l.touched=true;
+    S.floatness=clamp(S.floatness+0.005,0,1); // tending sustains the float-world a little
+    logln("油を足した。"+(l.name?("「"+l.name+"」"):"ある灯")+" は "+fmt(l.val)+" に。");
+    render();
+  }
+  function roundLamp(l,to){
+    if(S.ended) return;
+    // remove, push world toward binary, no humus
+    S.lamps=S.lamps.filter(function(x){return x.id!==l.id;});
+    S.floatness=clamp(S.floatness - (to===0?0.06:0.045),0,1);
+    logln((l.name?("「"+l.name+"」を"):"ある灯を")+(to===0?"零に丸めた。消灯。":"一に丸めた。定灯。")+" 世界は少し《線》へ。");
+    render();
+  }
+  function watch(l){
+    if(S.ended) return;
+    l.touched=true;
+    S.floatness=clamp(S.floatness+0.012,0,1); // refusing to resolve keeps the world a band
+    logln((l.name?("「"+l.name+"」を"):"ある灯を")+"そのまま見守った。"+fmt(l.val)+" のまま。");
+    render();
+  }
+
+  function fmt(v){ return "〇."+String(Math.round(v*100)).padStart(2,"0").replace(/0/g,"〇").replace(/1/g,"一").replace(/2/g,"二").replace(/3/g,"三").replace(/4/g,"四").replace(/5/g,"五").replace(/6/g,"六").replace(/7/g,"七").replace(/8/g,"八").replace(/9/g,"九"); }
+  function fmtNum(v){ return v.toFixed(2); }
+
+  function logln(t){ S.log.unshift("第"+kanji(S.night)+"夜 — "+t); if(S.log.length>40)S.log.pop(); }
+  function kanji(n){var k=["〇","一","二","三","四","五","六","七","八","九","十","十一","十二","十三","十四","十五","十六","十七","十八","十九","二十"];return k[n]||(""+n);}
+
+  // ---------- advance night ----------
+  function advance(){
+    if(S.ended) return;
+    // drift all lamps
+    var becameHumus=0, settled=[];
+    S.lamps.forEach(function(l){
+      var d = l.drift * rnd(0.06,0.13);
+      // stable lamps flicker slightly
+      if(l.drift===0) d = rnd(-0.04,0.04);
+      l.val=round2(clamp(l.val+d,0,1));
+    });
+    // lamps at/below 0.05 not rounded -> humus
+    S.lamps=S.lamps.filter(function(l){
+      if(l.val<=0.05){
+        becameHumus++; S.humus=round2(S.humus+ (0.10 + (l.touched?0.04:0)) ); // tended lamps leave a warmer trace
+        S.floatness=clamp(S.floatness+0.02,0,1); // letting it become humus keeps the world float
+        settled.push(l.name);
+        return false;
+      }
+      return true;
+    });
+    if(becameHumus>0){
+      settled.forEach(function(nm){ logln((nm?("「"+nm+"」が"):"ひとつの灯が")+"静かに落ちて、腐葉土になった。温みが残る。"); });
+    }
+    // oil regen: base + humus warmth
+    S.night++;
+    var regen = 4 + Math.floor(S.humus*2.2);
+    S.oil = regen;
+    // spawn
+    spawnNight();
+    // reset touched
+    S.lamps.forEach(function(l){l.touched=false;});
+
+    if(!ENDLESS && S.night>ARC){ endGame(); }
+    save(); render();
+  }
+
+  function endGame(){
+    S.ended=true;
+    var f=S.floatness, h=S.humus;
+    var title, body;
+    if(f>=0.66){
+      title="帯の夜明け";
+      body="あなたは、ほとんど何も丸めなかった。世界は《帯》のまま、夜明けを迎えた。どの灯も、上げも下げもされず、自分の小数で点っている。腐葉土は厚く温く（温み "+fmtNum(h)+"）、足もとからほの明るい。終わりを、あなたは決めなかった。終わりは、それぞれの灯が、自分で決めた。";
+    } else if(f>=0.38){
+      title="あわいの夜明け";
+      body="あなたは、いくつかを丸め、いくつかを見守った。世界は線と帯のあいだで揺れている。Float度 "+fmtNum(f)+"。正しい答えはなかった。ただ、あなたが手をかけた灯のいくつかは腐葉土になり（温み "+fmtNum(h)+"）、いくつかは零や一の側へ還っていった。迷いながら看取ること——それも、ひとつの守り方だ。";
+    } else {
+      title="線の夜明け";
+      body="あなたは、多くを丸めた。世界は《線》へ近づいた（Float度 "+fmtNum(f)+"）。点くか消えるか、生か死か。境界はふたたび固くなり、迷いは減った。楽になった、とも言える。だが、丸めた灯は腐葉土にならない。足もとは、少しだけ冷たい（温み "+fmtNum(h)+"）。これも、あなたが選んだ世界だ。";
+    }
+    var e=document.getElementById('ending');
+    e.style.display='block';
+    e.innerHTML='<h2>'+title+'</h2><p>'+body+'</p><p style="text-align:center;color:var(--dim);font-size:.85rem">——『半灯』の世界より</p>'+
+      '<div class="bar" style="margin-bottom:0"><button class="primary" id="again">もう一度、最初の夜から</button> <button id="endless">このまま夜を続ける</button></div>';
+    document.getElementById('again').onclick=function(){ S=fresh(); spawnNight(); document.getElementById('ending').style.display='none'; save(); render(); window.scrollTo(0,0);};
+    document.getElementById('endless').onclick=function(){ S.ended=false; ARClabelEndless(); document.getElementById('ending').style.display='none'; render(); };
+  }
+  var ENDLESS=false;
+  function ARClabelEndless(){ ENDLESS=true; }
+
+  // ---------- render ----------
+  function render(){
+    document.getElementById('m-oil').textContent=S.oil;
+    document.getElementById('m-humus').textContent=fmtNum(S.humus);
+    document.getElementById('m-float').textContent=fmtNum(S.floatness);
+    document.getElementById('floatmark').style.left=(S.floatness*100)+'%';
+    document.getElementById('float-word').textContent=floatWord(S.floatness);
+    document.getElementById('nightlabel').textContent="第"+kanji(S.night)+"夜"+(ENDLESS?"（夜は続く）":(" ／ 全"+kanji(ARC)+"夜"));
+    var hint=document.getElementById('hint');
+    hint.textContent = S.ended? "" : "油 "+S.oil+"。灯に触れるたび、世界のFloat度がわずかに動く。丸めれば《線》へ、見守れば《帯》へ。";
+
+    var box=document.getElementById('lamps'); box.innerHTML="";
+    if(S.lamps.length===0){ box.innerHTML='<div class="note">この夜、灯はない。腐葉土だけが、足もとで温い。</div>'; }
+    S.lamps.slice().sort(function(a,b){return a.val-b.val;}).forEach(function(l){
+      var d=document.createElement('div'); d.className='lamp';
+      var lit=l.val; var col='rgba(212,168,83,'+(0.08+lit*0.5)+')';
+      var driftTxt = l.drift<0?'▼ 落ちている':(l.drift>0?'▲ 上がっている':'≈ 揺れている');
+      var driftCls = l.drift<0?'fall':(l.drift>0?'rise':'hold');
+      var low = l.val<0.2;
+      d.innerHTML =
+        '<div class="glow" style="background:radial-gradient(circle,'+col+' 0%,rgba(212,168,83,0) 70%)"></div>'+
+        '<div class="name">'+(l.name?('「'+l.name+'」'):'　')+'</div>'+
+        '<div class="num">'+fmt(l.val)+'</div>'+
+        '<div class="drift '+driftCls+'">'+driftTxt+(low?' ・丸めの対象':'')+'</div>'+
+        '<div class="acts"></div>';
+      var acts=d.querySelector('.acts');
+      var bOil=mk('油を足す',function(){addOil(l);}); bOil.disabled=(S.oil<=0||S.ended); acts.appendChild(bOil);
+      var bW=mk('見守る',function(){watch(l);}); bW.disabled=S.ended; acts.appendChild(bW);
+      if(low){
+        var b0=mk('零に丸める',function(){roundLamp(l,0);}); b0.className+=' warn'; acts.appendChild(b0);
+      } else if(l.val>0.8){
+        var b1=mk('一に丸める',function(){roundLamp(l,1);}); b1.className+=' warn'; acts.appendChild(b1);
+      }
+      box.appendChild(d);
+    });
+    var logEl=document.getElementById('log'); logEl.innerHTML="";
+    S.log.forEach(function(t){var x=document.createElement('div');x.className='line';x.textContent=t;logEl.appendChild(x);});
+    save();
+  }
+  function mk(t,fn){var b=document.createElement('button');b.textContent=t;b.onclick=fn;return b;}
+
+  // ---------- boot ----------
+  function begin(){
+    document.getElementById('intro').style.display='none';
+    document.getElementById('game').style.display='block';
+    if(!S){ S=fresh(); spawnNight(); }
+    render();
+  }
+  document.getElementById('start').onclick=begin;
+  document.getElementById('next').onclick=advance;
+
+  var saved=load();
+  if(saved && saved.lamps){ S=saved; document.getElementById('intro').style.display='none'; document.getElementById('game').style.display='block'; if(S.ended){ /* show board */ } render(); }
+})();
+</script>
+</body>
+</html>
