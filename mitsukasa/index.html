@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>みつかさ — 三重がけ命名ヘルパー</title>
+<style>
+/* osakenpiro design system — void+stars+gold single warm accent */
+:root {
+  --osk-void: #0a0a0f;
+  --osk-void-deep: #06060a;
+  --osk-surface: #15141a;
+  --osk-surface-hi: #1c1a23;
+  --osk-gold: #d4a853;
+  --osk-parchment: #c8b8a0;
+  --osk-violet: #a78bfa;
+  --osk-debris-1: #6b6b80;
+  --osk-debris-2: #3a3530;
+  --osk-fg-1: #e8e0d0;
+  --osk-fg-2: #b8b0a0;
+  --osk-fg-3: #807868;
+  --osk-dim: #5a5448;
+  --osk-border: rgba(200,184,160,0.06);
+  --osk-border-hover: rgba(212,168,83,0.20);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--osk-void-deep);
+  color: var(--osk-fg-1);
+  font-family: 'Hiragino Sans', 'Yu Gothic', system-ui, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Stars background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 15% 20%, rgba(212,168,83,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 72% 11%, rgba(200,184,160,0.18) 0%, transparent 100%),
+    radial-gradient(1px 1px at 38% 58%, rgba(212,168,83,0.15) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 43%, rgba(200,184,160,0.12) 0%, transparent 100%),
+    radial-gradient(1px 1px at 52% 78%, rgba(212,168,83,0.10) 0%, transparent 100%),
+    radial-gradient(1px 1px at 9%  67%, rgba(200,184,160,0.14) 0%, transparent 100%),
+    radial-gradient(1px 1px at 93% 82%, rgba(212,168,83,0.08) 0%, transparent 100%),
+    radial-gradient(1px 1px at 27% 34%, rgba(200,184,160,0.12) 0%, transparent 100%),
+    radial-gradient(1px 1px at 61% 91%, rgba(212,168,83,0.09) 0%, transparent 100%),
+    radial-gradient(1px 1px at 44% 6%,  rgba(200,184,160,0.16) 0%, transparent 100%),
+    radial-gradient(1px 1px at 79% 55%, rgba(212,168,83,0.11) 0%, transparent 100%),
+    radial-gradient(1px 1px at 3%  44%, rgba(200,184,160,0.08) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.shell {
+  position: relative;
+  z-index: 1;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+/* ── Header ── */
+header {
+  text-align: center;
+  margin-bottom: 3rem;
+  border-bottom: 1px solid var(--osk-border);
+  padding-bottom: 2rem;
+}
+
+header h1 {
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: 3rem;
+  color: var(--osk-gold);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+header .sub {
+  font-size: 0.78rem;
+  color: var(--osk-fg-3);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+}
+
+/* ── Tabs ── */
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--osk-border);
+  margin-bottom: 2rem;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  color: var(--osk-debris-1);
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.tab-btn:hover { color: var(--osk-parchment); }
+.tab-btn.active {
+  color: var(--osk-gold);
+  border-bottom-color: var(--osk-gold);
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Cards ── */
+.card {
+  background: var(--osk-surface);
+  border: 1px solid var(--osk-border);
+  border-radius: 6px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.card:hover { border-color: var(--osk-border-hover); }
+
+.card-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--osk-gold);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.card-title .layer-icon { font-size: 1rem; }
+
+/* ── Form elements ── */
+label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--osk-fg-3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+  margin-top: 1rem;
+}
+
+label:first-of-type { margin-top: 0; }
+
+input[type="text"], textarea {
+  width: 100%;
+  background: var(--osk-void);
+  border: 1px solid var(--osk-border);
+  border-radius: 4px;
+  color: var(--osk-fg-1);
+  font-family: 'Hiragino Sans', system-ui, sans-serif;
+  font-size: 0.9rem;
+  padding: 0.6rem 0.75rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input[type="text"]:focus, textarea:focus {
+  border-color: rgba(212,168,83,0.35);
+}
+
+textarea { resize: vertical; min-height: 70px; line-height: 1.6; }
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 560px) { .row2 { grid-template-columns: 1fr; } }
+
+/* ── Buttons ── */
+.btn {
+  background: none;
+  border: 1px solid var(--osk-gold);
+  color: var(--osk-gold);
+  border-radius: 4px;
+  padding: 0.55rem 1.2rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn:hover { background: rgba(212,168,83,0.10); }
+.btn.primary {
+  background: rgba(212,168,83,0.12);
+}
+
+.btn-sm {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.72rem;
+}
+
+.btn-ghost {
+  border-color: var(--osk-debris-1);
+  color: var(--osk-debris-1);
+}
+
+.btn-ghost:hover { border-color: var(--osk-parchment); color: var(--osk-parchment); }
+
+.btn-danger {
+  border-color: var(--osk-violet);
+  color: var(--osk-violet);
+}
+
+.btn-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
+}
+
+/* ── Worksheet section header ── */
+.ws-section {
+  border-left: 2px solid var(--osk-gold);
+  padding-left: 1rem;
+  margin: 1.5rem 0 1rem;
+}
+
+.ws-section h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: var(--osk-gold);
+  font-size: 1rem;
+  font-weight: 400;
+  margin-bottom: 0.25rem;
+}
+
+.ws-section p {
+  font-size: 0.78rem;
+  color: var(--osk-fg-3);
+}
+
+/* ── Candidate row ── */
+.candidate-list { margin-top: 1rem; }
+
+.candidate-item {
+  background: var(--osk-surface);
+  border: 1px solid var(--osk-border);
+  border-radius: 6px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  transition: border-color 0.2s;
+}
+
+.candidate-item:hover { border-color: var(--osk-border-hover); }
+
+.cand-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.cand-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.25rem;
+  color: var(--osk-parchment);
+  flex: 1;
+}
+
+.cand-score {
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: 1.1rem;
+  color: var(--osk-gold);
+  min-width: 3.5rem;
+  text-align: right;
+}
+
+/* ── Sliders ── */
+.slider-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 3.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.slider-label {
+  font-size: 0.72rem;
+  color: var(--osk-fg-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--osk-debris-2);
+  border-radius: 2px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--osk-gold);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--osk-gold);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.slider-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--osk-parchment);
+  text-align: right;
+}
+
+/* ── Score bar ── */
+.score-bar-wrap {
+  background: var(--osk-void);
+  border-radius: 3px;
+  height: 5px;
+  margin-top: 0.75rem;
+  overflow: hidden;
+}
+
+.score-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--osk-debris-2), var(--osk-gold));
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+/* ── Ranking ── */
+.rank-list {
+  counter-reset: rank;
+}
+
+.rank-item {
+  background: var(--osk-surface);
+  border: 1px solid var(--osk-border);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: border-color 0.2s;
+}
+
+.rank-item:hover { border-color: var(--osk-border-hover); }
+
+.rank-item.rank-1 { border-color: rgba(212,168,83,0.35); }
+
+.rank-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.4rem;
+  color: var(--osk-dim);
+  min-width: 1.8rem;
+}
+
+.rank-item.rank-1 .rank-num { color: var(--osk-gold); }
+
+.rank-name {
+  flex: 1;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--osk-fg-1);
+}
+
+.rank-bar-wrap {
+  width: 120px;
+  background: var(--osk-void);
+  border-radius: 3px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.rank-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--osk-debris-2), var(--osk-gold));
+  border-radius: 3px;
+}
+
+.rank-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--osk-gold);
+  min-width: 3rem;
+  text-align: right;
+}
+
+/* ── Three-score breakdown ── */
+.tri-breakdown {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.72rem;
+  color: var(--osk-fg-3);
+}
+
+.tri-breakdown span { white-space: nowrap; }
+
+/* ── Export box ── */
+.export-box {
+  background: var(--osk-void);
+  border: 1px solid var(--osk-border);
+  border-radius: 4px;
+  padding: 1rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--osk-fg-2);
+  white-space: pre-wrap;
+  max-height: 300px;
+  overflow-y: auto;
+  line-height: 1.7;
+  margin-top: 1rem;
+}
+
+/* ── Utilities ── */
+.dim { color: var(--osk-dim); font-size: 0.8rem; margin-top: 0.5rem; }
+.gold { color: var(--osk-gold); }
+.section-gap { margin-top: 2rem; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+
+/* ── Notice ── */
+.notice {
+  background: rgba(167,139,250,0.07);
+  border: 1px solid rgba(167,139,250,0.18);
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  font-size: 0.8rem;
+  color: var(--osk-fg-2);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+/* ── Empty state ── */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--osk-dim);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1rem;
+}
+
+/* ── Copy feedback ── */
+.copy-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: var(--osk-surface-hi);
+  border: 1px solid rgba(212,168,83,0.25);
+  border-radius: 4px;
+  color: var(--osk-gold);
+  padding: 0.65rem 1.2rem;
+  font-size: 0.8rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s, transform 0.25s;
+  pointer-events: none;
+  z-index: 999;
+}
+.copy-toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <h1>みつかさ</h1>
+    <div class="sub">三重がけ命名ヘルパー &nbsp;·&nbsp; Triple-Weave Naming Workshop</div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="worksheet">◇ ワークシート</button>
+    <button class="tab-btn" data-tab="candidates">◇ 候補スコア</button>
+    <button class="tab-btn" data-tab="ranking">◇ ランキング</button>
+    <button class="tab-btn" data-tab="export">◇ エクスポート</button>
+  </div>
+
+  <!-- ─────────────────────────────────── TAB: ワークシート ─── -->
+  <div class="tab-panel active" id="panel-worksheet">
+    <div class="notice">
+      三重がけ命名法：タイトル/名前を <span class="gold">音韻 × 意味 × 構造</span> の3層で同時に機能させる。
+      まず概念を入力し、3層のブレスト欄を埋めてから「候補スコア」タブへ。
+    </div>
+
+    <div class="card">
+      <div class="card-title">◈ 命名対象</div>
+      <label>概念・コアワード（命名したいもの）</label>
+      <input type="text" id="ws-concept" placeholder="例: 三層で機能する名前を作るツール">
+      <label>キーワード（複数・カンマ区切り）</label>
+      <input type="text" id="ws-keywords" placeholder="例: 三重, 層, 名付け, 密, 重ねる">
+      <label>ジャンル / 用途</label>
+      <input type="text" id="ws-genre" placeholder="例: Webツール, 書名, プロジェクト名">
+    </div>
+
+    <!-- 音韻層 -->
+    <div class="ws-section">
+      <h3>① 音韻層 — おんいんそう</h3>
+      <p>語感・リズム・モーラ数・韻・連想音・駄洒落候補を書き出す</p>
+    </div>
+    <div class="card">
+      <div class="row2">
+        <div>
+          <label>モーラ数の目標</label>
+          <input type="text" id="ws-mora" placeholder="例: 4〜6音">
+        </div>
+        <div>
+          <label>韻・頭音</label>
+          <input type="text" id="ws-rhyme" placeholder="例: 「み」始まり, 「ん」で締める">
+        </div>
+      </div>
+      <label>語感メモ（柔らかい/硬い/和/洋/神秘的など）</label>
+      <textarea id="ws-sound-feel" placeholder="例: 柔らかく記憶に残る。仮名のみでも成立する。"></textarea>
+      <label>駄洒落・既存語転用候補</label>
+      <textarea id="ws-puns" placeholder="例: 「三笠」→音借り。「蜜」→密な意味も乗せる。"></textarea>
+    </div>
+
+    <!-- 意味層 -->
+    <div class="ws-section">
+      <h3>② 意味層 — いみそう</h3>
+      <p>本義・掛けたい第2義・連想語を展開する</p>
+    </div>
+    <div class="card">
+      <label>本義（字義通りの意味）</label>
+      <input type="text" id="ws-meaning-1" placeholder="例: 三つの重ね / 三冠">
+      <label>掛けたい第2義</label>
+      <input type="text" id="ws-meaning-2" placeholder="例: 密 (みつ) = 情報が濃密 / かさ = 傘=保護">
+      <label>連想語メモ（自由記述）</label>
+      <textarea id="ws-assoc" placeholder="例: 三笠山, 蜜, 重ね技, 3層アーキ, ふとりんぐ..."></textarea>
+    </div>
+
+    <!-- 構造層 -->
+    <div class="ws-section">
+      <h3>③ 構造層 — こうぞうそう</h3>
+      <p>字面の視覚・略語化・対称性・アルファベット変換</p>
+    </div>
+    <div class="card">
+      <div class="row2">
+        <div>
+          <label>略語 / 頭字語</label>
+          <input type="text" id="ws-abbr" placeholder="例: MK, 3W, TCN">
+        </div>
+        <div>
+          <label>ローマ字スラッグ案</label>
+          <input type="text" id="ws-slug-draft" placeholder="例: mitsukasa, sansou">
+        </div>
+      </div>
+      <label>字面の視覚・対称性メモ</label>
+      <textarea id="ws-visual" placeholder="例: 「三笠」= 3画+笠のまるみ。漢字で書くと安定感。仮名だと柔軟。"></textarea>
+      <label>英語/他言語での読み・連想</label>
+      <input type="text" id="ws-intl" placeholder="例: Mitsukasa → 'mitsu' (honey/three) × 'kasa' (umbrella/stack)">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn primary" onclick="saveWorksheet()">ワークシート保存</button>
+      <button class="btn btn-ghost" onclick="clearWorksheet()">クリア</button>
+    </div>
+    <p class="dim" style="margin-top:0.75rem">保存はブラウザのlocalStorageに行われます</p>
+  </div>
+
+  <!-- ─────────────────────────────────── TAB: 候補スコア ─── -->
+  <div class="tab-panel" id="panel-candidates">
+    <div class="card">
+      <div class="card-title">◈ 候補名を追加</div>
+      <div class="row2">
+        <div>
+          <label>候補名</label>
+          <input type="text" id="new-cand-name" placeholder="例: みつかさ">
+        </div>
+        <div>
+          <label>メモ（任意）</label>
+          <input type="text" id="new-cand-memo" placeholder="例: 三笠から音借り">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="addCandidate()">追加</button>
+      </div>
+    </div>
+
+    <div class="candidate-list" id="candidate-list">
+      <div class="empty-state" id="cand-empty">まだ候補がありません。候補名を追加してください。</div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────── TAB: ランキング ─── -->
+  <div class="tab-panel" id="panel-ranking">
+    <div class="flex-between" style="margin-bottom:1.5rem">
+      <div style="font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--osk-fg-2)">三重がけ総合Float ランキング</div>
+      <button class="btn btn-sm" onclick="refreshRanking()">更新</button>
+    </div>
+    <div id="ranking-list">
+      <div class="empty-state">候補スコアを入力すると、ここにランキングが表示されます。</div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────── TAB: エクスポート ─── -->
+  <div class="tab-panel" id="panel-export">
+    <div class="card">
+      <div class="card-title">◈ エクスポート</div>
+      <p style="font-size:0.85rem;color:var(--osk-fg-2);margin-bottom:1rem">
+        ワークシートと全候補データをJSON/Markdownで取り出せます。<br>
+        セッション継続のためのテキストコピーにも使えます。
+      </p>
+      <div class="btn-row">
+        <button class="btn primary" onclick="exportJSON()">JSON コピー</button>
+        <button class="btn" onclick="exportMarkdown()">Markdown コピー</button>
+        <button class="btn btn-ghost btn-sm" onclick="importJSON()">JSON インポート</button>
+      </div>
+      <div class="export-box" id="export-preview">ここにプレビューが表示されます。</div>
+    </div>
+    <div class="card section-gap">
+      <div class="card-title">◈ データリセット</div>
+      <p style="font-size:0.82rem;color:var(--osk-fg-3);margin-bottom:1rem">全localStorage削除。この操作は取り消せません。</p>
+      <button class="btn btn-danger btn-sm" onclick="resetAll()">全データリセット</button>
+    </div>
+  </div>
+</div>
+
+<div class="copy-toast" id="toast">コピーしました</div>
+
+<script>
+/* ── Storage keys ── */
+const KEY_WS = 'mitsukasa_worksheet';
+const KEY_CANDS = 'mitsukasa_candidates';
+
+/* ── State ── */
+let worksheet = loadJSON(KEY_WS, {});
+let candidates = loadJSON(KEY_CANDS, []);
+
+/* ── Tabs ── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'ranking') refreshRanking();
+    if (btn.dataset.tab === 'export') refreshExportPreview();
+  });
+});
+
+/* ── Worksheet ── */
+const WS_FIELDS = [
+  'concept','keywords','genre',
+  'mora','rhyme','sound-feel','puns',
+  'meaning-1','meaning-2','assoc',
+  'abbr','slug-draft','visual','intl'
+];
+
+function loadWorksheetUI() {
+  WS_FIELDS.forEach(f => {
+    const el = document.getElementById('ws-' + f);
+    if (el && worksheet[f] !== undefined) el.value = worksheet[f];
+  });
+}
+
+function saveWorksheet() {
+  WS_FIELDS.forEach(f => {
+    const el = document.getElementById('ws-' + f);
+    if (el) worksheet[f] = el.value;
+  });
+  saveJSON(KEY_WS, worksheet);
+  showToast('ワークシート保存しました');
+}
+
+function clearWorksheet() {
+  if (!confirm('ワークシートをクリアしますか？')) return;
+  worksheet = {};
+  WS_FIELDS.forEach(f => {
+    const el = document.getElementById('ws-' + f);
+    if (el) el.value = '';
+  });
+  saveJSON(KEY_WS, worksheet);
+  showToast('クリアしました');
+}
+
+/* ── Candidates ── */
+function addCandidate() {
+  const nameEl = document.getElementById('new-cand-name');
+  const memoEl = document.getElementById('new-cand-memo');
+  const name = nameEl.value.trim();
+  if (!name) { nameEl.focus(); return; }
+
+  const cand = {
+    id: Date.now(),
+    name,
+    memo: memoEl.value.trim(),
+    scores: { phonetic: 0.5, semantic: 0.5, structural: 0.5 }
+  };
+
+  candidates.push(cand);
+  saveJSON(KEY_CANDS, candidates);
+  nameEl.value = '';
+  memoEl.value = '';
+  renderCandidates();
+  showToast('候補を追加しました：' + name);
+}
+
+function removeCandidate(id) {
+  candidates = candidates.filter(c => c.id !== id);
+  saveJSON(KEY_CANDS, candidates);
+  renderCandidates();
+}
+
+function updateScore(id, layer, value) {
+  const cand = candidates.find(c => c.id === id);
+  if (!cand) return;
+  cand.scores[layer] = parseFloat(value);
+  saveJSON(KEY_CANDS, candidates);
+  updateCandidateDisplay(id);
+}
+
+function tripleFloat(scores) {
+  return ((scores.phonetic + scores.semantic + scores.structural) / 3);
+}
+
+function updateCandidateDisplay(id) {
+  const cand = candidates.find(c => c.id === id);
+  if (!cand) return;
+  const tf = tripleFloat(cand.scores);
+  const scoreEl = document.querySelector(`[data-cand-score="${id}"]`);
+  const barEl = document.querySelector(`[data-cand-bar="${id}"]`);
+  if (scoreEl) scoreEl.textContent = tf.toFixed(2);
+  if (barEl) barEl.style.width = (tf * 100) + '%';
+}
+
+function renderCandidates() {
+  const list = document.getElementById('candidate-list');
+  const empty = document.getElementById('cand-empty');
+
+  if (candidates.length === 0) {
+    list.innerHTML = '<div class="empty-state" id="cand-empty">まだ候補がありません。候補名を追加してください。</div>';
+    return;
+  }
+
+  list.innerHTML = candidates.map(c => {
+    const tf = tripleFloat(c.scores);
+    return `
+<div class="candidate-item" id="cand-item-${c.id}">
+  <div class="cand-header">
+    <div class="cand-name">${escHtml(c.name)}</div>
+    ${c.memo ? `<div style="font-size:0.78rem;color:var(--osk-fg-3)">${escHtml(c.memo)}</div>` : ''}
+    <div class="cand-score" data-cand-score="${c.id}">${tf.toFixed(2)}</div>
+    <button class="btn btn-danger btn-sm" onclick="removeCandidate(${c.id})">削除</button>
+  </div>
+  <div class="score-bar-wrap" style="margin-bottom:0.85rem">
+    <div class="score-bar" data-cand-bar="${c.id}" style="width:${tf*100}%"></div>
+  </div>
+
+  <div class="slider-row">
+    <div class="slider-label">① 音韻</div>
+    <input type="range" min="0" max="1" step="0.01"
+      value="${c.scores.phonetic}"
+      oninput="updateScore(${c.id},'phonetic',this.value);this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)">
+    <div class="slider-val">${c.scores.phonetic.toFixed(2)}</div>
+  </div>
+  <div class="slider-row">
+    <div class="slider-label">② 意味</div>
+    <input type="range" min="0" max="1" step="0.01"
+      value="${c.scores.semantic}"
+      oninput="updateScore(${c.id},'semantic',this.value);this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)">
+    <div class="slider-val">${c.scores.semantic.toFixed(2)}</div>
+  </div>
+  <div class="slider-row">
+    <div class="slider-label">③ 構造</div>
+    <input type="range" min="0" max="1" step="0.01"
+      value="${c.scores.structural}"
+      oninput="updateScore(${c.id},'structural',this.value);this.nextElementSibling.textContent=parseFloat(this.value).toFixed(2)">
+    <div class="slider-val">${c.scores.structural.toFixed(2)}</div>
+  </div>
+</div>`;
+  }).join('');
+}
+
+/* ── Ranking ── */
+function refreshRanking() {
+  const list = document.getElementById('ranking-list');
+  if (candidates.length === 0) {
+    list.innerHTML = '<div class="empty-state">候補スコアを入力すると、ここにランキングが表示されます。</div>';
+    return;
+  }
+
+  const sorted = [...candidates].sort((a, b) => tripleFloat(b.scores) - tripleFloat(a.scores));
+  list.innerHTML = sorted.map((c, i) => {
+    const tf = tripleFloat(c.scores);
+    const rankClass = i === 0 ? 'rank-1' : '';
+    return `
+<div class="rank-item ${rankClass}">
+  <div class="rank-num">${i + 1}</div>
+  <div style="flex:1">
+    <div class="rank-name">${escHtml(c.name)}</div>
+    <div class="tri-breakdown">
+      <span>音 ${c.scores.phonetic.toFixed(2)}</span>
+      <span>意 ${c.scores.semantic.toFixed(2)}</span>
+      <span>構 ${c.scores.structural.toFixed(2)}</span>
+      ${c.memo ? `<span style="color:var(--osk-dim)">— ${escHtml(c.memo)}</span>` : ''}
+    </div>
+  </div>
+  <div class="rank-bar-wrap">
+    <div class="rank-bar" style="width:${tf*100}%"></div>
+  </div>
+  <div class="rank-score">${tf.toFixed(2)}</div>
+</div>`;
+  }).join('');
+}
+
+/* ── Export / Import ── */
+function buildExportData() {
+  return { worksheet, candidates, exported: new Date().toISOString() };
+}
+
+function refreshExportPreview() {
+  document.getElementById('export-preview').textContent =
+    JSON.stringify(buildExportData(), null, 2);
+}
+
+function exportJSON() {
+  const text = JSON.stringify(buildExportData(), null, 2);
+  copyText(text);
+  document.getElementById('export-preview').textContent = text;
+}
+
+function exportMarkdown() {
+  const ws = worksheet;
+  const cands = [...candidates].sort((a, b) => tripleFloat(b.scores) - tripleFloat(a.scores));
+
+  let md = `# みつかさ — 三重がけ命名ワークシート\n\n`;
+  md += `**日時**: ${new Date().toLocaleString('ja-JP')}\n\n`;
+
+  if (ws.concept) md += `## 命名対象\n**概念**: ${ws.concept}\n`;
+  if (ws.keywords) md += `**キーワード**: ${ws.keywords}\n`;
+  if (ws.genre) md += `**ジャンル**: ${ws.genre}\n\n`;
+
+  md += `## ① 音韻層\n`;
+  if (ws.mora) md += `- モーラ数目標: ${ws.mora}\n`;
+  if (ws.rhyme) md += `- 韻・頭音: ${ws.rhyme}\n`;
+  if (ws.soundFeel || ws['sound-feel']) md += `- 語感: ${ws['sound-feel'] || ''}\n`;
+  if (ws.puns) md += `- 駄洒落候補: ${ws.puns}\n\n`;
+
+  md += `## ② 意味層\n`;
+  if (ws['meaning-1']) md += `- 本義: ${ws['meaning-1']}\n`;
+  if (ws['meaning-2']) md += `- 第2義: ${ws['meaning-2']}\n`;
+  if (ws.assoc) md += `- 連想語: ${ws.assoc}\n\n`;
+
+  md += `## ③ 構造層\n`;
+  if (ws.abbr) md += `- 略語: ${ws.abbr}\n`;
+  if (ws['slug-draft']) md += `- スラッグ案: ${ws['slug-draft']}\n`;
+  if (ws.visual) md += `- 字面メモ: ${ws.visual}\n`;
+  if (ws.intl) md += `- 多言語読み: ${ws.intl}\n\n`;
+
+  if (cands.length > 0) {
+    md += `## ランキング\n`;
+    cands.forEach((c, i) => {
+      const tf = tripleFloat(c.scores);
+      md += `${i+1}. **${c.name}** — 総合 ${tf.toFixed(2)} (音${c.scores.phonetic.toFixed(2)} / 意${c.scores.semantic.toFixed(2)} / 構${c.scores.structural.toFixed(2)})`;
+      if (c.memo) md += ` — ${c.memo}`;
+      md += '\n';
+    });
+  }
+
+  copyText(md);
+  document.getElementById('export-preview').textContent = md;
+}
+
+function importJSON() {
+  const text = prompt('インポートするJSONを貼り付けてください:');
+  if (!text) return;
+  try {
+    const data = JSON.parse(text);
+    if (data.worksheet) {
+      worksheet = data.worksheet;
+      saveJSON(KEY_WS, worksheet);
+      loadWorksheetUI();
+    }
+    if (data.candidates) {
+      candidates = data.candidates;
+      saveJSON(KEY_CANDS, candidates);
+      renderCandidates();
+    }
+    showToast('インポート完了');
+  } catch (e) {
+    alert('JSONの解析に失敗しました: ' + e.message);
+  }
+}
+
+function resetAll() {
+  if (!confirm('全データを削除しますか？この操作は取り消せません。')) return;
+  localStorage.removeItem(KEY_WS);
+  localStorage.removeItem(KEY_CANDS);
+  worksheet = {};
+  candidates = [];
+  loadWorksheetUI();
+  renderCandidates();
+  refreshExportPreview();
+  showToast('リセットしました');
+}
+
+/* ── Utilities ── */
+function loadJSON(key, def) {
+  try { return JSON.parse(localStorage.getItem(key)) || def; } catch { return def; }
+}
+
+function saveJSON(key, data) {
+  localStorage.setItem(key, JSON.stringify(data));
+}
+
+function copyText(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => showToast('コピーしました')).catch(() => fallbackCopy(text));
+  } else { fallbackCopy(text); }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  showToast('コピーしました');
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+/* ── Init ── */
+loadWorksheetUI();
+renderCandidates();
+</script>
+</body>
+</html>
