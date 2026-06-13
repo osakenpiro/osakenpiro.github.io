@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>決定温度アニーラー — osakenpiro</title>
+<style>
+  /* osakenpiro design system */
+  :root {
+    --osk-void:       #0a0a0f;
+    --osk-void-deep:  #06060a;
+    --osk-surface:    #15141a;
+    --osk-surface-hi: #1c1a23;
+    --osk-gold:       #d4a853;
+    --osk-parchment:  #c8b8a0;
+    --osk-violet:     #a78bfa;
+    --osk-debris-1:   #6b6b80;
+    --osk-debris-2:   #3a3530;
+    --osk-fg-1:       #e8e0d0;
+    --osk-fg-2:       #b8b0a0;
+    --osk-fg-3:       #807868;
+    --osk-dim:        #5a5448;
+    --osk-border:     rgba(200,184,160,0.06);
+    --osk-border-hov: rgba(212,168,83,0.20);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--osk-void);
+    color: var(--osk-fg-1);
+    font-family: "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  /* Stars background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 15%, rgba(212,168,83,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 8%,  rgba(200,184,160,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 55%, rgba(212,168,83,0.15) 0%, transparent 100%),
+      radial-gradient(1px 1px at 88% 42%, rgba(200,184,160,0.15) 0%, transparent 100%),
+      radial-gradient(1px 1px at 12% 80%, rgba(212,168,83,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 90%, rgba(200,184,160,0.1) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  header { text-align: center; margin-bottom: 2.5rem; }
+
+  .title-en {
+    font-family: "Georgia", "Cormorant Garamond", serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(1.1rem, 3vw, 1.5rem);
+    color: var(--osk-fg-3);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  .title-ja {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+    font-size: clamp(1.6rem, 5vw, 2.6rem);
+    color: var(--osk-gold);
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    margin-top: 0.6rem;
+    font-size: 0.82rem;
+    color: var(--osk-debris-1);
+    letter-spacing: 0.08em;
+  }
+
+  /* Section wrapper */
+  .card {
+    background: var(--osk-surface);
+    border: 1px solid var(--osk-border);
+    border-radius: 6px;
+    padding: 1.5rem 1.5rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .card-title {
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--osk-fg-3);
+    margin-bottom: 1rem;
+  }
+
+  /* Theme input */
+  .theme-row {
+    display: flex;
+    gap: 0.7rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .theme-row input[type=text] {
+    flex: 1;
+    min-width: 180px;
+    background: var(--osk-void-deep);
+    border: 1px solid var(--osk-border-hov);
+    border-radius: 4px;
+    padding: 0.55rem 0.8rem;
+    color: var(--osk-fg-1);
+    font-size: 0.95rem;
+    outline: none;
+  }
+
+  .theme-row input[type=text]::placeholder { color: var(--osk-dim); }
+  .theme-row input[type=text]:focus { border-color: var(--osk-gold); }
+
+  /* Options list */
+  .options-list { display: flex; flex-direction: column; gap: 0.55rem; }
+
+  .option-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .option-row input[type=text] {
+    flex: 2;
+    background: var(--osk-void-deep);
+    border: 1px solid var(--osk-border);
+    border-radius: 4px;
+    padding: 0.45rem 0.7rem;
+    color: var(--osk-fg-1);
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .option-row input[type=text]:focus { border-color: var(--osk-gold); }
+
+  .option-row input[type=number] {
+    width: 64px;
+    background: var(--osk-void-deep);
+    border: 1px solid var(--osk-border);
+    border-radius: 4px;
+    padding: 0.45rem 0.5rem;
+    color: var(--osk-gold);
+    font-size: 0.88rem;
+    text-align: center;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+
+  .option-row input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .option-row input[type=number]:focus { border-color: var(--osk-gold); }
+
+  .weight-label {
+    font-size: 0.7rem;
+    color: var(--osk-debris-1);
+    white-space: nowrap;
+  }
+
+  .btn-remove {
+    background: none;
+    border: 1px solid var(--osk-border);
+    border-radius: 3px;
+    color: var(--osk-debris-1);
+    cursor: pointer;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.85rem;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .btn-remove:hover { border-color: var(--osk-violet); color: var(--osk-violet); }
+
+  /* Buttons */
+  .btn {
+    display: inline-block;
+    border: 1px solid var(--osk-border-hov);
+    border-radius: 4px;
+    padding: 0.5rem 1.1rem;
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    background: none;
+    color: var(--osk-fg-2);
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  .btn:hover { border-color: var(--osk-gold); color: var(--osk-gold); }
+
+  .btn-primary {
+    background: rgba(212,168,83,0.08);
+    border-color: var(--osk-gold);
+    color: var(--osk-gold);
+  }
+
+  .btn-primary:hover { background: rgba(212,168,83,0.18); }
+
+  .btn-danger {
+    border-color: var(--osk-violet);
+    color: var(--osk-violet);
+  }
+
+  .btn-row { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.9rem; }
+
+  /* Temperature control */
+  .temp-display {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .temp-val {
+    font-family: "JetBrains Mono", "SF Mono", monospace;
+    font-size: 2.2rem;
+    color: var(--osk-gold);
+    line-height: 1;
+  }
+
+  .temp-state {
+    font-size: 0.78rem;
+    color: var(--osk-debris-1);
+    letter-spacing: 0.1em;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(to right, var(--osk-gold) 0%, var(--osk-debris-2) 100%);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+    margin-bottom: 0.4rem;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--osk-gold);
+    border: 2px solid var(--osk-void);
+    box-shadow: 0 0 6px rgba(212,168,83,0.25);
+    cursor: pointer;
+  }
+
+  .range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.68rem;
+    color: var(--osk-debris-1);
+    letter-spacing: 0.06em;
+  }
+
+  /* Probability bars */
+  .prob-list { display: flex; flex-direction: column; gap: 0.7rem; }
+
+  .prob-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .prob-label {
+    width: 130px;
+    font-size: 0.82rem;
+    color: var(--osk-fg-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+  }
+
+  .prob-bar-bg {
+    flex: 1;
+    height: 10px;
+    background: var(--osk-void-deep);
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid var(--osk-border);
+  }
+
+  .prob-bar-fill {
+    height: 100%;
+    background: var(--osk-gold);
+    border-radius: 5px;
+    transition: width 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .prob-pct {
+    width: 46px;
+    text-align: right;
+    font-family: "JetBrains Mono", "SF Mono", monospace;
+    font-size: 0.8rem;
+    color: var(--osk-gold);
+    flex-shrink: 0;
+  }
+
+  .prob-winner .prob-label  { color: var(--osk-gold); font-weight: 600; }
+  .prob-winner .prob-bar-fill { background: var(--osk-gold); box-shadow: 0 0 8px rgba(212,168,83,0.18); }
+  .prob-winner .prob-pct { color: var(--osk-gold); }
+
+  /* Pie / donut visualization */
+  #donut-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  #donut-svg { display: block; }
+
+  /* Cool-down schedule */
+  .schedule-row {
+    display: flex;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .schedule-row label {
+    font-size: 0.78rem;
+    color: var(--osk-fg-3);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .schedule-row input[type=number] {
+    width: 56px;
+    background: var(--osk-void-deep);
+    border: 1px solid var(--osk-border);
+    border-radius: 4px;
+    padding: 0.3rem 0.4rem;
+    color: var(--osk-gold);
+    font-size: 0.82rem;
+    text-align: center;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+
+  .schedule-row input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  /* Decision output */
+  #decision-box {
+    display: none;
+    text-align: center;
+    padding: 1.2rem;
+    border: 1px solid rgba(212,168,83,0.25);
+    border-radius: 6px;
+    background: rgba(212,168,83,0.04);
+  }
+
+  .decision-label {
+    font-size: 0.72rem;
+    color: var(--osk-fg-3);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .decision-winner {
+    font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+    font-size: 1.6rem;
+    color: var(--osk-gold);
+    letter-spacing: 0.05em;
+  }
+
+  .decision-pct {
+    margin-top: 0.3rem;
+    font-family: "JetBrains Mono", "SF Mono", monospace;
+    font-size: 0.9rem;
+    color: var(--osk-fg-3);
+  }
+
+  /* Annealing log */
+  #anneal-log {
+    font-family: "JetBrains Mono", "SF Mono", monospace;
+    font-size: 0.72rem;
+    color: var(--osk-fg-3);
+    max-height: 90px;
+    overflow-y: auto;
+    padding: 0.5rem;
+    background: var(--osk-void-deep);
+    border-radius: 3px;
+    border: 1px solid var(--osk-border);
+  }
+
+  #anneal-log p { margin: 0; line-height: 1.6; }
+  #anneal-log .log-gold { color: var(--osk-gold); }
+  #anneal-log .log-dim  { color: var(--osk-dim);  }
+
+  /* BeeF note */
+  .beef-note {
+    font-size: 0.73rem;
+    color: var(--osk-debris-1);
+    line-height: 1.6;
+    margin-top: 0.5rem;
+    border-left: 2px solid rgba(212,168,83,0.15);
+    padding-left: 0.8rem;
+  }
+
+  .beef-note strong { color: var(--osk-parchment); }
+
+  /* Responsive two-col */
+  @media (min-width: 600px) {
+    .viz-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--osk-void); }
+  ::-webkit-scrollbar-thumb { background: var(--osk-debris-2); border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="title-en">Decision Temperature Annealer</p>
+    <h1 class="title-ja">決定温度アニーラー</h1>
+    <p class="subtitle">探索 → 収束 — Boolean→Float の焼きなまし体験</p>
+  </header>
+
+  <!-- Step 1: Theme + Options -->
+  <div class="card" id="card-input">
+    <p class="card-title">§ 1 — テーマと選択肢</p>
+
+    <div class="theme-row" style="margin-bottom:1rem;">
+      <input type="text" id="theme-input" placeholder="決定テーマを入力（例: 次のプロジェクト）" style="font-size:1rem;">
+    </div>
+
+    <div class="options-list" id="options-list">
+      <!-- injected by JS -->
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="addOption()">＋ 選択肢を追加</button>
+      <button class="btn btn-primary" onclick="saveAndUpdate()">▶ 反映</button>
+    </div>
+
+    <p class="beef-note" style="margin-top:0.9rem;">
+      <strong>重み（Weight）</strong> = 現時点のあなたの直感スコア（1〜10）。
+      温度 τ で softmax をかけ、各選択肢の「Float確率」に変換します。
+    </p>
+  </div>
+
+  <!-- Step 2: Temperature -->
+  <div class="card" id="card-temp">
+    <p class="card-title">§ 2 — 温度 τ（探索 ↔ 収束）</p>
+
+    <div class="temp-display">
+      <span class="temp-val" id="tau-display">3.00</span>
+      <span class="temp-state" id="tau-state">— 探索期（高温・Float保持）</span>
+    </div>
+
+    <input type="range" id="tau-slider" min="0.05" max="6" step="0.05" value="3"
+           oninput="onTauChange(this.value)">
+
+    <div class="range-labels">
+      <span>τ → 0<br>Boolean（決定）</span>
+      <span style="text-align:center;">中温<br>Float揺らぎ</span>
+      <span style="text-align:right;">τ 大<br>均等探索</span>
+    </div>
+
+    <p class="beef-note" style="margin-top:0.8rem;">
+      <strong>高温</strong> = beefy状態。選択肢を連続値Floatで広く保持、勾配が流れる。
+      <strong>低温</strong> = 脱beef化。一点に収束→Boolean（行動確定）。
+    </p>
+  </div>
+
+  <!-- Step 3: Visualization -->
+  <div class="card">
+    <p class="card-title">§ 3 — 確率分布（softmax / τ）</p>
+    <div class="viz-cols">
+      <div>
+        <div class="prob-list" id="prob-bars"></div>
+      </div>
+      <div id="donut-wrap">
+        <svg id="donut-svg" width="160" height="160" viewBox="0 0 160 160">
+          <g id="donut-slices"></g>
+          <circle cx="80" cy="80" r="36" fill="var(--osk-void)"/>
+          <text id="donut-center" x="80" y="86" text-anchor="middle"
+                font-family="monospace" font-size="11" fill="var(--osk-fg-3)">—</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4: Cooling schedule -->
+  <div class="card">
+    <p class="card-title">§ 4 — 冷却スケジュール（アニーリング）</p>
+
+    <div class="schedule-row" style="margin-bottom:0.8rem;">
+      <label>開始 τ <input type="number" id="sch-start" value="5" min="0.1" max="6" step="0.1"></label>
+      <label>終了 τ <input type="number" id="sch-end"   value="0.1" min="0.01" max="6" step="0.01"></label>
+      <label>ステップ数 <input type="number" id="sch-steps" value="10" min="2" max="50" step="1"></label>
+      <label>間隔(秒) <input type="number" id="sch-interval" value="1.2" min="0.3" max="5" step="0.1"></label>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btn-anneal" onclick="startAnnealing()">▶ 冷却開始（探索→収束）</button>
+      <button class="btn" onclick="stopAnnealing()">■ 停止</button>
+      <button class="btn" onclick="resetTau()">↺ τ リセット</button>
+    </div>
+
+    <div id="anneal-log" style="margin-top:0.8rem;"></div>
+  </div>
+
+  <!-- Step 5: Decision output -->
+  <div class="card">
+    <p class="card-title">§ 5 — 最終決定（Boolean）</p>
+
+    <div id="decision-box">
+      <p class="decision-label">最尤の一択</p>
+      <p class="decision-winner" id="decision-winner">—</p>
+      <p class="decision-pct" id="decision-pct"></p>
+    </div>
+
+    <p class="beef-note" id="decision-hint">
+      τ を 0.2 以下まで下げると、最尤選択肢が確定します。
+      冷却スケジュールの「冷却開始」を使うと自動で収束します。
+    </p>
+
+    <div class="btn-row" style="margin-top:0.8rem;">
+      <button class="btn btn-primary" onclick="freezeDecision()">❄ 今の状態で決定する</button>
+    </div>
+  </div>
+
+  <p style="text-align:center; font-size:0.68rem; color:var(--osk-dim); margin-top:1.5rem; letter-spacing:0.1em;">
+    osakenpiro — Boolean→Float / BeeF philosophy — データはlocalStorageに保存
+  </p>
+
+</div><!-- .wrap -->
+
+<script>
+/* ============================================================
+   STATE
+   ============================================================ */
+let state = {
+  theme: "",
+  options: [
+    { label: "選択肢 A", weight: 5 },
+    { label: "選択肢 B", weight: 5 },
+    { label: "選択肢 C", weight: 5 },
+  ],
+  tau: 3.0,
+};
+
+let annealTimer = null;
+
+/* ============================================================
+   SOFTMAX
+   ============================================================ */
+function softmax(weights, tau) {
+  // softmax(w_i / tau)
+  const scaled = weights.map(w => w / tau);
+  const maxV = Math.max(...scaled);
+  const exps = scaled.map(v => Math.exp(v - maxV)); // stable
+  const sum  = exps.reduce((a, b) => a + b, 0);
+  return exps.map(e => e / sum);
+}
+
+/* ============================================================
+   RENDER OPTIONS
+   ============================================================ */
+function renderOptionRows() {
+  const list = document.getElementById("options-list");
+  list.innerHTML = "";
+  state.options.forEach((opt, i) => {
+    const row = document.createElement("div");
+    row.className = "option-row";
+    row.innerHTML = `
+      <input type="text" placeholder="選択肢の名前" value="${escHtml(opt.label)}"
+             oninput="state.options[${i}].label = this.value; updateViz();">
+      <span class="weight-label">重み</span>
+      <input type="number" min="0.1" max="100" step="0.1" value="${opt.weight}"
+             oninput="state.options[${i}].weight = Math.max(0.01, parseFloat(this.value)||1); updateViz();">
+      <button class="btn-remove" onclick="removeOption(${i})">✕</button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function addOption() {
+  state.options.push({ label: `選択肢 ${String.fromCharCode(65 + state.options.length)}`, weight: 5 });
+  renderOptionRows();
+  updateViz();
+  save();
+}
+
+function removeOption(i) {
+  if (state.options.length <= 2) { alert("最低2つの選択肢が必要です"); return; }
+  state.options.splice(i, 1);
+  renderOptionRows();
+  updateViz();
+  save();
+}
+
+function saveAndUpdate() {
+  state.theme = document.getElementById("theme-input").value.trim();
+  updateViz();
+  save();
+}
+
+/* ============================================================
+   VISUALIZATION
+   ============================================================ */
+function updateViz() {
+  const weights = state.options.map(o => o.weight);
+  const probs   = softmax(weights, state.tau);
+  const maxP    = Math.max(...probs);
+  const maxIdx  = probs.indexOf(maxP);
+
+  // -- bars --
+  const barsDiv = document.getElementById("prob-bars");
+  barsDiv.innerHTML = "";
+  probs.forEach((p, i) => {
+    const row = document.createElement("div");
+    row.className = "prob-row" + (i === maxIdx ? " prob-winner" : "");
+    const pct = (p * 100).toFixed(1);
+    row.innerHTML = `
+      <span class="prob-label">${escHtml(state.options[i].label)}</span>
+      <div class="prob-bar-bg">
+        <div class="prob-bar-fill" style="width:${pct}%"></div>
+      </div>
+      <span class="prob-pct">${pct}%</span>
+    `;
+    barsDiv.appendChild(row);
+  });
+
+  // -- donut --
+  renderDonut(probs, maxIdx);
+
+  // -- decision box --
+  updateDecision(probs, maxIdx);
+
+  // -- tau state label --
+  updateTauLabel();
+}
+
+/* Donut SVG */
+const DONUT_COLORS = [
+  "#d4a853", "#c8b8a0", "#a78bfa", "#6b6b80",
+  "#b07030", "#8070b8", "#508060", "#606088"
+];
+
+function renderDonut(probs, maxIdx) {
+  const slices = document.getElementById("donut-slices");
+  slices.innerHTML = "";
+  const cx = 80, cy = 80, R = 70, r = 40;
+  let startAngle = -Math.PI / 2;
+
+  probs.forEach((p, i) => {
+    const angle = p * 2 * Math.PI;
+    const endAngle = startAngle + angle;
+
+    // Arc path
+    const x1 = cx + R * Math.cos(startAngle);
+    const y1 = cy + R * Math.sin(startAngle);
+    const x2 = cx + R * Math.cos(endAngle);
+    const y2 = cy + R * Math.sin(endAngle);
+    const xi1 = cx + r * Math.cos(startAngle);
+    const yi1 = cy + r * Math.sin(startAngle);
+    const xi2 = cx + r * Math.cos(endAngle);
+    const yi2 = cy + r * Math.sin(endAngle);
+    const large = angle > Math.PI ? 1 : 0;
+
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    const color = i === maxIdx ? "#d4a853" : DONUT_COLORS[i % DONUT_COLORS.length];
+    const opacity = i === maxIdx ? 1 : 0.45;
+
+    path.setAttribute("d",
+      `M ${x1} ${y1} A ${R} ${R} 0 ${large} 1 ${x2} ${y2}
+       L ${xi2} ${yi2} A ${r} ${r} 0 ${large} 0 ${xi1} ${yi1} Z`
+    );
+    path.setAttribute("fill", color);
+    path.setAttribute("opacity", opacity);
+    slices.appendChild(path);
+
+    startAngle = endAngle;
+  });
+
+  // Center label: top option
+  const center = document.getElementById("donut-center");
+  const label = state.options[maxIdx] ? state.options[maxIdx].label : "—";
+  center.textContent = label.length > 8 ? label.slice(0, 7) + "…" : label;
+}
+
+/* ============================================================
+   TAU / TEMPERATURE
+   ============================================================ */
+function onTauChange(val) {
+  state.tau = parseFloat(val);
+  document.getElementById("tau-display").textContent = state.tau.toFixed(2);
+  updateViz();
+  save();
+}
+
+function updateTauLabel() {
+  const tau = state.tau;
+  const el = document.getElementById("tau-state");
+  if (tau >= 3) {
+    el.textContent = "— 探索期（高温・beefy・Float保持）";
+    el.style.color = "var(--osk-parchment)";
+  } else if (tau >= 1) {
+    el.textContent = "— 中温域（揺らぎあり・方向感出始め）";
+    el.style.color = "var(--osk-fg-3)";
+  } else if (tau >= 0.3) {
+    el.textContent = "— 収束期（低温・脱beef化・収束中）";
+    el.style.color = "var(--osk-gold)";
+  } else {
+    el.textContent = "— 決定域（Boolean・最尤一択が確定）";
+    el.style.color = "var(--osk-gold)";
+  }
+}
+
+function resetTau() {
+  const tau = 3.0;
+  state.tau = tau;
+  document.getElementById("tau-slider").value = tau;
+  document.getElementById("tau-display").textContent = tau.toFixed(2);
+  updateViz();
+  save();
+  appendLog(`↺ τ リセット → ${tau.toFixed(2)}`, false);
+}
+
+/* ============================================================
+   ANNEALING SCHEDULE
+   ============================================================ */
+function startAnnealing() {
+  if (annealTimer) clearInterval(annealTimer);
+
+  const tauStart    = parseFloat(document.getElementById("sch-start").value)   || 5;
+  const tauEnd      = parseFloat(document.getElementById("sch-end").value)     || 0.1;
+  const steps       = parseInt(document.getElementById("sch-steps").value)     || 10;
+  const intervalSec = parseFloat(document.getElementById("sch-interval").value)|| 1.2;
+
+  // Exponential annealing: τ(k) = tauStart * (tauEnd/tauStart)^(k/steps)
+  const ratio = tauEnd / tauStart;
+  let step = 0;
+
+  const slider = document.getElementById("tau-slider");
+  const annealBtn = document.getElementById("btn-anneal");
+  annealBtn.disabled = true;
+  annealBtn.textContent = "冷却中…";
+
+  // Set starting tau immediately
+  const tau0 = tauStart;
+  state.tau = tau0;
+  slider.value = tau0;
+  document.getElementById("tau-display").textContent = tau0.toFixed(2);
+  updateViz();
+  appendLog(`▶ 冷却開始 τ=${tau0.toFixed(2)} → ${tauEnd.toFixed(2)} (${steps}ステップ)`, true);
+
+  annealTimer = setInterval(() => {
+    step++;
+    const tau = tauStart * Math.pow(ratio, step / steps);
+    state.tau = tau;
+    slider.value = Math.min(tau, 6);
+    document.getElementById("tau-display").textContent = tau.toFixed(2);
+    updateViz();
+    appendLog(`  ステップ ${step}/${steps}  τ=${tau.toFixed(3)}`, false);
+
+    if (step >= steps) {
+      clearInterval(annealTimer);
+      annealTimer = null;
+      annealBtn.disabled = false;
+      annealBtn.textContent = "▶ 冷却開始（探索→収束）";
+      appendLog(`❄ 冷却完了 τ=${tau.toFixed(3)} — Boolean確定`, true);
+      finalizeDecision();
+      save();
+    }
+  }, intervalSec * 1000);
+}
+
+function stopAnnealing() {
+  if (annealTimer) {
+    clearInterval(annealTimer);
+    annealTimer = null;
+    document.getElementById("btn-anneal").disabled = false;
+    document.getElementById("btn-anneal").textContent = "▶ 冷却開始（探索→収束）";
+    appendLog(`■ 冷却停止 τ=${state.tau.toFixed(2)}`, false);
+  }
+}
+
+/* ============================================================
+   DECISION
+   ============================================================ */
+function updateDecision(probs, maxIdx) {
+  const box = document.getElementById("decision-box");
+  const hint = document.getElementById("decision-hint");
+  if (state.tau <= 0.2) {
+    finalizeDecision();
+  } else {
+    box.style.display = "none";
+    hint.style.display = "";
+  }
+}
+
+function finalizeDecision() {
+  const weights = state.options.map(o => o.weight);
+  const probs   = softmax(weights, state.tau);
+  const maxIdx  = probs.indexOf(Math.max(...probs));
+  const winner  = state.options[maxIdx];
+  const pct     = (probs[maxIdx] * 100).toFixed(1);
+
+  const box = document.getElementById("decision-box");
+  document.getElementById("decision-winner").textContent = winner.label;
+  document.getElementById("decision-pct").textContent = `確率 ${pct}%  (τ=${state.tau.toFixed(2)})`;
+  box.style.display = "";
+  document.getElementById("decision-hint").style.display = "none";
+}
+
+function freezeDecision() {
+  finalizeDecision();
+  appendLog(`❄ 手動確定: ${state.options[state.options.map(o=>o.weight).reduce((mi,x,i,arr)=>x/state.tau>arr[mi]/state.tau?i:mi,0)].label}  τ=${state.tau.toFixed(2)}`, true);
+}
+
+/* ============================================================
+   LOG
+   ============================================================ */
+function appendLog(msg, highlight) {
+  const log = document.getElementById("anneal-log");
+  const p = document.createElement("p");
+  p.className = highlight ? "log-gold" : "log-dim";
+  p.textContent = msg;
+  log.appendChild(p);
+  log.scrollTop = log.scrollHeight;
+}
+
+/* ============================================================
+   LOCALSTORAGE
+   ============================================================ */
+function save() {
+  try { localStorage.setItem("ondo_state", JSON.stringify(state)); } catch(e) {}
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem("ondo_state");
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    if (saved.options && Array.isArray(saved.options) && saved.options.length >= 2) {
+      state = saved;
+    }
+  } catch(e) {}
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+function init() {
+  load();
+  document.getElementById("theme-input").value = state.theme;
+  document.getElementById("tau-slider").value  = state.tau;
+  document.getElementById("tau-display").textContent = state.tau.toFixed(2);
+  renderOptionRows();
+  updateViz();
+}
+
+init();
+</script>
+</body>
+</html>
