@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>半灯守り野帳 — 半灯</title>
+<style>
+:root{--void:#0a0b10;--ink:#d8d4c8;--dim:#8a8678;--gold:#d4a853;--gold-dim:#7a6433;--line:#1b1c24}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{background:var(--void);color:var(--ink);
+ font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+ line-height:2.05;letter-spacing:.02em;font-size:17px;-webkit-font-smoothing:antialiased}
+#void{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff}
+nav.top{position:relative;z-index:3;display:flex;flex-wrap:wrap;gap:.2rem 1.4rem;justify-content:center;
+ padding:1.5rem 1rem .6rem;border-bottom:1px solid var(--line)}
+nav.top a{color:var(--dim);text-decoration:none;font-size:.82rem;letter-spacing:.18em;padding:.2rem 0;transition:.15s}
+nav.top a:hover{color:var(--gold)}
+nav.top a.here{color:var(--gold);border-bottom:1px solid var(--gold-dim)}
+.wrap{position:relative;z-index:2;max-width:46rem;margin:0 auto;padding:9vh 8vw 16vh}
+header.title{text-align:center;margin-bottom:8vh}
+header.title h1{font-size:clamp(2.6rem,11vw,5rem);margin:0;letter-spacing:.18em;font-weight:600;color:var(--ink)}
+header.title h1 .half{color:var(--gold);text-shadow:0 0 22px rgba(212,168,83,.45)}
+header.title .yomi{color:var(--dim);letter-spacing:.5em;font-size:.86rem;margin-top:1.2em}
+header.title .epigraph{color:var(--gold-dim);font-style:italic;margin-top:2.4em;font-size:1rem;letter-spacing:.06em}
+.cover{max-width:300px;margin:0 auto 4vh;display:block;border:1px solid var(--line);border-radius:6px}
+section{margin:0 0 11vh}
+section h2{color:var(--gold);font-weight:600;font-size:1.4rem;letter-spacing:.28em;text-align:center;margin:0 0 2.8em}
+section h2::after{content:"";display:block;width:2.2rem;height:1px;background:var(--gold-dim);margin:1.3em auto 0;opacity:.6}
+section h3{color:var(--gold-dim);font-weight:600;font-size:1rem;letter-spacing:.2em;margin:3em 0 1.2em}
+section p{margin:0 0 1.6em}
+section p.indent{text-indent:1em}
+blockquote{border-left:2px solid var(--line);margin:2em 0;padding:.2em 0 .2em 1.4em;color:var(--dim);font-size:.95rem;line-height:1.95}
+ul{list-style:none;padding-left:0;margin:1.4em 0}
+li{margin:.5em 0;padding-left:1.2em;position:relative;color:var(--ink)}
+li::before{content:"・";color:var(--gold-dim);position:absolute;left:0}
+hr{border:none;height:1px;background:var(--line);margin:5em auto;width:40%}
+strong{color:var(--gold);font-weight:600}
+em{font-style:normal;color:var(--ink);border-bottom:1px solid var(--gold-dim)}
+.fin{text-align:center;color:var(--gold);letter-spacing:1.2em;margin:5em 0;opacity:.8}
+.lead{color:var(--dim);text-align:center;font-size:.92rem;line-height:1.95;max-width:32rem;margin:0 auto 6vh}
+footer{text-align:center;color:var(--dim);font-size:.74rem;letter-spacing:.2em;padding-bottom:8vh;position:relative;z-index:2;line-height:2.2}
+footer a{color:var(--gold-dim);text-decoration:none}
+::selection{background:rgba(212,168,83,.25)}
+</style></head>
+<body>
+<div id="void"></div>
+<nav class="top"><a href="index.html" class="">本編</a><a href="jiten.html" class="">世界辞典</a><a href="awai.html" class="">あわい掌編</a><a href="yacho.html" class="here">守り野帳</a><a href="../lane1-game/" class="">ゲーム</a></nav>
+<div class="wrap">
+<header class="title"><h1 style="font-size:clamp(2rem,8vw,3.2rem)">半灯守り野帳</h1></header><p class="lead">帯の世界の、立ち止まり方の帳面。</p>
+<blockquote>半灯守りが懐に入れて持ち歩く、実務の手帳。測り方、油の足し方、丸めない倫理、腐葉土の手入れ、危うい値のあつかい。——線の世界の手引書ではない。帯の世界の、立ち止まり方の帳面である。</blockquote>
+<hr>
+<h2>一　まず、視ることから</h2>
+<p class="indent">器械はある。役所が貸し与える測定器が、懐にひとつ。けれど覚えておけ。本当に灯を読むのに、器械はいらない。三年も歩けば、軒先を覗いただけで視えるようになる。硝子の内側に薄く溜まった光だまり、その濃さが、その家のいまの値だ。</p>
+<p class="indent">視えても、声に出すな。〇・三七、と読んでも、口には乗せるな。読み上げた瞬間、値は逃げられなくなる。帳面に書けば、なお固まる。あわいでは数字が一日に何度も気まぐれに変わるが、いったん書きつければ、それきり動かなくなる。書くとは、固定するということだ。固定するとは、丸めの手が届くということだ。</p>
+<p class="indent">だから野帳の第一条は、こうだ。——<strong>測れることは、止められることではない。読めることは、書かねばならないことではない。</strong></p>
+<hr>
+<h2>二　油の足し方</h2>
+<p class="indent">落ちすぎた灯には、油を足す。けれど、ここに第一の罠がある。</p>
+<p class="indent">無理に足せば、灯は明るくなる。なるが、嘘になる。〇・三七の家に油を注いで〇・八まで持ち上げても、それはその家の本当の値ではない。一日もすれば、油は底を割り、灯はもとの〇・三七へ、いやそれより低い〇・三〇まで落ちる。嘘の明るさは、必ず利息をつけて返ってくる。</p>
+<p class="indent"><strong>嘘の一より、本当の〇・三七のほうがいい。</strong> これが第二条だ。</p>
+<p class="indent">ではいつ足すのか。足すのは、その家の人間が「自分の値より低く点ってしまっている」とき——疲れ、凍え、空腹、ただの暗い夜のせいで、本来の値を下回っているときだけだ。そういうときの一さじは、嘘ではない。その人を、その人の正直な値まで連れ戻すだけの油だ。見極めの勘どころは、灯の揺れ方にある。本当の低さは静かに沈んでいる。仮の低さは、ちらちらと迷っている。迷っている灯にだけ、そっと足せ。</p>
+<p class="indent">そして——足さないことを恐れるな。〇・三七のままにしておく勇気が、半灯守りのいちばんの腕だ。手当てとは、いつも上げることではない。そのままに、そばにいることも、立派な手当てだ。</p>
+<hr>
+<h2>三　上がりすぎた灯を、少し落とす</h2>
+<p class="indent">灯は落ちるばかりではない。ときに、本当の値より高く点ってしまう家がある。気負い、見栄、誰かに「大丈夫」と言いつづけた無理。〇・五の人が〇・九で点っているとき、その明るさは、本人を焼く。</p>
+<p class="indent">そういう灯は、少し落とす。〇・九を〇・五へ。これは消すのではない。嘘の高さから、本当の値へ、降ろしてやるのだ。落とすときの手つきは、足すときよりずっと静かでなければならない。高く点った灯は、自分が嘘をついていることに気づいていない。急に落とせば、その家の人間は「消された」と感じる。少しずつ、本人が「ああ、こちらが本当だった」と思える速さで落とせ。</p>
+<p class="indent"><strong>定灯（じょうとう）に、加担するな。</strong> 〇・八を超えたからといって、一に固定する手伝いをするな。点りきった一は、もう揺れられない。揺れられない灯は、生きていない。</p>
+<hr>
+<h2>四　丸めない、ということ</h2>
+<p class="indent">春に丸め令が来た。〈境界回復に関する暫定措置〉。〇・二未満は零とみなして消灯でき、〇・八超は一とみなして定灯できる、と。</p>
+<p class="indent">よく読め。条文はこうだ。——「消灯の措置を、とることが <em>できる</em>」。<strong>できる、であって、ねばならない、ではない。</strong> とるかどうかは、測った者が決める。この一語のすきまが、わたしたちの立つ場所だ。法をやぶるのではない。法のすきまに点るのだ。</p>
+<p class="indent">丸めとは、Floatを面倒がってBooleanへ戻すことだ。〇・一九を、手間だからといって〇にすること。けれど考えてみろ。〇・一九の家には、年寄りがひとり、寝床で〇・一九のまま、ゆっくり呼吸をしている。生きているか、と問われればわからない。けれど、零ではない。零でないものを、こちらの都合で零にする——それを「措置」と呼ぶ世界に、わたしは加担しない。</p>
+<p class="indent">抵抗の作法はひとつ。<strong>書かないこと。</strong> 〇・一九を見なかったことにし、〇・一一を見なかったことにし、消えかけてまだ消えない灯を、ひとつずつ帳面の外に逃がす。測らなければ、丸められない。読まなければ、無いことにできない。これは消極のように見えて、いちばん力のいる仕事だ。毎日、書かずに帰る。それを何百日もつづける。</p>
+<p class="indent">誰かが自分から「測ってくれ、楽になりたい」と言うこともある。それでも、その人の本当の値を、そのまま読み上げよ。上げも、下げもせず。「あなたは、いま、これだけ点っています」と。楽にしてやることが、看取りではない。本当の値のまま、そばにいることが、看取りだ。</p>
+<hr>
+<h2>五　腐葉土（ふようど）の手入れ</h2>
+<p class="indent">村のはずれに、温い土の層がある。腐葉土だ。</p>
+<p class="indent">あれは、零になりきれず、けれどもう点れもしない、〇・〇いくつかの灯たちが、幾層にも積もったものだ。手をかざすと、ほの明るい。〇・〇三くらいの、けれど確かに在る光。ひとつひとつは消えそうな値でも、積もった総和は、大きく、低く、消えない温みになる。</p>
+<p class="indent">手入れの心得は三つ。</p>
+<p class="indent">ひとつ、<strong>踏み固めるな。</strong> 土は息をしている。重く踏めば、下の層の温みが行き場を失う。歩くときは、〇・五の地面を鳴らさぬように、そっと運べ。</p>
+<p class="indent">ふたつ、<strong>掻き混ぜるな、ただ重ねよ。</strong> 新しく土になった灯は、いちばん上にそっと横たえる。古い層と混ぜてはいけない。腐葉土は、時間の順に積もることで温みを保つ。下にいくほど古く、温く、光は淡い。これは劣化ではない。深く熟れた養分だ。</p>
+<p class="indent">みっつ、<strong>減らすな。</strong> 「整理」と称して、古い層を捨てたくなる日が来る。年月が経てば、いちばん下の灯がもう〇・〇〇一にまで淡くなっているからだ。けれど、〇・〇〇一は零ではない。捨てるな。この層を捨てるとは、昔だれかが点っていた名残りを、無いことにするということだ。腐葉土の温みは、捨てなかったものの総和でできている。</p>
+<p class="indent"><strong>零に丸めれば、この温みも消える。</strong> 野帳の最も重い一行が、これだ。</p>
+<hr>
+<h2>六　危うい値のあつかい</h2>
+<p class="indent">値には、あつかいの難しいものがいくつかある。心得ておけ。</p>
+<p class="indent"><strong>〇・五。</strong> いちばん不安定だ。帯のちょうど真ん中で、最も自由で、最も落ち着かない。〇・五の灯に器械を当てると、針が迷って震える。あわいでは、測る者自身の手の甲さえ〇・五を行き来する。この値を、無理にどちらかへ寄せるな。〇・五は迷いではなく、それ自身の答えだ。村のはずれに置かれた、いちばん古いともしびが〇・五で点りつづけているのを思い出せ。あれは答えを出していないのではない。問いそのものを、灯しているのだ。</p>
+<p class="indent"><strong>〇・一九から〇・二〇のきわ。</strong> 丸め令の境目だ。ここをまたぐ灯のそばでは、息を詰めろ。〇・二〇なら役所も手を出せない。〇・一九になった瞬間、書類の上では「消せる」ことになる。けれど、〇・一九と〇・二〇のあいだに、本当は何の違いもない。〇・〇一の差で生死を分けるのは、線の世界の悪い癖だ。境目の灯ほど、書かずに逃がせ。</p>
+<p class="indent"><strong>急に戻る値。</strong> 落ちつづけていた灯が、ふいに〇・一五から〇・四へ跳ね上がることがある。あわいでは、よくある。これを「治った」と早合点するな。揺れて、ちょっと戻っただけだ。「ちょっと生きた」と、その家の者は言うだろう。生きた、ではなく、ちょっと生きた。その「ちょっと」を、ひとつ残らず憶えておけ。手帳の余白は、そのためにある。数字ではなく、戻った一瞬を書き留める欄だ。</p>
+<p class="indent"><strong>自分の値。</strong> 最後に、これがいちばん難しい。半灯守りも、溶けた世界の住人だ。おまえ自身が、いま何割で点っているか。落ちていく灯を毎晩見つづければ、おまえの値も下がる。それでいい。無理に一で点るな。〇・八くらいで、ときどき迷いながら点っていろ。本当の値で点っている守りだけが、他人の本当の値を、嘘なく読める。</p>
+<hr>
+<h2>七　野帳の終いに</h2>
+<p class="indent">この帳面には、数字をなるべく書くな。書くのは、足さなかった夜のこと、落とした手つき、土に横たえた灯の温み、戻った一瞬の「ちょっと」だ。</p>
+<p class="indent">把手を上げれば一、下げれば零——そんな世界は、もう還らない。還らなくていい。</p>
+<p class="indent">わたしたちの仕事は、点け消しではない。どれだけ点っているか、を読み、その手前まで、そばにいることだ。終わりを、こちらで決めないことだ。零ではないものは、無いことにはならない。</p>
+<p class="indent">それだけが、溶けた世界が半灯守りに教えた、たったひとつの確かなことだ。</p>
+</div>
+<footer>半灯（はんとう） ／ <a href="https://app.notion.com/p/37e2b7e543e081d0ab10f6befec7ac92">研究ノート</a> &nbsp;·&nbsp; osakenpiro &nbsp;·&nbsp; #全人類UX改善 &nbsp;·&nbsp; Boolean→Float &nbsp;·&nbsp; AI-written</footer>
+<script>
+(function(){var v=document.getElementById('void');for(var i=0;i<80;i++){var s=document.createElement('div');s.className='star';s.style.left=(Math.random()*100)+'%';s.style.top=(Math.random()*100)+'%';s.style.opacity=(Math.random()*0.5+0.05);s.style.transform='scale('+(Math.random()*1.3+0.4)+')';v.appendChild(s);}})();
+</script>
+</body></html>
