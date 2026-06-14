@@ -120,6 +120,7 @@
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
       <button class="btn" onclick="go('select')">はじめる</button>
       <button class="btn ghost" onclick="startLevel(0)">第一問へ</button>
+      <button class="btn ghost" onclick="openSandbox()">工房（自由配線）</button>
     </div>
   </section>
 
@@ -172,6 +173,32 @@
     <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
       <button class="btn" id="nextBtn" style="display:none;" onclick="nextLevel()">次の問へ →</button>
     </div>
+  </section>
+
+
+  <!-- SANDBOX (工房) -->
+  <section id="sandbox" style="display:none;">
+    <div class="topbar">
+      <button class="btn ghost" style="padding:7px 13px;" onclick="go('intro')">← 序</button>
+      <div><div class="lname">工房</div><div class="lsub">自由配線 — 自分のファジィ回路を組む（勝ち負けなし）</div></div>
+      <div class="sp">
+        <button class="btn ghost" style="padding:7px 13px;" onclick="sbSample()">例</button>
+        <button class="btn ghost" style="padding:7px 13px;" onclick="sbClear()">全消去</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin:8px 0;">
+      <button class="btn ghost" style="padding:8px 12px;font-size:13px;" onclick="sbAdd('SRC')">＋入力</button>
+      <button class="btn ghost" style="padding:8px 12px;font-size:13px;" onclick="sbAdd('NOT')">＋NOT</button>
+      <button class="btn ghost" style="padding:8px 12px;font-size:13px;" onclick="sbAdd('AND')">＋AND</button>
+      <button class="btn ghost" style="padding:8px 12px;font-size:13px;" onclick="sbAdd('OR')">＋OR</button>
+      <button class="btn ghost" style="padding:8px 12px;font-size:13px;" onclick="sbAdd('AVG')">＋AVG</button>
+      <button class="btn ghost" style="padding:8px 12px;font-size:13px;" onclick="sbAdd('QUANT')">＋QUANT</button>
+      <button class="btn ghost" style="padding:8px 12px;font-size:13px;" onclick="sbAdd('OUT')">＋出力</button>
+    </div>
+    <div style="font-size:11.5px;color:var(--ink-dim);margin:0 2px 8px;line-height:1.6;" id="sbHelp">出力ポート（右の○）→ 入力ポート（左の○）の順にクリックで配線。ノード本体ドラッグで移動、× で削除。入力ノードは下のスライダーで値を。</div>
+    <div class="stage"><svg class="board" id="sbBoard" viewBox="0 0 920 480" preserveAspectRatio="xMidYMid meet"></svg></div>
+    <div class="legend" id="sbLegend"></div>
+    <div class="ctrls" id="sbCtrls"></div>
   </section>
 
   <footer>
@@ -266,7 +293,7 @@ function unlocked(i){ return i===0 || (progress['L'+LEVELS[i-1].id] && progress[
 let cur=0, vals={};
 
 /* ===================== screens ===================== */
-function go(id){ for(const s of ['intro','select','play']) document.getElementById(s).style.display = (s===id?'block':'none'); if(id==='select') renderSelect(); window.scrollTo({top:0,behavior:'smooth'}); }
+function go(id){ for(const s of ['intro','select','play','sandbox']) document.getElementById(s).style.display = (s===id?'block':'none'); if(id==='select') renderSelect(); window.scrollTo({top:0,behavior:'smooth'}); }
 
 function renderSelect(){
   const g=document.getElementById('lvgrid'); g.innerHTML='';
@@ -422,6 +449,86 @@ function recompute(){
     if(over){ vd.className='verdict'; }
   }
 }
+
+/* ===================== sandbox (工房 — 自由配線) ===================== */
+let sbNodes=[], sbEdges=[], sbWire=null, sbSeq=1, sbDrag=null;
+const SBKEY='hazama_sandbox_v1';
+const SB_ARITY={SRC:0,NOT:1,QUANT:1,OUT:1,AND:9,OR:9,AVG:9};
+function sbSave(){ try{localStorage.setItem(SBKEY,JSON.stringify({n:sbNodes,e:sbEdges,seq:sbSeq}));}catch(e){} }
+function sbLoad(){ try{const d=JSON.parse(localStorage.getItem(SBKEY)); if(d&&d.n&&d.n.length){sbNodes=d.n;sbEdges=d.e||[];sbSeq=d.seq||(sbNodes.length+1);return true;}}catch(e){} return false; }
+function openSandbox(){ if(!sbNodes.length){ if(!sbLoad()) sbSample(true); } go('sandbox'); sbRender(); }
+function sbAdd(type){ const n={id:'n'+(sbSeq++),type,x:100+((sbNodes.length*64)%520),y:90+((sbNodes.length*53)%300)}; if(type==='SRC')n.val=0.5; sbNodes.push(n); sbWire=null; sbSave(); sbRender(); }
+function sbClear(){ sbNodes=[];sbEdges=[];sbWire=null;sbSeq=1; sbSave(); sbRender(); }
+function sbSample(skipGo){ sbNodes=[{id:'s1',type:'SRC',x:100,y:150,val:0.7},{id:'s2',type:'SRC',x:100,y:330,val:0.3},{id:'g',type:'AND',x:430,y:240},{id:'o',type:'OUT',x:730,y:240}];
+  sbEdges=[{from:'s1',to:'g'},{from:'s2',to:'g'},{from:'g',to:'o'}]; sbSeq=10; sbWire=null; sbSave(); if(!skipGo) sbRender(); }
+function sbInputs(id){ return sbEdges.filter(e=>e.to===id).map(e=>e.from); }
+function sbEval(){
+  const nodes={}; sbNodes.forEach(n=>nodes[n.id]=n);
+  const memo={}, vis={};
+  function val(id){
+    if(id in memo) return memo[id];
+    if(vis[id]) return 0;
+    vis[id]=true;
+    const n=nodes[id]; if(!n){ delete vis[id]; return 0; }
+    const inv=sbInputs(id).map(val); let r;
+    switch(n.type){
+      case 'SRC': r=(n.val!=null)?n.val:0; break;
+      case 'NOT': r=inv.length?1-inv[0]:0; break;
+      case 'AND': r=inv.length?Math.min.apply(null,inv):0; break;
+      case 'OR':  r=inv.length?Math.max.apply(null,inv):0; break;
+      case 'AVG': r=inv.length?inv.reduce((a,b)=>a+b,0)/inv.length:0; break;
+      case 'QUANT': r=inv.length?(inv[0]>=0.5?1:0):0; break;
+      case 'OUT': r=inv.length?inv[0]:0; break;
+      default: r=0;
+    }
+    r=Math.max(0,Math.min(1,r)); delete vis[id]; memo[id]=r; return r;
+  }
+  const all={}; sbNodes.forEach(n=>all[n.id]=val(n.id)); return all;
+}
+function sbPortClick(id,kind){
+  if(kind==='out'){ sbWire=(sbWire===id?null:id); sbRender(); return; }
+  if(kind==='in'){
+    const tgt=sbNodes.find(n=>n.id===id);
+    if(!sbWire||sbWire===id||!tgt||tgt.type==='SRC'){ sbWire=null; sbRender(); return; }
+    const cap=SB_ARITY[tgt.type]||0, cur=sbInputs(id).length;
+    if(!sbEdges.some(e=>e.from===sbWire&&e.to===id) && cur<cap){ sbEdges.push({from:sbWire,to:id}); }
+    sbWire=null; sbSave(); sbRender();
+  }
+}
+function sbDel(id){ sbNodes=sbNodes.filter(n=>n.id!==id); sbEdges=sbEdges.filter(e=>e.from!==id&&e.to!==id); if(sbWire===id)sbWire=null; sbSave(); sbRender(); }
+function sbSetVal(id,v){ const n=sbNodes.find(x=>x.id===id); if(n){ n.val=parseFloat(v); sbSave(); sbRender(); } }
+const SBR=30;
+function sbRender(){
+  const svg=document.getElementById('sbBoard'); if(!svg) return;
+  const all=sbEval(); let h='';
+  sbEdges.forEach(e=>{ const a=sbNodes.find(n=>n.id===e.from), b=sbNodes.find(n=>n.id===e.to); if(!a||!b)return; const v=all[e.from]||0;
+    h+='<line x1="'+(a.x+SBR)+'" y1="'+a.y+'" x2="'+(b.x-SBR)+'" y2="'+b.y+'" stroke="var(--gold)" stroke-opacity="'+(0.2+v*0.7).toFixed(2)+'" stroke-width="'+(1.5+v*3).toFixed(1)+'" stroke-linecap="round"/>'; });
+  sbNodes.forEach(n=>{ const v=all[n.id]||0; const isSrc=n.type==='SRC';
+    h+='<g><circle cx="'+n.x+'" cy="'+n.y+'" r="'+SBR+'" fill="#10101a" stroke="'+(isSrc?'var(--gold-dim)':'#3a3a4a')+'" stroke-width="'+(isSrc?2:1.5)+'" data-sbnode="'+n.id+'" style="cursor:move"/>';
+    h+='<circle cx="'+n.x+'" cy="'+n.y+'" r="'+(SBR-4)+'" fill="var(--gold)" fill-opacity="'+(0.12+v*0.82).toFixed(3)+'" pointer-events="none"/>';
+    const lab=isSrc?'in':(n.type==='OUT'?'OUT':n.type);
+    h+='<text x="'+n.x+'" y="'+(n.y-SBR-7)+'" text-anchor="middle" font-size="11" fill="'+(isSrc?'var(--gold)':'#8a8a9a')+'" font-family="var(--serif)" pointer-events="none">'+lab+'</text>';
+    h+='<text x="'+n.x+'" y="'+(n.y+5)+'" text-anchor="middle" font-size="13" font-family="ui-monospace,monospace" fill="'+(v>0.45?'#0b0b12':'#cfcabd')+'" font-weight="700" pointer-events="none">'+v.toFixed(2)+'</text>';
+    if(n.type!=='SRC'){ const wiring=sbWire&&sbWire!==n.id; h+='<circle cx="'+(n.x-SBR)+'" cy="'+n.y+'" r="6.5" fill="'+(wiring?'var(--ok)':'#1b1b27')+'" stroke="var(--gold-dim)" stroke-width="1.5" data-sbport="in" data-sbid="'+n.id+'" style="cursor:pointer"/>'; }
+    if(n.type!=='OUT'){ const sel=sbWire===n.id; h+='<circle cx="'+(n.x+SBR)+'" cy="'+n.y+'" r="6.5" fill="'+(sel?'var(--gold)':'#1b1b27')+'" stroke="var(--gold-dim)" stroke-width="1.5" data-sbport="out" data-sbid="'+n.id+'" style="cursor:pointer"/>'; }
+    h+='<text x="'+(n.x+SBR-1)+'" y="'+(n.y-SBR+5)+'" font-size="15" fill="var(--warn)" data-sbdel="'+n.id+'" style="cursor:pointer">×</text></g>';
+  });
+  svg.innerHTML=h;
+  svg.querySelectorAll('[data-sbport]').forEach(el=>{ el.onclick=ev=>{ ev.stopPropagation(); sbPortClick(el.getAttribute('data-sbid'),el.getAttribute('data-sbport')); }; });
+  svg.querySelectorAll('[data-sbdel]').forEach(el=>{ el.onclick=ev=>{ ev.stopPropagation(); sbDel(el.getAttribute('data-sbdel')); }; });
+  svg.querySelectorAll('[data-sbnode]').forEach(el=>{ el.onpointerdown=ev=>{ const id=el.getAttribute('data-sbnode'); const n=sbNodes.find(x=>x.id===id); if(!n)return; const r=svg.getBoundingClientRect();
+    sbDrag={id, ox:n.x-(ev.clientX-r.left)*(920/r.width), oy:n.y-(ev.clientY-r.top)*(480/r.height)}; ev.preventDefault(); }; });
+  const used=[...new Set(sbNodes.map(n=>n.type))].filter(t=>t!=='SRC'&&t!=='OUT');
+  const desc={NOT:'1−x',AND:'min',OR:'max',AVG:'平均',QUANT:'≥0.5→1'};
+  document.getElementById('sbLegend').innerHTML=used.map(t=>'<span><b>'+t+'</b> '+(desc[t]||'')+'</span>').join('')+(sbWire?'<span style="color:var(--ok)">配線中… 入力ポート(左○)をクリック</span>':'');
+  const outs=sbNodes.filter(n=>n.type==='OUT');
+  document.getElementById('sbHelp').innerHTML=(outs.length?'出力 OUT = <b style="color:var(--gold);font-family:ui-monospace">'+(all[outs[0].id]||0).toFixed(3)+'</b> ｜ ':'')+'出力ポート(右○)→入力ポート(左○)で配線・本体ドラッグで移動・×で削除';
+  let ch=''; sbNodes.filter(n=>n.type==='SRC').forEach(n=>{ ch+='<div class="src"><div class="h"><span class="dot"></span><span class="nm">入力 '+n.id+'</span><span class="vv">'+(n.val!=null?n.val:0).toFixed(2)+'</span></div><input type="range" min="0" max="1" step="0.01" value="'+(n.val!=null?n.val:0)+'" oninput="sbSetVal(\''+n.id+'\',this.value)"></div>'; });
+  document.getElementById('sbCtrls').innerHTML=ch;
+}
+window.addEventListener('pointermove',function(ev){ if(!sbDrag)return; const svg=document.getElementById('sbBoard'); if(!svg)return; const r=svg.getBoundingClientRect(); const n=sbNodes.find(x=>x.id===sbDrag.id);
+  if(n){ n.x=Math.max(SBR,Math.min(920-SBR,sbDrag.ox+(ev.clientX-r.left)*(920/r.width))); n.y=Math.max(SBR,Math.min(480-SBR,sbDrag.oy+(ev.clientY-r.top)*(480/r.height))); sbRender(); } });
+window.addEventListener('pointerup',function(){ if(sbDrag){ sbDrag=null; sbSave(); } });
 
 /* ===================== starfield ===================== */
 (function(){
