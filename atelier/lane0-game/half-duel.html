@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>0.5の決闘 — Half Duel</title>
+<style>
+  :root{
+    --void:#0d0d12; --void2:#14141c; --panel:#16161f;
+    --gold:#d4a853; --gold-soft:#b8923f; --gold-dim:#6f5a2c;
+    --indigo:#33415e; --indigo-dim:#222b3d; --indigo-line:#2a3346;
+    --ink:#e9e6dd; --ink-dim:#8a8678; --ink-faint:#5d5a50;
+    --hit:#f0d68a;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    background:radial-gradient(120% 90% at 50% 0%, var(--void2) 0%, var(--void) 70%);
+    color:var(--ink);
+    font-family:"Hiragino Mincho ProN","Yu Mincho",Georgia,"Times New Roman",serif;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    justify-content:flex-start; padding:24px 18px 40px; overflow-x:hidden;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    user-select:none;
+  }
+  .stars{position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.5;}
+  .wrap{width:100%; max-width:560px; position:relative; z-index:1;}
+
+  header{text-align:center; margin-bottom:18px;}
+  h1{font-size:clamp(22px,6vw,30px); font-weight:600; letter-spacing:.18em;
+     color:var(--gold); margin-bottom:4px;}
+  h1 .lat{display:block; font-family:Georgia,serif; font-size:.42em; letter-spacing:.42em;
+     color:var(--gold-soft); margin-top:7px; font-weight:400; text-indent:.42em;}
+  .tagline{font-size:13px; color:var(--ink-dim); letter-spacing:.06em; line-height:1.7;
+     font-style:italic;}
+
+  .hud{display:flex; justify-content:space-between; align-items:flex-end;
+       margin:18px 2px 14px; gap:10px;}
+  .hud .cell{flex:1; text-align:center;}
+  .hud .lbl{font-size:10.5px; letter-spacing:.22em; color:var(--ink-faint);
+       text-transform:uppercase; font-family:Georgia,serif;}
+  .hud .val{font-size:22px; font-weight:600; color:var(--ink); margin-top:3px;
+       font-variant-numeric:tabular-nums; font-family:Georgia,serif;}
+  .hud .val.gold{color:var(--gold);}
+  .hud .combo{color:var(--gold-soft); font-size:14px; min-height:18px;
+       letter-spacing:.08em; margin-top:5px;}
+
+  .stage{position:relative; background:linear-gradient(180deg,var(--panel),#101019);
+    border:1px solid var(--indigo-line); border-radius:14px;
+    padding:30px 26px 26px; box-shadow:0 1px 0 rgba(212,168,83,.05) inset;}
+
+  .roundline{display:flex; justify-content:space-between; align-items:center;
+    font-size:11px; letter-spacing:.14em; color:var(--ink-faint);
+    text-transform:uppercase; font-family:Georgia,serif; margin-bottom:18px;}
+  .roundline .target{color:var(--gold); letter-spacing:.06em; font-size:12px;
+    font-variant-numeric:tabular-nums;}
+
+  /* ---- the bar ---- */
+  .barzone{position:relative; padding:30px 4px 16px;}
+  .scaleticks{position:absolute; top:6px; left:4px; right:4px; height:12px;}
+  .scaleticks span{position:absolute; top:0; transform:translateX(-50%);
+    font-size:9.5px; color:var(--ink-faint); font-family:Georgia,serif;
+    letter-spacing:.02em; font-variant-numeric:tabular-nums;}
+  .scaleticks span.mid{color:var(--gold-dim);}
+
+  .bar{position:relative; height:18px; border-radius:9px;
+    background:linear-gradient(90deg,var(--indigo-dim),#2c3142 50%,var(--indigo-dim));
+    border:1px solid var(--indigo-line); overflow:visible;}
+  /* faint center seam — the 0.5 line, "the coin toss" */
+  .bar .seam{position:absolute; left:50%; top:-7px; bottom:-7px; width:1px;
+    background:repeating-linear-gradient(180deg,var(--gold-dim) 0 3px,transparent 3px 7px);
+    opacity:.6; transform:translateX(-.5px);}
+
+  /* target zone (tolerance window) + exact target marker */
+  .tolzone{position:absolute; top:-1px; bottom:-1px; border-radius:9px;
+    background:rgba(212,168,83,.10); border:1px solid rgba(212,168,83,.28);}
+  .target-mk{position:absolute; top:-12px; bottom:-12px; width:2px;
+    background:var(--gold); transform:translateX(-1px);
+    box-shadow:0 0 7px rgba(212,168,83,.55);}
+  .target-mk::after{content:""; position:absolute; left:50%; top:-7px;
+    width:8px; height:8px; transform:translate(-50%,0) rotate(45deg);
+    background:var(--gold);}
+
+  /* the needle */
+  .needle{position:absolute; top:-16px; bottom:-16px; width:2px;
+    background:var(--ink); transform:translateX(-1px); will-change:left;
+    box-shadow:0 0 6px rgba(233,230,221,.35);}
+  .needle.frozen{background:var(--hit); box-shadow:0 0 12px rgba(240,214,138,.8);}
+  .needle::before{content:""; position:absolute; left:50%; top:-3px;
+    width:7px; height:7px; transform:translate(-50%,-100%) rotate(45deg);
+    background:inherit;}
+
+  /* hit flash — the gold bloom */
+  .flash{position:absolute; top:50%; width:10px; height:10px; border-radius:50%;
+    background:var(--gold); transform:translate(-50%,-50%) scale(0);
+    pointer-events:none; opacity:0;}
+  .flash.go{animation:bloom .55s ease-out forwards;}
+  @keyframes bloom{
+    0%{transform:translate(-50%,-50%) scale(0); opacity:.95;}
+    100%{transform:translate(-50%,-50%) scale(7); opacity:0;}
+  }
+
+  /* error bar — continuous visualization of the miss */
+  .errbox{margin-top:24px; min-height:46px;}
+  .errlabel{display:flex; justify-content:space-between; font-size:11px;
+    color:var(--ink-faint); letter-spacing:.1em; font-family:Georgia,serif;
+    text-transform:uppercase; margin-bottom:7px;}
+  .errlabel .pts{color:var(--gold); font-variant-numeric:tabular-nums;
+    letter-spacing:.04em; font-size:13px;}
+  .errtrack{position:relative; height:5px; border-radius:3px;
+    background:var(--indigo-dim); overflow:hidden;}
+  .errfill{position:absolute; left:0; top:0; bottom:0; width:0;
+    background:linear-gradient(90deg,var(--gold),var(--gold-soft));
+    border-radius:3px; transition:width .45s cubic-bezier(.2,.7,.2,1);}
+  .errnote{font-size:12px; color:var(--ink-dim); line-height:1.7;
+    margin-top:11px; min-height:21px; font-style:italic; letter-spacing:.02em;}
+  .errnote b{color:var(--gold); font-style:normal; font-weight:600;
+    font-variant-numeric:tabular-nums;}
+
+  /* big action button */
+  .actions{margin-top:26px; display:flex; gap:12px; align-items:center;}
+  button{font-family:inherit; cursor:pointer; border-radius:10px;
+    letter-spacing:.1em; transition:all .15s ease; -webkit-appearance:none;}
+  .stop{flex:1; padding:16px; font-size:17px; font-weight:600;
+    background:linear-gradient(180deg,#1d1d28,#15151e);
+    color:var(--gold); border:1px solid var(--gold-dim);}
+  .stop:hover{border-color:var(--gold-soft); color:var(--hit);
+    box-shadow:0 0 14px rgba(212,168,83,.15);}
+  .stop:active{transform:scale(.985);}
+  .stop:disabled{opacity:.4; cursor:default; color:var(--ink-faint);
+    border-color:var(--indigo-line); box-shadow:none;}
+  .ghost{padding:16px 18px; font-size:13px; background:transparent;
+    color:var(--ink-dim); border:1px solid var(--indigo-line); letter-spacing:.06em;}
+  .ghost:hover{color:var(--ink); border-color:var(--indigo);}
+  .hintkey{text-align:center; font-size:10.5px; color:var(--ink-faint);
+    letter-spacing:.1em; margin-top:14px; font-family:Georgia,serif;}
+
+  /* overlays */
+  .overlay{position:absolute; inset:0; background:rgba(13,13,18,.93);
+    border-radius:14px; display:flex; flex-direction:column; align-items:center;
+    justify-content:center; text-align:center; padding:34px 28px; z-index:6;}
+  .overlay h2{font-size:20px; color:var(--gold); letter-spacing:.14em;
+    font-weight:600; margin-bottom:14px;}
+  .overlay p{font-size:13.5px; color:var(--ink-dim); line-height:1.85;
+    max-width:380px; margin-bottom:9px; letter-spacing:.02em;}
+  .overlay .final{font-size:40px; color:var(--ink); font-weight:600; margin:6px 0 2px;
+    font-family:Georgia,serif; font-variant-numeric:tabular-nums;}
+  .overlay .finlbl{font-size:10.5px; letter-spacing:.24em; color:var(--ink-faint);
+    text-transform:uppercase; font-family:Georgia,serif; margin-bottom:16px;}
+  .overlay .best{font-size:12px; color:var(--gold-soft); letter-spacing:.06em;
+    margin-bottom:22px; font-variant-numeric:tabular-nums;}
+  .overlay .best.new{color:var(--gold);}
+  .overlay button{margin-top:6px; padding:14px 30px; font-size:15px; font-weight:600;
+    background:linear-gradient(180deg,#1d1d28,#15151e);
+    color:var(--gold); border:1px solid var(--gold-dim); letter-spacing:.12em;}
+  .overlay button:hover{border-color:var(--gold-soft); color:var(--hit);}
+  .overlay .scrollwrap{max-height:148px; overflow-y:auto; width:100%;
+    margin:6px 0 16px; padding:0 4px;}
+  .rndrow{display:flex; justify-content:space-between; font-size:11.5px;
+    color:var(--ink-dim); padding:5px 8px; border-bottom:1px solid var(--indigo-dim);
+    font-variant-numeric:tabular-nums; letter-spacing:.03em;}
+  .rndrow .rn{color:var(--ink-faint); font-family:Georgia,serif;}
+  .rndrow .rs{color:var(--gold-soft);}
+  .rndrow.bad .rs{color:var(--ink-faint);}
+  .hide{display:none !important;}
+
+  footer{margin-top:22px; text-align:center; font-size:10.5px; color:var(--ink-faint);
+    letter-spacing:.08em; line-height:1.8; font-family:Georgia,serif;}
+  footer .b2f{color:var(--gold-dim);}
+</style>
+</head>
+<body>
+<canvas class="stars" id="stars"></canvas>
+<div class="wrap">
+  <header>
+    <h1>0.5の決闘<span class="lat">HALF&nbsp;DUEL</span></h1>
+    <p class="tagline">丸めずに、止める。</p>
+  </header>
+
+  <div class="hud">
+    <div class="cell"><div class="lbl">Round</div><div class="val" id="hudRound">1 / 10</div></div>
+    <div class="cell"><div class="lbl">Score</div><div class="val gold" id="hudScore">0</div>
+      <div class="combo" id="hudCombo">&nbsp;</div></div>
+    <div class="cell"><div class="lbl">Best</div><div class="val" id="hudBest">0</div></div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="roundline">
+      <span id="rlPhase">第一決闘</span>
+      <span class="target">目標 <span id="rlTarget">0.000</span></span>
+    </div>
+
+    <div class="barzone">
+      <div class="scaleticks" id="ticks"></div>
+      <div class="bar" id="bar">
+        <div class="seam"></div>
+        <div class="tolzone" id="tolzone"></div>
+        <div class="target-mk" id="targetMk"></div>
+        <div class="needle" id="needle"></div>
+        <div class="flash" id="flash"></div>
+      </div>
+    </div>
+
+    <div class="errbox">
+      <div class="errlabel"><span id="errLbl">ズレ</span><span class="pts" id="errPts">&nbsp;</span></div>
+      <div class="errtrack"><div class="errfill" id="errFill"></div></div>
+      <div class="errnote" id="errNote">針を、目標の金線で止める。スペース／タップ／クリック。</div>
+    </div>
+
+    <div class="actions">
+      <button class="stop" id="stopBtn">止める</button>
+      <button class="ghost" id="nextBtn" disabled>次へ</button>
+    </div>
+    <div class="hintkey">SPACE / TAP / CLICK&nbsp;&nbsp;—&nbsp;&nbsp;to freeze the needle</div>
+
+    <!-- start overlay -->
+    <div class="overlay" id="startOv">
+      <h2>0.5の決闘</h2>
+      <p>0.00 から 1.00 を、針が往復する。<br>目標の金線で、針を止めろ。</p>
+      <p style="color:var(--ink-faint);font-size:12px;">二値なら、当たりか外れの 0 か 1。<br>ここでは、0.03 のズレにも 970 点の意味がある。</p>
+      <button id="startBtn">決闘をはじめる</button>
+    </div>
+
+    <!-- result overlay -->
+    <div class="overlay hide" id="endOv">
+      <h2 id="endTitle">決闘、終幕</h2>
+      <div class="final" id="endScore">0</div>
+      <div class="finlbl">total — 10 rounds</div>
+      <div class="best" id="endBest">&nbsp;</div>
+      <div class="scrollwrap" id="endRounds"></div>
+      <p id="endFlavor" style="font-size:12.5px;"></p>
+      <button id="retryBtn">もう一度</button>
+    </div>
+  </div>
+
+  <footer>
+    端数のひと・世界観 ／ <span class="b2f">Boolean&nbsp;→&nbsp;Float</span><br>
+    単一HTML・外部依存ゼロ・localStorage
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   PURE LOGIC  (deterministic, side-effect free)
+   Extracted & re-verified by verify-embedded-halfduel.mjs.
+   Everything down to the next banner is pure (no DOM access).
+   ============================================================ */
+const ROUNDS = 10;
+const MAX_SCORE = 1000;
+
+/* deterministic PRNG so target generation is testable / reproducible */
+function makeRng(seed){
+  let s = (seed >>> 0) || 0x9e3779b9;
+  return function(){
+    s ^= s << 13; s >>>= 0;
+    s ^= s >> 17;
+    s ^= s << 5;  s >>>= 0;
+    return s / 4294967296;
+  };
+}
+
+/* clamp helper */
+function clamp01(x){ return x < 0 ? 0 : (x > 1 ? 1 : x); }
+
+/* ---- difficulty curve over rounds 1..ROUNDS ----
+   t in [0,1] is the progression. Returns the tuning for a round. */
+function roundConfig(round){
+  const t = ROUNDS > 1 ? (round - 1) / (ROUNDS - 1) : 0;   // 0..1
+  return {
+    round,
+    t,
+    // needle sweep period (ms for a full 0->1->0): faster as t grows
+    periodMs: Math.round(2600 - 1500 * t),                 // 2600 -> 1100
+    // tolerance half-width of the "zone" (cosmetic guide + bonus gate): tighter
+    tol: +(0.16 - 0.12 * t).toFixed(4),                    // 0.16 -> 0.04
+    // exponent on the score falloff: sharper (less forgiving) as t grows
+    power: +(1.4 + 1.4 * t).toFixed(4),                    // 1.4 -> 2.8
+    // does the target itself drift during the round? (endgame only)
+    moving: round >= 8,
+    // amplitude of target drift (in value units), grows late
+    driftAmp: round >= 8 ? +(0.05 + 0.05 * (t)).toFixed(4) : 0
+  };
+}
+
+/* ---- target generation ----
+   As difficulty rises, the target is pulled toward 0.5 (the "coin-toss"
+   center — the hardest place to be precise about, and the place where a
+   Boolean threshold is maximally arbitrary). Deterministic given rng. */
+function makeTarget(round, rng){
+  const cfg = roundConfig(round);
+  const raw = rng();                       // uniform 0..1
+  const pullToCenter = 0.78 * cfg.t;       // 0 .. 0.78 blend toward 0.5
+  let target = raw * (1 - pullToCenter) + 0.5 * pullToCenter;
+  // keep a hair off the rails so the needle can always straddle it
+  target = clamp01(0.02 + target * 0.96);
+  return +target.toFixed(4);
+}
+
+/* ---- the Float scoring function (the heart of the game) ----
+   A Boolean game scores hit/miss = 1 or 0. Here a near miss is paid out
+   on a continuous curve: score = MAX * (1 - err)^power, err=|needle-target|.
+   Monotonically decreasing in err; exact match -> MAX; err=1 -> 0. */
+function scoreShot(needle, target, power){
+  const err = Math.abs(clamp01(needle) - clamp01(target));
+  const acc = Math.pow(1 - err, power);    // 1 at err 0, 0 at err 1
+  return {
+    err: +err.toFixed(6),
+    points: Math.round(MAX_SCORE * acc),
+    accuracy: acc
+  };
+}
+
+/* ---- combo / streak bonus ----
+   Rewards *sustained* precision. A shot inside tolerance extends the streak;
+   bonus is a Float multiplier on accumulated streak, not a binary flag. */
+function comboBonus(streak){
+  // 0 for streak<2, then grows: +8% per stacked precise shot, capped.
+  if (streak < 2) return 0;
+  const mult = Math.min(0.40, 0.08 * (streak - 1));
+  return mult;                              // fraction of the shot's points
+}
+
+/* given a raw shot + current streak + cfg, produce the full round result */
+function resolveRound(needle, target, cfg, streakBefore){
+  const base = scoreShot(needle, target, cfg.power);
+  const precise = base.err <= cfg.tol;     // inside the tolerance window?
+  const streakAfter = precise ? streakBefore + 1 : 0;
+  const bonusMult = comboBonus(streakAfter);
+  const bonus = Math.round(base.points * bonusMult);
+  return {
+    err: base.err,
+    basePoints: base.points,
+    precise,
+    streakAfter,
+    bonusMult,
+    bonus,
+    total: base.points + bonus
+  };
+}
+
+/* ---- whole-game aggregation (used by verifier for a full 10-round run) ---- */
+function simulateGame(seed, shooter){
+  // shooter(round,target,cfg) -> needle value in [0,1]
+  const rng = makeRng(seed);
+  let streak = 0, total = 0;
+  const rounds = [];
+  for (let r = 1; r <= ROUNDS; r++){
+    const cfg = roundConfig(r);
+    const target = makeTarget(r, rng);
+    const needle = clamp01(shooter(r, target, cfg));
+    const res = resolveRound(needle, target, cfg, streak);
+    streak = res.streakAfter;
+    total += res.total;
+    rounds.push({ round:r, target, needle, ...res });
+  }
+  return { total, rounds, finalStreak: streak };
+}
+
+/* phase label flavor per round (story-world dressing) */
+function phaseLabel(round){
+  const names = ['序の一','序の二','間の三','間の四','詰の五',
+                 '詰の六','緊の七','緊の八','際の九','終の十'];
+  return (names[round-1] || ('第'+round)) + '決闘';
+}
+
+/* ============================================================
+   UI / STATE   (everything below is impure / DOM-bound)
+   ============================================================ */
+(function(){
+  const $ = id => document.getElementById(id);
+  const LS_KEY = 'halfduel.best.v1';
+
+  const el = {
+    stage:$('stage'), bar:$('bar'), needle:$('needle'), flash:$('flash'),
+    tolzone:$('tolzone'), targetMk:$('targetMk'), ticks:$('ticks'),
+    hudRound:$('hudRound'), hudScore:$('hudScore'), hudBest:$('hudBest'),
+    hudCombo:$('hudCombo'), rlPhase:$('rlPhase'), rlTarget:$('rlTarget'),
+    errLbl:$('errLbl'), errPts:$('errPts'), errFill:$('errFill'), errNote:$('errNote'),
+    stopBtn:$('stopBtn'), nextBtn:$('nextBtn'),
+    startOv:$('startOv'), startBtn:$('startBtn'),
+    endOv:$('endOv'), endTitle:$('endTitle'), endScore:$('endScore'),
+    endBest:$('endBest'), endRounds:$('endRounds'), endFlavor:$('endFlavor'),
+    retryBtn:$('retryBtn')
+  };
+
+  let state = null;   // current game
+  let raf = null;     // animation handle
+  let frozen = true;  // needle stopped?
+
+  function loadBest(){ const v = +localStorage.getItem(LS_KEY); return Number.isFinite(v)?v:0; }
+  function saveBest(v){ try{ localStorage.setItem(LS_KEY, String(v)); }catch(e){} }
+
+  function buildTicks(){
+    el.ticks.innerHTML = '';
+    [0,0.25,0.5,0.75,1].forEach(v=>{
+      const s = document.createElement('span');
+      s.textContent = v.toFixed(v===0||v===1?1:2);
+      s.style.left = (v*100)+'%';
+      if(v===0.5) s.className = 'mid';
+      el.ticks.appendChild(s);
+    });
+  }
+
+  function newGame(){
+    state = {
+      seed: (Date.now() ^ (Math.random()*0xffffffff)) >>> 0,
+      round: 0,
+      streak: 0,
+      total: 0,
+      rng: null,
+      rounds: [],
+      cur: null
+    };
+    state.rng = makeRng(state.seed);
+    el.hudBest.textContent = loadBest().toLocaleString();
+    el.endOv.classList.add('hide');
+    nextRound();
+  }
+
+  function nextRound(){
+    state.round++;
+    if(state.round > ROUNDS){ endGame(); return; }
+    const cfg = roundConfig(state.round);
+    const target = makeTarget(state.round, state.rng);
+    state.cur = {
+      cfg, target,
+      baseTarget: target,
+      dispTarget: target,   // may drift if moving
+      startT: performance.now(),
+      result: null
+    };
+    frozen = false;
+
+    // HUD
+    el.hudRound.textContent = state.round + ' / ' + ROUNDS;
+    el.hudScore.textContent = state.total.toLocaleString();
+    el.rlPhase.textContent = phaseLabel(state.round);
+    el.rlTarget.textContent = target.toFixed(3);
+
+    // tolerance zone + target marker
+    placeTarget(target, cfg.tol);
+
+    // reset readouts
+    el.needle.classList.remove('frozen');
+    el.errPts.innerHTML = '&nbsp;';
+    el.errFill.style.width = '0%';
+    el.errLbl.textContent = 'ズレ';
+    el.errNote.textContent = cfg.moving
+      ? '目標が、揺れている。動く線を、丸めずに射抜け。'
+      : (state.round===1 ? '針を、目標の金線で止める。' : roundHint(state.round));
+
+    el.stopBtn.disabled = false;
+    el.nextBtn.disabled = true;
+    el.startOv.classList.add('hide');
+
+    startSweep();
+  }
+
+  function roundHint(r){
+    const hints = {
+      3:'速くなる。中央に寄る。',
+      5:'許容は、狭まっていく。',
+      7:'端数の精度が、点になる。',
+      9:'二値ならコイン投げの中央。ここでは、技術。',
+      10:'最後の一線。丸めずに、止めろ。'
+    };
+    return hints[r] || '丸めずに、止める。';
+  }
+
+  function placeTarget(target, tol){
+    const lo = clamp01(target - tol), hi = clamp01(target + tol);
+    el.tolzone.style.left = (lo*100)+'%';
+    el.tolzone.style.width = ((hi-lo)*100)+'%';
+    el.targetMk.style.left = (target*100)+'%';
+  }
+
+  /* needle position from elapsed time: triangle wave 0->1->0 over period */
+  function needleAt(elapsed, period){
+    const phase = (elapsed % period) / period;     // 0..1
+    return phase < 0.5 ? phase*2 : 2 - phase*2;     // triangle
+  }
+
+  function startSweep(){
+    cancelAnimationFrame(raf);
+    const tick = (now)=>{
+      if(frozen) return;
+      const cur = state.cur;
+      const elapsed = now - cur.startT;
+      const nv = needleAt(elapsed, cur.cfg.periodMs);
+      el.needle.style.left = (nv*100)+'%';
+
+      // moving target drifts on its own slow sine
+      if(cur.cfg.moving){
+        const drift = Math.sin(elapsed/620) * cur.cfg.driftAmp;
+        const dt = clamp01(cur.baseTarget + drift);
+        cur.dispTarget = dt;
+        placeTarget(dt, cur.cfg.tol);
+        el.rlTarget.textContent = dt.toFixed(3);
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+  }
+
+  function freeze(){
+    if(frozen || !state || !state.cur) return;
+    frozen = true;
+    cancelAnimationFrame(raf);
+    const cur = state.cur;
+    const elapsed = performance.now() - cur.startT;
+    const needle = clamp01(needleAt(elapsed, cur.cfg.periodMs));
+    const target = cur.cfg.moving ? clamp01(cur.dispTarget) : cur.target;
+
+    const res = resolveRound(needle, target, cur.cfg, state.streak);
+    cur.result = { needle, target, ...res };
+    state.streak = res.streakAfter;
+    state.total += res.total;
+    state.rounds.push({ round:state.round, target:+target.toFixed(4), needle:+needle.toFixed(4), ...res });
+
+    paintResult(needle, target, res);
+
+    el.stopBtn.disabled = true;
+    el.nextBtn.disabled = false;
+    // auto-advance focus to "next"
+  }
+
+  function paintResult(needle, target, res){
+    // pin needle
+    el.needle.style.left = (needle*100)+'%';
+    el.needle.classList.add('frozen');
+
+    // error bar (continuous miss visualization): fill ∝ err, but cap visual at 0.5
+    const errPct = Math.min(1, res.err / 0.5) * 100;
+    el.errLbl.textContent = 'ズレ';
+    el.errFill.style.width = errPct + '%';
+
+    // points line
+    const totalStr = res.total.toLocaleString();
+    el.errPts.innerHTML = '+' + totalStr + ' 点';
+    el.hudScore.textContent = state.total.toLocaleString();
+
+    // gold bloom at the needle on a precise / strong shot
+    if(res.basePoints >= 600){
+      el.flash.style.left = (needle*100)+'%';
+      el.flash.classList.remove('go'); void el.flash.offsetWidth;
+      el.flash.classList.add('go');
+    }
+
+    // combo HUD
+    if(res.streakAfter >= 2){
+      el.hudCombo.textContent = '連 ' + res.streakAfter +
+        (res.bonusMult>0 ? '  +'+Math.round(res.bonusMult*100)+'%' : '');
+    } else {
+      el.hudCombo.innerHTML = '&nbsp;';
+    }
+
+    // the Boolean→Float line — narrate the continuous payout
+    el.errNote.innerHTML = floatNote(needle, target, res);
+  }
+
+  /* the core message: "binary would say 0; here your near miss is worth N" */
+  function floatNote(needle, target, res){
+    const errR = res.err.toFixed(3);
+    const dir = needle > target ? '上' : (needle < target ? '下' : '');
+    if(res.err === 0){
+      return '完全一致。<b>1000</b> 点。端数は、ゼロ。';
+    }
+    if(res.err <= 0.01){
+      return 'ズレ <b>'+errR+'</b>。ほとんど真上。二値でも当たり、ここでは <b>'+res.basePoints+'</b>。';
+    }
+    if(res.precise){
+      return '目標の'+dir+'に <b>'+errR+'</b>。二値なら、ただの「当たり」。ここでは、その精度が <b>'+res.basePoints+'</b> 点に化ける。';
+    }
+    // a miss — the key didactic moment
+    return '目標の'+dir+'に <b>'+errR+'</b>。二値なら <b>0</b> 点（外れ）。でも、ここでは、この惜しさに <b>'+res.basePoints+'</b> 点の意味がある。';
+  }
+
+  function endGame(){
+    cancelAnimationFrame(raf);
+    const best = loadBest();
+    const isNew = state.total > best;
+    if(isNew){ saveBest(state.total); }
+    el.hudBest.textContent = Math.max(best, state.total).toLocaleString();
+
+    el.endScore.textContent = state.total.toLocaleString();
+    el.endBest.textContent = isNew
+      ? '★ 自己最高記録 ★'
+      : '自己最高 ' + best.toLocaleString();
+    el.endBest.className = 'best' + (isNew ? ' new' : '');
+
+    // per-round breakdown
+    el.endRounds.innerHTML = '';
+    state.rounds.forEach(r=>{
+      const row = document.createElement('div');
+      row.className = 'rndrow' + (r.precise ? '' : ' bad');
+      row.innerHTML =
+        '<span class="rn">'+phaseLabel(r.round)+'</span>'+
+        '<span>目標 '+r.target.toFixed(3)+' / 針 '+r.needle.toFixed(3)+
+        '　ズレ '+r.err.toFixed(3)+'</span>'+
+        '<span class="rs">+'+r.total.toLocaleString()+'</span>';
+      el.endRounds.appendChild(row);
+    });
+
+    // closing flavor scaled to performance (out of 10000 theoretical-ish)
+    const avg = Math.round(state.total / ROUNDS);
+    let line;
+    if(isNew && avg >= 850) line = '丸める必要は、どこにもなかった。';
+    else if(avg >= 800)     line = '惜しさを、点に変えた夜だった。';
+    else if(avg >= 600)     line = '二値なら半分は0点。ここでは、すべてに値がついた。';
+    else                    line = 'ズレは罪じゃない。端数のまま、また来い。';
+    el.endFlavor.textContent = line;
+
+    el.endTitle.textContent = isNew ? '決闘、制す' : '決闘、終幕';
+    el.endOv.classList.remove('hide');
+  }
+
+  /* ---------- input ---------- */
+  function onPrimary(e){
+    if(e) e.preventDefault();
+    // if an overlay is up, the dedicated buttons handle it
+    if(!el.startOv.classList.contains('hide')) return;
+    if(!el.endOv.classList.contains('hide')) return;
+    if(!frozen) freeze();
+    else if(!el.nextBtn.disabled) nextRound();
+  }
+
+  el.stopBtn.addEventListener('click', (e)=>{ e.stopPropagation(); if(!frozen) freeze(); });
+  el.nextBtn.addEventListener('click', (e)=>{ e.stopPropagation(); if(!el.nextBtn.disabled) nextRound(); });
+  el.startBtn.addEventListener('click', (e)=>{ e.stopPropagation(); newGame(); });
+  el.retryBtn.addEventListener('click', (e)=>{ e.stopPropagation(); newGame(); });
+
+  // global tap/click anywhere on stage to freeze (feels responsive)
+  el.stage.addEventListener('pointerdown', (e)=>{
+    if(e.target.closest('button')) return;
+    if(!el.startOv.classList.contains('hide')) return;
+    if(!el.endOv.classList.contains('hide')) return;
+    if(!frozen){ e.preventDefault(); freeze(); }
+  });
+
+  // keyboard: space / enter
+  window.addEventListener('keydown', (e)=>{
+    if(e.code==='Space' || e.code==='Enter'){
+      e.preventDefault();
+      if(!el.startOv.classList.contains('hide')){ newGame(); return; }
+      if(!el.endOv.classList.contains('hide')){ newGame(); return; }
+      onPrimary(e);
+    }
+  });
+
+  // pause sweep when tab hidden, resume cleanly (avoid huge elapsed jump)
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.hidden){ cancelAnimationFrame(raf); }
+    else if(state && state.cur && !frozen){
+      // rebase start time so needle doesn't teleport
+      const elapsed = performance.now() - state.cur.startT;
+      const period = state.cur.cfg.periodMs;
+      state.cur.startT = performance.now() - (elapsed % period);
+      startSweep();
+    }
+  });
+
+  /* ---------- starfield (void + faint gold dust) ---------- */
+  function stars(){
+    const c = $('stars'), x = c.getContext('2d');
+    let w,h,pts;
+    function resize(){
+      w = c.width = innerWidth; h = c.height = innerHeight;
+      const n = Math.min(90, Math.floor(w*h/16000));
+      pts = Array.from({length:n}, ()=>({
+        x:Math.random()*w, y:Math.random()*h,
+        r:Math.random()*1.1+0.2,
+        a:Math.random()*0.5+0.15,
+        g:Math.random()<0.22   // a few gold motes
+      }));
+    }
+    function draw(){
+      x.clearRect(0,0,w,h);
+      for(const p of pts){
+        x.beginPath();
+        x.arc(p.x,p.y,p.r,0,7);
+        x.fillStyle = p.g ? 'rgba(212,168,83,'+p.a+')' : 'rgba(233,230,221,'+(p.a*0.7)+')';
+        x.fill();
+      }
+    }
+    addEventListener('resize', ()=>{ resize(); draw(); });
+    resize(); draw();
+  }
+
+  // boot
+  buildTicks();
+  stars();
+  el.hudBest.textContent = loadBest().toLocaleString();
+})();
+</script>
+</body>
+</html>
