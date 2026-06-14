@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>0.5の魔女 — 魔法力配分パズル（Boolean→Float）</title>
+<meta name="description" content="魔法力は保存される。だから全部の呪文を全力で唱えることはできない。0.0〜1.0で配り、ちょうどの強さを探す。全部に1.0を注げない——それが半分の魔女。Boolean→Floatの魔法。">
+<meta property="og:title" content="0.5の魔女 — 魔法力配分パズル">
+<meta property="og:description" content="全部に1.0は注げない。だから、配る。">
+<style>
+  :root{
+    --void:#0a0a10;--panel:#14141e;--line:#2a2a3a;--gold:#d4a853;--gold-dim:#8a7038;--gold-glow:rgba(212,168,83,.4);
+    --ink:#ece8de;--ink-dim:#938e83;--ok:#7fd4a8;--warn:#d97b6c;--serif:"Hiragino Mincho ProN","Yu Mincho",serif;--sans:"Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;--mono:ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--void);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+  body{min-height:100vh;background:radial-gradient(1100px 640px at 72% -12%,#171320 0%,transparent 60%),radial-gradient(820px 540px at 8% 112%,#10141d 0%,transparent 55%),var(--void);}
+  #stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
+  .wrap{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:18px 15px 50px;}
+  header{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:11px;flex-wrap:wrap;}
+  .logo{font-family:var(--serif);font-size:25px;letter-spacing:.1em;color:var(--gold);text-shadow:0 0 16px var(--gold-glow);}
+  .logo small{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.28em;color:var(--ink-dim);margin-top:3px;}
+  .tag{margin-left:auto;font-family:var(--serif);font-size:12px;color:var(--ink-dim);}
+  .lead{font-family:var(--serif);font-size:13.5px;line-height:1.95;color:#cbc6ba;margin:13px 0 8px;}
+  .lead b{color:var(--gold);}
+  .levbar{display:flex;gap:8px;margin:14px 0 6px;flex-wrap:wrap;}
+  .levbtn{cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--ink-dim);border-radius:18px;padding:6px 15px;font-size:13px;transition:all .18s;}
+  .levbtn:hover{border-color:var(--gold-dim);color:var(--ink);} .levbtn.on{border-color:var(--gold);color:var(--gold);background:rgba(212,168,83,.08);}
+  .levname{font-family:var(--serif);font-size:18px;margin-left:6px;color:var(--ink);}
+  .mana{margin:12px 0;border:1px solid var(--gold-dim);border-radius:8px;padding:13px 15px;background:radial-gradient(300px 80px at 50% 0,rgba(212,168,83,.06),transparent);}
+  .mana .row{display:flex;align-items:baseline;gap:8px;}
+  .mana .lbl{font-size:11px;letter-spacing:.16em;color:var(--ink-dim);} .mana .val{margin-left:auto;font-family:var(--mono);font-size:17px;color:var(--gold);}
+  .mtrack{height:10px;border-radius:6px;background:#1b1b27;border:1px solid var(--line);overflow:hidden;margin-top:8px;}
+  .mtrack i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--gold-dim),var(--gold));transition:width .2s;}
+  .spell{border:1px solid var(--line);border-radius:7px;padding:11px 13px;margin:9px 0;background:rgba(255,255,255,.012);}
+  .spell .h{display:flex;align-items:baseline;gap:9px;}
+  .spell .nm{font-family:var(--serif);font-size:16px;color:var(--ink);}
+  .spell .want{font-size:11px;color:var(--ink-dim);}
+  .spell .str{margin-left:auto;font-family:var(--mono);font-size:14px;color:var(--gold);}
+  .spell input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;background:var(--line);outline:none;margin:11px 0 8px;}
+  .spell input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);cursor:pointer;box-shadow:0 0 10px var(--gold-glow);border:2px solid #1b1610;}
+  .spell input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--gold);cursor:pointer;border:2px solid #1b1610;}
+  .efrow{display:flex;align-items:center;gap:9px;}
+  .efrow .el{font-size:10.5px;color:var(--ink-dim);width:30px;}
+  .eftrack{flex:1;height:8px;border-radius:5px;background:#1b1b27;overflow:hidden;}
+  .eftrack i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#6a8a6a,var(--ok));transition:width .15s;}
+  .efrow .ev{font-family:var(--mono);font-size:12.5px;color:var(--ok);width:38px;text-align:right;}
+  .score{margin:14px 0;border:1px solid var(--line);border-radius:8px;padding:14px 16px;text-align:center;}
+  .score .big{font-family:var(--mono);font-size:30px;color:var(--gold);}
+  .score .sub{font-size:12px;color:var(--ink-dim);margin-top:4px;}
+  .score.star{border-color:var(--ok);background:rgba(127,212,168,.05);}
+  .score.star .big{color:var(--ok);}
+  footer{margin-top:26px;padding-top:13px;border-top:1px solid var(--line);font-size:11px;color:var(--ink-dim);line-height:1.85;}
+  footer b{color:var(--gold-dim);font-family:var(--serif);} footer a{color:var(--gold-dim);text-decoration:none;} footer a:hover{color:var(--gold);}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="wrap">
+  <header>
+    <div class="logo">0.5の魔女<small>HALF-WITCH · MANA ALLOCATION</small></div>
+    <div class="tag">全部には、注げない</div>
+  </header>
+  <p class="lead">魔法力は<b>保存される</b>。湧き出しはしない。だから、すべての呪文を<b>全力（1.0）</b>で唱えることはできない。
+  限られた魔法力を <b>0.0〜1.0</b> で配り、それぞれの呪文が望む<b>ちょうどの強さ</b>を探す。
+  足りない手で、どこに何を。——それが、半分の魔女。</p>
+
+  <div class="levbar" id="levbar"></div>
+  <div style="margin:2px 0 4px;"><span class="levname" id="levName">—</span></div>
+
+  <div class="mana">
+    <div class="row"><span class="lbl">魔法力 MANA（保存・上限）</span><span class="val"><span id="manaUse">0.00</span> / <span id="manaMax">1.00</span></span></div>
+    <div class="mtrack"><i id="manaFill" style="width:0%"></i></div>
+    <div style="font-size:11px;color:var(--ink-dim);margin-top:7px;" id="manaNote">残りを超えては注げない（魔法力は増えない）</div>
+  </div>
+
+  <div id="spells"></div>
+
+  <div class="score" id="score">
+    <div class="big"><span id="scoreVal">0.00</span></div>
+    <div class="sub">効果の合計　／　目標 <span id="parVal">—</span>（ちょうど配れたら ★）</div>
+  </div>
+
+  <footer>
+    <b>0.5の魔女 / HALF-WITCH</b> — 保存された魔法力（Float予算）を呪文に配分するパズル。効果＝望む強さへのファジィ所属度。全部に1.0は注げない＝配分こそが <b>Boolean→Float</b>。
+    アイデア苗床「魔法力保存の総則」#0.7 を具現化／小説『0.5の魔女』より。
+    姉妹: <a href="https://osakenpiro.github.io/asobiba/">あそびば</a> / <a href="https://osakenpiro.github.io/hazama/">はざま</a>. #全人類UX改善.
+  </footer>
+</div>
+
+<script>
+/* ===== engine (identical to /tmp/majo_engine.cjs) ===== */
+function mu(v,a,b,c,d){ if(v<a||v>d)return 0; if(v<b)return (a===b)?1:(v-a)/(b-a); if(v<=c)return 1; return (c===d)?1:(d-v)/(d-c); }
+const LEVELS=[
+  { id:1, name:'半分の灯', budget:0.75,
+    spells:[ {n:'灯火', want:'ちょうど0.5', t:[0.2,0.5,0.5,0.8]},
+             {n:'結界', want:'強く(0.9)',   t:[0.6,0.9,1,1]},
+             {n:'癒し', want:'ひかえめ0.3', t:[0.1,0.3,0.3,0.5]} ] },
+  { id:2, name:'四つの呪', budget:1.15,
+    spells:[ {n:'灯火', want:'0.5', t:[0.25,0.5,0.5,0.75]},
+             {n:'刃',   want:'強く0.9', t:[0.65,0.9,1,1]},
+             {n:'霧',   want:'淡く0.2', t:[0.05,0.2,0.2,0.4]},
+             {n:'鏡',   want:'中庸0.4', t:[0.2,0.4,0.4,0.6]} ] },
+  { id:3, name:'繊細な均衡', budget:0.72,
+    spells:[ {n:'糸', want:'狭く0.4', t:[0.3,0.4,0.4,0.5]},
+             {n:'雫', want:'狭く0.6', t:[0.5,0.6,0.6,0.7]},
+             {n:'息', want:'低く0.2', t:[0.1,0.2,0.2,0.35]} ] },
+];
+function effects(lv,alloc){ return lv.spells.map((s,i)=>mu(alloc[i],s.t[0],s.t[1],s.t[2],s.t[3])); }
+function parOf(lv){ const N=lv.spells.length,grid=[]; for(let v=0;v<=1.0001;v+=0.05)grid.push(Math.round(v*100)/100);
+  let best=-1; const cur=new Array(N);
+  (function rec(i,sum){ if(sum>lv.budget+1e-9)return; if(i===N){ const t=effects(lv,cur).reduce((a,b)=>a+b,0); if(t>best)best=t; return;} for(const v of grid){ if(sum+v>lv.budget+1e-9)continue; cur[i]=v; rec(i+1,sum+v);} })(0,0);
+  return best; }
+
+/* ===== state ===== */
+const KEY='majo_v1';
+let best=(()=>{ try{return JSON.parse(localStorage.getItem(KEY))||{};}catch(e){return {};} })();
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(best));}catch(e){} }
+let curLev=0, alloc=[], pars={};
+
+function buildLevbar(){ document.getElementById('levbar').innerHTML=LEVELS.map((lv,i)=>'<button class="levbtn'+(i===curLev?' on':'')+'" onclick="startLevel('+i+')">問'+lv.id+'</button>').join(''); }
+function startLevel(i){
+  curLev=i; const lv=LEVELS[i]; alloc=lv.spells.map(()=>0);
+  if(pars[lv.id]==null) pars[lv.id]=parOf(lv);
+  document.getElementById('levName').textContent=lv.name;
+  document.getElementById('manaMax').textContent=lv.budget.toFixed(2);
+  document.getElementById('parVal').textContent=pars[lv.id].toFixed(2);
+  document.querySelectorAll('.levbtn').forEach((b,j)=>b.classList.toggle('on',j===i));
+  buildSpells(lv); recompute();
+}
+function buildSpells(lv){
+  document.getElementById('spells').innerHTML=lv.spells.map((s,i)=>
+    '<div class="spell"><div class="h"><span class="nm">'+s.n+'</span><span class="want">望む強さ：'+s.want+'</span><span class="str" id="str-'+i+'">0.00</span></div>'+
+    '<input type="range" min="0" max="1" step="0.01" value="0" id="rng-'+i+'" oninput="setAlloc('+i+',this.value)">'+
+    '<div class="efrow"><span class="el">効果</span><span class="eftrack"><i id="ef-'+i+'" style="width:0%"></i></span><span class="ev" id="efv-'+i+'">0.00</span></div></div>'
+  ).join('');
+}
+function setAlloc(i,v){
+  const lv=LEVELS[curLev]; v=parseFloat(v);
+  const others=alloc.reduce((s,x,j)=>s+(j===i?0:x),0);
+  const cap=Math.max(0,Math.min(1, lv.budget-others));   // mana conservation: can't exceed remaining
+  if(v>cap) v=Math.round(cap*100)/100;
+  alloc[i]=v; document.getElementById('rng-'+i).value=v; recompute();
+}
+function recompute(){
+  const lv=LEVELS[curLev]; const eff=effects(lv,alloc);
+  const used=alloc.reduce((a,b)=>a+b,0);
+  document.getElementById('manaUse').textContent=used.toFixed(2);
+  document.getElementById('manaFill').style.width=Math.min(100,used/lv.budget*100)+'%';
+  const rem=lv.budget-used;
+  document.getElementById('manaNote').textContent= rem<0.005?'魔法力を使い切った':('残り '+rem.toFixed(2)+'（増えない）');
+  eff.forEach((e,i)=>{ document.getElementById('str-'+i).textContent=alloc[i].toFixed(2);
+    document.getElementById('ef-'+i).style.width=(e*100)+'%'; document.getElementById('efv-'+i).textContent=e.toFixed(2); });
+  const total=eff.reduce((a,b)=>a+b,0);
+  document.getElementById('scoreVal').textContent=total.toFixed(2);
+  const par=pars[lv.id]; const star= total>=par-0.05;
+  document.getElementById('score').className='score'+(star?' star':'');
+  if(!best[lv.id]||total>best[lv.id]){ best[lv.id]=total; save(); }
+}
+
+/* ===== starfield ===== */
+(function(){ const c=document.getElementById('stars'); if(!c||!c.getContext) return; const x=c.getContext('2d'); let w,h,st;
+  function rs(){ w=c.width=innerWidth; h=c.height=innerHeight; st=Array.from({length:Math.min(110,Math.floor(w*h/12000))},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.1+0.2,a:Math.random()*0.5+0.15,t:Math.random()*6.28})); }
+  function d(){ x.clearRect(0,0,w,h); for(const s of st){ s.t+=0.01; const tw=s.a*(0.6+0.4*Math.sin(s.t)); x.beginPath(); x.arc(s.x,s.y,s.r,0,6.28); x.fillStyle='rgba(212,168,83,'+tw.toFixed(3)+')'; x.fill(); } requestAnimationFrame(d); }
+  rs(); d(); addEventListener('resize',rs);
+})();
+
+buildLevbar(); startLevel(0);
+</script>
+</body>
+</html>
