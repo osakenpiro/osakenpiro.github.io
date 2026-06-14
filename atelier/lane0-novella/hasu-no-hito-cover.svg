@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1600 2560" width="1600" height="2560" role="img" aria-label="端数のひと — book cover">
+  <title>端数のひと（はすうのひと）</title>
+  <desc>Cover for the novella Hasu no Hito. A single warm light in the void, with a glowing decimal point suspended between 0 and 1 on a number line. osakenpiro "hitoakari" design system.</desc>
+
+  <defs>
+    <!-- Deep void vertical gradient -->
+    <linearGradient id="void" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"  stop-color="#0d0d12"/>
+      <stop offset="42%" stop-color="#101019"/>
+      <stop offset="78%" stop-color="#14141c"/>
+      <stop offset="100%" stop-color="#0c0c11"/>
+    </linearGradient>
+
+    <!-- The one warm light (hitoakari) -->
+    <radialGradient id="hitoakari" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#f4d79a" stop-opacity="0.95"/>
+      <stop offset="22%"  stop-color="#e7c074" stop-opacity="0.72"/>
+      <stop offset="48%"  stop-color="#d4a853" stop-opacity="0.34"/>
+      <stop offset="74%"  stop-color="#a07b34" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#d4a853" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Cold districts glow (left dark / right faintly lit) -->
+    <linearGradient id="district" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#1a2236" stop-opacity="0.0"/>
+      <stop offset="50%"  stop-color="#2a3550" stop-opacity="0.0"/>
+      <stop offset="78%"  stop-color="#33415e" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#3a4a6c" stop-opacity="0.55"/>
+    </linearGradient>
+
+    <!-- Soft gold bloom filter -->
+    <filter id="bloom" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="9" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Stronger glow for the decimal point -->
+    <filter id="dotglow" x="-300%" y="-300%" width="700%" height="700%">
+      <feGaussianBlur stdDeviation="14" result="g"/>
+      <feMerge>
+        <feMergeNode in="g"/>
+        <feMergeNode in="g"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Faint vignette to deepen the corners -->
+    <radialGradient id="vignette" cx="50%" cy="44%" r="72%">
+      <stop offset="0%"   stop-color="#000000" stop-opacity="0"/>
+      <stop offset="68%"  stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.55"/>
+    </radialGradient>
+
+    <!-- Title font stack: prefer mincho/serif, fall back gracefully -->
+    <style>
+      .jp-title { font-family: "Noto Serif CJK JP","Yu Mincho","Hiragino Mincho ProN","Songti SC","Source Han Serif",serif; }
+      .jp-sans  { font-family: "Noto Sans CJK JP","Hiragino Kaku Gothic ProN","Yu Gothic","Source Han Sans",sans-serif; }
+      .num      { font-family: "Times New Roman","Noto Serif CJK JP",Georgia,serif; }
+    </style>
+  </defs>
+
+  <!-- ===== Background ===== -->
+  <rect x="0" y="0" width="1600" height="2560" fill="url(#void)"/>
+  <rect x="0" y="0" width="1600" height="2560" fill="url(#district)"/>
+
+  <!-- Faint horizon / "edge of the binary city" near the base -->
+  <rect x="0" y="2010" width="1600" height="550" fill="#0a0a10" opacity="0.55"/>
+  <line x1="0" y1="2010" x2="1600" y2="2010" stroke="#2a3550" stroke-width="1.5" opacity="0.45"/>
+
+  <!-- ===== Stars / particles (sparse, cold) ===== -->
+  <g fill="#cdd6e6">
+    <circle cx="150"  cy="240"  r="1.6" opacity="0.45"/>
+    <circle cx="370"  cy="150"  r="1.1" opacity="0.30"/>
+    <circle cx="560"  cy="320"  r="1.4" opacity="0.38"/>
+    <circle cx="1080" cy="200"  r="1.2" opacity="0.34"/>
+    <circle cx="1290" cy="300"  r="1.7" opacity="0.50"/>
+    <circle cx="1430" cy="170"  r="1.0" opacity="0.26"/>
+    <circle cx="240"  cy="560"  r="1.2" opacity="0.32"/>
+    <circle cx="1380" cy="620"  r="1.3" opacity="0.34"/>
+    <circle cx="120"  cy="1120" r="1.1" opacity="0.24"/>
+    <circle cx="1470" cy="1180" r="1.2" opacity="0.28"/>
+    <circle cx="300"  cy="1720" r="1.0" opacity="0.22"/>
+    <circle cx="1320" cy="1820" r="1.3" opacity="0.30"/>
+    <circle cx="210"  cy="2180" r="1.1" opacity="0.20"/>
+    <circle cx="1400" cy="2240" r="1.2" opacity="0.24"/>
+  </g>
+  <!-- a few faint gold motes drifting toward the light -->
+  <g fill="#d4a853">
+    <circle cx="690"  cy="690"  r="1.6" opacity="0.50"/>
+    <circle cx="930"  cy="560"  r="1.3" opacity="0.40"/>
+    <circle cx="820"  cy="430"  r="1.1" opacity="0.34"/>
+    <circle cx="610"  cy="540"  r="1.0" opacity="0.30"/>
+  </g>
+
+  <!-- ===== The one warm light (hitoakari) — a distant window in the void ===== -->
+  <g transform="translate(800,640)">
+    <circle cx="0" cy="0" r="560" fill="url(#hitoakari)"/>
+    <!-- the window itself: a small, quiet rectangle of warmth -->
+    <g filter="url(#bloom)">
+      <rect x="-46" y="-66" width="92" height="132" rx="6" fill="#f4d79a" opacity="0.92"/>
+      <line x1="0" y1="-66" x2="0" y2="66" stroke="#0d0d12" stroke-width="3" opacity="0.55"/>
+      <line x1="-46" y1="0" x2="46" y2="0" stroke="#0d0d12" stroke-width="3" opacity="0.55"/>
+    </g>
+    <!-- the small plant on the sill (the watered 端数) -->
+    <g opacity="0.85" transform="translate(0,78)">
+      <path d="M -10 0 L 10 0 L 7 22 L -7 22 Z" fill="#b98a3e"/>
+      <path d="M 0 0 C -6 -22 -22 -26 -26 -16 C -16 -10 -6 -8 0 0 Z" fill="#d4a853" opacity="0.9"/>
+      <path d="M 0 0 C 6 -24 24 -26 28 -14 C 16 -10 6 -6 0 0 Z" fill="#e7c074" opacity="0.9"/>
+      <path d="M 0 0 C 0 -28 2 -34 -2 -30 C -1 -16 0 -8 0 0 Z" fill="#f4d79a" opacity="0.85"/>
+    </g>
+  </g>
+
+  <!-- ===== Number line: 0 …(.)… 1 with a glowing, unresolved decimal point ===== -->
+  <g transform="translate(0,1310)">
+    <!-- the line -->
+    <line x1="300" y1="0" x2="1300" y2="0" stroke="#33415e" stroke-width="2.5" opacity="0.9"/>
+    <!-- tick at 0 (left, in the dark district) -->
+    <line x1="420" y1="-18" x2="420" y2="18" stroke="#2a3550" stroke-width="2.5"/>
+    <!-- tick at 1 (right, faintly lit district) -->
+    <line x1="1180" y1="-18" x2="1180" y2="18" stroke="#46577d" stroke-width="2.5"/>
+    <!-- 0 and 1 — the two values everyone is rounded into -->
+    <text class="num" x="420"  y="92" text-anchor="middle" font-size="86" fill="#5b6a8c" opacity="0.92">0</text>
+    <text class="num" x="1180" y="92" text-anchor="middle" font-size="86" fill="#7c8db2" opacity="0.95">1</text>
+
+    <!-- the decimal point: suspended exactly at the midpoint, glowing gold, refusing to resolve -->
+    <g filter="url(#dotglow)">
+      <circle cx="800" cy="-4" r="13" fill="#f4d79a"/>
+      <circle cx="800" cy="-4" r="26" fill="#d4a853" opacity="0.30"/>
+    </g>
+    <!-- a hairline showing it sits at 0.50, the place with no name -->
+    <line x1="800" y1="-44" x2="800" y2="-14" stroke="#d4a853" stroke-width="1.2" opacity="0.45"/>
+    <text class="num" x="800" y="92" text-anchor="middle" font-size="40" fill="#d4a853" opacity="0.78">.</text>
+  </g>
+
+  <!-- ===== Title block ===== -->
+  <g>
+    <!-- furigana / reading -->
+    <text class="jp-sans" x="800" y="1606" text-anchor="middle" font-size="54"
+          fill="#d4a853" letter-spacing="24" opacity="0.92">はすうのひと</text>
+
+    <!-- main title — large, end­tan, mincho mood -->
+    <text class="jp-title" x="800" y="1828" text-anchor="middle" font-size="252"
+          fill="#f1ece2" letter-spacing="6" font-weight="600">端数のひと</text>
+
+    <!-- thin gold rule beneath the title -->
+    <line x1="540" y1="1900" x2="1060" y2="1900" stroke="#d4a853" stroke-width="1.5" opacity="0.55"/>
+
+    <!-- tagline — the line that carries the theme -->
+    <text class="jp-sans" x="800" y="1992" text-anchor="middle" font-size="42"
+          fill="#9aa6bf" letter-spacing="8" opacity="0.9">割り切れない、ということは。まだ、次に進める。</text>
+  </g>
+
+  <!-- ===== Author / project credit (bottom, small, gold) ===== -->
+  <g>
+    <text class="jp-sans" x="800" y="2360" text-anchor="middle" font-size="44"
+          fill="#e7c074" letter-spacing="6" opacity="0.95">AI執筆実験 — Lane⓪</text>
+    <text class="jp-sans" x="800" y="2426" text-anchor="middle" font-size="36"
+          fill="#9aa6bf" letter-spacing="10" opacity="0.85">全人類UX改善</text>
+  </g>
+
+  <!-- ===== Vignette on top of everything ===== -->
+  <rect x="0" y="0" width="1600" height="2560" fill="url(#vignette)"/>
+</svg>
