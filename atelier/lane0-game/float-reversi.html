@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Float Reversi — 連続値オセロ</title>
+<style>
+/* ===================================================================
+   Float Reversi — osakenpiro design system 準拠
+   void + 金箔（単一暖色）、藍→灰→金の連続グラデで value を表現
+   外部依存なし・単一HTML完結
+   =================================================================== */
+:root{
+  --void:#0a0a0f; --void-deep:#06060a;
+  --surface:#15141a; --surface-hi:#1c1a23;
+  --gold:#d4a853; --gold-soft:rgba(212,168,83,.12);
+  --gold-glow:rgba(212,168,83,.25); --gold-edge:rgba(212,168,83,.45);
+  --fg-1:#e8e0d0; --fg-2:#b8b0a0; --fg-3:#807868; --dim:#5a5448;
+  --border:rgba(200,184,160,.08); --border-hi:rgba(212,168,83,.20);
+  /* B（藍/暗）の極。void系の冷たい藍。ネオンではなく沈んだ顔料 */
+  --indigo:#33415e; --indigo-deep:#28324a;
+  --font-sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic Medium","Yu Gothic",system-ui,sans-serif;
+  --font-serif:"Cormorant Garamond","Times New Roman","游明朝体","Yu Mincho",serif;
+  --font-mono:"JetBrains Mono","SF Mono","Menlo","Consolas",monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;background:
+   radial-gradient(120% 80% at 50% -10%, #12121a 0%, var(--void) 45%, var(--void-deep) 100%) fixed;
+  color:var(--fg-1);font-family:var(--font-sans);font-weight:400;letter-spacing:.01em;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;min-height:100%;}
+body{display:flex;flex-direction:column;align-items:center;padding:clamp(14px,3.5vw,34px) 14px 40px;}
+
+/* 微かな星 */
+.stars{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.5;}
+
+/* ── ヘッダ ── */
+header{text-align:center;margin-bottom:clamp(10px,2.4vw,22px);max-width:620px;}
+h1{font-family:var(--font-serif);font-style:italic;font-weight:300;
+   font-size:clamp(1.9rem,6.4vw,3rem);line-height:1.02;letter-spacing:.03em;margin:0;color:var(--fg-1);}
+h1 .accent{color:var(--gold);}
+.subtitle{font-family:var(--font-serif);font-size:.68rem;letter-spacing:.25em;text-transform:uppercase;
+   color:var(--dim);margin-top:8px;}
+.tagline{font-size:.78rem;color:var(--fg-3);margin-top:9px;line-height:1.6;}
+
+/* ── スコアバー（連続バー） ── */
+.scorebar-wrap{width:min(92vw,520px);margin:14px 0 8px;}
+.score-row{display:flex;justify-content:space-between;align-items:baseline;
+   font-family:var(--font-mono);font-size:.72rem;letter-spacing:.08em;margin-bottom:6px;}
+.score-side{display:flex;flex-direction:column;gap:1px;}
+.score-side.b{text-align:right;}
+.score-label{font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);}
+.score-num{font-size:1.05rem;color:var(--fg-2);transition:color .3s;}
+.score-a .score-num{color:var(--gold);}
+.score-b .score-num{color:#9fb0d0;}
+.bar{position:relative;height:12px;border-radius:7px;overflow:hidden;
+   background:var(--indigo-deep);border:1px solid var(--border);}
+.bar-a{position:absolute;top:0;left:0;height:100%;
+   background:linear-gradient(90deg,#7d8aa6 0%,var(--gold) 100%);
+   transition:width .45s cubic-bezier(.4,0,.2,1);}
+.bar-mid{position:absolute;top:-2px;height:16px;width:1px;left:50%;background:var(--dim);opacity:.55;}
+
+/* ── ステータス行 ── */
+.status{display:flex;align-items:center;gap:10px;justify-content:center;
+   min-height:26px;margin:6px 0 12px;font-size:.86rem;letter-spacing:.04em;color:var(--fg-2);text-align:center;}
+.turn-dot{width:13px;height:13px;border-radius:50%;flex:none;
+   box-shadow:0 0 0 1px var(--border) inset;transition:background .3s,box-shadow .3s;}
+.turn-dot.a{background:var(--gold);box-shadow:0 0 9px var(--gold-glow);}
+.turn-dot.b{background:#7d8aa6;box-shadow:0 0 9px rgba(125,138,166,.4);}
+
+/* ── 盤 ── */
+.board-frame{padding:clamp(8px,2vw,14px);border-radius:14px;
+   background:linear-gradient(160deg,var(--surface-hi),var(--surface));
+   border:1px solid var(--border);box-shadow:0 18px 50px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.3) inset;}
+.board{display:grid;grid-template-columns:repeat(8,1fr);gap:clamp(2px,.7vw,4px);
+   width:min(92vw,520px);aspect-ratio:1;}
+.cell{position:relative;border-radius:5px;background:rgba(255,255,255,.018);
+   border:1px solid rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;
+   cursor:default;transition:background .2s;}
+.cell.playable{cursor:pointer;background:var(--gold-soft);box-shadow:0 0 0 1px var(--border-hi) inset;}
+.cell.playable:hover{background:rgba(212,168,83,.2);}
+.cell.playable::after{content:"";position:absolute;width:26%;height:26%;border-radius:50%;
+   border:1px dashed var(--gold-edge);opacity:.85;}
+.cell.lastmove{box-shadow:0 0 0 2px var(--gold) inset;}
+
+/* 石：value に応じ 藍→灰→金 を JS で背景設定 */
+.stone{width:80%;height:80%;border-radius:50%;position:relative;
+   transition:background .5s cubic-bezier(.4,0,.2,1),box-shadow .5s,transform .28s;
+   transform:scale(0);box-shadow:0 2px 6px rgba(0,0,0,.45);}
+.stone.show{transform:scale(1);}
+.stone::before{content:"";position:absolute;inset:0;border-radius:50%;
+   background:radial-gradient(circle at 34% 30%, rgba(255,255,255,.28), transparent 55%);}
+.stone .val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+   font-family:var(--font-mono);font-size:clamp(.46rem,1.7vw,.66rem);letter-spacing:.02em;
+   opacity:0;transition:opacity .2s;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.6);}
+body.show-values .stone .val{opacity:.9;}
+.stone.justpulled{animation:pulse .55s ease;}
+@keyframes pulse{0%{transform:scale(1);}40%{transform:scale(1.14);}100%{transform:scale(1);}}
+
+/* ── コントロール ── */
+.controls{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-top:18px;width:min(92vw,520px);}
+button{font-family:var(--font-sans);font-size:.8rem;letter-spacing:.05em;color:var(--fg-2);
+   background:var(--surface);border:1px solid var(--border);border-radius:9px;
+   padding:9px 16px;cursor:pointer;transition:all .18s;}
+button:hover{color:var(--gold);border-color:var(--border-hi);background:var(--surface-hi);}
+button:active{transform:translateY(1px);}
+button.primary{color:var(--void);background:var(--gold);border-color:var(--gold);font-weight:500;}
+button.primary:hover{background:#e0b863;color:var(--void);}
+button.toggle.on{color:var(--gold);border-color:var(--border-hi);}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:9px;overflow:hidden;}
+.seg button{border:none;border-radius:0;border-right:1px solid var(--border);}
+.seg button:last-child{border-right:none;}
+.seg button.on{background:var(--gold-soft);color:var(--gold);}
+/* 難度セグメントの副ラベル（先読み手数） */
+.seg#diffSeg button{display:inline-flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15;padding:6px 14px;}
+.diffsub{font-family:var(--font-mono);font-size:.52rem;letter-spacing:.06em;color:var(--dim);}
+.seg#diffSeg button.on .diffsub{color:var(--gold-edge);}
+.seg#diffSeg.disabled{opacity:.4;pointer-events:none;}
+
+/* ── 注釈・最高記録 ── */
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;margin-top:14px;
+   font-family:var(--font-mono);font-size:.6rem;letter-spacing:.08em;color:var(--dim);text-align:center;}
+.meta b{color:var(--fg-3);font-weight:400;}
+
+/* ── 終局オーバーレイ ── */
+.overlay{position:fixed;inset:0;background:rgba(6,6,10,.82);backdrop-filter:blur(3px);
+   display:none;align-items:center;justify-content:center;z-index:20;padding:20px;}
+.overlay.show{display:flex;}
+.result-card{background:linear-gradient(160deg,var(--surface-hi),var(--surface));
+   border:1px solid var(--border-hi);border-radius:16px;padding:30px 34px;text-align:center;max-width:340px;
+   box-shadow:0 24px 70px rgba(0,0,0,.6);}
+.result-card h2{font-family:var(--font-serif);font-style:italic;font-weight:300;
+   font-size:1.9rem;margin:0 0 6px;color:var(--gold);}
+.result-card .rscore{font-family:var(--font-mono);font-size:.82rem;color:var(--fg-2);margin:12px 0 4px;letter-spacing:.06em;}
+.result-card .rdiff{font-size:.72rem;color:var(--fg-3);margin-bottom:18px;}
+.result-card .rbest{font-family:var(--font-mono);font-size:.6rem;color:var(--dim);letter-spacing:.1em;margin-top:6px;}
+
+/* ── how-to ── */
+details.howto{width:min(92vw,520px);margin-top:18px;font-size:.8rem;color:var(--fg-3);
+   border-top:1px solid var(--border);padding-top:12px;}
+details.howto summary{cursor:pointer;color:var(--fg-2);letter-spacing:.06em;list-style:none;}
+details.howto summary::-webkit-details-marker{display:none;}
+details.howto summary::before{content:"▸ ";color:var(--gold);}
+details.howto[open] summary::before{content:"▾ ";}
+details.howto .body{margin-top:10px;line-height:1.75;}
+details.howto .body code{font-family:var(--font-mono);font-size:.74em;color:var(--gold);
+   background:var(--gold-soft);padding:1px 5px;border-radius:4px;}
+details.howto .body .swatch{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:middle;margin:0 2px;}
+@media (max-width:430px){
+  .tagline{font-size:.72rem;}
+  button{padding:8px 12px;font-size:.74rem;}
+}
+</style>
+</head>
+<body>
+<canvas class="stars" id="stars"></canvas>
+
+<header>
+  <h1>Float <span class="accent">Reversi</span></h1>
+  <div class="subtitle">連続値オセロ</div>
+  <div class="tagline">石は白黒の二値ではない。0.0〜1.0 の連続値だ。<br>
+     挟んでも反転しない ── <em>半分だけ、極へと引き寄せる</em>。</div>
+</header>
+
+<div class="scorebar-wrap">
+  <div class="score-row">
+    <div class="score-side score-a"><span class="score-label">A — 金 / 明</span><span class="score-num" id="scoreA">2.00</span></div>
+    <div class="score-side score-b b"><span class="score-label">B — 藍 / 暗</span><span class="score-num" id="scoreB">2.00</span></div>
+  </div>
+  <div class="bar"><div class="bar-a" id="barA" style="width:50%"></div><div class="bar-mid"></div></div>
+</div>
+
+<div class="status">
+  <span class="turn-dot a" id="turnDot"></span>
+  <span id="statusText">A（あなた）の手番</span>
+</div>
+
+<div class="board-frame">
+  <div class="board" id="board"></div>
+</div>
+
+<div class="controls">
+  <button class="primary" id="resetBtn">新しい盤</button>
+  <button id="passBtn">パス</button>
+  <div class="seg" id="modeSeg">
+    <button data-mode="cpu" class="on">対 CPU</button>
+    <button data-mode="2p">二人対戦</button>
+  </div>
+  <div class="seg" id="diffSeg" title="CPUの先読み手数">
+    <button data-diff="easy">やさしい<span class="diffsub">1手読み</span></button>
+    <button data-diff="normal" class="on">ふつう<span class="diffsub">2手読み</span></button>
+  </div>
+  <button class="toggle" id="valBtn">値を表示</button>
+</div>
+
+<div class="meta">
+  <span><b>プル係数 k</b> = 0.50（半分だけ寄せる）</span>
+  <span><b>所有</b> v&gt;0.5→A ／ v&lt;0.5→B ／ v=0.5→中立</span>
+  <span id="bestMeta"></span>
+</div>
+
+<details class="howto">
+  <summary>ルール ── なぜ「反転」でなく「プル」なのか</summary>
+  <div class="body">
+    通常オセロは石が<b>白か黒の二値</b>で、挟むと一気にひっくり返る。Float Reversi では石が
+    <code>0.0〜1.0</code> の連続値を持つ。<br><br>
+    <b>所有：</b><span class="swatch" style="background:var(--gold)"></span>v&gt;0.5 はA（金/明）、
+    <span class="swatch" style="background:#7d8aa6"></span>v&lt;0.5 はB（藍/暗）、
+    <span class="swatch" style="background:#8a8478"></span>v=0.5 は中立。<br><br>
+    <b>着手：</b>自分の石で相手寄り（または中立）の石を挟み、その先に自分側の石がある列に置ける（オセロの合法手と同型）。<br><br>
+    <b>プル（反転の代わり）：</b>挟んだ各石を<em>半分だけ</em>自分の極へ寄せる。
+    A手番なら <code>v ← v + (1−v)·k</code>、B手番なら <code>v ← v·(1−k)</code>。k=0.5。
+    一度では反転しきらず、<b>グラデーションが波及していく</b>。<br><br>
+    <b>スコア：</b>A = 全石の v の総和、B = 全石の (1−v) の総和。常に A+B = 石の数。
+    盤が埋まるか両者パスで終局、総和の大きい方が勝ち。
+  </div>
+</details>
+
+<div class="overlay" id="overlay">
+  <div class="result-card">
+    <h2 id="resultTitle">引き分け</h2>
+    <div class="rscore" id="resultScore"></div>
+    <div class="rdiff" id="resultDiff"></div>
+    <button class="primary" id="againBtn">もう一局</button>
+    <div class="rbest" id="resultBest"></div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   PURE LOGIC  — node 検証済（logic.test.mjs と同一）
+   ===================================================================== */
+const SIZE=8, EMPTY=null, DEFAULT_K=0.5;
+const DIRS=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+
+function makeBoard(){
+  const b=Array.from({length:SIZE},()=>Array(SIZE).fill(EMPTY));
+  b[3][3]=1.0; b[4][4]=1.0;   // A (high)
+  b[3][4]=0.0; b[4][3]=0.0;   // B (low)
+  return b;
+}
+const inB=(r,c)=>r>=0&&r<SIZE&&c>=0&&c<SIZE;
+// neutral(0.5) は pullable かつ anchor 可（lock-up 防止＝gradient 持続）
+function isPullable(v,p){ if(v===EMPTY)return false; return p==='A'? v<=0.5 : v>=0.5; }
+function isAnchor(v,p){ if(v===EMPTY)return false; return p==='A'? v>=0.5 : v<=0.5; }
+function pullValue(v,p,k){ return p==='A'? v+(1-v)*k : v*(1-k); }
+
+function capturedSquares(board,r,c,p){
+  if(board[r][c]!==EMPTY) return [];
+  const cap=[];
+  for(const [dr,dc] of DIRS){
+    const run=[]; let rr=r+dr, cc=c+dc;
+    while(inB(rr,cc)&&isPullable(board[rr][cc],p)){ run.push([rr,cc]); rr+=dr; cc+=dc; }
+    if(run.length>0&&inB(rr,cc)&&isAnchor(board[rr][cc],p)) cap.push(...run);
+  }
+  return cap;
+}
+function legalMoves(board,p){
+  const ms=[];
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+    if(board[r][c]!==EMPTY)continue;
+    const cap=capturedSquares(board,r,c,p);
+    if(cap.length>0) ms.push({r,c,captured:cap});
+  }
+  return ms;
+}
+function applyMove(board,r,c,p,k){
+  const cap=capturedSquares(board,r,c,p);
+  if(cap.length===0) return null;
+  const nb=board.map(row=>row.slice());
+  nb[r][c]= p==='A'?1.0:0.0;
+  for(const [rr,cc] of cap) nb[rr][cc]=pullValue(nb[rr][cc],p,k);
+  return {board:nb, captured:cap};
+}
+function score(board){
+  let a=0,b=0,n=0;
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+    const v=board[r][c]; if(v===EMPTY)continue; a+=v; b+=(1-v); n++;
+  }
+  return {a,b,n};
+}
+const isFull=board=>board.every(row=>row.every(v=>v!==EMPTY));
+function isTerminal(board){
+  if(isFull(board))return true;
+  return legalMoves(board,'A').length===0 && legalMoves(board,'B').length===0;
+}
+// ── 評価関数: プレイヤー p から見た連続値スコア。A=Σv / B=Σ(1-v)。 ──
+function evalFor(board,p){ const s=score(board); return p==='B'? s.b : s.a; }
+const other=p=>p==='A'?'B':'A';
+
+// ── 貪欲 1手読み (難度=やさしい)。仕様の元CPUと同一挙動。 ──
+function cpuChooseMoveGreedy(board,p,k){
+  const ms=legalMoves(board,p); if(ms.length===0)return null;
+  let best=null,bv=-Infinity;
+  for(const m of ms){
+    const res=applyMove(board,m.r,m.c,p,k);
+    const val=evalFor(res.board,p);
+    // 同点はより多く挟む手を好む（盤の支配を進める）
+    const tie = val===bv && m.captured.length>(best?best.captured.length:0);
+    if(val>bv || tie){ bv=val; best=m; }
+  }
+  return best;
+}
+
+// ── αβ ミニマックス (難度=ふつう/つよい)。連続値スコアを評価関数に使う。 ──
+// root=現在手番 me。me は evalFor(board,me) を最大化、相手は最小化する。
+// パス(合法手ゼロ)は手番だけ渡す。両者パスは終局として末端評価。
+// 重さ対策: 各ノードで分岐を maxBranch 手に制限（多く挟む手・好位置を優先）。
+function orderedMoves(board,p,k,maxBranch){
+  const ms=legalMoves(board,p);
+  if(ms.length<=1) return ms;
+  // 1手先の評価で降順ソート（move ordering=αβ枝刈り効率UP）。同点は捕獲数。
+  const scored=ms.map(m=>{
+    const res=applyMove(board,m.r,m.c,p,k);
+    return { m, v:evalFor(res.board,p), cap:m.captured.length };
+  });
+  scored.sort((x,y)=> (y.v-x.v) || (y.cap-x.cap));
+  const top = maxBranch>0 ? scored.slice(0,maxBranch) : scored;
+  return top.map(s=>s.m);
+}
+function abSearch(board,p,me,depth,alpha,beta,k,maxBranch){
+  if(depth===0 || isTerminal(board)) return evalFor(board,me);
+  const ms=orderedMoves(board,p,k,maxBranch);
+  if(ms.length===0){
+    // p はパス。相手も手が無ければ終局として末端評価。
+    if(legalMoves(board,other(p)).length===0) return evalFor(board,me);
+    return abSearch(board,other(p),me,depth,alpha,beta,k,maxBranch);
+  }
+  const maximizing = (p===me);
+  if(maximizing){
+    let val=-Infinity;
+    for(const m of ms){
+      const res=applyMove(board,m.r,m.c,p,k);
+      val=Math.max(val, abSearch(res.board,other(p),me,depth-1,alpha,beta,k,maxBranch));
+      alpha=Math.max(alpha,val);
+      if(beta<=alpha) break;        // βカット
+    }
+    return val;
+  } else {
+    let val=Infinity;
+    for(const m of ms){
+      const res=applyMove(board,m.r,m.c,p,k);
+      val=Math.min(val, abSearch(res.board,other(p),me,depth-1,alpha,beta,k,maxBranch));
+      beta=Math.min(beta,val);
+      if(beta<=alpha) break;        // αカット
+    }
+    return val;
+  }
+}
+// depth手先読みで最善手を返す。depth=1 は貪欲と等価だが move ordering 付き。
+function cpuChooseMoveMinimax(board,p,k,depth,maxBranch=12){
+  const ms=orderedMoves(board,p,k,maxBranch);
+  if(ms.length===0) return null;
+  let best=ms[0], bv=-Infinity, alpha=-Infinity;
+  const beta=Infinity;
+  for(const m of ms){
+    const res=applyMove(board,m.r,m.c,p,k);
+    // 子ノードは相手手番、深さ depth-1。me=p 視点で最大化。
+    const v=abSearch(res.board,other(p),p,depth-1,alpha,beta,k,maxBranch);
+    if(v>bv || (v===bv && m.captured.length>best.captured.length)){ bv=v; best=m; }
+    alpha=Math.max(alpha,bv);
+  }
+  return best;
+}
+
+// ── ディスパッチャ。後方互換: 第3引数まで従来通り（depth省略時=貪欲1手）。 ──
+// depth>=2 で αβ 先読み。logic.test.mjs / verify-embedded.mjs は depth未指定で呼ぶため
+// 既存テストは貪欲挙動のまま不変。
+function cpuChooseMove(board,p,k,depth=1,maxBranch=12){
+  if(depth>=2) return cpuChooseMoveMinimax(board,p,k,depth,maxBranch);
+  return cpuChooseMoveGreedy(board,p,k);
+}
+
+/* =====================================================================
+   UI / STATE
+   ===================================================================== */
+const K=DEFAULT_K;
+const LS_KEY='floatReversi.v1';
+// difficulty: 'easy'=貪欲1手読み / 'normal'=αβ2手読み。既存storeにdefault合流。
+let store={ mode:'cpu', best:null, showValues:false, difficulty:'normal' };
+// 探索深さと分岐上限の対応（重さ管理）。
+const DIFF_DEPTH={ easy:1, normal:2 };
+const DIFF_BRANCH={ easy:12, normal:12 };
+try{ const raw=localStorage.getItem(LS_KEY); if(raw) store=Object.assign(store,JSON.parse(raw)); }catch(e){}
+function persist(){ try{ localStorage.setItem(LS_KEY,JSON.stringify(store)); }catch(e){} }
+
+let board, turn, gameOver, lastMove, cpuThinking, lastCaptured;
+const boardEl=document.getElementById('board');
+const cells=[];
+
+function buildGrid(){
+  boardEl.innerHTML='';
+  cells.length=0;
+  for(let r=0;r<SIZE;r++){
+    const row=[];
+    for(let c=0;c<SIZE;c++){
+      const cell=document.createElement('div');
+      cell.className='cell';
+      cell.dataset.r=r; cell.dataset.c=c;
+      cell.addEventListener('click',()=>onCellClick(r,c));
+      boardEl.appendChild(cell);
+      row.push(cell);
+    }
+    cells.push(row);
+  }
+}
+
+// value(0..1) -> 連続色（藍 #33415e → 灰 → 金 #d4a853）。中立は沈んだ灰
+function valueColor(v){
+  const indigo=[51,65,94], grey=[138,132,120], gold=[212,168,83];
+  let col;
+  if(v<=0.5){ const t=v/0.5; col=lerp3(indigo,grey,t); }
+  else      { const t=(v-0.5)/0.5; col=lerp3(grey,gold,t); }
+  return `rgb(${col[0]|0},${col[1]|0},${col[2]|0})`;
+}
+function lerp3(a,b,t){ return [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t]; }
+function glowFor(v){
+  // 極に近いほど発光（金は暖グロー、藍は冷グロー）。中立は無発光
+  const d=Math.abs(v-0.5)*2; // 0..1
+  if(v>0.5) return `0 2px 6px rgba(0,0,0,.45), 0 0 ${6+d*8}px rgba(212,168,83,${.12+d*.28})`;
+  if(v<0.5) return `0 2px 6px rgba(0,0,0,.45), 0 0 ${6+d*8}px rgba(110,128,168,${.10+d*.25})`;
+  return `0 2px 6px rgba(0,0,0,.45)`;
+}
+// 値ラベルの文字色（明るい石＝濃文字 / 暗い石＝淡文字）
+function labelColor(v){ return v>0.55? 'rgba(20,18,14,.85)' : 'rgba(232,224,208,.85)'; }
+
+function render(opts={}){
+  const lm = (!gameOver && !(store.mode==='cpu' && turn==='B')) ? legalMoves(board,turn) : [];
+  const playable=new Set(lm.map(m=>m.r+','+m.c));
+  for(let r=0;r<SIZE;r++)for(let c=0;c<SIZE;c++){
+    const cell=cells[r][c];
+    const v=board[r][c];
+    cell.classList.toggle('playable', playable.has(r+','+c));
+    cell.classList.toggle('lastmove', !!lastMove && lastMove.r===r && lastMove.c===c);
+    let stone=cell.querySelector('.stone');
+    if(v===EMPTY){ if(stone) stone.remove(); continue; }
+    if(!stone){
+      stone=document.createElement('div'); stone.className='stone';
+      const val=document.createElement('span'); val.className='val'; stone.appendChild(val);
+      cell.appendChild(stone);
+      requestAnimationFrame(()=>stone.classList.add('show'));
+    } else { stone.classList.add('show'); }
+    stone.style.background=valueColor(v);
+    stone.style.boxShadow=glowFor(v);
+    const val=stone.querySelector('.val');
+    val.textContent=v.toFixed(2);
+    val.style.color=labelColor(v);
+    if(lastCaptured && lastCaptured.some(p=>p[0]===r&&p[1]===c)){
+      stone.classList.remove('justpulled'); void stone.offsetWidth; stone.classList.add('justpulled');
+    }
+  }
+  updateScore();
+  updateStatus(lm);
+}
+
+function updateScore(){
+  const s=score(board);
+  document.getElementById('scoreA').textContent=s.a.toFixed(2);
+  document.getElementById('scoreB').textContent=s.b.toFixed(2);
+  const total=s.a+s.b;
+  const pctA= total>0 ? (s.a/total*100) : 50;
+  document.getElementById('barA').style.width=pctA.toFixed(2)+'%';
+}
+
+function updateStatus(lm){
+  const dot=document.getElementById('turnDot');
+  const txt=document.getElementById('statusText');
+  dot.className='turn-dot '+(turn==='A'?'a':'b');
+  if(gameOver){ txt.textContent='終局'; return; }
+  if(store.mode==='cpu'){
+    if(turn==='A') txt.textContent= lm.length? 'A（あなた）の手番':'あなたは置けません — パスしてください';
+    else txt.textContent= cpuThinking? 'CPU（B）が思考中…' : 'CPU（B）の手番';
+  } else {
+    const who = turn==='A'?'A（金/明）':'B（藍/暗）';
+    txt.textContent= lm.length? who+' の手番' : who+' は置けません — パス';
+  }
+  document.getElementById('passBtn').disabled=false;
+}
+
+function onCellClick(r,c){
+  if(gameOver || cpuThinking) return;
+  if(store.mode==='cpu' && turn==='B') return;
+  const res=applyMove(board,r,c,turn,K);
+  if(!res) return;                 // illegal
+  commitMove(res,r,c);
+}
+
+function commitMove(res,r,c){
+  board=res.board; lastMove={r,c}; lastCaptured=res.captured;
+  turn = turn==='A'?'B':'A';
+  render();
+  lastCaptured=null;
+  afterTurn();
+}
+
+function afterTurn(){
+  if(isTerminal(board)){ endGame(); return; }
+  // 手番側に合法手が無ければ自動パス（相手にも無ければ終局）
+  if(legalMoves(board,turn).length===0){
+    // 相手側の手があるなら自動でパスして相手へ
+    turn = turn==='A'?'B':'A';
+    if(legalMoves(board,turn).length===0){ endGame(); return; }
+    render();
+  }
+  maybeCpu();
+}
+
+function maybeCpu(){
+  if(store.mode!=='cpu' || turn!=='B' || gameOver) return;
+  cpuThinking=true; render();
+  setTimeout(()=>{
+    const depth=DIFF_DEPTH[store.difficulty]||1;
+    const branch=DIFF_BRANCH[store.difficulty]||12;
+    const mv=cpuChooseMove(board,'B',K,depth,branch);
+    cpuThinking=false;
+    if(!mv){
+      // CPU パス
+      turn='A';
+      if(legalMoves(board,'A').length===0){ endGame(); return; }
+      render(); return;
+    }
+    const res=applyMove(board,mv.r,mv.c,'B',K);
+    commitMove(res,mv.r,mv.c);
+  }, 520);
+}
+
+function doPass(){
+  if(gameOver||cpuThinking) return;
+  if(store.mode==='cpu' && turn==='B') return;
+  // 手があるのにパスは不可（オセロの規則）
+  if(legalMoves(board,turn).length>0) return;
+  turn = turn==='A'?'B':'A';
+  if(legalMoves(board,turn).length===0){ endGame(); return; }
+  render();
+  maybeCpu();
+}
+
+function endGame(){
+  gameOver=true;
+  const s=score(board);
+  render();
+  const diff=Math.abs(s.a-s.b);
+  let title;
+  if(Math.abs(s.a-s.b)<1e-6) title='引き分け';
+  else if(s.a>s.b) title= store.mode==='cpu' ? 'あなた（A）の勝ち' : 'A（金/明）の勝ち';
+  else title= store.mode==='cpu' ? 'CPU（B）の勝ち' : 'B（藍/暗）の勝ち';
+  // 最高スコア差を保存
+  let isRecord=false;
+  if(store.best===null || diff>store.best.diff){ store.best={diff, a:s.a, b:s.b, t:Date.now()}; persist(); isRecord=true; }
+  document.getElementById('resultTitle').textContent=title;
+  document.getElementById('resultScore').textContent=`A ${s.a.toFixed(2)}　／　B ${s.b.toFixed(2)}　（石 ${s.n}）`;
+  document.getElementById('resultDiff').textContent=`差 ${diff.toFixed(2)}`+(isRecord?'　— 最大差を更新':'');
+  document.getElementById('resultBest').textContent= store.best? `自己最大スコア差 ${store.best.diff.toFixed(2)}` : '';
+  document.getElementById('overlay').classList.add('show');
+  refreshBestMeta();
+}
+
+function refreshBestMeta(){
+  const el=document.getElementById('bestMeta');
+  el.innerHTML = store.best ? `<b>自己最大差</b> ${store.best.diff.toFixed(2)}` : `<b>自己最大差</b> —`;
+}
+
+function newGame(){
+  board=makeBoard(); turn='A'; gameOver=false; lastMove=null; cpuThinking=false; lastCaptured=null;
+  document.getElementById('overlay').classList.remove('show');
+  render();
+  // 2P でも CPU でも初手は A（人間）なので CPU 始動は不要
+}
+
+/* ── controls wiring ── */
+document.getElementById('resetBtn').addEventListener('click',newGame);
+document.getElementById('againBtn').addEventListener('click',newGame);
+document.getElementById('passBtn').addEventListener('click',doPass);
+
+const valBtn=document.getElementById('valBtn');
+function applyShowValues(){
+  document.body.classList.toggle('show-values',!!store.showValues);
+  valBtn.classList.toggle('on',!!store.showValues);
+  valBtn.textContent= store.showValues? '値を隠す':'値を表示';
+}
+valBtn.addEventListener('click',()=>{ store.showValues=!store.showValues; persist(); applyShowValues(); });
+
+const modeSeg=document.getElementById('modeSeg');
+const diffSeg=document.getElementById('diffSeg');
+function syncDiffEnabled(){
+  // 二人対戦では CPU 難度は無効表示（ロジックには影響しない）
+  diffSeg.classList.toggle('disabled', store.mode!=='cpu');
+}
+modeSeg.querySelectorAll('button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    store.mode=btn.dataset.mode; persist();
+    modeSeg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===btn));
+    syncDiffEnabled();
+    newGame();
+  });
+});
+modeSeg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.mode===store.mode));
+
+// 難度セグメント wiring（やさしい=1手読み / ふつう=2手読み）
+diffSeg.querySelectorAll('button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    if(store.mode!=='cpu') return;          // 2P中は無効
+    store.difficulty=btn.dataset.diff; persist();
+    diffSeg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===btn));
+    // 既に CPU 手番で待機している場合に備え、再評価はしない（次手番から反映）。
+  });
+});
+diffSeg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.diff===store.difficulty));
+syncDiffEnabled();
+
+/* ── starfield (subtle) ── */
+(function stars(){
+  const cv=document.getElementById('stars'); const ctx=cv.getContext('2d');
+  function resize(){ cv.width=innerWidth; cv.height=innerHeight; draw(); }
+  let pts=[];
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    if(pts.length===0){
+      const n=Math.min(70, Math.floor(cv.width*cv.height/22000));
+      for(let i=0;i<n;i++) pts.push({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*1.1+.2,a:Math.random()*.5+.15});
+    }
+    for(const p of pts){ ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,7); ctx.fillStyle=`rgba(212,168,83,${p.a*.5})`; ctx.fill(); }
+  }
+  addEventListener('resize',()=>{pts=[];resize();});
+  resize();
+})();
+
+/* ── boot ── */
+applyShowValues();
+refreshBestMeta();
+buildGrid();
+newGame();
+</script>
+</body>
+</html>
