@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boolean→Float 知の地図 — 二値から程度への独立収束 / 全人類UX改善</title>
+<meta name="description" content="二値判断を連続値0.0〜1.0に開く Boolean→Float が、論理学・哲学・心理学・計算機科学・HCIで独立に再発見されてきた収束構造を、知の星座として描く単一HTMLの地図。">
+<style>
+:root{
+  --void:#0d0d12;--void2:#14141c;
+  --gold:#d4a853;--gold-soft:#e6c78f;
+  --ink:#46577d;--indigo:#2a3550;--indigo2:#202a42;
+  --fog:#c9cdd6;--dim:#8b8f9a;--line:rgba(212,168,83,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--void);color:var(--fog);
+  font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;line-height:1.95;-webkit-font-smoothing:antialiased}
+body{background:radial-gradient(140% 90% at 50% 0%,#14141c 0%,#0d0d12 62%,#0a0a0e 100%);min-height:100vh}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+.wrap{max-width:1000px;margin:0 auto;padding:60px 24px 100px;position:relative;z-index:1}
+
+/* header */
+header{text-align:center;margin-bottom:14px}
+.kicker{letter-spacing:.42em;font-size:11px;color:var(--gold);opacity:.85}
+h1{font-size:32px;margin:14px 0 6px;color:#fff;font-weight:600;letter-spacing:.08em}
+.sub{color:var(--dim);font-size:13.5px;max-width:640px;margin:0 auto}
+.lamp{width:8px;height:8px;border-radius:50%;background:var(--gold);
+  box-shadow:0 0 26px 9px rgba(212,168,83,.5);margin:26px auto 8px}
+.lead{max-width:680px;margin:30px auto 0;font-size:14.5px;color:#bfc4ce;text-align:center;line-height:2.05}
+.lead b{color:var(--gold-soft);font-weight:600}
+
+/* constellation map */
+.map{margin:46px auto 10px;max-width:920px}
+.mapsvg{width:100%;height:auto;display:block;overflow:visible}
+.legend{display:flex;gap:26px;justify-content:center;flex-wrap:wrap;margin:8px auto 0;
+  font-size:11.5px;color:var(--dim);letter-spacing:.06em}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.dotg{width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px 2px rgba(212,168,83,.6)}
+.doti{width:9px;height:9px;border-radius:50%;background:var(--ink);box-shadow:0 0 8px 1px rgba(70,87,125,.6)}
+.linei{width:22px;height:0;border-top:1px solid rgba(212,168,83,.55)}
+
+/* thesis band */
+.thesis{max-width:760px;margin:40px auto 0;padding:26px 30px;text-align:center;
+  background:linear-gradient(180deg,rgba(212,168,83,.07),rgba(212,168,83,.02));
+  border:1px solid rgba(212,168,83,.32);border-radius:10px;position:relative}
+.thesis .ttag{font-size:10.5px;letter-spacing:.32em;color:var(--gold);opacity:.9}
+.thesis p{font-size:16.5px;color:#f0e7d2;margin-top:12px;line-height:1.9}
+.thesis p b{color:var(--gold);font-weight:600}
+.thesis .note{font-size:12.5px;color:var(--dim);margin-top:12px;line-height:1.8}
+
+/* domain detail grid */
+.domains{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:48px 0 0}
+.dom{background:rgba(255,255,255,.022);border:1px solid rgba(70,87,125,.4);
+  border-radius:9px;padding:22px 24px;transition:border-color .3s,transform .3s}
+.dom:hover{border-color:var(--gold);transform:translateY(-2px)}
+.dom .dh{display:flex;align-items:baseline;gap:10px;margin-bottom:4px}
+.dom .num{font-size:11px;color:var(--gold);letter-spacing:.18em;font-variant-numeric:tabular-nums}
+.dom h3{color:#fff;font-size:16.5px;letter-spacing:.04em;font-weight:600}
+.dom .concept{font-size:13.5px;color:#cfd3dc;margin:8px 0 10px;line-height:1.85}
+.dom .anchor{font-size:12px;color:var(--dim);line-height:1.8;
+  border-left:2px solid rgba(212,168,83,.45);padding-left:12px}
+.dom .anchor em{color:var(--gold-soft);font-style:normal}
+
+/* section heads */
+.sect{margin:64px 0 0;border-top:1px solid var(--line);padding-top:36px}
+.sect>.tag{font-size:11px;letter-spacing:.24em;color:var(--dim)}
+.sect>h2{font-size:21px;color:var(--gold);margin:6px 0 4px;letter-spacing:.06em}
+.sect>.desc{font-size:13.5px;color:var(--dim);max-width:660px;line-height:1.9}
+
+/* link clusters */
+.cluster{margin-top:26px}
+.cluster .cl-label{font-size:11.5px;letter-spacing:.2em;color:var(--gold);opacity:.85;margin-bottom:14px}
+.links{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.lk{display:block;background:rgba(255,255,255,.025);border:1px solid rgba(70,87,125,.4);
+  border-radius:8px;padding:16px 18px;text-decoration:none;transition:border-color .25s,background .25s}
+.lk:hover{border-color:var(--gold);background:rgba(212,168,83,.05)}
+.lk .lkh{color:#fff;font-size:14.5px;letter-spacing:.03em;margin-bottom:5px;display:flex;align-items:center;gap:8px}
+.lk .arw{color:var(--gold);font-size:13px;opacity:.7;margin-left:auto}
+.lk .lkd{font-size:12px;color:var(--dim);line-height:1.7}
+.lk .badge{font-size:9.5px;letter-spacing:.16em;color:var(--gold);border:1px solid rgba(212,168,83,.4);
+  border-radius:3px;padding:1px 6px;vertical-align:middle}
+
+footer{text-align:center;color:var(--dim);font-size:12px;margin-top:70px;
+  border-top:1px solid var(--line);padding-top:30px;line-height:2}
+footer b{color:var(--gold);font-weight:600}
+footer .home{color:var(--gold);text-decoration:none;border-bottom:1px dotted rgba(212,168,83,.5)}
+
+@media(max-width:760px){
+  .domains{grid-template-columns:1fr}
+  .links{grid-template-columns:1fr}
+  h1{font-size:25px}
+  .wrap{padding:44px 18px 80px}
+  .thesis p{font-size:15px}
+}
+</style>
+</head>
+<body>
+<canvas class="stars" id="stars"></canvas>
+<div class="wrap">
+
+<header>
+  <div class="kicker">＃全人類UX改善 ・ LANE ⓪ ・ 知の地図</div>
+  <h1>Boolean&#8594;Float 知の地図</h1>
+  <div class="sub">The Atlas of Two&#8211;Valued&#8594;Degree &#8212; 二値判断を連続値 0.0&#8211;1.0 に開く発想が、互いに無関係な五つの学問で独立に再発見された「収束」の星座</div>
+  <div class="lamp"></div>
+  <p class="lead">
+    中心に <b>Boolean&#8594;Float</b> ひとつの明かり。周囲の領域は、誰も示し合わせずに同じ岸へ流れ着いた。
+    論理学・哲学・診断学・認知科学・計算機科学・UI&#8212;&#8212;<b>二値から程度へ</b>という移行は、私の趣味ではなく時代精神だった。
+    線はすべて、外から中心へ <b>収束</b>している。
+  </p>
+</header>
+
+<!-- ============ CONSTELLATION MAP (SVG) ============ -->
+<div class="map">
+<svg class="mapsvg" viewBox="0 0 920 660" xmlns="http://www.w3.org/2000/svg" role="img"
+     aria-label="Boolean→Floatを中心に、数理・哲学・診断心理・認知心理・計算機科学・HCIの6領域が放射状に収束する知の星座図">
+  <defs>
+    <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f3e2b8" stop-opacity="0.95"/>
+      <stop offset="35%" stop-color="#d4a853" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#d4a853" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#5b6e96" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#46577d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="conv" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#d4a853" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#d4a853" stop-opacity="0.62"/>
+    </linearGradient>
+  </defs>
+
+  <!-- concentric guide rings (faint indigo) -->
+  <circle cx="460" cy="330" r="312" fill="none" stroke="#2a3550" stroke-opacity="0.30" stroke-width="1"/>
+  <circle cx="460" cy="330" r="232" fill="none" stroke="#2a3550" stroke-opacity="0.22" stroke-width="1" stroke-dasharray="2 7"/>
+  <circle cx="460" cy="330" r="120" fill="none" stroke="#d4a853" stroke-opacity="0.16" stroke-width="1" stroke-dasharray="1 8"/>
+
+  <!-- ===== convergence lines: domain -> center (drawn beneath nodes) ===== -->
+  <g stroke="url(#conv)" stroke-width="1.1" fill="none">
+    <line x1="460" y1="78"  x2="460" y2="278"/>   <!-- top: 数理 -->
+    <line x1="773" y1="200" x2="505" y2="305"/>   <!-- upper-right: 哲学 -->
+    <line x1="800" y1="455" x2="512" y2="350"/>   <!-- lower-right: 認知心理 -->
+    <line x1="460" y1="582" x2="460" y2="382"/>   <!-- bottom: 計算機科学 -->
+    <line x1="120" y1="455" x2="408" y2="350"/>   <!-- lower-left: HCI/UI -->
+    <line x1="147" y1="200" x2="415" y2="305"/>   <!-- upper-left: 診断心理 -->
+  </g>
+  <!-- small inward arrow ticks to convey "収束" direction -->
+  <g fill="#d4a853" fill-opacity="0.7">
+    <polygon points="460,272 456,283 464,283"/>
+    <polygon points="510,310 500,313 506,303"/>
+    <polygon points="517,345 507,343 512,353"/>
+    <polygon points="460,388 456,377 464,377"/>
+    <polygon points="403,345 413,343 408,353"/>
+    <polygon points="410,310 420,313 414,303"/>
+  </g>
+
+  <!-- ===== center: Boolean->Float (the one light) ===== -->
+  <circle cx="460" cy="330" r="118" fill="url(#coreGlow)"/>
+  <circle cx="460" cy="330" r="52" fill="#16161f" stroke="#d4a853" stroke-width="1.4" stroke-opacity="0.9"/>
+  <circle cx="460" cy="330" r="6" fill="#f3e2b8"/>
+  <text x="460" y="326" text-anchor="middle" fill="#f3e2b8" font-size="20" font-weight="600"
+        font-family="'Hiragino Mincho ProN','Yu Mincho',serif" letter-spacing="1">Boolean</text>
+  <text x="460" y="350" text-anchor="middle" fill="#d4a853" font-size="15"
+        font-family="'Hiragino Mincho ProN','Yu Mincho',serif" letter-spacing="2">&#8594; Float</text>
+  <text x="460" y="372" text-anchor="middle" fill="#8b8f9a" font-size="10.5" letter-spacing="1">0.0 &#8212; 1.0</text>
+
+  <!-- ===== domain nodes (indigo with glow) ===== -->
+  <!-- 1. 数理 (top) -->
+  <g>
+    <circle cx="460" cy="78" r="44" fill="url(#nodeGlow)"/>
+    <circle cx="460" cy="78" r="27" fill="#1a2236" stroke="#46577d" stroke-width="1.3"/>
+    <text x="460" y="74" text-anchor="middle" fill="#dfe3ec" font-size="13" font-weight="600">数理</text>
+    <text x="460" y="90" text-anchor="middle" fill="#9aa0ad" font-size="8.5" letter-spacing="1">FUZZY</text>
+    <text x="460" y="34" text-anchor="middle" fill="#c9cdd6" font-size="11">ファジィ集合</text>
+    <text x="460" y="49" text-anchor="middle" fill="#8b8f9a" font-size="9.5">Zadeh 1965</text>
+  </g>
+  <!-- 2. 哲学 (upper-right) -->
+  <g>
+    <circle cx="773" cy="200" r="44" fill="url(#nodeGlow)"/>
+    <circle cx="773" cy="200" r="27" fill="#1a2236" stroke="#46577d" stroke-width="1.3"/>
+    <text x="773" y="197" text-anchor="middle" fill="#dfe3ec" font-size="13" font-weight="600">哲学</text>
+    <text x="773" y="212" text-anchor="middle" fill="#9aa0ad" font-size="8.5" letter-spacing="1">VAGUE</text>
+    <text x="773" y="156" text-anchor="middle" fill="#c9cdd6" font-size="11">砂山のパラドクス</text>
+    <text x="773" y="171" text-anchor="middle" fill="#8b8f9a" font-size="9.5">degree of truth</text>
+  </g>
+  <!-- 3. 認知心理 (lower-right) -->
+  <g>
+    <circle cx="800" cy="455" r="44" fill="url(#nodeGlow)"/>
+    <circle cx="800" cy="455" r="27" fill="#1a2236" stroke="#46577d" stroke-width="1.3"/>
+    <text x="800" y="452" text-anchor="middle" fill="#dfe3ec" font-size="12.5" font-weight="600">認知</text>
+    <text x="800" y="467" text-anchor="middle" fill="#9aa0ad" font-size="8.5" letter-spacing="1">CBT</text>
+    <text x="800" y="503" text-anchor="middle" fill="#c9cdd6" font-size="11">白黒思考＝歪み</text>
+    <text x="800" y="518" text-anchor="middle" fill="#8b8f9a" font-size="9.5">Beck / Burns・DTI</text>
+  </g>
+  <!-- 4. 計算機科学 (bottom) -->
+  <g>
+    <circle cx="460" cy="582" r="44" fill="url(#nodeGlow)"/>
+    <circle cx="460" cy="582" r="27" fill="#1a2236" stroke="#46577d" stroke-width="1.3"/>
+    <text x="460" y="579" text-anchor="middle" fill="#dfe3ec" font-size="12.5" font-weight="600">計算機</text>
+    <text x="460" y="594" text-anchor="middle" fill="#9aa0ad" font-size="8.5" letter-spacing="1">ML</text>
+    <text x="460" y="630" text-anchor="middle" fill="#c9cdd6" font-size="11">階段 &#8594; sigmoid</text>
+    <text x="460" y="645" text-anchor="middle" fill="#8b8f9a" font-size="9.5">微分可能化で学習</text>
+  </g>
+  <!-- 5. HCI/UI (lower-left) -->
+  <g>
+    <circle cx="120" cy="455" r="44" fill="url(#nodeGlow)"/>
+    <circle cx="120" cy="455" r="27" fill="#1a2236" stroke="#46577d" stroke-width="1.3"/>
+    <text x="120" y="452" text-anchor="middle" fill="#dfe3ec" font-size="12.5" font-weight="600">HCI</text>
+    <text x="120" y="467" text-anchor="middle" fill="#9aa0ad" font-size="8.5" letter-spacing="1">UI</text>
+    <text x="120" y="503" text-anchor="middle" fill="#c9cdd6" font-size="11">連続値UI</text>
+    <text x="120" y="518" text-anchor="middle" fill="#8b8f9a" font-size="9.5">dimmer / VAS / 7&#177;2</text>
+  </g>
+  <!-- 6. 診断心理 (upper-left) -->
+  <g>
+    <circle cx="147" cy="200" r="44" fill="url(#nodeGlow)"/>
+    <circle cx="147" cy="200" r="27" fill="#1a2236" stroke="#46577d" stroke-width="1.3"/>
+    <text x="147" y="197" text-anchor="middle" fill="#dfe3ec" font-size="12.5" font-weight="600">診断</text>
+    <text x="147" y="212" text-anchor="middle" fill="#9aa0ad" font-size="8.5" letter-spacing="1">HiTOP</text>
+    <text x="147" y="156" text-anchor="middle" fill="#c9cdd6" font-size="11">次元診断</text>
+    <text x="147" y="171" text-anchor="middle" fill="#8b8f9a" font-size="9.5">Kotov 2017</text>
+  </g>
+</svg>
+<div class="legend">
+  <span><i class="dotg"></i> 中心＝ひとあかり（Boolean&#8594;Float）</span>
+  <span><i class="doti"></i> 領域ノード（独立に収束した学問）</span>
+  <span><i class="linei"></i> 収束線（外&#8594;中心へ）</span>
+</div>
+</div>
+
+<!-- ============ THESIS BAND ============ -->
+<div class="thesis">
+  <div class="ttag">真テーゼ ・ THE REAL ADVERSARY</div>
+  <p>真の敵は、二値そのものではない。<br><b>閾値を設計者が固定し、それを隠すこと</b>だ。</p>
+  <p class="note">
+    DSMの診断閾値、sigmoid の 0.5、砂山の鋭い境界、NPS の「6 vs 7問題」&#8212;&#8212;
+    どの領域も、別々の言葉で同じ一点を批判していた。Float は万能の真理ではなく、二値より現実に合う表現選択である。
+  </p>
+</div>
+
+<!-- ============ DOMAIN DETAIL ============ -->
+<div class="domains">
+  <div class="dom">
+    <div class="dh"><span class="num">01 ・ 数理</span></div>
+    <h3>ファジィ集合論</h3>
+    <p class="concept">所属を 0〜1 の連続的な度合い（grade of membership）で測る。古典集合＝二値の特性関数は、その<b>退化したケース</b>として包摂される。</p>
+    <p class="anchor"><em>Zadeh, L. A. (1965)</em> &ldquo;Fuzzy Sets,&rdquo; <em>Information and Control</em> 8, 338&#8211;353. 脚注3で「[0,1] 連続真理値の多値論理に対応」と自己解釈&#8212;&#8212;Boolean&#8594;Float の最も直接の祖先（&larr;Łukasiewicz 多値論理 1920）。</p>
+  </div>
+
+  <div class="dom">
+    <div class="dh"><span class="num">02 ・ 哲学</span></div>
+    <h3>連続体・程度の真理</h3>
+    <p class="concept">「砂1粒で砂山か」&#8212;&#8212;vague predicate に鋭い境界は引けない（sorites paradox）。その応答が、真理を {真,偽} でなく <b>[0,1] の程度</b>とする degree theory of truth。</p>
+    <p class="anchor"><em>Sorites Paradox</em> / <em>Vagueness §3 degree theory of truth</em>（SEP・Routledge）。Float の哲学版の直接の名前。対比＝supervaluationism は「保留(ギャップ)」を選ぶが、Float は<em>度合い</em>を選ぶ。</p>
+  </div>
+
+  <div class="dom">
+    <div class="dh"><span class="num">03 ・ 診断心理</span></div>
+    <h3>次元診断（categorical&#8594;dimensional）</h3>
+    <p class="concept">「うつ病である/ない」のカテゴリ診断は、恣意的な閾値・併存症・カテゴリ内の異質性を抱える。症状を<b>連続次元のスコア</b>で捉え直す。</p>
+    <p class="anchor"><em>Kotov, R. et al. (2017)</em> HiTOP: &ldquo;A dimensional alternative to traditional nosologies,&rdquo; <em>J. Abnormal Psychology</em> 126(4), 454&#8211;477（PMID 28333488）。タイトルがそのまま「Float による代替」。</p>
+  </div>
+
+  <div class="dom">
+    <div class="dh"><span class="num">04 ・ 認知心理</span></div>
+    <h3>白黒思考＝認知の歪み</h3>
+    <p class="concept">「全か無か思考（all-or-nothing）」は臨床で<b>名前を与えられ、測定され、治療の標的</b>にされてきた。0〜100% に開く認知再構成は Boolean&#8594;Float と同型。DBT は「and を使い but を使わない」両立(both-and)へ。</p>
+    <p class="anchor"><em>Beck (1979)</em> 絶対的・二分法的思考 / <em>Burns『Feeling Good』(1980)</em> / <em>Oshio (2009)</em> 二値思考尺度 DTI。※因果でなく相関。健常者の安易な病理化はしない。</p>
+  </div>
+
+  <div class="dom">
+    <div class="dh"><span class="num">05 ・ 計算機科学</span></div>
+    <h3>Heaviside 階段 &#8594; sigmoid</h3>
+    <p class="concept">閾値で発火する二値ニューロン（Heaviside 階段関数）は微分不可で学習できない。<b>平滑化して 0〜1 の連続値</b>（sigmoid）にした&#8212;&#8212;文字どおりの Boolean&#8594;Float。連続化したからこそ勾配で学習できる、という具体的利得を伴う。</p>
+    <p class="anchor"><em>McCulloch&#8211;Pitts (1943)</em> 階段関数の二値ユニット &rarr; <em>sigmoid σ(x)=1/(1+e<sup>&#8722;x</sup>)</em>。推論時の 0.5 閾値は<em>設計者が選んでいる</em>（＝隠れた恣意性）。確率(probability)とは別物。</p>
+  </div>
+
+  <div class="dom">
+    <div class="dh"><span class="num">06 ・ HCI / UI</span></div>
+    <h3>連続値インターフェース</h3>
+    <p class="concept">調光スイッチ・スライダー・痛みの VAS・&ldquo;いいね&rdquo;&#8594;Reactions&#8212;&#8212;二値ボタンを<b>程度の連続体</b>に開いた実装が数十年分ある。ただし連続値は無条件に勝たない。</p>
+    <p class="anchor">反例＝<em>Netflix</em> は星5を thumbs に単純化し評価数 +200%（入力は二値・出力 %Match は連続）。粒度の天井＝<em>Miller 7&#177;2 (1956)</em>。VAS 化で信頼性が落ちる条件もある（arXiv:2502.02846）。</p>
+  </div>
+</div>
+
+<!-- ============ LINKS: 作品 / 研究 ============ -->
+<div class="sect">
+  <div class="tag">THIS ATLAS LEADS TO ・ この地図の研究と作品へ</div>
+  <h2>収束を、読む・遊ぶ・確かめる</h2>
+  <p class="desc">地図の各領域は、三本の文献調査が裏取りしている。そして同じ哲学から、一晩で小説・ゲーム・玩具・アイデアが具現化された。</p>
+
+  <div class="cluster">
+    <div class="cl-label">&#9632; 三つの文献調査（収束構造の一次裏取り）</div>
+    <div class="links">
+      <a class="lk" href="../lane0-research/boolean-float-lineage.md">
+        <span class="lkh">知的系譜 <span class="badge">RESEARCH</span><span class="arw">&#8599;</span></span>
+        <span class="lkd">Zadeh 1965 / 多値論理 / sorites / HiTOP / sigmoid&#8212;&#8212;Boolean&#8594;Float の祖先を四方から。</span>
+      </a>
+      <a class="lk" href="../lane0-research/continuous-ui-lineage.md">
+        <span class="lkh">連続値UIの実例 <span class="badge">RESEARCH</span><span class="arw">&#8599;</span></span>
+        <span class="lkd">dimmer・VAS・Reactions・ファジィ家電と、Netflix の反例・粒度 7&#177;2 の限界。</span>
+      </a>
+      <a class="lk" href="../lane0-research/binary-thinking-cognition.md">
+        <span class="lkh">二値思考の認知科学 <span class="badge">RESEARCH</span><span class="arw">&#8599;</span></span>
+        <span class="lkd">白黒思考＝認知の歪み。CBT/DBT・integrative complexity・キャリブレーション訓練。</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="cluster">
+    <div class="cl-label">&#9632; 具現化された作品（同じ哲学のプロダクト）</div>
+    <div class="links">
+      <a class="lk" href="../index.html">
+        <span class="lkh">深夜創作工房（玄関） <span class="arw">&#8594;</span></span>
+        <span class="lkd">Lane⓪ の全成果物を束ねるトップ。小説・ゲーム・玩具・エッセイへの入口。</span>
+      </a>
+      <a class="lk" href="../lane0-novella/reader.html">
+        <span class="lkh">『端数のひと』 <span class="badge">NOVELLA</span><span class="arw">&#8594;</span></span>
+        <span class="lkd">全市民を 0/1 に丸める近未来。平均0.500で揺れ続ける〈端数のひと〉の物語。</span>
+      </a>
+      <a class="lk" href="../lane0-game/float-reversi.html">
+        <span class="lkh">Float Reversi <span class="badge">GAME</span><span class="arw">&#8594;</span></span>
+        <span class="lkd">石が白黒でなく 0.0&#8211;1.0 の連続値を持つオセロ。挟むと半分だけ寄る。</span>
+      </a>
+      <a class="lk" href="../lane0-game/threshold-garden.html">
+        <span class="lkh">閾値の庭 <span class="badge">GAME</span><span class="arw">&#8594;</span></span>
+        <span class="lkd">隠れた閾値を見つけ、可視化して動かすパズル。真テーゼを遊びにした一作。</span>
+      </a>
+      <a class="lk" href="../lane0-game/half-duel.html">
+        <span class="lkh">0.5の決闘 <span class="badge">GAME</span><span class="arw">&#8594;</span></span>
+        <span class="lkd">勝ち負けの二値でなく、確信度の連続値を賭け合う決闘。中間に居続ける戦術。</span>
+      </a>
+      <a class="lk" href="../lane0-toy/your-float.html">
+        <span class="lkh">あなたのFloat <span class="badge">TOY</span><span class="arw">&#8594;</span></span>
+        <span class="lkd">はい/いいえに収まらない問いへ、スライダーで答える内省の玩具。</span>
+      </a>
+      <a class="lk" href="../lane0-idea/harenoagari.html">
+        <span class="lkh">晴れのあがり <span class="badge">IDEA</span><span class="arw">&#8594;</span></span>
+        <span class="lkd">苗床DBの休眠アイデアを一件具現化。気分・天気を連続値で扱う試作。</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <b>Boolean&#8594;Float 知の地図</b> &#8212; 二値を捨てるのではなく、閾値を可視化し可変にする。<br>
+  五つの学問が、別々の岸から同じ海へ。＃全人類UX改善計画 ・ LANE ⓪<br>
+  <a class="home" href="../index.html">&larr; 深夜創作工房へ戻る</a>
+</footer>
+
+</div>
+
+<script>
+// ---- starfield (osakenpiro void + faint gold dust) ----
+(function(){
+  var c = document.getElementById('stars');
+  if(!c || !c.getContext) return;
+  var ctx = c.getContext('2d');
+  var stars = [];
+  function resize(){
+    c.width = window.innerWidth;
+    c.height = document.body.scrollHeight || window.innerHeight;
+    var n = Math.min(180, Math.floor((c.width*c.height)/14000));
+    stars = [];
+    for(var i=0;i<n;i++){
+      stars.push({
+        x: Math.random()*c.width,
+        y: Math.random()*c.height,
+        r: Math.random()*1.3+0.2,
+        a: Math.random()*0.5+0.15,
+        g: Math.random() < 0.14   // ~14% are gold dust, rest cool
+      });
+    }
+  }
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    for(var i=0;i<stars.length;i++){
+      var s = stars[i];
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fillStyle = s.g
+        ? 'rgba(212,168,83,'+s.a+')'
+        : 'rgba(201,205,214,'+(s.a*0.7)+')';
+      ctx.fill();
+    }
+  }
+  resize(); draw();
+  window.addEventListener('resize', function(){ resize(); draw(); });
+})();
+</script>
+</body>
+</html>
