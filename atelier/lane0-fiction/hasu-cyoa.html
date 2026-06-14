@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>端数のひと ―もう一つの調整</title>
+<style>
+  :root{
+    --void:#0d0d12;
+    --void-2:#14141c;
+    --panel:#16161f;
+    --panel-2:#1b1b25;
+    --gold:#d4a853;
+    --gold-soft:#c9a456;
+    --gold-bright:#e6c074;
+    --gold-dim:rgba(212,168,83,.34);
+    --gold-faint:rgba(212,168,83,.13);
+    --ai:#3a4a6b;          /* 藍 / 冷色 */
+    --ai-soft:#5b7099;
+    --ai-faint:rgba(58,74,107,.30);
+    --ink:#d7dae2;         /* 本文 */
+    --ink-dim:#9aa0ad;
+    --ink-faint:#6c7280;
+    --rule:rgba(212,168,83,.18);
+    --maxcol:38em;
+    --serif:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho","YuMincho","Noto Serif JP","Source Han Serif JP",serif;
+    --sans:"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 640px at 50% -8%, #181822 0%, var(--void-2) 40%, var(--void) 100%),
+      var(--void);
+    color:var(--ink);
+    font-family:var(--serif);
+    line-height:1.92;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  /* faint star field */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    pointer-events:none; z-index:0;
+    background-image:
+      radial-gradient(1px 1px at 12% 22%, rgba(255,255,255,.28), transparent),
+      radial-gradient(1px 1px at 78% 14%, rgba(255,255,255,.20), transparent),
+      radial-gradient(1px 1px at 34% 64%, rgba(212,168,83,.26), transparent),
+      radial-gradient(1px 1px at 64% 82%, rgba(255,255,255,.16), transparent),
+      radial-gradient(1px 1px at 88% 52%, rgba(255,255,255,.14), transparent),
+      radial-gradient(1px 1px at 22% 88%, rgba(212,168,83,.18), transparent),
+      radial-gradient(1px 1px at 52% 38%, rgba(255,255,255,.12), transparent);
+    background-repeat:no-repeat;
+    opacity:.5;
+  }
+
+  .stage{
+    position:relative; z-index:1;
+    max-width:var(--maxcol);
+    margin:0 auto;
+    padding:clamp(28px,6vw,64px) clamp(18px,5vw,28px) 120px;
+    min-height:100vh;
+    display:flex; flex-direction:column;
+  }
+
+  /* ===== title screen ===== */
+  #title{ text-align:center; margin:auto 0; }
+  #title .kicker{
+    font-family:var(--sans);
+    font-size:.66rem; letter-spacing:.5em; text-indent:.5em;
+    color:var(--ink-faint); margin-bottom:26px; text-transform:uppercase;
+  }
+  #title h1{
+    font-size:clamp(2rem,8vw,3.1rem);
+    margin:0 0 6px; font-weight:600; letter-spacing:.14em;
+    color:var(--gold);
+    text-shadow:0 0 28px rgba(212,168,83,.28);
+  }
+  #title .sub{
+    font-family:var(--sans);
+    font-size:.84rem; letter-spacing:.32em; color:var(--ink-dim);
+    margin:0 0 34px;
+  }
+  #title .blurb{
+    font-size:.98rem; color:var(--ink-dim); line-height:2; max-width:30em;
+    margin:0 auto 40px;
+  }
+  #title .digit{
+    font-family:var(--sans); font-variant-numeric:tabular-nums;
+    color:var(--gold); letter-spacing:.05em;
+  }
+
+  /* ===== meta bar ===== */
+  #metabar{
+    position:fixed; top:0; left:0; right:0; height:42px;
+    display:none; align-items:center; justify-content:space-between;
+    padding:0 16px;
+    background:rgba(13,13,18,.86);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--rule);
+    z-index:40;
+    font-family:var(--sans);
+  }
+  #metabar .mb-left{ font-size:.7rem; letter-spacing:.22em; color:var(--gold); }
+  #metabar .mb-right{ display:flex; gap:8px; }
+  .mb-btn{
+    appearance:none; background:transparent; border:1px solid var(--gold-dim);
+    color:var(--gold); border-radius:6px; padding:5px 11px;
+    font-family:var(--sans); font-size:.7rem; letter-spacing:.08em; cursor:pointer;
+    transition:background .2s,border-color .2s;
+  }
+  .mb-btn:hover{ background:var(--gold-faint); }
+  .mb-btn.ghost{ color:var(--ink-faint); border-color:rgba(108,114,128,.34); }
+  .mb-btn.ghost:hover{ color:var(--ink-dim); }
+
+  /* ===== scene ===== */
+  #scene{ margin:auto 0; }
+  .scene-num{
+    font-family:var(--sans);
+    font-size:.62rem; letter-spacing:.4em; color:var(--ink-faint);
+    text-transform:uppercase; margin-bottom:18px;
+  }
+  .scene-num .dot{ color:var(--gold-dim); }
+  .scene-title{
+    font-size:1.5rem; color:var(--gold); font-weight:600;
+    letter-spacing:.08em; margin:0 0 24px; line-height:1.5;
+  }
+  .prose p{ margin:0 0 1.35em; }
+  .prose p:last-child{ margin-bottom:0; }
+  .prose .em{ color:var(--ink); font-style:normal; }
+  .prose .gold{ color:var(--gold-soft); }
+  .prose .cold{ color:var(--ai-soft); }
+  .prose .quote{
+    color:var(--ink); padding-left:1.1em; border-left:2px solid var(--gold-dim);
+    margin:1.5em 0; font-size:1.02rem;
+  }
+  .prose .line{ /* dialogue */
+    color:var(--ink); margin:0 0 1.1em;
+  }
+  .prose .code{
+    display:block; font-family:var(--sans); font-size:.86rem; line-height:1.85;
+    letter-spacing:.02em; color:var(--ai-soft);
+    background:rgba(58,74,107,.10); border:1px solid var(--ai-faint);
+    border-radius:8px; padding:14px 16px; margin:1.5em 0;
+  }
+  .prose .code b{ color:var(--ink); font-weight:600; }
+  .num-mono{ font-family:var(--sans); font-variant-numeric:tabular-nums; }
+
+  /* ===== choices ===== */
+  #choices{ margin-top:34px; display:flex; flex-direction:column; gap:12px; }
+  .choice{
+    appearance:none; text-align:left; width:100%;
+    background:linear-gradient(180deg, var(--panel-2), var(--panel));
+    border:1px solid var(--rule); border-radius:11px;
+    padding:15px 18px; cursor:pointer;
+    color:var(--ink-dim); font-family:var(--serif);
+    font-size:1rem; line-height:1.65; letter-spacing:.01em;
+    transition:border-color .22s, color .22s, background .22s, transform .12s, box-shadow .22s;
+    position:relative;
+  }
+  .choice:hover{
+    border-color:var(--gold-dim); color:var(--ink);
+    box-shadow:0 0 0 1px var(--gold-faint), 0 8px 24px rgba(0,0,0,.32);
+    transform:translateY(-1px);
+  }
+  .choice:active{ transform:translateY(0); }
+  .choice .mark{
+    font-family:var(--sans); font-size:.66rem; letter-spacing:.18em;
+    color:var(--gold-dim); display:block; margin-bottom:5px; text-transform:uppercase;
+  }
+  .choice.hold{ border-color:rgba(212,168,83,.28); }
+  .choice.hold .mark{ color:var(--gold); }
+  .choice.hold::after{
+    content:"H"; position:absolute; top:50%; right:16px; transform:translateY(-50%);
+    font-family:var(--sans); font-weight:600; font-size:1.1rem;
+    color:var(--gold); opacity:.5;
+    text-shadow:0 0 14px rgba(212,168,83,.5);
+  }
+  .choice.danger .mark{ color:var(--ai-soft); }
+  .choice.danger:hover{ border-color:var(--ai-soft); box-shadow:0 0 0 1px var(--ai-faint), 0 8px 24px rgba(0,0,0,.32); }
+
+  /* ===== slider ===== */
+  .slider-box{
+    margin-top:30px;
+    background:rgba(22,22,31,.6); border:1px solid var(--rule);
+    border-radius:13px; padding:24px 22px 20px;
+  }
+  .slider-box .sl-label{
+    font-family:var(--sans); font-size:.74rem; letter-spacing:.14em;
+    color:var(--ink-dim); margin-bottom:6px;
+  }
+  .slider-box .sl-read{
+    font-family:var(--sans); font-variant-numeric:tabular-nums;
+    font-size:1.9rem; color:var(--gold); letter-spacing:.04em;
+    text-align:center; margin:4px 0 18px;
+    text-shadow:0 0 18px rgba(212,168,83,.3);
+  }
+  .slider-box .sl-verdict{
+    text-align:center; font-family:var(--sans); font-size:.76rem;
+    color:var(--ink-faint); letter-spacing:.1em; min-height:1.2em; margin-bottom:14px;
+  }
+  .sl-track{ position:relative; padding:6px 2px; }
+  input[type=range]{
+    -webkit-appearance:none; appearance:none; width:100%; height:4px;
+    background:linear-gradient(90deg, var(--ai) 0%, #2a2f3e 50%, var(--gold-soft) 100%);
+    border-radius:4px; outline:none; margin:0;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none;
+    width:22px; height:22px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--gold-bright), var(--gold) 60%, #9d7a2e 100%);
+    border:2px solid #1a1a22;
+    box-shadow:0 0 0 1px var(--gold-dim), 0 0 16px rgba(212,168,83,.55);
+    cursor:pointer; transition:box-shadow .2s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover{ box-shadow:0 0 0 1px var(--gold), 0 0 22px rgba(212,168,83,.8); }
+  input[type=range]::-moz-range-thumb{
+    width:22px; height:22px; border-radius:50%; border:2px solid #1a1a22;
+    background:radial-gradient(circle at 35% 30%, var(--gold-bright), var(--gold) 60%, #9d7a2e 100%);
+    box-shadow:0 0 0 1px var(--gold-dim), 0 0 16px rgba(212,168,83,.55);
+    cursor:pointer;
+  }
+  input[type=range]::-moz-range-track{ height:4px; background:transparent; }
+  .sl-ends{
+    display:flex; justify-content:space-between; margin-top:10px;
+    font-family:var(--sans); font-size:.66rem; letter-spacing:.16em; color:var(--ink-faint);
+  }
+  .sl-ends .lo{ color:var(--ai-soft); }
+  .sl-ends .hi{ color:var(--gold-soft); }
+  .sl-mid{
+    position:absolute; left:50%; top:0; bottom:0; width:1px;
+    background:rgba(212,168,83,.3); transform:translateX(-50%); pointer-events:none;
+  }
+
+  /* ===== ending ===== */
+  #scene.ending .scene-title{ color:var(--gold-bright); }
+  .verdict{
+    margin-top:36px; padding:26px 22px;
+    border:1px solid var(--gold-dim); border-radius:13px;
+    background:radial-gradient(420px 200px at 50% 0%, rgba(212,168,83,.07), transparent), rgba(22,22,31,.55);
+    text-align:center;
+  }
+  .verdict .vk{
+    font-family:var(--sans); font-size:.66rem; letter-spacing:.34em;
+    color:var(--ink-faint); text-transform:uppercase; margin-bottom:14px;
+  }
+  .verdict .vscore{
+    font-family:var(--sans); font-variant-numeric:tabular-nums;
+    font-size:2.6rem; color:var(--gold); letter-spacing:.04em; line-height:1;
+    text-shadow:0 0 24px rgba(212,168,83,.32);
+  }
+  .verdict .vbar{
+    position:relative; height:6px; margin:18px 0 10px;
+    background:linear-gradient(90deg, var(--ai) 0%, #2a2f3e 50%, var(--gold-soft) 100%);
+    border-radius:6px;
+  }
+  .verdict .vbar .vmark{
+    position:absolute; top:50%; transform:translate(-50%,-50%);
+    width:14px; height:14px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--gold-bright), var(--gold) 60%, #9d7a2e 100%);
+    box-shadow:0 0 0 1px var(--gold), 0 0 14px rgba(212,168,83,.7);
+  }
+  .verdict .vbar .vmid{
+    position:absolute; left:50%; top:-5px; bottom:-5px; width:1px;
+    background:rgba(212,168,83,.32); transform:translateX(-50%);
+  }
+  .verdict .vends{
+    display:flex; justify-content:space-between;
+    font-family:var(--sans); font-size:.64rem; letter-spacing:.14em; color:var(--ink-faint);
+  }
+  .verdict .vline{
+    margin-top:18px; font-size:.96rem; color:var(--ink-dim); line-height:1.95;
+  }
+
+  /* ===== collection ===== */
+  .collection{
+    margin-top:30px; padding:20px;
+    border:1px solid var(--rule); border-radius:13px; background:rgba(22,22,31,.45);
+  }
+  .collection h3{
+    font-family:var(--sans); font-size:.7rem; letter-spacing:.26em; color:var(--ink-faint);
+    text-transform:uppercase; margin:0 0 16px; font-weight:600;
+  }
+  .col-grid{ display:grid; gap:9px; }
+  .col-item{
+    display:flex; align-items:center; gap:12px;
+    padding:11px 14px; border-radius:9px;
+    border:1px solid rgba(108,114,128,.2);
+    font-family:var(--sans); font-size:.82rem; color:var(--ink-faint);
+    transition:border-color .2s,color .2s,background .2s;
+  }
+  .col-item.seen{ border-color:var(--gold-dim); color:var(--ink); background:var(--gold-faint); }
+  .col-item .ci-mark{
+    width:22px; height:22px; border-radius:50%; flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center;
+    border:1px solid rgba(108,114,128,.4); font-size:.72rem;
+  }
+  .col-item.seen .ci-mark{
+    border-color:var(--gold); color:var(--gold);
+    box-shadow:0 0 12px rgba(212,168,83,.4);
+  }
+  .col-item .ci-name{ flex:1; }
+  .col-item .ci-lock{ font-size:.68rem; letter-spacing:.1em; }
+  .col-progress{
+    margin-top:14px; font-family:var(--sans); font-size:.72rem;
+    letter-spacing:.1em; color:var(--ink-faint); text-align:right;
+  }
+  .col-progress b{ color:var(--gold); }
+
+  /* ===== actions ===== */
+  .actions{ margin-top:30px; display:flex; flex-wrap:wrap; gap:12px; justify-content:center; }
+  .btn{
+    appearance:none; cursor:pointer;
+    font-family:var(--sans); font-size:.84rem; letter-spacing:.1em;
+    padding:13px 26px; border-radius:10px;
+    transition:background .22s,border-color .22s,color .22s,box-shadow .22s,transform .12s;
+  }
+  .btn-primary{
+    background:linear-gradient(180deg, rgba(212,168,83,.16), rgba(212,168,83,.06));
+    border:1px solid var(--gold-dim); color:var(--gold);
+  }
+  .btn-primary:hover{
+    border-color:var(--gold); color:var(--gold-bright);
+    box-shadow:0 0 0 1px var(--gold-faint), 0 8px 24px rgba(0,0,0,.3);
+    transform:translateY(-1px);
+  }
+  .btn-ghost{
+    background:transparent; border:1px solid rgba(108,114,128,.34); color:var(--ink-faint);
+  }
+  .btn-ghost:hover{ color:var(--ink-dim); border-color:var(--ink-faint); }
+
+  /* ===== breadcrumb of state (subtle) ===== */
+  .statebar{
+    margin-top:42px; padding-top:18px; border-top:1px solid rgba(212,168,83,.08);
+    display:flex; flex-wrap:wrap; gap:18px;
+    font-family:var(--sans); font-size:.66rem; letter-spacing:.1em; color:var(--ink-faint);
+  }
+  .statebar .st{ display:flex; align-items:center; gap:7px; }
+  .statebar .st .sv{ color:var(--gold-soft); font-variant-numeric:tabular-nums; }
+  .statebar .st.on .sv{ color:var(--gold); text-shadow:0 0 10px rgba(212,168,83,.45); }
+
+  .fade-in{ animation:fade .5s ease; }
+  @keyframes fade{ from{ opacity:0; transform:translateY(8px);} to{ opacity:1; transform:translateY(0);} }
+
+  @media (max-width:560px){
+    .stage{ padding-top:58px; }
+    #metabar{ display:flex; }
+    .verdict .vscore{ font-size:2.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div id="metabar">
+  <div class="mb-left">端数のひと ―もう一つの調整</div>
+  <div class="mb-right">
+    <button class="mb-btn ghost" id="mbRestart">最初から</button>
+  </div>
+</div>
+
+<div class="stage">
+
+  <!-- TITLE -->
+  <section id="title">
+    <div class="kicker">市民価値局・第三調整室</div>
+    <h1>端数のひと</h1>
+    <div class="sub">―もう一つの調整―</div>
+    <p class="blurb">
+      あなたは新任の調整員。<br>
+      仕事は、市民に割り当てられた連続値を<br>
+      <span class="digit">0</span> か <span class="digit">1</span> へ丸め、確定させること。<br><br>
+      けさ、机に乗った一件の内部値は——<br>
+      <span class="digit">0.500</span>。揺れ、確定不能。<br>
+      あなたの選択が、ひとりの行き先を決める。
+    </p>
+    <div class="actions">
+      <button class="btn btn-primary" id="btnStart">机につく</button>
+      <button class="btn btn-ghost" id="btnCollection">見たエンディング</button>
+    </div>
+  </section>
+
+  <!-- SCENE (filled by JS) -->
+  <section id="scene" style="display:none;"></section>
+
+</div>
+
+<script>
+"use strict";
+/* =========================================================
+   端数のひと ―もう一つの調整  /  CYOA engine
+   - scene graph (SCENES) with choice gating
+   - state: bias(累積二値傾向 0..1) , roundForce(面会スライダー), foundHold(第三出力の再発見)
+   - slider scenes feed branching + final Float self-score
+   - 5 endings, localStorage collection, restart
+   ========================================================= */
+
+var LS_KEY = "hasu-cyoa-endings-v1";
+
+/* ---- collection meta (order matters for display) ---- */
+var ENDINGS = [
+  { id:"E_ROUND",  name:"完全な丸め手",          glyph:"1" },
+  { id:"E_HOLD",   name:"保留と摩擦する道",      glyph:"H" },
+  { id:"E_FRINGE", name:"端数の街へ逃がす道",    glyph:"·" },
+  { id:"E_BECOME", name:"自分が端数化する道",    glyph:"~" },
+  { id:"E_ERASE",  name:"空白送り —— 抹消",      glyph:"0" }
+];
+
+/* ---- state ---- */
+var S; // current run state
+function freshState(){
+  return {
+    node:"intro",
+    bias:0.50,        // 累積した「二値へ丸める傾向」。0=保留寄り,1=断定寄り
+    roundForce:null,  // 面会スライダーで選んだ丸めの強さ 0..1
+    foundHold:false,  // 第三出力〈H〉を再発見したか → 以降の選択肢に常駐
+    sawArchive:false, // アーカイブ(自分の加害)を見たか
+    plant:false,      // 植木鉢のモチーフに触れたか(エンディング描写の差分)
+    steps:0
+  };
+}
+
+/* ---- helpers ---- */
+function clamp01(x){ return x<0?0:(x>1?1:x); }
+function fmt(x){ return x.toFixed(2); }
+function nudge(amt){ S.bias = clamp01(S.bias + amt); }
+
+/* =========================================================
+   SCENE GRAPH
+   Each scene: {
+     num, title, html(state)->string,
+     choices(state)->[ {mark, text, cls?, go} ]   // go = next node id
+     OR slider: { label, onSet(value)->nextNodeId, verdict(v)->string }
+     OR ending: { score(state)->float, line(state)->string }
+   }
+   ========================================================= */
+var SCENES = {
+
+  /* ---------- ACT 1 : 着任 ---------- */
+  intro:{
+    num:"一", title:"丸める仕事",
+    html:function(){ return ''
+      + '<p>六時四十分。窓のない部屋に、あなたは初めて自分の席を持った。市民価値局・第三調整室。光を必要としない仕事のために設計された部屋だと、引き継ぎの調整員は言った。机の上には端末が一台きり。</p>'
+      + '<p>電源を入れると、夜のうちに溜まった案件が、薄い灰色の行になって並んだ。仕事の名前を、正式には〈価値整序〉という。市民一人ひとりに紐づいた内部値を、<span class="num-mono">0.50</span> を境に <span class="gold">0</span> か <span class="gold">1</span> へ丸め、もう揺れないよう縫いとめる。それだけのことだ、と引き継ぎ書にはあった。</p>'
+      + '<p class="quote">連続値は判断を遅らせる。社会は決定を必要とする。</p>'
+      + '<p>最初の数件は、迷う余地もなかった。<span class="num-mono">0.12</span>。<span class="num-mono">0.91</span>。指が経路をなぞる。0へ、1へ。やがて、二十七件目で、行が止まった。</p>'
+      + '<p class="code">氏名：<b>佐倉　葉</b>（さくら　よう）<br>内部値：<b>振動継続中</b><br>状態：<b>確定不能</b></p>'
+      + '<p>過去十八か月の折れ線が、画面に描かれていた。線は <span class="num-mono">0.50</span> を中心に、上へ抜けては戻り、下へ抜けては戻る。平均は、ぴたりと <span class="num-mono">0.500</span>。重心が、ない。というより、重心が <span class="num-mono">0.50</span> そのものにある。</p>'
+      + '<p>システムは十八か月、この一人を丸められずにいた。そして三日前、フラグが立った。——〈要・人手による最終確定〉。あなたの、最初の大きな仕事だった。</p>';
+    },
+    choices:function(){ return [
+      { mark:"署名 → 0", text:"平均は0.500でも、職を転々とし住所も定まらない。生活の不安定は0側の徴だ。データだけで、0に丸める。", go:"signEarly0" },
+      { mark:"署名 → 1", text:"近隣には「親切にしてくれる」という申告もある。社会性は1側の徴だ。データだけで、1に丸める。", go:"signEarly1" },
+      { mark:"規程に従う", text:"確定不能ケースには特別な手順がある。本人と一度、会わねばならない。会いにいく。", go:"toMeeting" }
+    ]; }
+  },
+
+  /* early data-only signing — both feed into a "second update overturns you" beat */
+  signEarly0:{
+    num:"一", title:"署名は、すべる",
+    html:function(){ nudge(+0.22);
+      return ''
+      + '<p>あなたは <span class="num-mono">0</span> に署名した。0.500を、迷わず下へ。速いのが取り柄になる、と思った。</p>'
+      + '<p>けれど翌朝、案件はまた、灰色の行になって戻っていた。署名のあと最初の更新で、佐倉葉の内部値は <span class="num-mono">0.53</span> へ滑り、あなたの <span class="num-mono">0</span> は自動的に無効化されていた。揺れる値を、データだけで縫いとめることは、できなかった。</p>'
+      + '<p>引き継ぎの調整員の言葉を思い出す。「確定不能は、会わないと終わらない。規程がそうなってる。アリバイのためにね」。あなたは、面会を申請した。</p>';
+    },
+    choices:function(){ return [
+      { mark:"続ける", text:"会いにいく。", go:"toMeeting" }
+    ]; }
+  },
+  signEarly1:{
+    num:"一", title:"署名は、すべる",
+    html:function(){ nudge(+0.22);
+      return ''
+      + '<p>あなたは <span class="num-mono">1</span> に署名した。0.500を、迷わず上へ。決断の速さこそ調整員の徳だと、引き継ぎ書にあった。</p>'
+      + '<p>けれど翌朝、案件はまた、灰色の行になって戻っていた。署名のあと最初の更新で、佐倉葉の内部値は <span class="num-mono">0.47</span> へ滑り、あなたの <span class="num-mono">1</span> は自動的に無効化されていた。揺れる値を、データだけで縫いとめることは、できなかった。</p>'
+      + '<p>引き継ぎの調整員の言葉を思い出す。「確定不能は、会わないと終わらない。規程がそうなってる。アリバイのためにね」。あなたは、面会を申請した。</p>';
+    },
+    choices:function(){ return [
+      { mark:"続ける", text:"会いにいく。", go:"toMeeting" }
+    ]; }
+  },
+
+  toMeeting:{
+    num:"二", title:"会いにいく規程",
+    html:function(){
+      return ''
+      + '<p>佐倉葉の現住所は、市の西の縁にある旧集合住宅だった。スコア制度の前に建てられた、値で住人を選ばなかった時代の建物。エレベーターは半分しか動かず、廊下の照明は一つおきに切れていた。</p>'
+      + '<p>四〇三号室。呼び鈴は壊れていた。三度叩くと、ドアが開いた。</p>'
+      + '<p>佐倉葉は、思っていたより小柄な人だった。短く整えた髪、痩せた体、年齢の読めない顔。やわらかい目をしている。けれどその奥に、何か、定まらないものがあった。</p>'
+      + '<p class="line">「市民価値局の方ですね」と、葉は静かに言った。「お茶を淹れます。冷たいのと、温かいの、どちらがいいですか」</p>'
+      + '<p>部屋は驚くほど片付いていた。物が少なく、けれど寒々しくはない。窓辺に、小さな<span class="gold">植木鉢</span>が一つ。細い葉の植物が植わっていた。</p>';
+    },
+    choices:function(){ return [
+      { mark:"応答 a", text:"「どちらでも」と、職務の口調で答える。", go:"teaEither" },
+      { mark:"応答 b", text:"「温かいのを」と答える。今日は、なぜか寒い気がした。", go:"teaWarm" }
+    ]; }
+  },
+  teaEither:{
+    num:"二", title:"どちらでも、と仰る方は",
+    html:function(){ nudge(+0.04);
+      return ''
+      + '<p class="line">「どちらでも、と仰る方は」葉はかすかに笑った。「たいてい温かいほうを出すと喜ばれます。でも、今日は暑い。冷たいのにします。間違っていたら、言ってください」</p>'
+      + '<p>冷たいお茶が出された。麦の香りがした。あなたはそれを一口飲んで、本題に入る。</p>'
+      + '<p class="line">「あなたの内部値が、十八か月、確定していません。今日は、それを確定させるために来ました。いくつか、質問させてください」</p>'
+      + '<p class="line">「丸めるために、ですね」と葉は言った。咎める調子ではない。事実を確認するように。「いいですよ。でも、先に一つだけ。あなたは、わたしを 0 にしたいですか、1 にしたいですか」</p>';
+    },
+    choices:function(){ return [ { mark:"続ける", text:"問いを受けとめる。", go:"meetingCore" } ]; }
+  },
+  teaWarm:{
+    num:"二", title:"今日は、寒い",
+    html:function(){ nudge(-0.05); S.plant=true;
+      return ''
+      + '<p class="line">「温かいの」葉は少し、目を見開いた。「今日は暑いのに。——でも、そう仰るなら」</p>'
+      + '<p>温かいお茶が出された。麦の香りがした。あなたは両手で器を包む。窓辺の<span class="gold">植木鉢</span>の、細い葉が、空調の風にかすかに揺れていた。</p>'
+      + '<p class="line">「あなたの内部値が、十八か月、確定していません。今日は、それを確定させるために来ました」とあなたは言う。</p>'
+      + '<p class="line">「丸めるために、ですね」と葉は言った。咎める調子ではない。「いいですよ。でも、先に一つだけ。あなたは、わたしを 0 にしたいですか、1 にしたいですか」</p>';
+    },
+    choices:function(){ return [ { mark:"続ける", text:"問いを受けとめる。", go:"meetingCore" } ]; }
+  },
+
+  meetingCore:{
+    num:"二", title:"傾向が、ない",
+    html:function(){
+      return ''
+      + '<p>あなたは答えに詰まった。調整員は、どちらにしたいとも思ってはならない。傾向を読み取るだけだ。</p>'
+      + '<p class="line">「わたしには、希望はありません」と、訓練された答えを返す。「あなたの傾向を読んで、それに従って署名します」</p>'
+      + '<p class="line">「傾向」葉はその言葉を口の中で転がした。「わたしには、傾向がないんです。わたしは、相手によって変わる。親切な人の前では親切になる。冷たい人の前では冷たくなる。固定された自分というものが、たぶん、ない。だから隣の人たちの申告が、ばらばらなんですよ。彼らは、それぞれ違うわたしに会っている。そして、それぞれ正しい」</p>'
+      + '<p>あなたはそれを、調整員として聞こうとした。これは病理だろうか、と。けれど葉の話しぶりは、病んだ人間のものではなかった。むしろ、自分の輪郭を、人より正確に知っている者の話し方だった。</p>'
+      + '<p class="line">「あなたは、自分を、どちらかに決めましたか」と、葉は訊いた。</p>';
+    },
+    choices:function(){ return [
+      { mark:"問い返す", text:"「それは、本当の自分を持っていない、ということですか」と問い返す。", go:"meetingProbe" },
+      { mark:"黙る", text:"答えない。窓辺の植木鉢を、ただ見る。", go:"meetingSilence" }
+    ]; }
+  },
+  meetingProbe:{
+    num:"二", title:"逆かもしれません",
+    html:function(){
+      return ''
+      + '<p class="line">「逆かもしれません」葉は静かに言った。「わたしは、本当の自分を、一つに決めなかった、ということかもしれない。みんな、どこかで決めるでしょう。わたしはこういう人間だ、と。決めれば、丸まる。0か1になる。決めなかったから、わたしは 0.5 のまま、揺れている」</p>'
+      + '<p>沈黙が、麦茶の湯気のように立った。あなたは、ここで一つ、署名のための「丸めの強さ」を、自分の手で測らなければならない。データではなく、この部屋で、目の前の人を見て。</p>';
+    },
+    choices:function(){ return [ { mark:"続ける", text:"つまみに、指をかける。", go:"slider" } ]; }
+  },
+  meetingSilence:{
+    num:"二", title:"答えなかった",
+    html:function(){ nudge(-0.06); S.plant=true;
+      return ''
+      + '<p>あなたは答えなかった。答えられなかった、というほうが正しい。視線は、窓辺の<span class="gold">植木鉢</span>へ逃げた。名前の知らない、細い葉。今朝、データだけで処理した別の市民の履歴に、「花を育てている」という一行があったのを、ふと思い出す。</p>'
+      + '<p class="line">「答えなくて、いいんです」葉は笑った。「答えないことも、一つの答えだから」</p>'
+      + '<p>けれど、署名はしなければならない。あなたは、ここで「丸めの強さ」を、自分の手で測ることになる。データではなく、この部屋で。</p>';
+    },
+    choices:function(){ return [ { mark:"続ける", text:"つまみに、指をかける。", go:"slider" } ]; }
+  },
+
+  /* ---------- SLIDER : 丸めの強さ ---------- */
+  slider:{
+    num:"二", title:"どれだけ、強く丸めるか",
+    html:function(){
+      return ''
+      + '<p>端末には、面会中にだけ現れる目盛りがある。「対面確信度」——調整員が、その場の手応えで、丸めの強さを入力する欄。<span class="num-mono">0.00</span> なら「ほとんど丸めない（揺れを、揺れたまま残す）」。<span class="num-mono">1.00</span> なら「一切の余白を許さず、片側へ完全に潰す」。</p>'
+      + '<p>つまみは、いま <span class="num-mono">0.50</span> にある。葉の目を見ながら、あなたは、それを動かす。</p>';
+    },
+    slider:{
+      label:"対面確信度 — 丸めの強さ",
+      start:0.50,
+      verdict:function(v){
+        if(v<=0.15) return "ほとんど丸めない / 揺れを、揺れたまま";
+        if(v<=0.40) return "そっと触れる程度に";
+        if(v<=0.60) return "規程どおり、淡々と";
+        if(v<=0.85) return "迷いなく、片側へ寄せる";
+        return "一切の余白を許さず、完全に潰す";
+      },
+      onSet:function(v){
+        S.roundForce = v;
+        // 丸めの強さは累積biasに効く（中央0.5を基準に±0.30まで）
+        nudge((v - 0.5) * 0.6);
+        return "afterSlider";
+      }
+    }
+  },
+  afterSlider:{
+    num:"二", title:"目盛りを、置いた",
+    html:function(){
+      var v = S.roundForce;
+      var head;
+      if(v<=0.25){
+        head = '<p>あなたは、つまみをほとんど動かさなかった。<span class="num-mono">'+fmt(v)+'</span>。丸めるというより、触れるのをためらった指の跡が、目盛りに残った。葉は、その手つきを見ていた。</p>'
+          + '<p class="line">「やさしい手ですね」と葉は言った。「丸めるのが、下手な手だ」</p>';
+      } else if(v<=0.65){
+        head = '<p>あなたは、つまみを規程の中ほどに置いた。<span class="num-mono">'+fmt(v)+'</span>。淡々と、職務として。葉は、その手つきを見て、小さくうなずいた。</p>'
+          + '<p class="line">「ふつうの手ですね」と葉は言った。「たいていの調整員は、ここに置きます。そして、わたしを消していった」</p>';
+      } else {
+        head = '<p>あなたは、つまみを大きく寄せた。<span class="num-mono">'+fmt(v)+'</span>。余白を残すまい、と。揺れを、断ち切るために。葉は、その手つきを見て、ほんの少し、目を伏せた。</p>'
+          + '<p class="line">「強い手ですね」と葉は言った。咎める色はなかった。「あなたは、たぶん、こわいんですね。割り切れないものが」</p>';
+      }
+      return head
+      + '<p>あなたは局に戻り、面会報告を書かねばならない。本人の供述、観察された傾向、推奨される確定方向。三つの欄を埋めれば、署名へ進める。</p>'
+      + '<p>けれど、推奨確定方向の欄で、カーソルが止まった。規程集を開く。これまで読んだことのない項が、そこにあった。</p>';
+    },
+    choices:function(){ return [ { mark:"続ける", text:"〈確定不能ケースの最終処理〉を読む。", go:"clause" } ]; }
+  },
+
+  /* ---------- ACT 3 : 除外条文 ---------- */
+  clause:{
+    num:"三", title:"切り落とされたもの",
+    html:function(){
+      return ''
+      + '<p>条文は、短かった。</p>'
+      + '<p class="code">面会後もなお重心が定まらず、平均値が <b>0.45 以上 0.55 以下</b> に収束する場合、当該市民は〈<b>非整序対象</b>〉として、システムから除外する。</p>'
+      + '<p>除外。あなたは、その語の意味を、注釈で確かめた。注釈は、さらに短かった。</p>'
+      + '<p class="code">除外された市民は、スコアを付与されない。すなわち、住居・労働・医療のいずれの優先順位算定からも外れる。社会的資源の配分対象から、<b>抹消</b>される。</p>'
+      + '<p>0でも1でもないものを、社会は、0と1のあいだに置いておくことができない。だから、消す。午前中に何百回もやってきた「.48を捨てる」「.07を捨てる」という、あの操作を——人間そのものに対して、行う。</p>'
+      + '<p>あなたの指は、署名画面の上で止まっていた。佐倉葉のケース。推奨確定方向の欄は、まだ空白だ。</p>';
+    },
+    choices:function(){
+      // bias high -> the "easy" exclusion path is tempting; offer it.
+      var arr = [
+        { mark:"署名 → 0", text:"0.500は規程上0側に含めうる。0に署名し、低スコア帯へ固定する。" + (S.roundForce!=null && S.roundForce>0.6 ? "（さっき、強く丸めた手で）":""), go:"force0" },
+        { mark:"署名 → 1", text:"0.500は規程上1側にも寄せうる。1に署名し、高スコア帯へ上げる。", go:"force1" },
+        { mark:"空白のまま", text:"決められない。推奨方向を空白のまま、〈非整序対象〉の処理へ回す。", cls:"danger", go:"blankRoute" },
+        { mark:"手を止める", text:"署名しない。アーカイブで、過去の〈除外〉案件を調べてみる。", go:"archive" }
+      ];
+      return arr;
+    }
+  },
+
+  /* forced rounding endings funnel (with one more update-overturn to push toward erase/round) */
+  force0:{
+    num:"三", title:"縫いとめる",
+    html:function(){ nudge(+0.18);
+      return ''
+      + '<p>あなたは <span class="num-mono">0</span> に署名した。0.500を、規程の許す下限の解釈で、下へ。葉は、低スコア帯に固定される。旧集合住宅に留まり、医療の順位は最下層に近づく。健康だから、当面は困らないだろう。けれど、いつか困る。</p>'
+      + '<p>送信ボタンの上で、指が一瞬、止まった。さっきの面会の、麦茶の温度を、まだ手が覚えていた。</p>';
+    },
+    choices:function(){ return [
+      { mark:"送信する", text:"このまま署名を確定する。", go:"E_ROUND" },
+      { mark:"取り消す", text:"やはり、止める。アーカイブを調べる。", go:"archive" }
+    ]; }
+  },
+  force1:{
+    num:"三", title:"縫いとめる",
+    html:function(){ nudge(+0.18);
+      return ''
+      + '<p>あなたは <span class="num-mono">1</span> に署名した。0.500を、規程の許す上限の解釈で、上へ。葉は、高スコア帯に上がる。住居が割り当てられ、労働が斡旋され、医療の優先が約束される。良いことのように、見える。</p>'
+      + '<p>けれど、と思う。葉は「相手によって変わる」と言った。割り当てられた住居で、斡旋された労働で、葉はまた、揺れるだろう。1に縫いとめられた葉が、次の更新で 0.48 へ滑ったとき、システムは——。送信ボタンの上で、指が止まった。</p>';
+    },
+    choices:function(){ return [
+      { mark:"送信する", text:"このまま署名を確定する。", go:"E_ROUND" },
+      { mark:"取り消す", text:"やはり、止める。アーカイブを調べる。", go:"archive" }
+    ]; }
+  },
+
+  blankRoute:{
+    num:"三", title:"空白のまま",
+    html:function(){ nudge(+0.30);
+      return ''
+      + '<p>あなたは、推奨確定方向を空白のまま残した。0でも1でもない。決められなかった。そして——決めない代わりに、〈非整序対象〉の処理へ、ケースを回した。</p>'
+      + '<p>システムは、空白の供述を、機械的に受理した。理由の中身は読まない。形式が整っていれば、通す。丸めるのと、同じだ。中身ではなく、閾値だけを見る。</p>'
+      + '<p>「非整序対象として除外」——確認ダイアログが、淡い灰色で点滅している。これを押せば、佐倉葉は、社会のどの帳簿からも、消える。</p>';
+    },
+    choices:function(){ return [
+      { mark:"確定する", text:"除外を実行する。決めも、保留もせず、ただ流す。", cls:"danger", go:"E_ERASE" },
+      { mark:"押せない", text:"指が、動かない。アーカイブで、過去の除外を調べる。", go:"archive" }
+    ]; }
+  },
+
+  /* ---------- ACT 4 : archive / 加害の発見 / Hold再発見 ---------- */
+  archive:{
+    num:"四", title:"四千の端数",
+    html:function(){ S.sawArchive=true;
+      return ''
+      + '<p>調整員には、過去の処理記録を閲覧する権限がある。あなたは、〈非整序対象〉として除外された市民の記録を、検索した。</p>'
+      + '<p>ヒットした件数は、想像よりずっと多かった。十九年間で、<span class="gold num-mono">四千件以上</span>。0.45から0.55のあいだで揺れ、丸められず、消された人間が、四千人以上。彼らの記録は、除外の日付で途切れていた。それ以降、何も書かれていない。生きているのか、死んだのか、どこにいるのか。社会の帳簿に、続きはなかった。</p>'
+      + '<p>四千の名前を、ゆっくりとスクロールする。一つひとつが、佐倉葉だった。決めなかった、あるいは決められなかった人間。スクロールの途中、あなたの手が、止まった。</p>'
+      + '<p>ある記録の、除外を実行した職員の署名欄。多くは伏せられていたが、その一件には、名前が残っていた。それは——前任の調整員、つまり<span class="gold">あなたがこの席を引き継いだ相手</span>の名だった。市民名は、笠井。内部値 0.46 で長く停滞し、面会記録もある。推奨確定方向の欄は——<span class="cold">空白</span>。空白のまま、〈非整序対象〉へ回されていた。</p>'
+      + '<p>あなたは、いま自分が座っている椅子が、誰かを一人、空白のまま切り落とした椅子だと知った。切り落とされた端数は、どこへ行くのか。——どこへも行かない。ただ、椅子の下に、降り積もる。<span class="gold">腐葉土</span>のように。</p>';
+    },
+    choices:function(){ return [ { mark:"続ける", text:"端末の、いちばん古い附則を、開く。", go:"appendixH" } ]; }
+  },
+
+  appendixH:{
+    num:"五", title:"0.5の設計",
+    html:function(){
+      return ''
+      + '<p>連続値は判断を遅らせる、社会は決定を必要とする——二〇年前の、あの一文。あれは、真理ではなく、選択だった。誰かが、0.5を、扱えないものとして、設計から外した。ならば、その外し方の、記録があるはずだ。</p>'
+      + '<p>仕様書の、ほとんど誰も読まない附則に、それはあった。丸め関数は通常、0か1を返す。だが、入力が 0.45 から 0.55 の区間にあるとき、関数は本来、第三の値を返すよう、初期設計されていた。</p>'
+      + '<p class="code">第三出力：<b>H</b>（Hold ＝ 保留）<br>住居は今のまま。医療は中位のまま。労働は据え置き。<br>——確定を、急がない。</p>'
+      + '<p>なぜ使われていないのか。改定履歴を追う。制度導入から二年後、〈H〉は無効化されていた。理由は、こう記録されていた。</p>'
+      + '<p class="code">保留状態の市民が累積し、システム負荷となるため。保留は、決定の先延ばしであり、いずれ<b>決定を要する</b>。よって、保留区間は除外区間に統合する。</p>'
+      + '<p>保留は、いずれ決定を要する。だから、消す。二年目の誰かは、そう考えた。揺れている人間を、いつまでも揺れたままにしておくことを、コストだと。あなたは——その削除された第三出力を、いま、見つけた。</p>';
+    },
+    choices:function(){
+      S.foundHold = true; // unlock H everywhere downstream
+      return [ { mark:"〈H〉を、握る", text:"消された保留を、もう一度、自分の手の中に取り戻す。", cls:"hold", go:"rollbackDesk" } ];
+    }
+  },
+
+  rollbackDesk:{
+    num:"五", title:"差戻しという余白",
+    html:function(){
+      return ''
+      + '<p>システムを書き換える権限は、あなたにはない。丸め関数に触れることは、調整員の職掌をはるかに超えている。けれど、一つだけ、できることがあった。</p>'
+      + '<p>調整員は、確定方向を署名するとき、0か1のほかに、〈<span class="gold">差戻し</span>〉を選べる。差戻しは「このケースは現時点で確定せず、観測を継続する」という意思表示だ。差戻しを受けたケースは、除外には回らない。次の観測サイクルへ送られる。</p>'
+      + '<p>ただし、回数制限がある。同一ケースの差戻しは、生涯で三回まで。三回差し戻すと、四回目は、強制的に除外処理へ進む。差戻しは、決定の猶予であって、回避ではない。システムは、最後には、決めさせる。</p>'
+      + '<p>佐倉葉のケースは、まだ一度も差し戻されていない。あなたが差し戻せば、葉は、あと三回ぶんの猶予を得る。けれど、いつかは尽きる。これは抵抗ではあっても、解決ではない。あなたは、もう一度、葉に会いにいくことにした。</p>';
+    },
+    choices:function(){ return [ { mark:"続ける", text:"局の外で、夜、葉と会う。", go:"cafe" } ]; }
+  },
+
+  cafe:{
+    num:"六", title:"端数の街",
+    html:function(){
+      return ''
+      + '<p>スコアの監視が及びにくい、旧市街の古い喫茶店。スコア制度の前から営業している店だと、葉が教えてくれた。今日は寒い、と二人とも思っていた。温かいお茶を、葉は両手で包んでいた。</p>'
+      + '<p class="line">「あなたを、差し戻します」とあなたは言った。「三回ぶんの猶予が、得られます。けれど、それは時間稼ぎにすぎない。いつか、尽きる」</p>'
+      + '<p class="line">「わかっています」と葉は言った。</p>'
+      + '<p>あなたは、アーカイブで見たことを話した。四千の名前。途切れた記録。そして——それらの最後の住所を地図に落とすと、点はばらけず、市の外縁に、薄く帯のように寄り集まっていた、ということを。0の領域と1の領域の、あいだの、細い緩衝地帯に。あなたは、その帯を、心の中で〈<span class="gold">端数の街</span>〉と呼んでいた。</p>'
+      + '<p>電力の使用記録に、説明のつかない微量の消費があった。誰も住んでいないはずの場所で、夜、わずかに、灯がともっていた。ひとつだけ。強くはない。でも、確かに、消えていない。</p>';
+    },
+    choices:function(){ return [ { mark:"続ける", text:"署名画面を、ひらく。", go:"finalSign" } ]; }
+  },
+
+  /* ---------- FINAL DECISION : Hold is unlocked here ---------- */
+  finalSign:{
+    num:"七", title:"はすうのひと",
+    html:function(){
+      return ''
+      + '<p>端末の前に座る。佐倉葉のケースを、ひらく。推奨確定方向の欄。そこには今、あなたが取り戻した選択肢が、ひとつ増えている。消されていたはずの、第三の道が。</p>'
+      + '<p>葉の言葉が、よみがえる。「決めないことは、何も決めないことじゃない。決めない、と、決めることです」。あなたの内部値も、あの夜から、ずっと揺れていた。0.8だと思っていた値は、たぶん、もっと 0.5 に近い。</p>'
+      + '<p>あなたは、何を、署名するか。</p>';
+    },
+    choices:function(){
+      var arr = [];
+      // The H choice — only because foundHold is true (it always is by this node)
+      arr.push({ mark:"署名 → H", text:"〈差戻し〉に署名し、葉を端数の街へ逃がす。理由欄に「決定しないという、一つの安定状態」と書く。", cls:"hold", go:"E_FRINGE" });
+      arr.push({ mark:"署名 → H ＋ 越境", text:"差し戻したうえで、自分も席を立つ。葉とともに、縁の向こうへ。数えられない側へ。", cls:"hold", go:"E_BECOME" });
+      arr.push({ mark:"留まる", text:"差し戻して葉は逃がす。けれど自分は局に残り、保留を握ったまま、制度と摩擦し続ける。", go:"E_HOLD" });
+      // Even now, a relapse to binary is possible (theme: Float side isn't infallible)
+      arr.push({ mark:"署名 → 0 / 1", text:"やはり、こわい。揺れを断ち切り、片側へ丸めて終わらせる。", cls:"danger", go:"relapse" });
+      return arr;
+    }
+  },
+
+  relapse:{
+    num:"七", title:"こわい、と認める",
+    html:function(){ nudge(+0.20);
+      return ''
+      + '<p>あなたは、つまみに指をかけた。葉の顔が、画面の灰色に滲む。割り切れないものは、こわい。揺れたまま隣にいられることが、こわい。あなたは、それを認めた。</p>'
+      + '<p>カーソルは、0と1のあいだで、ふるえている。最後に、もう一度だけ、選べる。</p>';
+    },
+    choices:function(){ return [
+      { mark:"丸める", text:"片側へ署名する。葉を、確定させる。", cls:"danger", go:"E_ROUND" },
+      { mark:"やめる", text:"指を、離す。〈H〉へ戻る。", cls:"hold", go:"E_HOLD" }
+    ]; }
+  },
+
+  /* =================== ENDINGS =================== */
+  E_ROUND:{
+    num:"終", title:"完全な丸め手",
+    ending:true,
+    html:function(){
+      return ''
+      + '<p>送信した。システムは、機械的に受理した。佐倉葉は、片側へ縫いとめられ、もう揺れない。あなたは、速くて静かな調整員になった。同僚はあなたを評した。「迷わない」と。</p>'
+      + '<p>その晩、あなたは眠れなかった。0.49 を見れば、その「.48」のことを——いや、もう、考えなくなるだろう。考えないことに、慣れる。それが、この仕事だ。</p>'
+      + '<p>窓辺に、植木鉢はなかった。あなたの部屋には、もとから、なかった。</p>';
+    },
+    score:function(){ return clamp01(0.78 + (S.bias-0.5)*0.4); },
+    line:function(){ return "あなたは、揺れを断った。丸めることに、もう手応えはない。——けれど、切り落とした端数は、定義上存在しないはずの量は、あなたの椅子の下に、静かに降り積もっている。"; }
+  },
+
+  E_ERASE:{
+    num:"終", title:"空白送り —— 抹消",
+    ending:true,
+    html:function(){
+      return ''
+      + '<p>確認ダイアログを、押した。佐倉葉は、〈非整序対象〉として、システムから除外された。住居の権利を失い、労働を失い、病んでも順番が回ってこない。生きていても、数えられない。記録は、今日の日付で、途切れる。</p>'
+      + '<p>あなたは、0にも1にもしなかった。決めなかった。けれど、第四の道を探す代わりに、空白のまま、五番目の出口へ流した。たぶん、急いでいた。たぶん、面倒だった。たぶん、それが規程だったから。</p>'
+      + '<p>——四年後、別の誰かが、アーカイブをスクロールするだろう。そして、ある除外記録の署名欄に、伏せられなかった一つの名前を、見つけるだろう。<span class="cold">あなたの名前</span>を。覚えていないほど、たくさんの案件の、一つとして。</p>';
+    },
+    score:function(){ return clamp01(0.88 + (S.bias-0.5)*0.2); },
+    line:function(){ return "決めないことと、流すことは、違った。切り落とした側の履歴に、署名は残る。腐葉土のように、見えないまま、あなたという土壌の一部になって。"; }
+  },
+
+  E_HOLD:{
+    num:"終", title:"保留と摩擦する道",
+    ending:true,
+    html:function(){
+      return ''
+      + '<p>あなたは〈差戻し〉に署名し、葉を端数の街へ逃がした。けれど自分は、局に残った。消された第三出力〈H〉を、ひとり、手の中に握ったまま。</p>'
+      + '<p>差し戻せる人間は、ほかにもいる。三回ぶんずつでも、稼げる時間がある。あなたは、丸められそうになった一人ひとりを、縁へ逃がし続ける。革命ではない。制度は覆らない。丸め関数も、書き換わらない。ただ、軋みながら、内側から、保留を握り続ける。</p>'
+      + '<p>同僚は、あなたを訝しんだ。「処理が、遅い」と。あなたは、もう、速くはない。0.49 を見れば、その「.49」のことを、考えてしまう。切り落とす前に、一瞬、止まる。その一瞬が、たぶん、あなたにできる、たった一つのことだった。</p>'
+      + '<p>窓のない部屋に、ひとつ、灯がともった。強い光ではない。スコアにも現れない。けれど、確かに、消えていない。</p>';
+    },
+    score:function(){ return clamp01(0.34 + (S.bias-0.5)*0.35 + (S.roundForce!=null?(S.roundForce-0.5)*0.1:0)); },
+    line:function(){ return "あなたは、決めないと決めた。それは欠落ではなく、一つの安定状態だ。0.5は、両方にいちばん遠く、両方にいちばん近い。最も豊かな点かもしれない。"; }
+  },
+
+  E_FRINGE:{
+    num:"終", title:"端数の街へ逃がす道",
+    ending:true,
+    html:function(){
+      var plantLine = S.plant
+        ? '<p>葉は、あの窓辺の<span class="gold">植木鉢</span>を、両手に抱えていた。引っ越しの荷物は、それだけだった。</p>'
+        : '<p>葉は、窓辺にあった小さな<span class="gold">植木鉢</span>を、両手に抱えていた。引っ越しの荷物は、それだけだった。</p>';
+      return ''
+      + '<p>差戻しの署名を、あなたは自分の手で行った。理由欄に、こう書いた。「当該市民の内部値は、平均0.500、標準偏差0.21にて、十八か月にわたり安定的に振動を継続。これは決定不能を意味しない。これは、決定しないという一つの安定状態である。よって、除外は不適当と判断し、観測継続を推奨する」。</p>'
+      + '<p>その晩、あなたは、葉を市の外縁まで送った。明るい区画と、暗い区画。0の街と、1の街。そのあいだを、二人は歩いた。やがて、地図に名前のない場所に着いた。説明のつかない、ひとつの灯。小さな窓の明かり。表札のない、低い建物。</p>'
+      + plantLine
+      + '<p class="line">「あなたは、いつか、こちら側に来ますか」と葉が訊いた。</p>'
+      + '<p class="line">「わかりません」とあなたは言った。「でも、それは、もう、いやな『わからない』じゃないんです」</p>'
+      + '<p>葉は笑った。「はすうのひと、ですね。あなたも、わたしも」。植木鉢を抱え直し、灯のほうへ歩いていく。その姿が暗がりに溶けて、窓の明かりの中に、ひとつの影として加わった。窓の灯は、ほんの少し、明るくなったように見えた。</p>'
+      + '<p>あなたは、ひとり、二値の街のほうへ引き返した。やることがある。差し戻せる人間が、ほかにもいる。</p>';
+    },
+    score:function(){ return clamp01(0.26 + (S.bias-0.5)*0.3); },
+    line:function(){ return "切り捨てられる、小数点以下の余り。でも、余りがあるということは、まだ割り切れていない、ということだ。割り切れていないものだけが、次に進める。"; }
+  },
+
+  E_BECOME:{
+    num:"終", title:"自分が端数化する道",
+    ending:true,
+    html:function(){
+      return ''
+      + '<p>差戻しに署名したあと、あなたは、席を立った。端末の電源を落とし、職員証を、机の上に置いた。市民価値局の職員にもスコアはある。自分の値を、あなたは知らされていない。けれど、もう、知る必要もなかった。</p>'
+      + '<p>その晩、あなたは、葉とともに、市の外縁を越えた。明るい区画と暗い区画のあいだ、名前のない地面の上で、あなたの足は、止まらなかった。数えられる場所から、数えられない場所へ。丸められる側から、丸められない側へ。</p>'
+      + '<p>表札のない、低い建物。小さな窓の明かりの中に、人影がいくつか、動いていた。四千の端数の、生き残りなのか。あるいは、まったく別の誰かなのか。確かめる術はなかった。確かめられないということが、ここでは、安全の別名だった。数えられないから、消されない。</p>'
+      + '<p>あなたは、もう、調整員ではない。スコアを失い、帳簿から消えた。けれど、消えたのではなく、移った。窓の灯に、あなたという影が、ひとつ、加わる。灯は、ほんの少し、明るくなった。気のせいだったかもしれない。けれど、気のせいでも、よかった。</p>';
+    },
+    score:function(){ return clamp01(0.10 + (S.bias-0.5)*0.2); },
+    line:function(){ return "あなたは、自分自身を丸めることを、やめた。0でも1でもない、まるごとの広がりへ。これは敗走ではない。数えられないことを、選びとった一歩だ。"; }
+  }
+
+};
+
+/* =========================================================
+   RENDERING
+   ========================================================= */
+var titleEl   = document.getElementById("title");
+var sceneEl   = document.getElementById("scene");
+var metabar   = document.getElementById("metabar");
+
+function isEnding(id){ return SCENES[id] && SCENES[id].ending === true; }
+
+function go(nodeId){
+  S.node = nodeId;
+  S.steps++;
+  render();
+  window.scrollTo({ top:0, behavior:"smooth" });
+}
+
+function render(){
+  var sc = SCENES[S.node];
+  if(!sc){ sceneEl.innerHTML = '<p>（迷子の分岐。最初から、やり直してください）</p>'; return; }
+
+  titleEl.style.display = "none";
+  sceneEl.style.display = "block";
+  metabar.style.display = (window.innerWidth<=560) ? "flex" : metabar.style.display;
+  metabar.style.display = "flex";
+
+  var ending = sc.ending === true;
+  sceneEl.className = ending ? "ending fade-in" : "fade-in";
+
+  var html = ''
+    + '<div class="scene-num">第 <span class="dot">'+sc.num+'</span> 場</div>'
+    + '<h2 class="scene-title">'+sc.title+'</h2>'
+    + '<div class="prose">'+ sc.html() +'</div>';
+
+  // body type: slider / choices / ending
+  if(sc.slider){
+    html += renderSlider(sc.slider);
+  } else if(sc.ending){
+    html += renderEnding(sc);
+  } else if(sc.choices){
+    html += renderChoices(sc.choices());
+  }
+
+  // subtle state bar (not on title; show from act 1 onward, hide on pure flavor? keep always for transparency)
+  html += renderStateBar(ending);
+
+  sceneEl.innerHTML = html;
+
+  // wire up
+  if(sc.slider){ wireSlider(sc.slider); }
+  else if(!sc.ending){ wireChoices(); }
+  else { wireEndingButtons(); }
+}
+
+function renderChoices(list){
+  var h = '<div id="choices">';
+  for(var i=0;i<list.length;i++){
+    var c = list[i];
+    var cls = "choice" + (c.cls? " "+c.cls : "");
+    h += '<button class="'+cls+'" data-go="'+c.go+'">'
+       +   '<span class="mark">'+ esc(c.mark) +'</span>'
+       +   esc(c.text)
+       + '</button>';
+  }
+  h += '</div>';
+  return h;
+}
+function wireChoices(){
+  var btns = sceneEl.querySelectorAll("#choices .choice");
+  btns.forEach(function(b){
+    b.addEventListener("click", function(){ go(b.getAttribute("data-go")); });
+  });
+}
+
+function renderSlider(sl){
+  var v = (sl.start!=null? sl.start : 0.5);
+  return ''
+    + '<div class="slider-box">'
+    +   '<div class="sl-label">'+ esc(sl.label) +'</div>'
+    +   '<div class="sl-read" id="slRead">'+ fmt(v) +'</div>'
+    +   '<div class="sl-verdict" id="slVerdict">'+ esc(sl.verdict(v)) +'</div>'
+    +   '<div class="sl-track">'
+    +     '<div class="sl-mid"></div>'
+    +     '<input type="range" id="slInput" min="0" max="1" step="0.01" value="'+v+'">'
+    +   '</div>'
+    +   '<div class="sl-ends"><span class="lo">0.00 / 揺れを残す</span><span class="hi">完全に潰す / 1.00</span></div>'
+    +   '<div class="actions" style="margin-top:22px;">'
+    +     '<button class="btn btn-primary" id="slConfirm">この強さで、署名する</button>'
+    +   '</div>'
+    + '</div>';
+}
+function wireSlider(sl){
+  var input   = document.getElementById("slInput");
+  var read    = document.getElementById("slRead");
+  var verdict = document.getElementById("slVerdict");
+  var confirm = document.getElementById("slConfirm");
+  input.addEventListener("input", function(){
+    var v = parseFloat(input.value);
+    read.textContent = fmt(v);
+    verdict.textContent = sl.verdict(v);
+  });
+  confirm.addEventListener("click", function(){
+    var v = parseFloat(input.value);
+    var next = sl.onSet(v);
+    go(next);
+  });
+}
+
+function renderEnding(sc){
+  var raw = sc.score();
+  var score = clamp01(raw);
+  var pct = (score*100).toFixed(0);
+  markSeen(S.node);
+
+  var h = ''
+    + '<div class="verdict">'
+    +   '<div class="vk">あなたは、どれだけ二値に屈したか</div>'
+    +   '<div class="vscore">'+ fmt(score) +'</div>'
+    +   '<div class="vbar"><span class="vmid"></span><span class="vmark" style="left:'+pct+'%;"></span></div>'
+    +   '<div class="vends"><span>0.00 / 端数のまま</span><span>完全に丸めた / 1.00</span></div>'
+    +   '<div class="vline">'+ sc.line() +'</div>'
+    + '</div>';
+
+  h += renderCollection();
+  h += ''
+    + '<div class="actions">'
+    +   '<button class="btn btn-primary" id="endRestart">もう一度、調整する</button>'
+    +   '<button class="btn btn-ghost" id="endTitle">表紙に戻る</button>'
+    + '</div>';
+  return h;
+}
+function wireEndingButtons(){
+  var r = document.getElementById("endRestart");
+  var t = document.getElementById("endTitle");
+  if(r) r.addEventListener("click", restart);
+  if(t) t.addEventListener("click", toTitle);
+}
+
+function renderCollection(){
+  var seen = loadSeen();
+  var seenCount = 0;
+  var rows = "";
+  for(var i=0;i<ENDINGS.length;i++){
+    var e = ENDINGS[i];
+    var isSeen = !!seen[e.id];
+    if(isSeen) seenCount++;
+    rows += ''
+      + '<div class="col-item'+(isSeen?" seen":"")+'">'
+      +   '<span class="ci-mark">'+(isSeen? esc(e.glyph) : "?")+'</span>'
+      +   '<span class="ci-name">'+(isSeen? esc(e.name) : "未到達のエンディング")+'</span>'
+      +   '<span class="ci-lock">'+(isSeen? "見た" : "—")+'</span>'
+      + '</div>';
+  }
+  return ''
+    + '<div class="collection">'
+    +   '<h3>結末の収集 ENDING COLLECTION</h3>'
+    +   '<div class="col-grid">'+ rows +'</div>'
+    +   '<div class="col-progress">到達 <b>'+seenCount+'</b> / '+ENDINGS.length+'</div>'
+    + '</div>';
+}
+
+function renderStateBar(isEnd){
+  if(S.node==="intro") return "";
+  var biasOn = S.bias>0.66 || S.bias<0.34;
+  var rf = (S.roundForce!=null)? fmt(S.roundForce) : "—";
+  var h = '<div class="statebar">';
+  h += '<span class="st'+(biasOn?" on":"")+'">傾向 <span class="sv">'+ fmt(S.bias) +'</span></span>';
+  h += '<span class="st">丸めの強さ <span class="sv">'+ rf +'</span></span>';
+  h += '<span class="st'+(S.foundHold?" on":"")+'">第三出力〈H〉 <span class="sv">'+ (S.foundHold? "再発見" : "未発見") +'</span></span>';
+  h += '</div>';
+  return h;
+}
+
+/* =========================================================
+   localStorage collection
+   ========================================================= */
+function loadSeen(){
+  try{
+    var raw = localStorage.getItem(LS_KEY);
+    return raw? JSON.parse(raw) : {};
+  }catch(e){ return {}; }
+}
+function markSeen(id){
+  try{
+    var seen = loadSeen();
+    if(!seen[id]){ seen[id] = true; localStorage.setItem(LS_KEY, JSON.stringify(seen)); }
+  }catch(e){ /* ignore */ }
+}
+
+/* =========================================================
+   FLOW CONTROL
+   ========================================================= */
+function startGame(){
+  S = freshState();
+  go("intro");
+}
+function restart(){
+  S = freshState();
+  go("intro");
+}
+function toTitle(){
+  sceneEl.style.display = "none";
+  titleEl.style.display = "block";
+  metabar.style.display = "flex";
+  renderTitleCollectionHint();
+  window.scrollTo({ top:0, behavior:"smooth" });
+}
+
+/* collection viewer from title */
+function showCollectionScreen(){
+  S = S || freshState();
+  titleEl.style.display = "none";
+  sceneEl.style.display = "block";
+  metabar.style.display = "flex";
+  sceneEl.className = "fade-in";
+  var h = ''
+    + '<div class="scene-num">記録 <span class="dot">·</span> COLLECTION</div>'
+    + '<h2 class="scene-title">これまでに見た結末</h2>'
+    + '<div class="prose"><p>調整員としてのあなたの選択は、五つの結末へ枝分かれする。0と1のあいだの、どこへでも。</p></div>';
+  h += renderCollection();
+  h += ''
+    + '<div class="actions">'
+    +   '<button class="btn btn-primary" id="colPlay">最初から調整する</button>'
+    +   '<button class="btn btn-ghost" id="colBack">表紙に戻る</button>'
+    + '</div>';
+  sceneEl.innerHTML = h;
+  document.getElementById("colPlay").addEventListener("click", restart);
+  document.getElementById("colBack").addEventListener("click", toTitle);
+  window.scrollTo({ top:0, behavior:"smooth" });
+}
+
+function renderTitleCollectionHint(){
+  // append a small "x/5 seen" under title buttons if any seen
+  var seen = loadSeen();
+  var n = Object.keys(seen).filter(function(k){ return seen[k]; }).length;
+  var existing = document.getElementById("titleHint");
+  if(existing) existing.remove();
+  if(n>0){
+    var p = document.createElement("div");
+    p.id = "titleHint";
+    p.style.cssText = "font-family:var(--sans);font-size:.72rem;letter-spacing:.14em;color:var(--ink-faint);margin-top:20px;";
+    p.innerHTML = '到達した結末 <span style="color:var(--gold);">'+n+'</span> / '+ENDINGS.length;
+    titleEl.appendChild(p);
+  }
+}
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+document.getElementById("btnStart").addEventListener("click", startGame);
+document.getElementById("btnCollection").addEventListener("click", showCollectionScreen);
+document.getElementById("mbRestart").addEventListener("click", restart);
+S = freshState();
+renderTitleCollectionHint();
+metabar.style.display = "none"; // hidden on title until play (shown via CSS on mobile)
+
+/* =========================================================
+   SELF-TEST (reachability) — runs in console only, no UI effect.
+   Verifies: every non-ending node's choices/slider point to a real node,
+   and all 5 endings are reachable from "intro" via BFS.
+   ========================================================= */
+(function selfTest(){
+  try{
+    // collect outgoing edges
+    function edgesOf(id){
+      var sc = SCENES[id];
+      if(!sc) return [];
+      if(sc.ending) return [];
+      var out = [];
+      if(sc.slider){
+        // slider can route to several nodes depending on value; probe the full range
+        for(var v=0; v<=1.0001; v+=0.05){
+          var saveS = S; S = freshState(); S.node=id;
+          var t = sc.slider.onSet(Math.min(v,1));
+          S = saveS;
+          if(out.indexOf(t)<0) out.push(t);
+        }
+      } else if(sc.choices){
+        var saveS2 = S; S = freshState(); S.node=id;
+        // ensure foundHold-gated choices appear: temporarily force both states
+        var probe = [];
+        S.foundHold=false; probe = probe.concat(sc.choices());
+        S.foundHold=true;  probe = probe.concat(sc.choices());
+        S = saveS2;
+        probe.forEach(function(c){ if(out.indexOf(c.go)<0) out.push(c.go); });
+      }
+      return out;
+    }
+    // validate all targets exist
+    var missing = [];
+    Object.keys(SCENES).forEach(function(id){
+      edgesOf(id).forEach(function(t){ if(!SCENES[t]) missing.push(id+" -> "+t); });
+    });
+    // BFS from intro
+    var seen = {}, q = ["intro"];
+    while(q.length){
+      var n = q.shift();
+      if(seen[n]) continue; seen[n]=true;
+      edgesOf(n).forEach(function(t){ if(!seen[t]) q.push(t); });
+    }
+    var endIds = ENDINGS.map(function(e){return e.id;});
+    var unreached = endIds.filter(function(e){ return !seen[e]; });
+    // orphans: nodes never reached
+    var orphans = Object.keys(SCENES).filter(function(id){ return !seen[id]; });
+
+    if(missing.length) console.warn("[hasu-cyoa] BROKEN EDGES:", missing);
+    if(unreached.length) console.warn("[hasu-cyoa] UNREACHABLE ENDINGS:", unreached);
+    if(orphans.length) console.warn("[hasu-cyoa] ORPHAN NODES:", orphans);
+    if(!missing.length && !unreached.length && !orphans.length){
+      console.log("%c[hasu-cyoa] self-test OK — "+Object.keys(SCENES).length+" nodes, "+endIds.length+" endings all reachable, no orphans, no broken edges.", "color:#d4a853");
+    }
+  }catch(err){
+    console.warn("[hasu-cyoa] self-test error:", err);
+  }
+})();
+</script>
+</body>
+</html>
