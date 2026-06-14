@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>うなり — 音にも0と1の間がある（Boolean→Float）</title>
+<meta name="description" content="鍵盤は飛び石、声はすべる。量子化（半音グリッド）と連続ピッチの間をFloatで行き来する音具。二つの音が近づくと生まれる『うなり』は、二音の連続的な距離そのもの。">
+<meta property="og:title" content="うなり — Float音具">
+<meta property="og:description" content="ドとレのあいだに、ほんとうは無限の音がある。">
+<style>
+  :root{
+    --void:#0a0a10;--panel:#14141e;--line:#2a2a3a;--gold:#d4a853;--gold-dim:#8a7038;--gold-glow:rgba(212,168,83,.4);
+    --ink:#ece8de;--ink-dim:#938e83;--ok:#7fd4a8;--serif:"Hiragino Mincho ProN","Yu Mincho",serif;--sans:"Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;--mono:ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--void);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;}
+  body{min-height:100vh;background:radial-gradient(1100px 640px at 72% -12%,#171320 0%,transparent 60%),radial-gradient(820px 540px at 8% 112%,#10141d 0%,transparent 55%),var(--void);}
+  #stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
+  .wrap{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:18px 15px 50px;}
+  header{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:11px;flex-wrap:wrap;}
+  .logo{font-family:var(--serif);font-size:26px;letter-spacing:.2em;color:var(--gold);text-shadow:0 0 16px var(--gold-glow);}
+  .logo small{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.3em;color:var(--ink-dim);margin-top:3px;}
+  .tag{margin-left:auto;font-family:var(--serif);font-size:12px;color:var(--ink-dim);}
+  .lead{font-family:var(--serif);font-size:13.5px;line-height:1.95;color:#cbc6ba;margin:13px 0 8px;}
+  .lead b{color:var(--gold);}
+  .start{margin:16px 0;}
+  .bigbtn{width:100%;cursor:pointer;border:1px solid var(--gold-dim);background:transparent;color:var(--gold);padding:16px;border-radius:6px;font-size:16px;letter-spacing:.12em;font-family:var(--sans);transition:all .2s;}
+  .bigbtn:hover{background:var(--gold);color:var(--void);box-shadow:0 0 24px var(--gold-glow);}
+  .panel{border:1px solid var(--line);border-radius:9px;padding:16px;background:rgba(255,255,255,.012);margin:14px 0;}
+  .panel.dim{opacity:.4;pointer-events:none;}
+  .ph{font-family:var(--serif);font-size:17px;color:var(--ink);margin:0 0 4px;}
+  .psub{font-size:12px;color:var(--ink-dim);margin-bottom:12px;line-height:1.6;}
+  .field{position:relative;height:96px;border:1px solid var(--line);border-radius:7px;background:linear-gradient(180deg,#11111b,#0c0c14);overflow:hidden;cursor:crosshair;touch-action:none;}
+  .tick{position:absolute;top:0;bottom:0;width:1px;background:#23232f;}
+  .tick.oct{background:var(--gold-dim);opacity:.5;}
+  .tick b{position:absolute;bottom:3px;left:3px;font-size:8.5px;color:#55556a;font-family:var(--mono);}
+  .needle{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--gold);box-shadow:0 0 12px var(--gold-glow);left:50%;transition:left .04s linear;}
+  .needle .bub{position:absolute;top:6px;left:6px;font-family:var(--mono);font-size:12px;color:var(--gold);white-space:nowrap;}
+  .ctrl{margin-top:14px;}
+  .ctrl .l{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-dim);margin-bottom:5px;}
+  .ctrl .l b{color:var(--gold);font-family:var(--mono);}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;background:var(--line);outline:none;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);cursor:pointer;box-shadow:0 0 10px var(--gold-glow);border:2px solid #1b1610;}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--gold);cursor:pointer;border:2px solid #1b1610;}
+  .modes{display:flex;gap:8px;margin-top:6px;font-size:11px;color:var(--ink-dim);justify-content:space-between;}
+  .beatwrap{height:60px;border:1px solid var(--line);border-radius:7px;background:#0c0c14;margin-top:10px;overflow:hidden;}
+  .beatbtn{margin-top:12px;display:flex;gap:10px;}
+  .sbtn{flex:1;cursor:pointer;border:1px solid var(--gold-dim);background:transparent;color:var(--gold);padding:11px;border-radius:5px;font-size:14px;transition:all .2s;}
+  .sbtn:hover{background:var(--gold);color:var(--void);}
+  .sbtn.on{background:var(--gold);color:var(--void);}
+  .readbig{font-family:var(--mono);font-size:15px;color:var(--gold);text-align:center;margin-top:8px;}
+  .readbig small{color:var(--ink-dim);font-size:11px;}
+  footer{margin-top:28px;padding-top:13px;border-top:1px solid var(--line);font-size:11px;color:var(--ink-dim);line-height:1.85;}
+  footer b{color:var(--gold-dim);font-family:var(--serif);} footer a{color:var(--gold-dim);text-decoration:none;} footer a:hover{color:var(--gold);}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="wrap">
+  <header>
+    <div class="logo">うなり<small>UNARI · THE SOUND BETWEEN</small></div>
+    <div class="tag">ドとレの、あいだ</div>
+  </header>
+  <p class="lead">鍵盤は<b>飛び石</b>——ド、レ、ミと、音は12個に区切られている（Boolean）。でも声や弦は、その間を<b>すべる</b>ように通る（Float）。
+  二つの音が<b>近づく</b>と、互いに干渉して「<b>うなり</b>」が生まれる。それは二音の<b>連続的な距離</b>が、耳に聞こえる形になったもの。</p>
+
+  <div class="start"><button class="bigbtn" id="startBtn">▶ 音を出す（タップで開始）</button></div>
+
+  <!-- play -->
+  <div class="panel dim" id="playPanel">
+    <div class="ph">① すべる音　PLAY</div>
+    <div class="psub">フィールドを横になぞって音を出す。下の「量子化↔連続」を上げるほど、半音グリッドに吸い付く（鍵盤化）。下げるほど自由なピッチ（声）に。</div>
+    <div class="field" id="field"><div class="needle" id="needle"><div class="bub" id="bub">—</div></div></div>
+    <div class="ctrl">
+      <div class="l"><span>量子化 ↔ 連続（グリッド吸着）</span><b id="snapV">0.00</b></div>
+      <input type="range" id="snap" min="0" max="1" step="0.01" value="0">
+      <div class="modes"><span>← 連続（Float・微分音）</span><span>量子化（Boolean・鍵盤）→</span></div>
+    </div>
+  </div>
+
+  <!-- beats -->
+  <div class="panel dim" id="beatPanel">
+    <div class="ph">② うなり　BEATS</div>
+    <div class="psub">基準音（A=440Hz）と、そこからわずかにずらした音を同時に鳴らす。ずれ（cents）を変えると、二音の差が「うなり」のゆらぎとして聞こえる。差が0に近づくほど、うなりは遅くなる。</div>
+    <div class="beatbtn"><button class="sbtn" id="beatToggle">うなりを鳴らす</button></div>
+    <div class="ctrl">
+      <div class="l"><span>二音のずれ（cents）</span><b id="offV">15</b></div>
+      <input type="range" id="off" min="0" max="50" step="0.5" value="15">
+    </div>
+    <div class="readbig"><span id="beatRead">—</span> <small>= 二音の連続的な距離（うなりの速さ）</small></div>
+  </div>
+
+  <footer>
+    <b>うなり / UNARI</b> — 音の Boolean→Float。量子化↔連続knobが半音グリッド（離散）と微分音（連続）の間を補間し、二音のcents差を「うなり（beat Hz）」として可聴化。Web Audio・依存ゼロ。
+    姉妹: <a href="https://osakenpiro.github.io/asobiba/">あそびば</a> / <a href="https://osakenpiro.github.io/hazama/">はざま</a>. #全人類UX改善 / Visionium.
+  </footer>
+</div>
+
+<script>
+/* ===== pure pitch math (node-testable; no audio/DOM) ===== */
+const F0=220, OCT=2;                              // A3=220Hz, 2 octaves
+function xToCents(x){ return x*OCT*1200; }        // field x(0..1) -> cents above F0
+function centsToFreq(c){ return F0*Math.pow(2, c/1200); }
+function freqToCents(f){ return 1200*Math.log2(f/F0); }
+function snapCents(c){ return Math.round(c/100)*100; }              // nearest semitone (cents)
+function blendCents(c, strength){ return c + (snapCents(c)-c)*strength; } // strength 0=free,1=gridded
+const NOTE=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+function noteName(c){ const midi=57+Math.round(c/100); const idx=((midi%12)+12)%12; const oct=Math.floor(midi/12)-1; return NOTE[idx]+oct; }
+function beatHz(baseFreq, offsetCents){ return Math.abs(centsToFreq(freqToCents(baseFreq)+offsetCents)-baseFreq); }
+
+/* ===== persistence ===== */
+const KEY='unari_v1';
+let P=(()=>{ try{return Object.assign({snap:0,off:15},JSON.parse(localStorage.getItem(KEY))||{});}catch(e){return {snap:0,off:15};} })();
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(P));}catch(e){} }
+
+/* ===== audio ===== */
+let AC=null, playOsc=null, playGain=null, beatA=null, beatB=null, beatGain=null, beating=false, audioReady=false;
+function startAudio(){
+  if(audioReady) return;
+  try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return; }
+  playGain=AC.createGain(); playGain.gain.value=0; playGain.connect(AC.destination);
+  playOsc=AC.createOscillator(); playOsc.type='sine'; playOsc.frequency.value=F0; playOsc.connect(playGain); playOsc.start();
+  beatGain=AC.createGain(); beatGain.gain.value=0; beatGain.connect(AC.destination);
+  beatA=AC.createOscillator(); beatA.type='sine'; beatA.frequency.value=440; beatA.connect(beatGain); beatA.start();
+  beatB=AC.createOscillator(); beatB.type='sine'; beatB.frequency.value=440; beatB.connect(beatGain); beatB.start();
+  audioReady=true;
+  document.getElementById('startBtn').textContent='♪ 音 ON — フィールドをなぞって / うなりを鳴らす';
+  document.getElementById('playPanel').classList.remove('dim');
+  document.getElementById('beatPanel').classList.remove('dim');
+}
+
+/* ===== field play ===== */
+function setPlayFromX(x){
+  const cBase=xToCents(Math.max(0,Math.min(1,x)));
+  const c=blendCents(cBase, P.snap);
+  const f=centsToFreq(c);
+  if(audioReady && playOsc){ playOsc.frequency.setTargetAtTime(f, AC.currentTime, 0.012); }
+  // needle on the BLENDED position (so you see it snap)
+  const nx=Math.max(0,Math.min(1, c/(OCT*1200)));
+  const nd=document.getElementById('needle'); nd.style.left=(nx*100)+'%';
+  document.getElementById('bub').textContent=noteName(c)+'  '+f.toFixed(1)+'Hz';
+}
+function playOn(){ if(audioReady) playGain.gain.setTargetAtTime(0.16, AC.currentTime, 0.01); }
+function playOff(){ if(audioReady) playGain.gain.setTargetAtTime(0, AC.currentTime, 0.05); }
+
+/* ===== beats ===== */
+function updateBeat(){
+  const base=440; const f2=centsToFreq(freqToCents(base)+P.off);
+  if(audioReady){ beatA.frequency.setTargetAtTime(base,AC.currentTime,0.01); beatB.frequency.setTargetAtTime(f2,AC.currentTime,0.01); }
+  const bh=beatHz(base,P.off);
+  document.getElementById('beatRead').textContent='うなり ≈ '+bh.toFixed(2)+' Hz';
+}
+function toggleBeat(){
+  if(!audioReady) return;
+  beating=!beating;
+  beatGain.gain.setTargetAtTime(beating?0.12:0, AC.currentTime, 0.03);
+  document.getElementById('beatToggle').classList.toggle('on',beating);
+  document.getElementById('beatToggle').textContent=beating?'うなりを止める':'うなりを鳴らす';
+}
+
+/* ===== UI wiring ===== */
+function buildTicks(){
+  const fld=document.getElementById('field'); const total=OCT*12;
+  for(let s=0;s<=total;s++){ const t=document.createElement('div'); t.className='tick'+(s%12===0?' oct':'');
+    t.style.left=(s/total*100)+'%'; if(s%12===0){ const b=document.createElement('b'); b.textContent=noteName(s*100); t.appendChild(b);} fld.appendChild(t); }
+}
+function init(){
+  buildTicks();
+  const snap=document.getElementById('snap'), off=document.getElementById('off');
+  snap.value=P.snap; off.value=P.off;
+  document.getElementById('snapV').textContent=(+P.snap).toFixed(2);
+  document.getElementById('offV').textContent=P.off;
+  snap.addEventListener('input',()=>{ P.snap=parseFloat(snap.value); document.getElementById('snapV').textContent=P.snap.toFixed(2); save(); });
+  off.addEventListener('input',()=>{ P.off=parseFloat(off.value); document.getElementById('offV').textContent=P.off; updateBeat(); save(); });
+  document.getElementById('startBtn').onclick=()=>{ startAudio(); updateBeat(); };
+  document.getElementById('beatToggle').onclick=toggleBeat;
+  // field interaction
+  const fld=document.getElementById('field'); let down=false;
+  const xOf=e=>{ const r=fld.getBoundingClientRect(); const cx=(e.touches?e.touches[0].clientX:e.clientX); return (cx-r.left)/r.width; };
+  const dn=e=>{ if(!audioReady) startAudio(); down=true; playOn(); setPlayFromX(xOf(e)); e.preventDefault(); };
+  const mv=e=>{ if(down){ setPlayFromX(xOf(e)); e.preventDefault(); } };
+  const up=()=>{ down=false; playOff(); };
+  fld.addEventListener('mousedown',dn); fld.addEventListener('touchstart',dn,{passive:false});
+  window.addEventListener('mousemove',mv); window.addEventListener('touchmove',mv,{passive:false});
+  window.addEventListener('mouseup',up); window.addEventListener('touchend',up);
+  updateBeat();
+}
+
+/* ===== starfield ===== */
+(function(){ const c=document.getElementById('stars'); if(!c||!c.getContext) return; const x=c.getContext('2d'); let w,h,st;
+  function rs(){ w=c.width=innerWidth; h=c.height=innerHeight; st=Array.from({length:Math.min(110,Math.floor(w*h/12000))},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.1+0.2,a:Math.random()*0.5+0.15,t:Math.random()*6.28})); }
+  function d(){ x.clearRect(0,0,w,h); for(const s of st){ s.t+=0.01; const tw=s.a*(0.6+0.4*Math.sin(s.t)); x.beginPath(); x.arc(s.x,s.y,s.r,0,6.28); x.fillStyle='rgba(212,168,83,'+tw.toFixed(3)+')'; x.fill(); } requestAnimationFrame(d); }
+  rs(); d(); addEventListener('resize',rs);
+})();
+
+init();
+</script>
+</body>
+</html>
