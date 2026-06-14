@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>深夜創作工房 — Lane⓪ / 全人類UX改善</title>
+<style>
+:root{--void:#0d0d12;--void2:#14141c;--gold:#d4a853;--ink:#46577d;--indigo:#2a3550;--fog:#c9cdd6;--dim:#8b8f9a;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--void);color:var(--fog);font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;line-height:1.95}
+body{background:linear-gradient(180deg,#0d0d12,#14141c 60%,#0d0d12);min-height:100vh}
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0}
+.wrap{max-width:880px;margin:0 auto;padding:64px 24px 96px;position:relative;z-index:1}
+header{text-align:center;margin-bottom:60px}
+.kicker{letter-spacing:.4em;font-size:12px;color:var(--gold);opacity:.85}
+h1{font-size:34px;margin:14px 0 8px;color:#fff;font-weight:600;letter-spacing:.1em}
+.sub{color:var(--dim);font-size:14px}
+.lamp{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 26px 9px rgba(212,168,83,.5);margin:28px auto 0}
+section{margin:0 0 54px;border-top:1px solid rgba(212,168,83,.18);padding-top:38px}
+h2{font-size:22px;color:var(--gold);margin-bottom:6px;letter-spacing:.06em}
+.tag{font-size:11px;letter-spacing:.22em;color:var(--dim)}
+.cover{display:block;max-width:300px;width:62%;margin:24px auto;border-radius:4px;box-shadow:0 8px 48px rgba(0,0,0,.6),0 0 0 1px rgba(212,168,83,.2)}
+.excerpt{background:rgba(255,255,255,.02);border-left:2px solid var(--gold);padding:18px 22px;margin:20px 0;font-size:15px;color:#d7dae2}
+.chaps{columns:2;font-size:14px;color:var(--dim);margin:14px 0;line-height:2.1}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}
+.card{background:rgba(255,255,255,.025);border:1px solid rgba(70,87,125,.4);border-radius:8px;padding:22px;transition:border-color .3s}
+.card:hover{border-color:var(--gold)}
+.card h3{color:#fff;font-size:17px;margin-bottom:8px;letter-spacing:.04em}
+.card p{font-size:13px;color:var(--dim);margin-bottom:14px;line-height:1.85}
+a.btn{display:inline-block;color:var(--gold);text-decoration:none;border:1px solid var(--gold);border-radius:4px;padding:7px 16px;font-size:13px;letter-spacing:.1em;transition:all .25s}
+a.btn:hover{background:var(--gold);color:var(--void)}
+a.lnk{color:var(--gold);text-decoration:none;border-bottom:1px dotted rgba(212,168,83,.5)}
+.meta{font-size:12px;color:var(--dim);margin-top:8px;line-height:1.8}
+ul.pts{list-style:none;font-size:14px;color:#cfd3dc}
+ul.pts li{padding:5px 0 5px 18px;position:relative}
+ul.pts li:before{content:"·";color:var(--gold);position:absolute;left:0;font-weight:bold}
+footer{text-align:center;color:var(--dim);font-size:12px;margin-top:60px;border-top:1px solid rgba(212,168,83,.18);padding-top:28px;line-height:1.9}
+@media(max-width:640px){.cards{grid-template-columns:1fr}.chaps{columns:1}.cover{width:78%}}
+</style>
+</head>
+<body>
+<canvas class="stars" id="stars"></canvas>
+<div class="wrap">
+<header>
+<div class="kicker">＃全人類UX改善 ・ LANE ⓪</div>
+<h1>深夜創作工房</h1>
+<div class="sub">Midnight Atelier — 2026-06-14 JST ／ Boolean→Float を一晩で具現化する</div>
+<div class="lamp"></div>
+</header>
+
+<section>
+<div class="tag">NOVELLA ・ AIだけで書いた中編小説</div>
+<h2>『端数のひと』</h2>
+<img class="cover" src="./lane0-novella/hasu-no-hito-cover.png" alt="端数のひと 表紙">
+<p>全市民にAIが0/1の単一スコアを割り当てる近未来。人間を二値に丸める「調整員」楢崎遥が、平均0.500で揺れ続け、どちらにも確定しない一人——〈端数のひと〉佐倉葉に出会う。採点できない自己をめぐる、静かな抵抗の物語。</p>
+<p class="meta">三重がけ命名： 〈音韻〉は・す・う＝泥中の蓮を連れてくる／〈意味〉切り捨てられる小数点以下の余り／〈構造〉整数(Boolean)に対する小数(Float)。割り切れないことが、救いの側にある。</p>
+<div class="excerpt">　調整員の朝は、丸めることから始まる。<br>　……なぜ丸めるのか。理由は最初の説明書にこう書いてあった。「連続値は判断を遅らせる。社会は決定を必要とする。」</div>
+<div class="chaps">一　丸める仕事<br>二　会いにいく規程<br>三　切り落とされたもの<br>四　猶予という抵抗<br>五　0.5の設計<br>六　端数の街<br>七　はすうのひと</div>
+<p class="meta">全7章・約14,200字。AIフル執筆実験（工程も記録）。</p>
+<p style="margin-top:14px"><a class="btn" href="./lane0-novella/reader.html">本編を読む（読書ページ）</a> &nbsp; <a class="lnk" href="./lane0-novella/novella.md">原文(.md)</a> &nbsp; <a class="lnk" href="./lane0-novella/process-note.md">工程ノート</a> &nbsp; <a class="lnk" href="./lane0-novella/hasu-no-hito-cover.svg">表紙SVG →</a></p>
+</section>
+
+<section>
+<div class="tag">GAMES ・ Boolean→Float を遊ぶ</div>
+<h2>連続値の二作</h2>
+<div class="cards">
+<div class="card">
+<h3>Float Reversi</h3>
+<p>石が白黒の二値でなく 0.0〜1.0 の連続値を持つオセロ。挟むと反転せず、値が相手の極へ半分だけ寄る。盤がグラデーションで染まっていく。CPU対戦あり。</p>
+<a class="btn" href="./lane0-game/float-reversi.html">遊ぶ →</a>
+</div>
+<div class="card">
+<h3>しきい値の庭</h3>
+<p>一本のしきい値では全区画を公平に満たせない。「個別最適トークン」で局所しきい値を置いて解く全5面パズル。"二値でなく、閾値を固定し隠すことが敵"を体現。</p>
+<a class="btn" href="./lane0-game/threshold-garden.html">遊ぶ →</a>
+</div>
+</div>
+<p class="meta">どちらも単一HTML・外部依存ゼロ・localStorage保存。コアロジックはnodeで検証済み（全レベルに解あり等）。</p>
+</section>
+
+<section>
+<div class="tag">RESEARCH ・ 論文シリーズ素材</div>
+<h2>Boolean→Float の知的系譜</h2>
+<p>「二値を連続値に」は思いつきの造語ではなく、論理学・哲学・心理学・計算機科学が互いに無関係に到達した潮流だった——という被引用briefing。</p>
+<ul class="pts">
+<li>ファジィ集合（Zadeh 1965）：古典集合＝二値はファジィの退化ケース。脚注で「[0,1]連続真理値の多値論理」と自己解釈。</li>
+<li>sorites paradox と degree theory of truth ＝ Boolean→Float の哲学版の直接の名前。</li>
+<li>HiTOP（Kotov 2017, PMID 28333488）：DSMカテゴリカル→ディメンショナルな精神病理。</li>
+<li>Heaviside階段関数→シグモイド：文字通りの Boolean→Float、しかも「微分可能になり学習できる」利得つき。</li>
+</ul>
+<p class="meta">実在文献9本＋概念確定。真の敵は二値そのものでなく「設計者が閾値を固定し隠すこと」。</p>
+<p style="margin-top:14px"><a class="btn" href="./lane0-research/boolean-float-lineage.md">briefingを読む</a> &nbsp; <a class="lnk" href="https://app.notion.com/p/37e2b7e543e0815a9bd5ecf3709e6f4e">Notion知見DBに格納済み →</a></p>
+<p class="meta" style="margin-top:10px">姉妹編：<a class="lnk" href="./lane0-research/continuous-ui-lineage.md">連続値UI/UXの実例と効果（HCI・約30ソース）</a> ／ <a class="lnk" href="https://app.notion.com/p/37e2b7e543e0815881d0c53e20c33381">Notion格納済み</a></p>
+</section>
+
+<section>
+<div class="tag">EXTRAS ・ おまけ</div>
+<h2>遊びと、記録</h2>
+<div class="cards">
+<div class="card">
+<h3>あなたのFloat</h3>
+<p>二択に見える10の問いを、連続スライダーで答える思索のおもちゃ。0.5に置いた問いは「まだ決めない」と決めた場所。性格診断ではない。</p>
+<a class="btn" href="./lane0-toy/your-float.html">試す →</a>
+</div>
+<div class="card">
+<h3>エッセイ：AIに小説を書かせた夜</h3>
+<p>「人間が書いた(1)/AIが書いた(0)」では測れない。今夜の制作が、主題（Boolean→Float）と方法ごと一致してしまった記録。下書き。</p>
+<a class="btn" href="./lane0-essay/ai-ni-shousetsu-wo.md">読む →</a>
+</div>
+<div class="card">
+<h3>宇宙の晴れ上がり</h3>
+<p>苗床に2018年から眠っていた種を具現化。宇宙が不透明→透明になった38万年を、二値でなくFloatな相転移として体験するスライダー。</p>
+<a class="btn" href="./lane0-idea/harenoagari.html">見る →</a>
+</div>
+</div>
+</section>
+
+<footer>
+osakenpiro design system — void ＋ ひとあかり(gold #d4a853)<br>
+Lane⓪ 深夜創作工房 ／ 全成果物は workspace/_deathmarch/ に格納<br>
+不可逆操作なし・既存SoT非干渉・他SESレーンと分業
+</footer>
+</div>
+<script>
+const c=document.getElementById('stars'),x=c.getContext('2d');
+function rs(){c.width=innerWidth;c.height=innerHeight}rs();addEventListener('resize',function(){rs();draw()});
+const st=Array.from({length:90},function(){return{x:Math.random(),y:Math.random(),r:Math.random()*1.2+.2,a:Math.random()*.5+.2}});
+function draw(){x.clearRect(0,0,c.width,c.height);for(var i=0;i<st.length;i++){var s=st[i];x.beginPath();x.arc(s.x*c.width,s.y*c.height,s.r,0,7);x.fillStyle='rgba(201,205,214,'+s.a+')';x.fill()}}
+draw();
+</script>
+</body>
+</html>
