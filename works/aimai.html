@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>画像正本ストア（Google Drive / Visionium/images） — とりせつ | osakenpiro works</title>
-<meta name="description" content="生まれた画像がぜんぶ帰ってくる、正本の倉庫。">
-<meta property="og:title" content="画像正本ストア（Google Drive / Visionium/images） — とりせつ | osakenpiro works">
-<meta property="og:description" content="生まれた画像がぜんぶ帰ってくる、正本の倉庫。">
-<link rel="canonical" href="https://osakenpiro.github.io/works/drive-157ou5gqo9et4rn0yfcmqube.html">
+<title>あいまい / AIMAI — とりせつ | osakenpiro works</title>
+<meta name="description" content="「はい・いいえ」の二択をやめるボタン。長押しした時間が、そのまま“はい寄り度”0.00〜1.00になる。決断の二値をやめる＝意思決定UXのBoolean→Float。">
+<meta property="og:title" content="あいまい / AIMAI — とりせつ | osakenpiro works">
+<meta property="og:description" content="「はい・いいえ」の二択をやめるボタン。長押しした時間が、そのまま“はい寄り度”0.00〜1.00になる。決断の二値をやめる＝意思決定UXのBoolean→Float。">
+<link rel="canonical" href="https://osakenpiro.github.io/works/aimai.html">
 <!-- og:image: θ9 OGPバッチで後日付与 -->
 <style>
 :root{--osk-void:#0a0a0f;--osk-void-deep:#06060a;--osk-surface:#15141a;--osk-surface-hi:#1c1a23;
@@ -150,33 +150,35 @@ background-size:cover;background-position:center;overflow:hidden;box-shadow:0 18
 <div id="sky"></div>
 <main>
 <a class="crumb" href="./">← WORKS — ぜんぶの作品</a>
-<header class="kanban"><span class="chain c1"></span><span class="chain c2"></span><div class="plate has-p p-t"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span><div class="k-emoji">🗂️</div><h1>画像正本ストア（Google Drive / Visionium/images）</h1><div class="k-sub"><b>Hi-Me TooL</b><span class="pfuda" style="background:var(--osk-pillar-t);color:#23303a">鋼</span> ・ 画像 <span class="badge live">Live</span></div></div></header>
-<section class="hitokoto"><p>生まれた画像がぜんぶ帰ってくる、正本の倉庫。<span class="caret"></span></p></section>
+<header class="kanban"><span class="chain c1"></span><span class="chain c2"></span><div class="plate has-p p-t"><span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span><div class="k-emoji">🔘</div><h1>あいまい / AIMAI</h1><div class="k-sub"><b>Hi-Me TooL</b><span class="pfuda" style="background:var(--osk-pillar-t);color:#23303a">鋼</span> ・ HTMLツール <span class="badge live">Live</span></div></div></header>
+<section class="hitokoto"><p>「はい・いいえ」の二択をやめるボタン。長押しした時間が、そのまま“はい寄り度”0.00〜1.00になる。決断の二値をやめる＝意思決定UXのBoolean→Float。<span class="caret"></span></p></section>
 <div class="kejime"><span>◇ とくちょう</span></div>
 <div class="sec-t"><b>FEATURES</b> — 特徴3つ</div>
 <div class="feat">
-<div class="fcard"><h3>3層のいちばん底</h3><p>Discordの#codex-dumpはフィード（約24hで失効）、Gitは確定版のみ、正本はここ。</p></div>
-<div class="fcard"><h3>自動コピー</h3><p>codex-img.ps1とworldview-comfyの生成画像は、手を介さずDriveへ収まる。</p></div>
-<div class="fcard"><h3>作品別フォルダ</h3><p>Visionium/images配下に、amidaやyumemi-shoujoなど作品ごとの箱で眠る。</p></div>
+<div class="fcard"><h3>押した時間が答え</h3><p>YES/NOボタンの代わりに円をひとつ。長く押すほど「はい」へ寄り、離した瞬間に0.00〜1.00で確定する。判断そのものをFloatで測る。</p></div>
+<div class="fcard"><h3>まんなかを許す</h3><p>0.45〜0.55は「どちらでもない＝両方を持っておける」。白黒つけないことを、ちゃんと選択肢として残す。</p></div>
+<div class="fcard"><h3>値に比例した次の一歩</h3><p>0.2なら「寝かせる」、0.7なら「いちばん小さい一歩だけ」。Floatの大きさに応じた行動を返し、あいまい台帳(localStorage)に積もる。</p></div>
 </div>
 <div class="kejime"><span>◇ つかいかた</span></div>
 <div class="sec-t"><b>HOW TO</b> — 3手順</div>
 <div class="koma-row">
-<div class="koma" style="--rot:-1.2deg"><span class="koma-num">1</span><span class="koma-sfx">ぱっ</span><div class="fuki">画像が生まれる（codex / ComfyUI）</div></div>
-<div class="koma" style="--rot:0.8deg"><span class="koma-num">2</span><span class="koma-sfx">こつこつ</span><div class="fuki">スクリプトが正本へ自動コピーする</div></div>
-<div class="koma" style="--rot:-0.6deg"><span class="koma-num">3</span><span class="koma-sfx">じゃーん</span><div class="fuki">使うときは、ここから引く</div></div>
+<div class="koma" style="--rot:-1.2deg"><span class="koma-num">1</span><span class="koma-sfx">ぱっ</span><div class="fuki">いま決めかねていることを書く（書かなくてもいい）</div></div>
+<div class="koma" style="--rot:0.8deg"><span class="koma-num">2</span><span class="koma-sfx">こつこつ</span><div class="fuki">まんなかの円を長押し。押すほど数値が「はい」へ上がっていく</div></div>
+<div class="koma" style="--rot:-0.6deg"><span class="koma-num">3</span><span class="koma-sfx">じゃーん</span><div class="fuki">ぱっと離せば「いいえ」、迷ったらまんなかで。離した値と「次の一歩」が出る</div></div>
 </div>
 <div class="kejime"><span>◇ かんせいど</span></div>
 <div class="sec-t"><b>FLOAT</b> — 完成度</div>
-<div class="gauge-wrap"><div class="gauge"><div class="gfill" data-float="1.00"></div></div><div class="gnum">1.00</div><div class="gcap">1.0は存在しない。それでいい。</div></div>
+<div class="gauge-wrap"><div class="gauge"><div class="gfill" data-float="0"></div></div><div class="gnum">—</div><div class="gcap">完成度はまだ台帳に記されていない</div></div>
 <div class="kejime"><span>◇ ねふだ</span></div>
-<aside class="froshiki has-p p-t"><div class="stamp">T</div><dl><dt>柱</dt><dd>T（Hi-Me TooL）</dd><dt>種別</dt><dd>画像</dd><dt>状態</dt><dd>Live</dd><dt>誕生日</dt><dd>2026-06-03</dd><dt>台帳ID</dt><dd>#49</dd><dt>ありか</dt><dd>drive.google.com</dd><dt>モチーフ案</dt><dd>蔵の棚に並ぶ写真箱（一箱だけ蓋があいている）</dd></dl></aside>
+<aside class="froshiki has-p p-t"><div class="stamp">T</div><dl><dt>柱</dt><dd>T（Hi-Me TooL）</dd><dt>種別</dt><dd>HTMLツール</dd><dt>状態</dt><dd>Live</dd><dt>誕生日</dt><dd>2026-06-14</dd><dt>台帳ID</dt><dd>#84</dd><dt>ありか</dt><dd>osakenpiro.github.io</dd></dl></aside>
 <div class="kejime"><span>◇ ひらきど</span></div>
-<details class="hirakido"><summary><span class="dia"><span class="d-c">◇</span><span class="d-o">◆</span></span>Q. 失くならない？</summary><div class="hd-body">A. フィード（Discord）は流れて消えるが、ここは消えない側。2026-06-03に正本層として制定された。</div></details>
-<details class="hirakido"><summary><span class="dia"><span class="d-c">◇</span><span class="d-o">◆</span></span>台帳メモ（全文・自動転記）</summary><div class="hd-body">画像3層保管の正本層。全生成画像がここに溜まる。Disco #codex-dump=フィード(添付リンク約24h失効)・Git=確定版のみ。codex-img.ps1 v2.3 と worldview-comfy-v1.ps1 がDriveへ自動コピー。2026-06-03 SES-380制定。</div></details>
+<details class="hirakido"><summary><span class="dia"><span class="d-c">◇</span><span class="d-o">◆</span></span>Q. これは何柱？</summary><div class="hd-body">A. T(Hi-Me TooL)。二値の判断を0.0〜1.0に再定義する、ひみつーるの一つ。</div></details>
+<details class="hirakido"><summary><span class="dia"><span class="d-c">◇</span><span class="d-o">◆</span></span>Q. 長押しの長さと数値の関係は？</summary><div class="hd-body">A. v=1−e^(−押した秒÷1.1) で0.99頭打ち。約0.8秒で0.5、約2秒で0.84。指の素直さがそのまま値になる。</div></details>
+<details class="hirakido"><summary><span class="dia"><span class="d-c">◇</span><span class="d-o">◆</span></span>Q. データはどこへ送られる？</summary><div class="hd-body">A. どこへも送らない。あいまい台帳はこの端末のlocalStorageの中だけ(腐葉土設計)。シェアカードは画像として手元に出るだけ。</div></details>
+<details class="hirakido"><summary><span class="dia"><span class="d-c">◇</span><span class="d-o">◆</span></span>台帳メモ（全文・自動転記）</summary><div class="hd-body">「はい・いいえ」をやめるボタン。長押しした時間が、そのまま“はい寄り度”0.00〜1.00になる。Boolean→Float を UI そのもので体現する、ひみつーる。</div></details>
 <details class="hirakido"><summary><span class="dia"><span class="d-c">◇</span><span class="d-o">◆</span></span>このページについて</summary><div class="hd-body">成果物DB（ありか台帳）と works-copy から自動生成されたとりせつです。事実の正本はDB側、ことばの正本は works-copy 側。直しはそちらへ。</div></details>
 <div class="kejime"><span>◇ いりぐち</span></div>
-<div class="cta"><a class="btn-gold" href="https://drive.google.com/drive/folders/157ou5g_QO9et4rn0YfCMQubeOYk2LMHP" target="_blank" rel="noopener">あそびにいく →</a><a class="btn-ghost" href="./">ぜんぶの作品へ</a></div>
+<div class="cta"><a class="btn-gold" href="https://osakenpiro.github.io/aimai/">あそびにいく →</a><a class="btn-ghost" href="./">ぜんぶの作品へ</a></div>
 </main>
 <footer>玄関(精選) <a href="/">osakenpiro.github.io</a> ／ 完全版 <a href="./">works索引</a><br>このとりせつは 成果物DB（ありか台帳）から gen_works.py が自動生成 — 2026-06-14 16:09 JST ／ #全人類UX改善計画</footer>
 <script>
