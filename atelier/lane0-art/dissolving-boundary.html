@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<!--
+    境界の溶解 / Dissolving Boundary
+    Generative art expressing Boolean→Float — a sharp two-valued boundary
+    melting into a continuum of degree, driven by τ (threshold sharpness / temperature).
+    Single HTML, p5.js (cdnjs), seeded randomness, osakenpiro void+gold+indigo brand.
+    Structure adapted from the algorithmic-art skill viewer template (sidebar / seed / params / actions);
+    palette overridden to the osakenpiro brand per project spec (void / gold / indigo, no neon).
+-->
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>境界の溶解 / Dissolving Boundary</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Lora:wght@400;500&family=Shippori+Mincho:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* osakenpiro brand — void + single warm gold + cool indigo. No neon, no rainbow. */
+        :root {
+            --void:        #0d0d12;
+            --void-2:      #14141c;
+            --panel:       #16161f;
+            --panel-edge:  #23232f;
+            --gold:        #d4a853;
+            --gold-soft:   #e6c987;
+            --gold-deep:   #a9842f;
+            --indigo:      #46577d;
+            --indigo-deep: #2a3550;
+            --ink:         #e8e6dc;
+            --ink-dim:     #8a8a98;
+            --ink-faint:   #5a5a68;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            font-family: 'Poppins', 'Shippori Mincho', sans-serif;
+            background:
+                radial-gradient(1200px 800px at 78% 18%, rgba(70,87,125,0.14), transparent 60%),
+                radial-gradient(900px 700px at 18% 88%, rgba(212,168,83,0.07), transparent 55%),
+                linear-gradient(160deg, var(--void) 0%, var(--void-2) 100%);
+            min-height: 100vh;
+            color: var(--ink);
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 330px;
+            flex-shrink: 0;
+            background: linear-gradient(180deg, rgba(22,22,31,0.96), rgba(17,17,24,0.96));
+            backdrop-filter: blur(10px);
+            padding: 26px 24px;
+            border-radius: 14px;
+            border: 1px solid var(--panel-edge);
+            box-shadow: 0 18px 48px rgba(0,0,0,0.45);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sidebar h1 {
+            font-family: 'Lora', 'Shippori Mincho', serif;
+            font-size: 23px;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            color: var(--ink);
+            margin-bottom: 6px;
+        }
+        .sidebar h1 .ja { display:block; font-size: 19px; color: var(--gold); margin-top: 2px; letter-spacing:0.12em; }
+
+        .sidebar .subtitle {
+            color: var(--ink-dim);
+            font-size: 13px;
+            margin-bottom: 28px;
+            line-height: 1.55;
+        }
+        .sidebar .subtitle .tau { color: var(--gold-soft); font-style: normal; }
+
+        .control-section { margin-bottom: 28px; }
+
+        .control-section h3 {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            color: var(--ink-dim);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .control-section h3::before {
+            content: '';
+            width: 7px; height: 7px;
+            background: var(--gold);
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(212,168,83,0.7);
+        }
+
+        /* Seed */
+        .seed-input {
+            width: 100%;
+            background: var(--void);
+            color: var(--gold-soft);
+            padding: 12px;
+            border-radius: 9px;
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+            letter-spacing: 0.08em;
+            margin-bottom: 12px;
+            border: 1px solid var(--panel-edge);
+            text-align: center;
+        }
+        .seed-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 2px rgba(212,168,83,0.18);
+            background: #0a0a0f;
+        }
+        .seed-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .regen-button { margin-bottom: 0; }
+
+        /* Parameters */
+        .control-group { margin-bottom: 19px; }
+        .control-group > label {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink);
+            margin-bottom: 9px;
+        }
+        .control-group > label .hint {
+            font-size: 11px;
+            color: var(--ink-faint);
+            font-weight: 400;
+        }
+
+        .slider-container { display: flex; align-items: center; gap: 12px; }
+        .slider-container input[type="range"] {
+            flex: 1;
+            height: 3px;
+            background: var(--panel-edge);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .slider-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 15px; height: 15px;
+            background: var(--gold);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 0 6px rgba(212,168,83,0.5);
+        }
+        .slider-container input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: var(--gold-soft);
+        }
+        .slider-container input[type="range"]::-moz-range-thumb {
+            width: 15px; height: 15px;
+            background: var(--gold);
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+        }
+        .value-display {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: var(--gold-soft);
+            min-width: 50px;
+            text-align: right;
+        }
+
+        /* τ slider gets an indigo→gold track to telegraph the Boolean→Float gradient */
+        #tau {
+            background: linear-gradient(90deg, var(--indigo-deep), var(--indigo) 40%, var(--gold-deep) 72%, var(--gold));
+            height: 4px;
+        }
+
+        /* Buttons */
+        .button {
+            background: var(--indigo-deep);
+            color: var(--ink);
+            border: 1px solid var(--panel-edge);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            width: 100%;
+        }
+        .button:hover { background: var(--indigo); transform: translateY(-1px); }
+        .button:active { transform: translateY(0); }
+        .button.gold {
+            background: linear-gradient(180deg, var(--gold), var(--gold-deep));
+            color: var(--void);
+            border-color: var(--gold-deep);
+            font-weight: 600;
+        }
+        .button.gold:hover { background: var(--gold-soft); }
+        .button.ghost { background: transparent; }
+        .button.ghost:hover { background: rgba(70,87,125,0.18); }
+
+        .button-row { display: flex; gap: 8px; }
+        .button-row .button { flex: 1; }
+        .stack > .button { margin-bottom: 8px; }
+        .stack > .button:last-child { margin-bottom: 0; }
+
+        /* Canvas */
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+        }
+        #canvas-container {
+            width: 100%;
+            max-width: 920px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--panel-edge);
+            box-shadow: 0 26px 60px rgba(0,0,0,0.5);
+            background: var(--void);
+            position: relative;
+        }
+        #canvas-container canvas { display: block; width: 100% !important; height: auto !important; }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 420px;
+            font-size: 15px;
+            letter-spacing: 0.1em;
+            color: var(--ink-faint);
+        }
+
+        .footnote {
+            margin-top: 6px;
+            font-size: 11px;
+            line-height: 1.6;
+            color: var(--ink-faint);
+        }
+        .footnote code { color: var(--gold-soft); font-size: 11px; }
+
+        @media (max-width: 760px) {
+            .container { flex-direction: column; }
+            .sidebar { width: 100%; }
+            .canvas-area { padding: 4px 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Control Sidebar -->
+        <div class="sidebar">
+            <h1>Dissolving Boundary<span class="ja">境界の溶解</span></h1>
+            <div class="subtitle">
+                二値の境界が、程度の連続へ溶ける。<br>
+                <span class="tau">τ（しきい値の温度）</span>を上げるほど、くっきりした 0/1 の縁が
+                グラデーションの流れ場にほどけていく。<strong style="color:var(--gold-soft)">Boolean&nbsp;→&nbsp;Float</strong> の体現。
+            </div>
+
+            <!-- Seed Section -->
+            <div class="control-section">
+                <h3>Seed</h3>
+                <input type="number" id="seed-input" class="seed-input" value="1729" min="1" onchange="updateSeed()">
+                <div class="seed-controls">
+                    <button class="button" onclick="previousSeed()">← Prev</button>
+                    <button class="button" onclick="nextSeed()">Next →</button>
+                </div>
+                <button class="button ghost regen-button" onclick="randomSeedAndUpdate()">↻ Random seed</button>
+            </div>
+
+            <!-- Parameters Section -->
+            <div class="control-section">
+                <h3>Parameters</h3>
+
+                <!-- τ : the heart of the piece -->
+                <div class="control-group">
+                    <label>τ&nbsp;— 境界の温度 <span class="hint">Boolean→Float</span></label>
+                    <div class="slider-container">
+                        <input type="range" id="tau" min="0" max="1" step="0.001" value="0.0" oninput="updateParam('tau', this.value)">
+                        <span class="value-display" id="tau-value">0.000</span>
+                    </div>
+                </div>
+
+                <!-- Field scale -->
+                <div class="control-group">
+                    <label>Field Scale <span class="hint">地形の粗さ</span></label>
+                    <div class="slider-container">
+                        <input type="range" id="fieldScale" min="0.0018" max="0.0090" step="0.0001" value="0.0040" oninput="updateParam('fieldScale', this.value)">
+                        <span class="value-display" id="fieldScale-value">0.0040</span>
+                    </div>
+                </div>
+
+                <!-- Particle count -->
+                <div class="control-group">
+                    <label>Particles <span class="hint">流れの粒</span></label>
+                    <div class="slider-container">
+                        <input type="range" id="particleCount" min="1500" max="9000" step="500" value="5000" oninput="updateParam('particleCount', this.value)">
+                        <span class="value-display" id="particleCount-value">5000</span>
+                    </div>
+                </div>
+
+                <!-- Trail length -->
+                <div class="control-group">
+                    <label>Trail <span class="hint">尾の長さ</span></label>
+                    <div class="slider-container">
+                        <input type="range" id="trailLength" min="6" max="40" step="1" value="22" oninput="updateParam('trailLength', this.value)">
+                        <span class="value-display" id="trailLength-value">22</span>
+                    </div>
+                </div>
+
+                <!-- Lantern position -->
+                <div class="control-group">
+                    <label>Lantern <span class="hint">ひとあかりの位置</span></label>
+                    <div class="slider-container">
+                        <input type="range" id="lantern" min="0" max="1" step="0.01" value="0.62" oninput="updateParam('lantern', this.value)">
+                        <span class="value-display" id="lantern-value">0.62</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Section -->
+            <div class="control-section">
+                <h3>Actions</h3>
+                <div class="stack">
+                    <button class="button gold" id="dissolve-btn" onclick="toggleDissolve()">▶ 自動で溶かす / Auto-dissolve τ</button>
+                    <div class="button-row">
+                        <button class="button" onclick="regenerate()">↻ Regenerate</button>
+                        <button class="button ghost" onclick="resetParameters()">Reset</button>
+                    </div>
+                    <button class="button" onclick="downloadPNG()">⤓ Download PNG</button>
+                </div>
+                <div class="footnote">
+                    同じ <code>seed</code> + 同じ <code>τ</code> は必ず同じ絵になる（再現性）。<br>
+                    seed を変えれば別の地形が立ち上がる。マウスを画面に重ねると、その点に小さな熱だまり（局所的なτ上昇）が生まれる。
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Canvas Area -->
+        <div class="canvas-area">
+            <div id="canvas-container">
+                <div class="loading">境界を立ち上げています…</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════
+        // 境界の溶解 / Dissolving Boundary — parameters
+        // ═══════════════════════════════════════════════════════════════════════
+        let params = {
+            seed:          1729,   // Ramanujan's taxicab number — two ways of being one
+            tau:           0.0,    // threshold temperature: 0 = hard Boolean, 1 = full Float
+            fieldScale:    0.0040, // Perlin scale of the underlying scalar field
+            particleCount: 5000,
+            trailLength:   22,
+            lantern:       0.62    // 0..1 position of the single gold light along the boundary
+        };
+        let defaultParams = JSON.parse(JSON.stringify(params));
+
+        // Brand palette (RGB)
+        const C = {
+            void:    [13, 13, 18],
+            voidTop: [20, 20, 28],
+            black:   [8, 9, 13],
+            white:   [232, 230, 220],
+            indigo:  [70, 87, 125],
+            indigoD: [42, 53, 80],
+            indigoF: [26, 33, 52],
+            gold:    [212, 168, 83],
+            goldSoft:[230, 201, 135],
+            goldDeep:[169, 132, 47]
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // State
+        // ═══════════════════════════════════════════════════════════════════════
+        const SIZE = 1200;
+        let particles = [];
+        let fieldSeedX, fieldSeedY, fieldSeedW; // independent noise offsets per seed
+        let boundaryPts = [];   // sampled iso-line points (the 0.5 contour) for the lantern
+        let autoDissolve = false;
+        let autoDir = 1;
+        let mouseHeatX = -9999, mouseHeatY = -9999, mouseHeatA = 0;
+
+        // The underlying scalar field f(x,y) ∈ [0,1]. The "true" boundary is f = 0.5.
+        function field(x, y) {
+            let n = noise(x * params.fieldScale + fieldSeedX,
+                          y * params.fieldScale + fieldSeedY);
+            // a second, slower octave gives large calm regions and tense ridges
+            let n2 = noise(x * params.fieldScale * 0.4 + fieldSeedW,
+                           y * params.fieldScale * 0.4 + 31.7);
+            return constrain(n * 0.72 + n2 * 0.28, 0, 1);
+        }
+
+        // Effective local temperature: global τ plus a soft mouse heat-well.
+        function localTau(x, y) {
+            let t = params.tau;
+            if (mouseHeatA > 0.001) {
+                let d = dist(x, y, mouseHeatX, mouseHeatY);
+                let r = SIZE * 0.22;
+                if (d < r) {
+                    let w = (1 - d / r);
+                    t += mouseHeatA * w * w * 0.9;
+                }
+            }
+            return constrain(t, 0, 1);
+        }
+
+        // Boolean→Float core:
+        //   τ→0  : membership is a hard step at f=0.5  (0 or 1, nothing between)
+        //   τ→1  : membership is a smooth logistic ramp (a continuum of degree)
+        function membership(f, t) {
+            // softness grows with τ; tiny epsilon keeps τ=0 a genuine step
+            let soft = 0.0025 + t * 0.42;
+            let m = 1.0 / (1.0 + Math.exp(-(f - 0.5) / soft));
+            return m;
+        }
+
+        // Gradient (∂f) direction → particles flow ALONG the iso-lines (perpendicular to grad),
+        // so the trails trace the boundary's anatomy. As τ rises the flow also gains a
+        // cross-component, letting the crisp contour bleed sideways into a field.
+        function flowAngle(x, y, t) {
+            let e = 1.6;
+            let fx = field(x + e, y) - field(x - e, y);
+            let fy = field(x, y + e) - field(x, y - e);
+            let gradAng = Math.atan2(fy, fx);
+            // along-contour direction
+            let along = gradAng + Math.PI / 2;
+            // as τ grows, rotate partly toward the gradient (spill across the edge)
+            let spill = t * (Math.PI * 0.5);
+            // small noise wander, scaled by τ (more chaos when molten)
+            let wander = (noise(x * 0.002 + 5.0, y * 0.002 + 9.0, t * 2.0) - 0.5) * (0.4 + t * 2.2);
+            return along + spill + wander;
+        }
+
+        class Particle {
+            constructor() { this.reset(true); this.life = floor(random(40, 220)); }
+            reset(initial) {
+                this.x = random(SIZE);
+                this.y = random(SIZE);
+                this.px = this.x; this.py = this.y;
+                this.f = field(this.x, this.y);     // which side of the boundary it was born on
+                if (!initial) this.life = floor(random(60, 220));
+            }
+            step(t) {
+                this.px = this.x; this.py = this.y;
+                let a = flowAngle(this.x, this.y, localTau(this.x, this.y));
+                // speed: calm far from boundary, quicker where membership is uncertain (near 0.5)
+                let f = field(this.x, this.y);
+                let uncertainty = 1 - Math.abs(membership(f, t) - 0.5) * 2; // ~1 right at the edge
+                let sp = 0.7 + uncertainty * 1.7 + t * 0.6;
+                this.x += Math.cos(a) * sp;
+                this.y += Math.sin(a) * sp;
+                this.life--;
+                if (this.life <= 0 || this.x < -10 || this.x > SIZE + 10 || this.y < -10 || this.y > SIZE + 10) {
+                    this.reset(false);
+                }
+            }
+            render(t) {
+                let f = field(this.x, this.y);
+                let m = membership(f, localTau(this.x, this.y));   // 0..1 degree of belonging
+
+                // Colour: the two pure states are near-white (1) and deep indigo (0).
+                // At τ=0 every particle is essentially pure white OR pure indigo — two camps.
+                // As τ rises, m spreads across the middle and colours blend through a cool grey,
+                // and the most uncertain particles (m≈0.5) pick up a faint gold warmth.
+                let side = m;                       // 0..1
+                let warm = 1 - Math.abs(m - 0.5) * 2; // peaks at the boundary
+                warm = Math.pow(constrain(warm, 0, 1), 1.6) * t; // only when molten
+
+                let r = lerp(C.indigoD[0], C.white[0], side);
+                let g = lerp(C.indigoD[1], C.white[1], side);
+                let b = lerp(C.indigoD[2], C.white[2], side);
+                // fold a whisper of gold into the uncertain middle
+                r = lerp(r, C.gold[0], warm * 0.55);
+                g = lerp(g, C.gold[1], warm * 0.55);
+                b = lerp(b, C.gold[2], warm * 0.55);
+
+                // alpha: hard edges draw thin & sharp; molten field draws soft & low
+                let baseA = lerp(36, 15, t);
+                let edgeBoost = (1 - t) * (1 - Math.min(Math.abs(f - 0.5) / 0.04, 1)) * 60; // crisp seam at τ≈0
+                let a = baseA + edgeBoost;
+
+                stroke(r, g, b, a);
+                strokeWeight(lerp(1.0, 1.7, t));
+                line(this.px, this.py, this.x, this.y);
+            }
+        }
+
+        // Sample the f=0.5 iso-line across rows so the lantern can sit ON the boundary.
+        function sampleBoundary() {
+            boundaryPts = [];
+            let rows = 120;
+            for (let i = 0; i < rows; i++) {
+                let y = map(i, 0, rows - 1, SIZE * 0.04, SIZE * 0.96);
+                let prev = field(0, y) - 0.5;
+                for (let x = 6; x <= SIZE; x += 6) {
+                    let cur = field(x, y) - 0.5;
+                    if (prev === 0 || (prev < 0) !== (cur < 0)) {
+                        let xc = x - 6 * (cur / (cur - prev || 1));
+                        boundaryPts.push({ x: constrain(xc, 0, SIZE), y: y });
+                        break; // one crossing per row keeps the lantern path coherent
+                    }
+                    prev = cur;
+                }
+            }
+        }
+
+        function lanternXY() {
+            if (boundaryPts.length === 0) return { x: SIZE * 0.5, y: SIZE * 0.5 };
+            let idx = constrain(floor(params.lantern * (boundaryPts.length - 1)), 0, boundaryPts.length - 1);
+            return boundaryPts[idx];
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // p5 lifecycle
+        // ═══════════════════════════════════════════════════════════════════════
+        function setup() {
+            let cnv = createCanvas(SIZE, SIZE);
+            cnv.parent('canvas-container');
+            let load = document.querySelector('.loading');
+            if (load) load.style.display = 'none';
+
+            // mouse heat: track within the canvas only
+            cnv.mouseMoved(() => {
+                mouseHeatX = mouseX; mouseHeatY = mouseY; mouseHeatA = 1.0;
+            });
+            cnv.mouseOut(() => { mouseHeatA = 0; });
+
+            initializeSystem();
+        }
+
+        function initializeSystem() {
+            randomSeed(params.seed);
+            noiseSeed(params.seed);
+            // derive independent field offsets from the seed (stable per seed)
+            fieldSeedX = (params.seed % 1000) * 0.137 + 11.0;
+            fieldSeedY = ((params.seed * 7) % 1000) * 0.091 + 53.0;
+            fieldSeedW = ((params.seed * 13) % 1000) * 0.061 + 97.0;
+
+            particles = [];
+            for (let i = 0; i < params.particleCount; i++) particles.push(new Particle());
+
+            sampleBoundary();
+            paintBackplate();
+        }
+
+        // Static back-plate: a faint rendering of the two regions + the seam, so even
+        // before particles accumulate the Boolean state is legible.
+        function paintBackplate() {
+            // void gradient
+            for (let y = 0; y < SIZE; y += 4) {
+                let tg = y / SIZE;
+                let r = lerp(C.void[0], C.voidTop[0], tg);
+                let g = lerp(C.void[1], C.voidTop[1], tg);
+                let b = lerp(C.void[2], C.voidTop[2], tg);
+                noStroke(); fill(r, g, b); rect(0, y, SIZE, 4);
+            }
+            // faint region wash (very low alpha) sampled coarsely
+            let s = 14;
+            noStroke();
+            for (let x = 0; x < SIZE; x += s) {
+                for (let y = 0; y < SIZE; y += s) {
+                    let f = field(x + s / 2, y + s / 2);
+                    let m = membership(f, params.tau);
+                    let warm = Math.pow(1 - Math.abs(m - 0.5) * 2, 2.0) * params.tau;
+                    let r = lerp(C.indigoF[0], C.white[0], m);
+                    let g = lerp(C.indigoF[1], C.white[1], m);
+                    let b = lerp(C.indigoF[2], C.white[2], m);
+                    r = lerp(r, C.gold[0], warm * 0.4);
+                    g = lerp(g, C.gold[1], warm * 0.4);
+                    b = lerp(b, C.gold[2], warm * 0.4);
+                    fill(r, g, b, 16);
+                    rect(x, y, s, s);
+                }
+            }
+        }
+
+        function draw() {
+            let t = params.tau;
+
+            // auto-dissolve animation of τ
+            if (autoDissolve) {
+                params.tau += 0.0016 * autoDir;
+                if (params.tau >= 1) { params.tau = 1; autoDir = -1; }
+                if (params.tau <= 0) { params.tau = 0; autoDir = 1; }
+                syncTauUI();
+                t = params.tau;
+            }
+
+            // gentle fade toward void each frame → trails breathe instead of caking.
+            // longer Trail = lighter fade (trails persist), shorter = quicker erase.
+            // also: stronger fade when molten so the field stays fluid; lighter at τ=0 so
+            // the hard seam etches in crisply.
+            let trailFade = map(params.trailLength, 6, 40, 30, 7, true); // big trail → small fade alpha
+            noStroke();
+            fill(C.void[0], C.void[1], C.void[2], trailFade + lerp(0, 10, t));
+            rect(0, 0, SIZE, SIZE);
+
+            // decay mouse heat
+            if (mouseHeatA > 0) mouseHeatA *= 0.94;
+
+            // advance + draw a slice of particles per frame (keeps it smooth at high counts)
+            let n = particles.length;
+            for (let i = 0; i < n; i++) {
+                let p = particles[i];
+                for (let k = 0; k < 2; k++) { p.step(t); p.render(t); }
+            }
+
+            drawLantern(t);
+        }
+
+        // ひとあかり — the single gold light resting on the boundary. One quiet warmth
+        // that survives whether the edge is Boolean-sharp or fully Float.
+        function drawLantern(t) {
+            let L = lanternXY();
+            // halo grows slightly as the field melts (the light spreads into the continuum)
+            let R = lerp(46, 96, t);
+            push();
+            // additive-ish glow via layered low-alpha discs
+            for (let i = 8; i >= 1; i--) {
+                let rr = R * (i / 8);
+                let a = map(i, 1, 8, 70, 4);
+                noStroke();
+                fill(C.gold[0], C.gold[1], C.gold[2], a * lerp(0.5, 1, t === 0 ? 0.5 : 1));
+                ellipse(L.x, L.y, rr * 2, rr * 2);
+            }
+            // hot core
+            noStroke();
+            fill(C.goldSoft[0], C.goldSoft[1], C.goldSoft[2], 230);
+            ellipse(L.x, L.y, 9, 9);
+            fill(255, 248, 232, 255);
+            ellipse(L.x, L.y, 4, 4);
+            pop();
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // UI handlers
+        // ═══════════════════════════════════════════════════════════════════════
+        const FMT = { tau:3, fieldScale:4, lantern:2 };
+        function fmt(name, v) {
+            let d = FMT[name] !== undefined ? FMT[name] : 0;
+            return d > 0 ? Number(v).toFixed(d) : String(Math.round(v));
+        }
+
+        function updateParam(name, value) {
+            let v = parseFloat(value);
+            params[name] = v;
+            let disp = document.getElementById(name + '-value');
+            if (disp) disp.textContent = fmt(name, v);
+
+            // structural params need a rebuild; τ / lantern are live
+            if (name === 'particleCount' || name === 'fieldScale') {
+                initializeSystem();
+            } else if (name === 'tau' || name === 'lantern') {
+                // live — boundary/back-plate only depend on field, which is unchanged
+            }
+        }
+
+        function syncTauUI() {
+            let s = document.getElementById('tau');
+            let d = document.getElementById('tau-value');
+            if (s) s.value = params.tau;
+            if (d) d.textContent = fmt('tau', params.tau);
+        }
+
+        function toggleDissolve() {
+            autoDissolve = !autoDissolve;
+            let btn = document.getElementById('dissolve-btn');
+            if (btn) btn.textContent = autoDissolve ? '❚❚ 一時停止 / Pause' : '▶ 自動で溶かす / Auto-dissolve τ';
+        }
+
+        // ── Seed controls ──
+        function updateSeedDisplay() { document.getElementById('seed-input').value = params.seed; }
+        function updateSeed() {
+            let v = parseInt(document.getElementById('seed-input').value);
+            if (v && v > 0) { params.seed = v; initializeSystem(); }
+            else updateSeedDisplay();
+        }
+        function previousSeed() { params.seed = Math.max(1, params.seed - 1); updateSeedDisplay(); initializeSystem(); }
+        function nextSeed()     { params.seed = params.seed + 1; updateSeedDisplay(); initializeSystem(); }
+        function randomSeedAndUpdate() {
+            params.seed = Math.floor(Math.random() * 999999) + 1;
+            updateSeedDisplay(); initializeSystem();
+        }
+
+        function regenerate() { initializeSystem(); }
+
+        function resetParameters() {
+            params = JSON.parse(JSON.stringify(defaultParams));
+            autoDissolve = false;
+            let btn = document.getElementById('dissolve-btn');
+            if (btn) btn.textContent = '▶ 自動で溶かす / Auto-dissolve τ';
+            ['tau','fieldScale','particleCount','trailLength','lantern'].forEach(k => {
+                let s = document.getElementById(k);
+                let d = document.getElementById(k + '-value');
+                if (s) s.value = params[k];
+                if (d) d.textContent = fmt(k, params[k]);
+            });
+            updateSeedDisplay();
+            initializeSystem();
+        }
+
+        function downloadPNG() {
+            saveCanvas('dissolving-boundary_seed' + params.seed + '_tau' + fmt('tau', params.tau), 'png');
+        }
+
+        window.addEventListener('load', updateSeedDisplay);
+    </script>
+</body>
+</html>
