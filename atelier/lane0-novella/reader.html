@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>端数のひと</title>
+<style>
+  :root{
+    --void:#0d0d12;
+    --void-2:#14141c;
+    --panel:#16161f;
+    --gold:#d4a853;
+    --gold-soft:#c9a456;
+    --gold-dim:rgba(212,168,83,.32);
+    --gold-faint:rgba(212,168,83,.14);
+    --ai:#3a4a6b;          /* 藍 / 冷色 */
+    --ai-soft:#5b7099;
+    --ink:#d7dae2;         /* 本文 */
+    --ink-dim:#9aa0ad;
+    --ink-faint:#6c7280;
+    --rule:rgba(212,168,83,.18);
+    --maxcol:40em;
+    --serif:"Hiragino Mincho ProN","Hiragino Mincho Pro","Yu Mincho","YuMincho","Noto Serif JP","Source Han Serif JP",serif;
+    --sans:"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 700px at 50% -10%, #181822 0%, var(--void-2) 38%, var(--void) 100%),
+      var(--void);
+    color:var(--ink);
+    font-family:var(--serif);
+    line-height:1.9;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+
+  /* ---- faint star field ---- */
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    pointer-events:none; z-index:0;
+    background-image:
+      radial-gradient(1px 1px at 12% 22%, rgba(255,255,255,.30), transparent),
+      radial-gradient(1px 1px at 78% 14%, rgba(255,255,255,.22), transparent),
+      radial-gradient(1px 1px at 34% 64%, rgba(212,168,83,.28), transparent),
+      radial-gradient(1px 1px at 64% 82%, rgba(255,255,255,.18), transparent),
+      radial-gradient(1px 1px at 88% 52%, rgba(255,255,255,.16), transparent),
+      radial-gradient(1px 1px at 22% 88%, rgba(212,168,83,.20), transparent);
+    background-repeat:no-repeat;
+    opacity:.55;
+  }
+
+  /* ---- reading progress bar ---- */
+  #progress{
+    position:fixed; top:0; left:0; height:3px; width:0%;
+    background:linear-gradient(90deg, rgba(212,168,83,.35), var(--gold));
+    box-shadow:0 0 10px rgba(212,168,83,.55);
+    z-index:60;
+    transition:width .08s linear;
+  }
+
+  /* ---- top mini-bar (mobile TOC toggle) ---- */
+  #topbar{
+    position:fixed; top:0; left:0; right:0; height:46px;
+    display:none; align-items:center; justify-content:space-between;
+    padding:0 14px;
+    background:rgba(13,13,18,.82);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--rule);
+    z-index:55;
+  }
+  #topbar .tb-title{
+    font-family:var(--sans); font-size:.84rem; letter-spacing:.18em;
+    color:var(--gold); font-weight:600;
+  }
+  #navToggle{
+    appearance:none; background:transparent; border:1px solid var(--gold-dim);
+    color:var(--gold); border-radius:7px; padding:6px 12px;
+    font-family:var(--sans); font-size:.78rem; letter-spacing:.1em; cursor:pointer;
+  }
+  #navToggle:active{background:var(--gold-faint);}
+
+  /* ---- side nav ---- */
+  #sidenav{
+    position:fixed; top:50%; left:max(18px, calc(50vw - 34em)); transform:translateY(-50%);
+    width:166px; z-index:50;
+    font-family:var(--sans);
+  }
+  #sidenav .nav-label{
+    font-size:.62rem; letter-spacing:.34em; color:var(--ink-faint);
+    text-transform:uppercase; margin:0 0 12px 12px;
+  }
+  #sidenav ol{list-style:none; margin:0; padding:0;}
+  #sidenav li{margin:0;}
+  #sidenav a{
+    display:block; position:relative;
+    padding:7px 10px 7px 18px;
+    color:var(--ink-faint); text-decoration:none;
+    font-size:.78rem; letter-spacing:.04em; line-height:1.5;
+    border-left:1px solid rgba(212,168,83,.12);
+    transition:color .25s, border-color .25s, background .25s;
+  }
+  #sidenav a .num{
+    color:var(--gold-dim); margin-right:.5em; font-size:.74rem;
+    transition:color .25s;
+  }
+  #sidenav a:hover{color:var(--ink-dim); background:rgba(212,168,83,.05);}
+  #sidenav a.active{
+    color:var(--gold); border-left-color:var(--gold);
+  }
+  #sidenav a.active .num{color:var(--gold);}
+
+  /* ---- layout wrapper ---- */
+  .wrap{position:relative; z-index:1;}
+
+  /* ---- hero / cover ---- */
+  .hero{
+    max-width:760px; margin:0 auto;
+    padding:64px 24px 30px;
+    text-align:center;
+  }
+  .cover-frame{
+    display:inline-block; position:relative;
+    max-width:330px; width:72%;
+    margin:0 auto 38px;
+    border-radius:6px;
+    padding:10px;
+    background:linear-gradient(160deg, rgba(212,168,83,.16), rgba(58,74,107,.10));
+    box-shadow:
+      0 0 0 1px rgba(212,168,83,.22),
+      0 26px 70px -28px rgba(0,0,0,.9),
+      0 0 60px -20px rgba(212,168,83,.18);
+  }
+  .cover-frame img{
+    display:block; width:100%; height:auto; border-radius:3px;
+  }
+  .cover-frame .fallback{
+    display:none;
+    aspect-ratio:3/4; width:100%;
+    border-radius:3px;
+    background:
+      radial-gradient(120px 120px at 50% 64%, rgba(212,168,83,.28), transparent 70%),
+      linear-gradient(180deg, #10101a, #07070b);
+    position:relative;
+  }
+  .cover-frame .fallback::after{
+    content:"端 数 の ひ と";
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:var(--serif); letter-spacing:.3em; color:var(--gold-dim); font-size:1.1rem;
+  }
+  .cover-frame img.broken{display:none;}
+  .cover-frame img.broken + .fallback{display:block;}
+
+  .hero h1{
+    font-family:var(--serif);
+    font-size:clamp(2.4rem, 7vw, 3.7rem);
+    font-weight:600;
+    letter-spacing:.16em;
+    margin:.1em 0 .35em;
+    color:#f0ead9;
+    text-shadow:0 0 24px rgba(212,168,83,.18);
+  }
+  .hero h1 .han{
+    background:linear-gradient(180deg, #f3dda6 0%, var(--gold) 55%, #b5893f 100%);
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent; color:var(--gold);
+  }
+  .hero .reading{
+    font-family:var(--sans); font-size:.72rem; letter-spacing:.5em;
+    color:var(--ink-faint); margin:0 0 1.4em; padding-left:.5em;
+  }
+  .hero .byline{
+    font-family:var(--sans); font-size:.78rem; letter-spacing:.16em;
+    color:var(--ink-dim); margin:0;
+  }
+  .hero .byline .sep{color:var(--gold-dim); margin:0 .7em;}
+  .hero .ornament{
+    margin:34px auto 0; width:120px; height:1px;
+    background:linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    position:relative;
+  }
+  .hero .ornament::after{
+    content:"❖"; position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    color:var(--gold); font-size:.8rem;
+    background:var(--void); padding:0 12px;
+  }
+
+  /* ---- epigraph (三重がけ命名法の注記) ---- */
+  .epigraph{
+    max-width:var(--maxcol); margin:18px auto 8px; padding:0 24px;
+  }
+  .epigraph .note{
+    border:1px solid var(--rule);
+    border-left:3px solid var(--gold-dim);
+    border-radius:4px;
+    background:linear-gradient(180deg, rgba(22,22,31,.7), rgba(16,16,24,.5));
+    padding:26px 30px;
+    font-size:.92rem;
+    line-height:2.0;
+    color:var(--ink-dim);
+  }
+  .epigraph .note .title{
+    display:block;
+    font-family:var(--sans);
+    font-size:.72rem; letter-spacing:.28em;
+    color:var(--gold); margin-bottom:.95em;
+    font-weight:600;
+  }
+  .epigraph .note strong{color:var(--ink); font-weight:600;}
+
+  /* ---- article / chapters ---- */
+  article{
+    max-width:var(--maxcol);
+    margin:0 auto;
+    padding:0 24px 90px;
+  }
+  .chapter{
+    padding-top:78px;
+    scroll-margin-top:60px;
+  }
+  .chapter:first-of-type{padding-top:54px;}
+
+  .chapter h2{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(1.45rem, 4.4vw, 1.95rem);
+    letter-spacing:.12em;
+    color:var(--gold);
+    margin:0 0 1.5em;
+    padding-bottom:.55em;
+    position:relative;
+    text-align:left;
+  }
+  .chapter h2 .ch-no{
+    display:block;
+    font-family:var(--sans);
+    font-size:.66rem; letter-spacing:.42em;
+    color:var(--ink-faint); font-weight:500;
+    margin-bottom:.85em;
+  }
+  .chapter h2::after{
+    content:""; position:absolute; left:0; bottom:0;
+    width:54px; height:2px;
+    background:linear-gradient(90deg, var(--gold), transparent);
+  }
+
+  /* ---- chapter plate (章扉イラスト) ---- */
+  .chapter-plate{
+    display:block;
+    width:100%;
+    max-width:none;
+    margin:0 0 2.6em;
+    border-radius:6px;
+    overflow:hidden;
+    line-height:0;
+    background:#0c0c11;
+    box-shadow:
+      0 0 0 1px rgba(212,168,83,.16),
+      0 22px 56px -28px rgba(0,0,0,.85),
+      0 0 48px -22px rgba(212,168,83,.14);
+  }
+  .chapter-plate svg{
+    display:block;
+    width:100%;
+    height:auto;
+  }
+  /* full-bleed-ish: let the plate breathe a little wider than the text column */
+  @media (min-width:760px){
+    .chapter-plate{
+      width:calc(100% + 64px);
+      margin-left:-32px;
+      margin-right:-32px;
+    }
+  }
+  @media (max-width:560px){
+    .chapter-plate{margin-bottom:2.1em;}
+  }
+
+  article p{
+    margin:0 0 1.5em;
+    text-indent:1em;        /* 段落字下げ（日本語：先頭全角アキ相当）*/
+    letter-spacing:.012em;
+    color:var(--ink);
+  }
+  /* 字下げを打ち消す要素（会話文の地続き等はそのまま字下げを保つ — 原文の全角アキを尊重） */
+  article p.noindent{text-indent:0;}
+
+  /* 強調（原文の **…**） */
+  article strong{
+    color:#ecd6a4;
+    font-weight:600;
+    letter-spacing:.02em;
+  }
+
+  /* 引用的な強調行（説明書 / 規程 / 報告 等の太字独立段落） */
+  article p.precept{
+    text-indent:0;
+    margin:1.9em 0;
+    padding:18px 22px;
+    border-left:2px solid var(--ai-soft);
+    background:rgba(58,74,107,.10);
+    border-radius:3px;
+    color:#cdd6e6;
+    font-size:.97rem;
+    letter-spacing:.02em;
+  }
+  article p.precept strong{color:#e6ecf7;}
+
+  /* 短い独立した一語・余韻行 */
+  article p.beat{
+    text-indent:0;
+    color:var(--ink-dim);
+    margin:1.5em 0;
+  }
+
+  /* section divider (---) */
+  .divider{
+    border:0; margin:60px auto;
+    width:160px; height:1px; position:relative;
+    background:linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  }
+  .divider::after{
+    content:"✦"; position:absolute; left:50%; top:50%;
+    transform:translate(-50%,-50%);
+    color:var(--gold-dim); font-size:.72rem;
+    background:var(--void); padding:0 14px;
+  }
+
+  /* end mark （了） */
+  .endmark{
+    text-align:center;
+    margin:64px 0 10px;
+    font-family:var(--serif);
+    letter-spacing:.5em;
+    color:var(--gold);
+    font-size:1.05rem;
+  }
+  .colophon{
+    text-align:center;
+    font-family:var(--sans);
+    font-size:.7rem; letter-spacing:.22em;
+    color:var(--ink-faint);
+    margin-top:10px;
+  }
+
+  /* ---- back-to-top ---- */
+  #toTop{
+    position:fixed; right:20px; bottom:22px; z-index:55;
+    width:42px; height:42px; border-radius:50%;
+    border:1px solid var(--gold-dim);
+    background:rgba(13,13,18,.7); backdrop-filter:blur(6px);
+    color:var(--gold); font-size:1rem; cursor:pointer;
+    opacity:0; pointer-events:none; transition:opacity .3s, background .2s;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #toTop.show{opacity:1; pointer-events:auto;}
+  #toTop:hover{background:var(--gold-faint);}
+
+  /* ===== responsive ===== */
+  @media (max-width:1180px){
+    #sidenav{left:14px; width:148px;}
+  }
+  @media (max-width:980px){
+    #sidenav{
+      position:fixed; top:46px; left:0; right:0; transform:none;
+      width:100%;
+      background:rgba(13,13,18,.95); backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--rule);
+      padding:14px 16px 18px;
+      max-height:calc(100vh - 46px); overflow-y:auto;
+      display:none;
+    }
+    #sidenav.open{display:block;}
+    #sidenav .nav-label{margin-left:4px;}
+    #sidenav ol{
+      display:grid; grid-template-columns:1fr 1fr; gap:2px 14px;
+    }
+    #sidenav a{border-left:1px solid rgba(212,168,83,.14);}
+    #topbar{display:flex;}
+    .wrap{padding-top:46px;}
+    .hero{padding-top:40px;}
+  }
+  @media (max-width:560px){
+    body{line-height:1.85;}
+    article{padding:0 19px 80px;}
+    .epigraph{padding:0 19px;}
+    .epigraph .note{padding:22px 20px; font-size:.88rem;}
+    article p{font-size:1.01rem;}
+    .cover-frame{width:80%;}
+    #sidenav ol{grid-template-columns:1fr;}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    #progress{transition:none;}
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<div id="topbar">
+  <span class="tb-title">端数のひと</span>
+  <button id="navToggle" aria-expanded="false" aria-controls="sidenav">目次</button>
+</div>
+
+<nav id="sidenav" aria-label="章目次">
+  <p class="nav-label">目次</p>
+  <ol>
+    <li><a href="#ch1"><span class="num">一</span>丸める仕事</a></li>
+    <li><a href="#ch2"><span class="num">二</span>会いにいく規程</a></li>
+    <li><a href="#ch3"><span class="num">三</span>切り落とされたもの</a></li>
+    <li><a href="#ch4"><span class="num">四</span>猶予という抵抗</a></li>
+    <li><a href="#ch5"><span class="num">五</span>0.5の設計</a></li>
+    <li><a href="#ch6"><span class="num">六</span>端数の街</a></li>
+    <li><a href="#ch7"><span class="num">七</span>はすうのひと</a></li>
+  </ol>
+</nav>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="cover-frame">
+      <img src="./hasu-no-hito-cover.png" alt="『端数のひと』表紙"
+           onerror="this.classList.add('broken')">
+      <div class="fallback" aria-hidden="true"></div>
+    </div>
+    <h1><span class="han">端数</span>のひと</h1>
+    <p class="reading">は す う の ひ と</p>
+    <p class="byline">短編小説<span class="sep">|</span>Boolean → Float</p>
+    <div class="ornament"></div>
+  </header>
+
+  <section class="epigraph">
+    <div class="note">
+      <span class="title">三重がけ命名法の注記</span>
+      「端数（はすう）」は、整数に割り切れず切り捨てられる小数点以下の余り——丸めの対象そのものを指す。<strong>音韻</strong>として「は・す・う」は柔らかく開き、泥中に咲く「蓮」をかすかに連れてくる。<strong>意味</strong>として、0と1に整理されない人間の余白を名指す。<strong>構造</strong>として、整数（Boolean）に対する小数（Float）であり、「ひと」を添えることで〈端数という名の、一人の人間〉を立ち上げる。割り切れないことが、この物語では救いの側にある。
+    </div>
+  </section>
+
+  <article>
+
+    <!-- ===== 一 ===== -->
+    <section class="chapter" id="ch1">
+      <figure class="chapter-plate" role="group" aria-label="第1章 章扉イラスト">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="第一章扉　丸める仕事">
+          <title>一　丸める仕事</title>
+          <desc>灰色の案件行が降り、0.50近傍へ縫いとめられる内部値。osakenpiro hitoakari design.</desc>
+          <defs>
+            <linearGradient id="void1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0d0d12"/>
+              <stop offset="55%" stop-color="#101019"/>
+              <stop offset="100%" stop-color="#14141c"/>
+            </linearGradient>
+            <radialGradient id="hi1" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#f4d79a" stop-opacity="0.9"/>
+              <stop offset="30%" stop-color="#d4a853" stop-opacity="0.34"/>
+              <stop offset="70%" stop-color="#a07b34" stop-opacity="0.08"/>
+              <stop offset="100%" stop-color="#d4a853" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="g1" x="-200%" y="-200%" width="500%" height="500%">
+              <feGaussianBlur stdDeviation="6" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <radialGradient id="vig1" cx="50%" cy="46%" r="74%">
+              <stop offset="0%" stop-color="#000" stop-opacity="0"/>
+              <stop offset="66%" stop-color="#000" stop-opacity="0"/>
+              <stop offset="100%" stop-color="#000" stop-opacity="0.5"/>
+            </radialGradient>
+            <style>
+              .num1{font-family:"Times New Roman",Georgia,serif;}
+              .jp1{font-family:"Yu Mincho","Hiragino Mincho ProN","Noto Serif CJK JP",serif;}
+              .sa1{font-family:"Yu Gothic","Hiragino Kaku Gothic ProN","Noto Sans CJK JP",sans-serif;}
+            </style>
+          </defs>
+          <rect width="1200" height="675" fill="url(#void1)"/>
+          <g fill="#cdd6e6">
+            <circle cx="120" cy="90" r="1.3" opacity="0.34"/>
+            <circle cx="1080" cy="70" r="1.1" opacity="0.28"/>
+            <circle cx="1140" cy="540" r="1.2" opacity="0.26"/>
+            <circle cx="80" cy="600" r="1.1" opacity="0.22"/>
+          </g>
+          <g stroke="#3a4254" stroke-width="2">
+            <line x1="150" y1="120" x2="610" y2="120" opacity="0.40"/>
+            <line x1="150" y1="168" x2="560" y2="168" opacity="0.34"/>
+            <line x1="150" y1="216" x2="640" y2="216" opacity="0.30"/>
+            <line x1="150" y1="264" x2="520" y2="264" opacity="0.26"/>
+            <line x1="150" y1="312" x2="600" y2="312" opacity="0.22"/>
+            <line x1="150" y1="360" x2="560" y2="360" opacity="0.18"/>
+            <line x1="150" y1="408" x2="620" y2="408" opacity="0.15"/>
+            <line x1="150" y1="456" x2="540" y2="456" opacity="0.12"/>
+            <line x1="150" y1="504" x2="600" y2="504" opacity="0.10"/>
+            <line x1="150" y1="552" x2="560" y2="552" opacity="0.08"/>
+          </g>
+          <g fill="#46577d">
+            <circle cx="660" cy="120" r="3.4" opacity="0.55"/>
+            <circle cx="610" cy="168" r="3.4" opacity="0.45"/>
+            <circle cx="690" cy="216" r="3.4" opacity="0.40"/>
+            <circle cx="570" cy="264" r="3.2" opacity="0.32"/>
+          </g>
+          <ellipse cx="820" cy="338" rx="430" ry="220" fill="url(#hi1)"/>
+          <g transform="translate(0,338)">
+            <line x1="640" y1="0" x2="1080" y2="0" stroke="#33415e" stroke-width="2.5" opacity="0.9"/>
+            <line x1="700" y1="-12" x2="700" y2="12" stroke="#2a3550" stroke-width="2.4"/>
+            <line x1="1020" y1="-12" x2="1020" y2="12" stroke="#46577d" stroke-width="2.4"/>
+            <text class="num1" x="700" y="46" text-anchor="middle" font-size="34" fill="#5b6a8c" opacity="0.92">0</text>
+            <text class="num1" x="1020" y="46" text-anchor="middle" font-size="34" fill="#7c8db2" opacity="0.95">1</text>
+            <g stroke="#d4a853" stroke-width="1" opacity="0.4">
+              <line x1="820" y1="-34" x2="860" y2="0"/>
+              <line x1="900" y1="-34" x2="860" y2="0"/>
+              <line x1="820" y1="34" x2="860" y2="0"/>
+              <line x1="900" y1="34" x2="860" y2="0"/>
+            </g>
+            <g filter="url(#g1)">
+              <circle cx="860" cy="0" r="7" fill="#f4d79a"/>
+              <circle cx="860" cy="0" r="14" fill="#d4a853" opacity="0.30"/>
+            </g>
+            <text class="num1" x="860" y="46" text-anchor="middle" font-size="20" fill="#d4a853" opacity="0.78">.50</text>
+          </g>
+          <text class="sa1" x="150" y="624" font-size="15" letter-spacing="8" fill="#8a93a8" opacity="0.85">CHAPTER 一</text>
+          <text class="jp1" x="150" y="600" font-size="30" letter-spacing="4" fill="#e7c074" opacity="0.95">丸める仕事</text>
+          <rect width="1200" height="675" fill="url(#vig1)"/>
+        </svg>
+      </figure>
+      <h2><span class="ch-no">CHAPTER 一</span>一　丸める仕事</h2>
+
+      <p>調整員の朝は、丸めることから始まる。</p>
+
+      <p>六時四十分、楢崎遥（ならざきはるか）は十四階の自席についた。窓のない部屋だった。市民価値局・第三調整室は、光を必要としない仕事のために設計されている。机の上には端末が一台。電源を入れると、夜のうちに溜まった案件が、薄い灰色の行になって並んでいた。</p>
+
+      <p>仕事の名前を、正式には〈価値整序〉という。</p>
+
+      <p>社会は二〇年前、すべての市民に〈価値スコア（Worth Score）〉を割り当てる制度を導入した。住居の優先順位、労働の割り当て、医療資源の配分——その全部が、一人ひとりに紐づいた一個の数値で決まる。スコアは原則として、0か1のどちらかである。正確には、0.00から1.00までの連続した値を内部では持つのだが、市民に通知され、社会の各所で参照されるときには、0か1に丸められる。0.50を境に、下は0、上は1。それだけのことだった。</p>
+
+      <p class="precept">なぜ丸めるのか。理由は最初の説明書にこう書いてあった。<strong>「連続値は判断を遅らせる。社会は決定を必要とする。」</strong></p>
+
+      <p>遥の仕事は、この丸めが破綻したケースを処理することだった。たいていの市民は、内部値が0.1や0.9のあたりで安定していて、迷う余地がない。問題になるのは、0.50のすぐ近くで揺れる人間たちだ。0.49と0.51を行き来する者。昨日は0、今日は1、明日はまた0になる者。彼らは社会の各システムにとって、ノイズだった。住居の割り当てが日によって入れ替わり、医療の順位が前後する。だから調整員が呼ばれて、その人間がほんとうは0なのか1なのかを、確定させる。</p>
+
+      <p>確定とは、丸める方向を一つに固定することだ。0.50近傍で揺れる値を、もう揺れないように、下か上か、どちらかへ縫いとめる。手続きとしては、その市民の生活履歴、労働記録、医療データ、近隣からの申告を読み込んで、揺れの「真の傾向」を見極め、0側か1側かに署名する。署名された値は、それ以降、機械的に固定される。</p>
+
+      <p>遥はこの仕事を七年やってきた。同僚たちは彼女を「速くて静かな調整員」と評した。速いのは、迷わないからだった。静かなのは、丸めるという行為に、もう何の手応えも感じなくなっていたからだった。</p>
+
+      <p>最初の案件を開いた。六十二歳、男性、内部値0.48で三か月停滞。生活履歴を読む。十年前に妻を亡くし、以後の労働記録は途切れがちで、しかし近隣からの申告は穏やかだった。〈静かな人〉〈花を育てている〉。遥はその二行を一秒だけ見て、0側に署名した。0.48は、もともと0に近い。妥当だった。男はこれで、医療の順位を一つ下げる。花は、たぶん来年も咲く。咲くかどうかを、遥が確かめることはない。</p>
+
+      <p>二件目、三件目。指は慣れた経路をなぞった。0へ、1へ、0へ。</p>
+
+      <p>丸めるという動詞は、もとは角を取って円くするという意味だったはずだ、と遥はときどき思う。けれどこの部屋でそれは、余分を切り落とすという意味だった。0.48の「.48」を、0.93の「.07」を、なかったことにする。切り落とされた端数は、どこへ行くのか。誰も問わない。それは定義上、存在しない量だった。</p>
+
+      <p>午前の中ほど、二十七件目の案件で、遥の指が止まった。</p>
+
+      <p class="precept">行はこうだった。<strong>「氏名：佐倉　葉（さくら　よう）／内部値：振動継続中／確定不能」</strong></p>
+
+      <p>確定不能、という三文字を、遥はそれまで一度しか見たことがなかった。それも研修のサンプルとしてだった。実物は初めてだ。</p>
+
+      <p>通常、内部値は揺れていてもどこかに重心がある。0.49と0.51を行き来していても、長く見れば0.50よりわずかに上、というふうに偏る。その偏りを読み取って、署名する。それが調整だ。</p>
+
+      <p>佐倉葉のグラフは、偏らなかった。</p>
+
+      <p>過去十八か月の内部値の推移が、画面に折れ線で描かれていた。線は0.50を中心に、規則的でもなく、不規則でもなく、けれど決して片側に落ち着かない。0.50を上に抜けては戻り、下に抜けては戻る。平均を取ると、ぴたりと0.500だった。標準偏差は大きい。重心がない、というより、重心が0.50そのものにあった。</p>
+
+      <p>システムは十八か月、この人物を丸められずにいた。0にしようとすると次の更新で1に近づき、1にしようとすると0へ滑った。住居は割り当てと取り消しを繰り返し、医療の順位は前後し続けた。そして三日前、ついにフラグが立った。</p>
+
+      <p>〈要・人手による最終確定〉。</p>
+
+      <p>遥は佐倉葉の生活履歴を開いた。</p>
+
+      <p>三十四歳。職業欄は空白に近い。短い仕事をいくつも、長続きせずに。住所は半年ごとに変わっている。家族の記録はない。医療データには、慢性の疾患も、重い既往もない。健康だった。ただ、ひとつだけ、奇妙な項目があった。</p>
+
+      <p>〈申告：近隣より複数。内容、相反。〉</p>
+
+      <p>遥はその申告群を展開した。</p>
+
+      <p>ある隣人は書いていた。「いつも親切にしてくれる。荷物を持ってくれた。1だと思う。」<br>
+      別の隣人は書いていた。「何を考えているか分からない。気味が悪い。0でいい。」<br>
+      また別の一人。「やさしい日と、冷たい日がある。同じ人とは思えない。」<br>
+      さらに。「あの人はたぶん、どちらでもない。」</p>
+
+      <p class="beat">どちらでもない。</p>
+
+      <p>遥は、その一行のところで、しばらく動かなかった。</p>
+
+      <p>窓のない部屋の空調が、低く鳴っていた。画面の折れ線は、止まったまま0.50のあたりで小さく波打っているように、彼女には見えた。実際には、それは静止画だった。揺れていたのは、たぶん、見ている側だった。</p>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ===== 二 ===== -->
+    <section class="chapter" id="ch2">
+      <figure class="chapter-plate" role="group" aria-label="第2章 章扉イラスト">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="第二章扉　会いにいく規程">
+          <title>二　会いにいく規程</title>
+          <desc>規程の扉が細く開き、その隙間から漏れる一条の暖かい光と、会いに行く一歩。osakenpiro hitoakari design.</desc>
+          <defs>
+            <linearGradient id="void2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0d0d12"/>
+              <stop offset="55%" stop-color="#101019"/>
+              <stop offset="100%" stop-color="#14141c"/>
+            </linearGradient>
+            <linearGradient id="doorlight2" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#f4d79a" stop-opacity="0.92"/>
+              <stop offset="60%" stop-color="#d4a853" stop-opacity="0.34"/>
+              <stop offset="100%" stop-color="#d4a853" stop-opacity="0"/>
+            </linearGradient>
+            <filter id="g2" x="-200%" y="-200%" width="500%" height="500%">
+              <feGaussianBlur stdDeviation="8" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <radialGradient id="vig2" cx="50%" cy="46%" r="74%">
+              <stop offset="0%" stop-color="#000" stop-opacity="0"/>
+              <stop offset="66%" stop-color="#000" stop-opacity="0"/>
+              <stop offset="100%" stop-color="#000" stop-opacity="0.5"/>
+            </radialGradient>
+            <style>
+              .jp2{font-family:"Yu Mincho","Hiragino Mincho ProN","Noto Serif CJK JP",serif;}
+              .sa2{font-family:"Yu Gothic","Hiragino Kaku Gothic ProN","Noto Sans CJK JP",sans-serif;}
+            </style>
+          </defs>
+          <rect width="1200" height="675" fill="url(#void2)"/>
+          <g fill="#cdd6e6">
+            <circle cx="160" cy="90" r="1.2" opacity="0.30"/>
+            <circle cx="1060" cy="120" r="1.1" opacity="0.26"/>
+            <circle cx="1120" cy="520" r="1.2" opacity="0.24"/>
+          </g>
+          <g stroke="#2a3550" stroke-width="2" opacity="0.5">
+            <line x1="120" y1="150" x2="120" y2="560"/>
+          </g>
+          <g fill="#46577d">
+            <circle cx="160" cy="200" r="3" opacity="0.40"/>
+            <circle cx="160" cy="300" r="3" opacity="0.0"/>
+            <circle cx="160" cy="400" r="3" opacity="0.40"/>
+            <circle cx="160" cy="500" r="3" opacity="0.0"/>
+          </g>
+          <path d="M 720 70 L 720 600 L 1180 470 L 1180 200 Z" fill="url(#doorlight2)" opacity="0.55"/>
+          <g transform="translate(700,80)">
+            <rect x="0" y="0" width="240" height="500" fill="none" stroke="#46577d" stroke-width="3" opacity="0.85"/>
+            <rect x="6" y="6" width="150" height="488" fill="#14141c" stroke="#33415e" stroke-width="1.5" opacity="0.9"/>
+            <g filter="url(#g2)">
+              <rect x="156" y="6" width="78" height="488" fill="#0d0d12"/>
+              <rect x="156" y="6" width="22" height="488" fill="#f4d79a" opacity="0.9"/>
+              <rect x="178" y="6" width="20" height="488" fill="#d4a853" opacity="0.42"/>
+            </g>
+            <g stroke="#3a4254" stroke-width="1.5" opacity="0.5">
+              <line x1="24" y1="80" x2="138" y2="80"/>
+              <line x1="24" y1="120" x2="120" y2="120"/>
+              <line x1="24" y1="160" x2="138" y2="160"/>
+              <line x1="24" y1="200" x2="110" y2="200"/>
+            </g>
+            <circle cx="140" cy="250" r="4" fill="#5b6a8c" opacity="0.7"/>
+          </g>
+          <g filter="url(#g2)">
+            <ellipse cx="600" cy="600" rx="26" ry="9" fill="#d4a853" opacity="0.40"/>
+            <ellipse cx="660" cy="595" rx="22" ry="8" fill="#d4a853" opacity="0.26"/>
+          </g>
+          <text class="sa2" x="150" y="624" font-size="15" letter-spacing="8" fill="#8a93a8" opacity="0.85">CHAPTER 二</text>
+          <text class="jp2" x="150" y="600" font-size="30" letter-spacing="4" fill="#e7c074" opacity="0.95">会いにいく規程</text>
+          <rect width="1200" height="675" fill="url(#vig2)"/>
+        </svg>
+      </figure>
+      <h2><span class="ch-no">CHAPTER 二</span>二　会いにいく規程</h2>
+
+      <p>確定不能のケースには、規程上、特別な手順がある。</p>
+
+      <p>調整員は、データだけで署名してはならない。本人と一度、面会する。これは丸めの正確を期すためではなく——揺れるものを揺れたまま記録に残さないため、つまり社会の側のアリバイのために、設けられた手続きだった。「人間が、人間に会って、確かめた上で確定した」という形を、制度は必要としていた。</p>
+
+      <p>遥は面会を申請した。翌日の午後、許可が下りた。</p>
+
+      <p>佐倉葉の現住所は、市の西の縁にある旧集合住宅だった。スコア制度の導入前に建てられた、つまり値で住人を選ばなかった時代の建物だ。エレベーターは半分しか動かず、廊下の照明は一つおきに切れていた。低スコア帯の人間が流れ着く場所だと、遥は知っていた。けれど佐倉葉は低スコアではない。低くも高くもない。割り当てが定まらないから、ここに、定まらない者として置かれていた。</p>
+
+      <p>四〇三号室の前に立った。呼び鈴は壊れていた。遥はドアを三度叩いた。</p>
+
+      <p>しばらくして、ドアが開いた。</p>
+
+      <p>佐倉葉は、思っていたより小柄な人だった。性別を、遥は咄嗟に判じられなかった。記録には「葉」とだけあり、性別欄も空白に近かった。短く整えられた髪、痩せた体、年齢の読めない顔。やわらかい目をしていた。けれどその目の奥に、何か、定まらないものがあった。</p>
+
+      <p>「市民価値局の方ですね」と、葉は静かに言った。声は低く、落ち着いていた。「お茶を淹れます。冷たいのと、温かいの、どちらがいいですか」</p>
+
+      <p>「どちらでも」と遥は答えた。職務上の口調のつもりだった。</p>
+
+      <p>「どちらでも、と仰る方は、たいてい温かいほうを出すと喜ばれます」葉はかすかに笑った。「でも、今日は暑い。冷たいのにします。間違っていたら、言ってください」</p>
+
+      <p>部屋は、驚くほど片付いていた。物が少なく、けれど寒々しくはなかった。窓辺に、小さな植木鉢が一つ。名前の知らない、細い葉の植物が植わっていた。遥は、午前に0へ署名した六十二歳の男の「花を育てている」という一行を、ふと思い出した。</p>
+
+      <p>冷たいお茶が出された。麦の香りがした。遥はそれを一口飲んで、本題に入った。</p>
+
+      <p>「あなたの内部値が、十八か月、確定していません。今日は、それを確定させるために来ました。いくつか質問させてください。あなたの生活について。仕事のこと、人との関わり、ふだん何を考えているか」</p>
+
+      <p>「丸めるために、ですね」と葉は言った。咎める調子ではなかった。事実を確認するように。</p>
+
+      <p>「……そうです」</p>
+
+      <p>「いいですよ」葉は座り直した。「でも、先に一つだけ。あなたは、わたしを0にしたいですか、1にしたいですか」</p>
+
+      <p>遥は答えに詰まった。調整員は、どちらにしたいとも思ってはならない。傾向を読み取るだけだ。意志を持ってはならない。</p>
+
+      <p>「わたしには、希望はありません」と遥は言った。訓練された答えだった。「あなたの傾向を読んで、それに従って署名します」</p>
+
+      <p>「傾向」葉はその言葉を、口の中で転がすように繰り返した。「わたしには、傾向がないんです。たぶん、それがあなたを困らせている」</p>
+
+      <p>「傾向がない人間は、いません」遥は言った。「全員、どこかに偏っています。あなたも、長く見れば、どちらかに——」</p>
+
+      <p>「長く見ても、偏らなかったでしょう」葉は遥の目を見た。「十八か月。平均は0.500。標準偏差は、たぶん0.2以上。違いますか」</p>
+
+      <p>遥は黙った。数字は、その通りだった。</p>
+
+      <p>「わたしは、調整に協力しないわけじゃないんです」葉は続けた。「むしろ、ずっと考えてきました。なぜ自分が確定しないのか。そして、わかったことがあります。聞きますか」</p>
+
+      <p>「……どうぞ」</p>
+
+      <p>「わたしは、相手によって変わるんです」</p>
+
+      <p>葉は窓辺の植木鉢のほうへ目をやった。</p>
+
+      <p>「親切な人の前では、親切になる。冷たい人の前では、冷たくなる。怒っている人の前では、怒りたくなる。わたしには、固定された自分というものが、たぶん、ない。あるのは、目の前の人との間に、その都度生まれる関係だけです。だから隣の人たちの申告が、ばらばらなんですよ。彼らは、それぞれ違うわたしに会っている。そして、それぞれ正しい」</p>
+
+      <p>遥は、その話を、調整員として聞こうとした。つまり、これは病理だろうか、と。自己の不安定、同一性の障害。医療データに何かあっただろうか。けれど葉の話しぶりは、病んだ人間のものではなかった。むしろ、自分の輪郭を、人より正確に知っている者の話し方だった。</p>
+
+      <p>「それは」と遥は言った。「あなたが、本当の自分を持っていない、ということですか」</p>
+
+      <p>「逆かもしれません」葉は静かに言った。「わたしは、本当の自分を、一つに決めなかった、ということかもしれない。みんな、どこかで決めるでしょう。わたしはこういう人間だ、と。決めれば、丸まる。0か1になる。決めなかったから、わたしは0.5のまま、揺れている」</p>
+
+      <p>葉は遥に向き直った。</p>
+
+      <p>「あなたは、自分を、どちらかに決めましたか」</p>
+
+      <p>遥は、答えなかった。答えられなかった、というほうが正しい。</p>
+
+      <p>帰りの廊下で、一つおきに切れた照明の下を歩きながら、遥は気づいた。自分は今日、一度も葉のスコアを読み取れていない。データを取りに来たはずだった。けれど持ち帰ったのは、数値ではなく、一つの問いだった。</p>
+
+      <p class="beat">あなたは、自分を、どちらかに決めましたか。</p>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ===== 三 ===== -->
+    <section class="chapter" id="ch3">
+      <figure class="chapter-plate" role="group" aria-label="第3章 章扉イラスト">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="第三章扉　切り落とされたもの">
+          <title>三　切り落とされたもの</title>
+          <desc>切断線で切り落とされる端数〈.48〉と、消された保留〈H＝Hold〉の取り消し線。osakenpiro hitoakari design.</desc>
+          <defs>
+            <linearGradient id="void3" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0d0d12"/>
+              <stop offset="55%" stop-color="#101019"/>
+              <stop offset="100%" stop-color="#14141c"/>
+            </linearGradient>
+            <radialGradient id="hi3" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#f4d79a" stop-opacity="0.85"/>
+              <stop offset="34%" stop-color="#d4a853" stop-opacity="0.30"/>
+              <stop offset="74%" stop-color="#a07b34" stop-opacity="0.07"/>
+              <stop offset="100%" stop-color="#d4a853" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="g3" x="-200%" y="-200%" width="500%" height="500%">
+              <feGaussianBlur stdDeviation="5" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <radialGradient id="vig3" cx="50%" cy="46%" r="74%">
+              <stop offset="0%" stop-color="#000" stop-opacity="0"/>
+              <stop offset="66%" stop-color="#000" stop-opacity="0"/>
+              <stop offset="100%" stop-color="#000" stop-opacity="0.5"/>
+            </radialGradient>
+            <style>
+              .num3{font-family:"Times New Roman",Georgia,serif;}
+              .jp3{font-family:"Yu Mincho","Hiragino Mincho ProN","Noto Serif CJK JP",serif;}
+              .sa3{font-family:"Yu Gothic","Hiragino Kaku Gothic ProN","Noto Sans CJK JP",sans-serif;}
+            </style>
+          </defs>
+          <rect width="1200" height="675" fill="url(#void3)"/>
+          <g fill="#cdd6e6">
+            <circle cx="140" cy="100" r="1.2" opacity="0.28"/>
+            <circle cx="1080" cy="80" r="1.1" opacity="0.24"/>
+            <circle cx="1100" cy="560" r="1.1" opacity="0.22"/>
+          </g>
+          <text class="num3" x="430" y="400" text-anchor="middle" font-size="300" fill="#46577d" opacity="0.85">0</text>
+          <line x1="560" y1="120" x2="560" y2="560" stroke="#7c8db2" stroke-width="2" stroke-dasharray="6 9" opacity="0.55"/>
+          <g stroke="#5b6a8c" stroke-width="1.4" opacity="0.5">
+            <line x1="548" y1="160" x2="572" y2="150"/>
+            <line x1="548" y1="280" x2="572" y2="270"/>
+            <line x1="548" y1="400" x2="572" y2="390"/>
+            <line x1="548" y1="520" x2="572" y2="510"/>
+          </g>
+          <g transform="translate(720,330)" opacity="0.9">
+            <ellipse cx="60" cy="0" rx="300" ry="170" fill="url(#hi3)"/>
+            <g filter="url(#g3)">
+              <text class="num3" x="0" y="60" font-size="170" fill="#d4a853" opacity="0.72" transform="rotate(9 0 0)">.48</text>
+            </g>
+            <g fill="#d4a853">
+              <circle cx="290" cy="-30" r="3.2" opacity="0.5"/>
+              <circle cx="340" cy="20" r="2.4" opacity="0.4"/>
+              <circle cx="380" cy="-60" r="2.0" opacity="0.32"/>
+              <circle cx="410" cy="60" r="1.8" opacity="0.26"/>
+              <circle cx="450" cy="-10" r="1.5" opacity="0.20"/>
+            </g>
+          </g>
+          <g transform="translate(150,470)" opacity="0.6">
+            <text class="num3" x="0" y="0" font-size="86" fill="#5b6a8c" opacity="0.55">H</text>
+            <line x1="-8" y1="-30" x2="60" y2="-30" stroke="#b04a3e" stroke-width="3" opacity="0.7"/>
+            <text class="sa3" x="74" y="-6" font-size="16" letter-spacing="2" fill="#6c7280" opacity="0.7">Hold ／ 保留</text>
+          </g>
+          <text class="sa3" x="150" y="624" font-size="15" letter-spacing="8" fill="#8a93a8" opacity="0.85">CHAPTER 三</text>
+          <text class="jp3" x="150" y="600" font-size="30" letter-spacing="4" fill="#e7c074" opacity="0.95">切り落とされたもの</text>
+          <rect width="1200" height="675" fill="url(#vig3)"/>
+        </svg>
+      </figure>
+      <h2><span class="ch-no">CHAPTER 三</span>三　切り落とされたもの</h2>
+
+      <p>局に戻った遥は、面会報告を書かねばならなかった。</p>
+
+      <p>書式は決まっている。本人の供述、観察された傾向、推奨される確定方向。三つの欄を埋めれば、署名へ進める。遥は供述欄に、葉の言葉を要約して書いた。「自己同一性を固定せず、対人関係に応じて態度が変動すると本人は説明。」観察欄には「面会中、応答は一貫して穏当。攻撃性、混乱の徴候なし。」と書いた。</p>
+
+      <p>推奨確定方向の欄で、カーソルが止まった。</p>
+
+      <p>0と書けば、葉は低スコア帯に固定される。今の旧集合住宅に留まり、医療の順位は最下層に近づく。健康だから、当面は困らないだろう。けれど、いつか困る。1と書けば、葉は高スコア帯に上がる。住居が割り当てられ、労働が斡旋され、医療の優先が約束される。</p>
+
+      <p>どちらが、葉にとって良いのか。</p>
+
+      <p>——それは、調整員の考えることではない。遥は自分を戒めた。良いか悪いかではない。傾向に従うだけだ。そして葉には、傾向がない。平均0.500。</p>
+
+      <p>ならば、どうする。</p>
+
+      <p>遥は規程集を開いた。〈確定不能ケースの最終処理〉という項があった。これまで読んだことのない項だった。短い条文だ。</p>
+
+      <p class="precept"><strong>「面会後もなお重心が定まらず、平均値が0.45以上0.55以下に収束する場合、当該市民は〈非整序対象〉として、システムから除外する。」</strong></p>
+
+      <p class="beat">除外。</p>
+
+      <p>遥は、その語の意味を、注釈で確かめた。注釈はさらに短かった。</p>
+
+      <p class="precept"><strong>「除外された市民は、スコアを付与されない。すなわち、住居・労働・医療のいずれの優先順位算定からも外れる。社会的資源の配分対象から、抹消される。」</strong></p>
+
+      <p class="beat">抹消。</p>
+
+      <p>遥は、その二文字を、長い間見つめた。</p>
+
+      <p>0でも1でもないものを、社会は、0と1のあいだに置いておくことができない。0.5は、システムにとって、決定不能ということで、決定不能は、不在と同じだった。だから、消す。葉のような人間を、丸める代わりに、切り落とす。午前中に何百回もやってきた「.48を捨てる」「.07を捨てる」という、あの操作を——人間そのものに対して、行う。</p>
+
+      <p>切り落とされた端数は、どこへ行くのか。誰も問わない。それは定義上、存在しない量だった。</p>
+
+      <p>遥は、初めて、その問いの本当の重さを知った。切り落とされた端数は、どこへも行かない。ただ、なかったことになる。佐倉葉という人間が、社会のどの帳簿からも消える。住む場所の権利を失い、働く場所を失い、病んでも順番が回ってこない。生きていても、数えられない。</p>
+
+      <p>遥は端末を閉じた。</p>
+
+      <p>その晩、遥は眠れなかった。</p>
+
+      <p>自分の七年を、彼女は数えてみた。何人を0にし、何人を1にしただろう。そのうちの何人かは、0.49だっただろう。0.51だっただろう。彼女が下に縫いとめたから0になり、上に縫いとめたから1になった。彼らは、ほんとうは、葉と同じだったのかもしれない。揺れていた。決めかねていた。ただ、葉ほどには、きれいに0.500ではなかった。だから、丸められた。気づかれずに、切り落とされた。</p>
+
+      <p>遥は、自分の内部値を、ふと考えた。</p>
+
+      <p>市民価値局の職員にも、当然、スコアはある。彼女自身の値を、彼女は知らされていない。職員は自分の値を見られない規程になっている。けれど、もし見られたら、と遥は思った。わたしは、いくつだろう。0.8くらいだと、漠然と思っていた。役に立つ仕事をして、迷わず、静かに、速く。</p>
+
+      <p>けれど今夜の彼女は、迷っていた。眠れずに、規程の正しさを疑っていた。これは、0に近い人間のすることだろうか。それとも1に近い人間の。</p>
+
+      <p class="beat">わからなかった。</p>
+
+      <p>わからない、ということが、葉の言ったことそのものだと、遥は気づいた。</p>
+
+      <p>「あなたは、自分を、どちらかに決めましたか」</p>
+
+      <p>決めていない。少なくとも今夜は、決めていない。わたしも、揺れている。0.500では、ないかもしれない。けれど、確かに、揺れている。</p>
+
+      <p>遥は、暗い天井を見上げた。窓のないこの街では、夜も、本当の暗さにはならない。どこかの非常灯か、サーバーの待機灯か、薄い光がいつも残っている。</p>
+
+      <p>その薄明かりの中で、遥は一つ、決めた。</p>
+
+      <p>決めることを、もう少し、先延ばしにしようと。</p>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ===== 四 ===== -->
+    <section class="chapter" id="ch4">
+      <figure class="chapter-plate" role="group" aria-label="第4章 章扉イラスト">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="第四章扉　猶予という抵抗">
+          <title>四　猶予という抵抗</title>
+          <desc>砂時計のように落ちる三度の差戻し。残り三粒の砂が、消去への結末を押しとどめる猶予。osakenpiro hitoakari design.</desc>
+          <defs>
+            <linearGradient id="void4" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0d0d12"/>
+              <stop offset="55%" stop-color="#101019"/>
+              <stop offset="100%" stop-color="#14141c"/>
+            </linearGradient>
+            <radialGradient id="hi4" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#f4d79a" stop-opacity="0.85"/>
+              <stop offset="34%" stop-color="#d4a853" stop-opacity="0.28"/>
+              <stop offset="74%" stop-color="#a07b34" stop-opacity="0.07"/>
+              <stop offset="100%" stop-color="#d4a853" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="g4" x="-200%" y="-200%" width="500%" height="500%">
+              <feGaussianBlur stdDeviation="6" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <radialGradient id="vig4" cx="50%" cy="46%" r="74%">
+              <stop offset="0%" stop-color="#000" stop-opacity="0"/>
+              <stop offset="66%" stop-color="#000" stop-opacity="0"/>
+              <stop offset="100%" stop-color="#000" stop-opacity="0.5"/>
+            </radialGradient>
+            <style>
+              .jp4{font-family:"Yu Mincho","Hiragino Mincho ProN","Noto Serif CJK JP",serif;}
+              .sa4{font-family:"Yu Gothic","Hiragino Kaku Gothic ProN","Noto Sans CJK JP",sans-serif;}
+            </style>
+          </defs>
+          <rect width="1200" height="675" fill="url(#void4)"/>
+          <g fill="#cdd6e6">
+            <circle cx="150" cy="100" r="1.2" opacity="0.28"/>
+            <circle cx="1070" cy="90" r="1.1" opacity="0.24"/>
+            <circle cx="1110" cy="540" r="1.1" opacity="0.22"/>
+          </g>
+          <ellipse cx="600" cy="338" rx="270" ry="230" fill="url(#hi4)"/>
+          <g stroke="#46577d" stroke-width="3" fill="none" opacity="0.85" transform="translate(600,338)">
+            <line x1="-150" y1="-230" x2="150" y2="-230"/>
+            <line x1="-150" y1="230" x2="150" y2="230"/>
+            <path d="M -140 -230 L 140 -230 L 14 0 L 140 230 L -140 230 L -14 0 Z"/>
+          </g>
+          <path d="M -120 -218 L 120 -218 L 12 -16 L -12 -16 Z" transform="translate(600,338)" fill="#5b6a8c" opacity="0.30"/>
+          <path d="M -110 218 L 110 218 L 70 150 L -70 150 Z" transform="translate(600,338)" fill="#7c8db2" opacity="0.22"/>
+          <g transform="translate(600,338)" filter="url(#g4)">
+            <line x1="0" y1="-12" x2="0" y2="120" stroke="#d4a853" stroke-width="2.4" opacity="0.7"/>
+          </g>
+          <g filter="url(#g4)" transform="translate(600,338)">
+            <circle cx="-2" cy="6" r="6" fill="#f4d79a"/>
+            <circle cx="6" cy="34" r="5" fill="#f4d79a" opacity="0.92"/>
+            <circle cx="-4" cy="64" r="4.4" fill="#e7c074" opacity="0.85"/>
+          </g>
+          <g transform="translate(740,330)" fill="#d4a853" opacity="0.6">
+            <rect x="0" y="-8" width="5" height="20" rx="2"/>
+            <rect x="14" y="-8" width="5" height="20" rx="2"/>
+            <rect x="28" y="-8" width="5" height="20" rx="2"/>
+          </g>
+          <text class="sa4" x="150" y="624" font-size="15" letter-spacing="8" fill="#8a93a8" opacity="0.85">CHAPTER 四</text>
+          <text class="jp4" x="150" y="600" font-size="30" letter-spacing="4" fill="#e7c074" opacity="0.95">猶予という抵抗</text>
+          <rect width="1200" height="675" fill="url(#vig4)"/>
+        </svg>
+      </figure>
+      <h2><span class="ch-no">CHAPTER 四</span>四　猶予という抵抗</h2>
+
+      <p>翌朝、遥は局に出ると、佐倉葉のケースの「処理期限延長」を申請した。</p>
+
+      <p>規程上、確定不能ケースは、面会後三日以内に最終処理されねばならない。遥は、追加調査が必要だという理由で、十四日の延長を求めた。理由欄には「対人変動の傾向に周期性の可能性。長期観測を要す」と書いた。半分は本当で、半分は方便だった。</p>
+
+      <p>延長は、機械的に承認された。システムは、理由の中身を読まない。形式が整っていれば、通す。丸めると同じだ、と遥は思った。中身ではなく、閾値だけを見る。</p>
+
+      <p>その十四日のあいだ、遥は何度か、葉を訪ねた。</p>
+
+      <p>規程に追加面会の禁止はなかった。観測のため、と言えば通った。遥は、葉の生活を見た。葉は、近隣の老人の買い物を手伝い、その帰りに別の住人と諍いを起こし、夜には窓辺の植木に水をやっていた。やさしい葉と、とげのある葉と、ひとりで静かな葉が、同じ一日の中にいた。</p>
+
+      <p>遥は、それを、欠陥として見ることを、だんだんやめた。</p>
+
+      <p>「あなたは」とある日、遥は訊いた。「消されるかもしれないことを、知っていますか」</p>
+
+      <p>「〈非整序対象〉のことですね」葉はうなずいた。「知っています。前にも、別の調整員が来ました。その人は、わたしを0にしようとして、できなかった。次の更新でまた揺れて、署名が無効になった。それで、その人は、規程を持ち出しました。除外する、と。でも、実行する前に、異動になったみたいです」</p>
+
+      <p>「あなたは、消されたくないですか」</p>
+
+      <p>葉は、しばらく、窓辺の植木を見ていた。</p>
+
+      <p>「消されたくない、と言えば、わたしは1に寄ります。生にしがみつくのは、たぶん、1の側だから。消されてもいい、と言えば、0に寄る。だから、わたしは、どちらも言いません」</p>
+
+      <p>「それは、ずるい答えです」遥は、思わず言った。職務の口調ではなかった。</p>
+
+      <p>「ずるい」葉は笑った。今度は、はっきりと。「そうかもしれない。でも、あなたが本当に訊きたいのは、消されたいかどうかじゃないでしょう」</p>
+
+      <p>「……何が、訊きたいんですか。わたしは」</p>
+
+      <p>「あなたは、たぶん」葉は、まっすぐに遥を見た。「わたしを消さずにすむ方法が、あるかどうかを、訊きたいんです」</p>
+
+      <p>遥は、息を呑んだ。図星だった。彼女はこの十四日、ずっとそれを探していた。葉を0にも1にもせず、しかも除外もしない、第四の道を。</p>
+
+      <p>「ありますか」と遥は訊いた。声が、少し震えた。</p>
+
+      <p>「わたしには、わかりません」葉は静かに言った。「それを探すのは、あなたの仕事です。わたしは、ただ、揺れているだけだから」</p>
+
+      <p>その夜、遥は、局のアーカイブに潜った。</p>
+
+      <p>調整員には、過去の処理記録を閲覧する権限がある。遥は、〈非整序対象〉として除外された市民の記録を、検索した。</p>
+
+      <p>ヒットした件数は、想像よりずっと多かった。十九年間で、四千件以上。0.45から0.55のあいだで揺れ、丸められず、消された人間が、四千人以上。彼らの記録は、除外の日付で途切れていた。それ以降、何も書かれていない。生きているのか、死んだのか、どこにいるのか。社会の帳簿に、続きはなかった。</p>
+
+      <p>遥は、その四千の名前を、ゆっくりとスクロールした。</p>
+
+      <p>一つひとつが、佐倉葉だった。一つひとつが、決めなかった人間だった。あるいは、決められなかった人間だった。彼らの揺れは、誰かを困らせ、そして、消された。</p>
+
+      <p>スクロールの途中、遥の手が、止まった。</p>
+
+      <p>ある記録に、調整員の署名欄があった。除外を実行した職員の名前だ。多くは伏せられていたが、その一件には、名前が残っていた。</p>
+
+      <p>〈確定者：楢崎　遥〉</p>
+
+      <p>遥は、その名を、何度も読み返した。</p>
+
+      <p>四年前の日付だった。彼女は、覚えていなかった。覚えていないほど、たくさんの案件の、一つだった。市民名は、笠井という人物。内部値0.46で長く停滞し、面会記録もある。遥は、その面会報告を開いた。自分の書いた文章が、そこにあった。「応答に一貫性を欠く。確定困難。」そして推奨確定方向の欄は、空白だった。空白のまま、彼女は、〈非整序対象〉の処理に回していた。</p>
+
+      <p>0にも1にもしなかった。けれど、第四の道を探すのではなく、除外という、五番目の出口へ、彼女は流したのだった。たぶん、急いでいた。たぶん、面倒だった。たぶん、それが規程だったから。</p>
+
+      <p>笠井という人間を、彼女は、四年前に、切り落としていた。</p>
+
+      <p>遥は、画面の前で、長いあいだ動けなかった。</p>
+
+      <p>切り落とされた端数は、どこへ行くのか。彼女はずっと、それを定義上存在しない量だと思ってきた。けれど違った。端数は、彼女の中に、残っていた。覚えていなくても、消したという事実は、彼女の履歴に、署名として、残っていた。腐葉土のように。土の下で、見えないまま、彼女という土壌の一部になっていた。</p>
+
+      <p>切り落としたものは、消えない。切り落とした側の中に、降り積もる。</p>
+
+      <p>遥は、初めて、自分の七年の重さを、足の裏に感じた。</p>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ===== 五 ===== -->
+    <section class="chapter" id="ch5">
+      <figure class="chapter-plate" role="group" aria-label="第5章 章扉イラスト">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="第五章扉　0.5の設計">
+          <title>五　0.5の設計</title>
+          <desc>数直線 0 …（0.50）… 1。中点でひときわ強く灯る金の点。0.5を扱えるよう設計し直す。osakenpiro hitoakari design.</desc>
+          <defs>
+            <linearGradient id="void5" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0d0d12"/>
+              <stop offset="55%" stop-color="#101019"/>
+              <stop offset="100%" stop-color="#14141c"/>
+            </linearGradient>
+            <radialGradient id="hi5" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#f4d79a" stop-opacity="0.95"/>
+              <stop offset="26%" stop-color="#e7c074" stop-opacity="0.5"/>
+              <stop offset="52%" stop-color="#d4a853" stop-opacity="0.20"/>
+              <stop offset="100%" stop-color="#d4a853" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="g5" x="-300%" y="-300%" width="700%" height="700%">
+              <feGaussianBlur stdDeviation="10" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <radialGradient id="vig5" cx="50%" cy="46%" r="74%">
+              <stop offset="0%" stop-color="#000" stop-opacity="0"/>
+              <stop offset="66%" stop-color="#000" stop-opacity="0"/>
+              <stop offset="100%" stop-color="#000" stop-opacity="0.5"/>
+            </radialGradient>
+            <style>
+              .num5{font-family:"Times New Roman",Georgia,serif;}
+              .jp5{font-family:"Yu Mincho","Hiragino Mincho ProN","Noto Serif CJK JP",serif;}
+              .sa5{font-family:"Yu Gothic","Hiragino Kaku Gothic ProN","Noto Sans CJK JP",sans-serif;}
+            </style>
+          </defs>
+          <rect width="1200" height="675" fill="url(#void5)"/>
+          <g fill="#cdd6e6">
+            <circle cx="150" cy="100" r="1.3" opacity="0.30"/>
+            <circle cx="300" cy="150" r="1.0" opacity="0.22"/>
+            <circle cx="900" cy="130" r="1.1" opacity="0.24"/>
+            <circle cx="1070" cy="90" r="1.2" opacity="0.26"/>
+            <circle cx="1100" cy="560" r="1.1" opacity="0.22"/>
+          </g>
+          <g fill="#d4a853">
+            <circle cx="500" cy="230" r="1.6" opacity="0.45"/>
+            <circle cx="700" cy="220" r="1.3" opacity="0.40"/>
+            <circle cx="620" cy="180" r="1.1" opacity="0.32"/>
+          </g>
+          <circle cx="600" cy="330" r="300" fill="url(#hi5)"/>
+          <g transform="translate(0,330)">
+            <line x1="200" y1="0" x2="1000" y2="0" stroke="#33415e" stroke-width="3" opacity="0.92"/>
+            <line x1="260" y1="-16" x2="260" y2="16" stroke="#2a3550" stroke-width="3"/>
+            <line x1="940" y1="-16" x2="940" y2="16" stroke="#46577d" stroke-width="3"/>
+            <g stroke="#33415e" stroke-width="1.5" opacity="0.55">
+              <line x1="430" y1="-9" x2="430" y2="9"/>
+              <line x1="770" y1="-9" x2="770" y2="9"/>
+            </g>
+            <text class="num5" x="260" y="58" text-anchor="middle" font-size="56" fill="#5b6a8c" opacity="0.92">0</text>
+            <text class="num5" x="940" y="58" text-anchor="middle" font-size="56" fill="#7c8db2" opacity="0.95">1</text>
+            <line x1="600" y1="-58" x2="600" y2="-20" stroke="#d4a853" stroke-width="1.4" opacity="0.5"/>
+            <g filter="url(#g5)">
+              <circle cx="600" cy="0" r="13" fill="#f4d79a"/>
+              <circle cx="600" cy="0" r="26" fill="#d4a853" opacity="0.34"/>
+            </g>
+            <text class="num5" x="600" y="62" text-anchor="middle" font-size="34" fill="#d4a853" opacity="0.85">0.50</text>
+          </g>
+          <text class="sa5" x="150" y="624" font-size="15" letter-spacing="8" fill="#8a93a8" opacity="0.85">CHAPTER 五</text>
+          <text class="jp5" x="150" y="600" font-size="30" letter-spacing="4" fill="#e7c074" opacity="0.95">0.5の設計</text>
+          <rect width="1200" height="675" fill="url(#vig5)"/>
+        </svg>
+      </figure>
+      <h2><span class="ch-no">CHAPTER 五</span>五　0.5の設計</h2>
+
+      <p>延長期限の、残り四日。</p>
+
+      <p>遥は、一つの仮説を立てていた。</p>
+
+      <p>システムは、0.45から0.55を「決定不能」として除外する。けれど、その区間を「不能」と定義したのは、人間だ。連続値は判断を遅らせる、社会は決定を必要とする——二〇年前の、あの一文。あれは、真理ではなく、選択だった。誰かが、0.5を、扱えないものとして、設計から外したのだ。</p>
+
+      <p>ならば、0.5を、扱えるように、設計し直せないか。</p>
+
+      <p>遥は、制度の技術仕様書を、深く読み込んだ。スコアの算定エンジン、丸めの関数、各システムへの配信プロトコル。彼女は技術者ではなかったが、七年間、その出力を扱ってきた。仕組みの輪郭は、見えていた。</p>
+
+      <p>わかったことが、一つあった。</p>
+
+      <p>各システム——住居、労働、医療——は、0か1の入力を要求する。これは変えられない。社会の各所が、二値を前提に組まれている。今さら全部を連続値対応に作り直すことは、できない。</p>
+
+      <p>けれど、丸めの関数には、隠された第三の出力があった。</p>
+
+      <p>仕様書の、ほとんど誰も読まない附則に、それは書いてあった。丸め関数は通常、0か1を返す。だが、入力が0.45から0.55の区間にあるとき、関数は本来、第三の値〈H〉を返すよう、初期設計されていた。Hは、Hold——保留——の頭文字だった。保留された市民は、0でも1でもなく、「次の更新まで現状を維持する」という扱いになる。住居は今のまま、医療は中位のまま、労働は据え置き。確定を、急がない。</p>
+
+      <p>なぜこの〈H〉が使われていないのか。遥は、改定履歴を追った。</p>
+
+      <p>制度導入から二年後、〈H〉は無効化されていた。理由は、こう記録されていた。「保留状態の市民が累積し、システム負荷となるため。保留は、決定の先延ばしであり、いずれ決定を要する。よって、保留区間は除外区間に統合する。」</p>
+
+      <p>保留は、いずれ決定を要する。だから、消す。</p>
+
+      <p>二年目の誰かは、そう考えた。揺れている人間を、いつまでも揺れたままにしておくことは、コストだと。だから、保留という猶予を、抹消という結末に、書き換えた。</p>
+
+      <p>遥は、その改定を、元に戻せないかと考えた。</p>
+
+      <p>無理だった。彼女に、システムを改変する権限はない。丸め関数に触れることは、調整員の職掌をはるかに超えている。発覚すれば、彼女自身が、職を失い、おそらくスコアを大きく下げられる。除外される側に回るかもしれなかった。</p>
+
+      <p>けれど、一つだけ、彼女にできることがあった。</p>
+
+      <p>調整員は、確定方向を署名するとき、0か1のほかに、〈差戻し〉を選べる。差戻しは、「このケースは現時点で確定せず、観測を継続する」という意思表示だ。差戻しを受けたケースは、除外には回らない。次の観測サイクルへ送られる。</p>
+
+      <p>ただし、差戻しには回数制限がある。同一ケースの差戻しは、生涯で三回まで。三回差し戻すと、四回目は、強制的に除外処理へ進む。差戻しは、決定の猶予であって、決定の回避ではない。システムは、最後には、決めさせる。</p>
+
+      <p>佐倉葉のケースは、まだ一度も差し戻されていなかった。遥が差し戻せば、葉は、あと三回ぶんの猶予を得る。次の調整員が、また差し戻せば、さらに。けれど、いつかは尽きる。差戻しは、抵抗ではあっても、解決ではなかった。</p>
+
+      <p>遥は、机に肘をつき、目を閉じた。</p>
+
+      <p>葉の言葉が、よみがえった。「それを探すのは、あなたの仕事です。」</p>
+
+      <p>第四の道。0でも1でも、除外でもない道。</p>
+
+      <p>遥は、目を開けた。そして、気づいた。彼女が探していた「道」は、システムの中には、ない。システムは、二値で組まれている。0.5を生かす設計は、二年目に、消された。彼女一人が、それを元に戻すことはできない。</p>
+
+      <p>道は、システムの中ではなく、システムの外に、作るしかなかった。</p>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ===== 六 ===== -->
+    <section class="chapter" id="ch6">
+      <figure class="chapter-plate" role="group" aria-label="第6章 章扉イラスト">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="第六章扉　端数の街">
+          <title>六　端数の街</title>
+          <desc>二値の街の縁、暗い緩衝地帯に薄く帯のように寄り集まり、遠くにいくつも灯る街の明かり。osakenpiro hitoakari design.</desc>
+          <defs>
+            <linearGradient id="void6" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0d0d12"/>
+              <stop offset="52%" stop-color="#101019"/>
+              <stop offset="100%" stop-color="#0c0c11"/>
+            </linearGradient>
+            <linearGradient id="dist6" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#161d2e" stop-opacity="0.0"/>
+              <stop offset="50%" stop-color="#1a2236" stop-opacity="0.0"/>
+              <stop offset="80%" stop-color="#2a3550" stop-opacity="0.26"/>
+              <stop offset="100%" stop-color="#33415e" stop-opacity="0.45"/>
+            </linearGradient>
+            <radialGradient id="townglow6" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#f4d79a" stop-opacity="0.55"/>
+              <stop offset="40%" stop-color="#d4a853" stop-opacity="0.16"/>
+              <stop offset="100%" stop-color="#d4a853" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="g6" x="-300%" y="-300%" width="700%" height="700%">
+              <feGaussianBlur stdDeviation="3.4" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <radialGradient id="vig6" cx="50%" cy="42%" r="76%">
+              <stop offset="0%" stop-color="#000" stop-opacity="0"/>
+              <stop offset="62%" stop-color="#000" stop-opacity="0"/>
+              <stop offset="100%" stop-color="#000" stop-opacity="0.55"/>
+            </radialGradient>
+            <style>
+              .jp6{font-family:"Yu Mincho","Hiragino Mincho ProN","Noto Serif CJK JP",serif;}
+              .sa6{font-family:"Yu Gothic","Hiragino Kaku Gothic ProN","Noto Sans CJK JP",sans-serif;}
+            </style>
+          </defs>
+          <rect width="1200" height="675" fill="url(#void6)"/>
+          <rect width="1200" height="675" fill="url(#dist6)"/>
+          <g fill="#cdd6e6">
+            <circle cx="150" cy="90" r="1.2" opacity="0.30"/>
+            <circle cx="430" cy="70" r="1.0" opacity="0.22"/>
+            <circle cx="820" cy="100" r="1.1" opacity="0.24"/>
+            <circle cx="1080" cy="80" r="1.2" opacity="0.26"/>
+          </g>
+          <line x1="0" y1="430" x2="1200" y2="430" stroke="#2a3550" stroke-width="1.5" opacity="0.45"/>
+          <rect x="0" y="430" width="1200" height="245" fill="#0a0a10" opacity="0.45"/>
+          <g fill="#161d2e" opacity="0.8">
+            <rect x="60" y="350" width="50" height="80"/>
+            <rect x="120" y="320" width="44" height="110"/>
+            <rect x="176" y="370" width="40" height="60"/>
+            <rect x="980" y="330" width="48" height="100"/>
+            <rect x="1036" y="300" width="46" height="130"/>
+            <rect x="1092" y="360" width="42" height="70"/>
+          </g>
+          <g fill="#46577d" opacity="0.55">
+            <rect x="1048" y="330" width="8" height="12"/>
+            <rect x="1064" y="360" width="8" height="12"/>
+            <rect x="992" y="350" width="7" height="11"/>
+          </g>
+          <ellipse cx="600" cy="470" rx="560" ry="120" fill="url(#townglow6)" opacity="0.8"/>
+          <g filter="url(#g6)">
+            <circle cx="300" cy="468" r="5.5" fill="#f4d79a" opacity="0.92"/>
+            <circle cx="370" cy="486" r="4.2" fill="#e7c074" opacity="0.85"/>
+            <circle cx="455" cy="460" r="6.2" fill="#f4d79a" opacity="0.95"/>
+            <circle cx="520" cy="492" r="3.8" fill="#d4a853" opacity="0.8"/>
+            <circle cx="590" cy="470" r="5.0" fill="#f4d79a" opacity="0.9"/>
+            <circle cx="665" cy="496" r="4.0" fill="#e7c074" opacity="0.82"/>
+            <circle cx="735" cy="464" r="5.6" fill="#f4d79a" opacity="0.92"/>
+            <circle cx="800" cy="488" r="3.6" fill="#d4a853" opacity="0.78"/>
+            <circle cx="875" cy="472" r="4.6" fill="#e7c074" opacity="0.85"/>
+            <circle cx="250" cy="500" r="3.2" fill="#d4a853" opacity="0.7"/>
+            <circle cx="930" cy="492" r="3.4" fill="#d4a853" opacity="0.72"/>
+          </g>
+          <g fill="#d4a853" opacity="0.18">
+            <rect x="298" y="476" width="4" height="34"/>
+            <rect x="453" y="468" width="4" height="40"/>
+            <rect x="588" y="478" width="4" height="32"/>
+            <rect x="733" y="472" width="4" height="36"/>
+          </g>
+          <text class="sa6" x="150" y="624" font-size="15" letter-spacing="8" fill="#8a93a8" opacity="0.85">CHAPTER 六</text>
+          <text class="jp6" x="150" y="600" font-size="30" letter-spacing="4" fill="#e7c074" opacity="0.95">端数の街</text>
+          <rect width="1200" height="675" fill="url(#vig6)"/>
+        </svg>
+      </figure>
+      <h2><span class="ch-no">CHAPTER 六</span>六　端数の街</h2>
+
+      <p>遥は、葉に、一つの提案をした。</p>
+
+      <p>局の外で、夜、二人は会った。スコアの監視が及びにくい、旧市街の、古い喫茶店だった。スコア制度の前から営業している店だと、葉が教えてくれた。</p>
+
+      <p>「あなたを、差し戻します」と遥は言った。「三回ぶんの猶予が、得られます。けれど、それは時間稼ぎにすぎない。いつか、尽きる」</p>
+
+      <p>「わかっています」葉は、温かいお茶を、両手で包んでいた。今日は寒い、と二人とも思っていた。</p>
+
+      <p>「だから、その時間で」遥は、声を低くした。「探そうと思います。あなたのような人間が、消されずに生きられる場所を。システムの外に」</p>
+
+      <p>「システムの外」葉は、その言葉を、転がした。「そんな場所が、あるんですか」</p>
+
+      <p>「四千人いました」遥は言った。「十九年で、四千人以上が、除外されました。記録は、除外の日で途切れている。でも、途切れたのは記録だけです。彼らは、消えてはいない。スコアを失っただけで、生きてはいる。どこかに」</p>
+
+      <p>遥は、アーカイブで見た四千の名前のことを、葉に話した。途切れた記録の、その先のことを。</p>
+
+      <p>「除外された人間は、社会の配分から外れます」遥は続けた。「でも、外れるということは、社会の二値から、自由になるということでもある。0でも1でもない。数えられない。数えられないということは、丸められない、ということです」</p>
+
+      <p>「丸められない」葉は、ゆっくりと繰り返した。「それは、わたしが、ずっとそうだったことです」</p>
+
+      <p>「だから、考えたんです」遥は、葉の目を見た。「除外された人たちは、ばらばらに消えたんじゃなく、どこかで、集まっているんじゃないかと。数えられない者どうしで。0.5のままで生きられる場所を、自分たちで、作っているんじゃないかと」</p>
+
+      <p>それは、希望的観測だった。証拠はなかった。けれど、遥は、それを信じたかった。四千の端数が、ただ虚空に切り落とされたのではなく、土の下で、栄養になって、何かを育てていると。</p>
+
+      <p>数日後、遥は、除外された市民たちの、最後の住所を、洗い出した。記録が途切れる直前の、彼らの居場所。四千件の点を、市の地図に落とした。</p>
+
+      <p>点は、ばらけていなかった。</p>
+
+      <p>市の外縁、スコア制度が及ぶ範囲のいちばん端に、それらは、薄く帯のように、寄り集まっていた。誰かが指示したわけではない。けれど、丸められなかった人間たちは、二値の街の縁に、ひとりでに、流れ着いていた。境界線の上に。0の領域と1の領域の、あいだの、細い緩衝地帯に。</p>
+
+      <p>遥は、その帯を、〈端数の街〉と、心の中で呼んだ。</p>
+
+      <p>地図上の名前のない場所。住所が割り振られていない、制度の隙間。けれど、人がいる気配があった。電力の使用記録に、説明のつかない微量の消費があった。誰も住んでいないはずの場所で、夜、わずかに、灯がともっていた。</p>
+
+      <p>遥は、その灯のことを、葉に伝えた。</p>
+
+      <p>「灯が」葉は、目を細めた。「ともっているんですか」</p>
+
+      <p>「ひとつだけ」遥は言った。「強くはない。でも、確かに、消えていない」</p>
+
+      <p>暗がりの中に、ひとつの明かり。それは、強い光ではなかった。けれど、暗さの全部を否定するのではなく、暗さの中に、ここに人がいる、と知らせるだけの、小さな灯だった。0でも1でもない、その中間の薄明かり。</p>
+
+      <p>遥は、決めた。葉を、そこへ送ろうと。差し戻しで稼いだ時間のあいだに、葉を、端数の街へ。社会の帳簿からは消えるけれど、消えるのではなく、移る。数えられる場所から、数えられない場所へ。丸められる側から、丸められない側へ。</p>
+
+      <p>「あなたは」と葉が訊いた。「あなたは、どうするんですか」</p>
+
+      <p>遥は、答えなかった。</p>
+
+      <p>彼女自身が、どちらに行くのか。局に残って、丸め続けるのか。それとも、葉とともに、縁へ行くのか。彼女の内部値は——あの夜から、ずっと、揺れていた。0.8だと思っていた値は、たぶん、もっと0.5に近い。彼女もまた、確定していなかった。</p>
+
+      <p>「まだ、決めていません」と遥は、正直に言った。</p>
+
+      <p>葉は、笑った。あの、はっきりとした笑い方で。</p>
+
+      <p>「それでいいんです」葉は言った。「決めないことは、何も決めないことじゃない。決めない、と、決めることです。あなたは、もう、そっち側にいる」</p>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ===== 七 ===== -->
+    <section class="chapter" id="ch7">
+      <figure class="chapter-plate" role="group" aria-label="第7章 章扉イラスト">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" width="1200" height="675" role="img" aria-label="第七章扉　はすうのひと">
+          <title>七　はすうのひと</title>
+          <desc>名前のない家の、ひとつの窓の明かり。窓辺の植木鉢——あなたの中の端数に、水を。osakenpiro hitoakari design.</desc>
+          <defs>
+            <linearGradient id="void7" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#0d0d12"/>
+              <stop offset="52%" stop-color="#101019"/>
+              <stop offset="100%" stop-color="#0c0c11"/>
+            </linearGradient>
+            <radialGradient id="hi7" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#f4d79a" stop-opacity="0.95"/>
+              <stop offset="24%" stop-color="#e7c074" stop-opacity="0.6"/>
+              <stop offset="50%" stop-color="#d4a853" stop-opacity="0.24"/>
+              <stop offset="78%" stop-color="#a07b34" stop-opacity="0.07"/>
+              <stop offset="100%" stop-color="#d4a853" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="bloom7" x="-120%" y="-120%" width="340%" height="340%">
+              <feGaussianBlur stdDeviation="5" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <radialGradient id="vig7" cx="50%" cy="44%" r="74%">
+              <stop offset="0%" stop-color="#000" stop-opacity="0"/>
+              <stop offset="64%" stop-color="#000" stop-opacity="0"/>
+              <stop offset="100%" stop-color="#000" stop-opacity="0.55"/>
+            </radialGradient>
+            <style>
+              .jp7{font-family:"Yu Mincho","Hiragino Mincho ProN","Noto Serif CJK JP",serif;}
+              .sa7{font-family:"Yu Gothic","Hiragino Kaku Gothic ProN","Noto Sans CJK JP",sans-serif;}
+            </style>
+          </defs>
+          <rect width="1200" height="675" fill="url(#void7)"/>
+          <g fill="#cdd6e6">
+            <circle cx="160" cy="100" r="1.3" opacity="0.32"/>
+            <circle cx="330" cy="70" r="1.0" opacity="0.22"/>
+            <circle cx="980" cy="120" r="1.1" opacity="0.24"/>
+            <circle cx="1080" cy="80" r="1.2" opacity="0.26"/>
+            <circle cx="120" cy="560" r="1.0" opacity="0.20"/>
+          </g>
+          <g fill="#d4a853">
+            <circle cx="470" cy="220" r="1.6" opacity="0.45"/>
+            <circle cx="720" cy="200" r="1.3" opacity="0.40"/>
+            <circle cx="560" cy="170" r="1.1" opacity="0.30"/>
+          </g>
+          <circle cx="600" cy="320" r="300" fill="url(#hi7)"/>
+          <g opacity="0.92">
+            <rect x="430" y="300" width="340" height="230" fill="#0c0f17" stroke="#2a3550" stroke-width="2" opacity="0.92"/>
+            <path d="M 410 300 L 600 248 L 790 300 Z" fill="#0a0d14" stroke="#2a3550" stroke-width="2" opacity="0.92"/>
+          </g>
+          <g filter="url(#bloom7)" transform="translate(600,372)">
+            <rect x="-52" y="-66" width="104" height="132" rx="5" fill="#f4d79a" opacity="0.94"/>
+            <line x1="0" y1="-66" x2="0" y2="66" stroke="#0c0f17" stroke-width="3.4" opacity="0.6"/>
+            <line x1="-52" y1="0" x2="52" y2="0" stroke="#0c0f17" stroke-width="3.4" opacity="0.6"/>
+            <ellipse cx="22" cy="20" rx="13" ry="30" fill="#0c0f17" opacity="0.42"/>
+          </g>
+          <g transform="translate(600,452)" opacity="0.95">
+            <path d="M -16 0 L 16 0 L 12 30 L -12 30 Z" fill="#b98a3e"/>
+            <rect x="-18" y="-4" width="36" height="6" rx="2" fill="#c9a456"/>
+            <path d="M 0 0 C -9 -34 -34 -40 -40 -24 C -24 -16 -9 -12 0 0 Z" fill="#d4a853" opacity="0.9"/>
+            <path d="M 0 0 C 9 -36 36 -40 42 -22 C 24 -16 9 -10 0 0 Z" fill="#e7c074" opacity="0.9"/>
+            <path d="M 0 0 C 0 -44 3 -52 -3 -46 C -1 -24 0 -12 0 0 Z" fill="#f4d79a" opacity="0.88"/>
+          </g>
+          <g filter="url(#bloom7)">
+            <path d="M 600 392 q -4 9 0 14 q 4 -5 0 -14 Z" fill="#f4d79a" opacity="0.85"/>
+          </g>
+          <text class="sa7" x="150" y="624" font-size="15" letter-spacing="8" fill="#8a93a8" opacity="0.85">CHAPTER 七</text>
+          <text class="jp7" x="150" y="600" font-size="30" letter-spacing="4" fill="#e7c074" opacity="0.95">はすうのひと</text>
+          <rect width="1200" height="675" fill="url(#vig7)"/>
+        </svg>
+      </figure>
+      <h2><span class="ch-no">CHAPTER 七</span>七　はすうのひと</h2>
+
+      <p>差戻しの署名を、遥は、自分の手で行った。</p>
+
+      <p>端末の前に座り、佐倉葉のケースを開いた。推奨確定方向の欄に、0でも1でもなく、〈差戻し〉を選んだ。理由欄に、彼女は、こう書いた。</p>
+
+      <p class="precept"><strong>「当該市民の内部値は、平均0.500、標準偏差0.21にて、十八か月にわたり安定的に振動を継続。これは決定不能を意味しない。これは、決定しないという一つの安定状態である。よって、除外は不適当と判断し、観測継続を推奨する。」</strong></p>
+
+      <p>送信する前に、遥は、その文章を、もう一度読んだ。</p>
+
+      <p class="beat">決定しないという、一つの安定状態。</p>
+
+      <p>それは、葉のことだった。そして、たぶん、彼女自身のことでもあった。揺れていることは、壊れていることではない。0.5は、欠落ではない。0と1のあいだの、まるごとの広がりが、そこにある。0.5は、最も豊かな点かもしれなかった。両方に、いちばん遠く、両方に、いちばん近い。</p>
+
+      <p>遥は、送信した。</p>
+
+      <p>システムは、機械的に、それを受理した。佐倉葉のケースは、除外を免れ、次の観測サイクルへと送られた。猶予は、三回ぶん。けれど、その三回のあいだに、葉は、もう、ここにはいない。</p>
+
+      <p>その晩、遥は、葉を、市の外縁まで送った。</p>
+
+      <p>二人は、最後の動くエレベーターと、一つおきに切れた照明の廊下を抜けて、外へ出た。街の灯は、二値の街の灯だった。明るい区画と、暗い区画。0の街と、1の街。そのあいだを、二人は、歩いた。</p>
+
+      <p>縁に近づくにつれ、灯は、まばらになった。やがて、地図に名前のない場所に着いた。電力の微量な消費の、源。説明のつかない、ひとつの灯。</p>
+
+      <p>近づくと、それは、小さな窓の明かりだった。古い、低い建物。表札はなかった。スコアを持たない者たちの、名前のない家。</p>
+
+      <p>窓の中に、人影がいくつか、動いていた。遥には、その人たちが、何者なのか、わからなかった。四千の端数の、生き残りなのか。あるいは、まったく別の誰かなのか。確かめる術はなかった。確かめられないということが、ここでは、安全の別名だった。数えられないから、消されない。</p>
+
+      <p>「ここで」と遥は言った。「お別れです」</p>
+
+      <p>「ええ」葉は、うなずいた。手には、あの、窓辺の植木鉢を、抱えていた。引っ越しの荷物は、それだけだった。</p>
+
+      <p>「あなたは、戻るんですね」葉は言った。「局に」</p>
+
+      <p>「戻ります」遥は言った。「まだ、やることがある。差し戻せる人間が、ほかにもいる。三回ぶんずつでも、稼げる時間がある。そのあいだに、ここの灯のことを、もっと多くの人間が、知るかもしれない」</p>
+
+      <p>それは、革命ではなかった。制度を覆すのではない。丸め関数を、書き換えるのでもない。ただ、丸められそうになった一人ひとりを、縁へ逃がす。三回ぶんの猶予を、繰り返し、繰り返し、稼ぐ。腐葉土のように。一枚ずつの葉が、積もって、いつか、土になるように。</p>
+
+      <p>「あなたは」葉が訊いた。「いつか、こちら側に、来ますか」</p>
+
+      <p>遥は、縁の向こうの、灯を見た。それから、振り返って、二値の街の、明るい区画と、暗い区画を見た。彼女の足は、ちょうど、そのあいだの、名前のない地面の上にあった。</p>
+
+      <p>「わかりません」と遥は言った。「でも、それは、もう、いやな『わからない』じゃないんです」</p>
+
+      <p>葉は、笑った。</p>
+
+      <p>「はすうのひと、ですね」と、葉は言った。「あなたも、わたしも」</p>
+
+      <p>「はすう」遥は、その響きを、初めて、口にした。</p>
+
+      <p>「切り捨てられる、小数点以下の余り」葉は言った。「でも、余りがあるということは、まだ、割り切れていない、ということです。割り切れていないものだけが、次に進める。割り切れたら、終わりです。0か1で、止まってしまう」</p>
+
+      <p>葉は、植木鉢を、抱え直した。窓の明かりのほうへ、一歩、踏み出した。そして、最後に、振り返った。</p>
+
+      <p>「水を、やってくださいね」葉は言った。「あなたの中の、端数に」</p>
+
+      <p>遥は、答えなかった。けれど、うなずいた。</p>
+
+      <p>葉は、灯のほうへ、歩いていった。その姿が、暗がりに溶けて、やがて、窓の明かりの中に、ひとつの影として、加わった。窓の灯は、ほんの少し、明るくなったように、遥には見えた。気のせいだったかもしれない。けれど、気のせいでも、よかった。</p>
+
+      <p>遥は、ひとり、二値の街のほうへ、引き返した。</p>
+
+      <p>帰り道、彼女は、自分の内部値のことを、考えた。明日も、たぶん、揺れているだろう。0.5のあたりで。局に出れば、また、丸める仕事が、待っている。0へ、1へ。けれど、彼女の指は、もう、前のようには、動かないだろう。0.49を見れば、その「.49」のことを、考えてしまう。切り落とす前に、一瞬、止まる。その一瞬が、たぶん、彼女にできる、たった一つのことだった。</p>
+
+      <p>窓のない部屋に、また、戻る。光を必要としない仕事のために設計された、あの部屋に。</p>
+
+      <p>けれど、と遥は思った。</p>
+
+      <p class="beat">わたしの中に、ひとつ、灯がともった。</p>
+
+      <p>強い光ではない。誰にも、見えない。スコアにも、現れない。けれど、確かに、消えていない。0と1のあいだ、誰も数えない場所で、それは、小さく、灯っている。</p>
+
+      <p>遥は、街の縁を離れ、明るい区画と、暗い区画の、あいだを、歩いていった。どちらにも属さず、どちらにも、近かった。</p>
+
+      <p>端数のひとが、ひとり、夜の中を、帰っていった。</p>
+
+      <div class="endmark">（了）</div>
+      <p class="colophon">端数のひと &nbsp;&middot;&nbsp; Boolean → Float</p>
+    </section>
+
+  </article>
+</div>
+
+<button id="toTop" aria-label="先頭へ戻る">↑</button>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---- reading progress bar ---- */
+  var bar = document.getElementById("progress");
+  var toTop = document.getElementById("toTop");
+
+  function onScroll(){
+    var doc = document.documentElement;
+    var scrollTop = doc.scrollTop || document.body.scrollTop;
+    var height = doc.scrollHeight - doc.clientHeight;
+    var pct = height > 0 ? (scrollTop / height) * 100 : 0;
+    bar.style.width = pct.toFixed(2) + "%";
+    if (scrollTop > 600){ toTop.classList.add("show"); }
+    else { toTop.classList.remove("show"); }
+  }
+  window.addEventListener("scroll", onScroll, {passive:true});
+  window.addEventListener("resize", onScroll, {passive:true});
+  onScroll();
+
+  toTop.addEventListener("click", function(){
+    window.scrollTo({top:0, behavior:"smooth"});
+  });
+
+  /* ---- mobile TOC toggle ---- */
+  var nav = document.getElementById("sidenav");
+  var toggle = document.getElementById("navToggle");
+  if (toggle){
+    toggle.addEventListener("click", function(){
+      var open = nav.classList.toggle("open");
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    /* close mobile menu after picking a chapter */
+    nav.addEventListener("click", function(e){
+      if (e.target.closest("a") && window.matchMedia("(max-width:980px)").matches){
+        nav.classList.remove("open");
+        toggle.setAttribute("aria-expanded","false");
+      }
+    });
+  }
+
+  /* ---- active chapter highlight (scroll spy) ---- */
+  var links = Array.prototype.slice.call(nav.querySelectorAll("a"));
+  var sections = links.map(function(a){
+    return document.querySelector(a.getAttribute("href"));
+  });
+
+  function setActive(){
+    var pos = (document.documentElement.scrollTop || document.body.scrollTop) + window.innerHeight*0.32;
+    var idx = 0;
+    for (var i=0;i<sections.length;i++){
+      if (sections[i] && sections[i].offsetTop <= pos){ idx = i; }
+    }
+    links.forEach(function(a,i){
+      if (i===idx){ a.classList.add("active"); }
+      else { a.classList.remove("active"); }
+    });
+  }
+  window.addEventListener("scroll", setActive, {passive:true});
+  window.addEventListener("resize", setActive, {passive:true});
+  setActive();
+})();
+</script>
+
+</body>
+</html>
