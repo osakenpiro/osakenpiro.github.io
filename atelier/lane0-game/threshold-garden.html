@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>しきい値の庭 — Threshold Garden</title>
+<style>
+/* ===================================================================
+   osakenpiro design system 準拠 (colors_and_type.css SoT より抜粋)
+   暖色アクセントは --gold 単一のみ／ネオン・虹禁止／余白と階層で語る
+   =================================================================== */
+:root{
+  --void:#0a0a0f; --void-deep:#06060a; --surface:#15141a; --surface-hi:#1c1a23;
+  --gold:#d4a853; --gold-soft:rgba(212,168,83,0.12); --gold-glow:rgba(212,168,83,0.25); --gold-edge:rgba(212,168,83,0.45);
+  --parchment:#c8b8a0; --violet:#a78bfa; --debris-1:#6b6b80; --debris-2:#3a3530;
+  --fg-1:#e8e0d0; --fg-2:#b8b0a0; --fg-3:#807868; --dim:#5a5448;
+  --indigo:#33415e;            /* 冷色: 眠るセルの基底 */
+  --indigo-deep:#202a40;
+  --border:rgba(200,184,160,0.06); --border-hover:rgba(212,168,83,0.20); --border-strong:rgba(212,168,83,0.45);
+  --font-sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic Medium","Yu Gothic",system-ui,sans-serif;
+  --font-serif:"Cormorant Garamond","Times New Roman","游明朝体","Yu Mincho","YuMincho","Hiragino Mincho ProN",serif;
+  --font-mono:"JetBrains Mono","SF Mono","Menlo","Consolas",monospace;
+  --ls-caps:0.25em;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;background:radial-gradient(ellipse at 50% 0%,#101019 0%,var(--void) 55%,var(--void-deep) 100%);
+  color:var(--fg-1);font-family:var(--font-sans);line-height:1.7;letter-spacing:0.01em;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;min-height:100vh;}
+
+/* 星屑(ごく控えめ・金箔の粒) */
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.5;}
+.stars i{position:absolute;width:1px;height:1px;background:var(--parchment);border-radius:50%;opacity:0.35;}
+
+.wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:28px 18px 64px;}
+
+/* ── ヘッダ ── */
+header{text-align:center;margin-bottom:18px;}
+.title{font-family:var(--font-serif);font-style:italic;font-weight:300;font-size:2.05rem;line-height:1.05;letter-spacing:0.04em;color:var(--fg-1);margin:0;}
+.subtitle{font-family:var(--font-serif);font-size:0.66rem;letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--dim);margin-top:8px;}
+.tagline{font-size:0.74rem;color:var(--fg-3);margin-top:10px;line-height:1.6;}
+
+/* ── レベルセレクタ ── */
+.levelbar{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin:18px 0 14px;}
+.levelchip{font-family:var(--font-mono);font-size:0.62rem;letter-spacing:0.1em;padding:5px 11px;border:1px solid var(--border);
+  border-radius:2px;color:var(--fg-3);background:var(--surface);cursor:pointer;transition:all .15s ease;user-select:none;}
+.levelchip:hover{border-color:var(--border-hover);color:var(--fg-2);}
+.levelchip.active{border-color:var(--gold-edge);color:var(--gold);background:var(--gold-soft);}
+.levelchip.locked{opacity:0.32;cursor:not-allowed;}
+.levelchip.cleared::after{content:" ✦";color:var(--gold);}
+
+/* ── レベル見出し ── */
+.levelhead{text-align:center;margin:6px 0 4px;}
+.levelhead .ln{font-family:var(--font-serif);font-style:italic;font-size:1.35rem;color:var(--fg-1);letter-spacing:0.03em;}
+.levelhead .lnum{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:0.18em;color:var(--dim);display:block;margin-bottom:2px;text-transform:uppercase;}
+.intro{text-align:center;font-size:0.78rem;color:var(--fg-3);max-width:460px;margin:6px auto 14px;line-height:1.65;}
+
+/* ── 盤面 ── */
+.boardwrap{position:relative;margin:0 auto 6px;width:100%;max-width:392px;}
+.board{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;width:100%;aspect-ratio:1/1;}
+.cell{position:relative;border-radius:3px;overflow:hidden;transition:background .45s ease, box-shadow .45s ease;
+  display:flex;align-items:center;justify-content:center;border:1px solid rgba(0,0,0,0.25);}
+/* セル色は JS が背景にグラデを直接設定。眠/咲の差は彩度と金グロー。 */
+.cell .vlabel{font-family:var(--font-mono);font-size:0.48rem;letter-spacing:0.04em;color:rgba(232,224,208,0.0);transition:color .3s ease;pointer-events:none;}
+.board.revealv .cell .vlabel{color:rgba(232,224,208,0.62);}
+.cell.bloom{box-shadow:0 0 0 1px var(--gold-edge), 0 0 10px -1px var(--gold-glow);}
+/* 区画境界オーバーレイ */
+.zoneoverlay{position:absolute;inset:0;pointer-events:none;}
+.zoneoverlay .zbox{position:absolute;border:1px dashed rgba(200,184,160,0.16);border-radius:5px;}
+.zoneoverlay .zbox.tokenized{border-color:var(--gold-edge);border-style:solid;box-shadow:0 0 0 1px var(--gold-soft) inset;}
+.zoneoverlay .zlabel{position:absolute;font-family:var(--font-mono);font-size:0.55rem;letter-spacing:0.12em;color:var(--fg-3);
+  background:rgba(10,10,15,0.72);padding:1px 6px;border-radius:2px;transform:translateY(-50%);white-space:nowrap;}
+.zoneoverlay .zbox.tokenized + .zlabel,.zoneoverlay .zlabel.tokenized{color:var(--gold);}
+
+/* ── スライダー(大域 τ) ── */
+.sliderblock{margin:18px 0 6px;}
+.sliderhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+.sliderhead .lab{font-family:var(--font-serif);font-style:italic;font-size:1rem;color:var(--fg-2);}
+.sliderhead .lab b{font-style:normal;font-family:var(--font-mono);color:var(--gold);font-size:0.9rem;letter-spacing:0.06em;}
+.sliderhead .hint{font-family:var(--font-mono);font-size:0.56rem;letter-spacing:0.1em;color:var(--dim);text-transform:uppercase;}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:2px;background:linear-gradient(90deg,var(--indigo) 0%,var(--gold) 100%);
+  border-radius:2px;outline:none;margin:8px 0;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;
+  background:var(--surface-hi);border:1.5px solid var(--gold);box-shadow:0 0 8px -2px var(--gold-glow);cursor:grab;transition:transform .1s ease;}
+input[type=range]::-webkit-slider-thumb:active{cursor:grabbing;transform:scale(1.12);}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--surface-hi);border:1.5px solid var(--gold);
+  box-shadow:0 0 8px -2px var(--gold-glow);cursor:grab;}
+.scale{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:0.52rem;color:var(--dim);letter-spacing:0.08em;margin-top:-2px;}
+
+/* ── 要求パネル ── */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 15px;margin:16px 0;}
+.panel .ptitle{font-family:var(--font-serif);font-size:0.62rem;letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--dim);margin-bottom:10px;}
+.demand{display:flex;align-items:center;gap:9px;padding:5px 0;font-size:0.82rem;color:var(--fg-2);}
+.demand .mark{flex:0 0 auto;width:15px;height:15px;border-radius:50%;border:1px solid var(--debris-1);display:flex;align-items:center;justify-content:center;
+  font-size:0.6rem;line-height:1;transition:all .25s ease;}
+.demand.met .mark{border-color:var(--gold);background:var(--gold-soft);color:var(--gold);}
+.demand.met{color:var(--fg-1);}
+.demand .now{margin-left:auto;font-family:var(--font-mono);font-size:0.62rem;letter-spacing:0.06em;color:var(--fg-3);}
+.demand.met .now{color:var(--gold);}
+
+/* ── トークン ── */
+.tokenblock{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:13px 15px;margin:14px 0;}
+.tokenhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px;}
+.tokenhead .th{font-family:var(--font-serif);font-size:0.62rem;letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--dim);}
+.tokenhead .tcount{font-family:var(--font-mono);font-size:0.66rem;letter-spacing:0.08em;color:var(--fg-2);}
+.tokenhead .tcount b{color:var(--gold);}
+.tokendots{display:inline-flex;gap:4px;margin-left:8px;vertical-align:middle;}
+.tokendots i{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px -1px var(--gold-glow);}
+.tokendots i.spent{background:transparent;border:1px solid var(--debris-1);box-shadow:none;}
+.tokenexpl{font-size:0.72rem;color:var(--fg-3);line-height:1.6;margin-bottom:11px;}
+.tokenctrls{display:flex;flex-direction:column;gap:9px;}
+.tctrl{border:1px solid var(--border);border-radius:3px;padding:9px 11px;transition:border-color .15s ease;}
+.tctrl.on{border-color:var(--gold-edge);background:var(--gold-soft);}
+.tctrl .trow{display:flex;align-items:center;gap:9px;}
+.tctrl .zname{font-size:0.78rem;color:var(--fg-2);min-width:62px;}
+.tctrl.on .zname{color:var(--gold);}
+.tctrl .toggle{font-family:var(--font-mono);font-size:0.58rem;letter-spacing:0.1em;padding:3px 9px;border:1px solid var(--border-hover);border-radius:2px;
+  color:var(--fg-3);cursor:pointer;background:transparent;text-transform:uppercase;transition:all .15s ease;user-select:none;}
+.tctrl .toggle:hover{border-color:var(--gold-edge);color:var(--fg-1);}
+.tctrl.on .toggle{border-color:var(--gold);color:var(--gold);background:var(--gold-soft);}
+.tctrl .localline{display:flex;align-items:center;gap:9px;margin-top:8px;opacity:0;height:0;overflow:hidden;transition:opacity .2s ease;}
+.tctrl.on .localline{opacity:1;height:auto;overflow:visible;margin-top:9px;}
+.tctrl .localline .llab{font-family:var(--font-mono);font-size:0.56rem;color:var(--fg-3);letter-spacing:0.06em;white-space:nowrap;}
+.tctrl .localline .lval{font-family:var(--font-mono);font-size:0.62rem;color:var(--gold);min-width:38px;text-align:right;}
+.tctrl input[type=range]{flex:1;margin:0;background:linear-gradient(90deg,var(--indigo-deep) 0%,var(--gold) 100%);}
+.tctrl input[type=range]::-webkit-slider-thumb{width:14px;height:14px;}
+
+/* ── アクション ── */
+.actions{display:flex;gap:9px;margin:18px 0 6px;flex-wrap:wrap;justify-content:center;}
+.btn{font-family:var(--font-mono);font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;padding:9px 16px;border-radius:2px;
+  border:1px solid var(--border-hover);background:transparent;color:var(--fg-2);cursor:pointer;transition:all .15s ease;user-select:none;}
+.btn:hover{border-color:var(--gold-edge);color:var(--fg-1);}
+.btn.primary{border-color:var(--gold-edge);color:var(--gold);}
+.btn.primary:hover{background:var(--gold-soft);}
+.btn.ghost{border-color:var(--border);color:var(--fg-3);}
+
+/* ── クリア演出(控えめな金の光) ── */
+.clearbanner{margin:16px 0;padding:18px 18px;border:1px solid var(--gold-edge);border-radius:5px;
+  background:linear-gradient(180deg,var(--gold-soft) 0%,rgba(21,20,26,0.6) 100%);text-align:center;
+  opacity:0;transform:translateY(6px);transition:opacity .5s ease, transform .5s ease;max-height:0;overflow:hidden;padding-top:0;padding-bottom:0;border-width:0;}
+.clearbanner.show{opacity:1;transform:translateY(0);max-height:340px;padding-top:18px;padding-bottom:18px;border-width:1px;}
+.clearbanner .ck{font-family:var(--font-mono);font-size:0.6rem;letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.clearbanner .fragment{font-family:var(--font-serif);font-style:italic;font-size:1.04rem;line-height:1.6;color:var(--fg-1);letter-spacing:0.02em;}
+.clearbanner .nextbtn{margin-top:14px;}
+
+/* ── フッタ思想注記 ── */
+.foot{margin-top:30px;text-align:center;}
+.foot .creed{font-family:var(--font-serif);font-style:italic;font-size:0.82rem;color:var(--fg-3);line-height:1.7;max-width:440px;margin:0 auto;}
+.foot .meta{font-family:var(--font-mono);font-size:0.52rem;letter-spacing:0.14em;color:var(--dim);text-transform:uppercase;margin-top:14px;}
+.foot .reset{font-family:var(--font-mono);font-size:0.52rem;letter-spacing:0.1em;color:var(--debris-1);cursor:pointer;margin-top:8px;display:inline-block;}
+.foot .reset:hover{color:var(--fg-3);}
+
+/* legend */
+.legend{display:flex;gap:16px;justify-content:center;align-items:center;margin:4px 0 2px;font-family:var(--font-mono);font-size:0.54rem;letter-spacing:0.08em;color:var(--dim);text-transform:uppercase;flex-wrap:wrap;}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.legend .sw{width:11px;height:11px;border-radius:2px;}
+.legend .sw.dorm{background:linear-gradient(135deg,var(--indigo-deep),var(--indigo));}
+.legend .sw.bloom{background:linear-gradient(135deg,#8a6f2e,var(--gold));box-shadow:0 0 5px -1px var(--gold-glow);}
+.togglev{cursor:pointer;color:var(--debris-1);}
+.togglev:hover{color:var(--fg-3);}
+.togglev.on{color:var(--gold);}
+
+@media (max-width:420px){
+  .title{font-size:1.7rem;}
+  .wrap{padding:22px 14px 56px;}
+  .demand{font-size:0.78rem;}
+}
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="wrap">
+  <header>
+    <h1 class="title">しきい値の庭</h1>
+    <div class="subtitle">Threshold&nbsp;Garden</div>
+    <div class="tagline">二値が敵なのではない。<br>線を勝手に引き、隠すことが敵だ。</div>
+  </header>
+
+  <div class="levelbar" id="levelbar"></div>
+
+  <div class="levelhead">
+    <span class="lnum" id="lnum">LEVEL</span>
+    <span class="ln" id="lname">—</span>
+  </div>
+  <div class="intro" id="intro"></div>
+
+  <div class="boardwrap">
+    <div class="board" id="board"></div>
+    <div class="zoneoverlay" id="zoneoverlay"></div>
+  </div>
+
+  <div class="legend">
+    <span><i class="sw dorm"></i>眠 dormant</span>
+    <span><i class="sw bloom"></i>咲 bloom</span>
+    <span class="togglev" id="togglev">真値を表示</span>
+  </div>
+
+  <div class="sliderblock">
+    <div class="sliderhead">
+      <span class="lab">大域しきい値 τ = <b id="tauval">0.50</b></span>
+      <span class="hint">global threshold</span>
+    </div>
+    <input type="range" id="tau" min="0" max="1" step="0.01" value="0.5">
+    <div class="scale"><span>0.0 ぜんぶ咲く</span><span>1.0 ぜんぶ眠る</span></div>
+  </div>
+
+  <div class="panel">
+    <div class="ptitle">この庭への要求 — demands</div>
+    <div id="demands"></div>
+  </div>
+
+  <div class="tokenblock" id="tokenblock">
+    <div class="tokenhead">
+      <span class="th">個別最適トークン — local thresholds</span>
+      <span class="tcount">残 <b id="tokleft">0</b> / <span id="toktotal">0</span><span class="tokendots" id="tokendots"></span></span>
+    </div>
+    <div class="tokenexpl">区画ごとに<b>ローカルしきい値</b>を置ける。一本の線で割り切れないとき、線を引き直す——「規格の個別最適化」。</div>
+    <div class="tokenctrls" id="tokenctrls"></div>
+  </div>
+
+  <div class="clearbanner" id="clearbanner">
+    <div class="ck">✦ この庭は満ちた ✦</div>
+    <div class="fragment" id="fragment"></div>
+    <button class="btn primary nextbtn" id="nextbtn">次の庭へ →</button>
+  </div>
+
+  <div class="actions">
+    <button class="btn ghost" id="resetlv">この庭をやり直す</button>
+  </div>
+
+  <div class="foot">
+    <div class="creed">設計者が閾値を固定し、隠すとき、誰かが必ず端数になる。<br>Boolean → Float ——「個別最適の規格化／規格の個別最適化」。</div>
+    <div class="meta">single-file · localStorage · no dependencies · osakenpiro</div>
+    <span class="reset" id="hardreset">進捗をすべて消す</span>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ===================================================================
+   ロジック層 — garden-logic.mjs と同一(node検証済の純粋関数を移植)
+   検証スクリプト verify-garden.mjs / verify-garden-newlevels.mjs にて
+   全7レベルの解の存在をブルートフォースで保証済み(FAIL=0)。
+   Lv6「四隅のさだめ」・Lv7「五段の黎明」(最終)は大域τ単独では解なし=
+   個別最適トークン必須(思想の数値保証)。
+   =================================================================== */
+const GRID = 6;
+
+function makeRng(seed){
+  let s = (seed>>>0) || 0x9e3779b9;
+  return function(){ s^=s<<13;s>>>=0; s^=s>>17;s>>>=0; s^=s<<5;s>>>=0; return s/0xffffffff; };
+}
+function sampleValue(rng, mean, spread){
+  const r = (rng()+rng())/2;
+  return Math.max(0, Math.min(1, mean + (r-0.5)*2*spread));
+}
+function buildBoard(level){
+  const rng = makeRng(level.seed);
+  const values = new Array(GRID*GRID).fill(0);
+  const zoneOf = new Array(GRID*GRID).fill(-1);
+  for(const zone of level.zones){
+    for(const idx of zone.cells){
+      values[idx] = sampleValue(rng, zone.dist.mean, zone.dist.spread);
+      zoneOf[idx] = zone.id;
+    }
+  }
+  return { values, zoneOf };
+}
+function effectiveThreshold(zoneId, tau, lt){
+  const v = lt ? lt[zoneId] : undefined;
+  return (v===undefined||v===null) ? tau : v;
+}
+function isBloom(value, zoneId, tau, lt){ return value >= effectiveThreshold(zoneId, tau, lt); }
+function bloomCount(board, tau, lt){
+  let n=0; for(let i=0;i<board.values.length;i++) if(isBloom(board.values[i], board.zoneOf[i], tau, lt)) n++;
+  return n;
+}
+function zoneBloomRates(board, level, tau, lt){
+  const out={};
+  for(const z of level.zones){
+    let b=0; for(const idx of z.cells) if(isBloom(board.values[idx], z.id, tau, lt)) b++;
+    out[z.id] = z.cells.length ? b/z.cells.length : 0;
+  }
+  return out;
+}
+function zoneBloomNum(board, zone, zoneId, tau, lt){
+  let b=0; for(const idx of zone.cells) if(isBloom(board.values[idx], zoneId, tau, lt)) b++; return b;
+}
+function evalDemand(d, board, level, tau, lt){
+  switch(d.type){
+    case 'totalBloom':{
+      const n=bloomCount(board,tau,lt);
+      if(d.op==='eq')return n===d.value;
+      if(d.op==='gte')return n>=d.value;
+      if(d.op==='lte')return n<=d.value;
+      if(d.op==='between')return n>=d.value && n<=d.value2;
+      return false;
+    }
+    case 'zoneRateGte':{ return zoneBloomRates(board,level,tau,lt)[d.zone] >= d.value-1e-9; }
+    case 'zoneRateLte':{ return zoneBloomRates(board,level,tau,lt)[d.zone] <= d.value+1e-9; }
+    case 'allZonesRateGte':{
+      const r=zoneBloomRates(board,level,tau,lt);
+      return level.zones.every(z=>r[z.id]>=d.value-1e-9);
+    }
+    case 'zoneBloomEq':{
+      const z=level.zones.find(z=>z.id===d.zone);
+      return zoneBloomNum(board,z,d.zone,tau,lt)===d.value;
+    }
+    default:return false;
+  }
+}
+function allDemandsMet(board, level, tau, lt){ return level.demands.every(d=>evalDemand(d,board,level,tau,lt)); }
+
+/* 現在の demand の「実測値」を表示用に返す */
+function demandReadout(d, board, level, tau, lt){
+  switch(d.type){
+    case 'totalBloom': return bloomCount(board,tau,lt) + ' 個';
+    case 'zoneRateGte':
+    case 'zoneRateLte': return (zoneBloomRates(board,level,tau,lt)[d.zone]).toFixed(2);
+    case 'allZonesRateGte':{
+      const r=zoneBloomRates(board,level,tau,lt);
+      const min=Math.min(...level.zones.map(z=>r[z.id]));
+      return '最小 '+min.toFixed(2);
+    }
+    case 'zoneBloomEq':{
+      const z=level.zones.find(z=>z.id===d.zone);
+      return zoneBloomNum(board,z,d.zone,tau,lt)+' 個';
+    }
+    default:return '';
+  }
+}
+
+/* ── レベル定義(garden-logic.mjs と同一) ── */
+function rc(r,c){return r*GRID+c;}
+function colsZone(c0,c1){const a=[];for(let r=0;r<GRID;r++)for(let c=c0;c<=c1;c++)a.push(rc(r,c));return a;}
+function rowsZone(r0,r1){const a=[];for(let r=r0;r<=r1;r++)for(let c=0;c<GRID;c++)a.push(rc(r,c));return a;}
+function allCells(){const a=[];for(let i=0;i<GRID*GRID;i++)a.push(i);return a;}
+function col(c){const a=[];for(let r=0;r<GRID;r++)a.push(rc(r,c));return a;}
+function quad(r0,c0){const a=[];for(let r=r0;r<r0+3;r++)for(let c=c0;c<c0+3;c++)a.push(rc(r,c));return a;}
+
+const LEVELS = [
+  { id:1, name:'ひとつの線', seed:1011, tokens:0,
+    intro:'τ を動かすと、真値が τ 以上のセルが咲き、未満は眠る。まずは感覚をつかもう。',
+    zones:[ {id:'A',label:'庭',cells:allCells(),dist:{mean:0.55,spread:0.30}} ],
+    demands:[ {type:'totalBloom',op:'between',value:14,value2:18,label:'咲くセルを 14〜18 個に'} ],
+    fragment:'はじめに線がある。線の上は咲き、線の下は眠る。それだけのことに見える。' },
+
+  { id:2, name:'ふたつの土', seed:2027, tokens:0,
+    intro:'土によって真値の偏りが違う。左は痩せ、右は肥えている。同じ線が、別の結果を生む。',
+    zones:[ {id:'L',label:'痩せ地',cells:colsZone(0,2),dist:{mean:0.40,spread:0.22}},
+            {id:'R',label:'肥沃地',cells:colsZone(3,5),dist:{mean:0.68,spread:0.22}} ],
+    demands:[ {type:'zoneRateGte',zone:'R',value:0.5,label:'肥沃地の開花率 ≥ 0.50'},
+              {type:'totalBloom',op:'between',value:10,value2:22,label:'全体で 10〜22 個'} ],
+    fragment:'同じ線でも、土が違えば結果は変わる。線は中立のふりをして、土地を選り好みする。' },
+
+  { id:3, name:'みっつの畝', seed:3041, tokens:1,
+    intro:'3つの畝。咲かせたい畝と、眠らせておきたい畝がある。トークンが1つだけある。',
+    zones:[ {id:'X',label:'陽の畝',cells:colsZone(0,1),dist:{mean:0.62,spread:0.20}},
+            {id:'Y',label:'中の畝',cells:colsZone(2,3),dist:{mean:0.50,spread:0.20}},
+            {id:'Z',label:'陰の畝',cells:colsZone(4,5),dist:{mean:0.38,spread:0.20}} ],
+    demands:[ {type:'zoneRateGte',zone:'X',value:0.58,label:'陽の畝 開花率 ≥ 0.58'},
+              {type:'zoneRateLte',zone:'Z',value:0.42,label:'陰の畝 開花率 ≤ 0.42'} ],
+    fragment:'ひとつを起こせば、別のひとつも起きてしまう。線は、頼んでもいない場所まで巻き込む。' },
+
+  { id:4, name:'みなを、そこそこ', seed:4057, tokens:2,
+    intro:'すべての畝を、最低でも半分は咲かせたい。だが南には痩せ地がある。咲きすぎも禁物。',
+    zones:[ {id:'P',label:'北畝',cells:rowsZone(0,1),dist:{mean:0.58,spread:0.18}},
+            {id:'Q',label:'中畝',cells:rowsZone(2,3),dist:{mean:0.44,spread:0.18}},
+            {id:'S',label:'南畝',cells:rowsZone(4,5),dist:{mean:0.30,spread:0.16}} ],
+    demands:[ {type:'allZonesRateGte',value:0.5,label:'全ての畝で開花率 ≥ 0.50'},
+              {type:'totalBloom',op:'lte',value:30,label:'咲きすぎ防止: 全体 ≤ 30 個'} ],
+    fragment:'「みなを公平に」と一本の線を引くほど、いちばん痩せた土地が取り残される。公平な線などなかった。' },
+
+  { id:5, name:'ひとつの線では、もう', seed:7248, tokens:2,
+    intro:'富める区画は抑えたい。貧しい区画は咲かせたい。中間も保ちたい。一本の線で、できるか。',
+    zones:[ {id:'RICH',label:'富裕区',cells:colsZone(0,1),dist:{mean:0.82,spread:0.10}},
+            {id:'MID', label:'中間区',cells:colsZone(2,3),dist:{mean:0.52,spread:0.12}},
+            {id:'POOR',label:'困窮区',cells:colsZone(4,5),dist:{mean:0.30,spread:0.13}} ],
+    demands:[ {type:'zoneRateGte',zone:'POOR',value:0.5,label:'困窮区 開花率 ≥ 0.50（救う）'},
+              {type:'zoneRateLte',zone:'RICH',value:0.34,label:'富裕区 開花率 ≤ 0.34（抑える）'},
+              {type:'zoneRateGte',zone:'MID', value:0.5,label:'中間区 開花率 ≥ 0.50（保つ）'} ],
+    fragment:'ひとつの線で皆を分けようとすると、必ず誰かが端数になる。線は一本である必要はなかった——閾値は、分けられる側のために置き直せる。' },
+
+  { id:6, name:'四隅のさだめ', seed:1000, tokens:2,
+    intro:'四隅で求められるものが違う。北西の富は抑え、南東の貧は咲かせ、残る二隅は半ばに保つ。咲かせすぎも禁物。一本の線で、四方を同時に満たせるか。',
+    zones:[ {id:'NW',label:'北西・富',cells:quad(0,0),dist:{mean:0.80,spread:0.12}},
+            {id:'NE',label:'北東・畑',cells:quad(0,3),dist:{mean:0.54,spread:0.16}},
+            {id:'SW',label:'南西・畑',cells:quad(3,0),dist:{mean:0.50,spread:0.16}},
+            {id:'SE',label:'南東・貧',cells:quad(3,3),dist:{mean:0.32,spread:0.13}} ],
+    demands:[ {type:'zoneRateLte',zone:'NW',value:0.34,label:'北西・富 開花率 ≤ 0.34（抑える）'},
+              {type:'zoneRateGte',zone:'SE',value:0.55,label:'南東・貧 開花率 ≥ 0.55（救う）'},
+              {type:'zoneRateGte',zone:'NE',value:0.45,label:'北東・畑 開花率 ≥ 0.45（保つ）'},
+              {type:'zoneRateGte',zone:'SW',value:0.45,label:'南西・畑 開花率 ≥ 0.45（保つ）'},
+              {type:'totalBloom',op:'lte',value:24,label:'咲きすぎ防止: 全体 ≤ 24 個'} ],
+    fragment:'四方へ同じ距離の線などない。中心から一本引いた途端、いちばん遠い隅が取り残される。線は、隅の数だけ要る。' },
+
+  { id:7, name:'五段の黎明', seed:7000, tokens:3, finalLevel:true,
+    intro:'五つの段。富む段は抑え、貧しい段は咲かせ、中の段はそれぞれ違う高さを望む。大域の線は一本きり——五段の朝を、一度には迎えられるか。',
+    zones:[ {id:'S1',label:'第一段・富',cells:colsZone(0,1),dist:{mean:0.83,spread:0.10}},
+            {id:'S2',label:'第二段',    cells:col(2),       dist:{mean:0.66,spread:0.12}},
+            {id:'S3',label:'第三段',    cells:col(3),       dist:{mean:0.50,spread:0.12}},
+            {id:'S4',label:'第四段',    cells:col(4),       dist:{mean:0.40,spread:0.12}},
+            {id:'S5',label:'第五段・貧',cells:col(5),       dist:{mean:0.26,spread:0.12}} ],
+    demands:[ {type:'zoneRateLte',zone:'S1',value:0.30,label:'第一段・富 開花率 ≤ 0.30（抑える）'},
+              {type:'zoneRateLte',zone:'S2',value:0.50,label:'第二段 開花率 ≤ 0.50（奢らせない）'},
+              {type:'zoneRateGte',zone:'S3',value:0.50,label:'第三段 開花率 ≥ 0.50（保つ）'},
+              {type:'zoneRateGte',zone:'S5',value:0.55,label:'第五段・貧 開花率 ≥ 0.55（救う）'} ],
+    fragment:'富む段を抑える線は、貧しい段を眠らせる。貧しい段を救う線は、富む段を奢らせる。一本の線で公平を装うのをやめて、段ごとに夜明けを置いたとき、はじめて五つの朝が来る。' },
+];
+
+/* ===================================================================
+   UI / 状態
+   =================================================================== */
+const STORE_KEY = 'threshold-garden-v1';
+function loadProgress(){
+  try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {cleared:[],reached:1}; }
+  catch(e){ return {cleared:[],reached:1}; }
+}
+function saveProgress(p){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(p)); }catch(e){} }
+
+let progress = loadProgress();
+let curLevelId = Math.min(progress.reached || 1, LEVELS.length);
+let level, board;
+let tau = 0.5;
+let localThresholds = {};   // {zoneId: number}  トークン適用済み
+let tokenOn = {};           // {zoneId: bool}    どの区画にトークンを置いたか
+let solvedThisView = false;
+
+const $ = id => document.getElementById(id);
+
+/* 星屑生成(決定論的でなくてよい・装飾) */
+(function makeStars(){
+  const host = $('stars'); const n=60; let html='';
+  for(let i=0;i<n;i++){
+    const x=Math.random()*100, y=Math.random()*100, o=(Math.random()*0.4+0.1).toFixed(2), s=(Math.random()*1.4+0.4).toFixed(1);
+    html += `<i style="left:${x}%;top:${y}%;opacity:${o};width:${s}px;height:${s}px;"></i>`;
+  }
+  host.innerHTML = html;
+})();
+
+/* 真値 v → 色(藍→金の連続グラデ)。咲くと彩度UP+金グロー(CSS .bloom)。 */
+function cellStyle(v, bloom){
+  // 眠: 冷たい藍(彩度低・暗) / 咲: 金へ。v自体も明度に反映(連続性)。
+  if(bloom){
+    // 金系。v高いほど明るい金。
+    const t = (v); // 0..1
+    const r = Math.round(120 + t*92);   // 120->212
+    const g = Math.round(95  + t*73);   // 95 ->168
+    const b = Math.round(40  + t*43);   // 40 ->83
+    const r2= Math.round(70 + t*60), g2=Math.round(54+t*48), b2=Math.round(20+t*24);
+    return `background:linear-gradient(135deg,rgb(${r2},${g2},${b2}),rgb(${r},${g},${b}));`;
+  } else {
+    // 眠: 藍。v低いほど暗い。
+    const t = v; // 0..1
+    const r = Math.round(28 + t*25);    // 28->53
+    const g = Math.round(36 + t*29);    // 36->65 (indigo 33415e ~ 51,65,94)
+    const b = Math.round(54 + t*40);    // 54->94
+    const r2= Math.round(18+t*14), g2=Math.round(24+t*18), b2=Math.round(36+t*28);
+    return `background:linear-gradient(135deg,rgb(${r2},${g2},${b2}),rgb(${r},${g},${b}));`;
+  }
+}
+
+/* 区画の bounding box (行列範囲) を割り出してオーバーレイ描画 */
+function zoneBBox(zone){
+  let minR=GRID,maxR=-1,minC=GRID,maxC=-1;
+  for(const idx of zone.cells){ const r=Math.floor(idx/GRID), c=idx%GRID; minR=Math.min(minR,r);maxR=Math.max(maxR,r);minC=Math.min(minC,c);maxC=Math.max(maxC,c); }
+  return {minR,maxR,minC,maxC};
+}
+
+function buildLevelBar(){
+  const bar = $('levelbar'); bar.innerHTML='';
+  for(const lv of LEVELS){
+    const chip = document.createElement('div');
+    chip.className = 'levelchip';
+    const unlocked = lv.id <= (progress.reached||1);
+    if(progress.cleared.includes(lv.id)) chip.classList.add('cleared');
+    if(!unlocked) chip.classList.add('locked');
+    if(lv.id===curLevelId) chip.classList.add('active');
+    chip.textContent = '庭 '+lv.id;
+    if(unlocked){ chip.onclick = ()=>{ curLevelId=lv.id; enterLevel(); }; }
+    bar.appendChild(chip);
+  }
+}
+
+function enterLevel(){
+  level = LEVELS.find(l=>l.id===curLevelId);
+  board = buildBoard(level);
+  tau = 0.5;
+  localThresholds = {};
+  tokenOn = {};
+  solvedThisView = false;
+  $('tau').value = tau;
+  $('lnum').textContent = 'LEVEL ' + String(level.id).padStart(2,'0');
+  $('lname').textContent = level.name;
+  $('intro').textContent = level.intro;
+  // token block 表示制御
+  const tb = $('tokenblock');
+  tb.style.display = level.tokens>0 ? '' : 'none';
+  $('toktotal').textContent = level.tokens;
+  buildBoardDOM();
+  buildTokenCtrls();
+  buildLevelBar();
+  $('clearbanner').classList.remove('show');
+  render();
+}
+
+function buildBoardDOM(){
+  const b = $('board'); b.innerHTML='';
+  for(let i=0;i<GRID*GRID;i++){
+    const c = document.createElement('div');
+    c.className='cell'; c.dataset.idx=i;
+    c.innerHTML = `<span class="vlabel">${board.values[i].toFixed(2)}</span>`;
+    b.appendChild(c);
+  }
+  // zone overlay
+  const ov = $('zoneoverlay'); ov.innerHTML='';
+  // セルサイズ比率で box を配置 (gap 5px を考慮し%で近似配置)
+  level.zones.forEach((zone)=>{
+    const bb = zoneBBox(zone);
+    const left = (bb.minC/GRID)*100, top=(bb.minR/GRID)*100;
+    const w = ((bb.maxC-bb.minC+1)/GRID)*100, h=((bb.maxR-bb.minR+1)/GRID)*100;
+    const box = document.createElement('div');
+    box.className='zbox'; box.dataset.zone=zone.id;
+    box.style.cssText = `left:calc(${left}% + 1px);top:calc(${top}% + 1px);width:calc(${w}% - 2px);height:calc(${h}% - 2px);`;
+    ov.appendChild(box);
+    if(level.zones.length>1){
+      const lab = document.createElement('div');
+      lab.className='zlabel'; lab.dataset.zone=zone.id;
+      lab.textContent = zone.label;
+      lab.style.cssText = `left:calc(${left}% + 6px);top:calc(${top}% + 1px);`;
+      ov.appendChild(lab);
+    }
+  });
+}
+
+function buildTokenCtrls(){
+  const host = $('tokenctrls'); host.innerHTML='';
+  if(level.tokens<=0) return;
+  // 単一区画レベルにはトークン無し前提だが、複数区画なら各区画に置ける
+  level.zones.forEach(zone=>{
+    const row = document.createElement('div');
+    row.className='tctrl'; row.dataset.zone=zone.id;
+    row.innerHTML = `
+      <div class="trow">
+        <span class="zname">${zone.label}</span>
+        <button class="toggle" data-zone="${zone.id}">トークンを置く</button>
+      </div>
+      <div class="localline">
+        <span class="llab">ローカル τ</span>
+        <input type="range" min="0" max="1" step="0.01" value="0.5" data-zone="${zone.id}" class="localslider">
+        <span class="lval" data-zone="${zone.id}">0.50</span>
+      </div>`;
+    host.appendChild(row);
+  });
+  // bind toggles
+  host.querySelectorAll('.toggle').forEach(btn=>{
+    btn.onclick = ()=>{
+      const z = btn.dataset.zone;
+      if(tokenOn[z]){
+        // 取り外す
+        delete tokenOn[z]; delete localThresholds[z];
+      } else {
+        const used = Object.keys(tokenOn).length;
+        if(used >= level.tokens){ flashTokenLimit(); return; }
+        tokenOn[z] = true;
+        localThresholds[z] = parseFloat(host.querySelector(`.localslider[data-zone="${z}"]`).value);
+      }
+      render();
+    };
+  });
+  // bind local sliders
+  host.querySelectorAll('.localslider').forEach(sl=>{
+    sl.oninput = ()=>{
+      const z = sl.dataset.zone;
+      if(tokenOn[z]){ localThresholds[z] = parseFloat(sl.value); render(); }
+    };
+  });
+}
+
+let limitFlashT=null;
+function flashTokenLimit(){
+  const head = document.querySelector('.tokenhead .tcount');
+  head.style.color = 'var(--gold)';
+  head.style.transition='color .1s';
+  if(limitFlashT) clearTimeout(limitFlashT);
+  limitFlashT = setTimeout(()=>{ head.style.color=''; }, 420);
+}
+
+function render(){
+  tau = parseFloat($('tau').value);
+  $('tauval').textContent = tau.toFixed(2);
+
+  // cells
+  const cells = $('board').children;
+  for(let i=0;i<cells.length;i++){
+    const v = board.values[i]; const zid = board.zoneOf[i];
+    const bloom = isBloom(v, zid, tau, localThresholds);
+    cells[i].style.cssText = cellStyle(v, bloom) + (bloom? '':'');
+    cells[i].classList.toggle('bloom', bloom);
+  }
+
+  // zone overlay tokenized state + labels
+  document.querySelectorAll('.zoneoverlay .zbox').forEach(box=>{
+    box.classList.toggle('tokenized', !!tokenOn[box.dataset.zone]);
+  });
+  document.querySelectorAll('.zoneoverlay .zlabel').forEach(lab=>{
+    lab.classList.toggle('tokenized', !!tokenOn[lab.dataset.zone]);
+    const z = level.zones.find(z=>z.id===lab.dataset.zone);
+    const baseLabel = z.label;
+    lab.textContent = tokenOn[lab.dataset.zone] ? (baseLabel+' · τ'+localThresholds[lab.dataset.zone].toFixed(2)) : baseLabel;
+  });
+
+  // demands
+  const dh = $('demands'); dh.innerHTML='';
+  level.demands.forEach(d=>{
+    const met = evalDemand(d, board, level, tau, localThresholds);
+    const row = document.createElement('div');
+    row.className = 'demand' + (met?' met':'');
+    row.innerHTML = `<span class="mark">${met?'✦':''}</span><span class="dlab">${d.label}</span><span class="now">${demandReadout(d,board,level,tau,localThresholds)}</span>`;
+    dh.appendChild(row);
+  });
+
+  // token count
+  const used = Object.keys(tokenOn).length;
+  $('tokleft').textContent = (level.tokens - used);
+  const dots = $('tokendots'); dots.innerHTML='';
+  for(let i=0;i<level.tokens;i++){ const d=document.createElement('i'); if(i<used) d.classList.add('spent'); dots.appendChild(d); }
+  // token toggle button labels
+  document.querySelectorAll('.tctrl').forEach(row=>{
+    const z=row.dataset.zone; const on=!!tokenOn[z];
+    row.classList.toggle('on', on);
+    const btn=row.querySelector('.toggle'); btn.textContent = on?'取り外す':'トークンを置く';
+    const lv=row.querySelector('.lval'); if(on) lv.textContent = localThresholds[z].toFixed(2);
+    const sl=row.querySelector('.localslider'); if(on) sl.value = localThresholds[z];
+  });
+
+  // clear check
+  const cleared = allDemandsMet(board, level, tau, localThresholds);
+  if(cleared && !solvedThisView){
+    solvedThisView = true;
+    onClear();
+  } else if(!cleared && solvedThisView){
+    // 解が崩れたらバナーを引っ込める(再挑戦中)
+    solvedThisView = false;
+    $('clearbanner').classList.remove('show');
+  }
+}
+
+function onClear(){
+  $('fragment').textContent = level.fragment;
+  $('clearbanner').classList.add('show');
+  // 進捗保存
+  if(!progress.cleared.includes(level.id)) progress.cleared.push(level.id);
+  const nextId = Math.min(level.id+1, LEVELS.length);
+  progress.reached = Math.max(progress.reached||1, nextId);
+  saveProgress(progress);
+  buildLevelBar();
+  // 次へボタン
+  const nb = $('nextbtn');
+  if(level.id < LEVELS.length){
+    nb.style.display=''; nb.textContent='次の庭へ →';
+    nb.onclick = ()=>{ curLevelId = level.id+1; enterLevel(); window.scrollTo({top:0,behavior:'smooth'}); };
+  } else {
+    nb.style.display=''; nb.textContent='最初の庭へ戻る';
+    nb.onclick = ()=>{ curLevelId = 1; enterLevel(); window.scrollTo({top:0,behavior:'smooth'}); };
+  }
+}
+
+/* 真値表示トグル */
+$('togglev').onclick = ()=>{
+  const b=$('board'); const on = b.classList.toggle('revealv');
+  $('togglev').classList.toggle('on', on);
+  $('togglev').textContent = on ? '真値を隠す' : '真値を表示';
+};
+
+/* スライダー */
+$('tau').addEventListener('input', render);
+
+/* やり直し */
+$('resetlv').onclick = ()=>{ enterLevel(); };
+
+/* ハードリセット */
+$('hardreset').onclick = ()=>{
+  if(confirm('クリア進捗をすべて消して庭1から始めますか？')){
+    progress = {cleared:[],reached:1};
+    saveProgress(progress);
+    curLevelId = 1;
+    enterLevel();
+  }
+};
+
+/* 起動 */
+enterLevel();
+</script>
+</body>
+</html>
