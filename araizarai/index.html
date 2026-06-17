@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- araizarai v0.2 — 67 services -->
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -298,6 +299,24 @@ const SUBS_DB = [
   {name:'Inoreader',cat:'ニュース・読書',price:12200,cycle:'年',method:'web',diff:0.35,url:'https://www.inoreader.com/',steps:'Preferences → サブスクリプション → 解約。',traps:['Apple経由の契約はApp Storeで'],aliases:['inoreader','イノリーダー']},
   {name:'Lensa AI',cat:'SNS・その他',price:3800,cycle:'年',method:'store',diff:0.4,url:'https://apps.apple.com/account/subscriptions',steps:'iPhone 設定 → サブスク → Lensa →「解約」。',traps:['App Store課金・自動更新に注意'],aliases:['lensa']},
 
+  // ---- 追加分（flick / LINE / 楽天系 / プロフィール由来） ----
+  {name:'WOWOW オンデマンド',cat:'動画',price:2530,cycle:'月',method:'retention',diff:0.55,url:'https://support.wowow.co.jp/answer/61add1649e474a001c1ccf03/',steps:'My WOWOWにログイン →「解約のお申し込み」。電話(0120-580-807)でも可。',traps:['J:COM/ひかりTV経由はそちらで','解約後の視聴期間に注意'],aliases:['wowow','ワウワウ']},
+  {name:'FOD（フジテレビオンデマンド）',cat:'動画',price:976,cycle:'月',method:'web',diff:0.4,url:'https://fod.fujitv.co.jp/',steps:'マイページ → アカウント → コース解約。',traps:['Amazon/ストア経由はそちらで'],aliases:['fod','フジテレビオンデマンド']},
+  {name:'楽天TV（Rakuten TV）',cat:'動画',price:702,cycle:'月',method:'web',diff:0.45,url:'https://tv.rakuten.co.jp/mypage/',steps:'マイページ → 登録済みサービス →「解約」。',traps:['パ・リーグ/NBA等プランごとに解約が別'],aliases:['楽天tv','rakuten tv','パ・リーグ','nba rakuten']},
+  {name:'dアニメストア',cat:'動画',price:550,cycle:'月',method:'carrier',diff:0.5,url:'https://animestore.docomo.ne.jp/animestore/CF/help_qa_cancel',steps:'画面下「解約」→ dアカウントでログイン → 手続き完了。',traps:['アプリ削除では解約にならない','解約後はDL作品も視聴不可','Amazon経由は別手続き'],aliases:['dアニメ','danime','ディーアニメ']},
+  {name:'LINE MUSIC',cat:'音楽',price:1080,cycle:'月',method:'store',diff:0.4,url:'https://help.music.line.me/',steps:'設定 → プラン →「解約」。ストア決済はストアで。',traps:['App Store/Google Play契約はストアで'],aliases:['line music','ラインミュージック']},
+  {name:'Rakuten Music（楽天ミュージック）',cat:'音楽',price:980,cycle:'月',method:'web',diff:0.4,url:'https://music.rakuten.co.jp/',steps:'設定 → プラン変更/解約。',traps:[],aliases:['rakuten music','楽天ミュージック']},
+  {name:'Suno',cat:'AI',price:1500,cycle:'月',method:'web',diff:0.35,url:'https://suno.com/account',steps:'アカウント → Manage Subscription →「Cancel」(Stripe)。',traps:['iOSアプリ契約はApp Storeで','未使用クレジットは失効'],aliases:['suno','スーノ']},
+  {name:'Cursor',cat:'AI',price:3000,cycle:'月',method:'web',diff:0.3,url:'https://www.cursor.com/settings',steps:'Settings → Manage Subscription →「Cancel」。',traps:[],aliases:['cursor','カーソル']},
+  {name:'ElevenLabs',cat:'AI',price:800,cycle:'月',method:'web',diff:0.3,url:'https://elevenlabs.io/app/subscription',steps:'Subscription → Manage →「Cancel」。',traps:[],aliases:['elevenlabs','eleven labs']},
+  {name:'CLIP STUDIO PAINT',cat:'仕事・ソフト',price:480,cycle:'月',method:'web',diff:0.4,url:'https://www.clipstudio.net/ja/purchase/',steps:'CLIP STUDIOアカウント → 月額利用プラン →「解約」。',traps:['年間プランは期間途中の解約に注意'],aliases:['clip studio','clipstudio','クリスタ','celsys']},
+  {name:'Obsidian',cat:'仕事・ソフト',price:1200,cycle:'月',method:'web',diff:0.3,url:'https://obsidian.md/account',steps:'アカウント → Sync/Publish → サブスク管理 →「解約」。',traps:['Sync解約後は同期停止(ローカルデータは残る)'],aliases:['obsidian','オブシディアン']},
+  {name:'flick（フリック キーボード）',cat:'仕事・ソフト',price:240,cycle:'月',method:'store',diff:0.4,url:'https://apps.apple.com/account/subscriptions',steps:'iPhone 設定 → サブスク → flick →「解約」。',traps:['App Store課金・6か月など期間に注意'],aliases:['flick','フリック']},
+  {name:'NewsPicks',cat:'ニュース・読書',price:1850,cycle:'月',method:'web',diff:0.45,url:'https://newspicks.com/',steps:'設定 → お支払い情報 → プレミアム解約（決済方法ごとに導線が違う）。',traps:['iOS/Android/Amazon経由は各ストアで','更新24時間前まで','「退会」=アカウント削除は解約とは別'],aliases:['newspicks','ニューズピックス']},
+  {name:'LINEスタンプ プレミアム',cat:'SNS・その他',price:240,cycle:'月',method:'store',diff:0.4,url:'https://apps.apple.com/account/subscriptions',steps:'iPhone 設定 → サブスク → LINE →「解約」。Android/WebはGoogle Play/LINE STORE。',traps:['App Store/Google Play契約はストアで'],aliases:['line','ライン','linestamp']},
+  {name:'MillenVPN',cat:'SNS・その他',price:396,cycle:'月',method:'web',diff:0.4,url:'https://millenvpn.jp/',steps:'会員ページ → 契約 → 自動更新を停止/解約。',traps:['長期契約は期間途中の返金に注意'],aliases:['millenvpn','ミレンvpn']},
+  {name:'NordVPN',cat:'SNS・その他',price:1500,cycle:'月',method:'retention',diff:0.5,url:'https://my.nordaccount.com/',steps:'Nord Account → Billing → 自動更新をオフ。',traps:['長期割引契約は途中解約で割引消滅','引き止めあり'],aliases:['nordvpn','nord vpn']},
+
   // ---- ルート（中身が見えない“まとめ請求”）。具体サービスにヒットしなかった時の受け皿 ----
   {name:'Apple（App Store 請求）',cat:'SNS・その他',price:0,cycle:'月',method:'store',diff:0.4,route:true,url:'https://apps.apple.com/account/subscriptions',steps:'iPhone 設定 → 自分の名前 → サブスクリプション で中身を確認して解約。',traps:['この明細だけでは“何の”サブスクか不明。iPhoneのサブスク管理で内訳を確認'],aliases:['apple.com/bill','apple.com bill','itunes.com/bill','apple com bill']},
   {name:'Google Play（まとめ請求）',cat:'SNS・その他',price:0,cycle:'月',method:'store',diff:0.4,route:true,url:'https://play.google.com/store/account/subscriptions',steps:'Google Play → 右上アイコン → お支払いと定期購入 → 定期購入 で内訳を確認。',traps:['内訳はGoogle Playのサブスク管理で確認'],aliases:['google play','play.google','google*']},
@@ -334,7 +353,7 @@ function matchLine(line){
     for(const a of s.aliases){
       const al=a.toLowerCase();
       let hit;
-      if(al.length<=3) hit=new RegExp('(^|[^a-z0-9])'+escapeRe(al)+'([^a-z0-9]|$)').test(line);
+      if(al.length<=4) hit=new RegExp('(^|[^a-z0-9])'+escapeRe(al)+'([^a-z0-9]|$)').test(line);
       else hit=line.includes(al);
       if(hit) return s;
     }
