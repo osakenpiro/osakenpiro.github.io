@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>あらいざらい — サブスク洗い出し＆解約ナビ</title>
+<meta name="description" content="クレカ明細を貼るだけで契約中のサブスクを洗い出し、解約方法・難易度・解約ページ(入口)まで案内するツール。すべてブラウザ内で完結、データは外に出ません。">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --gold:#d4a853; --gold-deep:#b8893a; --cream:#faf9f6; --ink:#23201a;
+  --paper:#ffffff; --line:#e7e2d6; --muted:#8a8372; --void:#1c1a17;
+  --salmon:#e0846f; --salmon-soft:#f4d9d1; --easy:#5a8f6b; --mid:#c79a3d; --hard:#c8645a;
+  --blue:#3d6b8f; --purple:#7a5a9f;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;
+  background:var(--cream);color:var(--ink);line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:0 18px 80px}
+header.hero{background:var(--void);color:var(--cream);padding:34px 0 30px;margin-bottom:26px;
+  border-bottom:3px solid var(--gold)}
+.hero .wrap{padding-bottom:0}
+.brand{font-family:"Zen Old Mincho","Yu Mincho",serif;font-size:30px;font-weight:700;letter-spacing:.04em}
+.brand .en{font-family:serif;font-size:14px;color:var(--gold);letter-spacing:.22em;font-weight:400;margin-left:10px}
+.tagline{color:#cfc8b8;margin-top:6px;font-size:14.5px}
+.privacy{display:inline-flex;align-items:center;gap:7px;margin-top:14px;background:rgba(212,168,83,.13);
+  border:1px solid rgba(212,168,83,.4);color:var(--gold);padding:5px 12px;border-radius:20px;font-size:12.5px}
+h2.sec{font-family:"Zen Old Mincho",serif;font-size:19px;margin:30px 0 12px;padding-left:11px;
+  border-left:4px solid var(--gold);font-weight:700}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px 18px}
+.panel{margin-bottom:18px}
+textarea{width:100%;min-height:150px;border:1px solid var(--line);border-radius:10px;padding:13px;
+  font-family:"SFMono-Regular",Consolas,"Courier New",monospace;font-size:13px;resize:vertical;background:#fcfbf8;color:var(--ink)}
+textarea:focus{outline:2px solid var(--gold);border-color:var(--gold)}
+.btnrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+button{font-family:inherit;cursor:pointer;border:none;border-radius:9px;font-size:14px;padding:10px 18px;transition:.15s;font-weight:600}
+.btn-primary{background:var(--gold);color:#2a230f}
+.btn-primary:hover{background:var(--gold-deep)}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold-deep)}
+.help{margin-top:13px;font-size:13px}
+.help summary{cursor:pointer;color:var(--gold-deep);font-weight:600;user-select:none}
+.help summary:hover{text-decoration:underline}
+.help .helpbody{padding:12px 4px 4px;color:#56503f}
+.src{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:10px}
+.src .s{background:#fcfbf6;border:1px solid var(--line);border-radius:10px;padding:12px}
+.src .s b{display:block;color:var(--ink);margin-bottom:3px;font-size:13.5px}
+.src .s span{font-size:12.5px;color:var(--muted)}
+
+/* dashboard */
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:15px 14px;text-align:center}
+.kpi .v{font-family:"Zen Old Mincho",serif;font-size:25px;font-weight:700;color:var(--ink);line-height:1.2}
+.kpi .v.warn{color:var(--salmon)}
+.kpi .l{font-size:12px;color:var(--muted);margin-top:3px}
+.charts{display:grid;grid-template-columns:1.15fr 1fr;gap:14px;margin-bottom:8px}
+.chartbox{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:14px 16px}
+.chartbox h3{font-size:13.5px;color:#5a5343;margin-bottom:8px;font-weight:700}
+.chartbox .cwrap{position:relative;height:215px}
+
+/* simulator */
+.sim{background:linear-gradient(180deg,#fffdf7,#fcf7ea);border:1px solid var(--gold);border-radius:13px;
+  padding:15px 18px;margin:14px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.sim .lab{font-size:13.5px;color:#6a5f3d}
+.sim .lab b{font-family:"Zen Old Mincho",serif}
+.sim .big{font-family:"Zen Old Mincho",serif;font-size:23px;color:var(--gold-deep);font-weight:700}
+.sim .big small{font-size:13px;color:var(--muted);font-weight:400}
+
+/* sub cards */
+.subs{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:13px}
+.sub{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:15px 16px;position:relative;display:flex;flex-direction:column}
+.sub.route{border-style:dashed;border-color:var(--blue);background:#f7fafc}
+.sub .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.sub .name{font-weight:700;font-size:16px}
+.sub .cat{font-size:11.5px;color:var(--muted)}
+.sub .price{text-align:right;white-space:nowrap}
+.sub .price .m{font-family:"Zen Old Mincho",serif;font-size:18px;font-weight:700}
+.sub .price .y{font-size:11px;color:var(--muted)}
+.cyc{font-size:11px;border:1px solid var(--line);border-radius:6px;background:#fafafa;padding:1px 5px;cursor:pointer;color:var(--muted)}
+.badge{display:inline-block;font-size:11px;font-weight:700;color:#fff;padding:2px 9px;border-radius:11px;margin-top:9px}
+.meter{margin-top:9px}
+.meter .bar{height:8px;border-radius:5px;background:#eee;overflow:hidden}
+.meter .fill{height:100%;border-radius:5px}
+.meter .lab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:3px}
+.steps{font-size:12.5px;color:#4d4738;margin-top:9px;background:#fbfaf6;border-radius:8px;padding:8px 10px;border:1px solid var(--line)}
+.traps{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.trap{font-size:11.5px;color:#9a5a48;background:var(--salmon-soft);border-radius:6px;padding:4px 8px}
+.actions{margin-top:auto;padding-top:11px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.openbtn{flex:1;text-align:center;text-decoration:none;background:var(--gold);color:#2a230f;border-radius:8px;padding:8px 10px;font-size:13px;font-weight:700}
+.openbtn.none{background:#ece8dd;color:var(--muted);pointer-events:none}
+.state{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.state button{padding:6px 9px;font-size:12px;font-weight:600;background:#fff;color:var(--muted);border-right:1px solid var(--line)}
+.state button:last-child{border-right:none}
+.state button.on[data-s="keep"]{background:#eef3ee;color:var(--easy)}
+.state button.on[data-s="maybe"]{background:#fbf3e2;color:var(--mid)}
+.state button.on[data-s="cancel"]{background:#fbe7e1;color:var(--hard)}
+
+/* unmatched */
+.umrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px dashed var(--line);font-size:13px}
+.umrow:last-child{border-bottom:none}
+.umrow code{font-family:monospace;font-size:12px;color:#5a5343;word-break:break-all}
+.linkbtn{background:none;border:none;color:var(--gold-deep);font-size:12.5px;cursor:pointer;text-decoration:underline;padding:0;font-weight:600;white-space:nowrap}
+.manual{display:grid;grid-template-columns:1.4fr .8fr 1fr .7fr auto;gap:8px;margin-top:10px}
+.manual input,.manual select{border:1px solid var(--line);border-radius:8px;padding:8px;font-size:13px;font-family:inherit}
+.hidden{display:none}
+.empty{color:var(--muted);font-size:13.5px;text-align:center;padding:18px}
+footer{margin-top:40px;padding-top:18px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);text-align:center}
+footer b{color:var(--gold-deep)}
+.legend{display:flex;gap:13px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:4px;vertical-align:middle}
+@media(max-width:720px){
+  .summary{grid-template-columns:repeat(2,1fr)}
+  .charts{grid-template-columns:1fr}
+  .manual{grid-template-columns:1fr 1fr}
+  .brand{font-size:24px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="brand">あらいざらい<span class="en">ARAIZARAI</span></div>
+    <div class="tagline">クレカ明細を貼るだけ。契約中のサブスクを<b>洗い出し</b>、解約方法・難易度・<b>解約ページ(入口)</b>まで一気に案内。</div>
+    <div class="privacy">🔒 入力したデータはこのブラウザの中だけで処理されます（どこにも送信しません）</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- INPUT -->
+  <section class="panel">
+    <h2 class="sec">① 明細を貼る</h2>
+    <div class="card">
+      <textarea id="input" placeholder="クレジットカードや銀行アプリの利用明細をコピーして、ここに貼り付け。&#10;1行に「店名（摘要） … 金額」が入っていればOK。複数月ぶんでも構いません。&#10;&#10;例）&#10;2026/05/02  ネットフリックス             1,490&#10;2026/05/05  APPLE.COM/BILL            1,500&#10;2026/05/09  ADOBE *CREATIVE CLOUD     6,480"></textarea>
+      <div class="btnrow">
+        <button class="btn-primary" onclick="run()">洗い出す</button>
+        <button class="btn-ghost" onclick="loadSample()">サンプルで試す</button>
+        <button class="btn-ghost" onclick="clearAll()">クリア</button>
+      </div>
+      <details class="help">
+        <summary>明細はどこから取る？ — 取ってきやすい3つの情報源</summary>
+        <div class="helpbody">
+          サブスクは「払ってること自体を忘れる」のが本質。次の3つをクロスチェックすると漏れません。
+          <div class="src">
+            <div class="s"><b>① クレカ／銀行の利用明細</b><span>各カード会社・銀行アプリの「ご利用明細」を範囲選択してコピー。これが一番取りやすい主軸。</span></div>
+            <div class="s"><b>② メールの「ご請求」検索</b><span>Gmail等で <code>ご請求 OR 領収書 OR receipt OR subscription</code> と検索。明細に出ない少額や年額が見つかる。</span></div>
+            <div class="s"><b>③ スマホのサブスク管理</b><span>iPhone: 設定→自分の名前→サブスクリプション / Android: Google Play→お支払いと定期購入。アプリ内課金はここだけに出る。</span></div>
+          </div>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="dash" class="panel hidden">
+    <h2 class="sec">② 棚卸し</h2>
+    <div class="summary">
+      <div class="kpi"><div class="v" id="kpiMonth">—</div><div class="l">月額合計</div></div>
+      <div class="kpi"><div class="v" id="kpiYear">—</div><div class="l">年額換算</div></div>
+      <div class="kpi"><div class="v" id="kpiCount">—</div><div class="l">検出サブスク</div></div>
+      <div class="kpi"><div class="v warn" id="kpiHard">—</div><div class="l">解約が手ごわい</div></div>
+    </div>
+    <div class="charts">
+      <div class="chartbox"><h3>カテゴリ別の月額</h3><div class="cwrap"><canvas id="catChart"></canvas></div></div>
+      <div class="chartbox"><h3>解約のしやすさ（難度別の件数）</h3><div class="cwrap"><canvas id="diffChart"></canvas></div>
+        <div class="legend"><span><i style="background:var(--easy)"></i>かんたん 0–0.34</span><span><i style="background:var(--mid)"></i>ふつう 0.35–0.64</span><span><i style="background:var(--hard)"></i>手ごわい 0.65–1.0</span></div>
+      </div>
+    </div>
+    <div class="sim">
+      <div class="lab"><b>解約シミュレーター</b>　各カードを <b>残す / 迷う / 解約</b> で仕分け。<br>※「迷う」は0.5として計算（Boolean→Float：二択じゃなく濃淡で決める）。</div>
+      <div class="big" id="simOut">月 ¥0 <small>/ 年 ¥0 浮く</small></div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="resultSec" class="panel hidden">
+    <h2 class="sec">③ 解約ナビ <span id="sortHint" style="font-size:12px;color:var(--muted);font-weight:400">（難しい順）</span></h2>
+    <div class="btnrow" style="margin-bottom:12px">
+      <button class="btn-ghost" onclick="setSort('diff')">難しい順</button>
+      <button class="btn-ghost" onclick="setSort('price')">高い順</button>
+      <button class="btn-ghost" onclick="setSort('cat')">カテゴリ順</button>
+    </div>
+    <div class="subs" id="subs"></div>
+  </section>
+
+  <!-- UNMATCHED -->
+  <section id="umSec" class="panel hidden">
+    <h2 class="sec">④ 判別できなかった明細</h2>
+    <div class="card">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:6px">サブスクか判断できなかった行です。サブスクなら「追加」、違うなら無視でOK。</div>
+      <div id="umList"></div>
+    </div>
+  </section>
+
+  <!-- MANUAL ADD -->
+  <section class="panel">
+    <h2 class="sec">＋ 手動で追加</h2>
+    <div class="card">
+      <div class="manual">
+        <input id="mName" placeholder="サービス名（例：ジム）">
+        <input id="mPrice" type="number" placeholder="金額¥">
+        <select id="mCat"></select>
+        <select id="mCyc"><option value="月">月額</option><option value="年">年額</option></select>
+        <button class="btn-primary" onclick="addManual()">追加</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <b>あらいざらい</b> — #全人類UX改善計画 ／ Visionium・Hi-Me TooL<br>
+    すべてブラウザ内で処理（データ送信なし）。解約手順・URLは目安です。実際の画面表示に従ってください。<br>
+    収録サービス <span id="dbCount"></span>件。見つからないサービスは「手動で追加」＋名前で「◯◯ 解約」検索が確実。
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   あらいざらい — サブスク洗い出し＆解約ナビ  v0 (prototype)
+   単一HTML / localStorage / 全処理クライアントサイド
+   ============================================================ */
+
+/* 解約方法の分類（method） */
+const METHODS = {
+  web:      {label:'Web自己解約', color:'var(--easy)',  desc:'サービスのサイト/アプリ内で完結。'},
+  store:    {label:'ストア経由',   color:'var(--blue)',  desc:'App Store / Google Play で契約 → ストアの設定から解約。サイト側では止まらない。'},
+  carrier:  {label:'キャリア決済', color:'var(--purple)',desc:'ドコモ/au/ソフトバンクのまとめて請求 → 各キャリアのポータルから。'},
+  retention:{label:'引き止め導線', color:'var(--mid)',   desc:'解約ボタンが深い／引き止めが多い。手順どおり進める。'},
+  contract: {label:'契約縛りあり', color:'var(--hard)',  desc:'最低利用期間／違約金／日割り返金なし。タイミング注意。'},
+  phone:    {label:'電話・問合せ', color:'var(--hard)',  desc:'電話やチャットでの手続きが必要なことがある。'}
+};
+
+const CATS = ['動画','音楽','AI','クラウド','ニュース・読書','仕事・ソフト','ゲーム','SNS・その他'];
+
+/* サービスDB。price=1回の代表課金額(円), cycle=既定の請求周期, diff=解約難易度Float(0..1) */
+const SUBS_DB = [
+  // ---- 動画 ----
+  {name:'Netflix',cat:'動画',price:1490,cycle:'月',method:'web',diff:0.15,url:'https://www.netflix.com/cancelplan',steps:'アカウント →「メンバーシップのキャンセル」→ 解約手続きを完了。',traps:['Apple/au/ドコモ経由の契約はそちら側で解約'],aliases:['netflix','ネットフリックス','ネットフリ']},
+  {name:'Disney+',cat:'動画',price:990,cycle:'月',method:'web',diff:0.2,url:'https://www.disneyplus.com/ja-jp/account/subscription',steps:'アカウント → サブスクリプション →「解約する」。',traps:['日本ではドコモ/ahamo経由が多い→その場合はドコモで','Apple経由はApp Storeで'],aliases:['disney','ディズニープラス','disney plus','disney+']},
+  {name:'U-NEXT',cat:'動画',price:2189,cycle:'月',method:'retention',diff:0.5,url:'https://video.unext.jp/',steps:'設定・サポート → 契約内容の確認・変更 →「解約」。',traps:['「解約」と「退会」は別物。退会するとポイント消滅','アプリ削除だけでは解約にならない','iTunes/Amazon経由はそちらで'],aliases:['u-next','unext','ユーネクスト','ユーネク']},
+  {name:'Hulu',cat:'動画',price:1026,cycle:'月',method:'web',diff:0.4,url:'https://www.hulu.jp/account',steps:'アカウントページ →「解約する」。',traps:['ストア決済はストア側で'],aliases:['hulu','フールー']},
+  {name:'DAZN',cat:'動画',price:4200,cycle:'月',method:'contract',diff:0.85,url:'https://www.dazn.com/account',steps:'マイ・アカウント →「退会する」。年間プランは満了まで請求が続く。',traps:['年間プランは途中解約しても残り全額請求・返金なし','「月々払い」でも実質1年縛りの分割'],aliases:['dazn','ダゾーン']},
+  {name:'ABEMAプレミアム',cat:'動画',price:1080,cycle:'月',method:'web',diff:0.4,url:'https://abema.tv/',steps:'アカウント設定 → ABEMAプレミアム →「解約」。',traps:['App Store/Google Play契約はストアで'],aliases:['abema','アベマ']},
+  {name:'Lemino（旧dTV）',cat:'動画',price:990,cycle:'月',method:'carrier',diff:0.5,url:'https://lemino.docomo.ne.jp/',steps:'Lemino → アカウント →「解約」（dアカウント）。',traps:['ドコモ回線でなくてもdアカウントで契約・解約'],aliases:['lemino','dtv','レミノ']},
+  {name:'DMM／FANZA',cat:'動画',price:550,cycle:'月',method:'web',diff:0.5,url:'https://www.dmm.com/my/',steps:'DMMアカウント → 月額サービス一覧 →「解約」。',traps:['サービスごとに解約手続きが別'],aliases:['dmm','fanza','ディーエムエム']},
+
+  // ---- 音楽 ----
+  {name:'Spotify',cat:'音楽',price:980,cycle:'月',method:'web',diff:0.2,url:'https://www.spotify.com/jp/account/subscription/',steps:'プランを管理 → プランを変更 → Spotify Freeにする。',traps:['携帯/プロバイダのセット契約はそちらで'],aliases:['spotify','スポティファイ','スポティ']},
+  {name:'Apple Music',cat:'音楽',price:1080,cycle:'月',method:'store',diff:0.4,url:'https://music.apple.com/jp/settings',steps:'iPhone 設定 → 自分の名前 → サブスクリプション → Apple Music →「解約」。',traps:['Apple ID課金なのでiPhone/iPadの設定から'],aliases:['apple music','アップルミュージック']},
+  {name:'YouTube Premium',cat:'音楽',price:1280,cycle:'月',method:'web',diff:0.2,url:'https://www.youtube.com/paid_memberships',steps:'有料メンバーシップ →「無効にする」→ 解約。',traps:['iPhoneアプリで契約した場合はApp Storeで（価格も割高）'],aliases:['youtube premium','youtubepremium','youtube','ユーチューブプレミアム']},
+  {name:'Amazon Music Unlimited',cat:'音楽',price:1080,cycle:'月',method:'web',diff:0.4,url:'https://www.amazon.co.jp/music/settings',steps:'Amazon Music設定 → 会員登録の管理 →「自動更新をオフ」。',traps:[],aliases:['amazon music','amazonミュージック','amzn music']},
+
+  // ---- AI ----
+  {name:'ChatGPT Plus',cat:'AI',price:3000,cycle:'月',method:'web',diff:0.3,url:'https://chatgpt.com/',steps:'設定 → サブスクリプション →「管理」→ プランをキャンセル。',traps:['更新24時間前までに手続きしないと次月課金','iOS/Android契約はストア課金→ストアで','返金なし'],aliases:['openai','chatgpt','チャットgpt']},
+  {name:'Claude Pro',cat:'AI',price:3000,cycle:'月',method:'web',diff:0.3,url:'https://claude.ai/settings/billing',steps:'Settings → Billing → サブスクの管理 →「キャンセル」。',traps:['ストア経由契約はストアで'],aliases:['anthropic','claude.ai','claude']},
+  {name:'Google AI（Gemini）',cat:'AI',price:2900,cycle:'月',method:'web',diff:0.35,url:'https://one.google.com/',steps:'Google One → メンバーシップ →「解約」。',traps:['Google One経由の課金。容量も連動'],aliases:['google ai','gemini','ジェミニ']},
+  {name:'Perplexity Pro',cat:'AI',price:3000,cycle:'月',method:'web',diff:0.3,url:'https://www.perplexity.ai/settings/account',steps:'Settings → Account → サブスクをキャンセル。',traps:['ストア経由はストアで'],aliases:['perplexity','パープレキシティ']},
+  {name:'Midjourney',cat:'AI',price:1500,cycle:'月',method:'web',diff:0.4,url:'https://www.midjourney.com/account',steps:'Manage Sub →「Cancel Plan」（Stripe画面）。',traps:['年額は割安だが途中解約の日割りなし'],aliases:['midjourney','ミッドジャーニー']},
+  {name:'GitHub Copilot',cat:'AI',price:1500,cycle:'月',method:'web',diff:0.3,url:'https://github.com/settings/billing',steps:'Settings → Billing → Copilot →「解約」。',traps:[],aliases:['github copilot','copilot']},
+
+  // ---- クラウド ----
+  {name:'iCloud+',cat:'クラウド',price:130,cycle:'月',method:'store',diff:0.4,url:'https://www.icloud.com/',steps:'iPhone 設定 → 自分の名前 → iCloud → プラン →「ダウングレード」。',traps:['写真/バックアップが容量超過で止まることがある'],aliases:['icloud','アイクラウド']},
+  {name:'Google One',cat:'クラウド',price:250,cycle:'月',method:'web',diff:0.3,url:'https://one.google.com/settings',steps:'メンバーシップ →「解約」。',traps:['容量超過でGoogleフォト同期が止まる'],aliases:['google one','グーグルワン']},
+  {name:'Dropbox',cat:'クラウド',price:1500,cycle:'月',method:'retention',diff:0.45,url:'https://www.dropbox.com/account/plan',steps:'アカウント → プラン →「ダウングレード/キャンセル」。',traps:['容量超過でファイル同期が止まる'],aliases:['dropbox','ドロップボックス']},
+
+  // ---- ニュース・読書 ----
+  {name:'日経電子版',cat:'ニュース・読書',price:4277,cycle:'月',method:'retention',diff:0.5,url:'https://regist.nikkei.com/support/',steps:'ご購読サポート → ログイン →「解約」。または日経IDラウンジの利用サービス一覧から。',traps:['アプリ内課金はOS側のサブスク管理で','日割り返金なし・月末まで閲覧可'],aliases:['日経電子版','nikkei','日本経済新聞','ニッケイ']},
+  {name:'Kindle Unlimited',cat:'ニュース・読書',price:980,cycle:'月',method:'web',diff:0.4,url:'https://www.amazon.co.jp/kindle-dbs/hz/subscribe/ku',steps:'Kindle Unlimited管理 →「会員登録をキャンセル」。',traps:['解約すると借りていた本は読めなくなる'],aliases:['kindle unlimited','kindleunltd','キンドルアンリミテッド']},
+  {name:'Audible',cat:'ニュース・読書',price:1500,cycle:'月',method:'retention',diff:0.6,url:'https://www.audible.co.jp/account-details',steps:'アカウントサービス →「退会手続きへ」（引き止め画面が続く）。',traps:['引き止めが長い','購入済みの本は退会後も聴ける'],aliases:['audible','オーディブル']},
+  {name:'dマガジン',cat:'ニュース・読書',price:580,cycle:'月',method:'carrier',diff:0.5,url:'https://magazine.dmkt-sp.jp/',steps:'dマガジン → 設定 →「解約」（dアカウント）。',traps:['ドコモ以外でも契約可・dアカウントで解約'],aliases:['dマガジン','dmagazine','ディーマガジン']},
+  {name:'楽天マガジン',cat:'ニュース・読書',price:418,cycle:'月',method:'web',diff:0.4,url:'https://magazine.rakuten.co.jp/',steps:'楽天マガジン → 設定 →「解約」。',traps:[],aliases:['楽天マガジン','rakuten magazine']},
+
+  // ---- 仕事・ソフト ----
+  {name:'Adobe Creative Cloud',cat:'仕事・ソフト',price:6480,cycle:'月',method:'contract',diff:0.9,url:'https://account.adobe.com/plans',steps:'プラン → プランを管理 →「契約を解約」。',traps:['年間プラン(月払い)は途中解約で残額の約50%の解約金','契約から14日以内なら全額返金','年間プランの最終月に解約すれば解約金なし'],aliases:['adobe','アドビ','creativecloud','creative cloud']},
+  {name:'Microsoft 365',cat:'仕事・ソフト',price:1490,cycle:'月',method:'web',diff:0.35,url:'https://account.microsoft.com/services',steps:'サービスとサブスクリプション →「管理」→ 定期請求をオフ。',traps:['OneDrive容量が1TB→5GBに減る'],aliases:['microsoft 365','office 365','マイクロソフト']},
+  {name:'Notion',cat:'仕事・ソフト',price:1650,cycle:'月',method:'web',diff:0.3,url:'https://www.notion.so/my-account',steps:'Settings → Plans →「ダウングレード」。',traps:[],aliases:['notion','ノーション']},
+  {name:'Canva Pro',cat:'仕事・ソフト',price:1500,cycle:'月',method:'web',diff:0.3,url:'https://www.canva.com/settings/billing-and-teams',steps:'アカウント設定 → 支払いとプラン →「解約」。',traps:['年額契約だと途中解約しても期末まで'],aliases:['canva','キャンバ']},
+  {name:'1Password',cat:'仕事・ソフト',price:450,cycle:'月',method:'web',diff:0.4,url:'https://my.1password.com/',steps:'アカウント → 請求 →「サブスクの管理」。',traps:['解約後は閲覧のみ・新規保存不可になる'],aliases:['1password','ワンパスワード','agilebits']},
+  {name:'Evernote',cat:'仕事・ソフト',price:1100,cycle:'月',method:'retention',diff:0.5,url:'https://www.evernote.com/Settings.action',steps:'設定 → 支払いプラン →「自動更新をオフ」。',traps:['無料版はノート数・端末数に制限'],aliases:['evernote','エバーノート']},
+
+  // ---- ゲーム ----
+  {name:'PlayStation Plus',cat:'ゲーム',price:850,cycle:'月',method:'retention',diff:0.5,url:'https://www.playstation.com/account',steps:'アカウント → サブスクリプション →「自動更新をオフ」。',traps:['自動更新オフ＝期間満了で停止'],aliases:['playstation','ps plus','psn','プレイステーション']},
+  {name:'Nintendo Switch Online',cat:'ゲーム',price:306,cycle:'月',method:'web',diff:0.45,url:'https://accounts.nintendo.com/',steps:'ニンテンドーアカウント → ショップメニュー →「継続購入の解除」。',traps:['自動継続の解除を忘れがち'],aliases:['nintendo','switch online','ニンテンドー','任天堂']},
+  {name:'Xbox Game Pass',cat:'ゲーム',price:1210,cycle:'月',method:'web',diff:0.4,url:'https://account.microsoft.com/services',steps:'サービス → Game Pass →「管理」→ キャンセル。',traps:[],aliases:['xbox','game pass','ゲームパス']},
+  {name:'Apple Arcade',cat:'ゲーム',price:900,cycle:'月',method:'store',diff:0.4,url:'https://apps.apple.com/account/subscriptions',steps:'iPhone 設定 → 自分の名前 → サブスク → Apple Arcade →「解約」。',traps:[],aliases:['apple arcade','アップルアーケード']},
+
+  // ---- SNS・その他 ----
+  {name:'X Premium',cat:'SNS・その他',price:1380,cycle:'月',method:'web',diff:0.4,url:'https://x.com/settings/',steps:'設定 → プレミアム →「サブスクをキャンセル」。',traps:['iOSで契約すると割高＆解約はApp Store'],aliases:['x premium','twitter blue','x corp','エックスプレミアム','twitter']},
+  {name:'LinkedIn Premium',cat:'SNS・その他',price:4300,cycle:'月',method:'retention',diff:0.5,url:'https://www.linkedin.com/premium',steps:'プレミアム設定 → サブスクの管理 →「キャンセル」。',traps:['請求月途中の解約は返金されないことがある'],aliases:['linkedin','リンクトイン']},
+  {name:'niconico プレミアム',cat:'SNS・その他',price:790,cycle:'月',method:'web',diff:0.45,url:'https://account.nicovideo.jp/',steps:'アカウント設定 → プレミアム会員 →「退会」。',traps:['ケータイ払い/iTunes経由はそちらで'],aliases:['niconico','ニコニコ','nicovideo','ニコ動']},
+  {name:'Twitch',cat:'SNS・その他',price:1000,cycle:'月',method:'web',diff:0.35,url:'https://www.twitch.tv/subscriptions',steps:'サブスクリプション →「自動更新をオフ」。',traps:[],aliases:['twitch','ツイッチ']},
+  {name:'Patreon',cat:'SNS・その他',price:1000,cycle:'月',method:'web',diff:0.2,url:'https://www.patreon.com/settings/memberships',steps:'メンバーシップ → 編集 →「キャンセル」。',traps:[],aliases:['patreon','パトレオン']},
+  {name:'Amazonプライム',cat:'SNS・その他',price:600,cycle:'月',method:'retention',diff:0.3,url:'https://www.amazon.co.jp/gp/primecentral',steps:'プライム会員情報 →「会員資格を終了する」。',traps:['特典未使用なら返金あり','終了導線で何度も引き止められる'],aliases:['amazon prime','amzn prime','amazonプライム','プライム会費','アマゾンプライム']},
+
+  {name:'Figma',cat:'仕事・ソフト',price:1800,cycle:'月',method:'web',diff:0.4,url:'https://www.figma.com/settings',steps:'アカウント設定 → プラン →「ダウングレード/解約」。',traps:['チーム/編集者単位の課金に注意'],aliases:['figma','フィグマ']},
+  {name:'Trello',cat:'仕事・ソフト',price:1500,cycle:'月',method:'web',diff:0.35,url:'https://trello.com/your/billing',steps:'アカウント → 請求 → プラン変更/解約。',traps:[],aliases:['trello','atlassian','トレロ']},
+  {name:'IFTTT Pro',cat:'仕事・ソフト',price:400,cycle:'月',method:'web',diff:0.3,url:'https://ifttt.com/settings',steps:'Profile → Settings → サブスクの管理。',traps:[],aliases:['ifttt','イフト']},
+  {name:'Raindrop.io',cat:'仕事・ソフト',price:3000,cycle:'年',method:'web',diff:0.3,url:'https://app.raindrop.io/settings/account',steps:'Settings → Billing → サブスクの管理。',traps:['Apple経由の契約はApp Storeで'],aliases:['raindrop','レインドロップ']},
+  {name:'Inoreader',cat:'ニュース・読書',price:12200,cycle:'年',method:'web',diff:0.35,url:'https://www.inoreader.com/',steps:'Preferences → サブスクリプション → 解約。',traps:['Apple経由の契約はApp Storeで'],aliases:['inoreader','イノリーダー']},
+  {name:'Lensa AI',cat:'SNS・その他',price:3800,cycle:'年',method:'store',diff:0.4,url:'https://apps.apple.com/account/subscriptions',steps:'iPhone 設定 → サブスク → Lensa →「解約」。',traps:['App Store課金・自動更新に注意'],aliases:['lensa']},
+
+  // ---- ルート（中身が見えない“まとめ請求”）。具体サービスにヒットしなかった時の受け皿 ----
+  {name:'Apple（App Store 請求）',cat:'SNS・その他',price:0,cycle:'月',method:'store',diff:0.4,route:true,url:'https://apps.apple.com/account/subscriptions',steps:'iPhone 設定 → 自分の名前 → サブスクリプション で中身を確認して解約。',traps:['この明細だけでは“何の”サブスクか不明。iPhoneのサブスク管理で内訳を確認'],aliases:['apple.com/bill','apple.com bill','itunes.com/bill','apple com bill']},
+  {name:'Google Play（まとめ請求）',cat:'SNS・その他',price:0,cycle:'月',method:'store',diff:0.4,route:true,url:'https://play.google.com/store/account/subscriptions',steps:'Google Play → 右上アイコン → お支払いと定期購入 → 定期購入 で内訳を確認。',traps:['内訳はGoogle Playのサブスク管理で確認'],aliases:['google play','play.google','google*']},
+  {name:'携帯キャリア決済（まとめ請求）',cat:'SNS・その他',price:0,cycle:'月',method:'carrier',diff:0.55,route:true,url:'',steps:'各キャリアの会員ページ（My docomo / My au / My SoftBank）→「継続課金/コンテンツ一覧」で中身を確認。',traps:['“情報料”等の名目で中身が見えにくい。キャリアのコンテンツ一覧で確認'],aliases:['au','kddi','docomo','softbank','ドコモ','ソフトバンク']}
+];
+
+/* ---------- state ---------- */
+const KEY='araizarai_v1';
+let store = load();          // {raw, states:{}, cycles:{}, manual:[]}
+let detected = [];           // current detected list
+let sortMode = 'diff';
+let catChartObj=null, diffChartObj=null;
+
+function load(){ try{return JSON.parse(localStorage.getItem(KEY))||blank();}catch(e){return blank();} }
+function blank(){return {raw:'',states:{},cycles:{},manual:[]};}
+function save(){ localStorage.setItem(KEY, JSON.stringify(store)); }
+
+/* ---------- normalize & detect ---------- */
+function norm(s){
+  return s.replace(/[！-～]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))
+          .replace(/　/g,' ').toLowerCase();
+}
+function escapeRe(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+function amountOf(line){
+  const cleaned=line.replace(/[,，]/g,'');
+  const m=cleaned.match(/\d{2,7}/g);
+  if(!m) return null;
+  let c=m.map(Number).filter(n=>n>=50 && n<=2000000 && !(n>=2020&&n<=2035));
+  if(!c.length) return null;
+  return Math.max(...c);
+}
+function matchLine(line){
+  for(const s of SUBS_DB){
+    for(const a of s.aliases){
+      const al=a.toLowerCase();
+      let hit;
+      if(al.length<=3) hit=new RegExp('(^|[^a-z0-9])'+escapeRe(al)+'([^a-z0-9]|$)').test(line);
+      else hit=line.includes(al);
+      if(hit) return s;
+    }
+  }
+  return null;
+}
+function detect(text){
+  const lines=text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  const map=new Map(); const um=[];
+  for(const raw of lines){
+    const line=norm(raw);
+    const svc=matchLine(line);
+    if(svc){
+      const amt=amountOf(line)|| (svc.route?0:(svc.price||0));
+      if(svc.route){
+        // ルートは“まとめ請求”の受け皿：複数明細を合算＋件数カウント（中身は要確認）
+        const prev=map.get(svc.name)||{svc,amount:0,count:0};
+        prev.amount+=(amt||0); prev.count++; map.set(svc.name,prev);
+      }else{
+        // 同一サービスが複数月 → 代表として最新（後勝ち）の金額を採用
+        map.set(svc.name,{svc,amount:amt});
+      }
+    }else{
+      const amt=amountOf(line);
+      if(amt) um.push({raw,amount:amt});
+    }
+  }
+  return {found:[...map.values()], unmatched:um};
+}
+
+/* ---------- helpers ---------- */
+function yen(n){return '¥'+Math.round(n).toLocaleString('ja-JP');}
+function monthly(item){const cyc=cycleOf(item);const a=item.amount||0;return cyc==='年'?a/12:a;}
+function cycleOf(item){return store.cycles[item.svc.name]||item.svc.cycle;}
+function stateOf(item){return store.states[item.svc.name]||'keep';}
+function weightOf(st){return st==='cancel'?1:st==='maybe'?0.5:0;}
+function diffColor(d){return d<0.35?'var(--easy)':d<0.65?'var(--mid)':'var(--hard)';}
+function diffWord(d){return d<0.35?'かんたん':d<0.65?'ふつう':'手ごわい';}
+
+/* ---------- run ---------- */
+function run(){
+  const text=document.getElementById('input').value;
+  store.raw=text; save();
+  const r=detect(text);
+  detected=r.found;
+  renderAll(r.unmatched);
+}
+function renderAll(unmatched){
+  if(!detected.length){
+    document.getElementById('dash').classList.add('hidden');
+    document.getElementById('resultSec').classList.add('hidden');
+    document.getElementById('subs').innerHTML='';
+  }else{
+    document.getElementById('dash').classList.remove('hidden');
+    document.getElementById('resultSec').classList.remove('hidden');
+    renderSummary(); renderCharts(); renderSubs(); renderSim();
+  }
+  renderUnmatched(unmatched||[]);
+}
+
+/* ---------- summary + charts ---------- */
+function renderSummary(){
+  let m=0; detected.forEach(it=>m+=monthly(it));
+  const hard=detected.filter(it=>!it.svc.route && it.svc.diff>=0.65).length;
+  document.getElementById('kpiMonth').textContent=yen(m);
+  document.getElementById('kpiYear').textContent=yen(m*12);
+  document.getElementById('kpiCount').textContent=detected.length;
+  document.getElementById('kpiHard').textContent=hard;
+}
+function renderCharts(){
+  // category sums
+  const catSum={};
+  detected.forEach(it=>{catSum[it.svc.cat]=(catSum[it.svc.cat]||0)+monthly(it);});
+  const cl=Object.keys(catSum), cv=cl.map(k=>Math.round(catSum[k]));
+  const palette=['#d4a853','#3d6b8f','#7a5a9f','#5a8f6b','#c79a3d','#e0846f','#9a7b4f','#6b8f8a'];
+  if(catChartObj)catChartObj.destroy();
+  if(window.Chart){
+    catChartObj=new Chart(document.getElementById('catChart'),{type:'doughnut',
+      data:{labels:cl,datasets:[{data:cv,backgroundColor:palette,borderWidth:1,borderColor:'#fff'}]},
+      options:{plugins:{legend:{position:'right',labels:{font:{size:11},boxWidth:12}}},cutout:'58%',responsive:true,maintainAspectRatio:false}});
+  }
+  // difficulty buckets (route除外)
+  const b=[0,0,0];
+  detected.filter(it=>!it.svc.route).forEach(it=>{const d=it.svc.diff;b[d<0.35?0:d<0.65?1:2]++;});
+  if(diffChartObj)diffChartObj.destroy();
+  if(window.Chart){
+    diffChartObj=new Chart(document.getElementById('diffChart'),{type:'bar',
+      data:{labels:['かんたん','ふつう','手ごわい'],datasets:[{data:b,backgroundColor:['#5a8f6b','#c79a3d','#c8645a'],borderRadius:6}]},
+      options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}},responsive:true,maintainAspectRatio:false}});
+  }
+}
+
+/* ---------- sub cards ---------- */
+function sortedDetected(){
+  const a=[...detected];
+  if(sortMode==='diff') a.sort((x,y)=>y.svc.diff-x.svc.diff || monthly(y)-monthly(x));
+  else if(sortMode==='price') a.sort((x,y)=>monthly(y)-monthly(x));
+  else a.sort((x,y)=>CATS.indexOf(x.svc.cat)-CATS.indexOf(y.svc.cat) || monthly(y)-monthly(x));
+  return a;
+}
+function renderSubs(){
+  const wrap=document.getElementById('subs'); wrap.innerHTML='';
+  sortedDetected().forEach(it=>{
+    const s=it.svc, st=stateOf(it), m=monthly(it), cyc=cycleOf(it);
+    const meth=METHODS[s.method];
+    const d=s.diff;
+    const card=document.createElement('div');
+    card.className='sub'+(s.route?' route':'');
+    const priceBlock = s.route
+      ? `<div class="price"><div class="m">${it.amount?yen(it.amount):'—'}</div><div class="y">${it.count>1?('内訳'+it.count+'件・要確認'):'中身を要確認'}</div></div>`
+      : `<div class="price"><div class="m">${yen(m)}<span class="cyc" onclick="toggleCyc('${jsq(s.name)}')">${cyc}</span></div><div class="y">年 ${yen(m*12)}</div></div>`;
+    const meterBlock = s.route ? '' :
+      `<div class="meter"><div class="bar"><div class="fill" style="width:${Math.round(d*100)}%;background:${diffColor(d)}"></div></div>
+       <div class="lab"><span>解約の手ごわさ</span><span>${diffWord(d)}・難度 ${d.toFixed(2)}</span></div></div>`;
+    const traps=(s.traps||[]).map(t=>`<div class="trap">⚠️ ${t}</div>`).join('');
+    const openBtn = s.url
+      ? `<a class="openbtn" href="${s.url}" target="_blank" rel="noopener">解約ページを開く ↗</a>`
+      : `<span class="openbtn none">各キャリアのページへ</span>`;
+    const stateSel = s.route ? '' : `
+      <div class="state" data-name="${jsq(s.name)}">
+        <button data-s="keep" class="${st==='keep'?'on':''}" onclick="setState('${jsq(s.name)}','keep')">残す</button>
+        <button data-s="maybe" class="${st==='maybe'?'on':''}" onclick="setState('${jsq(s.name)}','maybe')">迷う</button>
+        <button data-s="cancel" class="${st==='cancel'?'on':''}" onclick="setState('${jsq(s.name)}','cancel')">解約</button>
+      </div>`;
+    card.innerHTML=`
+      <div class="top">
+        <div><div class="name">${s.name}</div><div class="cat">${s.cat}${s.route?' ・ まとめ請求':''}</div></div>
+        ${priceBlock}
+      </div>
+      <span class="badge" style="background:${meth.color}">${meth.label}</span>
+      ${meterBlock}
+      <div class="steps">📋 ${s.steps}</div>
+      ${traps?`<div class="traps">${traps}</div>`:''}
+      <div class="actions">${openBtn}${stateSel}</div>`;
+    wrap.appendChild(card);
+  });
+}
+function jsq(s){return s.replace(/'/g,"\\'");}
+
+/* ---------- interactions ---------- */
+function setState(name,st){store.states[name]=st;save();renderSubs();renderSim();}
+function toggleCyc(name){
+  const it=detected.find(x=>x.svc.name===name); if(!it)return;
+  const cur=cycleOf(it); store.cycles[name]=cur==='月'?'年':'月'; save();
+  renderSummary();renderCharts();renderSubs();renderSim();
+}
+function setSort(m){sortMode=m;
+  document.getElementById('sortHint').textContent='（'+(m==='diff'?'難しい順':m==='price'?'高い順':'カテゴリ順')+'）';
+  renderSubs();}
+function renderSim(){
+  let m=0; detected.forEach(it=>{ if(it.svc.route)return; m+=monthly(it)*weightOf(stateOf(it)); });
+  document.getElementById('simOut').innerHTML=`月 ${yen(m)} <small>/ 年 ${yen(m*12)} 浮く</small>`;
+}
+
+/* ---------- unmatched ---------- */
+function renderUnmatched(um){
+  const sec=document.getElementById('umSec'), list=document.getElementById('umList');
+  if(!um.length){sec.classList.add('hidden');list.innerHTML='';return;}
+  sec.classList.remove('hidden'); list.innerHTML='';
+  um.forEach(u=>{
+    const row=document.createElement('div'); row.className='umrow';
+    row.innerHTML=`<code>${u.raw}</code>
+      <span style="display:flex;gap:10px;align-items:center;white-space:nowrap">
+        <b>${yen(u.amount)}</b>
+        <button class="linkbtn" onclick="fillManual('${jsq(u.raw).slice(0,40)}',${u.amount})">サブスクとして追加</button>
+        <a class="linkbtn" href="https://www.google.com/search?q=${encodeURIComponent(u.raw+' 解約')}" target="_blank" rel="noopener">名前で検索</a>
+      </span>`;
+    list.appendChild(row);
+  });
+}
+function fillManual(name,price){
+  document.getElementById('mName').value=name.replace(/[0-9/,\s]{4,}/g,'').trim()||name;
+  document.getElementById('mPrice').value=price;
+  document.getElementById('mName').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+/* ---------- manual add ---------- */
+function addManual(){
+  const name=document.getElementById('mName').value.trim();
+  const price=parseFloat(document.getElementById('mPrice').value)||0;
+  const cat=document.getElementById('mCat').value;
+  const cyc=document.getElementById('mCyc').value;
+  if(!name){alert('サービス名を入力してください');return;}
+  const svc={name,cat,price,cycle:cyc,method:'web',diff:0.5,
+    url:'https://www.google.com/search?q='+encodeURIComponent(name+' 解約 方法'),
+    steps:'「'+name+' 解約」で検索し、公式の手続きページから解約。',traps:['手動追加：解約方法は各サービスの案内に従ってください'],aliases:[]};
+  store.manual.push({name,cat,price,cycle:cyc});
+  detected.push({svc,amount:price});
+  document.getElementById('mName').value='';document.getElementById('mPrice').value='';
+  document.getElementById('dash').classList.remove('hidden');
+  document.getElementById('resultSec').classList.remove('hidden');
+  renderSummary();renderCharts();renderSubs();renderSim();save();
+}
+
+/* ---------- sample / clear ---------- */
+const SAMPLE=`2026/05/02  ネットフリックス             1,490
+2026/05/03  SPOTIFY P0XK2J9            980
+2026/05/05  APPLE.COM/BILL            1,500
+2026/05/07  AMAZON PRIME*M3K8D          600
+2026/05/09  ADOBE  *CREATIVE CLOUD     6,480
+2026/05/11  OPENAI *CHATGPT SUBSCR     3,000
+2026/05/12  日経電子版                 4,277
+2026/05/15  GOOGLE *YOUTUBEPREMIUM     1,280
+2026/05/18  ＤＡＺＮ ＬＴＤ             4,200
+2026/05/20  ＡＵ　ＩＤ　ジョウホウリョウ   880
+2026/05/22  NOTION LABS INC           1,650
+2026/05/25  ユーネクスト               2,189
+2026/05/26  スターバックス             620
+2026/05/28  ファミリーマート           382`;
+function loadSample(){document.getElementById('input').value=SAMPLE;run();}
+function clearAll(){
+  if(!confirm('入力と仕分けを消去します。よろしいですか？'))return;
+  store=blank();save();detected=[];
+  document.getElementById('input').value='';
+  document.getElementById('dash').classList.add('hidden');
+  document.getElementById('resultSec').classList.add('hidden');
+  document.getElementById('umSec').classList.add('hidden');
+  document.getElementById('subs').innerHTML='';
+}
+
+/* ---------- init ---------- */
+(function init(){
+  // category select
+  const sel=document.getElementById('mCat');
+  CATS.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
+  document.getElementById('dbCount').textContent=SUBS_DB.filter(s=>!s.route).length;
+  // restore
+  if(store.raw){document.getElementById('input').value=store.raw; run();}
+  // restore manual entries that weren't in raw
+  (store.manual||[]).forEach(mn=>{
+    if(detected.find(d=>d.svc.name===mn.name))return;
+    const svc={name:mn.name,cat:mn.cat,price:mn.price,cycle:mn.cycle,method:'web',diff:0.5,
+      url:'https://www.google.com/search?q='+encodeURIComponent(mn.name+' 解約 方法'),
+      steps:'「'+mn.name+' 解約」で検索し、公式の手続きページから解約。',traps:['手動追加'],aliases:[]};
+    detected.push({svc,amount:mn.price});
+  });
+  if(detected.length){document.getElementById('dash').classList.remove('hidden');
+    document.getElementById('resultSec').classList.remove('hidden');
+    renderSummary();renderCharts();renderSubs();renderSim();}
+})();
+</script>
+</body>
+</html>
