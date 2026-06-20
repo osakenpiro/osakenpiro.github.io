@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>シボリ — 文章を締める</title>
+<meta name="description" content="読点・冗長・長文を可視化して文章を絞る。締まりをFloatで。推敲ツール。#全人類UX改善">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0a0a0f; --void-deep:#06060a; --surface:#15141a; --surface-hi:#1c1a23;
+  --gold:#d4a853; --gold-soft:rgba(212,168,83,.12); --gold-glow:rgba(212,168,83,.25); --gold-edge:rgba(212,168,83,.45);
+  --parchment:#c8b8a0; --violet:#a78bfa; --debris-1:#6b6b80; --debris-2:#3a3530;
+  --fg-1:#e8e0d0; --fg-2:#b8b0a0; --fg-3:#807868; --dim:#5a5448;
+  --border:rgba(200,184,160,.06); --border-hover:rgba(212,168,83,.20); --border-strong:rgba(212,168,83,.45);
+  --sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic Medium","Yu Gothic",system-ui,sans-serif;
+  --serif:"Cormorant Garamond","Times New Roman","游明朝体","Yu Mincho",serif;
+  --mono:"JetBrains Mono","SF Mono","Menlo","Consolas",monospace;
+}
+*{box-sizing:border-box;scrollbar-width:thin;scrollbar-color:var(--debris-1) var(--void)}
+html,body{margin:0;background:var(--void);color:var(--fg-1);font-family:var(--sans);line-height:1.7;letter-spacing:.01em;-webkit-font-smoothing:antialiased}
+body{background:radial-gradient(ellipse at 50% -10%,#12121c 0%,var(--void) 42%,var(--void-deep) 100%);min-height:100vh;position:relative;overflow-x:hidden}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+.wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:46px 20px 90px}
+header{text-align:center;margin-bottom:28px}
+.title{font-family:var(--serif);font-style:italic;font-weight:300;font-size:clamp(2.5rem,7.5vw,4rem);line-height:1.05;letter-spacing:.04em;margin:0}
+.title .k{color:var(--gold)}
+.sub{font-family:var(--serif);font-size:.64rem;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);margin-top:13px}
+.lede{color:var(--fg-3);font-size:.84rem;margin-top:9px}
+.lede b{color:var(--parchment);font-weight:400}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px}
+.panel h2{font-family:var(--serif);font-style:italic;font-weight:400;font-size:1.2rem;margin:0 0 4px}
+.panel .hint{font-size:.72rem;color:var(--dim);margin:0 0 14px}
+textarea{width:100%;background:var(--void);color:var(--fg-1);border:1px solid var(--border);border-radius:9px;padding:13px 15px;font-family:var(--sans);font-size:.98rem;line-height:1.9;resize:vertical;min-height:180px;transition:border-color .15s}
+textarea:focus{outline:none;border-color:var(--border-strong)}
+.btn{background:var(--gold-soft);border:1px solid var(--gold-edge);color:var(--gold);border-radius:8px;padding:9px 16px;font-family:var(--sans);font-size:.83rem;letter-spacing:.04em;cursor:pointer;transition:background .15s,border-color .15s}
+.btn:hover{background:rgba(212,168,83,.2)}
+.btn.ghost{background:none;border-color:var(--border);color:var(--fg-3)}
+.btn.ghost:hover{border-color:var(--border-hover);color:var(--fg-1)}
+.btn.sm{padding:6px 12px;font-size:.74rem}
+.btnbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.spacer{flex:1}
+.check{display:inline-flex;align-items:center;gap:7px;font-size:.76rem;color:var(--fg-2);cursor:pointer;user-select:none}
+.check input{accent-color:var(--gold);width:14px;height:14px}
+/* stats */
+.stats{display:flex;flex-wrap:wrap;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.stats .s{flex:1;min-width:84px;padding:13px 8px;text-align:center;border-right:1px solid var(--border);background:var(--surface)}
+.stats .s:last-child{border-right:none}
+.stats .s .v{font-family:var(--mono);font-size:1.15rem;color:var(--gold)}
+.stats .s .l{font-size:.55rem;letter-spacing:.13em;text-transform:uppercase;color:var(--fg-3);margin-top:3px}
+.tightwrap{margin:0 0 20px}
+.tightwrap .tl{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.tightwrap .tl .lab{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--fg-3)}
+.tightwrap .tl .val{font-family:var(--mono);font-size:1.05rem;color:var(--gold)}
+.track{height:8px;background:var(--void);border:1px solid var(--border);border-radius:999px;overflow:hidden}
+.fill{height:100%;background:linear-gradient(90deg,rgba(212,168,83,.5),var(--gold));border-radius:999px;transition:width .4s cubic-bezier(.2,.8,.2,1)}
+/* highlight */
+.hl{background:var(--void);border:1px solid var(--border);border-radius:9px;padding:15px 17px;font-size:.98rem;line-height:1.95;white-space:pre-wrap;word-break:break-word;min-height:60px;color:var(--fg-1)}
+.hl .empty{color:var(--dim)}
+mark{background:none;color:inherit;border-radius:3px;padding:0 1px;cursor:help}
+mark.m-strong{text-decoration:underline wavy var(--gold);text-underline-offset:3px;background:var(--gold-soft)}
+mark.m-soft{text-decoration:underline wavy var(--violet);text-underline-offset:3px;background:rgba(167,139,250,.1)}
+mark.m-info{text-decoration:underline dotted var(--debris-1);text-underline-offset:3px;color:var(--fg-2)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:.66rem;color:var(--fg-3)}
+.legend span b{font-weight:400}
+.swatch{display:inline-block;width:18px;height:0;border-bottom:2px wavy;vertical-align:middle;margin-right:4px}
+/* issues */
+.iss{display:flex;flex-direction:column;gap:9px}
+.iss .grp{border:1px solid var(--border);border-radius:10px;padding:11px 13px;background:var(--void)}
+.iss .grp .gh{display:flex;align-items:center;gap:8px}
+.iss .grp .gh .cat{font-size:.78rem;color:var(--fg-1)}
+.iss .grp .gh .n{margin-left:auto;font-family:var(--mono);font-size:.7rem;color:var(--gold)}
+.iss .grp .ex{font-size:.72rem;color:var(--fg-3);margin-top:6px;line-height:1.8}
+.iss .grp .ex code{font-family:var(--mono);background:var(--surface-hi);border-radius:4px;padding:1px 6px;color:var(--parchment)}
+.iss .none{color:var(--dim);font-size:.8rem;text-align:center;padding:14px 0}
+.sentlist{font-size:.74rem;color:var(--fg-3);line-height:1.9;margin-top:6px}
+.sentlist .ss{display:block;padding:4px 0;border-top:1px solid var(--border)}
+.resultbox{margin-top:14px;display:none}
+.resultbox.show{display:block}
+.resultbox textarea{min-height:120px}
+.foot{text-align:center;margin-top:30px;color:var(--dim);font-size:.7rem;line-height:2}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface-hi);border:1px solid var(--gold-edge);color:var(--fg-1);padding:10px 20px;border-radius:8px;font-size:.82rem;opacity:0;pointer-events:none;transition:all .25s;z-index:20}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+::placeholder{color:var(--dim)}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="wrap">
+  <header>
+    <h1 class="title"><span class="k">シ</span>ボリ</h1>
+    <div class="sub">絞り — 文章を締める</div>
+    <p class="lede"><b>読点・冗長・長文</b>を可視化して絞る。締まりを<b>0.00–1.00</b>で。<br><span style="color:var(--dim)">削れる読点は、純粋に削除。— 推敲 invariant</span></p>
+  </header>
+
+  <section class="panel">
+    <h2>原稿</h2>
+    <p class="hint">貼るだけ。下にライブで指摘が出る。原稿はこの端末に自動保存。</p>
+    <textarea id="src" placeholder="ここに文章を貼る。例：この施策を実行することによって、売上を伸ばすということが、できるのではないかと、考えている。"></textarea>
+    <div class="btnbar">
+      <button class="btn" id="fix-btn">自動で締める（安全な置換のみ）</button>
+      <label class="check"><input type="checkbox" id="show-info" checked> 程度副詞も表示</label>
+      <span class="spacer"></span>
+      <button class="btn ghost sm" id="copy-report">指摘をコピー</button>
+      <button class="btn ghost sm" id="clear-btn">クリア</button>
+    </div>
+    <div class="resultbox" id="resultbox">
+      <p class="hint" style="margin:14px 0 6px" id="fix-note"></p>
+      <textarea id="fixed" readonly></textarea>
+      <div class="btnbar"><button class="btn sm" id="copy-fixed">締めた文をコピー</button><button class="btn ghost sm" id="apply-fixed">原稿に反映</button></div>
+    </div>
+  </section>
+
+  <div class="stats" id="stats"></div>
+  <div class="tightwrap">
+    <div class="tl"><span class="lab">締まり tightness</span><span class="val" id="tight-val">—</span></div>
+    <div class="track"><span class="fill" id="tight-fill" style="width:0%"></span></div>
+  </div>
+
+  <section class="panel">
+    <h2>ハイライト</h2>
+    <p class="hint">波線=冗長/重ね（金）・回りくどい/二重否定（紫）・程度副詞（点線）。マウスを乗せると直し方。</p>
+    <div class="hl" id="hl"><span class="empty">ここに可視化される。</span></div>
+    <div class="legend">
+      <span><span class="swatch" style="border-bottom-color:var(--gold)"></span><b>冗長・重ね言葉</b></span>
+      <span><span class="swatch" style="border-bottom-color:var(--violet)"></span><b>回りくどい・二重否定</b></span>
+      <span><span class="swatch" style="border-bottom-color:var(--debris-1);border-bottom-style:dotted"></span><b>程度副詞</b></span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>指摘 <span style="font-family:var(--mono);font-size:.7rem;font-style:normal;color:var(--dim)" id="iss-count"></span></h2>
+    <div class="iss" id="iss"></div>
+  </section>
+
+  <div class="foot">
+    シボリ — 絞り · 文章を締める · 原稿は自動保存（この端末・送信なし）<br>
+    <span style="color:var(--debris-1)">#全人類UX改善 · 推敲 invariant · Visionium / Hi-Me TooL</span>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// === ENGINE START ===  (pure / DOM非依存 / nodeで単体テスト可)
+var PAT=[
+  {re:/することができ/g,        label:"することができ…", suggest:"「でき…」に短縮", cat:"冗長"},
+  {re:/することが出来/g,        label:"することが出来…", suggest:"「でき…」に短縮（ひらく）", cat:"冗長"},
+  {re:/することが可能/g,        label:"することが可能",   suggest:"「できる」に短縮", cat:"冗長"},
+  {re:/することによって/g,      label:"することによって", suggest:"「することで」に短縮可", cat:"冗長"},
+  {re:/を行(う|います|った|い|わ)/g, label:"を行う",     suggest:"動詞化（例:検討を行う→検討する）", cat:"冗長"},
+  {re:/において|における/g,     label:"において/における", suggest:"「で」「の」に縮む場面が多い", cat:"冗長"},
+  {re:/に関して|に対して/g,     label:"に関して/に対して", suggest:"「について」で足りる場面", cat:"冗長"},
+  {re:/ということ/g,            label:"ということ",       suggest:"多くは削除可。要約してみる", cat:"回りくどい"},
+  {re:/のではないか|ではないだろうか/g, label:"のではないか", suggest:"回りくどい。言い切れるか検討", cat:"回りくどい"},
+  {re:/なくはない|ないことはない|なくもない/g, label:"二重否定", suggest:"肯定で言えるか", cat:"二重否定"},
+  {re:/まず最初に/g,            label:"まず最初に",       suggest:"「まず」だけで足りる", cat:"重ね"},
+  {re:/一番最初/g,             label:"一番最初",         suggest:"「最初」だけで足りる", cat:"重ね"},
+  {re:/必ず必要/g,             label:"必ず必要",         suggest:"「必要」だけで足りる", cat:"重ね"},
+  {re:/各々それぞれ|それぞれ各々/g, label:"各々それぞれ",  suggest:"どちらか一方に", cat:"重ね"},
+  {re:/とても|非常に|かなり|すごく|本当に|たいへん/g, label:"程度副詞", suggest:"多用は薄まる。具体で示せるか", cat:"程度"}
+];
+var SCORE_CATS={"冗長":1,"回りくどい":1,"二重否定":1,"重ね":1};
+var FIX=[
+  [/することができ/g,"でき"],
+  [/することが出来/g,"でき"],
+  [/まず最初に/g,"まず"],
+  [/一番最初/g,"最初"],
+  [/必ず必要/g,"必要"]
+];
+function scanIssues(t){
+  t=String(t||"");
+  var hits=[];
+  PAT.forEach(function(p){
+    p.re.lastIndex=0;var m;
+    while((m=p.re.exec(t))){hits.push({index:m.index,length:m[0].length,label:p.label,suggest:p.suggest,cat:p.cat,text:m[0]});if(m.index===p.re.lastIndex)p.re.lastIndex++;}
+  });
+  hits.sort(function(a,b){return a.index-b.index||b.length-a.length;});
+  var out=[],lastEnd=-1;
+  hits.forEach(function(h){if(h.index>=lastEnd){out.push(h);lastEnd=h.index+h.length;}});
+  return out;
+}
+function sentenceSpans(t){
+  t=String(t||"");var out=[],cur="",start=0;
+  for(var i=0;i<t.length;i++){
+    var ch=t[i];cur+=ch;
+    if("。．！？!?\n".indexOf(ch)>=0){var x=cur.trim();if(x)out.push({start:start,end:i+1,text:x});cur="";start=i+1;}
+  }
+  var tail=cur.trim();if(tail)out.push({start:start,end:t.length,text:tail});
+  return out;
+}
+function noWS(s){return String(s||"").replace(/\s/g,"");}
+function computeStats(t){
+  t=String(t||"");
+  var spans=sentenceSpans(t);
+  var chars=noWS(t).length;
+  var sentN=spans.length;
+  var commaCount=(t.match(/、/g)||[]).length;
+  var avgLen=sentN?Math.round(chars/sentN):0;
+  var longCount=spans.filter(function(s){return noWS(s.text).length>70;}).length;
+  var commaDensity=chars?commaCount/chars:0;
+  var readSec=Math.round(chars/500*60);
+  return {chars:chars,sentences:sentN,avgLen:avgLen,commaCount:commaCount,commaDensity:commaDensity,longCount:longCount,readSec:readSec,spans:spans};
+}
+function tightness(t){
+  var st=computeStats(t);
+  if(!st.chars)return 1;
+  var red=scanIssues(t).filter(function(h){return SCORE_CATS[h.cat];}).length;
+  var penR=Math.min(0.5, red/st.chars*100*0.08);
+  var longFrac=st.sentences?st.longCount/st.sentences:0;
+  var penL=Math.min(0.3, longFrac*0.5);
+  var avgComma=st.sentences?st.commaCount/st.sentences:0;
+  var penC=Math.min(0.2, Math.max(0,avgComma-2)*0.08);
+  return Math.max(0,Math.min(1,1-penR-penL-penC));
+}
+function applyFixes(t){
+  t=String(t||"");var c=0;
+  FIX.forEach(function(f){t=t.replace(f[0],function(m){c++;return f[1];});});
+  return {text:t,count:c};
+}
+// === ENGINE END ===
+
+/* ---------- UI ---------- */
+(function(){
+var $=function(s){return document.querySelector(s);};
+var LS="shibori_v1";
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+function toast(m){var t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove("show");},1900);}
+function catClass(cat){if(cat==="冗長"||cat==="重ね")return "m-strong";if(cat==="回りくどい"||cat==="二重否定")return "m-soft";return "m-info";}
+
+function highlightHTML(text,hits){
+  var out="",pos=0;
+  hits.forEach(function(h){
+    if(h.index<pos)return;
+    out+=esc(text.slice(pos,h.index));
+    out+='<mark class="'+catClass(h.cat)+'" title="'+esc(h.label+" → "+h.suggest)+'">'+esc(text.slice(h.index,h.index+h.length))+'</mark>';
+    pos=h.index+h.length;
+  });
+  out+=esc(text.slice(pos));
+  return out;
+}
+
+function fmtTime(sec){var m=Math.floor(sec/60),s=sec%60;return m+":"+("0"+s).slice(-2);}
+
+function render(){
+  var text=$("#src").value;
+  try{localStorage.setItem(LS,text);}catch(e){}
+  var st=computeStats(text);
+  var showInfo=$("#show-info").checked;
+  var hits=scanIssues(text).filter(function(h){return showInfo?true:h.cat!=="程度";});
+
+  // stats
+  $("#stats").innerHTML=
+    '<div class="s"><div class="v">'+st.chars+'</div><div class="l">文字</div></div>'+
+    '<div class="s"><div class="v">'+st.sentences+'</div><div class="l">文</div></div>'+
+    '<div class="s"><div class="v">'+st.avgLen+'</div><div class="l">平均文長</div></div>'+
+    '<div class="s"><div class="v">'+st.commaCount+'</div><div class="l">読点</div></div>'+
+    '<div class="s"><div class="v">'+st.longCount+'</div><div class="l">長い文</div></div>'+
+    '<div class="s"><div class="v">'+fmtTime(st.readSec)+'</div><div class="l">読了</div></div>';
+
+  // tightness
+  var tg=tightness(text);
+  $("#tight-val").textContent=text.trim()?tg.toFixed(2):"—";
+  $("#tight-fill").style.width=(text.trim()?Math.round(tg*100):0)+"%";
+
+  // highlight
+  $("#hl").innerHTML=text.trim()?highlightHTML(text,hits):'<span class="empty">ここに可視化される。</span>';
+
+  // issues
+  renderIssues(text,hits,st);
+}
+
+function renderIssues(text,hits,st){
+  var host=$("#iss");
+  var groups={};
+  hits.forEach(function(h){(groups[h.cat]=groups[h.cat]||[]).push(h);});
+  var order=["冗長","重ね","回りくどい","二重否定","程度"];
+  var html="";
+  var total=0;
+  order.forEach(function(cat){
+    var g=groups[cat];if(!g||!g.length)return;total+=g.length;
+    var counts={};g.forEach(function(h){counts[h.label]=(counts[h.label]||0)+1;});
+    var ex=Object.keys(counts).map(function(l){return '<code>'+esc(l)+'</code>×'+counts[l];}).join(" ");
+    var sug=g[0].suggest;
+    html+='<div class="grp"><div class="gh"><span class="cat">'+cat+'</span><span class="n">'+g.length+'</span></div>'+
+      '<div class="ex">'+ex+'<br><span style="color:var(--dim)">→ '+esc(sug)+(cat==="冗長"||cat==="重ね"?"（一部は自動置換可）":"")+'</span></div></div>';
+  });
+  // sentence-level advisories
+  var longs=st.spans.filter(function(s){return noWS(s.text).length>70;});
+  var commas=st.spans.filter(function(s){return (s.text.match(/、/g)||[]).length>=4;});
+  if(longs.length){
+    total+=longs.length;
+    html+='<div class="grp"><div class="gh"><span class="cat">長い文（70字超）</span><span class="n">'+longs.length+'</span></div>'+
+      '<div class="sentlist">'+longs.slice(0,3).map(function(s){return '<span class="ss">'+esc(s.text.slice(0,52))+(s.text.length>52?"…":"")+' <span style="color:var(--gold);font-family:var(--mono)">'+noWS(s.text).length+'字</span></span>';}).join("")+'</div>'+
+      '<div class="ex" style="color:var(--dim)">→ 一文一義に割る／読点で切れる所を句点に</div></div>';
+  }
+  if(commas.length){
+    total+=commas.length;
+    html+='<div class="grp"><div class="gh"><span class="cat">読点が多い文（4つ以上）</span><span class="n">'+commas.length+'</span></div>'+
+      '<div class="sentlist">'+commas.slice(0,3).map(function(s){return '<span class="ss">'+esc(s.text.slice(0,52))+(s.text.length>52?"…":"")+' <span style="color:var(--gold);font-family:var(--mono)">、'+(s.text.match(/、/g)||[]).length+'</span></span>';}).join("")+'</div>'+
+      '<div class="ex" style="color:var(--dim)">→ 削れる読点は純粋に削除。残すのは意味の切れ目だけ</div></div>';
+  }
+  $("#iss-count").textContent=total?("· "+total):"";
+  host.innerHTML=html||(text.trim()?'<div class="none">締まっている。指摘なし。</div>':'<div class="none">原稿を貼ると指摘が出る。</div>');
+}
+
+function buildReport(){
+  var text=$("#src").value;if(!text.trim())return "（原稿なし）";
+  var st=computeStats(text),tg=tightness(text);
+  var hits=scanIssues(text);
+  var lines=["■ シボリ 推敲レポート",
+    "締まり: "+tg.toFixed(2)+" / 1.00",
+    "文字:"+st.chars+" 文:"+st.sentences+" 平均文長:"+st.avgLen+" 読点:"+st.commaCount+" 長い文:"+st.longCount,""];
+  var groups={};hits.forEach(function(h){(groups[h.label]=groups[h.label]||0)+0;groups[h.label]++;});
+  Object.keys(groups).forEach(function(l){lines.push("・"+l+" ×"+groups[l]);});
+  return lines.join("\n");
+}
+
+function stars(){
+  var cv=$("#stars"),ctx=cv.getContext("2d");
+  function size(){cv.width=innerWidth;cv.height=innerHeight;draw();}
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    var n=Math.min(150,Math.floor(cv.width*cv.height/12000));
+    for(var i=0;i<n;i++){
+      var x=((Math.sin(i*12.9898)*43758.5453)%1+1)%1;
+      var y=((Math.sin(i*78.233)*43758.5453)%1+1)%1;
+      var r=((Math.sin(i*3.17)*1000)%1+1)%1;
+      ctx.globalAlpha=0.12+r*0.45;ctx.fillStyle=r>0.85?"#d4a853":"#e8e0d0";
+      var s=r>0.9?1.6:1;ctx.fillRect(x*cv.width,y*cv.height,s,s);
+    }
+    ctx.globalAlpha=1;
+  }
+  addEventListener("resize",size);size();
+}
+
+var deb;
+function init(){
+  try{var saved=localStorage.getItem(LS);if(saved)$("#src").value=saved;}catch(e){}
+  stars();render();
+  $("#src").addEventListener("input",function(){clearTimeout(deb);deb=setTimeout(render,140);});
+  $("#show-info").addEventListener("change",render);
+  $("#fix-btn").onclick=function(){
+    var r=applyFixes($("#src").value);
+    if(!r.count){toast("安全に置換できる箇所はなし");return;}
+    $("#fixed").value=r.text;$("#fix-note").textContent=r.count+"箇所を置換した（原稿は未変更）。確認して反映を。";$("#resultbox").classList.add("show");
+  };
+  $("#copy-fixed").onclick=function(){var v=$("#fixed").value;navigator.clipboard.writeText(v).then(function(){toast("コピーした");},function(){window.prompt("コピー",v);});};
+  $("#apply-fixed").onclick=function(){$("#src").value=$("#fixed").value;$("#resultbox").classList.remove("show");render();toast("原稿に反映した");};
+  $("#copy-report").onclick=function(){var rep=buildReport();navigator.clipboard.writeText(rep).then(function(){toast("指摘をコピーした");},function(){window.prompt("コピー",rep);});};
+  $("#clear-btn").onclick=function(){if($("#src").value&&!confirm("原稿をクリアする？"))return;$("#src").value="";$("#resultbox").classList.remove("show");render();};
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();
+</script>
+</body>
+</html>
