@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>フリコ — 二択を、振り子で。</title>
+<meta name="description" content="YESかNOか、じゃない。どれくらいYESか。迷いを0.0〜1.0の振り子にするBoolean→Floatツール。">
+<meta property="og:title" content="フリコ — 二択を、振り子で。">
+<meta property="og:description" content="YESかNOか、じゃない。どれくらいYESか。迷いを連続値にする決断の振り子。">
+<meta property="og:url" content="https://osakenpiro.github.io/furiko/">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0e0e14">
+<style>
+  :root{
+    --void:#0e0e14; --void2:#15151f; --panel:#1a1a26; --panel2:#20202e;
+    --line:#2c2c3c; --ink:#ece8e0; --ink-dim:#9a96a8; --ink-faint:#6b6878;
+    --gold:#d4a853; --gold-soft:#e7c986; --gold-deep:#a9812f;
+    --poleA:#7d8bbd; --poleB:#d4a853;
+    --r:14px; --r-sm:9px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--void);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",system-ui,sans-serif;
+    line-height:1.7;-webkit-font-smoothing:antialiased}
+  body{min-height:100vh;
+    background:
+      radial-gradient(1.2px 1.2px at 12% 18%, rgba(255,255,255,.5), transparent),
+      radial-gradient(1px 1px at 78% 12%, rgba(255,255,255,.35), transparent),
+      radial-gradient(1.4px 1.4px at 64% 64%, rgba(255,255,255,.3), transparent),
+      radial-gradient(1px 1px at 28% 78%, rgba(255,255,255,.3), transparent),
+      radial-gradient(1px 1px at 90% 84%, rgba(255,255,255,.25), transparent),
+      radial-gradient(900px 500px at 50% -10%, rgba(212,168,83,.08), transparent),
+      var(--void);
+    background-attachment:fixed}
+  .wrap{max-width:760px;margin:0 auto;padding:30px 18px 70px}
+  header{text-align:center;margin-bottom:22px}
+  .logo{font-size:34px;font-weight:800;letter-spacing:.18em;
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{color:var(--ink-dim);font-size:13.5px;letter-spacing:.04em;margin-top:4px}
+  .tagline{color:var(--gold-soft);font-size:13px;margin-top:9px;opacity:.92}
+
+  .panel{background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--line);border-radius:var(--r);padding:18px 16px;margin-bottom:16px;
+    box-shadow:0 1px 0 rgba(255,255,255,.02) inset, 0 10px 30px rgba(0,0,0,.25)}
+  .panel h2{font-size:12px;letter-spacing:.14em;color:var(--ink-faint);
+    text-transform:uppercase;font-weight:700;margin-bottom:13px;display:flex;align-items:center;gap:8px}
+  .panel h2::before{content:"";width:14px;height:1px;background:var(--gold-deep)}
+
+  label.f{display:block;font-size:12px;color:var(--ink-dim);margin:0 0 5px 2px}
+  input[type=text]{width:100%;background:var(--void2);border:1px solid var(--line);
+    color:var(--ink);border-radius:var(--r-sm);padding:10px 12px;font-size:15px;font-family:inherit}
+  input[type=text]:focus{outline:none;border-color:var(--gold-deep);box-shadow:0 0 0 2px rgba(212,168,83,.12)}
+  .poles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:11px}
+  .pole-a label.f{color:var(--poleA)} .pole-b label.f{color:var(--poleB)}
+
+  .presets{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
+  .chip{background:var(--void2);border:1px solid var(--line);color:var(--ink-dim);
+    font-size:12px;padding:5px 11px;border-radius:999px;cursor:pointer;font-family:inherit;transition:.15s}
+  .chip:hover{border-color:var(--gold-deep);color:var(--gold-soft)}
+
+  /* pendulum */
+  .stage{display:flex;flex-direction:column;align-items:center}
+  svg.pend{width:100%;max-width:420px;height:auto;display:block}
+  .arm{transition:transform .9s cubic-bezier(.34,1.42,.5,1)}
+  .readout{text-align:center;margin-top:4px}
+  .value{font-size:52px;font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums;
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .band{font-size:16px;font-weight:700;margin-top:2px}
+  .sentence{color:var(--ink-dim);font-size:13.5px;margin-top:5px;min-height:1.4em}
+
+  .bars{margin-top:16px;display:grid;gap:8px}
+  .bar-row{display:grid;grid-template-columns:74px 1fr 46px;align-items:center;gap:9px;font-size:12px}
+  .bar-row .nm{color:var(--ink-dim);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .track{height:9px;background:var(--void2);border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+  .fill{height:100%;border-radius:6px;transition:width .6s ease}
+  .fill.a{background:linear-gradient(90deg,#5a6694,var(--poleA))}
+  .fill.b{background:linear-gradient(90deg,var(--gold-deep),var(--gold))}
+  .bar-row .vn{color:var(--ink-faint);text-align:left;font-variant-numeric:tabular-nums}
+  .meta{display:flex;justify-content:center;gap:18px;margin-top:14px;color:var(--ink-faint);font-size:12px}
+  .meta b{color:var(--ink-dim);font-weight:600}
+
+  /* factors */
+  .factor{background:var(--void2);border:1px solid var(--line);border-radius:var(--r-sm);
+    padding:11px 11px 13px;margin-bottom:10px}
+  .factor .top{display:flex;gap:8px;align-items:center}
+  .factor input.lab{flex:1;background:transparent;border:none;border-bottom:1px dashed var(--line);
+    border-radius:0;padding:4px 2px;font-size:14px}
+  .factor input.lab:focus{box-shadow:none;border-bottom-color:var(--gold-deep)}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;flex-shrink:0}
+  .seg button{background:var(--panel);border:none;color:var(--ink-dim);font-size:11.5px;
+    padding:5px 10px;cursor:pointer;font-family:inherit;font-weight:600;transition:.15s}
+  .seg button.on-a{background:rgba(125,139,189,.22);color:#aab4dd}
+  .seg button.on-b{background:rgba(212,168,83,.2);color:var(--gold-soft)}
+  .del{background:none;border:none;color:var(--ink-faint);cursor:pointer;font-size:17px;
+    padding:0 4px;line-height:1;flex-shrink:0}
+  .del:hover{color:#d98a8a}
+  .sliders{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:11px}
+  .sld label{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-faint);margin-bottom:3px}
+  .sld label b{color:var(--ink-dim);font-variant-numeric:tabular-nums}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:5px;
+    background:var(--line);outline:none;cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;
+    background:var(--gold);border:2px solid var(--void);box-shadow:0 1px 4px rgba(0,0,0,.4);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--gold);
+    border:2px solid var(--void);cursor:pointer}
+
+  .btn{background:transparent;border:1px solid var(--line);color:var(--ink-dim);
+    border-radius:var(--r-sm);padding:9px 14px;font-size:13px;cursor:pointer;font-family:inherit;
+    font-weight:600;transition:.15s}
+  .btn:hover{border-color:var(--gold-deep);color:var(--gold-soft)}
+  .btn.gold{background:linear-gradient(180deg,var(--gold),var(--gold-deep));border-color:var(--gold-deep);
+    color:#1a1208;font-weight:700}
+  .btn.gold:hover{filter:brightness(1.07)}
+  .btn.wide{width:100%}
+  .btn-row{display:flex;gap:10px;margin-top:4px}
+  .add-btn{width:100%;border-style:dashed;margin-top:2px}
+
+  /* history */
+  .rec{background:var(--void2);border:1px solid var(--line);border-radius:var(--r-sm);
+    padding:12px 13px;margin-bottom:11px}
+  .rec .rq{font-size:14px;font-weight:600;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+  .rec .rv{color:var(--gold-soft);font-weight:800;font-variant-numeric:tabular-nums;flex-shrink:0}
+  .rec .rmeta{font-size:11.5px;color:var(--ink-faint);margin-top:3px}
+  .rec .outcome{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+  .rec .outcome .ol{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-faint);margin-bottom:4px}
+  .rec .gap{font-size:11.5px;margin-top:6px}
+  .gap.hit{color:var(--gold-soft)} .gap.miss{color:#cf9090}
+  .rec-actions{display:flex;gap:12px;margin-top:8px}
+  .rec-actions button{background:none;border:none;color:var(--ink-faint);font-size:11.5px;
+    cursor:pointer;font-family:inherit;padding:0}
+  .rec-actions button:hover{color:var(--gold-soft)}
+  .calib{background:linear-gradient(180deg,rgba(212,168,83,.07),transparent);
+    border:1px solid var(--gold-deep);border-radius:var(--r-sm);padding:13px 14px;margin-bottom:14px}
+  .calib .ct{font-size:12px;color:var(--gold-soft);font-weight:700;letter-spacing:.06em;margin-bottom:5px}
+  .calib .cn{font-size:14px;color:var(--ink)}
+  .empty{color:var(--ink-faint);font-size:13px;text-align:center;padding:14px 0}
+
+  footer{text-align:center;color:var(--ink-faint);font-size:11.5px;margin-top:30px;line-height:1.8}
+  footer a{color:var(--gold-deep);text-decoration:none}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
+    background:var(--gold);color:#1a1208;padding:10px 20px;border-radius:999px;font-size:13px;font-weight:700;
+    opacity:0;pointer-events:none;transition:.3s;box-shadow:0 6px 20px rgba(0,0,0,.4);z-index:50}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  @media(max-width:480px){
+    .value{font-size:44px} .logo{font-size:29px}
+    .sliders{grid-template-columns:1fr 1fr} .meta{gap:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">フリコ</div>
+    <div class="sub">FURIKO &nbsp;/&nbsp; 二択を、振り子で。</div>
+    <div class="tagline">YESかNOか、じゃない。&nbsp;どれくらいYESか。</div>
+  </header>
+
+  <!-- お題 -->
+  <section class="panel">
+    <h2>おだい</h2>
+    <label class="f" for="q">迷っていること</label>
+    <input type="text" id="q" placeholder="例：この企画、出す？">
+    <div class="poles">
+      <div class="pole-a">
+        <label class="f" for="pa">◀ 左の極（A）</label>
+        <input type="text" id="pa" placeholder="出さない">
+      </div>
+      <div class="pole-b">
+        <label class="f" for="pb">右の極（B）▶</label>
+        <input type="text" id="pb" placeholder="出す">
+      </div>
+    </div>
+    <div class="presets" id="presets"></div>
+  </section>
+
+  <!-- 振り子 -->
+  <section class="panel">
+    <div class="stage">
+      <svg class="pend" viewBox="0 0 400 300" aria-hidden="true">
+        <!-- guide arc -->
+        <path d="M 58 96 A 150 150 0 0 0 342 96" fill="none" stroke="#2c2c3c" stroke-width="1.5" stroke-dasharray="2 6"/>
+        <!-- center tick (0.5) -->
+        <line x1="200" y1="246" x2="200" y2="262" stroke="#3a3a4c" stroke-width="2"/>
+        <text x="200" y="282" text-anchor="middle" fill="#6b6878" font-size="11">0.5</text>
+        <!-- end ticks -->
+        <circle cx="58" cy="96" r="3" fill="#5a6694"/>
+        <circle cx="342" cy="96" r="3" fill="#a9812f"/>
+        <!-- pivot -->
+        <circle cx="200" cy="70" r="5" fill="#3a3a4c" stroke="#2c2c3c"/>
+        <!-- arm + bob -->
+        <g class="arm" id="arm" transform="rotate(0,200,70)">
+          <line x1="200" y1="70" x2="200" y2="232" stroke="#4a4a5e" stroke-width="2.5"/>
+          <circle cx="200" cy="232" r="5" fill="none"/>
+          <circle id="bob" cx="200" cy="244" r="20" fill="url(#gg)" stroke="#a9812f" stroke-width="1.5"/>
+        </g>
+        <text id="lblA" x="46" y="120" text-anchor="middle" fill="#7d8bbd" font-size="13" font-weight="700">A</text>
+        <text id="lblB" x="354" y="120" text-anchor="middle" fill="#d4a853" font-size="13" font-weight="700">B</text>
+        <defs>
+          <radialGradient id="gg" cx="38%" cy="34%" r="72%">
+            <stop offset="0%" stop-color="#f4dda6"/>
+            <stop offset="55%" stop-color="#d4a853"/>
+            <stop offset="100%" stop-color="#9c7528"/>
+          </radialGradient>
+        </defs>
+      </svg>
+      <div class="readout">
+        <div class="value" id="val">0.50</div>
+        <div class="band" id="band">ほぼ互角</div>
+        <div class="sentence" id="sentence">引力を足すと、振り子が傾く。</div>
+      </div>
+    </div>
+
+    <div class="bars">
+      <div class="bar-row">
+        <span class="nm" id="nmA">A への引力</span>
+        <div class="track"><div class="fill a" id="barA" style="width:0%"></div></div>
+        <span class="vn" id="vnA">0.0</span>
+      </div>
+      <div class="bar-row">
+        <span class="nm" id="nmB">B への引力</span>
+        <div class="track"><div class="fill b" id="barB" style="width:0%"></div></div>
+        <span class="vn" id="vnB">0.0</span>
+      </div>
+    </div>
+    <div class="meta">
+      <span><b id="decis">0%</b> 一方的さ</span>
+      <span><b id="engag">0.0</b> 検討の重さ</span>
+      <span><b id="nfac">0</b> 引力</span>
+    </div>
+  </section>
+
+  <!-- 引力 -->
+  <section class="panel">
+    <h2>いんりょく（迷いを引っぱる要素）</h2>
+    <div id="factors"></div>
+    <button class="btn add-btn" id="addFactor">＋ 引力を足す</button>
+    <div class="btn-row" style="margin-top:14px">
+      <button class="btn gold" id="save" style="flex:1">この振りを記録</button>
+      <button class="btn" id="share" style="flex:1">リンクで共有</button>
+    </div>
+  </section>
+
+  <!-- 履歴 -->
+  <section class="panel">
+    <h2>こよみ（過去の振り・腐葉土）</h2>
+    <div id="calib"></div>
+    <div id="history"></div>
+  </section>
+
+  <footer>
+    フリコ — Boolean → Float の振り子。データはこの端末の中だけに保存されます（サーバー送信なし）。<br>
+    <a href="https://osakenpiro.github.io/" target="_blank" rel="noopener">osakenpiro</a> ／ #全人類UX改善
+  </footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const $=(id)=>document.getElementById(id);
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const REC_KEY='furiko-records-v1';
+const CUR_KEY='furiko-current-v1';
+
+const PRESETS=[
+  {q:"やる？",a:"やらない",b:"やる"},
+  {q:"買う？",a:"買わない",b:"買う"},
+  {q:"行く？",a:"行かない",b:"行く"},
+  {q:"送る？",a:"あたためる",b:"いま送る"},
+  {q:"続ける？",a:"やめる",b:"続ける"},
+];
+
+let state={q:"",a:"",b:"",factors:[]};
+
+/* ---------- factor model ---------- */
+function newFactor(pole){return {id:Date.now()+Math.random(), label:"", pole:pole||"B", weight:0.6, conf:0.7};}
+
+function compute(){
+  let pullA=0,pullB=0;
+  for(const f of state.factors){
+    const m=clamp(f.weight,0,1)*clamp(f.conf,0,1);
+    if(f.pole==="A") pullA+=m; else pullB+=m;
+  }
+  const total=pullA+pullB;
+  const value= total>0 ? pullB/total : 0.5;
+  const decis= total>0 ? Math.abs(pullB-pullA)/total : 0;
+  return {pullA,pullB,total,value,decis};
+}
+
+function bandOf(v,a,b){
+  a=a||"A"; b=b||"B";
+  if(v<0.2) return {t:`強く「${a}」`, s:`はっきり ${a} に振れている。`};
+  if(v<0.4) return {t:`やや「${a}」`, s:`ゆるく ${a} 寄り。決め切るならもう一押し。`};
+  if(v<0.6) return {t:`ほぼ互角`, s:`拮抗。引力の重みか確信を見直すと振れる。`};
+  if(v<0.8) return {t:`やや「${b}」`, s:`ゆるく ${b} 寄り。決め切るならもう一押し。`};
+  return {t:`強く「${b}」`, s:`はっきり ${b} に振れている。`};
+}
+
+/* ---------- render pendulum ---------- */
+const MAXDEG=66;
+function renderPend(){
+  const c=compute();
+  const v=c.value;
+  // value 0 -> +MAXDEG (left/A), 0.5 -> 0, 1 -> -MAXDEG (right/B)
+  const deg=(0.5-v)*2*MAXDEG;
+  $("arm").setAttribute("transform",`rotate(${deg.toFixed(2)},200,70)`);
+  $("val").textContent=v.toFixed(2);
+  const bd=bandOf(v,state.a,state.b);
+  $("band").textContent=bd.t;
+  $("sentence").textContent= c.total>0 ? bd.s : "引力を足すと、振り子が傾く。";
+  // bars (scale to max pull for readability)
+  const mx=Math.max(c.pullA,c.pullB,0.001);
+  $("barA").style.width=(c.pullA/mx*100).toFixed(0)+"%";
+  $("barB").style.width=(c.pullB/mx*100).toFixed(0)+"%";
+  $("vnA").textContent=c.pullA.toFixed(1);
+  $("vnB").textContent=c.pullB.toFixed(1);
+  $("decis").textContent=(c.decis*100).toFixed(0)+"%";
+  $("engag").textContent=c.total.toFixed(1);
+  $("nfac").textContent=state.factors.length;
+  // pole labels
+  const A=state.a||"A", B=state.b||"B";
+  $("lblA").textContent=A.length>6?A.slice(0,6)+"…":A;
+  $("lblB").textContent=B.length>6?B.slice(0,6)+"…":B;
+  $("nmA").textContent=`「${A.length>5?A.slice(0,5)+"…":A}」への引力`;
+  $("nmB").textContent=`「${B.length>5?B.slice(0,5)+"…":B}」への引力`;
+  saveCurrent();
+}
+
+/* ---------- render factors ---------- */
+function renderFactors(){
+  const host=$("factors"); host.innerHTML="";
+  if(state.factors.length===0){
+    host.innerHTML='<div class="empty">まだ引力がありません。「やりたい」「お金がない」など、迷いを引っぱる要素を足してみて。</div>';
+  }
+  state.factors.forEach((f)=>{
+    const A=state.a||"A", B=state.b||"B";
+    const el=document.createElement("div"); el.className="factor";
+    el.innerHTML=`
+      <div class="top">
+        <input class="lab" type="text" placeholder="引力の名前（例：ワクワクする）" value="${esc(f.label)}">
+        <div class="seg">
+          <button class="ta ${f.pole==='A'?'on-a':''}">${esc(A.length>4?A.slice(0,4):A)}</button>
+          <button class="tb ${f.pole==='B'?'on-b':''}">${esc(B.length>4?B.slice(0,4):B)}</button>
+        </div>
+        <button class="del" title="削除">×</button>
+      </div>
+      <div class="sliders">
+        <div class="sld">
+          <label>重み <b class="wv">${f.weight.toFixed(2)}</b></label>
+          <input type="range" class="wr" min="0" max="1" step="0.05" value="${f.weight}">
+        </div>
+        <div class="sld">
+          <label>確信 <b class="cv">${f.conf.toFixed(2)}</b></label>
+          <input type="range" class="cr" min="0" max="1" step="0.05" value="${f.conf}">
+        </div>
+      </div>`;
+    el.querySelector(".lab").addEventListener("input",e=>{f.label=e.target.value;});
+    el.querySelector(".ta").addEventListener("click",()=>{f.pole="A";renderFactors();renderPend();});
+    el.querySelector(".tb").addEventListener("click",()=>{f.pole="B";renderFactors();renderPend();});
+    el.querySelector(".del").addEventListener("click",()=>{state.factors=state.factors.filter(x=>x.id!==f.id);renderFactors();renderPend();});
+    const wr=el.querySelector(".wr"), cr=el.querySelector(".cr");
+    wr.addEventListener("input",e=>{f.weight=parseFloat(e.target.value);el.querySelector(".wv").textContent=f.weight.toFixed(2);renderPend();});
+    cr.addEventListener("input",e=>{f.conf=parseFloat(e.target.value);el.querySelector(".cv").textContent=f.conf.toFixed(2);renderPend();});
+    host.appendChild(el);
+  });
+}
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+/* ---------- presets ---------- */
+function renderPresets(){
+  const host=$("presets"); host.innerHTML="";
+  PRESETS.forEach(p=>{
+    const b=document.createElement("button"); b.className="chip"; b.textContent=p.q+" "+p.a+"/"+p.b;
+    b.addEventListener("click",()=>{$("q").value=p.q;$("pa").value=p.a;$("pb").value=p.b;
+      state.q=p.q;state.a=p.a;state.b=p.b;renderFactors();renderPend();});
+    host.appendChild(b);
+  });
+}
+
+/* ---------- persistence ---------- */
+function saveCurrent(){try{localStorage.setItem(CUR_KEY,JSON.stringify(state));}catch(e){}}
+function loadCurrent(){try{const s=JSON.parse(localStorage.getItem(CUR_KEY));if(s&&s.factors)state=s;}catch(e){}}
+function getRecs(){try{return JSON.parse(localStorage.getItem(REC_KEY)||"[]");}catch(e){return [];}}
+function setRecs(r){try{localStorage.setItem(REC_KEY,JSON.stringify(r));}catch(e){}}
+
+function saveRecord(){
+  const c=compute();
+  if(!state.q && state.factors.length===0){toast("お題か引力を入れてから記録してね");return;}
+  const recs=getRecs();
+  recs.unshift({
+    id:Date.now(), t:Date.now(),
+    q:state.q||"(無題)", a:state.a||"A", b:state.b||"B",
+    factors:state.factors.map(f=>({label:f.label,pole:f.pole,weight:f.weight,conf:f.conf})),
+    value:c.value, decis:c.decis, total:c.total,
+    outcome:null, note:""
+  });
+  setRecs(recs.slice(0,100));
+  renderHistory();
+  toast("振りを記録した（"+c.value.toFixed(2)+"）");
+}
+
+/* ---------- history + calibration ---------- */
+function timeAgo(t){
+  const d=(Date.now()-t)/1000;
+  if(d<60)return"たった今"; if(d<3600)return Math.floor(d/60)+"分前";
+  if(d<86400)return Math.floor(d/3600)+"時間前"; return Math.floor(d/86400)+"日前";
+}
+function renderHistory(){
+  const recs=getRecs(); const host=$("history"); host.innerHTML="";
+  renderCalib(recs);
+  if(recs.length===0){host.innerHTML='<div class="empty">まだ記録がありません。振り子を決めて「この振りを記録」を押すと、ここに積もっていきます。</div>';return;}
+  recs.forEach(r=>{
+    const el=document.createElement("div"); el.className="rec";
+    let gapHtml="";
+    if(r.outcome!=null){
+      const gap=Math.abs(r.value-r.outcome);
+      const hit=gap<=0.25;
+      gapHtml=`<div class="gap ${hit?'hit':'miss'}">予想 ${r.value.toFixed(2)} → 結果 ${r.outcome.toFixed(2)}（ズレ ${gap.toFixed(2)}）${hit?' ◎ 振り子は当たっていた':' △ 読みと違った'}</div>`;
+    }
+    el.innerHTML=`
+      <div class="rq"><span>${esc(r.q)}</span><span class="rv">${r.value.toFixed(2)}</span></div>
+      <div class="rmeta">${esc(r.a)} ◀▶ ${esc(r.b)} ・ 引力${r.factors.length} ・ ${timeAgo(r.t)}</div>
+      <div class="outcome">
+        <div class="ol"><span>実際どっちが正解だった？</span><b class="ov">${r.outcome==null?"—":r.outcome.toFixed(2)}</b></div>
+        <input type="range" min="0" max="1" step="0.05" value="${r.outcome==null?0.5:r.outcome}">
+        ${gapHtml}
+      </div>
+      <div class="rec-actions">
+        <button class="setout">${r.outcome==null?'結果を記録':'結果を更新'}</button>
+        <button class="loadrec">この設定を呼び出す</button>
+        <button class="delrec">削除</button>
+      </div>`;
+    const rng=el.querySelector("input[type=range]");
+    rng.addEventListener("input",e=>{el.querySelector(".ov").textContent=parseFloat(e.target.value).toFixed(2);});
+    el.querySelector(".setout").addEventListener("click",()=>{
+      r.outcome=parseFloat(rng.value); const recs2=getRecs().map(x=>x.id===r.id?r:x); setRecs(recs2); renderHistory(); toast("結果を記録した");
+    });
+    el.querySelector(".loadrec").addEventListener("click",()=>{
+      state={q:r.q,a:r.a,b:r.b,factors:r.factors.map(f=>({id:Date.now()+Math.random(),...f}))};
+      $("q").value=r.q;$("pa").value=r.a;$("pb").value=r.b;
+      renderFactors();renderPend();window.scrollTo({top:0,behavior:"smooth"});toast("呼び出した");
+    });
+    el.querySelector(".delrec").addEventListener("click",()=>{
+      setRecs(getRecs().filter(x=>x.id!==r.id)); renderHistory();
+    });
+    host.appendChild(el);
+  });
+}
+function renderCalib(recs){
+  const host=$("calib"); host.innerHTML="";
+  const scored=recs.filter(r=>r.outcome!=null);
+  if(scored.length<2) return;
+  const gaps=scored.map(r=>Math.abs(r.value-r.outcome));
+  const mean=gaps.reduce((a,b)=>a+b,0)/gaps.length;
+  const hits=gaps.filter(g=>g<=0.25).length;
+  let verdict;
+  if(mean<0.18) verdict="あなたの振り子はよく当たっている。直感を信じていい。";
+  else if(mean<0.30) verdict="そこそこ当たる。迷ったら振り子の向きに賭けて良さそう。";
+  else verdict="まだ振れ幅が読みにくい。引力の「確信」を辛めに付けると精度が上がるかも。";
+  host.innerHTML=`<div class="calib"><div class="ct">こうばよう ／ 較正</div>
+    <div class="cn">記録 ${scored.length} 件中 ${hits} 件が的中（ズレ≤0.25）。平均ズレ <b style="color:var(--gold-soft)">${mean.toFixed(2)}</b>。<br>${verdict}</div></div>`;
+}
+
+/* ---------- share via URL hash ---------- */
+function makeShare(){
+  const payload={q:state.q,a:state.a,b:state.b,
+    f:state.factors.map(f=>[f.label,f.pole,Math.round(f.weight*20),Math.round(f.conf*20)])};
+  const enc=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  return location.origin+location.pathname+"#f="+enc;
+}
+function loadShare(){
+  const m=location.hash.match(/#f=(.+)/); if(!m) return false;
+  try{
+    const p=JSON.parse(decodeURIComponent(escape(atob(m[1]))));
+    state={q:p.q||"",a:p.a||"",b:p.b||"",
+      factors:(p.f||[]).map(x=>({id:Date.now()+Math.random(),label:x[0],pole:x[1],weight:x[2]/20,conf:x[3]/20}))};
+    $("q").value=state.q;$("pa").value=state.a;$("pb").value=state.b;
+    return true;
+  }catch(e){return false;}
+}
+
+/* ---------- toast ---------- */
+let tT;
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(tT);tT=setTimeout(()=>t.classList.remove("show"),2000);}
+
+/* ---------- wire ---------- */
+$("q").addEventListener("input",e=>{state.q=e.target.value;saveCurrent();});
+$("pa").addEventListener("input",e=>{state.a=e.target.value;renderFactors();renderPend();});
+$("pb").addEventListener("input",e=>{state.b=e.target.value;renderFactors();renderPend();});
+$("addFactor").addEventListener("click",()=>{state.factors.push(newFactor("B"));renderFactors();renderPend();});
+$("save").addEventListener("click",saveRecord);
+$("share").addEventListener("click",async()=>{
+  const url=makeShare();
+  try{await navigator.clipboard.writeText(url);toast("共有リンクをコピーした");}
+  catch(e){location.hash=url.split("#")[1];toast("URLに反映した（コピーして共有）");}
+});
+
+/* ---------- init ---------- */
+(function init(){
+  const fromShare=loadShare();
+  if(!fromShare){ loadCurrent();
+    $("q").value=state.q||""; $("pa").value=state.a||""; $("pb").value=state.b||"";
+  }
+  if(state.factors.length===0){ state.factors=[newFactor("B"),newFactor("A")];
+    state.factors[0].label=""; }
+  renderPresets(); renderFactors(); renderPend(); renderHistory();
+})();
+</script>
+</body>
+</html>
