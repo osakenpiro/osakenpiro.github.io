@@ -1,76 +1,513 @@
-# Handoff 2026-06-19 — TSG2026 Gulliver / Cow客観判定（SES-586）
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ゆらぎ秤 — Boolean→Float 決定の秤</title>
+<meta name="description" content="YesでもNoでもなく、0.5の重さを量る。二値の判断を連続値（0.00〜1.00）に置き換える決定支援ツール。">
+<style>
+  :root{
+    --void:#0a0a0f; --void2:#12121b; --panel:#15151f;
+    --gold:#d4a853; --gold-dim:#8a7038; --gold-soft:rgba(212,168,83,.14);
+    --ink:#ece8df; --mist:#9a958c; --line:rgba(212,168,83,.18);
+    --no:#6f6a78; --shadow:0 8px 30px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",system-ui,-apple-system,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1px 1px at 18% 24%, rgba(255,255,255,.55), transparent),
+      radial-gradient(1px 1px at 72% 16%, rgba(255,255,255,.35), transparent),
+      radial-gradient(1px 1px at 41% 67%, rgba(255,255,255,.30), transparent),
+      radial-gradient(1px 1px at 88% 58%, rgba(255,255,255,.40), transparent),
+      radial-gradient(1.2px 1.2px at 60% 82%, rgba(212,168,83,.45), transparent),
+      radial-gradient(1px 1px at 9% 88%, rgba(255,255,255,.25), transparent),
+      radial-gradient(900px 600px at 78% -8%, #16131d, transparent),
+      var(--void);
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--gold)}
+  button{font-family:inherit;cursor:pointer}
 
-> 譲り元=ブラウザCl handoff（Notion 3842b7e5-43e0-81b9-94d2-debe522f4d3d）。本mdはCow判定のcsミラー。正本=当該Notionページ。
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 22px 64px}
+  header.top{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;padding-bottom:18px;border-bottom:1px solid var(--line);margin-bottom:22px}
+  .brand{font-size:30px;font-weight:700;letter-spacing:.04em;color:var(--gold);text-shadow:0 0 18px rgba(212,168,83,.25)}
+  .brand small{display:block;font-size:11px;letter-spacing:.22em;color:var(--gold-dim);font-weight:600;margin-top:2px}
+  .tagline{color:var(--mist);font-size:13.5px;line-height:1.5;max-width:520px}
 
-## 確定/仮ロック（これ前提）
-- ゲート: 年齢40未満=クリア済 / 起業意思=応募可（申告事項・未検証）
-- ビーチヘッド=**a寄りインディー/同人クリエイター**で確定
-- 設計分岐=**(b)加算**でロック
-- 原資=**申請料を一次／AI透明性支払を二次**
-- 一次=**400字のみ・リンク不可**。プロトURLは二次書類に温存。一次は「試作は動いている」を事実一文
-- 本人確定版400字=**391字（枠内）**採用
+  .app{display:grid;grid-template-columns:248px 1fr;gap:22px}
+  @media(max-width:760px){.app{grid-template-columns:1fr}}
 
-## TSG2026事実（web裏取り 2026-06-19）
-- 一次=400字のみ / 締切 2026-07-14 23:59 / 二次書類締切 8-17 / 決勝 11-29
-- 資格 15-39歳・2028年度末まで都内起業意思・法人未登記（個人事業主可）
-- ブラッシュアップ型 / 最優秀300万・総額800万超 / 年4,400件超
-- 公式の評価方針=「夢・情熱 ＞ 完成した事業計画」（情熱/原体験が一次の通貨）
+  /* sidebar */
+  .side{display:flex;flex-direction:column;gap:10px}
+  .side h2{font-size:11px;letter-spacing:.18em;color:var(--mist);margin:4px 2px 6px;font-weight:600}
+  .qlist{display:flex;flex-direction:column;gap:6px}
+  .qitem{
+    text-align:left;background:var(--panel);border:1px solid transparent;border-radius:10px;
+    padding:11px 12px;color:var(--ink);font-size:13.5px;line-height:1.35;transition:border-color .15s,background .15s;
+    display:flex;justify-content:space-between;align-items:center;gap:8px;
+  }
+  .qitem:hover{border-color:var(--line)}
+  .qitem.active{border-color:var(--gold);background:linear-gradient(var(--gold-soft),var(--gold-soft)),var(--panel)}
+  .qitem .qmini{font-variant-numeric:tabular-nums;font-size:12px;color:var(--gold);font-weight:700;flex:none}
+  .qitem .qt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .btn{
+    background:transparent;border:1px solid var(--line);color:var(--ink);border-radius:10px;
+    padding:10px 12px;font-size:13px;transition:.15s;
+  }
+  .btn:hover{border-color:var(--gold);color:var(--gold)}
+  .btn.gold{background:var(--gold);color:#1a1408;border-color:var(--gold);font-weight:700}
+  .btn.gold:hover{filter:brightness(1.08);color:#1a1408}
+  .btn.ghost{border-color:transparent;color:var(--mist)}
+  .btn.ghost:hover{color:var(--gold);border-color:transparent}
+  .side .foot{margin-top:8px;display:flex;flex-direction:column;gap:6px}
 
-## Cow判定（直球）
-**現実スコア ≒ 0.72**。Cl framed.87/unframed.65 は「物語あり/なし」でなく「一次(物語=評価軸)≒0.80 / 決勝(事業性)≒0.67・超high-variance」の取り違え。
+  /* main */
+  .main{background:rgba(20,20,29,.55);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:var(--shadow)}
+  .qtitle{
+    width:100%;background:transparent;border:none;border-bottom:1px solid var(--line);
+    color:var(--ink);font-size:21px;font-weight:600;padding:6px 2px 10px;outline:none;letter-spacing:.01em;
+  }
+  .qtitle::placeholder{color:#5a5660}
+  .qtitle:focus{border-color:var(--gold)}
+  .hint{color:var(--mist);font-size:12px;margin:10px 2px 16px}
 
-### 7軸再score（おれ/Cl・重み 原体験.25/応援.20/実行.15/伸び.15/意義.10/スケール.10/独自.05）
-| 軸 | Cl | Cow | 叩き |
-|---|---|---|---|
-| 原体験 | ~.85 | .65 | 脳の痛み（知的苛立ち）で生傷でない。"見てきた"=観察 |
-| 応援 | .85 | .75 | 応援は人に向く。抽象インフラはハードル高 |
-| 実行 | .75 | .72 | 妥当。動くのは可視化=易しい10%、堀は未証明 |
-| 伸び | ~.80 | .70 | コーチャビリティ低（既に御影石）。ブラッシュアップ型は粘土を求める |
-| 意義 | ~.85 | .85 | 文明規模・同意 |
-| スケール | ~.80 | .75 | 両面opt-inコールドスタートが地獄 |
-| 独自(堀) | .95 | .60 | 最大の楽観。"誰も言わない"を"誰も真似できない"と混同 |
+  .factors{display:flex;flex-direction:column;gap:12px;margin-bottom:6px}
+  .factor{background:var(--panel);border:1px solid rgba(255,255,255,.05);border-radius:12px;padding:13px 14px}
+  .frow1{display:flex;gap:10px;align-items:center;margin-bottom:11px}
+  .fname{flex:1;background:transparent;border:none;border-bottom:1px dashed rgba(255,255,255,.12);color:var(--ink);font-size:14.5px;padding:4px 2px;outline:none}
+  .fname:focus{border-bottom-color:var(--gold)}
+  .fname::placeholder{color:#5a5660}
+  .wsel{display:flex;gap:3px;align-items:center;flex:none}
+  .wsel .wlab{font-size:10px;letter-spacing:.12em;color:var(--mist);margin-right:4px}
+  .wbtn{width:24px;height:24px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--mist);font-size:12px;font-weight:700;line-height:1;padding:0}
+  .wbtn.on{background:var(--gold-soft);border-color:var(--gold);color:var(--gold)}
+  .fdel{flex:none;width:26px;height:26px;border-radius:6px;border:1px solid transparent;background:transparent;color:#6b6770;font-size:15px;line-height:1}
+  .fdel:hover{color:var(--gold)}
 
-加重総合 ≒ **0.72**。ロスター: E1当事者 Cow.80（一次で互角〜やや上＝本丸）/ E2 .70 / E3 .68 / E4 .70。
+  .frow2{display:flex;align-items:center;gap:14px}
+  input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:6px;border-radius:6px;outline:none;
+    background:linear-gradient(90deg,var(--gold) 0%,var(--gold) var(--p,50%),#2a2a36 var(--p,50%),#2a2a36 100%);
+  }
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);border:3px solid #1a1408;box-shadow:0 0 0 1px var(--gold),0 0 12px rgba(212,168,83,.5);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--gold);border:3px solid #1a1408;cursor:pointer}
+  .fval{font-variant-numeric:tabular-nums;font-size:15px;font-weight:700;color:var(--gold);width:46px;text-align:right;flex:none}
 
-### 致命傷3
-1. **ポエム再発**: 一次で消え決勝で逆戻り。MVPは美しい10%、重い90%（誰が寄与率を決め誰が払う）を隠す
-2. **収益の構造矛盾**: 欲しがる層(同人=払えない) vs 払える層(大手IP/AI企業=除外/未来)。近未来は公共財/助成インフラ＝マニフェスト寄り
-3. **堀=最薄**: 引用分析(Semantic Scholar/OpenAlex)・C2PA/Content Credentials・CC・(地雷ゆえ伏せるチェーンIP勢)が既存。堀は技術でなく**束＝軟判定多祖先寄与＋注目遡上＋日本同人ビーチヘッド＋"非法・非チェーン"立地＋コミュニティ正統性**
+  .addf{margin-top:14px}
 
-### 寄与率推定アーキ（抜け穴3）
-申請制opt-in＋on-deviceエッジembedding＋スポット検証。起源は決めず寄与率ベクトルを軟判定復号（誤り訂正の軟判定集約・co-origin可）。proximity→「新規性/変形量(directional×timestamped)」metric切替で (a)海賊版≈0寄与 (b)二次創作=加点＋原作へ遡上 (c)独立発明=罰さずco-origin。
-抜け穴: ①索引不完全(opt-in原理上)＋登録時間窓悪用 ②embedding敵対摂動＋自己申告エッジ偽装 ③時刻/provenance偽造＋float投票Sybil。→ 全部「敵対者が握る入力をmetricが信頼」の反復。アルゴリズムは不正を減らすが消せない＝継続的敵対監視＋stake/slashで回る。
+  /* aggregate */
+  .agg{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+  .aggtop{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .bignum{font-variant-numeric:tabular-nums;font-size:62px;font-weight:700;line-height:.9;color:var(--gold);text-shadow:0 0 24px rgba(212,168,83,.3)}
+  .bignum small{font-size:20px;color:var(--gold-dim);font-weight:600}
+  .verdict{text-align:right}
+  .verdict .vl{font-size:18px;font-weight:700}
+  .verdict .vs{font-size:12.5px;color:var(--mist);margin-top:3px;max-width:240px}
 
-### 双方向還元（一次⇔二次）
-2種エッジ: 創作貢献A→W（contrib軟判定）＋需要貢献W→A（二次が原作需要を生む）。注目は両方向へ遡上＝(b)加算プラスサム。暴走対策=ホップ減衰ρ<1（幾何収束）＋質量保存上限（来た以上配れない）＋不動点解法（循環/バブルを正規化）＋結託クリーク割引＋stake。急所=需要貢献は創作貢献より測りにくい半分。
+  .gauge{position:relative;height:16px;border-radius:10px;background:#20202c;margin:18px 0 6px;overflow:hidden;border:1px solid rgba(255,255,255,.05)}
+  .gfill{position:absolute;left:0;top:0;bottom:0;border-radius:10px;background:linear-gradient(90deg,var(--gold-dim),var(--gold));box-shadow:0 0 16px rgba(212,168,83,.45);transition:width .18s cubic-bezier(.4,0,.2,1)}
+  .gtick{position:absolute;top:-3px;bottom:-3px;width:2px;left:50%;background:rgba(236,232,223,.5)}
+  .scale{display:flex;justify-content:space-between;font-size:10.5px;color:#6b6770;font-variant-numeric:tabular-nums;letter-spacing:.05em}
+  .scale b{color:var(--mist);font-weight:600}
 
-### ビジネス（仮説・確信度）
-- R1申請料(0.3): 欲しがる層は払えない→フリーミアム必須
-- R2 AI透明性支払(今0.35/規制で0.6): 唯一の文明規模TAM・本命長期エンジン
-- R3遡上手数料(早0.25/scale0.5): P3成熟前提・遠い
-- 本命=R2、当面フリーミアムR1＋助成ブートストラップ。UE支配項=人間（異議裁定人件費）。係争率>5-10%で破綻
-- GTM=密な単一コミュニティで最初の100→名指し+後登録の招待ループ点火。コールドスタートが第1死因
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,.05)}
 
-### 自前ダークホース DH★「Float Body／0.2の日のためのOS」
-ADHD=本人の実在の生傷。原体験.90/応援.85/実行.80(秘書Co/MC=dogfood済)/独自.45(混雑だが一次は独自.05)/Boolean→Float整合=完全。TSGの最重量2軸でGulliverを上回るlow-variance。Gulliver=頭/Float Body=腹、TSGは腹を買う。Gulliverのphase0楔or並行エントリーも可。
+  .empty{color:var(--mist);text-align:center;padding:60px 20px;line-height:1.7}
+  .empty b{color:var(--gold)}
 
-## 400字審査（推定重み 熱意・ビジョン.35/共感.25/革新.25/計画.15）
-- 確定版391字: 熱意.80/共感.75/革新.82/計画.55 → 加重 **0.76**。一次通過濃厚。冒頭が"見てきた"=傍観者でフック弱(0.7/必要0.85)
-- 弱い行TOP3: ①「寄与の濃さに応じて、注目と恵みが巡る仕組みを。」(機構的最弱) ②「誰の肩に乗り、循環に"ひと匙"何を足したか。」(浮く) ③「二次創作も、AIも、その境界で揺れている。」(フックで失速)。冗長=巡/循環3回（締めの巡るを踏む）
-- 字数: 391字（句読点込・改行なし）≤400。削り不要
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
+    background:var(--gold);color:#1a1408;padding:11px 20px;border-radius:10px;font-size:13.5px;font-weight:700;
+    opacity:0;pointer-events:none;transition:.25s;box-shadow:var(--shadow);z-index:50}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-### 改善版400字（375字・ぼく/Hopepunk）
-ぼくは絵を描き、AIも使う。だから「盗んだ」とも「盗まれた」とも、両方の側に立たされてきた。二次創作も、AIも、その境界で揺れている。論文を書きツールを作るうちに、ようやく腑に落ちた——0から生まれたアイデアなんて、一つもない。ぼくの『オリジナル』は、先人と、誰かの一言と、母なる海で混ざった無数の種の実りを、受け取っているだけだ。なのに著作権は「俺のもの/盗み」の二択しかない。AIが全人類の創作を学ぶ時代、その0か1かはもう壊れている。だからぼくは、作品の出自と"恩送り"を可視化する『Gulliver』を作る。誰の肩に乗り、自分は何をひと匙足したのか。法律は変えない。法の手前に、感謝と帰属の層を、隣に建てる。同人という"非公式の恩送り"を続けてきた、この日本でこそ。構想じゃない。試作はもう動いている。情けは人のためならず。アイデアは、巡る。
+  .philo{margin-top:30px;color:#6b6770;font-size:11.5px;line-height:1.7;text-align:center;letter-spacing:.02em}
+  .philo b{color:var(--gold-dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">ゆらぎ秤<small>YURAGI-BAKARI · BOOLEAN→FLOAT</small></div>
+    <div class="tagline">YesでもNoでもなく、0.5の重さを量る。<br>判断を二値で潰さず、各要因を 0.00〜1.00 の連続値で秤にかけ、重み付き平均で「傾き」を得る。</div>
+  </header>
 
-加重 0.76→~0.81（原体験.65→.78/共感.75→.82）。本人ゲート=「AIも使う」冒頭は諸刃。表記僕/ぼくは本人決定。
+  <div class="app">
+    <aside class="side">
+      <h2>問いの一覧</h2>
+      <div class="qlist" id="qlist"></div>
+      <button class="btn gold" id="newQ">＋ 新しい問い</button>
+      <div class="foot">
+        <button class="btn ghost" id="importBtn">↧ JSONを読み込む</button>
+        <button class="btn ghost" id="exportAll">↥ 全データを書き出す</button>
+      </div>
+    </aside>
 
-## 委譲実行（Cow持ち場）
-- RPG: +1500（PHI 哲学600 / CRE 創作500 / TEC 技術400）→ snapshot.py
-- cs push: 本md
-- 秘書CoTASK: 3842b7e5-43e0-81ce-9012-ced561a91309（dup_check=clean）
+    <main class="main" id="main"></main>
+  </div>
 
-## 残ゲート【本人】
-Cl突き合わせ→最終1案/400字確定 ／ 堀ナラを技術→コミュニティに転換 ／ DH★Float Bodyを本気で天秤 ／ 締切 2026-07-14 23:59
+  <div class="philo">
+    <b>Boolean → Float</b> ／ 個別最適の規格化・規格の個別最適化<br>
+    腐葉土設計：消した問いも履歴は栄養になる。完璧より、熱があるうちに。
+  </div>
+</div>
 
-## 地雷
-ブロックチェーン/トークンを前面に出すな（都・非テック審査員に引かれる）。"系譜追跡/恩送り"で語れ。
+<div class="toast" id="toast"></div>
+<input type="file" id="fileInput" accept="application/json" style="display:none">
+
+<script>
+"use strict";
+const LS_KEY = "yuragi-bakari-v1";
+const STEP = 0.01;
+
+/* ---------- model ---------- */
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+function newFactor(name, weight, value){
+  return { id: uid(), name: name||"", weight: weight==null?3:weight, value: value==null?0.5:value };
+}
+function newQuestion(title){
+  return {
+    id: uid(),
+    title: title||"",
+    factors: [ newFactor("",3,0.5), newFactor("",3,0.5) ],
+    updated: Date.now()
+  };
+}
+
+let state = { questions: [], currentId: null };
+
+/* ---------- compute (pure) ---------- */
+function aggregate(factors){
+  let wsum = 0, vsum = 0;
+  for (const f of factors){
+    const w = Number(f.weight) || 0;
+    const v = Number(f.value)  || 0;
+    wsum += w; vsum += w * v;
+  }
+  return wsum > 0 ? vsum / wsum : 0;
+}
+function verdict(x){
+  if (x < 0.20) return { label:"ほぼ No", sub:"秤は深く沈んでいる。" };
+  if (x < 0.40) return { label:"どちらかといえば No", sub:"傾きは No 寄り。覆す要因はあるか。" };
+  if (x < 0.60) return { label:"ゆらぎ — 保留の重さ", sub:"0.5 周辺。最も情報量の多い、決めつけない場所。" };
+  if (x < 0.80) return { label:"どちらかといえば Yes", sub:"傾きは Yes 寄り。だが断定はしない。" };
+  return { label:"ほぼ Yes", sub:"秤は明確に傾いた。" };
+}
+
+/* ---------- persistence ---------- */
+function save(){
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+  catch(e){ /* private mode etc. */ }
+}
+function load(){
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw){ const s = JSON.parse(raw); if (s && Array.isArray(s.questions)) state = s; }
+  } catch(e){}
+}
+
+/* ---------- share via URL hash ---------- */
+function b64encode(obj){ return btoa(unescape(encodeURIComponent(JSON.stringify(obj)))); }
+function b64decode(str){ return JSON.parse(decodeURIComponent(escape(atob(str)))); }
+
+function shareLink(){
+  const q = current();
+  if (!q) return;
+  const payload = { t:q.title, f:q.factors.map(f=>({n:f.name,w:f.weight,v:f.value})) };
+  const hash = "#q=" + b64encode(payload);
+  const url = location.origin + location.pathname + hash;
+  copy(url, "共有リンクをコピーしました");
+}
+function tryImportFromHash(){
+  if (!location.hash.startsWith("#q=")) return false;
+  try{
+    const payload = b64decode(location.hash.slice(3));
+    const q = newQuestion(payload.t || "");
+    q.factors = (payload.f||[]).map(o => newFactor(o.n, o.w, o.v));
+    if (!q.factors.length) q.factors = [ newFactor("",3,0.5) ];
+    state.questions.unshift(q);
+    state.currentId = q.id;
+    save();
+    history.replaceState(null, "", location.pathname);
+    return true;
+  } catch(e){ return false; }
+}
+
+/* ---------- helpers ---------- */
+function current(){ return state.questions.find(q => q.id === state.currentId) || null; }
+function fmt(x){ return x.toFixed(2); }
+
+function copy(text, msg){
+  const done = () => toast(msg || "コピーしました");
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done, ()=>fallbackCopy(text,done));
+  } else fallbackCopy(text, done);
+}
+function fallbackCopy(text, cb){
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); }catch(e){}
+  document.body.removeChild(ta); cb && cb();
+}
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("show"), 1900);
+}
+function download(filename, text){
+  const blob = new Blob([text], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 100);
+}
+
+/* ---------- render ---------- */
+function renderSidebar(){
+  const list = document.getElementById("qlist");
+  list.innerHTML = "";
+  if (!state.questions.length){
+    const d = document.createElement("div");
+    d.className = "hint"; d.style.padding="4px 2px";
+    d.textContent = "まだ問いがありません。";
+    list.appendChild(d); return;
+  }
+  for (const q of state.questions){
+    const x = aggregate(q.factors);
+    const b = document.createElement("button");
+    b.className = "qitem" + (q.id===state.currentId ? " active" : "");
+    const t = document.createElement("span");
+    t.className = "qt"; t.textContent = q.title || "（無題の問い）";
+    const m = document.createElement("span");
+    m.className = "qmini"; m.textContent = fmt(x);
+    b.appendChild(t); b.appendChild(m);
+    b.addEventListener("click", ()=>{ state.currentId = q.id; render(); });
+    list.appendChild(b);
+  }
+}
+
+function setSliderFill(input, v){
+  input.style.setProperty("--p", (v*100).toFixed(1) + "%");
+}
+
+function renderMain(){
+  const main = document.getElementById("main");
+  const q = current();
+  if (!q){
+    main.innerHTML = '<div class="empty">左の <b>＋ 新しい問い</b> から始めよう。<br>「やるべきか / やらざるべきか」を、Yes・No で潰す前に<br>各要因の重さを 0.00〜1.00 で量る。</div>';
+    return;
+  }
+  main.innerHTML = "";
+
+  const title = document.createElement("input");
+  title.className = "qtitle"; title.value = q.title;
+  title.placeholder = "問い —— 例: この企画を今やるべきか";
+  title.addEventListener("input", ()=>{ q.title=title.value; q.updated=Date.now(); save();
+    const active=document.querySelector(".qitem.active .qt"); if(active) active.textContent=q.title||"（無題の問い）"; });
+  main.appendChild(title);
+
+  const hint = document.createElement("div");
+  hint.className = "hint";
+  hint.textContent = "要因ごとに 重み（1〜5）と Float値（0.00〜1.00）を置く。下に重み付き平均＝総合の傾きが出る。";
+  main.appendChild(hint);
+
+  const factors = document.createElement("div");
+  factors.className = "factors";
+  q.factors.forEach(f => factors.appendChild(renderFactor(q, f)));
+  main.appendChild(factors);
+
+  const add = document.createElement("button");
+  add.className = "btn addf"; add.textContent = "＋ 要因を追加";
+  add.addEventListener("click", ()=>{ q.factors.push(newFactor("",3,0.5)); q.updated=Date.now(); save(); render(); });
+  main.appendChild(add);
+
+  main.appendChild(renderAgg(q));
+  main.appendChild(renderActions(q));
+}
+
+function renderFactor(q, f){
+  const wrap = document.createElement("div");
+  wrap.className = "factor";
+
+  const r1 = document.createElement("div");
+  r1.className = "frow1";
+  const name = document.createElement("input");
+  name.className = "fname"; name.value = f.name; name.placeholder = "要因 —— 例: 時間に余裕があるか";
+  name.addEventListener("input", ()=>{ f.name=name.value; q.updated=Date.now(); save(); });
+
+  const wsel = document.createElement("div");
+  wsel.className = "wsel";
+  const wlab = document.createElement("span"); wlab.className="wlab"; wlab.textContent="重み"; wsel.appendChild(wlab);
+  for (let i=1;i<=5;i++){
+    const wb = document.createElement("button");
+    wb.className = "wbtn" + (i===Number(f.weight)?" on":"");
+    wb.textContent = i;
+    wb.addEventListener("click", ()=>{ f.weight=i; q.updated=Date.now(); save(); render(); });
+    wsel.appendChild(wb);
+  }
+
+  const del = document.createElement("button");
+  del.className = "fdel"; del.textContent = "×"; del.title="この要因を削除";
+  del.addEventListener("click", ()=>{
+    q.factors = q.factors.filter(x=>x.id!==f.id);
+    if (!q.factors.length) q.factors.push(newFactor("",3,0.5));
+    q.updated=Date.now(); save(); render();
+  });
+
+  r1.appendChild(name); r1.appendChild(wsel); r1.appendChild(del);
+
+  const r2 = document.createElement("div");
+  r2.className = "frow2";
+  const range = document.createElement("input");
+  range.type="range"; range.min="0"; range.max="1"; range.step=String(STEP); range.value=String(f.value);
+  setSliderFill(range, f.value);
+  const val = document.createElement("span");
+  val.className="fval"; val.textContent=fmt(Number(f.value));
+  range.addEventListener("input", ()=>{
+    f.value = Number(range.value);
+    val.textContent = fmt(f.value);
+    setSliderFill(range, f.value);
+    updateAgg(q);
+    q.updated=Date.now(); save();
+  });
+  r2.appendChild(range); r2.appendChild(val);
+
+  wrap.appendChild(r1); wrap.appendChild(r2);
+  return wrap;
+}
+
+function renderAgg(q){
+  const agg = document.createElement("div");
+  agg.className = "agg"; agg.id = "aggBox";
+
+  const top = document.createElement("div");
+  top.className = "aggtop";
+  const big = document.createElement("div");
+  big.className = "bignum"; big.id = "bignum";
+  const v = document.createElement("div");
+  v.className = "verdict";
+  v.innerHTML = '<div class="vl" id="vl"></div><div class="vs" id="vs"></div>';
+  top.appendChild(big); top.appendChild(v);
+
+  const gauge = document.createElement("div");
+  gauge.className = "gauge";
+  gauge.innerHTML = '<div class="gfill" id="gfill"></div><div class="gtick"></div>';
+
+  const scale = document.createElement("div");
+  scale.className = "scale";
+  scale.innerHTML = '<span>0.00 <b>No</b></span><span>0.50 <b>ゆらぎ</b></span><span><b>Yes</b> 1.00</span>';
+
+  agg.appendChild(top); agg.appendChild(gauge); agg.appendChild(scale);
+  setTimeout(()=>updateAgg(q), 0);
+  return agg;
+}
+
+function updateAgg(q){
+  const x = aggregate(q.factors);
+  const big = document.getElementById("bignum");
+  const fill = document.getElementById("gfill");
+  const vl = document.getElementById("vl");
+  const vs = document.getElementById("vs");
+  if (!big) return;
+  big.innerHTML = fmt(x) + ' <small>/ 1.00</small>';
+  fill.style.width = (x*100).toFixed(1) + "%";
+  const vd = verdict(x);
+  vl.textContent = vd.label; vs.textContent = vd.sub;
+  const mini = document.querySelector(".qitem.active .qmini");
+  if (mini) mini.textContent = fmt(x);
+}
+
+function renderActions(q){
+  const a = document.createElement("div");
+  a.className = "actions";
+
+  const share = document.createElement("button");
+  share.className="btn"; share.textContent="🔗 共有リンク";
+  share.addEventListener("click", shareLink);
+
+  const json = document.createElement("button");
+  json.className="btn"; json.textContent="⤓ この問いをJSON";
+  json.addEventListener("click", ()=>{
+    download((q.title||"yuragi").replace(/[^\w一-龠ぁ-んァ-ンー]+/g,"_").slice(0,40)+".json",
+      JSON.stringify(q,null,2));
+    toast("JSONを書き出しました");
+  });
+
+  const dup = document.createElement("button");
+  dup.className="btn"; dup.textContent="⎘ 複製";
+  dup.addEventListener("click", ()=>{
+    const c = JSON.parse(JSON.stringify(q));
+    c.id = uid(); c.title = (q.title||"問い")+"（複製）"; c.updated=Date.now();
+    c.factors.forEach(f=>f.id=uid());
+    state.questions.unshift(c); state.currentId=c.id; save(); render();
+  });
+
+  const del = document.createElement("button");
+  del.className="btn ghost"; del.textContent="🗑 削除";
+  del.addEventListener("click", ()=>{
+    if (!confirm("この問いを削除する？（履歴は戻せない）")) return;
+    state.questions = state.questions.filter(x=>x.id!==q.id);
+    state.currentId = state.questions.length ? state.questions[0].id : null;
+    save(); render();
+  });
+
+  a.appendChild(share); a.appendChild(dup); a.appendChild(json); a.appendChild(del);
+  return a;
+}
+
+function render(){ renderSidebar(); renderMain(); save(); }
+
+/* ---------- wire ---------- */
+document.getElementById("newQ").addEventListener("click", ()=>{
+  const q = newQuestion("");
+  state.questions.unshift(q); state.currentId = q.id; render();
+  const t = document.querySelector(".qtitle"); if (t) t.focus();
+});
+document.getElementById("exportAll").addEventListener("click", ()=>{
+  download("yuragi-bakari-all.json", JSON.stringify(state,null,2));
+  toast("全データを書き出しました");
+});
+document.getElementById("importBtn").addEventListener("click", ()=>document.getElementById("fileInput").click());
+document.getElementById("fileInput").addEventListener("change", (e)=>{
+  const file = e.target.files[0]; if(!file) return;
+  const rdr = new FileReader();
+  rdr.onload = ()=>{
+    try{
+      const data = JSON.parse(rdr.result);
+      if (data && Array.isArray(data.questions)){
+        for (const q of data.questions){ q.id=uid(); state.questions.unshift(q); }
+        state.currentId = state.questions[0].id;
+      } else if (data && Array.isArray(data.factors)){
+        data.id=uid(); state.questions.unshift(data); state.currentId=data.id;
+      } else { toast("読み込める形式ではありません"); return; }
+      save(); render(); toast("読み込みました");
+    }catch(err){ toast("JSONの解析に失敗しました"); }
+  };
+  rdr.readAsText(file);
+  e.target.value = "";
+});
+
+/* ---------- boot ---------- */
+load();
+const imported = tryImportFromHash();
+if (!state.currentId && state.questions.length) state.currentId = state.questions[0].id;
+if (!state.questions.length && !imported){
+  // seed one illustrative example so the秤 is never empty on first open
+  const seed = newQuestion("この企画を、今夜やるべきか");
+  seed.factors = [
+    newFactor("熱があるうちか（衝動の温度）", 5, 0.8),
+    newFactor("時間に余裕があるか", 3, 0.4),
+    newFactor("失敗しても損が小さいか", 4, 0.7),
+    newFactor("他にもっと優先すべきものは無いか", 4, 0.55)
+  ];
+  state.questions.push(seed); state.currentId = seed.id;
+}
+render();
+</script>
+</body>
+</html>
