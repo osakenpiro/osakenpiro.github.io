@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ハク — 連続値シーケンサ</title>
+<meta name="description" content="オン/オフじゃない。各拍が連続値。強さ⇄確率で解釈するBoolean→Floatの音。#全人類UX改善">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0a0a0f; --void-deep:#06060a; --surface:#15141a; --surface-hi:#1c1a23;
+  --gold:#d4a853; --gold-soft:rgba(212,168,83,.12); --gold-glow:rgba(212,168,83,.25); --gold-edge:rgba(212,168,83,.45);
+  --parchment:#c8b8a0; --violet:#a78bfa; --debris-1:#6b6b80; --debris-2:#3a3530;
+  --fg-1:#e8e0d0; --fg-2:#b8b0a0; --fg-3:#807868; --dim:#5a5448;
+  --border:rgba(200,184,160,.06); --border-hover:rgba(212,168,83,.20); --border-strong:rgba(212,168,83,.45);
+  --sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic Medium","Yu Gothic",system-ui,sans-serif;
+  --serif:"Cormorant Garamond","Times New Roman","游明朝体","Yu Mincho",serif;
+  --mono:"JetBrains Mono","SF Mono","Menlo","Consolas",monospace;
+}
+*{box-sizing:border-box;scrollbar-width:thin;scrollbar-color:var(--debris-1) var(--void)}
+html,body{margin:0;background:var(--void);color:var(--fg-1);font-family:var(--sans);line-height:1.7;letter-spacing:.01em;-webkit-font-smoothing:antialiased}
+body{background:radial-gradient(ellipse at 50% -10%,#12121c 0%,var(--void) 42%,var(--void-deep) 100%);min-height:100vh;position:relative;overflow-x:hidden}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+.wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:46px 18px 80px}
+header{text-align:center;margin-bottom:24px}
+.title{font-family:var(--serif);font-style:italic;font-weight:300;font-size:clamp(2.5rem,7.5vw,4rem);line-height:1.05;letter-spacing:.04em;margin:0}
+.title .k{color:var(--gold)}
+.sub{font-family:var(--serif);font-size:.64rem;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);margin-top:13px}
+.lede{color:var(--fg-3);font-size:.84rem;margin-top:9px}
+.lede b{color:var(--parchment);font-weight:400}
+.stage{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:18px}
+/* transport */
+.transport{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.play{background:var(--gold);color:var(--void);border:none;border-radius:10px;width:48px;height:40px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.play:hover{background:#e0b75f}
+.tempo{display:flex;align-items:center;gap:8px;flex:1;min-width:150px}
+.tempo input{flex:1;accent-color:var(--gold)}
+.tempo .bpm{font-family:var(--mono);font-size:.8rem;color:var(--gold);min-width:62px}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.seg button{background:none;border:none;color:var(--fg-3);padding:8px 12px;font-family:var(--sans);font-size:.76rem;cursor:pointer}
+.seg button.on{background:var(--gold-soft);color:var(--gold)}
+/* grid */
+.seq{display:grid;gap:3px}
+.seqrow{display:grid;grid-template-columns:38px repeat(16,1fr);gap:3px;align-items:center}
+.rowlab{font-family:var(--mono);font-size:.6rem;color:var(--fg-3);text-align:right;padding-right:4px}
+.cell{aspect-ratio:1/1;background:var(--void-deep);border:1px solid var(--border);border-radius:5px;cursor:pointer;position:relative;transition:border-color .1s}
+.cell:hover{border-color:var(--border-hover)}
+.cell .lvl{position:absolute;inset:0;border-radius:4px;background:var(--gold);opacity:0;transition:opacity .08s}
+.cell.beat{border-color:rgba(200,184,160,.12)}
+.cell.ph{box-shadow:0 0 0 2px var(--gold-edge)}
+.brush{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+.brush .lab{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--fg-3)}
+.brush input[type=range]{flex:1;min-width:120px;accent-color:var(--gold)}
+.brush .bv{font-family:var(--mono);font-size:.78rem;color:var(--gold);min-width:36px}
+.chips{display:flex;gap:6px}
+.chips button{background:none;border:1px solid var(--border);color:var(--fg-3);border-radius:6px;padding:4px 9px;font-family:var(--mono);font-size:.7rem;cursor:pointer}
+.chips button.on{border-color:var(--gold-edge);color:var(--gold);background:var(--gold-soft)}
+.btnbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.btn{background:var(--gold-soft);border:1px solid var(--gold-edge);color:var(--gold);border-radius:8px;padding:8px 14px;font-size:.8rem;cursor:pointer;transition:background .15s}
+.btn:hover{background:rgba(212,168,83,.2)}
+.btn.ghost{background:none;border-color:var(--border);color:var(--fg-3)}
+.btn.ghost:hover{border-color:var(--border-hover);color:var(--fg-1)}
+.btn.sm{padding:6px 11px;font-size:.73rem}
+.note{font-size:.74rem;color:var(--fg-3);line-height:1.8;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:15px 17px}
+.note b{color:var(--parchment);font-weight:400}
+.foot{text-align:center;margin-top:26px;color:var(--dim);font-size:.7rem;line-height:2}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface-hi);border:1px solid var(--gold-edge);color:var(--fg-1);padding:10px 20px;border-radius:8px;font-size:.82rem;opacity:0;pointer-events:none;transition:all .25s;z-index:20}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="wrap">
+  <header>
+    <h1 class="title"><span class="k">ハ</span>ク</h1>
+    <div class="sub">拍 ／ 箔 — 連続値シーケンサ</div>
+    <p class="lede">拍はオン/オフじゃない。各マスは<b>連続値</b>。<br><span style="color:var(--dim)">その値を「強さ」か「確率」で鳴らす。Boolean→Float の音。</span></p>
+  </header>
+
+  <div class="stage">
+    <div class="transport">
+      <button class="play" id="play">▶</button>
+      <div class="tempo"><span class="brush lab" style="margin:0">BPM</span><input type="range" id="bpm" min="60" max="180" step="1" value="110"><span class="bpm" id="bpm-v">110</span></div>
+      <div class="seg" id="mode"><button data-mode="velocity" class="on">強さ</button><button data-mode="prob">確率</button></div>
+    </div>
+    <div class="seq" id="seq"></div>
+    <div class="brush">
+      <span class="lab">筆の値</span>
+      <input type="range" id="brush" min="0.05" max="1" step="0.05" value="1">
+      <span class="bv" id="brush-v">1.00</span>
+      <span class="chips" id="brush-presets"><button data-v="0.25">.25</button><button data-v="0.5">.5</button><button data-v="0.75">.75</button><button data-v="1" class="on">1</button></span>
+    </div>
+    <div class="btnbar">
+      <button class="btn sm" id="seed">いい感じ</button>
+      <button class="btn sm" id="rand">ランダム</button>
+      <button class="btn sm" id="clear">クリア</button>
+      <span style="flex:1"></span>
+      <button class="btn ghost sm" id="share">共有URL</button>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>遊び方:</b> マスをクリック／ドラッグで「筆の値」を置く。濃いほど強い／鳴りやすい。<br>
+    <b>強さ</b>＝値がそのまま音量。<b>確率</b>＝値が高いほど鳴る回数が増える（同じ譜面でも毎周ゆらぐ）。これが二値を連続にした拍。ペンタトニックなので外れない。
+  </div>
+
+  <div class="foot">
+    ハク — 拍／箔 · 連続値シーケンサ · 音は端末内生成（送信なし）<br>
+    <span style="color:var(--debris-1)">#全人類UX改善 · Boolean→Float · Visionium / Hi-Me TooL</span>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// === ENGINE START ===  (pure / DOM・WebAudio非依存 / nodeで単体テスト可)
+function midiToFreq(m){return 440*Math.pow(2,(m-69)/12);}
+function buildScale(root,intervals,count){
+  var out=[],i=0;
+  while(out.length<count){
+    var oct=Math.floor(i/intervals.length), idx=i%intervals.length;
+    out.push(root+oct*12+intervals[idx]); i++;
+  }
+  return out;
+}
+function makePattern(rows,steps){
+  var g=[];for(var i=0;i<rows;i++){var r=[];for(var j=0;j<steps;j++)r.push(0);g.push(r);}return g;
+}
+function gainFor(v){return Math.max(0,Math.min(1,v))*0.3;}
+function shouldTrigger(v,mode,r){
+  if(v<=0)return false;
+  return mode==="prob" ? (r<v) : (v>0);
+}
+function encodeState(s){return JSON.stringify({grid:s.grid,bpm:s.bpm,mode:s.mode});}
+function decodeState(str){
+  try{var o=JSON.parse(str);if(o&&o.grid)return {grid:o.grid,bpm:o.bpm||110,mode:o.mode||"velocity"};}catch(e){}
+  return null;
+}
+// === ENGINE END ===
+
+/* ---------- UI / audio ---------- */
+(function(){
+var $=function(s){return document.querySelector(s);};
+var LS="haku_v1";
+var STEPS=16;
+var SCALE=buildScale(48,[0,3,5,7,10],6); // C minor pentatonic, 6 rows
+var NAMES=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+var freqs=SCALE.map(midiToFreq);
+
+var grid=makePattern(SCALE.length,STEPS);
+var bpm=110, mode="velocity", brush=1;
+var cells=[]; // [row][col] elements
+var painting=false, paintVal=1;
+
+// audio
+var ac=null, master=null, isPlaying=false, current=0, nextTime=0, timer=null;
+var LOOKAHEAD=25, AHEAD=0.12;
+
+function toast(m){var t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove("show");},1700);}
+function save(){try{localStorage.setItem(LS,encodeState({grid:grid,bpm:bpm,mode:mode}));}catch(e){}}
+function load(){
+  var src=null;
+  if(location.hash.length>1){try{src=decodeURIComponent(escape(atob(decodeURIComponent(location.hash.slice(1)))));}catch(e){}}
+  if(!src){try{src=localStorage.getItem(LS);}catch(e){}}
+  if(src){var st=decodeState(src);if(st){if(st.grid.length===SCALE.length)grid=st.grid;bpm=st.bpm;mode=st.mode;}}
+}
+
+function buildGrid(){
+  var host=$("#seq");host.innerHTML="";cells=[];
+  for(var i=0;i<SCALE.length;i++){
+    var rowEl=document.createElement("div");rowEl.className="seqrow";
+    var lab=document.createElement("div");lab.className="rowlab";lab.textContent=NAMES[SCALE[i]%12];rowEl.appendChild(lab);
+    var rowCells=[];
+    for(var j=0;j<STEPS;j++){
+      var c=document.createElement("div");c.className="cell"+((j%4===0)?" beat":"");
+      var lvl=document.createElement("div");lvl.className="lvl";c.appendChild(lvl);
+      c.dataset.i=i;c.dataset.j=j;
+      rowEl.appendChild(c);rowCells.push(c);
+    }
+    cells.push(rowCells);host.appendChild(rowEl);
+  }
+  bindPaint();paintAll();
+}
+function paintCell(i,j){cells[i][j].querySelector(".lvl").style.opacity=grid[i][j]?(0.25+grid[i][j]*0.75):0;}
+function paintAll(){for(var i=0;i<SCALE.length;i++)for(var j=0;j<STEPS;j++)paintCell(i,j);}
+
+function cellFromEvent(ev){
+  var el=document.elementFromPoint(ev.clientX,ev.clientY);
+  if(!el)return null;el=el.closest?el.closest(".cell"):null;if(!el)return null;
+  return {i:+el.dataset.i,j:+el.dataset.j};
+}
+function applyPaint(i,j){if(grid[i][j]!==paintVal){grid[i][j]=paintVal;paintCell(i,j);save();}}
+function bindPaint(){
+  var host=$("#seq");
+  host.addEventListener("pointerdown",function(ev){
+    var c=cellFromEvent(ev);if(!c)return;
+    painting=true;paintVal=(Math.abs(grid[c.i][c.j]-brush)<1e-9)?0:brush;
+    applyPaint(c.i,c.j);ev.preventDefault();
+  });
+  host.addEventListener("pointermove",function(ev){if(!painting)return;var c=cellFromEvent(ev);if(c)applyPaint(c.i,c.j);});
+  addEventListener("pointerup",function(){painting=false;});
+}
+
+/* scheduler */
+function secPerStep(){return 60/bpm/4;}
+function scheduleColumn(col,time){
+  for(var i=0;i<SCALE.length;i++){
+    var v=grid[i][col];
+    if(shouldTrigger(v,mode,Math.random())) playNote(freqs[i], gainFor(mode==="prob"?Math.max(v,0.6):v), time);
+  }
+  var delay=(time-ac.currentTime)*1000;
+  setTimeout(function(){drawPlayhead(col);}, Math.max(0,delay));
+}
+function playNote(freq,gain,time){
+  var o=ac.createOscillator(),g=ac.createGain();
+  o.type="triangle";o.frequency.value=freq;
+  g.gain.setValueAtTime(0,time);
+  g.gain.linearRampToValueAtTime(gain,time+0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001,time+0.30);
+  o.connect(g);g.connect(master);o.start(time);o.stop(time+0.32);
+}
+function scheduler(){
+  while(nextTime < ac.currentTime + AHEAD){
+    scheduleColumn(current,nextTime);
+    nextTime+=secPerStep();
+    current=(current+1)%STEPS;
+  }
+}
+function drawPlayhead(col){
+  for(var i=0;i<SCALE.length;i++)for(var j=0;j<STEPS;j++)cells[i][j].classList.toggle("ph",j===col);
+}
+function start(){
+  if(!ac){ac=new (window.AudioContext||window.webkitAudioContext)();master=ac.createGain();master.gain.value=0.85;master.connect(ac.destination);}
+  ac.resume&&ac.resume();
+  isPlaying=true;current=0;nextTime=ac.currentTime+0.05;$("#play").textContent="⏸";
+  timer=setInterval(scheduler,LOOKAHEAD);
+}
+function stop(){
+  isPlaying=false;clearInterval(timer);$("#play").textContent="▶";
+  for(var i=0;i<SCALE.length;i++)for(var j=0;j<STEPS;j++)cells[i][j].classList.remove("ph");
+}
+
+function seedGroove(){
+  grid=makePattern(SCALE.length,STEPS);
+  // a pleasant pattern across rows with floats
+  var rows=SCALE.length;
+  for(var j=0;j<STEPS;j++){
+    if(j%4===0)grid[0][j]=1;             // low pulse on beats
+    if(j%4===2)grid[1][j]=0.6;
+    if(j%2===1)grid[rows-1][j]=0.4;      // light high offbeats
+    if(j===6||j===14)grid[3][j]=0.8;
+    if(j===10)grid[4][j]=0.7;
+  }
+  paintAll();save();
+}
+function randomize(){
+  for(var i=0;i<SCALE.length;i++)for(var j=0;j<STEPS;j++)grid[i][j]=Math.random()<0.28?Math.round(Math.random()*4)/4:0;
+  paintAll();save();
+}
+
+function stars(){
+  var s=$("#stars"),c=s.getContext("2d");
+  function size(){s.width=innerWidth;s.height=innerHeight;d();}
+  function d(){
+    c.clearRect(0,0,s.width,s.height);var n=Math.min(150,Math.floor(s.width*s.height/12000));
+    for(var i=0;i<n;i++){var x=((Math.sin(i*12.9898)*43758.5453)%1+1)%1,y=((Math.sin(i*78.233)*43758.5453)%1+1)%1,r=((Math.sin(i*3.17)*1000)%1+1)%1;
+      c.globalAlpha=0.12+r*0.45;c.fillStyle=r>0.85?"#d4a853":"#e8e0d0";var z=r>0.9?1.6:1;c.fillRect(x*s.width,y*s.height,z,z);}
+    c.globalAlpha=1;
+  }
+  addEventListener("resize",size);size();
+}
+
+function setMode(m){mode=m;Array.prototype.forEach.call(document.querySelectorAll("#mode button"),function(b){b.classList.toggle("on",b.dataset.mode===m);});save();}
+function setBrush(v){brush=v;$("#brush").value=v;$("#brush-v").textContent=v.toFixed(2);Array.prototype.forEach.call(document.querySelectorAll("#brush-presets button"),function(b){b.classList.toggle("on",Math.abs(+b.dataset.v-v)<1e-9);});}
+
+function init(){
+  load();stars();buildGrid();
+  $("#bpm").value=bpm;$("#bpm-v").textContent=bpm;setMode(mode);setBrush(brush);
+  $("#play").onclick=function(){isPlaying?stop():start();};
+  $("#bpm").addEventListener("input",function(){bpm=+this.value;$("#bpm-v").textContent=bpm;save();});
+  Array.prototype.forEach.call(document.querySelectorAll("#mode button"),function(b){b.onclick=function(){setMode(b.dataset.mode);};});
+  $("#brush").addEventListener("input",function(){setBrush(+this.value);});
+  Array.prototype.forEach.call(document.querySelectorAll("#brush-presets button"),function(b){b.onclick=function(){setBrush(+b.dataset.v);};});
+  $("#seed").onclick=seedGroove;$("#rand").onclick=randomize;
+  $("#clear").onclick=function(){grid=makePattern(SCALE.length,STEPS);paintAll();save();};
+  $("#share").onclick=function(){var p=btoa(unescape(encodeURIComponent(encodeState({grid:grid,bpm:bpm,mode:mode}))));var url=location.origin+location.pathname+"#"+encodeURIComponent(p);navigator.clipboard.writeText(url).then(function(){toast("共有URLをコピーした");},function(){window.prompt("コピー",url);});};
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();
+</script>
+</body>
+</html>
