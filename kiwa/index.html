@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>キワ — 際に寄せる</title>
+<meta name="description" content="当たり/外れじゃない。どれだけ際に寄れたかを連続スコアで。Boolean→Floatのタイミングゲーム。#全人類UX改善">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0a0a0f; --void-deep:#06060a; --surface:#15141a; --surface-hi:#1c1a23;
+  --gold:#d4a853; --gold-soft:rgba(212,168,83,.12); --gold-glow:rgba(212,168,83,.25); --gold-edge:rgba(212,168,83,.45);
+  --parchment:#c8b8a0; --violet:#a78bfa; --debris-1:#6b6b80; --debris-2:#3a3530;
+  --fg-1:#e8e0d0; --fg-2:#b8b0a0; --fg-3:#807868; --dim:#5a5448;
+  --border:rgba(200,184,160,.06); --border-hover:rgba(212,168,83,.20); --border-strong:rgba(212,168,83,.45);
+  --sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic Medium","Yu Gothic",system-ui,sans-serif;
+  --serif:"Cormorant Garamond","Times New Roman","游明朝体","Yu Mincho",serif;
+  --mono:"JetBrains Mono","SF Mono","Menlo","Consolas",monospace;
+}
+*{box-sizing:border-box;scrollbar-width:thin;scrollbar-color:var(--debris-1) var(--void)}
+html,body{margin:0;background:var(--void);color:var(--fg-1);font-family:var(--sans);line-height:1.7;letter-spacing:.01em;-webkit-font-smoothing:antialiased;user-select:none}
+body{background:radial-gradient(ellipse at 50% -10%,#12121c 0%,var(--void) 42%,var(--void-deep) 100%);min-height:100vh;position:relative;overflow-x:hidden}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+.wrap{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:46px 20px 70px}
+header{text-align:center;margin-bottom:22px}
+.title{font-family:var(--serif);font-style:italic;font-weight:300;font-size:clamp(2.5rem,7.5vw,4rem);line-height:1.05;letter-spacing:.04em;margin:0}
+.title .k{color:var(--gold)}
+.sub{font-family:var(--serif);font-size:.64rem;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);margin-top:13px}
+.lede{color:var(--fg-3);font-size:.84rem;margin-top:9px}
+.lede b{color:var(--parchment);font-weight:400}
+.hud{display:flex;gap:0;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.hud .s{flex:1;padding:11px 6px;text-align:center;border-right:1px solid var(--border);background:var(--surface)}
+.hud .s:last-child{border-right:none}
+.hud .v{font-family:var(--mono);font-size:1.1rem;color:var(--gold)}
+.hud .l{font-size:.54rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-3);margin-top:2px}
+.stage{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:26px 22px;text-align:center;cursor:pointer;position:relative;min-height:280px;display:flex;flex-direction:column;justify-content:center}
+.bigmsg{font-family:var(--serif);font-style:italic;font-size:1.5rem;color:var(--fg-1);line-height:1.4}
+.bigscore{font-family:var(--mono);font-size:3.4rem;line-height:1;margin:6px 0}
+.sublabel{font-size:.8rem;color:var(--fg-3);margin-top:8px}
+.track{position:relative;height:64px;margin:30px 0 12px;border-radius:10px;background:var(--void-deep);border:1px solid var(--border);overflow:hidden}
+.band{position:absolute;top:0;bottom:0;background:linear-gradient(90deg,rgba(212,168,83,.05),var(--gold-soft),rgba(212,168,83,.05))}
+.bandcore{position:absolute;top:0;bottom:0;width:2px;background:var(--gold-edge)}
+.cursor{position:absolute;top:-4px;bottom:-4px;width:3px;background:var(--fg-1);box-shadow:0 0 8px rgba(232,224,208,.6);border-radius:2px}
+.landed{position:absolute;top:-4px;bottom:-4px;width:3px;background:var(--gold);box-shadow:0 0 10px var(--gold-glow);border-radius:2px}
+.tracklbl{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.58rem;color:var(--dim);margin-top:-4px}
+.tap{font-size:.8rem;color:var(--fg-3);margin-top:8px}
+.btn{background:var(--gold-soft);border:1px solid var(--gold-edge);color:var(--gold);border-radius:8px;padding:10px 22px;font-family:var(--sans);font-size:.9rem;letter-spacing:.04em;cursor:pointer;transition:background .15s}
+.btn:hover{background:rgba(212,168,83,.2)}
+.btnbar{display:flex;gap:10px;justify-content:center;align-items:center;margin-top:16px;flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.seg button{background:none;border:none;color:var(--fg-3);padding:7px 13px;font-family:var(--sans);font-size:.74rem;cursor:pointer}
+.seg button.on{background:var(--gold-soft);color:var(--gold)}
+.sparks{display:flex;gap:3px;justify-content:center;flex-wrap:wrap;margin-top:14px;min-height:8px}
+.sparks i{width:14px;height:5px;border-radius:2px;background:var(--debris-2)}
+.note{font-size:.74rem;color:var(--fg-3);line-height:1.8;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-top:16px}
+.note b{color:var(--parchment);font-weight:400}
+.foot{text-align:center;margin-top:24px;color:var(--dim);font-size:.7rem;line-height:2}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="wrap">
+  <header>
+    <h1 class="title"><span class="k">キ</span>ワ</h1>
+    <div class="sub">際 — 際に寄せる</div>
+    <p class="lede">当たり／外れじゃない。<b>どれだけ際に寄れたか</b>。<br><span style="color:var(--dim)">成否(Boolean)を、精度(Float)へ。</span></p>
+  </header>
+
+  <div class="hud">
+    <div class="s"><div class="v" id="hud-round">—</div><div class="l">ラウンド</div></div>
+    <div class="s"><div class="v" id="hud-total">0.00</div><div class="l">合計</div></div>
+    <div class="s"><div class="v" id="hud-avg">—</div><div class="l">平均</div></div>
+    <div class="s"><div class="v" id="hud-best">—</div><div class="l">ベスト</div></div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div id="screen"></div>
+  </div>
+
+  <div class="btnbar">
+    <div class="seg" id="mode"><button data-mode="float" class="on">連続(Float)</button><button data-mode="bool">二値(Boolean)</button></div>
+  </div>
+
+  <div class="note">
+    <b>遊び方:</b> 動く線が金の帯（際）を通る瞬間に、画面タップ／クリック／スペース。<br>
+    <b>連続</b>＝際の芯にどれだけ近いかが 0.00–1.00 のスコア。外しても0じゃない、寄った分だけ点になる。<b>二値</b>＝芯の近く(0.5以上)なら当たり／でなければ0。同じ操作でも世界の見え方が変わる。
+  </div>
+
+  <div class="foot">
+    キワ — 際 · Boolean→Float のゲーム · 端末内・送信なし<br>
+    <span style="color:var(--debris-1)">#全人類UX改善 · あわいの主題 · Visionium / Hi-Me TooL</span>
+  </div>
+</div>
+
+<script>
+// === ENGINE START ===  (pure / DOM非依存 / nodeで単体テスト可)
+function clamp01(x){return Math.max(0,Math.min(1,x));}
+function triPos(phase){
+  phase=((phase%1)+1)%1;
+  return phase<0.5 ? phase*2 : 2-phase*2;
+}
+function score(x,target,tol){
+  return clamp01(1-Math.abs(x-target)/tol);
+}
+function booleanJudge(x,target,tol){
+  return score(x,target,tol)>=0.5;
+}
+function nextRound(r){
+  var speed=Math.min(1.6, 0.5+(r-1)*0.09);
+  var tol=Math.max(0.05, 0.22-(r-1)*0.018);
+  return {round:r, speed:speed, tol:tol};
+}
+function rank(avg){
+  if(avg>=0.9)return "際の達人";
+  if(avg>=0.75)return "巧い";
+  if(avg>=0.5)return "あわい上手";
+  if(avg>=0.25)return "まだ際の手前";
+  return "二値の住人";
+}
+// === ENGINE END ===
+
+/* ---------- UI / game loop ---------- */
+(function(){
+var $=function(s){return document.querySelector(s);};
+var LS="kiwa_best";
+var ROUNDS=10;
+var mode="float";
+var state="idle"; // idle | sweep | result | end
+var round=0, scores=[], target=0.5, tol=0.22, speed=0.5;
+var roundStart=0, lastPos=0, landed=null, raf=null;
+var best=null;
+try{var b=localStorage.getItem(LS);if(b!=null)best=+b;}catch(e){}
+
+function now(){return (window.performance&&performance.now)?performance.now():Date.now();}
+function colorFor(v){var r=Math.round(90+(212-90)*v),g=Math.round(84+(168-84)*v),b=Math.round(72+(83-72)*v);return "rgb("+r+","+g+","+b+")";}
+function fmt(x){return x.toFixed(2);}
+
+function renderHUD(){
+  $("#hud-round").textContent = state==="idle"?"—":(Math.min(round,ROUNDS)+"/"+ROUNDS);
+  var tot=scores.reduce(function(a,b){return a+b;},0);
+  $("#hud-total").textContent=fmt(tot);
+  $("#hud-avg").textContent=scores.length?fmt(tot/scores.length):"—";
+  $("#hud-best").textContent=best==null?"—":fmt(best);
+}
+
+function startScreen(){
+  state="idle";
+  $("#screen").innerHTML='<div class="bigmsg">際に、寄せる。</div>'+
+    '<div class="sublabel">線が金の帯を通る瞬間にタップ。<br>'+ROUNDS+'ラウンドの平均を競う。</div>'+
+    '<div class="btnbar"><button class="btn" id="go">はじめる</button></div>';
+  $("#go").onclick=beginGame;
+  renderHUD();
+}
+function beginGame(){round=0;scores=[];nextRoundStart();}
+
+function nextRoundStart(){
+  round++;
+  if(round>ROUNDS){endGame();return;}
+  var cfg=nextRound(round);speed=cfg.speed;tol=cfg.tol;
+  target=0.18+Math.random()*0.64;
+  landed=null;state="sweep";roundStart=now();
+  renderSweep();renderHUD();
+  cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+}
+function renderSweep(){
+  var bandLeft=clamp01(target-tol)*100, bandRight=clamp01(target+tol)*100;
+  $("#screen").innerHTML=
+    '<div class="bigmsg" style="font-size:1.05rem;color:var(--fg-3)">ラウンド '+round+'</div>'+
+    '<div class="track" id="track">'+
+      '<div class="band" style="left:'+bandLeft+'%;width:'+(bandRight-bandLeft)+'%"></div>'+
+      '<div class="bandcore" style="left:'+(target*100)+'%"></div>'+
+      '<div class="cursor" id="cursor" style="left:0%"></div>'+
+    '</div>'+
+    '<div class="tracklbl"><span>0</span><span>際 = 金の芯</span><span>1</span></div>'+
+    '<div class="tap">▸ タップ / クリック / スペース</div>'+
+    '<div class="sparks" id="sparks"></div>';
+  renderSparks();
+}
+function renderSparks(){
+  var h="";for(var i=0;i<ROUNDS;i++){var v=scores[i];h+='<i style="background:'+(v==null?"var(--debris-2)":colorFor(v))+'" title="'+(v==null?"":fmt(v))+'"></i>';}
+  var sp=$("#sparks");if(sp)sp.innerHTML=h;
+}
+function loop(){
+  if(state!=="sweep")return;
+  var elapsed=(now()-roundStart)/1000;
+  lastPos=triPos(elapsed*speed);
+  var cur=$("#cursor");if(cur)cur.style.left=(lastPos*100)+"%";
+  raf=requestAnimationFrame(loop);
+}
+function tap(){
+  if(state==="idle"||state==="end")return;
+  if(state!=="sweep")return;
+  state="result";cancelAnimationFrame(raf);
+  var raw=score(lastPos,target,tol);
+  var val = mode==="bool" ? (booleanJudge(lastPos,target,tol)?1:0) : raw;
+  scores.push(val);
+  var track=$("#track");
+  if(track){var l=document.createElement("div");l.className="landed";l.style.left=(lastPos*100)+"%";track.appendChild(l);}
+  var msg = mode==="bool" ? (val?"当たり":"外れ") : (raw>=0.97?"ど真ん中":raw>=0.8?"際どい":raw>=0.5?"寄った":raw>0?"あわい":"遠い");
+  setTimeout(function(){
+    $("#screen").innerHTML='<div class="bigscore" style="color:'+colorFor(raw)+'">'+fmt(val)+'</div>'+
+      '<div class="bigmsg" style="font-size:1.1rem">'+msg+'</div>'+
+      '<div class="sublabel">際まで '+fmt(Math.abs(lastPos-target))+'</div>';
+    renderHUD();
+    setTimeout(nextRoundStart,850);
+  },260);
+}
+function endGame(){
+  state="end";
+  var tot=scores.reduce(function(a,b){return a+b;},0),avg=scores.length?tot/scores.length:0;
+  var isBest=(best==null||avg>best);if(isBest){best=avg;try{localStorage.setItem(LS,String(best));}catch(e){}}
+  $("#screen").innerHTML=
+    '<div class="sublabel" style="margin:0 0 6px">'+ROUNDS+'ラウンド '+(mode==="bool"?"二値":"連続")+'</div>'+
+    '<div class="bigscore" style="color:'+colorFor(avg)+'">'+fmt(avg)+'</div>'+
+    '<div class="bigmsg">'+rank(avg)+'</div>'+
+    '<div class="sublabel">合計 '+fmt(tot)+' / '+ROUNDS+(isBest?'　★ベスト更新':'')+'</div>'+
+    '<div class="sparks" id="sparks"></div>'+
+    '<div class="btnbar"><button class="btn" id="again">もう一度</button></div>';
+  renderSparks();$("#again").onclick=beginGame;renderHUD();
+}
+
+function stars(){
+  var s=$("#stars"),c=s.getContext("2d");
+  function size(){s.width=innerWidth;s.height=innerHeight;d();}
+  function d(){c.clearRect(0,0,s.width,s.height);var n=Math.min(150,Math.floor(s.width*s.height/12000));
+    for(var i=0;i<n;i++){var x=((Math.sin(i*12.9898)*43758.5453)%1+1)%1,y=((Math.sin(i*78.233)*43758.5453)%1+1)%1,r=((Math.sin(i*3.17)*1000)%1+1)%1;
+      c.globalAlpha=0.12+r*0.45;c.fillStyle=r>0.85?"#d4a853":"#e8e0d0";var z=r>0.9?1.6:1;c.fillRect(x*s.width,y*s.height,z,z);}c.globalAlpha=1;}
+  addEventListener("resize",size);size();
+}
+
+function setMode(m){mode=m;Array.prototype.forEach.call(document.querySelectorAll("#mode button"),function(b){b.classList.toggle("on",b.dataset.mode===m);});}
+
+function init(){
+  stars();startScreen();
+  $("#stage").addEventListener("pointerdown",function(ev){ev.preventDefault();tap();});
+  addEventListener("keydown",function(ev){if(ev.code==="Space"||ev.key===" "){ev.preventDefault();if(state==="idle")beginGame();else tap();}});
+  Array.prototype.forEach.call(document.querySelectorAll("#mode button"),function(b){b.onclick=function(){setMode(b.dataset.mode);};});
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();
+</script>
+</body>
+</html>
