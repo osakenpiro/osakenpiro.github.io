@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>カタ — osakenpiroの地金</title>
+<meta name="description" content="osakenpiroデザインシステムの実物。トークン・コントラスト比・新ツールの型を出力。#全人類UX改善">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0a0a0f; --void-deep:#06060a; --surface:#15141a; --surface-hi:#1c1a23;
+  --gold:#d4a853; --gold-soft:rgba(212,168,83,.12); --gold-glow:rgba(212,168,83,.25); --gold-edge:rgba(212,168,83,.45);
+  --parchment:#c8b8a0; --violet:#a78bfa; --debris-1:#6b6b80; --debris-2:#3a3530;
+  --fg-1:#e8e0d0; --fg-2:#b8b0a0; --fg-3:#807868; --dim:#5a5448;
+  --border:rgba(200,184,160,.06); --border-hover:rgba(212,168,83,.20); --border-strong:rgba(212,168,83,.45);
+  --sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic Medium","Yu Gothic",system-ui,sans-serif;
+  --serif:"Cormorant Garamond","Times New Roman","游明朝体","Yu Mincho",serif;
+  --mono:"JetBrains Mono","SF Mono","Menlo","Consolas",monospace;
+}
+*{box-sizing:border-box;scrollbar-width:thin;scrollbar-color:var(--debris-1) var(--void)}
+html,body{margin:0;background:var(--void);color:var(--fg-1);font-family:var(--sans);line-height:1.7;letter-spacing:.01em;-webkit-font-smoothing:antialiased}
+body{background:radial-gradient(ellipse at 50% -10%,#12121c 0%,var(--void) 42%,var(--void-deep) 100%);min-height:100vh;position:relative;overflow-x:hidden}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+.wrap{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:46px 20px 90px}
+header{text-align:center;margin-bottom:30px}
+.title{font-family:var(--serif);font-style:italic;font-weight:300;font-size:clamp(2.5rem,7.5vw,4rem);line-height:1.05;letter-spacing:.04em;margin:0}
+.title .k{color:var(--gold)}
+.sub{font-family:var(--serif);font-size:.64rem;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);margin-top:13px}
+.lede{color:var(--fg-3);font-size:.84rem;margin-top:9px}
+.lede b{color:var(--parchment);font-weight:400}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px}
+.panel h2{font-family:var(--serif);font-style:italic;font-weight:400;font-size:1.2rem;margin:0 0 4px}
+.panel .hint{font-size:.72rem;color:var(--dim);margin:0 0 16px}
+/* swatches */
+.swgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
+.sw{border:1px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:border-color .15s,transform .15s}
+.sw:hover{border-color:var(--gold-edge);transform:translateY(-2px)}
+.sw .chip{height:54px}
+.sw .meta{padding:7px 9px}
+.sw .nm{font-size:.7rem;color:var(--fg-1)}
+.sw .hx{font-family:var(--mono);font-size:.6rem;color:var(--fg-3);margin-top:2px}
+.grouplab{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--dim);margin:16px 0 8px}
+.grouplab:first-child{margin-top:0}
+/* type samples */
+.tsamp>div{padding:8px 0;border-bottom:1px solid var(--border)}
+.tsamp>div:last-child{border-bottom:none}
+.tsamp .lbl{font-family:var(--mono);font-size:.56rem;color:var(--dim);letter-spacing:.12em}
+.disp{font-family:var(--serif);font-style:italic;font-weight:300;font-size:2rem;line-height:1.1}
+.cap{font-family:var(--serif);font-size:.65rem;letter-spacing:.25em;text-transform:uppercase;color:var(--dim)}
+.mono{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;color:var(--parchment)}
+.spacerow{display:flex;align-items:flex-end;gap:8px;margin-top:6px}
+.spacerow .u{background:var(--gold-soft);border:1px solid var(--gold-edge);border-radius:3px}
+/* contrast lab */
+.clab{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.clab label{display:block}
+.clab .lab{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--fg-3);margin-bottom:6px}
+select{width:100%;background:var(--void);color:var(--fg-1);border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-family:var(--mono);font-size:.78rem}
+select:focus{outline:none;border-color:var(--border-strong)}
+.cpreview{margin-top:16px;border:1px solid var(--border);border-radius:10px;padding:24px;text-align:center}
+.cpreview .big{font-family:var(--serif);font-style:italic;font-size:1.7rem}
+.cpreview .small{font-size:.82rem;margin-top:4px}
+.cresult{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+.cresult .ratio{font-family:var(--mono);font-size:1.5rem;color:var(--gold)}
+.badge{font-size:.64rem;letter-spacing:.08em;border-radius:999px;padding:3px 11px;border:1px solid}
+.badge.pass{color:var(--gold);border-color:var(--gold-edge);background:var(--gold-soft)}
+.badge.fail{color:var(--debris-1);border-color:var(--border);background:none}
+/* components preview */
+.btn{background:var(--gold-soft);border:1px solid var(--gold-edge);color:var(--gold);border-radius:8px;padding:9px 16px;font-family:var(--sans);font-size:.83rem;letter-spacing:.04em;cursor:pointer;transition:background .15s,border-color .15s}
+.btn:hover{background:rgba(212,168,83,.2)}
+.btn.ghost{background:none;border-color:var(--border);color:var(--fg-3)}
+.btn.ghost:hover{border-color:var(--border-hover);color:var(--fg-1)}
+.btn.sm{padding:6px 12px;font-size:.74rem}
+.btnbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.demobar{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.dchip{display:inline-flex;align-items:center;gap:6px;background:var(--gold-soft);border:1px solid var(--border-hover);color:var(--parchment);border-radius:999px;padding:4px 12px;font-size:.78rem}
+.dfloat{flex:1;min-width:140px}
+.dfloat .track{height:7px;background:var(--void);border:1px solid var(--border);border-radius:999px;overflow:hidden}
+.dfloat .fill{height:100%;width:62%;background:linear-gradient(90deg,rgba(212,168,83,.5),var(--gold));border-radius:999px}
+.dstat{text-align:center;border:1px solid var(--border);border-radius:10px;padding:10px 16px}
+.dstat .v{font-family:var(--mono);font-size:1.2rem;color:var(--gold)}
+.dstat .l{font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--fg-3)}
+/* generator */
+input[type=text]{width:100%;background:var(--void);color:var(--fg-1);border:1px solid var(--border);border-radius:8px;padding:10px 13px;font-family:var(--sans);font-size:.95rem}
+input[type=text]:focus{outline:none;border-color:var(--border-strong)}
+textarea{width:100%;background:var(--void);color:var(--fg-2);border:1px solid var(--border);border-radius:8px;padding:11px;font-family:var(--mono);font-size:.66rem;line-height:1.6;min-height:150px;resize:vertical;margin-top:12px}
+.foot{text-align:center;margin-top:30px;color:var(--dim);font-size:.7rem;line-height:2}
+.foot a{color:var(--fg-3)}.foot a:hover{color:var(--gold)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface-hi);border:1px solid var(--gold-edge);color:var(--fg-1);padding:10px 20px;border-radius:8px;font-size:.82rem;opacity:0;pointer-events:none;transition:all .25s;z-index:20}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+::placeholder{color:var(--dim)}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="wrap">
+  <header>
+    <h1 class="title"><span class="k">カ</span>タ</h1>
+    <div class="sub">型 — osakenpiroの地金</div>
+    <p class="lede">全ツールの<b>地金</b>。トークンを見て、選んで、<b>新しい道具の型</b>を出力する。<br><span style="color:var(--dim)">colors_and_type.css を実物で — void + stars + 金</span></p>
+  </header>
+
+  <section class="panel">
+    <h2>トークン — 色</h2>
+    <p class="hint">クリックで hex をコピー。暖色は <span style="color:var(--gold)">gold 単一</span>。rainbow・ネオン発光は禁止。</p>
+    <div id="swatches"></div>
+  </section>
+
+  <section class="panel">
+    <h2>トークン — 文字と余白</h2>
+    <p class="hint">見出し＝serif italic、本文＝sans、数値＝mono。余白は 4px リズム。</p>
+    <div class="tsamp">
+      <div><span class="lbl">display / serif italic</span><div class="disp">熱があるうちに動く</div></div>
+      <div><span class="lbl">body / sans</span><div style="font-size:.95rem">個別最適の規格化、規格の個別最適化。Boolean→Float。</div></div>
+      <div><span class="lbl">caption / serif caps</span><div class="cap">Visionium · Hi-Me TooL</div></div>
+      <div><span class="lbl">mono</span><div class="mono">resonance = 0.73 · tightness 0.42</div></div>
+      <div><span class="lbl">spacing rhythm (4·8·12·16·24·32·48)</span>
+        <div class="spacerow" id="spacerow"></div></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>コントラスト検査 <span style="font-family:var(--mono);font-size:.66rem;font-style:normal;color:var(--dim)">WCAG 2.1</span></h2>
+    <p class="hint">全人類UX改善＝読めること。前景×背景を選ぶと比率と適合（AA/AAA）が出る。</p>
+    <div class="clab">
+      <label><span class="lab">前景（文字）</span><select id="fg"></select></label>
+      <label><span class="lab">背景</span><select id="bg"></select></label>
+    </div>
+    <div class="cpreview" id="cpreview">
+      <div class="big">あのイーハトーヴォ</div>
+      <div class="small">the quick brown fox — 0123456789</div>
+    </div>
+    <div class="cresult" id="cresult"></div>
+  </section>
+
+  <section class="panel">
+    <h2>コンポーネント見本</h2>
+    <p class="hint">この見た目がデフォルト。下のCSSをコピーすれば即同じ手触り。</p>
+    <div class="demobar">
+      <button class="btn">主ボタン</button>
+      <button class="btn ghost">副ボタン</button>
+      <span class="dchip">チップ <span style="color:var(--fg-3)">×</span></span>
+      <div class="dstat"><div class="v">0.73</div><div class="l">Float</div></div>
+      <div class="dfloat"><div class="track"><div class="fill"></div></div></div>
+    </div>
+    <div class="btnbar"><button class="btn sm" id="copy-css">基底CSS（:root）をコピー</button></div>
+  </section>
+
+  <section class="panel">
+    <h2>型を出力 — 新しい道具の素地</h2>
+    <p class="hint">タイトルを入れると、デザインシステム同梱の単一HTML雛形を生成。コピー or ダウンロードして次の道具を即着工。</p>
+    <input type="text" id="gen-title" placeholder="例: ゆらぎ秤" value="新しい道具">
+    <div class="btnbar"><button class="btn" id="gen-btn">型を出力 ↓</button><button class="btn ghost sm" id="gen-copy">コピー</button><button class="btn ghost sm" id="gen-dl">.html で保存</button></div>
+    <textarea id="gen-out" readonly spellcheck="false"></textarea>
+  </section>
+
+  <div class="foot">
+    カタ — 型 · osakenpiroの地金 · colors_and_type.css = SoT<br>
+    <span style="color:var(--debris-1)">#全人類UX改善 · デザインシステム正典 · Visionium / Re:DeSign</span>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// === ENGINE START ===  (pure / DOM非依存 / nodeで単体テスト可)
+function hexToRgb(h){
+  h=String(h||"").trim().replace(/^#/,"");
+  if(h.length===3)h=h.split("").map(function(c){return c+c;}).join("");
+  var n=parseInt(h,16);
+  return {r:(n>>16)&255,g:(n>>8)&255,b:n&255};
+}
+function _chan(c){c=c/255;return c<=0.03928?c/12.92:Math.pow((c+0.055)/1.055,2.4);}
+function relLum(rgb){return 0.2126*_chan(rgb.r)+0.7152*_chan(rgb.g)+0.0722*_chan(rgb.b);}
+function contrast(a,b){
+  var l1=relLum(hexToRgb(a)),l2=relLum(hexToRgb(b));
+  var hi=Math.max(l1,l2),lo=Math.min(l1,l2);
+  return (hi+0.05)/(lo+0.05);
+}
+function wcag(ratio){
+  return {AAA:ratio>=7, AA:ratio>=4.5, AALarge:ratio>=3};
+}
+function escHtml(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+function generateBoilerplate(title){
+  var T=escHtml(title||"新しい道具");
+  return [
+'<!DOCTYPE html>',
+'<html lang="ja">',
+'<head>',
+'<meta charset="UTF-8">',
+'<meta name="viewport" content="width=device-width, initial-scale=1.0">',
+'<title>'+T+'</title>',
+'<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=JetBrains+Mono&display=swap" rel="stylesheet">',
+'<style>',
+':root{',
+'  --void:#0a0a0f; --void-deep:#06060a; --surface:#15141a; --surface-hi:#1c1a23;',
+'  --gold:#d4a853; --gold-soft:rgba(212,168,83,.12); --gold-edge:rgba(212,168,83,.45);',
+'  --parchment:#c8b8a0; --fg-1:#e8e0d0; --fg-2:#b8b0a0; --fg-3:#807868; --dim:#5a5448;',
+'  --border:rgba(200,184,160,.06);',
+'  --sans:-apple-system,"Hiragino Sans","Yu Gothic Medium",system-ui,sans-serif;',
+'  --serif:"Cormorant Garamond","Yu Mincho",serif; --mono:"JetBrains Mono",monospace;',
+'}',
+'*{box-sizing:border-box}',
+'html,body{margin:0;background:var(--void);color:var(--fg-1);font-family:var(--sans);line-height:1.7}',
+'body{background:radial-gradient(ellipse at 50% -10%,#12121c,var(--void) 45%,var(--void-deep));min-height:100vh}',
+'.wrap{max-width:820px;margin:0 auto;padding:48px 20px 90px}',
+'.title{font-family:var(--serif);font-style:italic;font-weight:300;font-size:clamp(2.4rem,7vw,3.6rem);letter-spacing:.04em;margin:0;text-align:center}',
+'.title .k{color:var(--gold)}',
+'.sub{text-align:center;font-family:var(--serif);font-size:.64rem;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);margin-top:12px}',
+'.panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;margin-top:22px}',
+'.panel h2{font-family:var(--serif);font-style:italic;font-weight:400;margin:0 0 12px}',
+'.btn{background:var(--gold-soft);border:1px solid var(--gold-edge);color:var(--gold);border-radius:8px;padding:10px 18px;font-size:.85rem;cursor:pointer}',
+'.btn:hover{background:rgba(212,168,83,.2)}',
+'</style>',
+'</head>',
+'<body>',
+'<div class="wrap">',
+'  <h1 class="title"><span class="k">'+T.slice(0,1)+'</span>'+T.slice(1)+'</h1>',
+'  <div class="sub">'+T+'</div>',
+'  <div class="panel">',
+'    <h2>はじめに</h2>',
+'    <p>ここから作る。Boolean→Float / #全人類UX改善。</p>',
+'    <button class="btn" id="go">動く</button>',
+'  </div>',
+'</div>',
+'<script>',
+'(function(){',
+'  var $=function(s){return document.querySelector(s);};',
+'  function init(){ $("#go").onclick=function(){ alert("'+T+' — start"); }; }',
+'  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();',
+'})();',
+'<\/script>',
+'</body>',
+'</html>'
+].join("\n");
+}
+// === ENGINE END ===
+
+/* ---------- UI ---------- */
+(function(){
+var $=function(s){return document.querySelector(s);};
+function toast(m){var t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove("show");},1900);}
+function copy(text,msg){navigator.clipboard.writeText(text).then(function(){toast(msg||"コピーした");},function(){window.prompt("コピー",text);});}
+
+var PALETTE=[
+ {g:"面 surface", items:[["void","#0a0a0f"],["void-deep","#06060a"],["surface","#15141a"],["surface-hi","#1c1a23"]]},
+ {g:"金 gold", items:[["gold","#d4a853"],["gold-edge","#d4a853"],["parchment","#c8b8a0"]]},
+ {g:"語彙 status", items:[["violet","#a78bfa"],["debris-1","#6b6b80"],["debris-2","#3a3530"]]},
+ {g:"前景 fg", items:[["fg-1","#e8e0d0"],["fg-2","#b8b0a0"],["fg-3","#807868"],["dim","#5a5448"]]}
+];
+function allColors(){var a=[];PALETTE.forEach(function(p){p.items.forEach(function(it){a.push(it);});});return a;}
+
+function renderSwatches(){
+  var h="";
+  PALETTE.forEach(function(p){
+    h+='<div class="grouplab">'+p.g+'</div><div class="swgrid">';
+    p.items.forEach(function(it){
+      h+='<div class="sw" data-hex="'+it[1]+'"><div class="chip" style="background:'+it[1]+'"></div><div class="meta"><div class="nm">'+it[0]+'</div><div class="hx">'+it[1]+'</div></div></div>';
+    });
+    h+='</div>';
+  });
+  $("#swatches").innerHTML=h;
+  Array.prototype.forEach.call(document.querySelectorAll(".sw"),function(el){
+    el.onclick=function(){copy(el.getAttribute("data-hex"),el.getAttribute("data-hex")+" をコピー");};
+  });
+}
+function renderSpacing(){
+  var sizes=[4,8,12,16,24,32,48];
+  $("#spacerow").innerHTML=sizes.map(function(s){return '<div class="u" style="width:'+s+'px;height:'+s+'px" title="'+s+'px"></div>';}).join("");
+}
+function fillSelects(){
+  var opts=allColors().map(function(c){return '<option value="'+c[1]+'">'+c[0]+' ('+c[1]+')</option>';}).join("");
+  $("#fg").innerHTML=opts;$("#bg").innerHTML=opts;
+  $("#fg").value="#d4a853";$("#bg").value="#0a0a0f";
+}
+function renderContrast(){
+  var fg=$("#fg").value,bg=$("#bg").value;
+  var pv=$("#cpreview");pv.style.background=bg;pv.style.color=fg;pv.style.borderColor="rgba(255,255,255,.08)";
+  var r=contrast(fg,bg),w=wcag(r);
+  function b(ok,lab){return '<span class="badge '+(ok?"pass":"fail")+'">'+lab+' '+(ok?"✓":"—")+'</span>';}
+  $("#cresult").innerHTML='<span class="ratio">'+r.toFixed(2)+':1</span>'+b(w.AAA,"AAA")+b(w.AA,"AA")+b(w.AALarge,"AA大")+
+    '<span style="font-size:.7rem;color:var(--dim)">本文は AA(4.5) 以上が目安</span>';
+}
+function genOut(){var t=$("#gen-title").value||"新しい道具";$("#gen-out").value=generateBoilerplate(t);}
+
+function stars(){
+  var cv=$("#stars"),ctx=cv.getContext("2d");
+  function size(){cv.width=innerWidth;cv.height=innerHeight;draw();}
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    var n=Math.min(150,Math.floor(cv.width*cv.height/12000));
+    for(var i=0;i<n;i++){
+      var x=((Math.sin(i*12.9898)*43758.5453)%1+1)%1,y=((Math.sin(i*78.233)*43758.5453)%1+1)%1,r=((Math.sin(i*3.17)*1000)%1+1)%1;
+      ctx.globalAlpha=0.12+r*0.45;ctx.fillStyle=r>0.85?"#d4a853":"#e8e0d0";var s=r>0.9?1.6:1;ctx.fillRect(x*cv.width,y*cv.height,s,s);
+    }
+    ctx.globalAlpha=1;
+  }
+  addEventListener("resize",size);size();
+}
+
+function init(){
+  stars();renderSwatches();renderSpacing();fillSelects();renderContrast();genOut();
+  $("#fg").onchange=renderContrast;$("#bg").onchange=renderContrast;
+  $("#copy-css").onclick=function(){
+    var css=":root{\n  --void:#0a0a0f; --void-deep:#06060a; --surface:#15141a; --surface-hi:#1c1a23;\n  --gold:#d4a853; --gold-soft:rgba(212,168,83,.12); --gold-edge:rgba(212,168,83,.45);\n  --parchment:#c8b8a0; --violet:#a78bfa; --debris-1:#6b6b80; --debris-2:#3a3530;\n  --fg-1:#e8e0d0; --fg-2:#b8b0a0; --fg-3:#807868; --dim:#5a5448;\n  --border:rgba(200,184,160,.06);\n}";
+    copy(css,"基底CSSをコピーした");
+  };
+  $("#gen-btn").onclick=function(){genOut();toast("型を出力した");};
+  $("#gen-title").addEventListener("input",genOut);
+  $("#gen-copy").onclick=function(){copy($("#gen-out").value,"型をコピーした");};
+  $("#gen-dl").onclick=function(){
+    var name=($("#gen-title").value||"tool").replace(/[\s\/\\:*?"<>|]+/g,"-").toLowerCase();
+    var blob=new Blob([$("#gen-out").value],{type:"text/html"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name+".html";a.click();
+  };
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();
+</script>
+</body>
+</html>
