@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ゆとり / YUTORI — 間に合う・間に合わないを、やめる。</title>
+<meta name="description" content="「間に合う/間に合わない」を0か1かでやめる。締切までの余白を、見積もりの不確実さごと“ゆとり度 0.00〜1.00”で見るツール。どこを削れば一番効くかも分かる。Boolean→Float / #全人類UX改善">
+<meta property="og:title" content="ゆとり / YUTORI — 間に合う・間に合わないを、やめる。">
+<meta property="og:description" content="締切までの余白を、ゆとり度 0.00〜1.00（Float）で。0.5は引き分けじゃなく『全部うまくいけば、の線』。">
+<meta property="og:url" content="https://osakenpiro.github.io/yutori/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0a0a0f;--void-deep:#06060a;--surface:#15141a;--surface-hi:#1c1a23;
+  --gold:#d4a853;--gold-soft:rgba(212,168,83,.12);--gold-edge:rgba(212,168,83,.45);
+  --tight:#6b6b80;--over:#b5613f;--fg1:#e8e0d0;--fg2:#b8b0a0;--fg3:#807868;--line:rgba(200,184,160,.10);
+  --serif:"Cormorant Garamond","Yu Mincho",serif;--sans:"Noto Sans JP","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:radial-gradient(130% 100% at 80% -10%,#13131c 0%,var(--void) 50%,var(--void-deep) 100%);background-attachment:fixed;color:var(--fg1);font-family:var(--sans);line-height:1.7;min-height:100vh;-webkit-text-size-adjust:100%}
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(1.4px 1.4px at 14% 18%,rgba(232,224,208,.5),transparent),radial-gradient(1.2px 1.2px at 82% 12%,rgba(232,224,208,.4),transparent),radial-gradient(1.5px 1.5px at 66% 64%,rgba(212,168,83,.45),transparent),radial-gradient(1.1px 1.1px at 30% 78%,rgba(232,224,208,.3),transparent),radial-gradient(1.2px 1.2px at 90% 50%,rgba(232,224,208,.25),transparent)}
+.wrap{position:relative;z-index:1;max-width:660px;margin:0 auto;padding:40px 20px 80px}
+header{text-align:center;margin-bottom:28px}
+.kicker{font-size:12px;letter-spacing:.28em;color:var(--gold);text-transform:uppercase}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(40px,11vw,68px);line-height:1;margin:6px 0 2px;letter-spacing:.01em}
+.jp-title{font-size:clamp(20px,5.5vw,28px);font-weight:700;color:var(--fg1);letter-spacing:.1em}
+.tag{font-size:14px;color:var(--fg2);margin-top:14px;line-height:1.7}
+.tag b{color:var(--gold);font-weight:500}
+.panel{background:linear-gradient(180deg,var(--surface) 0%,rgba(21,20,26,.6) 100%);border:1px solid var(--line);border-radius:16px;padding:22px;margin-top:18px}
+.panel h2{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--fg3);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.panel h2::before{content:"";width:14px;height:1px;background:var(--gold)}
+.budget{display:flex;gap:12px}
+.budget .cell{flex:1}
+label.f{display:block;font-size:13px;color:var(--fg2);margin-bottom:6px}
+.numrow{display:flex;align-items:baseline;gap:8px;background:var(--void);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.numrow input{flex:1;min-width:0;background:transparent;border:none;color:var(--gold);font-family:var(--serif);font-weight:700;font-size:30px;line-height:1;padding:0;font-variant-numeric:tabular-nums}
+.numrow input:focus{outline:none}
+.numrow .unit{font-size:13px;color:var(--fg3);flex:0 0 auto}
+.cap-note{font-size:12px;color:var(--fg3);margin-top:10px;text-align:center}
+.cap-note b{color:var(--fg2);font-weight:500;font-variant-numeric:tabular-nums}
+.task{background:var(--void);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;position:relative}
+.task .tname{width:calc(100% - 28px);background:transparent;border:none;border-bottom:1px solid var(--line);color:var(--fg1);font-family:var(--sans);font-size:15px;padding:4px 2px 8px;margin-bottom:12px}
+.task .tname:focus{outline:none;border-color:var(--gold-edge)}
+.task .del{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--fg3);font-size:18px;cursor:pointer;line-height:1;padding:4px}
+.task .del:hover{color:var(--gold)}
+.hrow{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.hrow .hlbl{font-size:12.5px;color:var(--fg3);flex:0 0 auto}
+.hrow input.hrs{width:72px;background:var(--void);border:1px solid var(--line);border-radius:8px;color:var(--fg1);font-family:var(--sans);font-size:15px;padding:7px 9px;text-align:right;font-variant-numeric:tabular-nums}
+.hrow input.hrs:focus{outline:none;border-color:var(--gold-edge)}
+.hrow .eff{margin-left:auto;font-size:12px;color:var(--fg3)}
+.hrow .eff b{color:var(--gold);font-variant-numeric:tabular-nums;font-weight:500}
+.slabel{display:flex;justify-content:space-between;font-size:11.5px;color:var(--fg3);margin-bottom:2px}
+.slabel .val{color:var(--gold);font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:#26242e;outline:none;margin:6px 0}
+input[type=range].risk{background:linear-gradient(90deg,#3a5a45,#3a3a45 50%,var(--over))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:var(--gold);border:2px solid var(--void);cursor:pointer;box-shadow:0 0 0 1px var(--gold-edge)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--gold);border:2px solid var(--void);cursor:pointer}
+.addbtn{width:100%;background:transparent;border:1px dashed var(--gold-edge);color:var(--gold);border-radius:10px;padding:11px;font-family:var(--sans);font-size:14px;cursor:pointer;margin-top:2px}
+.addbtn:hover{background:var(--gold-soft)}
+/* result */
+.meterwrap{text-align:center}
+.bignum{font-family:var(--serif);font-weight:700;font-size:72px;line-height:1;color:var(--gold);font-variant-numeric:tabular-nums}
+.bignum small{font-size:20px;color:var(--fg2);font-family:var(--sans);font-weight:400;letter-spacing:.1em;display:block;margin-bottom:-6px}
+.band{font-size:17px;color:var(--fg1);margin-top:8px;font-weight:500}
+.bandsub{font-size:13px;color:var(--fg3);margin-top:4px;line-height:1.7}
+/* time bar */
+.bar{position:relative;height:30px;border-radius:8px;background:#1b1a22;border:1px solid var(--line);margin:20px 0 8px;overflow:hidden}
+.bar .fill{position:absolute;top:0;bottom:0;left:0;background:linear-gradient(90deg,#7a6a48,var(--gold));border-radius:7px 0 0 7px;transition:width .35s ease}
+.bar.of .fill{background:linear-gradient(90deg,#7a6a48,var(--over));border-radius:7px}
+.bar .free-tx{position:absolute;top:50%;transform:translateY(-50%);right:10px;font-size:11px;color:var(--fg3);letter-spacing:.04em}
+.bar .of-tx{position:absolute;top:50%;transform:translateY(-50%);right:10px;font-size:11px;color:#e8b89c;font-weight:500}
+.barlabels{display:flex;justify-content:space-between;font-size:12px;color:var(--fg3);margin-bottom:4px}
+.barlabels b{color:var(--fg2);font-weight:500;font-variant-numeric:tabular-nums}
+.lever{font-size:13px;color:var(--fg2);margin-top:14px;background:var(--gold-soft);border-left:2px solid var(--gold-edge);border-radius:0 8px 8px 0;padding:10px 13px;line-height:1.7}
+.lever b{color:var(--gold);font-weight:500}
+.lever .none{color:var(--fg3)}
+.brk{margin-top:16px}
+.brkrow{display:flex;align-items:center;gap:10px;font-size:13px;margin:7px 0}
+.brkrow .nm{flex:0 0 36%;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brkbar{flex:1;height:8px;border-radius:4px;background:#22212a;position:relative;overflow:hidden}
+.brkbar b{position:absolute;top:0;bottom:0;left:0;border-radius:4px;display:block;background:linear-gradient(90deg,#7a6a48,var(--gold))}
+.brkrow .pct{flex:0 0 70px;text-align:right;color:var(--fg3);font-variant-numeric:tabular-nums}
+.brkrow .pct b{color:var(--gold);font-weight:500}
+.actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.actions button{flex:1;min-width:90px;border-radius:10px;padding:12px;font-family:var(--sans);font-size:14px;cursor:pointer;border:1px solid var(--line);background:var(--surface-hi);color:var(--fg1)}
+.actions button.primary{background:var(--gold);color:#1a1407;border-color:var(--gold);font-weight:700}
+.actions button:hover{border-color:var(--gold-edge)}
+.hist{margin-top:12px}
+.histitem{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer;background:var(--void)}
+.histitem:hover{border-color:var(--gold-edge)}
+.histitem .hq{font-size:14px;color:var(--fg1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.histitem .hp{font-family:var(--serif);font-weight:700;font-size:20px;color:var(--gold);flex:0 0 auto;font-variant-numeric:tabular-nums}
+.histitem .hx{color:var(--fg3);font-size:16px;flex:0 0 auto}
+.empty{color:var(--fg3);font-size:13px;text-align:center;padding:10px}
+footer{text-align:center;margin-top:40px;font-size:12.5px;color:var(--fg3);line-height:1.9}
+footer a{color:var(--gold);text-decoration:none}
+footer a:hover{text-decoration:underline}
+.philo{font-size:13px;color:var(--fg2);background:var(--gold-soft);border-left:2px solid var(--gold);border-radius:0 10px 10px 0;padding:12px 14px;margin-top:18px;line-height:1.8}
+.philo b{color:var(--gold);font-weight:500}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--gold);color:#1a1407;padding:11px 20px;border-radius:24px;font-size:14px;font-weight:700;opacity:0;transition:.25s;z-index:9;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="wrap">
+  <header>
+    <div class="kicker">Boolean → Float ・ #全人類UX改善</div>
+    <h1>YUTORI</h1>
+    <div class="jp-title">ゆとり</div>
+    <div class="tag">「間に合う / 間に合わない」を <b>0か1か</b> でやめる。<br>締切までの余白を、見積もりの不確かさごと <b>ゆとり度 0.00〜1.00</b> で見る。</div>
+  </header>
+
+  <div class="panel">
+    <h2>締切までの持ち時間</h2>
+    <input type="text" id="what" placeholder="例: 月曜の発表資料 / 確定申告" autocomplete="off" style="width:100%;background:var(--void);border:1px solid var(--line);border-radius:10px;color:var(--fg1);font-family:var(--sans);font-size:16px;padding:12px 14px;margin-bottom:16px">
+    <div class="budget">
+      <div class="cell">
+        <label class="f">締切まで</label>
+        <div class="numrow"><input type="number" id="days" min="0" step="0.5" value="7" inputmode="decimal"><span class="unit">日</span></div>
+      </div>
+      <div class="cell">
+        <label class="f">1日に使える時間</label>
+        <div class="numrow"><input type="number" id="hpd" min="0" step="0.5" value="2" inputmode="decimal"><span class="unit">時間/日</span></div>
+      </div>
+    </div>
+    <div class="cap-note">使える総時間 ＝ <b id="capnum">14</b> 時間</div>
+  </div>
+
+  <div class="panel">
+    <h2>やること</h2>
+    <div id="tasks"></div>
+    <button class="addbtn" id="add">＋ やることを足す</button>
+  </div>
+
+  <div class="panel meterwrap">
+    <h2 style="justify-content:center">いまの ゆとり度</h2>
+    <div class="bignum"><small>ゆとり</small><span id="num">0.50</span></div>
+    <div class="band" id="band">—</div>
+    <div class="bandsub" id="bandsub">締切と、やることを入れてみて。</div>
+
+    <div class="barlabels"><span>必要 <b id="demnum">0</b>h</span><span>使える <b id="capnum2">14</b>h</span></div>
+    <div class="bar" id="bar"><div class="fill" id="fill"></div><span class="free-tx" id="freetx"></span></div>
+
+    <div class="lever" id="lever"></div>
+    <div class="brk" id="brk"></div>
+
+    <div class="actions">
+      <button class="primary" id="save">この締切を保存</button>
+      <button id="share">結果をシェア</button>
+      <button id="reset">リセット</button>
+    </div>
+
+    <div class="philo">
+      「間に合う / 間に合わない」は、締切当日になるまで分からない二択。<br>
+      でも <b>ゆとり</b> は、今日ぜんぶ連続値で見える。<b>0.50</b> は引き分けじゃなく「<b>全部うまくいけば、の線</b>」。針が下に来たのは“間に合わない”という宣告じゃなく、<b>削る・伸ばす・借りる</b>のレバーが見えたということ。
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>保存した締切</h2>
+    <div class="hist" id="hist"></div>
+  </div>
+
+  <footer>
+    入力はすべて<b>あなたのブラウザだけ</b>に保存されます（サーバー送信なし）。<br>
+    made by <a href="https://osakenpiro.github.io/" target="_blank" rel="noopener">@osakenpiro</a> ・
+    <a href="https://osakenpiro.github.io/nandometer/" target="_blank" rel="noopener">何度メーター</a> ・
+    <a href="https://osakenpiro.github.io/papers/" target="_blank" rel="noopener">Boolean→Float 9 papers</a><br>
+    #全人類UX改善 — 0か1かをやめる練習
+  </footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY='yutori-v1';
+const K_RISK=1.0; // 不確実性 0..100 → 見積もり倍率 1.0..2.0
+const $=s=>document.querySelector(s);
+const tasksEl=$('#tasks');
+let tasks=[];
+
+function uid(){return Math.random().toString(36).slice(2,8);}
+function escapeAttr(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function num(el,def){const v=parseFloat(el.value);return isFinite(v)&&v>=0?v:def;}
+
+// やること1件の「効いてくる時間」＝ 見積もり × 不確実性倍率
+function effHours(t){return Math.max(0,t.h)*(1+(t.r/100)*K_RISK);}
+function capacity(){return num($('#days'),0)*num($('#hpd'),0);}
+function demandOf(list){let d=0;list.forEach(t=>d+=effHours(t));return d;}
+
+// ゆとり度: r=demand/capacity。r≤1で 1−r/2、r>1で 1/(2r)。境界r=1で連続=0.50。
+function slackFrom(demand,cap){
+  if(cap<=0)return demand>0?0:1;
+  const r=demand/cap;
+  return r<=1 ? (1-r/2) : (1/(2*r));
+}
+
+function riskWord(v){v=+v;if(v>=80)return'かなり悲観';if(v>=60)return'悲観寄り';if(v>40)return'ふつう';if(v>=20)return'楽観寄り';return'かなり楽観';}
+
+function addTask(name='',h=3,r=40){tasks.push({id:uid(),name,h,r});render();}
+
+function render(){
+  tasksEl.innerHTML='';
+  tasks.forEach(t=>{
+    const d=document.createElement('div');d.className='task';
+    d.innerHTML=`
+      <button class="del" data-id="${t.id}" title="削除">×</button>
+      <input class="tname" type="text" data-id="${t.id}" data-k="name" value="${escapeAttr(t.name)}" placeholder="やること（例: スライド作成 / 原稿の見直し）">
+      <div class="hrow">
+        <span class="hlbl">ざっくり</span>
+        <input class="hrs" type="number" min="0" step="0.5" inputmode="decimal" value="${t.h}" data-id="${t.id}" data-k="h">
+        <span class="hlbl">時間</span>
+        <span class="eff">効いてくる <b>${effHours(t).toFixed(1)}h</b></span>
+      </div>
+      <div class="srow">
+        <div class="slabel"><span>見積もりの確度（楽観 ←→ 悲観）</span><span class="val">${riskWord(t.r)}</span></div>
+        <input type="range" class="risk" min="0" max="100" value="${t.r}" data-id="${t.id}" data-k="r">
+      </div>`;
+    tasksEl.appendChild(d);
+  });
+  compute();
+}
+
+tasksEl.addEventListener('input',e=>{
+  const id=e.target.dataset.id,k=e.target.dataset.k;if(!id)return;
+  const t=tasks.find(x=>x.id===id);if(!t)return;
+  if(k==='name'){t.name=e.target.value;}
+  else if(k==='h'){t.h=Math.max(0,parseFloat(e.target.value)||0);const eff=e.target.closest('.task').querySelector('.eff b');if(eff)eff.textContent=effHours(t).toFixed(1)+'h';}
+  else if(k==='r'){t.r=+e.target.value;const lbl=e.target.closest('.srow').querySelector('.val');lbl.textContent=riskWord(t.r);const eff=e.target.closest('.task').querySelector('.eff b');if(eff)eff.textContent=effHours(t).toFixed(1)+'h';}
+  compute();
+});
+tasksEl.addEventListener('click',e=>{
+  if(e.target.classList.contains('del')){tasks=tasks.filter(x=>x.id!==e.target.dataset.id);render();}
+});
+$('#add').onclick=()=>addTask();
+$('#days').addEventListener('input',compute);
+$('#hpd').addEventListener('input',compute);
+
+function bandFor(s){
+  if(s>=0.80)return['たっぷり','締切は遠い。今日はむしろ休んでいい余白がある。'];
+  if(s>=0.62)return['ゆったり','間に合う。前倒しや、やり直しの余地まである。'];
+  if(s>=0.50)return['ほどほど','計算上は間に合う。崩れる前提を一つ潰せば固くなる。'];
+  if(s>=0.40)return['きわどい','全部うまくいけば、の綱渡り。0か1かじゃなく、ここから何を削るかの話。'];
+  if(s>=0.25)return['ひっぱく','このままだと足りない。削る・伸ばす・借りる、のどれかを動かす段階。'];
+  return['あふれてる','全部は入らない。「やらないこと」を決めるのが先。'];
+}
+
+function compute(){
+  const cap=capacity();
+  const dem=demandOf(tasks);
+  const s=slackFrom(dem,cap);
+  // numbers
+  $('#capnum').textContent=(+cap.toFixed(1)).toString();
+  $('#capnum2').textContent=(+cap.toFixed(1)).toString();
+  $('#demnum').textContent=(+dem.toFixed(1)).toString();
+  $('#num').textContent=s.toFixed(2);
+  // band
+  const active=tasks.some(t=>t.name.trim()||t.h>0);
+  if(!active&&cap>0){$('#band').textContent='—';$('#bandsub').textContent='やることを入れると、ゆとりが動く。';}
+  else{const[b,sub]=bandFor(s);$('#band').textContent=b;$('#bandsub').textContent=sub;}
+  // bar
+  const bar=$('#bar'),fill=$('#fill'),freetx=$('#freetx');
+  let pct,of=false;
+  if(cap<=0){pct=dem>0?100:0;of=dem>0;}
+  else{pct=Math.min(100,dem/cap*100);of=dem>cap;}
+  fill.style.width=pct.toFixed(1)+'%';
+  bar.classList.toggle('of',of);
+  if(of){const over=dem-cap;freetx.className='of-tx';freetx.textContent='+'+(+over.toFixed(1))+'h あふれ';}
+  else{const free=cap-dem;freetx.className='free-tx';freetx.textContent=free>0?('ゆとり '+(+free.toFixed(1))+'h'):'';}
+  // levers + breakdown
+  renderLever(dem,cap,s);
+  renderBrk(dem,cap);
+  return s;
+}
+
+function renderLever(dem,cap,s){
+  const el=$('#lever');
+  if(!tasks.length){el.innerHTML='<span class="none">やることを足すと、どこを削れば一番効くか出ます。</span>';return;}
+  // 各タスクを抜いたときのゆとり増分
+  let best=null;
+  tasks.forEach(t=>{
+    if(effHours(t)<=0)return;
+    const d2=dem-effHours(t);
+    const delta=slackFrom(d2,cap)-s;
+    if(delta>0.0005&&(!best||delta>best.delta))best={t,delta};
+  });
+  // 1日+1hの増分
+  const days=num($('#days'),0);
+  const capPlus=days*(num($('#hpd'),0)+1);
+  const dPlus=slackFrom(dem,capPlus)-s;
+  let html='';
+  if(best){const nm=best.t.name.trim()||'(無題のやること)';html+=`いちばん効くのは <b>「${escapeAttr(nm)}」</b> を外すこと → ゆとり <b>+${best.delta.toFixed(2)}</b>。`;}
+  if(dPlus>0.0005){html+=(html?'<br>':'')+`1日の時間を <b>+1h</b> 増やせる → ゆとり <b>+${dPlus.toFixed(2)}</b>。`;}
+  if(!html)html='<span class="none">いまは削らなくても余白がある。</span>';
+  el.innerHTML=html;
+}
+
+function renderBrk(dem,cap){
+  const brk=$('#brk');brk.innerHTML='';
+  const list=tasks.filter(t=>t.name.trim()||t.h>0);
+  if(!list.length||dem<=0)return;
+  // 必要時間に占める各タスクのシェア（多い＝大きいレバー）
+  [...list].sort((a,b)=>effHours(b)-effHours(a)).forEach(t=>{
+    const eff=effHours(t);
+    const share=dem>0?eff/dem:0;
+    const row=document.createElement('div');row.className='brkrow';
+    row.innerHTML=`<span class="nm">${escapeAttr(t.name||'(無題)')}</span>
+      <span class="brkbar"><b style="width:${(share*100).toFixed(1)}%"></b></span>
+      <span class="pct">${(+eff.toFixed(1))}h <b>${Math.round(share*100)}%</b></span>`;
+    brk.appendChild(row);
+  });
+}
+
+// 状態の出し入れ
+function state(){return{what:$('#what').value,days:$('#days').value,hpd:$('#hpd').value,tasks:tasks.map(({name,h,r})=>({name,h,r}))};}
+function loadState(s){if(!s)return;$('#what').value=s.what||'';if(s.days!=null)$('#days').value=s.days;if(s.hpd!=null)$('#hpd').value=s.hpd;tasks=(s.tasks||[]).map(t=>({id:uid(),name:t.name||'',h:t.h??0,r:t.r??40}));render();}
+
+// 履歴（localStorage）
+function getHist(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}catch(e){return[];}}
+function setHist(h){localStorage.setItem(STORAGE_KEY,JSON.stringify(h.slice(0,30)));}
+function renderHist(){
+  const h=getHist(),el=$('#hist');el.innerHTML='';
+  if(!h.length){el.innerHTML='<div class="empty">まだありません。「この締切を保存」で残せます。</div>';return;}
+  h.forEach((it,i)=>{
+    const d=document.createElement('div');d.className='histitem';
+    d.innerHTML=`<span class="hq">${escapeAttr(it.what||'(無題の締切)')}</span><span style="display:flex;gap:10px;align-items:center"><span class="hp">${(+it.slack).toFixed(2)}</span><span class="hx" data-i="${i}" title="削除">×</span></span>`;
+    d.addEventListener('click',e=>{
+      if(e.target.classList.contains('hx')){const hh=getHist();hh.splice(+e.target.dataset.i,1);setHist(hh);renderHist();e.stopPropagation();return;}
+      loadState(it);window.scrollTo({top:0,behavior:'smooth'});
+    });
+    el.appendChild(d);
+  });
+}
+$('#save').onclick=()=>{
+  const s=compute();const st=state();
+  if(!st.what.trim()&&!st.tasks.some(t=>t.name.trim())){toast('締切名か、やることを入れてね');return;}
+  const h=getHist();h.unshift({...st,slack:s,t:Date.now()});setHist(h);renderHist();toast('保存しました');
+};
+$('#reset').onclick=()=>{$('#what').value='';$('#days').value=7;$('#hpd').value=2;tasks=[];addTask('',3,40);addTask('',5,60);toast('リセット');};
+$('#share').onclick=async()=>{
+  const s=compute();const st=state();
+  const hash=encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(st)))));
+  const url=location.origin+location.pathname+'#d='+hash;
+  const txt=`「${st.what||'この締切'}」→ ゆとり度 ${s.toFixed(2)}（ゆとり / YUTORI）\n間に合う・間に合わないを、やめて測ってみた。\n${url}\n#全人類UX改善`;
+  try{await navigator.clipboard.writeText(txt);toast('シェア文をコピーしました');}
+  catch(e){prompt('コピーしてシェア:',txt);}
+};
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),1800);}
+
+// init: URLハッシュ共有から復元、なければ既定2件
+(function init(){
+  const m=location.hash.match(/d=([^&]+)/);
+  if(m){try{const s=JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(m[1])))));loadState(s);}catch(e){addTask('',3,40);addTask('',5,60);}}
+  else{addTask('',3,40);addTask('',5,60);}
+  renderHist();
+})();
+</script>
+</body>
+</html>
