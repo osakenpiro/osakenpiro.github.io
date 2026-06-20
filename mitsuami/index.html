@@ -103,6 +103,36 @@ footer a{color:var(--osk-fg-3);}footer a:hover{color:var(--osk-gold);}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--osk-surface-hi);border:1px solid var(--osk-gold-edge);color:var(--osk-fg-1);padding:10px 20px;border-radius:10px;font-size:0.82rem;opacity:0;transition:all .3s;z-index:10;pointer-events:none;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .empty{text-align:center;color:var(--osk-dim);font-size:0.86rem;padding:40px 0;font-family:var(--osk-font-serif);font-style:italic;}
+
+/* ---- v1: 連想類語 / モーラ / レーダー ---- */
+.seedrow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
+.seedrow .grow{flex:1;min-width:180px;}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;}
+.chip{font-size:0.78rem;color:var(--osk-parchment);background:var(--osk-gold-soft);border:1px solid var(--osk-border);border-radius:14px;padding:4px 12px;cursor:pointer;transition:all .15s;}
+.chip:hover{border-color:var(--osk-gold);color:var(--osk-gold);background:rgba(212,168,83,0.18);}
+.chip.added{color:var(--osk-gold);border-color:var(--osk-gold-edge);}
+.seednote{font-size:0.74rem;color:var(--osk-fg-3);margin-top:10px;min-height:1.2em;}
+.seednote a{color:var(--osk-parchment);}.seednote a:hover{color:var(--osk-gold);}
+.seedgear{background:none;border:none;color:var(--osk-fg-3);cursor:pointer;font-size:0.9rem;padding:2px 6px;}
+.seedgear:hover{color:var(--osk-gold);}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--osk-debris-2);border-top-color:var(--osk-gold);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.mora{display:flex;flex-wrap:wrap;gap:5px;margin-top:14px;align-items:center;}
+.mora .mlab{font-size:0.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--osk-dim);margin-right:4px;}
+.mcell{font-family:var(--osk-font-mono);font-size:0.84rem;min-width:1.7em;text-align:center;padding:3px 4px;border-radius:6px;background:var(--osk-void);border:1px solid var(--osk-border);color:var(--osk-fg-2);}
+.mcell.open{background:var(--osk-gold-soft);border-color:var(--osk-gold-edge);color:var(--osk-fg-1);}
+.mcell.sp{border-style:dashed;color:var(--osk-parchment);}
+.mcount{font-family:var(--osk-font-mono);font-size:0.72rem;color:var(--osk-fg-3);margin-left:4px;}
+.mora-note{font-size:0.74rem;color:var(--osk-dim);margin-top:14px;font-style:italic;font-family:var(--osk-font-serif);}
+.radarwrap{display:flex;gap:20px;align-items:center;flex-wrap:wrap;justify-content:center;background:var(--osk-surface);border:1px solid var(--osk-border);border-radius:14px;padding:18px;margin:6px 0 18px;}
+.radarwrap svg{flex:0 0 auto;}
+.rlegend{list-style:none;margin:0;padding:0;font-size:0.8rem;min-width:170px;}
+.rlegend li{display:flex;align-items:center;gap:8px;padding:3px 0;cursor:pointer;color:var(--osk-fg-2);border-bottom:1px dotted var(--osk-border);}
+.rlegend li:hover{color:var(--osk-fg-1);}
+.rlegend .sw{width:14px;height:3px;border-radius:2px;flex:0 0 auto;}
+.rlegend .rk{font-family:var(--osk-font-mono);font-size:0.7rem;color:var(--osk-dim);}
+.rlegend b{font-family:var(--osk-font-mono);color:var(--osk-gold);font-weight:400;margin-left:auto;}
+.rtitle{font-size:0.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--osk-dim);text-align:center;width:100%;margin-bottom:2px;}
 </style>
 </head>
 <body>
@@ -138,10 +168,25 @@ footer a{color:var(--osk-fg-3);}footer a:hover{color:var(--osk-gold);}
   </div>
 </div>
 
+<div class="panel" id="seedpanel">
+  <h2>意味のたねを探す <span style="font-size:.7rem;color:var(--osk-fg-3);font-style:normal">連想類語</span></h2>
+  <p class="hint">核になる語をひとつ。連想類語辞典から関連語をたぐり寄せ、クリックで <b>狙いキーワード</b> に足す → 意味の Float が動く。<button class="seedgear" id="seedgear" title="取得元(Worker)を設定">⚙</button></p>
+  <div class="seedrow">
+    <div class="grow">
+      <label class="fld">核の語</label>
+      <input id="seed" type="text" spellcheck="false" placeholder="例：　光　／　記憶　／　余白">
+    </div>
+    <button id="seedrun">関連語をたぐる</button>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div class="seednote" id="seednote"></div>
+</div>
+
 <div id="results"></div>
 
 <footer>
-  三つ編み — Mitsuami ・ 音韻×意味×構造の三重がけ ・ 完全オフライン採点（外部送信なし）<br>
+  三つ編み — Mitsuami ・ 音韻×意味×構造の三重がけ ・ 採点はオフライン（候補は外部送信なし）<br>
+  連想類語だけ任意で Worker 経由（核の語のみ送る）・レーダー比較／モーラ可視化を搭載<br>
   すべての評価は<strong>透明なヒューリスティック</strong>。意味の自動評価は推定値で、各候補のスライダーで手で上書きできる（不確実性を Float に開く）。<br>
   <span class="osk-mono">#全人類UX改善 ・ osakenpiro</span>
 </footer>
@@ -324,7 +369,9 @@ function evaluate(){
     const k=scoreKozo(disp);
     const imiVal = (disp in overrides)? overrides[disp] : im.score;
     const comp = W[0]*o.score + W[1]*imiVal + W[2]*k.score;
-    return {disp,reading,o,im,k,imiVal,comp};
+    const moraReliable = reading ? true : (/[ぁ-んァ-ヴー]/.test(disp) && ![...disp].some(isKanji) && !/[A-Za-z]/.test(disp));
+    const morae = moraify(reading||disp);
+    return {disp,reading,o,im,k,imiVal,comp,morae,moraReliable};
   });
   items.sort((a,b)=>b.comp-a.comp);
   render(items,W);
@@ -339,6 +386,7 @@ function render(items,W){
   if(!items.length){res.innerHTML=`<div class="empty">候補を入れて「編む」を押すと、三層の Float が立ち上がる。</div>`;return;}
   const best=items[0].comp;
   let html=`<div class="summary">${items.length} 候補を 音韻:${W[0].toFixed(2)} / 意味:${W[1].toFixed(2)} / 構造:${W[2].toFixed(2)} で編んだ</div>`;
+  if(items.length>=2) html+=radarSVG(items);
   items.forEach((it,i)=>{
     const win = i===0 && (items.length<2 || items[0].comp-items[1].comp>0.0001);
     const id="c"+i;
@@ -353,6 +401,7 @@ function render(items,W){
         ${layerHtml("意味","いみ"+(it.disp in overrides?"・手動":""),it.imiVal)}
         ${layerHtml("構造","こうぞう",it.k.score)}
       </div>
+      ${moraStrip(it)}
       <div class="cardbtns">
         <button class="ghost" onclick="toggleWhy('${id}')">内訳</button>
         <button class="ghost" onclick="toggleOv('${id}')">意味を手で直す</button>
@@ -414,6 +463,100 @@ function makeHash(){
   return btoa(unescape(encodeURIComponent(JSON.stringify(d))));
 }
 
+/* ---------- v1: 連想類語 proxy / レーダー / モーラ ---------- */
+const RENSO_DEFAULT = "";
+function rensoWorker(){ return (localStorage.getItem("mitsuami.renso.worker")||RENSO_DEFAULT||"").trim(); }
+
+const RADAR_AX=[["音韻",-90],["意味",150],["構造",30]];
+function _pt(cx,cy,r,deg){const a=deg*Math.PI/180;return [cx+r*Math.cos(a),cy+r*Math.sin(a)];}
+function radarSVG(items){
+  const cx=120,cy=112,R=80, top=items.slice(0,5);
+  let g="";
+  for(const f of [0.25,0.5,0.75,1]){
+    const p=RADAR_AX.map(([,d])=>_pt(cx,cy,R*f,d).map(n=>n.toFixed(1)).join(",")).join(" ");
+    g+=`<polygon points="${p}" fill="none" stroke="rgba(212,168,83,${f===1?0.34:0.12})" stroke-width="1"/>`;
+  }
+  RADAR_AX.forEach(([name,d])=>{
+    const a=_pt(cx,cy,R,d), l=_pt(cx,cy,R+16,d);
+    g+=`<line x1="${cx}" y1="${cy}" x2="${a[0].toFixed(1)}" y2="${a[1].toFixed(1)}" stroke="var(--osk-border)" stroke-width="1"/>`;
+    g+=`<text x="${l[0].toFixed(1)}" y="${(l[1]+4).toFixed(1)}" text-anchor="middle" font-size="11" fill="var(--osk-fg-3)">${name}</text>`;
+  });
+  const op=[1,0.5,0.38,0.28,0.22];
+  top.forEach((it,i)=>{
+    const vals=[it.o.score,it.imiVal,it.k.score];
+    const p=RADAR_AX.map(([,d],j)=>_pt(cx,cy,R*clamp(vals[j]),d).map(n=>n.toFixed(1)).join(",")).join(" ");
+    const win=i===0;
+    g+=`<polygon id="rdp${i}" points="${p}" fill="${win?'var(--osk-gold-soft)':'none'}" stroke="${win?'var(--osk-gold)':'var(--osk-parchment)'}" stroke-width="${win?2:1}" stroke-opacity="${op[i]}" style="cursor:pointer;transition:all .2s" onclick="focusRadar(${i})"/>`;
+  });
+  const leg=top.map((it,i)=>`<li onclick="focusRadar(${i})"><span class="rk">${String(i+1).padStart(2,'0')}</span><span class="sw" style="background:${i===0?'var(--osk-gold)':'var(--osk-parchment)'};opacity:${op[i]}"></span><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:8em">${esc(it.disp)}</span><b>${it.comp.toFixed(2)}</b></li>`).join("");
+  return `<div class="radarwrap"><div class="rtitle">三層レーダー${items.length>5?'（上位5件）':''}</div><svg viewBox="0 0 240 224" width="240" height="224" role="img" aria-label="三層レーダー比較">${g}</svg><ul class="rlegend">${leg}</ul></div>`;
+}
+let _radarFocus=-1;
+function focusRadar(i){
+  _radarFocus = _radarFocus===i ? -1 : i;
+  const op=[1,0.5,0.38,0.28,0.22];
+  for(let k=0;k<5;k++){
+    const el=document.getElementById("rdp"+k); if(!el)continue;
+    if(_radarFocus===-1){ el.setAttribute("stroke-opacity",op[k]); el.setAttribute("stroke-width",k===0?2:1); }
+    else if(k===_radarFocus){ el.setAttribute("stroke-opacity",1); el.setAttribute("stroke-width",2.4); }
+    else { el.setAttribute("stroke-opacity",0.1); el.setAttribute("stroke-width",1); }
+  }
+}
+
+const _MOPEN=new Set(["a","o"]);
+function moraStrip(it){
+  if(!it.moraReliable) return `<div class="mora-note">「表記 / よみ」で読みを添えると、モーラ（拍）が見える。</div>`;
+  const cells=it.morae.map(m=>{
+    const h=kataToHira(m); let cls="mcell", sp="";
+    if(/[っッ]/.test(m)){cls+=" sp";sp="促";}
+    else if(/[んン]/.test(m)){cls+=" sp";sp="撥";}
+    else if(/ー/.test(m)){cls+=" sp";sp="長";}
+    else{ let v=""; for(const ch of [...h].reverse()){ if(VOWEL[ch]){v=VOWEL[ch];break;} } if(_MOPEN.has(v)) cls+=" open"; }
+    return `<span class="${cls}" title="${sp?sp+'音':''}">${esc(m)}</span>`;
+  }).join("");
+  return `<div class="mora"><span class="mlab">モーラ</span>${cells}<span class="mcount">${it.morae.length}拍</span></div>`;
+}
+
+const seedEl=document.getElementById("seed"), chipsEl=document.getElementById("chips"), seednoteEl=document.getElementById("seednote");
+function dictLink(q){return `https://renso-ruigo.com/word/${encodeURIComponent(q)}`;}
+function addConcept(word,chipEl){
+  const cur=concept.value.trim();
+  const parts=cur?cur.split(/[\s,，、]+/).filter(Boolean):[];
+  if(parts.includes(word)){toast("もう入ってる");return;}
+  concept.value=(cur?cur+" ":"")+word;
+  if(chipEl)chipEl.classList.add("added");
+  persist(); if(window.__items)evaluate();
+  toast("狙いに「"+word+"」を足した");
+}
+async function fetchRenso(){
+  const q=seedEl.value.trim();
+  if(!q){toast("核の語を入れて");return;}
+  chipsEl.innerHTML=""; seednoteEl.innerHTML=`<span class="spin"></span> たぐり寄せている…`;
+  const wk=rensoWorker();
+  if(!wk){ seednoteEl.innerHTML=`自動取得は未設定。<a href="${dictLink(q)}" target="_blank" rel="noopener">連想類語辞典で「${esc(q)}」を見る →</a>　⚙で取得元(Worker)を設定できる。`; return; }
+  try{
+    const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),12000);
+    const r=await fetch(wk+(wk.includes("?")?"&":"?")+"q="+encodeURIComponent(q),{signal:ctrl.signal});
+    clearTimeout(to);
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const data=await r.json();
+    const rel=(data.related||[]).filter(Boolean);
+    if(!rel.length){ seednoteEl.innerHTML=`関連語が拾えなかった。<a href="${dictLink(q)}" target="_blank" rel="noopener">辞書で「${esc(q)}」を直接見る →</a>`; return; }
+    chipsEl.innerHTML=rel.map(w=>`<span class="chip">${esc(w)}</span>`).join("");
+    [...chipsEl.children].forEach((el,i)=>el.onclick=()=>addConcept(rel[i],el));
+    seednoteEl.innerHTML=`${rel.length}語。クリックで狙いに足す。<a href="${dictLink(q)}" target="_blank" rel="noopener">辞書で全部見る →</a>`;
+  }catch(e){
+    seednoteEl.innerHTML=`取得できなかった（${esc(String(e.message||e))}）。<a href="${dictLink(q)}" target="_blank" rel="noopener">連想類語辞典で「${esc(q)}」を見る →</a>`;
+  }
+}
+if(document.getElementById("seedrun")) document.getElementById("seedrun").onclick=fetchRenso;
+if(seedEl) seedEl.addEventListener("keydown",e=>{if(e.key==="Enter")fetchRenso();});
+if(document.getElementById("seedgear")) document.getElementById("seedgear").onclick=()=>{
+  const cur=rensoWorker();
+  const v=prompt("連想類語を取得する Worker の URL（空欄なら辞書リンクのみ）",cur);
+  if(v!==null){ localStorage.setItem("mitsuami.renso.worker",v.trim()); toast(v.trim()?"取得元を設定した":"取得元をクリアした"); }
+};
+
 /* ---------- UI 配線 ---------- */
 const w0=document.getElementById("w0"),w1=document.getElementById("w1"),w2=document.getElementById("w2");
 const cands=document.getElementById("cands"),concept=document.getElementById("concept");
@@ -436,4 +579,11 @@ document.getElementById("share").onclick=()=>{
   copy(url);toast("共有リンクをコピーした");
 };
 let toastT;
-function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("sh
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),1800);}
+
+/* ---------- init ---------- */
+syncW();
+if(restore()) evaluate(); else render([],[0.34,0.33,0.33]);
+</script>
+</body>
+</html>
