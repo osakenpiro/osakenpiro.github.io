@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ツチカ — 腐葉土コンポスト</title>
+<meta name="description" content="文脈を地層に堆積させる。腐らせて肥やしにする。時間で消えない。腐葉土設計の実装。#全人類UX改善">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0a0a0f; --void-deep:#06060a; --surface:#15141a; --surface-hi:#1c1a23;
+  --gold:#d4a853; --gold-soft:rgba(212,168,83,.12); --gold-glow:rgba(212,168,83,.25); --gold-edge:rgba(212,168,83,.45);
+  --parchment:#c8b8a0; --violet:#a78bfa; --debris-1:#6b6b80; --debris-2:#3a3530;
+  --fg-1:#e8e0d0; --fg-2:#b8b0a0; --fg-3:#807868; --dim:#5a5448;
+  --border:rgba(200,184,160,.06); --border-hover:rgba(212,168,83,.20); --border-strong:rgba(212,168,83,.45);
+  --sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic Medium","Yu Gothic",system-ui,sans-serif;
+  --serif:"Cormorant Garamond","Times New Roman","游明朝体","Yu Mincho",serif;
+  --mono:"JetBrains Mono","SF Mono","Menlo","Consolas",monospace;
+}
+*{box-sizing:border-box;scrollbar-width:thin;scrollbar-color:var(--debris-1) var(--void)}
+html,body{margin:0;background:var(--void);color:var(--fg-1);font-family:var(--sans);line-height:1.7;letter-spacing:.01em;-webkit-font-smoothing:antialiased}
+body{background:radial-gradient(ellipse at 50% -10%,#12121c 0%,var(--void) 42%,var(--void-deep) 100%);min-height:100vh;position:relative;overflow-x:hidden}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5}
+.wrap{position:relative;z-index:1;max-width:840px;margin:0 auto;padding:46px 20px 110px}
+header{text-align:center;margin-bottom:30px}
+.title{font-family:var(--serif);font-style:italic;font-weight:300;font-size:clamp(2.5rem,7.5vw,4rem);line-height:1.05;letter-spacing:.04em;margin:0}
+.title .k{color:var(--gold)}
+.sub{font-family:var(--serif);font-size:.64rem;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);margin-top:13px}
+.lede{color:var(--fg-3);font-size:.84rem;margin-top:9px}
+.lede b{color:var(--parchment);font-weight:400}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px}
+.panel h2{font-family:var(--serif);font-style:italic;font-weight:400;font-size:1.2rem;margin:0 0 4px}
+.panel .hint{font-size:.72rem;color:var(--dim);margin:0 0 14px}
+textarea,input[type=text]{width:100%;background:var(--void);color:var(--fg-1);border:1px solid var(--border);border-radius:9px;padding:12px 14px;font-family:var(--sans);font-size:.95rem;resize:vertical;transition:border-color .15s}
+textarea:focus,input[type=text]:focus{outline:none;border-color:var(--border-strong)}
+textarea{min-height:64px;line-height:1.6}
+.btn{background:var(--gold-soft);border:1px solid var(--gold-edge);color:var(--gold);border-radius:8px;padding:10px 18px;font-family:var(--sans);font-size:.85rem;letter-spacing:.04em;cursor:pointer;transition:background .15s,border-color .15s}
+.btn:hover{background:rgba(212,168,83,.2)}
+.btn.ghost{background:none;border-color:var(--border);color:var(--fg-3)}
+.btn.ghost:hover{border-color:var(--border-hover);color:var(--fg-1)}
+.btn.sm{padding:6px 12px;font-size:.74rem}
+.btnbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.spacer{flex:1}
+/* stats strip */
+.stats{display:flex;gap:0;flex-wrap:wrap;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px}
+.stats .s{flex:1;min-width:96px;padding:14px 12px;text-align:center;border-right:1px solid var(--border);background:var(--surface)}
+.stats .s:last-child{border-right:none}
+.stats .s .v{font-family:var(--mono);font-size:1.3rem;color:var(--gold)}
+.stats .s .l{font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--fg-3);margin-top:3px}
+/* excavate */
+.exrow{display:flex;gap:10px}
+.exrow input{flex:1}
+.exout{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.exout .none{color:var(--dim);font-size:.78rem}
+.frag{background:var(--void);border:1px solid var(--border);border-radius:10px;padding:11px 13px;transition:border-color .15s}
+.frag:hover{border-color:var(--border-hover)}
+.frag .ft{font-size:.92rem;color:var(--fg-1);white-space:pre-wrap;word-break:break-word}
+.frag .fm{display:flex;align-items:center;gap:8px;margin-top:7px;flex-wrap:wrap}
+.tag{font-size:.68rem;color:var(--parchment);background:var(--gold-soft);border:1px solid var(--border-hover);border-radius:999px;padding:1px 8px}
+.fmeta{font-family:var(--mono);font-size:.58rem;color:var(--dim)}
+.ferm{display:inline-flex;gap:2px;align-items:center}
+.ferm i{width:5px;height:5px;border-radius:50%;background:var(--debris-1)}
+.ferm i.on{background:var(--gold)}
+.miniact{display:flex;gap:6px;margin-left:auto}
+.iconbtn{background:none;border:1px solid var(--border);color:var(--fg-3);border-radius:6px;padding:2px 8px;font-size:.7rem;cursor:pointer;transition:all .15s}
+.iconbtn:hover{border-color:var(--gold-edge);color:var(--gold)}
+.iconbtn.sel{border-color:var(--gold-edge);color:var(--gold);background:var(--gold-soft)}
+.scorepill{font-family:var(--mono);font-size:.58rem;color:var(--gold);border:1px solid var(--gold-edge);border-radius:999px;padding:0 7px}
+/* strata */
+.layer{border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.layer .lh{display:flex;align-items:center;gap:10px;padding:11px 15px;cursor:pointer;user-select:none}
+.layer .lh:hover{background:var(--surface-hi)}
+.layer .lh .date{font-family:var(--mono);font-size:.74rem;color:var(--fg-2)}
+.layer .lh .depth{font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.layer .lh .cnt{margin-left:auto;font-family:var(--mono);font-size:.66rem;color:var(--fg-3)}
+.layer .lh .caret{color:var(--fg-3);transition:transform .2s;font-size:.7rem}
+.layer.collapsed .caret{transform:rotate(-90deg)}
+.layer .body{padding:4px 13px 13px;display:flex;flex-direction:column;gap:8px}
+.layer.collapsed .body{display:none}
+.empty{text-align:center;color:var(--dim);font-size:.82rem;padding:26px 0}
+/* synthesis tray */
+.tray{position:fixed;left:50%;bottom:0;transform:translateX(-50%) translateY(110%);width:min(840px,94vw);background:var(--surface-hi);border:1px solid var(--gold-edge);border-bottom:none;border-radius:14px 14px 0 0;padding:16px 20px;z-index:9;transition:transform .3s cubic-bezier(.2,.8,.2,1);box-shadow:0 -10px 40px rgba(0,0,0,.5)}
+.tray.show{transform:translateX(-50%) translateY(0)}
+.tray .th{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.tray .th .t{font-family:var(--serif);font-style:italic;font-size:1.05rem}
+.tray .th .c{font-family:var(--mono);font-size:.66rem;color:var(--gold)}
+.tray pre{background:var(--void);border:1px solid var(--border);border-radius:8px;padding:11px;font-family:var(--mono);font-size:.74rem;color:var(--fg-1);white-space:pre-wrap;max-height:130px;overflow:auto;margin:0}
+.foot{text-align:center;margin-top:30px;color:var(--dim);font-size:.7rem;line-height:2}
+.foot a{color:var(--fg-3)}.foot a:hover{color:var(--gold)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface-hi);border:1px solid var(--gold-edge);color:var(--fg-1);padding:10px 20px;border-radius:8px;font-size:.82rem;opacity:0;pointer-events:none;transition:all .25s;z-index:20}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+::placeholder{color:var(--dim)}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="wrap">
+  <header>
+    <h1 class="title"><span class="k">ツ</span>チカ</h1>
+    <div class="sub">培 — 腐葉土コンポスト</div>
+    <p class="lede">文脈を<b>地層</b>に堆積させる。<b>腐らせて、肥やしにする。</b>時間で消えない。<br><span style="color:var(--dim)">腐葉土設計 — 掘るときは新しさでなく、養分で。</span></p>
+  </header>
+
+  <!-- CAPTURE -->
+  <section class="panel">
+    <h2>土に還す</h2>
+    <p class="hint">断片・着想・引用、なんでも。本文に <span style="color:var(--parchment)">#タグ</span> を混ぜると後で掘りやすい。⌘/Ctrl+Enterで投入。</p>
+    <textarea id="cap" placeholder="例: Boolean→Float は二値の判断を連続値に溶かす #boolean-float #設計原則"></textarea>
+    <div class="btnbar"><button class="btn" id="cap-btn">土に還す ↓</button><span class="spacer"></span><span class="fmeta" id="cap-tags"></span></div>
+  </section>
+
+  <div class="stats" id="stats"></div>
+
+  <!-- EXCAVATE -->
+  <section class="panel">
+    <h2>掘る</h2>
+    <p class="hint">語や <span style="color:var(--parchment)">#タグ</span> で掘る。並びは<b style="color:var(--fg-2)">養分順</b>（発酵した古い層が上に来る）。新しさ順ではない。</p>
+    <div class="exrow"><input type="text" id="ex" placeholder="boolean  #設計原則 …"><button class="btn sm" id="ex-clear">×</button></div>
+    <div class="exout" id="exout"></div>
+  </section>
+
+  <!-- STRATA -->
+  <section class="panel">
+    <h2>地層 <span style="font-family:var(--mono);font-size:.7rem;font-style:normal;color:var(--dim)" id="strata-count"></span></h2>
+    <p class="hint">上＝新しい層、下＝深い層。深い層も劣化しない。発酵◎を押すと養分が増す。選んで「栄養を取り出す」。</p>
+    <div id="strata"></div>
+  </section>
+
+  <div class="foot">
+    <div class="btnbar" style="justify-content:center">
+      <button class="btn ghost sm" id="ex-share">共有URLをコピー</button>
+      <button class="btn ghost sm" id="ex-json">JSON書き出し</button>
+      <button class="btn ghost sm" id="ex-import">読み込み</button>
+      <input type="file" id="file-in" accept="application/json" style="display:none">
+    </div>
+    <div style="margin-top:13px">ツチカ — 培 · 腐葉土コンポスト · 自動保存（この端末）<br>
+    <span style="color:var(--debris-1)">#全人類UX改善 · 腐葉土設計 · Visionium / Hi-Me TooL</span></div>
+  </div>
+</div>
+
+<!-- SYNTHESIS TRAY -->
+<div class="tray" id="tray">
+  <div class="th"><span class="t">栄養を取り出す</span><span class="c" id="tray-count">0</span><span class="spacer"></span>
+    <button class="btn sm" id="tray-copy">コピー</button>
+    <button class="btn ghost sm" id="tray-seed">捕捉欄へ</button>
+    <button class="btn ghost sm" id="tray-clear">解除</button>
+  </div>
+  <pre id="tray-pre"></pre>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// === ENGINE START ===  (pure / DOM非依存 / nodeで単体テスト可)
+function parseTags(text){
+  var m=String(text||"").match(/#[^\s#　、。,.!?！？]+/g)||[];
+  return Array.from(new Set(m.map(function(t){return t.slice(1);})));
+}
+function dayKey(ms){
+  var d=new Date(ms);
+  var y=d.getFullYear(),mo=("0"+(d.getMonth()+1)).slice(-2),da=("0"+d.getDate()).slice(-2);
+  return y+"-"+mo+"-"+da;
+}
+function layers(entries){
+  var map={};
+  (entries||[]).forEach(function(e){var k=dayKey(e.created);(map[k]=map[k]||[]).push(e);});
+  var keys=Object.keys(map).sort().reverse();
+  return keys.map(function(k,i){
+    var items=map[k].slice().sort(function(a,b){return b.created-a.created;});
+    return {date:k,depth:i,items:items};
+  });
+}
+function excavate(entries,q){
+  q=String(q||"").trim();
+  if(!q)return [];
+  var terms=q.toLowerCase().split(/[\s　]+/).filter(Boolean);
+  var tagTerms=terms.filter(function(t){return t[0]==="#";}).map(function(t){return t.slice(1);});
+  var wordTerms=terms.filter(function(t){return t[0]!=="#";});
+  var res=[];
+  (entries||[]).forEach(function(e){
+    var text=String(e.text||"").toLowerCase();
+    var tags=(e.tags||[]).map(function(t){return t.toLowerCase();});
+    var wHit=wordTerms.filter(function(w){return text.indexOf(w)>=0;}).length;
+    var tHit=tagTerms.filter(function(t){return tags.indexOf(t)>=0;}).length;
+    if(wHit+tHit>0)res.push({e:e,score:wHit*2+tHit*3+(e.ferment||0)});
+  });
+  res.sort(function(a,b){return (b.score-a.score)||(b.e.created-a.e.created);});
+  return res;
+}
+function synthesize(entries,ids){
+  var sel=(entries||[]).filter(function(e){return ids.indexOf(e.id)>=0;});
+  sel.sort(function(a,b){return a.created-b.created;});
+  var text=sel.map(function(e){return "・"+String(e.text||"").replace(/\s+/g," ").trim();}).join("\n");
+  var tags=Array.from(new Set([].concat.apply([],sel.map(function(e){return e.tags||[];}))));
+  return {text:text,tags:tags,count:sel.length};
+}
+function stats(entries){
+  entries=entries||[];
+  if(!entries.length)return {count:0,layers:0,oldest:null,ferment:0};
+  var oldest=Math.min.apply(null,entries.map(function(e){return e.created;}));
+  var f=entries.reduce(function(s,e){return s+(e.ferment||0);},0);
+  return {count:entries.length,layers:layers(entries).length,oldest:oldest,ferment:f};
+}
+// === ENGINE END ===
+
+/* ---------- UI / state ---------- */
+(function(){
+var $=function(s){return document.querySelector(s);};
+var LS="tsuchika_v1";
+var state={entries:[],sel:[],collapsed:{}};
+
+function save(){try{localStorage.setItem(LS,JSON.stringify({entries:state.entries}));}catch(e){}}
+function load(){
+  if(location.hash.length>1){
+    try{var j=JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(location.hash.slice(1))))));if(j&&j.entries){state.entries=j.entries;return;}}catch(e){}
+  }
+  try{var raw=localStorage.getItem(LS);if(raw){var o=JSON.parse(raw);state.entries=o.entries||[];}}catch(e){}
+}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+function toast(m){var t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove("show");},1900);}
+function find(id){for(var i=0;i<state.entries.length;i++)if(state.entries[i].id===id)return state.entries[i];return null;}
+function ago(ms){var d=Math.floor((Date.now()-ms)/86400000);if(d<=0)return "今日";if(d===1)return "昨日";if(d<30)return d+"日前";if(d<365)return Math.floor(d/30)+"ヶ月前";return Math.floor(d/365)+"年前";}
+
+function fermDots(n){var x="";var cap=Math.min(n,6);for(var i=0;i<6;i++)x+='<i class="'+(i<cap?"on":"")+'"></i>';return '<span class="ferm" title="養分 '+n+'">'+x+'</span>';}
+
+function fragHTML(e,score){
+  var tags=(e.tags||[]).map(function(t){return '<span class="tag">#'+esc(t)+'</span>';}).join(" ");
+  var seld=state.sel.indexOf(e.id)>=0;
+  return '<div class="frag" data-id="'+e.id+'">'+
+    '<div class="ft">'+esc(e.text||"")+'</div>'+
+    '<div class="fm">'+tags+
+      fermDots(e.ferment||0)+
+      '<span class="fmeta">'+ago(e.created)+'</span>'+
+      (score!=null?'<span class="scorepill">養分 '+score+'</span>':'')+
+      '<span class="miniact">'+
+        '<button class="iconbtn ferment" data-id="'+e.id+'">発酵◎</button>'+
+        '<button class="iconbtn pick '+(seld?"sel":"")+'" data-id="'+e.id+'">'+(seld?"選択中":"選ぶ")+'</button>'+
+        '<button class="iconbtn del" data-id="'+e.id+'">掘り返す×</button>'+
+      '</span>'+
+    '</div></div>';
+}
+
+function renderStats(){
+  var s=stats(state.entries);
+  var oldest=s.oldest?ago(s.oldest):"—";
+  $("#stats").innerHTML=
+    '<div class="s"><div class="v">'+s.count+'</div><div class="l">断片</div></div>'+
+    '<div class="s"><div class="v">'+s.layers+'</div><div class="l">地層</div></div>'+
+    '<div class="s"><div class="v">'+s.ferment+'</div><div class="l">総養分</div></div>'+
+    '<div class="s"><div class="v" style="font-size:.95rem;padding-top:6px">'+oldest+'</div><div class="l">最深層</div></div>';
+}
+
+function renderStrata(){
+  var ls=layers(state.entries);
+  $("#strata-count").textContent=state.entries.length?("· "+ls.length+"層"):"";
+  var host=$("#strata");
+  if(!state.entries.length){host.innerHTML='<div class="empty">まだ土が無い。上で断片を「土に還す」。</div>';return;}
+  host.innerHTML=ls.map(function(L){
+    var col=state.collapsed[L.date]?" collapsed":"";
+    var depthShade=Math.min(L.depth*0.05,0.35);
+    var body=L.items.map(function(e){return fragHTML(e,null);}).join("");
+    return '<div class="layer'+col+'" data-date="'+L.date+'" style="background:rgba(58,53,48,'+depthShade.toFixed(3)+')">'+
+      '<div class="lh" data-date="'+L.date+'"><span class="caret">▾</span><span class="date">'+L.date+'</span>'+
+        '<span class="depth">'+(L.depth===0?"表土":"深さ "+L.depth)+'</span>'+
+        '<span class="cnt">'+L.items.length+'</span></div>'+
+      '<div class="body">'+body+'</div></div>';
+  }).join("");
+}
+
+function renderExcavate(){
+  var q=$("#ex").value;
+  var out=$("#exout");
+  if(!q.trim()){out.innerHTML="";return;}
+  var res=excavate(state.entries,q);
+  if(!res.length){out.innerHTML='<div class="none">この語の養分は見つからない。</div>';return;}
+  out.innerHTML=res.map(function(r){return fragHTML(r.e,r.score);}).join("");
+}
+
+function renderTray(){
+  var t=$("#tray");
+  if(!state.sel.length){t.classList.remove("show");return;}
+  t.classList.add("show");
+  var syn=synthesize(state.entries,state.sel);
+  $("#tray-count").textContent=syn.count+"断片";
+  var tagline=syn.tags.length?("\n\n"+syn.tags.map(function(x){return "#"+x;}).join(" ")):"";
+  $("#tray-pre").textContent=syn.text+tagline;
+}
+
+function renderAll(){renderStats();renderStrata();renderExcavate();renderTray();}
+
+function addEntry(){
+  var text=$("#cap").value.trim();
+  if(!text){toast("何か書いて");return;}
+  state.entries.push({id:uid(),text:text,tags:parseTags(text),created:Date.now(),ferment:0});
+  $("#cap").value="";$("#cap-tags").textContent="";
+  save();renderAll();toast("土に還した");
+}
+
+/* event delegation for fragments */
+function onFragClick(ev){
+  var b=ev.target.closest("button");
+  if(b){
+    var id=b.getAttribute("data-id");
+    if(b.classList.contains("ferment")){var e=find(id);if(e){e.ferment=(e.ferment||0)+1;save();renderAll();}return;}
+    if(b.classList.contains("pick")){var i=state.sel.indexOf(id);if(i>=0)state.sel.splice(i,1);else state.sel.push(id);renderAll();return;}
+    if(b.classList.contains("del")){var k=state.entries.findIndex(function(x){return x.id===id;});if(k>=0){state.entries.splice(k,1);var si=state.sel.indexOf(id);if(si>=0)state.sel.splice(si,1);save();renderAll();}return;}
+  }
+  var lh=ev.target.closest(".lh");
+  if(lh){var date=lh.getAttribute("data-date");state.collapsed[date]=!state.collapsed[date];renderStrata();}
+}
+
+function shareURL(){
+  var payload=btoa(unescape(encodeURIComponent(JSON.stringify({entries:state.entries}))));
+  var url=location.origin+location.pathname+"#"+encodeURIComponent(payload);
+  navigator.clipboard.writeText(url).then(function(){toast("共有URLをコピーした");},function(){window.prompt("コピー",url);});
+}
+function exportJSON(){
+  var blob=new Blob([JSON.stringify({entries:state.entries},null,2)],{type:"application/json"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="tsuchika-compost.json";a.click();
+}
+function importJSON(file){
+  var fr=new FileReader();fr.onload=function(){try{var o=JSON.parse(fr.result);state.entries=o.entries||[];save();renderAll();toast("読み込んだ");}catch(e){toast("読み込み失敗");}};fr.readAsText(file);
+}
+
+function stars(){
+  var cv=$("#stars"),ctx=cv.getContext("2d");
+  function size(){cv.width=innerWidth;cv.height=innerHeight;draw();}
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    var n=Math.min(150,Math.floor(cv.width*cv.height/12000));
+    for(var i=0;i<n;i++){
+      var x=((Math.sin(i*12.9898)*43758.5453)%1+1)%1;
+      var y=((Math.sin(i*78.233)*43758.5453)%1+1)%1;
+      var r=((Math.sin(i*3.17)*1000)%1+1)%1;
+      ctx.globalAlpha=0.12+r*0.45;
+      ctx.fillStyle=r>0.85?"#d4a853":"#e8e0d0";
+      var s=r>0.9?1.6:1;ctx.fillRect(x*cv.width,y*cv.height,s,s);
+    }
+    ctx.globalAlpha=1;
+  }
+  addEventListener("resize",size);size();
+}
+
+function init(){
+  load();renderAll();stars();
+  $("#cap-btn").onclick=addEntry;
+  $("#cap").addEventListener("input",function(){var t=parseTags(this.value);$("#cap-tags").textContent=t.length?("タグ: "+t.map(function(x){return "#"+x;}).join(" ")):"";});
+  $("#cap").addEventListener("keydown",function(e){if((e.metaKey||e.ctrlKey)&&e.key==="Enter"){e.preventDefault();addEntry();}});
+  $("#ex").addEventListener("input",renderExcavate);
+  $("#ex-clear").onclick=function(){$("#ex").value="";renderExcavate();};
+  document.addEventListener("click",onFragClick);
+  $("#tray-copy").onclick=function(){var p=$("#tray-pre").textContent;navigator.clipboard.writeText(p).then(function(){toast("コピーした");},function(){window.prompt("コピー",p);});};
+  $("#tray-seed").onclick=function(){$("#cap").value=$("#tray-pre").textContent;$("#cap").dispatchEvent(new Event("input"));window.scrollTo({top:0,behavior:"smooth"});toast("捕捉欄へ");};
+  $("#tray-clear").onclick=function(){state.sel=[];renderAll();};
+  $("#ex-share").onclick=shareURL;
+  $("#ex-json").onclick=exportJSON;
+  $("#ex-import").onclick=function(){$("#file-in").click();};
+  $("#file-in").addEventListener("change",function(){if(this.files[0])importJSON(this.files[0]);});
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();
+</script>
+</body>
+</html>
