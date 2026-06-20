@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ミエ — 三重がけ命名盤</title>
+<meta name="description" content="名前を 音韻×意味×構造 の3層で測る。Boolean→Float命名ワークベンチ。#全人類UX改善">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0a0a0f; --void-deep:#06060a; --surface:#15141a; --surface-hi:#1c1a23;
+  --gold:#d4a853; --gold-soft:rgba(212,168,83,.12); --gold-glow:rgba(212,168,83,.25); --gold-edge:rgba(212,168,83,.45);
+  --parchment:#c8b8a0; --violet:#a78bfa; --debris-1:#6b6b80; --debris-2:#3a3530;
+  --fg-1:#e8e0d0; --fg-2:#b8b0a0; --fg-3:#807868; --dim:#5a5448;
+  --border:rgba(200,184,160,.06); --border-hover:rgba(212,168,83,.20); --border-strong:rgba(212,168,83,.45);
+  --sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic Medium","Yu Gothic",system-ui,sans-serif;
+  --serif:"Cormorant Garamond","Times New Roman","游明朝体","Yu Mincho",serif;
+  --mono:"JetBrains Mono","SF Mono","Menlo","Consolas",monospace;
+}
+*{box-sizing:border-box;scrollbar-width:thin;scrollbar-color:var(--debris-1) var(--void)}
+html,body{margin:0;background:var(--void);color:var(--fg-1);font-family:var(--sans);line-height:1.7;letter-spacing:.01em;-webkit-font-smoothing:antialiased}
+body{background:radial-gradient(ellipse at 50% -10%,#12121c 0%,var(--void) 45%,var(--void-deep) 100%);min-height:100vh;position:relative;overflow-x:hidden}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55}
+.wrap{position:relative;z-index:1;max-width:880px;margin:0 auto;padding:48px 22px 96px}
+header{text-align:center;margin-bottom:40px}
+.title{font-family:var(--serif);font-style:italic;font-weight:300;font-size:clamp(2.6rem,8vw,4.2rem);line-height:1.05;letter-spacing:.04em;margin:0;color:var(--fg-1)}
+.title .k{color:var(--gold)}
+.sub{font-family:var(--serif);font-size:.66rem;letter-spacing:.25em;text-transform:uppercase;color:var(--dim);margin-top:14px}
+.lede{color:var(--fg-3);font-size:.84rem;margin-top:10px;max-width:46ch;margin-left:auto;margin-right:auto}
+.lede b{color:var(--parchment);font-weight:400}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:22px}
+.panel h2{font-family:var(--serif);font-style:italic;font-weight:400;font-size:1.25rem;margin:0 0 4px;color:var(--fg-1)}
+.panel .hint{font-size:.72rem;color:var(--dim);margin:0 0 18px}
+label.fld{display:block;margin-bottom:14px}
+label.fld .lab{display:block;font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--fg-3);margin-bottom:6px}
+input[type=text],textarea{width:100%;background:var(--void);color:var(--fg-1);border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-family:var(--sans);font-size:.95rem;transition:border-color .15s}
+input[type=text]:focus,textarea:focus{outline:none;border-color:var(--border-strong)}
+.row{display:flex;gap:14px;flex-wrap:wrap}
+.row>*{flex:1;min-width:160px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;min-height:4px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--gold-soft);border:1px solid var(--border-hover);color:var(--parchment);border-radius:999px;padding:4px 10px;font-size:.78rem}
+.chip button{background:none;border:none;color:var(--fg-3);cursor:pointer;font-size:.9rem;line-height:1;padding:0}
+.chip button:hover{color:var(--gold)}
+.check{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--fg-2);cursor:pointer;user-select:none;margin-top:4px}
+.check input{accent-color:var(--gold);width:15px;height:15px}
+.btn{background:var(--gold-soft);border:1px solid var(--gold-edge);color:var(--gold);border-radius:8px;padding:10px 20px;font-family:var(--sans);font-size:.86rem;letter-spacing:.04em;cursor:pointer;transition:background .15s,border-color .15s}
+.btn:hover{background:rgba(212,168,83,.2)}
+.btn.ghost{background:none;border-color:var(--border);color:var(--fg-3)}
+.btn.ghost:hover{border-color:var(--border-hover);color:var(--fg-1)}
+.btn.sm{padding:6px 13px;font-size:.76rem}
+.btnbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px}
+/* float bars */
+.bars{margin-top:6px}
+.bar{display:grid;grid-template-columns:74px 1fr 46px;align-items:center;gap:10px;margin:7px 0}
+.bar .nm{font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--fg-3)}
+.bar .track{height:7px;background:var(--void);border:1px solid var(--border);border-radius:999px;overflow:hidden}
+.bar .fill{height:100%;background:linear-gradient(90deg,rgba(212,168,83,.5),var(--gold));border-radius:999px;transition:width .35s cubic-bezier(.2,.8,.2,1)}
+.bar .fill.mut{background:var(--debris-1)}
+.bar .val{font-family:var(--mono);font-size:.66rem;color:var(--parchment);text-align:right}
+.reso{display:flex;align-items:baseline;gap:12px;margin:14px 0 2px;padding-top:14px;border-top:1px solid var(--border)}
+.reso .big{font-family:var(--mono);font-size:1.9rem;color:var(--gold);letter-spacing:.02em}
+.reso .rl{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--fg-3)}
+.reso .bal{margin-left:auto;font-size:.7rem;color:var(--fg-3)}
+.reso .bal b{font-family:var(--mono);color:var(--parchment);font-weight:400}
+.dissect{font-family:var(--mono);font-size:.66rem;color:var(--fg-3);margin-top:10px;line-height:1.9;word-break:break-all}
+.dissect .mo{display:inline-block;background:var(--void);border:1px solid var(--border);border-radius:5px;padding:1px 7px;margin:2px 3px 2px 0;color:var(--fg-1)}
+.dissect .vw{color:var(--gold)}
+/* weights */
+.wgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.wgrid .wcell{text-align:center}
+.wgrid .wcell .lab{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--fg-3);margin-bottom:6px}
+.wgrid input[type=range]{width:100%;accent-color:var(--gold)}
+.wgrid .wv{font-family:var(--mono);font-size:.66rem;color:var(--parchment);margin-top:2px}
+/* board */
+.board{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;transition:border-color .2s,transform .2s}
+.card:hover{border-color:var(--border-hover)}
+.card.top{border-color:var(--gold-edge);box-shadow:0 0 0 1px var(--gold-soft)}
+.card .rank{position:absolute;top:14px;right:16px;font-family:var(--mono);font-size:.6rem;color:var(--dim)}
+.card .name{font-family:var(--serif);font-style:italic;font-size:1.5rem;color:var(--fg-1);line-height:1.2}
+.card .name .yomi{font-family:var(--mono);font-style:normal;font-size:.66rem;color:var(--fg-3);margin-left:10px;letter-spacing:.08em}
+.card .meta{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px}
+.card .meta .tag{font-size:.7rem;color:var(--fg-2);background:var(--void);border:1px solid var(--border);border-radius:999px;padding:2px 9px}
+.card .meta .kk{color:var(--violet);border-color:rgba(167,139,250,.3)}
+.card .cardreso{display:flex;align-items:center;gap:10px;margin-top:6px}
+.card .cardreso .cr{font-family:var(--mono);font-size:1.2rem;color:var(--gold)}
+.card .cardreso .minibars{flex:1;display:flex;gap:4px;height:6px}
+.card .cardreso .minibars span{flex:1;background:var(--void);border-radius:999px;overflow:hidden;position:relative}
+.card .cardreso .minibars span i{position:absolute;left:0;top:0;bottom:0;background:var(--gold);border-radius:999px}
+.card .act{display:flex;gap:8px;margin-top:12px}
+.empty{text-align:center;color:var(--dim);font-size:.82rem;padding:30px 0}
+.gen-out{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.gen-out .g{cursor:pointer;background:var(--void);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:.92rem;transition:border-color .15s,color .15s}
+.gen-out .g:hover{border-color:var(--gold-edge);color:var(--gold)}
+.gen-out .g .gs{font-family:var(--mono);font-size:.6rem;color:var(--fg-3);margin-left:7px}
+.dictlinks{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.foot{text-align:center;margin-top:36px;color:var(--dim);font-size:.7rem;line-height:2}
+.foot a{color:var(--fg-3)}.foot a:hover{color:var(--gold)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface-hi);border:1px solid var(--gold-edge);color:var(--fg-1);padding:10px 20px;border-radius:8px;font-size:.82rem;opacity:0;pointer-events:none;transition:all .25s;z-index:10}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+::placeholder{color:var(--dim)}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="wrap">
+  <header>
+    <h1 class="title"><span class="k">ミ</span>エ</h1>
+    <div class="sub">三重がけ命名盤 — triple-layer namer</div>
+    <p class="lede">名前を <b>音韻 × 意味 × 構造</b> の3層で測る。<br>「良い／悪い」ではなく <b>0.00–1.00 の響き</b> で。<span style="color:var(--dim)">— Boolean→Float</span></p>
+  </header>
+
+  <!-- INPUT -->
+  <section class="panel">
+    <h2>名を試す</h2>
+    <p class="hint">よみ（かな）が3層解析の素。表記・意味は重ねるほど三重がけが立つ。</p>
+    <div class="row">
+      <label class="fld"><span class="lab">よみ（かな）</span><input type="text" id="in-reading" placeholder="ぴーすぴーす" autocomplete="off"></label>
+      <label class="fld"><span class="lab">表記（任意）</span><input type="text" id="in-surface" placeholder="PEACE PIECE" autocomplete="off"></label>
+    </div>
+    <label class="fld"><span class="lab">意味の層（Enterで追加）</span><input type="text" id="in-tag" placeholder="平和 / かけら / 一片…" autocomplete="off"><div class="chips" id="tagchips"></div></label>
+    <label class="check"><input type="checkbox" id="in-kk"> 掛詞・ダブルミーニングを含む</label>
+    <div class="bars" id="preview-bars" style="margin-top:18px"></div>
+    <div class="reso" id="preview-reso"></div>
+    <div class="dissect" id="preview-diss"></div>
+    <div class="btnbar" style="margin-top:16px">
+      <button class="btn" id="add-btn">盤に載せる ↓</button>
+      <button class="btn ghost sm" id="clear-in">入力をクリア</button>
+    </div>
+  </section>
+
+  <!-- WEIGHTS -->
+  <section class="panel">
+    <h2>三層の重み</h2>
+    <p class="hint">どの層を効かせるかは作品ごとに違う。規格を個別最適化する。</p>
+    <div class="wgrid">
+      <div class="wcell"><div class="lab">音韻</div><input type="range" id="w-p" min="0" max="100" value="34"><div class="wv" id="wv-p">0.34</div></div>
+      <div class="wcell"><div class="lab">意味</div><input type="range" id="w-m" min="0" max="100" value="33"><div class="wv" id="wv-m">0.33</div></div>
+      <div class="wcell"><div class="lab">構造</div><input type="range" id="w-s" min="0" max="100" value="33"><div class="wv" id="wv-s">0.33</div></div>
+    </div>
+    <div class="btnbar" style="margin-top:14px;justify-content:center"><button class="btn ghost sm" id="w-reset">均等（三重がけ）に戻す</button></div>
+  </section>
+
+  <!-- BOARD -->
+  <section class="panel">
+    <h2>命名盤 <span style="font-family:var(--mono);font-size:.7rem;font-style:normal;color:var(--dim)" id="board-count"></span></h2>
+    <p class="hint">resonance降順。最上位は金枠。弱い層が三重がけの伸びしろ。</p>
+    <div class="board" id="board"></div>
+  </section>
+
+  <!-- GENERATOR -->
+  <section class="panel">
+    <h2>かばん語ジェネレーター</h2>
+    <p class="hint">2語のよみを混ぜて種を蒔く。音韻×構造でランク。クリックで上の入力へ。</p>
+    <div class="row">
+      <label class="fld"><span class="lab">素 A（よみ）</span><input type="text" id="gen-a" placeholder="ほうようど" autocomplete="off"></label>
+      <label class="fld"><span class="lab">素 B（よみ）</span><input type="text" id="gen-b" placeholder="でざいん" autocomplete="off"></label>
+    </div>
+    <div class="btnbar"><button class="btn sm" id="gen-btn">混ぜる</button></div>
+    <div class="gen-out" id="gen-out"></div>
+  </section>
+
+  <!-- DICT -->
+  <section class="panel">
+    <h2>意味を掘る</h2>
+    <p class="hint">意味の層が足りないとき。参照辞典を別タブで開く。</p>
+    <label class="fld"><span class="lab">語</span><input type="text" id="dict-q" placeholder="平和" autocomplete="off"></label>
+    <div class="dictlinks">
+      <button class="btn ghost sm" id="dict-renso">連想類語辞典で引く ↗</button>
+      <button class="btn ghost sm" id="dict-yoso">物語要素辞典 ↗</button>
+    </div>
+  </section>
+
+  <div class="foot">
+    <div class="btnbar" style="justify-content:center">
+      <button class="btn ghost sm" id="ex-share">共有URLをコピー</button>
+      <button class="btn ghost sm" id="ex-json">JSON書き出し</button>
+      <button class="btn ghost sm" id="ex-import">読み込み</button>
+      <input type="file" id="file-in" accept="application/json" style="display:none">
+    </div>
+    <div style="margin-top:14px">ミエ — 三重がけ命名盤 · void+stars+gold · 自動保存（この端末）<br>
+    <span style="color:var(--debris-1)">#全人類UX改善 · Boolean→Float · Visionium / Hi-Me TooL</span></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// === ENGINE START ===  (pure / DOM非依存 / nodeで単体テスト可)
+function toHiragana(s){
+  return String(s||"").replace(/[ァ-ヶ]/g,function(c){return String.fromCharCode(c.charCodeAt(0)-0x60);});
+}
+var SMALL=new Set(["ゃ","ゅ","ょ","ぁ","ぃ","ぅ","ぇ","ぉ","ゎ"]);
+var VG={a:"あかさたなはまやらわがざだばぱぁゃゎ",i:"いきしちにひみりぎじぢびぴぃゐ",u:"うくすつぬふむゆるぐずづぶぷぅゅゔ",e:"えけせてねへめれげぜでべぺぇゑ",o:"おこそとのほもよろをごぞどぼぽぉょ"};
+var VMAP={};(function(){for(var v in VG){for(var ch of VG[v])VMAP[ch]=v;}})();
+function moras(kana){
+  var h=toHiragana(kana).replace(/[\s　]/g,"");
+  var out=[];
+  for(var ch of h){
+    if(SMALL.has(ch)&&out.length){ out[out.length-1]+=ch; }
+    else { out.push(ch); }
+  }
+  return out;
+}
+function vowelOf(tok){
+  if(tok==="ー")return "long";
+  if(tok==="っ")return "Q";
+  if(tok==="ん")return "N";
+  var last=tok[tok.length-1];
+  return VMAP[last]||null;
+}
+function resolveVowels(toks){
+  var vs=[];
+  for(var i=0;i<toks.length;i++){
+    var v=vowelOf(toks[i]);
+    if(v==="long")v=vs.length?vs[vs.length-1]:null;
+    vs.push(v);
+  }
+  return vs;
+}
+function analyze(reading){
+  var ms=moras(reading);
+  var vowels=resolveVowels(ms);
+  return {moras:ms,vowels:vowels,count:ms.length};
+}
+function clamp(x){return Math.max(0,Math.min(1,x));}
+function round2(x){return Math.round(x*100)/100;}
+function phonScore(a){
+  var vw=a.vowels.filter(function(v){return "aiueo".indexOf(v)>=0;});
+  var harmony=0.6;
+  if(vw.length>=1){var f={};vw.forEach(function(v){f[v]=(f[v]||0)+1;});var mx=Math.max.apply(null,Object.keys(f).map(function(k){return f[k];}));harmony=mx/vw.length;}
+  var n=a.count;
+  var rhythm=Math.exp(-Math.pow(n-3.5,2)/(2*1.6*1.6));
+  var rep=0;
+  if(a.count){var g={};a.moras.forEach(function(m){g[m]=(g[m]||0)+1;});var r=0;a.moras.forEach(function(m){if(g[m]>1)r++;});rep=Math.min(1,r/a.count);}
+  var q=a.moras.filter(function(m){return m==="っ";}).length;
+  var nn=a.moras.filter(function(m){return m==="ん";}).length;
+  var pen=0.15*q+0.1*Math.max(0,n-6)+0.08*Math.max(0,nn-1);
+  var say=clamp(1-pen);
+  return clamp(0.40*harmony+0.35*rhythm+0.15*rep+0.10*say);
+}
+function structScore(a,surface){
+  var n=a.count;
+  var economy=n<=1?0.6:clamp(1-(n-2)*0.12);
+  var ms=a.moras;
+  var pal=(n>=2&&ms.join("")===ms.slice().reverse().join(""))?1:0;
+  var half=0;
+  if(n>=2&&n%2===0){var h=n/2;if(ms.slice(0,h).join("")===ms.slice(h).join(""))half=1;}
+  var vs=a.vowels.filter(function(v){return "aiueo".indexOf(v)>=0;});
+  var vrep=0;
+  if(vs.length>=2){var set=new Set(vs);vrep=clamp(1-(set.size-1)/(vs.length-1));}
+  var symmetry=Math.max(pal,half,0.6*vrep);
+  var layers=0.6;
+  if(surface&&surface.trim()){
+    var s=surface.trim(),cls=0;
+    if(/[一-鿿]/.test(s))cls++;
+    if(/[぀-ゟ]/.test(s))cls++;
+    if(/[゠-ヿ]/.test(s))cls++;
+    if(/[A-Za-z]/.test(s))cls++;
+    if(/[0-9]/.test(s))cls++;
+    layers=cls<=1?0.5:(cls===2?0.8:1.0);
+  }
+  return clamp(0.45*economy+0.30*symmetry+0.25*layers);
+}
+function meanScore(tags,kk){
+  var c=(tags||[]).length;
+  var base=c===0?0:(c===1?0.45:(c===2?0.72:(c===3?0.92:1.0)));
+  return clamp(base+(kk?0.05:0));
+}
+function computeScores(cand,w){
+  w=w||{p:1,m:1,s:1};
+  var a=analyze(cand.reading||"");
+  var p=phonScore(a),s=structScore(a,cand.surface||""),m=meanScore(cand.tags||[],!!cand.kakekotoba);
+  var tw=(w.p+w.m+w.s)||1;
+  var resonance=(w.p*p+w.m*m+w.s*s)/tw;
+  var balance=Math.min(p,m,s);
+  return {a:a,p:p,m:m,s:s,resonance:resonance,balance:balance};
+}
+function blends(ar,br){
+  var A=moras(ar),B=moras(br),out=new Set();
+  function mk(X,Y){for(var i=1;i<X.length;i++){for(var j=0;j<Y.length;j++){var w=X.slice(0,i).concat(Y.slice(j));if(w.length>=2&&w.length<=6)out.add(w.join(""));}}}
+  if(A.length&&B.length){mk(A,B);mk(B,A);}
+  return Array.from(out);
+}
+function rankBlends(ar,br){
+  var list=blends(ar,br);
+  var scored=list.map(function(w){var a=analyze(w);return {w:w,s:0.6*phonScore(a)+0.4*structScore(a,"")};});
+  scored.sort(function(x,y){return y.s-x.s;});
+  return scored;
+}
+// === ENGINE END ===
+
+/* ---------- UI / state ---------- */
+(function(){
+var $=function(s){return document.querySelector(s);};
+var LS="mie_v1";
+var state={cands:[],w:{p:34,m:33,s:33},tags:[]};
+
+function save(){try{localStorage.setItem(LS,JSON.stringify({cands:state.cands,w:state.w}));}catch(e){}}
+function load(){
+  // URL hash優先（共有）→ localStorage
+  if(location.hash.length>1){
+    try{var j=JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(location.hash.slice(1))))));if(j&&j.cands){state.cands=j.cands;if(j.w)state.w=j.w;return;}}catch(e){}
+  }
+  try{var raw=localStorage.getItem(LS);if(raw){var o=JSON.parse(raw);state.cands=o.cands||[];if(o.w)state.w=o.w;}}catch(e){}
+}
+function wObj(){return {p:state.w.p,m:state.w.m,s:state.w.s};}
+function pct(x){return Math.round(x*100);}
+function fmt(x){return x.toFixed(2);}
+
+function toast(msg){var t=$("#toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove("show");},1900);}
+
+/* ----- tag chips (input) ----- */
+function renderTags(){
+  var c=$("#tagchips");c.innerHTML="";
+  state.tags.forEach(function(t,i){
+    var s=document.createElement("span");s.className="chip";
+    s.innerHTML='<span></span><button aria-label="remove">×</button>';
+    s.querySelector("span").textContent=t;
+    s.querySelector("button").onclick=function(){state.tags.splice(i,1);renderTags();renderPreview();};
+    c.appendChild(s);
+  });
+}
+
+/* ----- bars ----- */
+function barRow(name,val,muted){
+  return '<div class="bar"><span class="nm">'+name+'</span><span class="track"><span class="fill'+(muted?' mut':'')+'" style="width:'+pct(val)+'%"></span></span><span class="val">'+fmt(val)+'</span></div>';
+}
+function renderPreview(){
+  var cand={reading:$("#in-reading").value,surface:$("#in-surface").value,tags:state.tags.slice(),kakekotoba:$("#in-kk").checked};
+  var r=computeScores(cand,wObj());
+  $("#preview-bars").innerHTML=barRow("音韻",r.p)+barRow("意味",r.m,r.m===0)+barRow("構造",r.s);
+  $("#preview-reso").innerHTML='<span class="big">'+fmt(r.resonance)+'</span><span class="rl">resonance</span><span class="bal">三重balance（最弱層） <b>'+fmt(r.balance)+'</b></span>';
+  // dissect
+  var d="";
+  if(r.a.count){
+    d+=r.a.moras.map(function(m,i){var v=r.a.vowels[i];return '<span class="mo">'+m+(v&&"aiueo".indexOf(v)>=0?'<span class="vw">·'+v+'</span>':'')+'</span>';}).join("");
+    d+='<br>拍数 '+r.a.count+'　母音列 '+r.a.vowels.map(function(v){return v||"·";}).join("");
+  }else{d="よみ（かな）を入れると分解されます";}
+  $("#preview-diss").innerHTML=d;
+}
+
+/* ----- board ----- */
+function renderBoard(){
+  var b=$("#board");b.innerHTML="";
+  $("#board-count").textContent=state.cands.length?("· "+state.cands.length):"";
+  if(!state.cands.length){b.innerHTML='<div class="empty">まだ何も載っていない。上で名を試して「盤に載せる」。</div>';return;}
+  var scored=state.cands.map(function(c){return {c:c,r:computeScores(c,wObj())};});
+  scored.sort(function(x,y){return y.r.resonance-x.r.resonance;});
+  scored.forEach(function(o,idx){
+    var c=o.c,r=o.r;
+    var card=document.createElement("div");card.className="card"+(idx===0?" top":"");
+    var tags=(c.tags||[]).map(function(t){return '<span class="tag">'+esc(t)+'</span>';}).join("")+(c.kakekotoba?'<span class="tag kk">掛詞</span>':"");
+    var mb='<span><i style="width:'+pct(r.p)+'%"></i></span><span><i style="width:'+pct(r.m)+'%"></i></span><span><i style="width:'+pct(r.s)+'%"></i></span>';
+    card.innerHTML=
+      '<div class="rank">#'+(idx+1)+'</div>'+
+      '<div class="name">'+esc(c.surface||c.reading||"—")+'<span class="yomi">'+esc(c.reading||"")+'</span></div>'+
+      (tags?'<div class="meta">'+tags+'</div>':"")+
+      '<div class="cardreso"><span class="cr">'+fmt(r.resonance)+'</span><span class="minibars" title="音韻/意味/構造">'+mb+'</span></div>'+
+      '<div class="act"></div>';
+    var act=card.querySelector(".act");
+    var bEdit=mkbtn("編集",function(){loadToInput(c);scrollTop();});
+    var bDup=mkbtn("複製",function(){state.cands.push(JSON.parse(JSON.stringify(c)));commit();});
+    var bDel=mkbtn("削除",function(){var i=state.cands.indexOf(c);if(i>=0){state.cands.splice(i,1);commit();}});
+    act.appendChild(bEdit);act.appendChild(bDup);act.appendChild(bDel);
+    b.appendChild(card);
+  });
+}
+function mkbtn(label,fn){var x=document.createElement("button");x.className="btn ghost sm";x.textContent=label;x.onclick=fn;return x;}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
+function scrollTop(){window.scrollTo({top:0,behavior:"smooth"});}
+
+function loadToInput(c){
+  $("#in-reading").value=c.reading||"";
+  $("#in-surface").value=c.surface||"";
+  state.tags=(c.tags||[]).slice();
+  $("#in-kk").checked=!!c.kakekotoba;
+  renderTags();renderPreview();
+}
+function commit(){save();renderBoard();}
+
+/* ----- weights ----- */
+function renderWeights(){
+  ["p","m","s"].forEach(function(k){$("#w-"+k).value=state.w[k];});
+  var tw=(state.w.p+state.w.m+state.w.s)||1;
+  $("#wv-p").textContent=fmt(state.w.p/tw);
+  $("#wv-m").textContent=fmt(state.w.m/tw);
+  $("#wv-s").textContent=fmt(state.w.s/tw);
+}
+
+/* ----- generator ----- */
+function runGen(){
+  var a=$("#gen-a").value,b=$("#gen-b").value;
+  var out=$("#gen-out");out.innerHTML="";
+  if(!a.trim()||!b.trim()){out.innerHTML='<span style="color:var(--dim);font-size:.78rem">2語のよみを入れて「混ぜる」。</span>';return;}
+  var ranked=rankBlends(a,b).slice(0,16);
+  if(!ranked.length){out.innerHTML='<span style="color:var(--dim);font-size:.78rem">混ざらなかった。もう少し長いよみで。</span>';return;}
+  ranked.forEach(function(o){
+    var g=document.createElement("span");g.className="g";
+    g.innerHTML=esc(o.w)+'<span class="gs">'+fmt(o.s)+'</span>';
+    g.onclick=function(){$("#in-reading").value=o.w;renderPreview();scrollTop();toast("「"+o.w+"」を入力へ");};
+    out.appendChild(g);
+  });
+}
+
+/* ----- export / share ----- */
+function shareURL(){
+  var payload=btoa(unescape(encodeURIComponent(JSON.stringify({cands:state.cands,w:state.w}))));
+  var url=location.origin+location.pathname+"#"+encodeURIComponent(payload);
+  navigator.clipboard.writeText(url).then(function(){toast("共有URLをコピーした");},function(){window.prompt("コピーしてください",url);});
+}
+function exportJSON(){
+  var blob=new Blob([JSON.stringify({cands:state.cands,w:state.w},null,2)],{type:"application/json"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="mie-board.json";a.click();
+}
+function importJSON(file){
+  var fr=new FileReader();fr.onload=function(){try{var o=JSON.parse(fr.result);state.cands=o.cands||[];if(o.w)state.w=o.w;renderWeights();commit();renderPreview();toast("読み込んだ");}catch(e){toast("読み込み失敗");}};fr.readAsText(file);
+}
+
+/* ----- stars ----- */
+function stars(){
+  var cv=$("#stars"),ctx=cv.getContext("2d");
+  function size(){cv.width=innerWidth;cv.height=innerHeight;draw();}
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    var n=Math.min(150,Math.floor(cv.width*cv.height/12000));
+    for(var i=0;i<n;i++){
+      var x=(Math.sin(i*12.9898)*43758.5453)%1;x=(x+1)%1;
+      var y=(Math.sin(i*78.233)*43758.5453)%1;y=(y+1)%1;
+      var r=((Math.sin(i*3.17)*1000)%1+1)%1;
+      ctx.globalAlpha=0.15+r*0.5;
+      ctx.fillStyle=r>0.85?"#d4a853":"#e8e0d0";
+      ctx.fillRect(x*cv.width,y*cv.height,r>0.9?1.6:1,r>0.9?1.6:1);
+    }
+    ctx.globalAlpha=1;
+  }
+  addEventListener("resize",size);size();
+}
+
+/* ----- wire ----- */
+function init(){
+  load();renderWeights();renderTags();renderPreview();renderBoard();stars();
+
+  $("#in-reading").addEventListener("input",renderPreview);
+  $("#in-surface").addEventListener("input",renderPreview);
+  $("#in-kk").addEventListener("change",renderPreview);
+  $("#in-tag").addEventListener("keydown",function(e){
+    if(e.key==="Enter"){e.preventDefault();var v=this.value.trim();if(v){state.tags.push(v);this.value="";renderTags();renderPreview();}}
+  });
+  $("#add-btn").onclick=function(){
+    var reading=$("#in-reading").value.trim(),surface=$("#in-surface").value.trim();
+    if(!reading&&!surface){toast("よみか表記を入れて");return;}
+    state.cands.push({reading:reading,surface:surface,tags:state.tags.slice(),kakekotoba:$("#in-kk").checked});
+    commit();toast("盤に載せた");
+  };
+  $("#clear-in").onclick=function(){$("#in-reading").value="";$("#in-surface").value="";state.tags=[];$("#in-kk").checked=false;renderTags();renderPreview();};
+
+  ["p","m","s"].forEach(function(k){$("#w-"+k).addEventListener("input",function(){state.w[k]=+this.value;renderWeights();renderBoard();renderPreview();save();});});
+  $("#w-reset").onclick=function(){state.w={p:34,m:33,s:33};renderWeights();renderBoard();renderPreview();save();};
+
+  $("#gen-btn").onclick=runGen;
+  $("#dict-renso").onclick=function(){var q=$("#dict-q").value.trim();if(!q){toast("語を入れて");return;}window.open("https://renso-ruigo.com/word/"+encodeURIComponent(q),"_blank");};
+  $("#dict-yoso").onclick=function(){window.open("https://www.lib.agu.ac.jp/yousojiten/","_blank");};
+
+  $("#ex-share").onclick=shareURL;
+  $("#ex-json").onclick=exportJSON;
+  $("#ex-import").onclick=function(){$("#file-in").click();};
+  $("#file-in").addEventListener("change",function(){if(this.files[0])importJSON(this.files[0]);});
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();
+</script>
+</body>
+</html>
