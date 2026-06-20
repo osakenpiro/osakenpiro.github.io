@@ -464,7 +464,7 @@ function makeHash(){
 }
 
 /* ---------- v1: 連想類語 proxy / レーダー / モーラ ---------- */
-const RENSO_DEFAULT = "";
+const RENSO_DEFAULT = "https://mitsuami-renso.kagami-osakenpiro.workers.dev";
 function rensoWorker(){ return (localStorage.getItem("mitsuami.renso.worker")||RENSO_DEFAULT||"").trim(); }
 
 const RADAR_AX=[["音韻",-90],["意味",150],["構造",30]];
