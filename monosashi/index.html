@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ものさし — 0か100を、ほどく</title>
+<meta name="description" content="白か黒か。0か100か。決めつけた瞬間、世界は二択に痩せる。ものさしは、その二択に目盛りを入れ直し、評価軸ごと取り替えるリフレーミング・ツール。Boolean→Float。">
+<meta name="theme-color" content="#0a0a10">
+<meta property="og:title" content="ものさし — 0か100を、ほどく">
+<meta property="og:description" content="二択に目盛りを入れ直す道具。白黒の決めつけを、Floatと別の評価軸でほどく。">
+<meta property="og:url" content="https://osakenpiro.github.io/monosashi/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://osakenpiro.github.io/monosashi/og.svg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ものさし — 0か100を、ほどく">
+<meta name="twitter:description" content="白黒の決めつけを、Floatと別の評価軸でほどくリフレーミング・ツール。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0a10'/%3E%3Cg stroke='%23d4a853' stroke-width='1.4'%3E%3Cline x1='4' y1='21' x2='28' y2='21'/%3E%3Cline x1='8' y1='21' x2='8' y2='13'/%3E%3Cline x1='14' y1='21' x2='14' y2='16'/%3E%3Cline x1='20' y1='21' x2='20' y2='16'/%3E%3Cline x1='26' y1='21' x2='26' y2='13'/%3E%3C/g%3E%3Ccircle cx='17' cy='21' r='2.6' fill='%23d4a853'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --void:#0a0a10; --void-deep:#06060a; --panel:#14141e; --panel-hi:#1c1a26;
+    --line:#2a2a3a; --line-soft:rgba(200,184,160,.07);
+    --gold:#d4a853; --gold-dim:#8a7038; --gold-glow:rgba(212,168,83,.32);
+    --parchment:#c8b8a0; --violet:#a78bfa;
+    --ink:#ece8de; --ink-2:#b8b0a0; --ink-dim:#807868; --ink-faint:#5a5448;
+    --ok:#7fd4a8; --warn:#d97b6c;
+    --serif:"Cormorant Garamond","Hiragino Mincho ProN","Yu Mincho",serif;
+    --jp-serif:"Hiragino Mincho ProN","Yu Mincho",serif;
+    --sans:"Hiragino Sans","Yu Gothic UI",system-ui,sans-serif;
+    --mono:ui-monospace,"SFMono-Regular",Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--void);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+  body{min-height:100vh;background:
+    radial-gradient(1100px 640px at 74% -14%,#16131f 0%,transparent 60%),
+    radial-gradient(820px 560px at 6% 114%,#0f1018 0%,transparent 56%),var(--void);}
+  #stars{position:fixed;inset:0;z-index:0;pointer-events:none;}
+  .wrap{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:22px 16px 64px;}
+
+  /* header */
+  header{display:flex;align-items:flex-end;gap:14px;border-bottom:1px solid var(--line);padding-bottom:14px;flex-wrap:wrap;}
+  .logo{font-family:var(--jp-serif);font-size:30px;letter-spacing:.34em;color:var(--gold);text-shadow:0 0 18px var(--gold-glow);line-height:1;}
+  .logo small{display:block;font-family:var(--sans);font-size:9.5px;letter-spacing:.4em;color:var(--ink-dim);margin-top:8px;font-weight:400;}
+  .tag{margin-left:auto;font-family:var(--jp-serif);font-size:11px;color:var(--ink-dim);letter-spacing:.06em;padding-bottom:3px;}
+  .lead{font-family:var(--jp-serif);font-size:14px;line-height:2.05;color:#cbc6ba;margin:18px 2px 4px;}
+  .lead b{color:var(--gold);font-weight:400;}
+
+  /* step card */
+  .step{margin:16px 0;border:1px solid var(--line);border-radius:9px;padding:16px 16px 17px;background:rgba(255,255,255,.012);transition:border-color .3s,opacity .3s;}
+  .step.muted{opacity:.5;}
+  .step.lit{border-color:var(--gold-dim);}
+  .stephd{display:flex;align-items:baseline;gap:9px;margin-bottom:11px;}
+  .num{font-family:var(--mono);font-size:11px;color:var(--void);background:var(--gold);border-radius:3px;padding:2px 6px;letter-spacing:.05em;}
+  .step.muted .num{background:var(--ink-faint);}
+  .stitle{font-family:var(--jp-serif);font-size:16px;color:var(--ink);letter-spacing:.04em;}
+  .shint{margin-left:auto;font-size:10.5px;color:var(--ink-dim);letter-spacing:.1em;}
+
+  textarea,input[type=text]{width:100%;background:var(--void-deep);border:1px solid var(--line);border-radius:6px;
+    color:var(--ink);font-family:var(--sans);font-size:15px;padding:11px 12px;resize:vertical;line-height:1.6;}
+  textarea:focus,input[type=text]:focus{outline:none;border-color:var(--gold-dim);box-shadow:0 0 0 1px var(--gold-glow);}
+  textarea::placeholder,input::placeholder{color:var(--ink-faint);}
+  .poles{display:flex;gap:10px;margin-top:2px;}
+  .pole{flex:1;}
+  .pole label{display:block;font-size:10.5px;color:var(--ink-dim);letter-spacing:.12em;margin-bottom:5px;}
+  .pole label b{font-family:var(--mono);color:var(--gold);}
+  .pole.p1 label b{color:var(--parchment);}
+
+  /* ruler */
+  .ruler{margin:6px 0 2px;padding:4px 2px 0;}
+  .ends{display:flex;justify-content:space-between;font-family:var(--jp-serif);font-size:12.5px;color:var(--ink-2);margin-bottom:9px;gap:10px;}
+  .ends span{max-width:46%;}
+  .ends .e1{text-align:right;color:#cbc6ba;}
+  .rail{position:relative;height:46px;}
+  .ticks{position:absolute;inset:0;}
+  .ticks i{position:absolute;bottom:14px;width:1px;background:var(--line);}
+  .ticks i.maj{height:16px;background:var(--gold-dim);}
+  .ticks i.min{height:8px;}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;background:transparent;position:absolute;bottom:8px;left:0;margin:0;height:24px;cursor:pointer;}
+  input[type=range]::-webkit-slider-runnable-track{height:3px;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:2px;}
+  input[type=range]::-moz-range-track{height:3px;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:2px;}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:5px;height:30px;background:var(--gold);
+    border-radius:1px;margin-top:-14px;box-shadow:0 0 14px var(--gold-glow);}
+  input[type=range]::-moz-range-thumb{width:5px;height:30px;background:var(--gold);border:none;border-radius:1px;box-shadow:0 0 14px var(--gold-glow);}
+  input[type=range].alt::-webkit-slider-runnable-track{background:linear-gradient(90deg,#5a5448,var(--parchment));}
+  input[type=range].alt::-moz-range-track{background:linear-gradient(90deg,#5a5448,var(--parchment));}
+  input[type=range].alt::-webkit-slider-thumb{background:var(--parchment);box-shadow:0 0 14px rgba(200,184,160,.3);}
+  input[type=range].alt::-moz-range-thumb{background:var(--parchment);box-shadow:0 0 14px rgba(200,184,160,.3);}
+
+  .readout{display:flex;align-items:baseline;justify-content:center;gap:14px;margin-top:6px;}
+  .fval{font-family:var(--mono);font-size:clamp(38px,12vw,58px);font-weight:700;color:var(--gold);
+    text-shadow:0 0 22px var(--gold-glow);font-variant-numeric:tabular-nums;line-height:1;transition:color .12s;}
+  .fval.alt{color:var(--parchment);text-shadow:0 0 22px rgba(200,184,160,.28);}
+  .flavor{font-family:var(--jp-serif);font-size:13.5px;color:#d8d2c4;min-height:1.4em;text-align:center;margin-top:7px;line-height:1.7;}
+  .reveal{font-family:var(--jp-serif);font-size:12.5px;color:var(--gold);text-align:center;margin-top:4px;opacity:0;transition:opacity .5s;}
+  .reveal.on{opacity:.92;}
+
+  /* axis-swap delta */
+  .delta{display:none;margin-top:13px;border-top:1px dashed var(--line);padding-top:12px;}
+  .delta.on{display:block;}
+  .deltarow{display:flex;align-items:center;justify-content:center;gap:12px;font-family:var(--mono);font-size:15px;color:var(--ink-2);}
+  .deltarow .a{color:var(--ink-dim);} .deltarow .b{color:var(--parchment);font-size:19px;} .deltarow .arr{color:var(--gold);}
+  .deltanote{font-family:var(--jp-serif);font-size:12px;color:var(--ink-dim);text-align:center;margin-top:6px;}
+
+  /* output */
+  .out{display:none;margin:18px 0 4px;border:1px solid var(--gold-dim);border-radius:10px;padding:19px 17px;
+    background:radial-gradient(420px 220px at 50% 0%,rgba(212,168,83,.06),transparent 70%),linear-gradient(180deg,#12121c,#0c0c13);position:relative;}
+  .out.on{display:block;}
+  .out .cap{font-size:10px;letter-spacing:.32em;color:var(--ink-dim);text-align:center;margin-bottom:10px;}
+  .frame{font-family:var(--jp-serif);font-size:16px;line-height:2.15;color:var(--ink);text-align:center;}
+  .frame .q{color:var(--gold);}
+  .frame .ax1{color:var(--ink-dim);} .frame .ax2{color:var(--parchment);}
+  .frame .n{font-family:var(--mono);color:var(--gold);}
+  .frame .kicker{display:block;margin-top:10px;font-size:13.5px;color:var(--ink-2);letter-spacing:.04em;}
+
+  .acts{display:flex;gap:9px;margin-top:15px;flex-wrap:wrap;}
+  .btn{flex:1;min-width:120px;cursor:pointer;border:1px solid var(--gold-dim);background:transparent;color:var(--gold);
+    padding:13px 10px;border-radius:5px;letter-spacing:.08em;font-size:14px;font-family:var(--sans);transition:all .2s;}
+  .btn:hover{background:var(--gold);color:var(--void);box-shadow:0 0 22px var(--gold-glow);}
+  .btn:active{transform:translateY(1px);}
+  .btn.ghost{border-color:var(--line);color:var(--ink-dim);}
+  .btn.ghost:hover{background:rgba(255,255,255,.03);color:var(--ink);box-shadow:none;}
+
+  /* notebook */
+  .sec-h{display:flex;align-items:baseline;gap:9px;margin:30px 2px 10px;border-bottom:1px solid var(--line-soft);padding-bottom:7px;}
+  .sec-h .t{font-family:var(--jp-serif);font-size:15px;color:var(--ink-2);letter-spacing:.1em;}
+  .sec-h .c{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--ink-faint);}
+  .sec-h .t small{font-family:var(--sans);font-size:9.5px;letter-spacing:.3em;color:var(--ink-faint);display:block;margin-top:2px;}
+  .card{border:1px solid var(--line);border-radius:8px;padding:13px 14px;margin-bottom:9px;background:rgba(255,255,255,.012);}
+  .card .ttl{font-family:var(--jp-serif);font-size:14.5px;color:var(--ink);line-height:1.6;}
+  .card .meta{display:flex;align-items:center;gap:10px;margin-top:8px;font-family:var(--mono);font-size:11.5px;color:var(--ink-dim);}
+  .card .meta .ar{color:var(--gold);}
+  .card .meta .a{color:var(--ink-faint);} .card .meta .b{color:var(--parchment);}
+  .card .when{margin-left:auto;color:var(--ink-faint);font-size:10.5px;}
+  .card .x{cursor:pointer;color:var(--ink-faint);font-size:14px;padding:0 2px;}
+  .card .x:hover{color:var(--warn);}
+  .empty{font-family:var(--jp-serif);font-size:13px;color:var(--ink-faint);padding:14px 4px;text-align:center;line-height:1.9;}
+
+  .ex{display:flex;gap:8px;flex-wrap:wrap;}
+  .exc{cursor:pointer;border:1px solid var(--line);border-radius:7px;padding:11px 12px;background:rgba(255,255,255,.01);flex:1;min-width:160px;transition:all .2s;}
+  .exc:hover{border-color:var(--gold-dim);background:rgba(212,168,83,.04);}
+  .exc .en{font-family:var(--jp-serif);font-size:13.5px;color:var(--ink);}
+  .exc .ed{font-size:11px;color:var(--ink-dim);margin-top:5px;font-family:var(--mono);}
+  .exc .ed b{color:var(--parchment);}
+
+  details.why{margin:26px 2px 0;border-top:1px solid var(--line-soft);padding-top:14px;}
+  details.why summary{cursor:pointer;font-family:var(--jp-serif);font-size:13px;color:var(--ink-dim);letter-spacing:.06em;list-style:none;}
+  details.why summary::-webkit-details-marker{display:none;}
+  details.why summary::before{content:"▸ ";color:var(--gold-dim);}
+  details.why[open] summary::before{content:"▾ ";}
+  details.why p{font-family:var(--jp-serif);font-size:13px;line-height:2;color:var(--ink-2);margin:12px 2px 0;}
+  details.why p b{color:var(--gold);font-weight:400;}
+
+  footer{margin-top:38px;border-top:1px solid var(--line-soft);padding-top:16px;text-align:center;}
+  footer .b{font-family:var(--jp-serif);font-size:12.5px;color:var(--ink-dim);letter-spacing:.08em;}
+  footer .b a{color:var(--parchment);text-decoration:none;border-bottom:1px solid var(--line);}
+  footer .b a:hover{color:var(--gold);}
+  footer .cc{font-family:var(--mono);font-size:10px;color:var(--ink-faint);margin-top:9px;letter-spacing:.1em;}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);z-index:9;
+    background:var(--panel-hi);border:1px solid var(--gold-dim);color:var(--ink);padding:11px 18px;border-radius:6px;
+    font-size:13px;opacity:0;pointer-events:none;transition:all .3s;}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="wrap">
+  <header>
+    <div class="logo">ものさし<small>MONOSASHI · BOOLEAN→FLOAT LENS</small></div>
+    <div class="tag">#全人類UX改善</div>
+  </header>
+
+  <p class="lead">白か、黒か。0か、100か。<br>
+  決めつけた瞬間、世界は<b>二択</b>に痩せる。<br>
+  ものさしは、その二択に<b>目盛り</b>を入れ直し、<br>
+  ときには、ものさしそのものを<b>取り替える</b>道具。</p>
+
+  <!-- STEP 1 -->
+  <div class="step lit" id="s1">
+    <div class="stephd"><span class="num">01</span><span class="stitle">きめつけ</span><span class="shint">白黒で決めてること</span></div>
+    <textarea id="claim" rows="2" placeholder="例：この企画はもうダメだ ／ 今日は何もできなかった ／ あの選択は失敗だった"></textarea>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step muted" id="s2">
+    <div class="stephd"><span class="num">02</span><span class="stitle">両極に、名前を</span><span class="shint">挟まれている2つの端</span></div>
+    <div class="poles">
+      <div class="pole p0"><label><b>0.00</b> の端</label><input type="text" id="pole0" placeholder="完全な失敗"></div>
+      <div class="pole p1"><label><b>1.00</b> の端</label><input type="text" id="pole1" placeholder="完璧な成功"></div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step muted" id="s3">
+    <div class="stephd"><span class="num">03</span><span class="stitle">いまの目盛り</span><span class="shint">Boolean→Float</span></div>
+    <div class="ruler">
+      <div class="ends"><span class="e0" id="end0">0.00 の端</span><span class="e1" id="end1">1.00 の端</span></div>
+      <div class="rail"><div class="ticks" id="ticks0"></div>
+        <input type="range" id="r0" min="0" max="100" value="50"></div>
+    </div>
+    <div class="readout"><span class="fval" id="f0">0.50</span></div>
+    <div class="flavor" id="flav0">そのままドラッグ。指を止めたところが、いまの実数。</div>
+    <div class="reveal" id="rev0">— 0でも、100でも、なかった。</div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step muted" id="s4">
+    <div class="stephd"><span class="num">04</span><span class="stitle">ものさしを、取り替える</span><span class="shint">評価軸転換</span></div>
+    <p style="font-family:var(--jp-serif);font-size:12.5px;color:var(--ink-2);line-height:1.9;margin:0 0 11px;">
+      真珠は <span style="color:var(--ink-dim)">照り（その場の輝き）</span> で測れば二束三文でも、
+      <span style="color:var(--parchment)">巻き厚（世代を超える層の厚さ）</span> で測れば蘇る。<br>そのきめつけ、ほんとうに正しいものさしで測ってる？</p>
+    <div class="poles">
+      <div class="pole p0"><label>別のものさし（評価軸）の名前</label><input type="text" id="axis2" placeholder="例：学べた量 ／ 続けられる持続性 ／ 巻き厚"></div>
+    </div>
+    <div class="poles" style="margin-top:9px;">
+      <div class="pole p0"><label><b style="color:var(--ink-dim)">低</b> の端</label><input type="text" id="a2p0" placeholder="まだ何も"></div>
+      <div class="pole p1"><label><b style="color:var(--parchment)">高</b> の端</label><input type="text" id="a2p1" placeholder="満ちている"></div>
+    </div>
+    <div class="ruler" style="margin-top:10px;">
+      <div class="rail"><div class="ticks" id="ticks1"></div>
+        <input type="range" id="r1" class="alt" min="0" max="100" value="50"></div>
+    </div>
+    <div class="readout"><span class="fval alt" id="f1">0.50</span></div>
+    <div class="delta" id="delta">
+      <div class="deltarow"><span class="a" id="d_a">—</span><span class="arr">→</span><span class="b" id="d_b">—</span></div>
+      <div class="deltanote" id="d_note"></div>
+    </div>
+  </div>
+
+  <div class="acts">
+    <button class="btn" id="genBtn">リフレーミング文をつくる</button>
+    <button class="btn ghost" id="resetBtn">まっさら</button>
+  </div>
+
+  <!-- OUTPUT -->
+  <div class="out" id="out">
+    <div class="cap">REFRAMED</div>
+    <div class="frame" id="frame"></div>
+    <div class="acts">
+      <button class="btn" id="saveBtn">ものさし帳に挟む</button>
+      <button class="btn ghost" id="shareBtn">わかちあう</button>
+    </div>
+  </div>
+
+  <!-- NOTEBOOK -->
+  <div class="sec-h"><span class="t">ものさし帳<small>FUYODO · 腐葉土設計</small></span><span class="c" id="bookCount">0</span></div>
+  <div id="book"></div>
+
+  <!-- EXAMPLES -->
+  <div class="sec-h"><span class="t">種カード<small>SEEDS</small></span></div>
+  <p style="font-family:var(--jp-serif);font-size:12px;color:var(--ink-dim);margin:0 2px 11px;line-height:1.8;">触ると読み込む。評価軸を取り替えると、死んだ市場も蘇る——という実例。</p>
+  <div class="ex" id="ex"></div>
+
+  <details class="why">
+    <summary>なぜ、0か100をほどくのか</summary>
+    <p><b>Boolean→Float。</b> 「ある／ない」「成功／失敗」「好き／嫌い」——二値は速い。けれど速さと引き換えに、あいだの全部を捨てている。スライダーに指を置けば、自分でも気づく。ほんとうは 0 でも 1 でもなく、0.34 だったと。</p>
+    <p><b>評価軸転換。</b> もっと効くのは、目盛りを増やすより<b>ものさし自体を替える</b>こと。真珠を「照り」でなく「巻き厚」で測り直したら、死んだ在庫が宝に変わった。きめつけが苦しいとき、たいてい間違っているのは数値ではなく、測っているものさしのほう。</p>
+    <p><b>腐葉土設計。</b> ほどいた跡は消さない。ものさし帳に挟まれたカードは時間で劣化しない。過去の自分がどう測り直したかは、次に効く栄養層になる。</p>
+  </details>
+
+  <footer>
+    <div class="b">つくった人 · <a href="https://osakenpiro.github.io/dd/" target="_blank" rel="noopener">osakenpiro</a> ／ #全人類UX改善計画</div>
+    <div class="cc">DATA STAYS IN YOUR BROWSER · NO SERVER · BOOLEAN→FLOAT</div>
+  </footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+  const $=id=>document.getElementById(id);
+  const KEY="monosashi-cho-v1";
+
+  /* ---- starfield (subtle, no neon) ---- */
+  const cv=$("stars"),cx=cv.getContext("2d");let stars=[];
+  function sky(){cv.width=innerWidth;cv.height=innerHeight;stars=[];
+    const n=Math.min(120,Math.floor(innerWidth*innerHeight/14000));
+    for(let i=0;i<n;i++)stars.push({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*1.1+.2,a:Math.random()*.5+.15,t:Math.random()*6.28});}
+  function draw(){cx.clearRect(0,0,cv.width,cv.height);const now=Date.now()/1000;
+    for(const s of stars){const tw=s.a+Math.sin(now+s.t)*.12;cx.globalAlpha=Math.max(0,tw);
+      cx.fillStyle="#d4a853";cx.beginPath();cx.arc(s.x,s.y,s.r,0,6.2832);cx.fill();}
+    cx.globalAlpha=1;requestAnimationFrame(draw);}
+  sky();draw();addEventListener("resize",sky);
+
+  /* ---- ticks ---- */
+  function ticks(el){el.innerHTML="";for(let i=0;i<=10;i++){const t=document.createElement("i");
+    t.className=i%5===0?"maj":"min";t.style.left=(i*10)+"%";el.appendChild(t);}}
+  ticks($("ticks0"));ticks($("ticks1"));
+
+  /* ---- flavor for the Float position ---- */
+  function flavorFor(v){
+    if(v<=2)return "ほぼ 0。でも、ほんとうに完全な無？";
+    if(v<8)return "ほとんど無い。けれど、ゼロではない。";
+    if(v<25)return "わずかに、ある。";
+    if(v<42)return "低い。でも目盛りは、ちゃんと刻まれている。";
+    if(v<58)return "まんなかあたり。どっちつかずは、悪じゃない。";
+    if(v<75)return "そこそこ、ある。";
+    if(v<92)return "かなり、満ちている。";
+    if(v<98)return "ほとんど満ちている。けれど、完璧ではない。";
+    return "ほぼ 1.00。でも、ほんとうに完全な達成？";
+  }
+  const f=v=>(v/100).toFixed(2);
+
+  function flash(el){el.classList.add("flash");}
+  let touched0=false;
+  function sync0(){const v=+$("r0").value;$("f0").textContent=f(v);$("flav0").textContent=flavorFor(v);
+    if(touched0&&v>2&&v<98)$("rev0").classList.add("on");else $("rev0").classList.remove("on");}
+  function sync1(){const v=+$("r1").value;$("f1").textContent=f(v);updateDelta();}
+  $("r0").addEventListener("input",()=>{touched0=true;sync0();});
+  $("r1").addEventListener("input",sync1);
+
+  /* ---- progressive lighting of steps ---- */
+  function relight(){
+    const c=$("claim").value.trim();
+    setLit("s2",!!c);
+    const p0=$("pole0").value.trim(),p1=$("pole1").value.trim();
+    setLit("s3",!!c&&(!!p0||!!p1));
+    setLit("s4",!!c&&(!!p0||!!p1));
+    $("end0").textContent=(p0||"0.00 の端");
+    $("end1").textContent=(p1||"1.00 の端");
+  }
+  function setLit(id,on){const e=$(id);e.classList.toggle("muted",!on);e.classList.toggle("lit",on);}
+  ["claim","pole0","pole1"].forEach(id=>$(id).addEventListener("input",relight));
+
+  /* ---- axis-swap delta ---- */
+  function updateDelta(){
+    const v0=+$("r0").value,v1=+$("r1").value;
+    const ax2=$("axis2").value.trim();
+    if(!ax2){$("delta").classList.remove("on");return;}
+    $("delta").classList.add("on");
+    $("d_a").textContent=f(v0);$("d_b").textContent=f(v1);
+    const dd=(v1-v0)/100;
+    let note;
+    if(dd>=.25)note="ものさしを替えたら、"+dd.toFixed(2).replace("0.",".")+" ぶん高くなった。きめつけは、軸のせいだった。";
+    else if(dd>0)note="少し高い。別の軸でも、ちゃんと値がある。";
+    else if(dd===0)note="同じ値。この軸では景色は変わらない——それも発見。";
+    else note="むしろ低い。でも『低い』と分かること自体が、二値より豊か。";
+    $("d_note").textContent=note;
+  }
+  $("axis2").addEventListener("input",updateDelta);
+
+  /* ---- generate reframe sentence ---- */
+  function esc(s){return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+  let current=null;
+  function gen(){
+    const claim=$("claim").value.trim();
+    if(!claim){toast("まず 01 に、きめつけを書いて");return;}
+    const p0=$("pole0").value.trim()||"完全な失敗",p1=$("pole1").value.trim()||"完璧な成功";
+    const v0=+$("r0").value,ax1=p0+"／"+p1;
+    const ax2=$("axis2").value.trim(),v1=+$("r1").value;
+    let html='「<span class="q">'+esc(claim)+'</span>」は、白黒じゃない。<br>';
+    html+='〈<span class="ax1">'+esc(ax1)+'</span>〉で測れば <span class="n">'+f(v0)+'</span>。';
+    if(ax2){
+      html+='<br>でも〈<span class="ax2">'+esc(ax2)+'</span>〉で測れば <span class="n">'+f(v1)+'</span>。';
+      html+='<span class="kicker">——間違っていたのは、数値じゃなく、ものさしだった。</span>';
+    }else{
+      html+='<span class="kicker">——0でも100でもない。目盛りは、ちゃんとあった。</span>';
+    }
+    $("frame").innerHTML=html;
+    $("out").classList.add("on");
+    current={claim,ax1,v0:f(v0),ax2:ax2||"",v1:ax2?f(v1):"",ts:Date.now()};
+    $("out").scrollIntoView({behavior:"smooth",block:"center"});
+  }
+  $("genBtn").addEventListener("click",gen);
+
+  /* ---- notebook (localStorage, 腐葉土: never auto-decays) ---- */
+  function load(){try{return JSON.parse(localStorage.getItem(KEY)||"[]");}catch(e){return [];}}
+  function store(a){try{localStorage.setItem(KEY,JSON.stringify(a));}catch(e){toast("保存できなかった（容量？）");}}
+  function when(ts){const d=new Date(ts);const p=n=>(""+n).padStart(2,"0");
+    return d.getFullYear()+"."+p(d.getMonth()+1)+"."+p(d.getDate());}
+  function render(){
+    const a=load();$("bookCount").textContent=a.length;
+    const box=$("book");
+    if(!a.length){box.innerHTML='<div class="empty">まだ、何も挟まれていない。<br>ほどいた跡は、ここに栄養として残る。</div>';return;}
+    box.innerHTML="";
+    a.slice().reverse().forEach(c=>{
+      const el=document.createElement("div");el.className="card";
+      let meta='<span class="a">'+esc(c.ax1)+'</span> <span class="ar">'+c.v0+'</span>';
+      if(c.ax2)meta+=' <span class="ar">→</span> <span class="b">'+esc(c.ax2)+'</span> <span class="ar">'+c.v1+'</span>';
+      el.innerHTML='<div style="display:flex;gap:10px;align-items:flex-start;">'+
+        '<div class="ttl" style="flex:1;">「'+esc(c.claim)+'」</div>'+
+        '<span class="x" title="外す" data-ts="'+c.ts+'">✕</span></div>'+
+        '<div class="meta">'+meta+'<span class="when">'+when(c.ts)+'</span></div>';
+      box.appendChild(el);
+    });
+    box.querySelectorAll(".x").forEach(x=>x.addEventListener("click",()=>{
+      const ts=+x.getAttribute("data-ts");store(load().filter(c=>c.ts!==ts));render();toast("外した");
+    }));
+  }
+  $("saveBtn").addEventListener("click",()=>{
+    if(!current){toast("先に文をつくって");return;}
+    const a=load();a.push(current);store(a);render();toast("ものさし帳に挟んだ");
+  });
+
+  /* ---- share ---- */
+  $("shareBtn").addEventListener("click",()=>{
+    if(!current)return;
+    let t="「"+current.claim+"」を、白黒じゃなく "+current.v0;
+    if(current.ax2)t+=" → 〈"+current.ax2+"〉で測り直したら "+current.v1;
+    t+="。0か100を、ほどく道具。";
+    const url="https://twitter.com/intent/tweet?text="+encodeURIComponent(t+"\n#ものさし #Boolean_to_Float\n")+"&url="+encodeURIComponent("https://osakenpiro.github.io/monosashi/");
+    window.open(url,"_blank","noopener");
+  });
+
+  /* ---- reset ---- */
+  $("resetBtn").addEventListener("click",()=>{
+    ["claim","pole0","pole1","axis2","a2p0","a2p1"].forEach(id=>$(id).value="");
+    $("r0").value=50;$("r1").value=50;touched0=false;
+    sync0();sync1();relight();$("out").classList.remove("on");$("delta").classList.remove("on");current=null;
+    window.scrollTo({top:0,behavior:"smooth"});
+  });
+
+  /* ---- seed example cards (honor the author's own seedbed) ---- */
+  const SEEDS=[
+    {n:"いろいし（色石）",claim:"この中古の色石は、二束三文だ",p0:"新品か",p1:"ゴミか",v0:8,
+     axis2:"何回でも同じ値で売れる相場",a2p0:"値がつかない",a2p1:"循環する資産",v1:82,
+     d:"新品/ゴミ → <b>循環する相場</b>"},
+    {n:"しんじゅ（真珠）",claim:"この真珠は照りが弱い。価値がない",p0:"照りが死",p1:"照りが完璧",v0:18,
+     axis2:"巻き厚（真珠層＝世代を超える耐久）",a2p0:"薄い",a2p1:"分厚い",v1:76,
+     d:"照り → <b>巻き厚</b>"},
+    {n:"はずしいし（外し石）",claim:"指輪から外した石なんて、ゴミだ",p0:"商品",p1:"廃棄",v0:6,
+     axis2:"都市鉱山（捨てられた価値の栄養層）",a2p0:"埋もれている",a2p1:"掘り起こせる",v1:88,
+     d:"ゴミ → <b>都市鉱山</b>"}
+  ];
+  const exb=$("ex");
+  SEEDS.forEach(s=>{
+    const el=document.createElement("div");el.className="exc";
+    el.innerHTML='<div class="en">'+s.n+'</div><div class="ed">'+s.d+'</div>';
+    el.addEventListener("click",()=>{
+      $("claim").value=s.claim;$("pole0").value=s.p0;$("pole1").value=s.p1;
+      $("axis2").value=s.axis2;$("a2p0").value=s.a2p0;$("a2p1").value=s.a2p1;
+      $("r0").value=s.v0;$("r1").value=s.v1;touched0=true;
+      sync0();sync1();relight();
+      $("s1").scrollIntoView({behavior:"smooth",block:"start"});
+      toast("読み込んだ。04 まで触ってみて");
+    });
+    exb.appendChild(el);
+  });
+
+  /* ---- toast ---- */
+  let tT;function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");
+    clearTimeout(tT);tT=setTimeout(()=>t.classList.remove("on"),1900);}
+
+  /* init */
+  sync0();sync1();relight();render();
+})();
+</script>
+</body>
+</html>
