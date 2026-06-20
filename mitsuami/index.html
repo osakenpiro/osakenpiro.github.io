@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三つ編み — 名前を 音韻×意味×構造 で編む</title>
+<meta name="description" content="名づけは Boolean ではなく Float。候補を 音韻・意味・構造 の三層で 0.00〜1.00 に編み上げ、序列をつける三重がけ命名ツール。">
+<meta property="og:title" content="三つ編み — Mitsuami">
+<meta property="og:description" content="名前を 音韻×意味×構造 の三層 Float で編む。#全人類UX改善">
+<meta property="og:url" content="https://osakenpiro.github.io/mitsuami/">
+<meta property="og:type" content="website">
+<style>
+:root{
+  --osk-void:#0a0a0f; --osk-void-deep:#06060a; --osk-surface:#15141a; --osk-surface-hi:#1c1a23;
+  --osk-gold:#d4a853; --osk-gold-soft:rgba(212,168,83,0.12); --osk-gold-glow:rgba(212,168,83,0.25); --osk-gold-edge:rgba(212,168,83,0.45);
+  --osk-parchment:#c8b8a0; --osk-violet:#a78bfa; --osk-debris-1:#6b6b80; --osk-debris-2:#3a3530;
+  --osk-fg-1:#e8e0d0; --osk-fg-2:#b8b0a0; --osk-fg-3:#807868; --osk-dim:#5a5448;
+  --osk-border:rgba(200,184,160,0.06); --osk-border-hover:rgba(212,168,83,0.20); --osk-border-strong:rgba(212,168,83,0.45);
+  --osk-font-sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Sans","Yu Gothic Medium","Yu Gothic",system-ui,sans-serif;
+  --osk-font-serif:"Cormorant Garamond","Times New Roman","游明朝体","Yu Mincho","YuMincho","Hiragino Mincho ProN",serif;
+  --osk-font-mono:"JetBrains Mono","SF Mono","Menlo","Consolas",monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--osk-void);color:var(--osk-fg-1);font-family:var(--osk-font-sans);line-height:1.7;letter-spacing:0.01em;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+body{background:radial-gradient(ellipse at 50% -10%,#100f17 0%,var(--osk-void) 45%,var(--osk-void-deep) 100%);min-height:100vh;}
+/* faint star field */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(1px 1px at 20% 30%,rgba(232,224,208,0.25),transparent),radial-gradient(1px 1px at 70% 60%,rgba(232,224,208,0.18),transparent),radial-gradient(1px 1px at 40% 80%,rgba(212,168,83,0.20),transparent),radial-gradient(1px 1px at 85% 15%,rgba(232,224,208,0.15),transparent),radial-gradient(1px 1px at 12% 70%,rgba(232,224,208,0.12),transparent);
+  background-repeat:no-repeat;opacity:0.7;}
+.wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:56px 22px 96px;}
+header{text-align:center;margin-bottom:14px;}
+.caption{font-family:var(--osk-font-serif);font-size:0.66rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--osk-dim);}
+h1.title{font-family:var(--osk-font-serif);font-style:italic;font-weight:300;font-size:clamp(2.4rem,7vw,3.8rem);line-height:1.05;letter-spacing:0.04em;margin:8px 0 6px;color:var(--osk-fg-1);}
+h1.title .braid{color:var(--osk-gold);}
+.tagline{color:var(--osk-fg-2);font-size:0.96rem;margin:0 auto;max-width:560px;}
+.tagline b{color:var(--osk-gold);font-weight:500;}
+.philo{margin:18px auto 0;max-width:600px;font-size:0.8rem;color:var(--osk-fg-3);border-top:1px solid var(--osk-border);border-bottom:1px solid var(--osk-border);padding:10px 0;}
+.philo code{font-family:var(--osk-font-mono);color:var(--osk-parchment);font-size:0.74rem;}
+
+.panel{background:var(--osk-surface);border:1px solid var(--osk-border);border-radius:14px;padding:22px;margin:22px 0;}
+.panel h2{font-family:var(--osk-font-serif);font-style:italic;font-weight:300;font-size:1.25rem;letter-spacing:0.03em;margin:0 0 4px;color:var(--osk-fg-1);}
+.panel .hint{font-size:0.76rem;color:var(--osk-fg-3);margin:0 0 14px;}
+label.fld{display:block;font-size:0.72rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--osk-fg-3);margin:14px 0 6px;}
+textarea,input[type=text]{width:100%;background:var(--osk-void);color:var(--osk-fg-1);border:1px solid var(--osk-border);border-radius:10px;padding:12px 14px;font-family:var(--osk-font-sans);font-size:0.95rem;line-height:1.6;resize:vertical;transition:border-color .15s;}
+textarea:focus,input[type=text]:focus{outline:none;border-color:var(--osk-border-strong);}
+textarea{min-height:128px;font-family:var(--osk-font-mono);font-size:0.86rem;letter-spacing:0.02em;}
+
+.weights{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:8px;}
+@media(max-width:640px){.weights{grid-template-columns:1fr;}}
+.wt{background:var(--osk-void);border:1px solid var(--osk-border);border-radius:10px;padding:12px 14px;}
+.wt .wt-top{display:flex;justify-content:space-between;align-items:baseline;}
+.wt .wt-name{font-size:0.9rem;color:var(--osk-fg-1);}
+.wt .wt-name small{display:block;font-size:0.66rem;color:var(--osk-fg-3);letter-spacing:0.04em;}
+.wt .wt-val{font-family:var(--osk-font-mono);font-size:0.82rem;color:var(--osk-gold);}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;background:var(--osk-debris-2);border-radius:2px;margin:12px 0 2px;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:15px;height:15px;border-radius:50%;background:var(--osk-gold);cursor:pointer;border:2px solid var(--osk-void);box-shadow:0 0 0 1px var(--osk-gold-edge);}
+input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--osk-gold);cursor:pointer;border:2px solid var(--osk-void);}
+
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+button{font-family:var(--osk-font-sans);font-size:0.86rem;letter-spacing:0.06em;padding:11px 22px;border-radius:10px;cursor:pointer;transition:all .15s;border:1px solid var(--osk-border-strong);background:var(--osk-gold-soft);color:var(--osk-gold);}
+button:hover{background:rgba(212,168,83,0.20);border-color:var(--osk-gold);}
+button.ghost{background:transparent;border-color:var(--osk-border);color:var(--osk-fg-2);}
+button.ghost:hover{border-color:var(--osk-border-hover);color:var(--osk-fg-1);}
+
+#results{margin-top:8px;}
+.summary{text-align:center;color:var(--osk-fg-3);font-size:0.8rem;margin:6px 0 18px;}
+.card{background:var(--osk-surface);border:1px solid var(--osk-border);border-radius:14px;padding:18px 20px;margin:14px 0;transition:border-color .2s,transform .2s;position:relative;overflow:hidden;}
+.card:hover{border-color:var(--osk-border-hover);}
+.card.win{border-color:var(--osk-gold-edge);box-shadow:0 0 24px -8px var(--osk-gold-glow);}
+.card.win::before{content:"最も強く編めた";position:absolute;top:0;right:0;font-size:0.6rem;letter-spacing:0.18em;color:var(--osk-void);background:var(--osk-gold);padding:3px 12px;border-bottom-left-radius:10px;}
+.card-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+.rank{font-family:var(--osk-font-mono);font-size:0.8rem;color:var(--osk-dim);min-width:1.6em;}
+.cand{font-family:var(--osk-font-serif);font-size:1.7rem;font-weight:400;letter-spacing:0.03em;color:var(--osk-fg-1);}
+.cand .yomi{font-family:var(--osk-font-sans);font-size:0.8rem;color:var(--osk-fg-3);margin-left:8px;letter-spacing:0.08em;}
+.composite{margin-left:auto;text-align:right;}
+.composite .big{font-family:var(--osk-font-mono);font-size:1.7rem;color:var(--osk-gold);line-height:1;}
+.composite .lab{font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--osk-dim);}
+.layers{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:16px;}
+@media(max-width:560px){.layers{grid-template-columns:1fr;}}
+.layer{}
+.layer .ltop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;}
+.layer .lname{font-size:0.74rem;color:var(--osk-fg-2);letter-spacing:0.06em;}
+.layer .lname small{color:var(--osk-fg-3);font-size:0.62rem;}
+.layer .lval{font-family:var(--osk-font-mono);font-size:0.74rem;color:var(--osk-parchment);}
+.bar{height:5px;background:var(--osk-debris-2);border-radius:3px;overflow:hidden;}
+.bar > i{display:block;height:100%;background:linear-gradient(90deg,rgba(212,168,83,0.55),var(--osk-gold));border-radius:3px;transition:width .5s cubic-bezier(.2,.7,.2,1);}
+.why{margin-top:14px;border-top:1px solid var(--osk-border);padding-top:12px;display:none;}
+.why.open{display:block;}
+.why ul{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:4px 18px;}
+@media(max-width:560px){.why ul{grid-template-columns:1fr;}}
+.why li{font-size:0.74rem;color:var(--osk-fg-3);display:flex;justify-content:space-between;gap:8px;border-bottom:1px dotted var(--osk-border);padding:2px 0;}
+.why li b{color:var(--osk-parchment);font-family:var(--osk-font-mono);font-weight:400;}
+.cardbtns{margin-top:12px;display:flex;gap:10px;}
+.cardbtns button{padding:6px 14px;font-size:0.72rem;}
+.override{margin-top:12px;display:none;align-items:center;gap:10px;background:var(--osk-void);border:1px solid var(--osk-border);border-radius:8px;padding:8px 12px;}
+.override.open{display:flex;}
+.override span{font-size:0.72rem;color:var(--osk-fg-3);white-space:nowrap;}
+.override input[type=range]{margin:0;flex:1;}
+.override b{font-family:var(--osk-font-mono);font-size:0.74rem;color:var(--osk-gold);min-width:3em;text-align:right;}
+
+footer{margin-top:48px;text-align:center;color:var(--osk-dim);font-size:0.72rem;line-height:1.9;}
+footer a{color:var(--osk-fg-3);}footer a:hover{color:var(--osk-gold);}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--osk-surface-hi);border:1px solid var(--osk-gold-edge);color:var(--osk-fg-1);padding:10px 20px;border-radius:10px;font-size:0.82rem;opacity:0;transition:all .3s;z-index:10;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.empty{text-align:center;color:var(--osk-dim);font-size:0.86rem;padding:40px 0;font-family:var(--osk-font-serif);font-style:italic;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="caption">Visionium ／ 全人類UX改善 ・ Boolean → Float</div>
+  <h1 class="title">三つ<span class="braid">編み</span></h1>
+  <p class="tagline">名前を <b>音韻</b> × <b>意味</b> × <b>構造</b> の三層で編み、<br>0.00〜1.00 の <b>Float</b> で序列をつける。</p>
+  <div class="philo">
+    「いい名前か？」は <code>Yes/No</code> ではない。三本の糸の<strong>編み込み強度</strong>として
+    <code>0.00 → 1.00</code> に測る。三重がけ命名法を、その場で動く道具に。
+  </div>
+</header>
+
+<div class="panel">
+  <h2>候補を入れる</h2>
+  <p class="hint">1行に1つ。読みを添えると音韻がより正確に測れる →「<span class="osk-mono">表記 / よみ</span>」または「<span class="osk-mono">表記, よみ</span>」。かな・ローマ字だけならそのままでOK。</p>
+  <label class="fld">候補リスト</label>
+  <textarea id="cands" spellcheck="false" placeholder="天人𦻙記 / てんにんずき&#10;星は知らない&#10;0.5の魔女 / れいてんごのまじょ&#10;Mitsuami"></textarea>
+  <label class="fld">狙い・コンセプト（任意 / 意味の評価に使う狙いキーワード）</label>
+  <input id="concept" type="text" spellcheck="false" placeholder="例：　夜　記憶　やわらかさ　喪失">
+  <label class="fld">三層の重み（個別最適 ／ 規格は 0.34 : 0.33 : 0.33）</label>
+  <div class="weights">
+    <div class="wt"><div class="wt-top"><span class="wt-name">音韻<small>おんいん・響き</small></span><span class="wt-val" id="wlab0">0.34</span></div><input id="w0" type="range" min="0" max="100" value="34"></div>
+    <div class="wt"><div class="wt-top"><span class="wt-name">意味<small>いみ・射抜き</small></span><span class="wt-val" id="wlab1">0.33</span></div><input id="w1" type="range" min="0" max="100" value="33"></div>
+    <div class="wt"><div class="wt-top"><span class="wt-name">構造<small>こうぞう・見た目</small></span><span class="wt-val" id="wlab2">0.33</span></div><input id="w2" type="range" min="0" max="100" value="33"></div>
+  </div>
+  <div class="row">
+    <button id="run">編む（採点する）</button>
+    <button class="ghost" id="share">この状態を共有リンクに</button>
+    <button class="ghost" id="sample">例を入れる</button>
+    <button class="ghost" id="clear">消す</button>
+  </div>
+</div>
+
+<div id="results"></div>
+
+<footer>
+  三つ編み — Mitsuami ・ 音韻×意味×構造の三重がけ ・ 完全オフライン採点（外部送信なし）<br>
+  すべての評価は<strong>透明なヒューリスティック</strong>。意味の自動評価は推定値で、各候補のスライダーで手で上書きできる（不確実性を Float に開く）。<br>
+  <span class="osk-mono">#全人類UX改善 ・ osakenpiro</span>
+</footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   三つ編み — 三重がけ命名 採点エンジン（offline-pure）
+   音韻 / 意味 / 構造 をそれぞれ 0..1 の Float に。Boolean→Float。
+   ============================================================ */
+
+const SMALL = new Set([..."ぁぃぅぇぉゃゅょゎァィゥェォャュョヮ"]); // っ/ッ は別モーラなので除外
+const SOKUON = new Set([..."っッ"]);
+const CHOON = "ー";
+
+// カタカナ→ひらがな（母音判定用）
+function kataToHira(s){
+  return s.replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60));
+}
+// かなの母音（a/i/u/e/o）を返す。判定不能なら ""
+const VOWEL = {};
+(function(){
+  const rows = {a:"あかさたなはまやらわがざだばぱ", i:"いきしちにひみりぎじぢびぴ",
+                u:"うくすつぬふむゆるぐずづぶぷ", e:"えけせてねへめれげぜでべぺ",
+                o:"おこそとのほもよろをごぞどぼぽ"};
+  for(const v in rows) for(const ch of rows[v]) VOWEL[ch]=v;
+  const sm = {a:"ぁゃ",i:"ぃ",u:"ぅゅゆ",e:"ぇ",o:"ぉょ"}; // 拗音の母音は後半に従うのでここは補助
+  for(const v in sm) for(const ch of sm[v]) VOWEL[ch]=v;
+})();
+
+// 文字列をモーラ配列へ（かな前提。漢字混じりは近似でモーラ数のみ補正）
+function moraify(reading){
+  const s = kataToHira(reading).replace(/\s+/g,"");
+  const chars=[...s];
+  const out=[];
+  for(let i=0;i<chars.length;i++){
+    const c=chars[i], nxt=chars[i+1];
+    if(nxt && SMALL.has(kataToHira(nxt))){ out.push(c+nxt); i++; }
+    else out.push(c);
+  }
+  return out;
+}
+const isKanji=c=>/[一-鿿㐀-䶿豈-﫿\u{20000}-\u{2FA1F}]/u.test(c);
+const isHira=c=>/[ぁ-ゖゝ-ゟ]/.test(c);
+const isKata=c=>/[ァ-ヺヽ-ヿㇰ-ㇿ]/.test(c);
+const isLatin=c=>/[A-Za-z]/.test(c);
+const isDigit=c=>/[0-9０-９]/.test(c);
+
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+// 山型スコア：sweet spot lo..hi で 1、外れるほど減衰
+function plateau(x,lo,hi,slack){
+  if(x>=lo && x<=hi) return 1;
+  const d = x<lo ? lo-x : x-hi;
+  return clamp(1 - d/slack);
+}
+
+/* ---------- 音韻 ---------- */
+function scoreOnin(disp, reading){
+  const why={};
+  const mr = moraify(reading||disp);
+  // 漢字のみで読み未指定なら近似（漢字1字≈1.8モーラ）
+  let mcount = mr.length;
+  if(!reading){
+    const kj=[...disp].filter(isKanji).length;
+    if(kj>0 && [...disp].every(c=>isKanji(c)||/\s/.test(c))) mcount = Math.round(kj*1.8);
+  }
+  // 1) 長さ：3〜5モーラが甘め、2〜7まで許容
+  const sLen = plateau(mcount,3,5,4);
+  why["モーラ数"]=mcount+" → "+sLen.toFixed(2);
+  // 2) 母音の明るさ（a/o＝開）と多様性
+  const vowels = mr.map(m=>{const h=kataToHira(m); for(const ch of [...h].reverse()){ if(VOWEL[ch]) return VOWEL[ch]; } return ""; }).filter(Boolean);
+  let sBright=0.5, sVar=0.5;
+  if(vowels.length){
+    const open=vowels.filter(v=>v==="a"||v==="o").length/vowels.length;
+    sBright=clamp(0.45+open*0.55); // 開母音が多いほど明るい
+    const uniq=new Set(vowels).size;
+    sVar=clamp(uniq/Math.min(vowels.length,4)); // 母音の多様性（単調すぎない）
+  }
+  why["母音の明るさ"]=sBright.toFixed(2);
+  why["母音の多様性"]=sVar.toFixed(2);
+  // 3) リズム：同音反復・頭韻（編みやすさ＝記憶に残る）
+  let rep=0;
+  for(let i=1;i<mr.length;i++) if(mr[i]===mr[i-1]) rep++;
+  const head = mr.length>=2 && mr[0]===mr[Math.floor(mr.length/2)] ? 1 : 0;
+  const sRhythm=clamp(0.5 + rep*0.18 + head*0.15);
+  why["反復・頭韻"]=(rep?("反復"+rep):"")+(head?" 頭韻":"")||"なし";
+  // 4) 濁音の punch（少量で締まる、多すぎ重い）
+  const daku=[...kataToHira(reading||disp)].filter(c=>"がぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽゔ".includes(c)).length;
+  const dRatio = mcount? daku/mcount : 0;
+  const sDaku = plateau(dRatio,0.08,0.34,0.5);
+  why["濁音バランス"]=(dRatio*100|0)+"%";
+  // 5) 促音・長音の伸び（1つで効く）
+  const longs=[...(reading||disp)].filter(c=>SOKUON.has(c)||c===CHOON).length;
+  const sLong = longs===0?0.85 : longs<=2?1:0.7;
+  const onin = clamp(0.30*sLen + 0.18*sBright + 0.16*sVar + 0.20*sRhythm + 0.10*sDaku + 0.06*sLong);
+  return {score:onin, why};
+}
+
+/* ---------- 意味 ---------- */
+function scoreImi(disp, targets){
+  const why={};
+  const chars=[...disp.replace(/\s/g,"")];
+  const kanji=chars.filter(isKanji);
+  // 1) 意味密度：意味を担う字（漢字＋カタカナ語）の比率（甘め 0.3〜0.8）
+  const dense = chars.length? (kanji.length + chars.filter(isKata).length)/chars.length : 0;
+  const sDense = plateau(dense,0.3,0.85,0.5);
+  why["意味密度"]=(dense*100|0)+"%";
+  // 2) 多義ポテンシャル：固有漢字数（各漢字＝複数の読み/含意の入口）
+  const uniqKj=new Set(kanji).size;
+  const sTagi = clamp(uniqKj/3); // 3字で飽和
+  why["多義の入口(漢字種)"]=uniqKj;
+  // 3) 狙い射抜き：狙いキーワードとの字面の重なり / 含有
+  let sHit=0.5, hitNote="狙い未指定（中立0.5）";
+  if(targets && targets.length){
+    let contained=0, charOverlap=0;
+    const candSet=new Set(chars);
+    const tgChars=new Set();
+    for(const t of targets){ if(t && disp.includes(t)) contained++; for(const ch of t) tgChars.add(ch); }
+    let inter=0; tgChars.forEach(ch=>{ if(candSet.has(ch)) inter++; });
+    charOverlap = tgChars.size? inter/tgChars.size : 0;
+    sHit = clamp(0.25 + contained*0.4 + charOverlap*0.5);
+    hitNote = (contained?("語含有"+contained):"") + " 字重なり"+(charOverlap*100|0)+"%";
+  }
+  why["狙い射抜き"]=hitNote;
+  const imi = clamp(0.30*sDense + 0.22*sTagi + 0.48*sHit);
+  return {score:imi, why, auto:imi};
+}
+
+/* ---------- 構造 ---------- */
+const COMMON = new Set(["愛","夢","光","空","風","海","星","花","月","世界","希望","未来","物語","君","僕","旅","道"]);
+function scoreKozo(disp){
+  const why={};
+  const chars=[...disp.replace(/\s/g,"")];
+  const n=chars.length;
+  // 1) 字数：2〜6字が甘め（ロゴ化・記憶）
+  const sLen=plateau(n,2,6,5);
+  why["字数"]=n+" → "+sLen.toFixed(2);
+  // 2) 字種ミックス：2〜3種が理想（漢/かな/カナ/ラテン/数字）
+  const kinds=new Set();
+  for(const c of chars){ if(isKanji(c))kinds.add("漢"); else if(isHira(c))kinds.add("か"); else if(isKata(c))kinds.add("カ"); else if(isLatin(c))kinds.add("A"); else if(isDigit(c))kinds.add("数"); else kinds.add("他"); }
+  const k=kinds.size;
+  const sMix = k===1?0.6 : (k===2||k===3)?1 : 0.7;
+  why["字種ミックス"]=[...kinds].join("+")+" ("+k+")";
+  // 3) かたち：頭尾一致 / 反復字（編みの対称）
+  let sShape=0.6;
+  if(n>=2){
+    if(chars[0]===chars[n-1]) sShape=Math.max(sShape,0.9);
+    const uniq=new Set(chars).size;
+    if(uniq<n) sShape=Math.max(sShape, 0.8); // 反復字あり
+  }
+  why["かたち(対称/反復)"]=sShape.toFixed(2);
+  // 4) 検索性：ありふれた一語そのままは減点
+  let sUniq=0.85;
+  if(n<=2 && COMMON.has(disp.trim())) sUniq=0.35;
+  why["検索性(独自さ)"]=sUniq.toFixed(2);
+  const kozo=clamp(0.28*sLen + 0.26*sMix + 0.22*sShape + 0.24*sUniq);
+  return {score:kozo, why};
+}
+
+/* ---------- 統合 ---------- */
+function parseLine(line){
+  const m=line.split(/\s*[\/,，、]\s*/); // 表記 / よみ
+  return {disp:(m[0]||"").trim(), reading:(m[1]||"").trim()};
+}
+const overrides={}; // disp -> manual 意味 float
+
+function evaluate(){
+  const raw=document.getElementById("cands").value.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+  const concept=document.getElementById("concept").value.trim();
+  const targets=concept? concept.split(/[\s,，、]+/).filter(Boolean):[];
+  const w=[w0,w1,w2].map(el=>+el.value);
+  const wsum=w.reduce((a,b)=>a+b,0)||1;
+  const W=w.map(x=>x/wsum);
+  const items=raw.map(line=>{
+    const {disp,reading}=parseLine(line);
+    const o=scoreOnin(disp,reading);
+    const im=scoreImi(disp,targets);
+    const k=scoreKozo(disp);
+    const imiVal = (disp in overrides)? overrides[disp] : im.score;
+    const comp = W[0]*o.score + W[1]*imiVal + W[2]*k.score;
+    return {disp,reading,o,im,k,imiVal,comp};
+  });
+  items.sort((a,b)=>b.comp-a.comp);
+  render(items,W);
+  persist();
+}
+
+function bar(v){return `<div class="bar"><i style="width:${(v*100).toFixed(1)}%"></i></div>`;}
+function whyList(obj){return `<ul>${Object.entries(obj).map(([k,v])=>`<li><span>${k}</span><b>${v}</b></li>`).join("")}</ul>`;}
+
+function render(items,W){
+  const res=document.getElementById("results");
+  if(!items.length){res.innerHTML=`<div class="empty">候補を入れて「編む」を押すと、三層の Float が立ち上がる。</div>`;return;}
+  const best=items[0].comp;
+  let html=`<div class="summary">${items.length} 候補を 音韻:${W[0].toFixed(2)} / 意味:${W[1].toFixed(2)} / 構造:${W[2].toFixed(2)} で編んだ</div>`;
+  items.forEach((it,i)=>{
+    const win = i===0 && (items.length<2 || items[0].comp-items[1].comp>0.0001);
+    const id="c"+i;
+    html+=`<div class="card${win?' win':''}">
+      <div class="card-head">
+        <span class="rank">${String(i+1).padStart(2,'0')}</span>
+        <span class="cand">${esc(it.disp)}${it.reading?`<span class="yomi">${esc(it.reading)}</span>`:""}</span>
+        <span class="composite"><div class="big">${it.comp.toFixed(2)}</div><div class="lab">編み込み強度</div></span>
+      </div>
+      <div class="layers">
+        ${layerHtml("音韻","おんいん",it.o.score)}
+        ${layerHtml("意味","いみ"+(it.disp in overrides?"・手動":""),it.imiVal)}
+        ${layerHtml("構造","こうぞう",it.k.score)}
+      </div>
+      <div class="cardbtns">
+        <button class="ghost" onclick="toggleWhy('${id}')">内訳</button>
+        <button class="ghost" onclick="toggleOv('${id}')">意味を手で直す</button>
+        <button class="ghost" onclick="copyOne(${i})">コピー</button>
+      </div>
+      <div class="override" id="ov_${id}">
+        <span>意味 Float</span>
+        <input type="range" min="0" max="100" value="${Math.round(it.imiVal*100)}" oninput="setOv('${esc(it.disp)}',this.value,'${id}')">
+        <b id="ovv_${id}">${it.imiVal.toFixed(2)}</b>
+      </div>
+      <div class="why" id="why_${id}">
+        <div style="font-size:.68rem;letter-spacing:.14em;color:var(--osk-dim);text-transform:uppercase;margin-bottom:8px">音韻の内訳</div>${whyList(it.o.why)}
+        <div style="font-size:.68rem;letter-spacing:.14em;color:var(--osk-dim);text-transform:uppercase;margin:12px 0 8px">意味の内訳（自動推定 ${it.im.auto.toFixed(2)}）</div>${whyList(it.im.why)}
+        <div style="font-size:.68rem;letter-spacing:.14em;color:var(--osk-dim);text-transform:uppercase;margin:12px 0 8px">構造の内訳</div>${whyList(it.k.why)}
+      </div>
+    </div>`;
+  });
+  res.innerHTML=html;
+  window.__items=items;
+}
+function layerHtml(name,sub,v){
+  return `<div class="layer"><div class="ltop"><span class="lname">${name} <small>${sub}</small></span><span class="lval">${v.toFixed(2)}</span></div>${bar(v)}</div>`;
+}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toggleWhy(id){document.getElementById("why_"+id).classList.toggle("open");}
+function toggleOv(id){document.getElementById("ov_"+id).classList.toggle("open");}
+function setOv(disp,val,id){overrides[disp]=(+val)/100;document.getElementById("ovv_"+id).textContent=((+val)/100).toFixed(2);evaluate();}
+function copyOne(i){const it=window.__items[i];const t=`${it.disp}${it.reading?' ('+it.reading+')':''} — 編み込み強度 ${it.comp.toFixed(2)} ｜音韻${it.o.score.toFixed(2)} 意味${it.imiVal.toFixed(2)} 構造${it.k.score.toFixed(2)}`;copy(t);}
+
+/* ---------- 永続化（腐葉土：自動で消さない） ---------- */
+const KEY="mitsuami.v1";
+function persist(){
+  try{localStorage.setItem(KEY,JSON.stringify({
+    cands:document.getElementById("cands").value,
+    concept:document.getElementById("concept").value,
+    w:[+w0.value,+w1.value,+w2.value], overrides
+  }));}catch(e){}
+}
+function restore(){
+  try{
+    const fromHash=readHash();
+    const d=fromHash||JSON.parse(localStorage.getItem(KEY)||"null");
+    if(!d)return false;
+    document.getElementById("cands").value=d.cands||"";
+    document.getElementById("concept").value=d.concept||"";
+    if(d.w){w0.value=d.w[0];w1.value=d.w[1];w2.value=d.w[2];}
+    Object.assign(overrides,d.overrides||{});
+    syncW();return !!(d.cands&&d.cands.trim());
+  }catch(e){return false;}
+}
+
+/* ---------- 共有（URLハッシュ：オフライン完結） ---------- */
+function readHash(){
+  if(location.hash.length>1){try{return JSON.parse(decodeURIComponent(escape(atob(location.hash.slice(1)))));}catch(e){}}
+  return null;
+}
+function makeHash(){
+  const d={cands:cands.value,concept:concept.value,w:[+w0.value,+w1.value,+w2.value],overrides};
+  return btoa(unescape(encodeURIComponent(JSON.stringify(d))));
+}
+
+/* ---------- UI 配線 ---------- */
+const w0=document.getElementById("w0"),w1=document.getElementById("w1"),w2=document.getElementById("w2");
+const cands=document.getElementById("cands"),concept=document.getElementById("concept");
+function syncW(){wlab0.textContent=( +w0.value/100).toFixed(2);wlab1.textContent=(+w1.value/100).toFixed(2);wlab2.textContent=(+w2.value/100).toFixed(2);
+  const s=(+w0.value)+(+w1.value)+(+w2.value);if(s>0){wlab0.textContent=((+w0.value)/s).toFixed(2);wlab1.textContent=((+w1.value)/s).toFixed(2);wlab2.textContent=((+w2.value)/s).toFixed(2);}}
+[w0,w1,w2].forEach(el=>el.addEventListener("input",()=>{syncW();if(window.__items)evaluate();}));
+document.getElementById("run").onclick=evaluate;
+[cands,concept].forEach(el=>el.addEventListener("input",persist));
+document.getElementById("clear").onclick=()=>{cands.value="";concept.value="";for(const k in overrides)delete overrides[k];document.getElementById("results").innerHTML="";location.hash="";persist();render([], [0.34,0.33,0.33]);};
+document.getElementById("sample").onclick=()=>{
+  cands.value="天人𦻙記 / てんにんずき\n星は知らない\n0.5の魔女 / れいてんごのまじょ\nPEACE PIECE\n腐葉土 / ふようど\nMitsuami / みつあみ";
+  concept.value="夜 記憶 やわらかさ 余白";
+  persist();evaluate();
+};
+function copy(t){navigator.clipboard?.writeText(t).then(()=>toast("コピーした"),()=>toast("コピー失敗"));}
+document.getElementById("share").onclick=()=>{
+  if(!cands.value.trim()){toast("先に候補を入れて");return;}
+  const url=location.origin+location.pathname+"#"+makeHash();
+  history.replaceState(null,"","#"+makeHash());
+  copy(url);toast("共有リンクをコピーした");
+};
+let toastT;
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("sh
