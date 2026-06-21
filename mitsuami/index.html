@@ -133,6 +133,15 @@ footer a{color:var(--osk-fg-3);}footer a:hover{color:var(--osk-gold);}
 .rlegend .rk{font-family:var(--osk-font-mono);font-size:0.7rem;color:var(--osk-dim);}
 .rlegend b{font-family:var(--osk-font-mono);color:var(--osk-gold);font-weight:400;margin-left:auto;}
 .rtitle{font-size:0.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--osk-dim);text-align:center;width:100%;margin-bottom:2px;}
+.sweepwrap{background:var(--osk-surface);border:1px solid var(--osk-border);border-radius:14px;padding:16px 18px;margin:6px 0 18px;}
+.sweephead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
+.sweephead .rtitle{margin:0;width:auto;text-align:left;}
+.sweepbtns{display:flex;gap:6px;margin-left:auto;}
+.sweepbtns button{padding:4px 12px;font-size:0.72rem;border-radius:8px;}
+.sweepbtns button.active{background:var(--osk-gold);color:var(--osk-void);border-color:var(--osk-gold);}
+.sweepwrap svg{width:100%;height:auto;display:block;}
+.sweepnote{font-size:0.72rem;color:var(--osk-fg-3);margin-top:6px;}
+.sweepnote b{color:var(--osk-parchment);font-family:var(--osk-font-mono);font-weight:400;}
 </style>
 </head>
 <body>
@@ -186,7 +195,7 @@ footer a{color:var(--osk-fg-3);}footer a:hover{color:var(--osk-gold);}
 
 <footer>
   三つ編み — Mitsuami ・ 音韻×意味×構造の三重がけ ・ 採点はオフライン（候補は外部送信なし）<br>
-  連想類語だけ任意で Worker 経由（核の語のみ送る）・レーダー比較／モーラ可視化を搭載<br>
+  連想類語だけ任意で Worker 経由（核の語のみ送る）・レーダー比較／モーラ可視化／Float推移を搭載<br>
   すべての評価は<strong>透明なヒューリスティック</strong>。意味の自動評価は推定値で、各候補のスライダーで手で上書きできる（不確実性を Float に開く）。<br>
   <span class="osk-mono">#全人類UX改善 ・ osakenpiro</span>
 </footer>
@@ -387,6 +396,7 @@ function render(items,W){
   const best=items[0].comp;
   let html=`<div class="summary">${items.length} 候補を 音韻:${W[0].toFixed(2)} / 意味:${W[1].toFixed(2)} / 構造:${W[2].toFixed(2)} で編んだ</div>`;
   if(items.length>=2) html+=radarSVG(items);
+  if(items.length>=2) html+=sweepSVG(items,W);
   items.forEach((it,i)=>{
     const win = i===0 && (items.length<2 || items[0].comp-items[1].comp>0.0001);
     const id="c"+i;
@@ -556,6 +566,48 @@ if(document.getElementById("seedgear")) document.getElementById("seedgear").oncl
   const v=prompt("連想類語を取得する Worker の URL（空欄なら辞書リンクのみ）",cur);
   if(v!==null){ localStorage.setItem("mitsuami.renso.worker",v.trim()); toast(v.trim()?"取得元を設定した":"取得元をクリアした"); }
 };
+
+/* ---------- v1.1: Float推移（重み感度）グラフ ---------- */
+let _sweepAxis=1; // 0=音韻 1=意味 2=構造
+function setSweep(L){ _sweepAxis=L; if(window.__items) evaluate(); }
+function sweepSVG(items,W){
+  const L=_sweepAxis, names=["音韻","意味","構造"];
+  const others=[0,1,2].filter(i=>i!==L);
+  const sumO=W[others[0]]+W[others[1]];
+  const rat=sumO>0?[W[others[0]]/sumO,W[others[1]]/sumO]:[0.5,0.5];
+  const top=items.slice(0,5);
+  const sc=it=>[it.o.score,it.imiVal,it.k.score];
+  const y0=it=>{const s=sc(it);return rat[0]*s[others[0]]+rat[1]*s[others[1]];};
+  const y1=it=>sc(it)[L];
+  let lo=1,hi=0;
+  top.forEach(it=>{lo=Math.min(lo,y0(it),y1(it));hi=Math.max(hi,y0(it),y1(it));});
+  const pad=Math.max((hi-lo)*0.15,0.03); lo=clamp(lo-pad); hi=clamp(hi+pad); if(hi-lo<0.04){hi=clamp(lo+0.1);}
+  const X0=40,X1=370,Y0=16,Y1=158,PW=X1-X0,PH=Y1-Y0;
+  const px=t=>X0+t*PW, py=v=>Y1-((v-lo)/(hi-lo))*PH;
+  let g="";
+  [lo,(lo+hi)/2,hi].forEach(v=>{
+    g+=`<line x1="${X0}" y1="${py(v).toFixed(1)}" x2="${X1}" y2="${py(v).toFixed(1)}" stroke="var(--osk-border)" stroke-width="1"/>`;
+    g+=`<text x="${X0-6}" y="${(py(v)+3).toFixed(1)}" text-anchor="end" font-size="9" fill="var(--osk-dim)">${v.toFixed(2)}</text>`;
+  });
+  g+=`<text x="${X0}" y="${Y1+14}" text-anchor="start" font-size="9" fill="var(--osk-fg-3)">他層寄り</text>`;
+  g+=`<text x="${X1}" y="${Y1+14}" text-anchor="end" font-size="9" fill="var(--osk-fg-3)">${names[L]}だけ</text>`;
+  const tCur=clamp(W[L]);
+  g+=`<line x1="${px(tCur).toFixed(1)}" y1="${Y0}" x2="${px(tCur).toFixed(1)}" y2="${Y1}" stroke="var(--osk-gold-edge)" stroke-width="1" stroke-dasharray="3 3"/>`;
+  g+=`<text x="${px(tCur).toFixed(1)}" y="${(Y0-4).toFixed(1)}" text-anchor="middle" font-size="9" fill="var(--osk-gold)">今 ${tCur.toFixed(2)}</text>`;
+  const op=[1,0.5,0.38,0.28,0.22];
+  top.forEach((it,i)=>{
+    g+=`<line x1="${px(0)}" y1="${py(y0(it)).toFixed(1)}" x2="${px(1)}" y2="${py(y1(it)).toFixed(1)}" stroke="${i===0?'var(--osk-gold)':'var(--osk-parchment)'}" stroke-width="${i===0?2:1}" stroke-opacity="${op[i]}"/>`;
+  });
+  let dots="";
+  for(let a=0;a<top.length;a++)for(let b=a+1;b<top.length;b++){
+    const A0=y0(top[a]),A1=y1(top[a]),B0=y0(top[b]),B1=y1(top[b]);
+    const den=(A1-A0)-(B1-B0); if(Math.abs(den)<1e-6)continue;
+    const t=(B0-A0)/den;
+    if(t>0.02&&t<0.98){ const v=A0+(A1-A0)*t; dots+=`<circle cx="${px(t).toFixed(1)}" cy="${py(v).toFixed(1)}" r="2.4" fill="var(--osk-gold)" fill-opacity="0.7"/>`; }
+  }
+  const btns=names.map((nm,i)=>`<button class="${i===L?'active':''}" onclick="setSweep(${i})">${nm}</button>`).join("");
+  return `<div class="sweepwrap"><div class="sweephead"><div class="rtitle">Float推移 ・ 重み感度</div><div class="sweepbtns">${btns}</div></div><svg viewBox="0 0 380 176" role="img" aria-label="重み感度グラフ">${g}${dots}</svg><div class="sweepnote"><b>${names[L]}</b>の重みを 0→1 に振ったときの編み込み強度。金の点＝順位が入れ替わる<b>分岐</b>。縦線＝今の重み。</div></div>`;
+}
 
 /* ---------- UI 配線 ---------- */
 const w0=document.getElementById("w0"),w1=document.getElementById("w1"),w2=document.getElementById("w2");
