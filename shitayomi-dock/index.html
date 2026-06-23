@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>下読みドック — 埋もれた一話を、点検にかける。</title>
+<meta name="description" content="読むか読まないか、じゃない。どれくらい読むべきか。Web小説の第1話を逐語で点検し、5観点×0.00〜1.00で『読むべき度』を出すBoolean→Floatツール。">
+<meta property="og:title" content="下読みドック — 埋もれた一話を、点検にかける。">
+<meta property="og:description" content="読むか/読まないかの二択をやめる。第1話を逐語で点検して『読むべき度』を連続値にする。0PVの傑作に光を。">
+<meta property="og:url" content="https://osakenpiro.github.io/shitayomi-dock/">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0e0e14">
+<style>
+  :root{
+    --void:#0e0e14; --void2:#15151f; --panel:#1a1a26; --panel2:#20202e;
+    --line:#2c2c3c; --ink:#ece8e0; --ink-dim:#9a96a8; --ink-faint:#6b6878;
+    --gold:#d4a853; --gold-soft:#e7c986; --gold-deep:#a9812f;
+    --blue:#7d8bbd; --rose:#c97d8b; --green:#7dbd8b;
+    --r:14px; --r-sm:9px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--void);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",system-ui,sans-serif;
+    line-height:1.7;-webkit-font-smoothing:antialiased}
+  body{min-height:100vh;
+    background:
+      radial-gradient(1.2px 1.2px at 12% 18%, rgba(255,255,255,.5), transparent),
+      radial-gradient(1px 1px at 78% 12%, rgba(255,255,255,.35), transparent),
+      radial-gradient(1.4px 1.4px at 64% 64%, rgba(255,255,255,.3), transparent),
+      radial-gradient(1px 1px at 28% 78%, rgba(255,255,255,.3), transparent),
+      radial-gradient(1px 1px at 90% 84%, rgba(255,255,255,.25), transparent),
+      radial-gradient(900px 500px at 50% -10%, rgba(212,168,83,.08), transparent),
+      var(--void);
+    background-attachment:fixed}
+  .wrap{max-width:760px;margin:0 auto;padding:30px 18px 70px}
+  header{text-align:center;margin-bottom:22px}
+  .logo{font-size:34px;font-weight:800;letter-spacing:.16em;
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{color:var(--ink-dim);font-size:13.5px;letter-spacing:.04em;margin-top:6px}
+  .tagline{color:var(--gold-soft);font-size:13px;margin-top:9px;opacity:.92}
+
+  .panel{background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--line);border-radius:var(--r);padding:18px 16px;margin-bottom:16px;
+    box-shadow:0 1px 0 rgba(255,255,255,.02) inset, 0 10px 30px rgba(0,0,0,.25)}
+  .panel h2{font-size:12px;letter-spacing:.14em;color:var(--ink-faint);
+    text-transform:uppercase;font-weight:700;margin-bottom:13px;display:flex;align-items:center;gap:8px}
+  .panel h2 .step{color:var(--gold);font-weight:800}
+  .panel h2::before{content:"";width:14px;height:1px;background:var(--gold-deep)}
+
+  label.f{display:block;font-size:12px;color:var(--ink-dim);margin:0 0 5px 2px}
+  input[type=text],textarea,select{width:100%;background:var(--void2);border:1px solid var(--line);
+    color:var(--ink);border-radius:var(--r-sm);padding:10px 12px;font-size:15px;font-family:inherit;line-height:1.7}
+  textarea{resize:vertical;min-height:120px}
+  #ms{min-height:170px}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--gold-deep);box-shadow:0 0 0 2px rgba(212,168,83,.12)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:560px){.row{grid-template-columns:1fr}}
+
+  .meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px;color:var(--ink-faint)}
+  .count{font-variant-numeric:tabular-nums}
+  .count b{color:var(--ink-dim);font-weight:700}
+  .count.warn b{color:var(--rose)} .count.ok b{color:var(--gold-soft)} .count.good b{color:var(--green)}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;
+    border:1px solid var(--gold-deep);background:linear-gradient(180deg,rgba(212,168,83,.18),rgba(212,168,83,.06));
+    color:var(--gold-soft);border-radius:var(--r-sm);padding:11px 16px;font-size:14.5px;font-weight:700;font-family:inherit;
+    letter-spacing:.02em;transition:transform .08s ease,box-shadow .2s ease,background .2s}
+  .btn:hover{box-shadow:0 0 0 2px rgba(212,168,83,.12);transform:translateY(-1px)}
+  .btn:active{transform:translateY(0)}
+  .btn.full{width:100%}
+  .btn.ghost{border-color:var(--line);background:var(--void2);color:var(--ink-dim)}
+  .btn.sm{padding:7px 12px;font-size:12.5px}
+  .btnrow{display:flex;gap:9px;flex-wrap:wrap;margin-top:13px}
+
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:.05em;
+    color:var(--gold-soft);border:1px solid var(--gold-deep);border-radius:999px;padding:3px 10px;background:rgba(212,168,83,.06)}
+  .note{font-size:12px;color:var(--ink-faint);margin-top:9px;line-height:1.6}
+  .note code{color:var(--gold-soft);background:var(--void);padding:1px 5px;border-radius:4px;font-size:11.5px}
+
+  /* meter */
+  .verdict{text-align:center;margin:6px 0 16px}
+  .verdict .num{font-size:52px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1;
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .verdict .word{font-size:18px;font-weight:800;margin-top:7px;letter-spacing:.05em}
+  .verdict .word.miokuri{color:var(--rose)} .verdict .word.jouken{color:var(--gold-soft)} .verdict .word.yomu{color:var(--green)}
+  .verdict .cap{font-size:12px;color:var(--ink-faint);margin-top:3px}
+
+  .track{position:relative;height:14px;border-radius:999px;margin:14px 2px 6px;overflow:hidden;
+    background:linear-gradient(90deg, rgba(201,125,139,.5) 0%, rgba(201,125,139,.5) 40%, rgba(212,168,83,.5) 40%, rgba(212,168,83,.5) 62%, rgba(125,189,139,.5) 62%, rgba(125,189,139,.5) 100%);
+    border:1px solid var(--line)}
+  .track .mark{position:absolute;top:-4px;width:3px;height:20px;background:var(--ink);border-radius:2px;box-shadow:0 0 8px rgba(255,255,255,.5);transition:left .6s cubic-bezier(.2,.8,.2,1)}
+  .zones{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-faint);margin:0 2px 4px;letter-spacing:.03em}
+
+  .gauge{margin:13px 0}
+  .gauge .gl{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;margin-bottom:5px}
+  .gauge .gl .nm{color:var(--ink)} .gauge .gl .nm small{color:var(--ink-faint);font-size:11px;margin-left:6px}
+  .gauge .gl .vv{font-variant-numeric:tabular-nums;font-weight:700;color:var(--gold-soft)}
+  .bar{height:9px;border-radius:999px;background:var(--void2);border:1px solid var(--line);overflow:hidden}
+  .bar > i{display:block;height:100%;width:0;border-radius:999px;
+    background:linear-gradient(90deg,var(--gold-deep),var(--gold),var(--gold-soft));transition:width .7s cubic-bezier(.2,.8,.2,1)}
+  .gauge.dim .bar > i{background:linear-gradient(90deg,#555,#7a7686)}
+  .gcom{font-size:12px;color:var(--ink-dim);margin-top:6px;line-height:1.6}
+
+  .block{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line)}
+  .block .bt{font-size:11px;letter-spacing:.12em;color:var(--ink-faint);text-transform:uppercase;font-weight:700;margin-bottom:6px}
+  .block p{font-size:13.5px;color:var(--ink-dim)}
+  .weak{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .weak span{font-size:12px;border:1px solid var(--rose);color:var(--rose);border-radius:999px;padding:2px 10px;background:rgba(201,125,139,.07)}
+
+  details.adv{margin-top:2px}
+  details.adv summary{cursor:pointer;font-size:12.5px;color:var(--ink-faint);list-style:none;user-select:none}
+  details.adv summary::-webkit-details-marker{display:none}
+  details.adv summary::before{content:"▸ ";color:var(--gold-deep)}
+  details.adv[open] summary::before{content:"▾ "}
+
+  .hide{display:none}
+  .toggle{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-left:auto}
+  .toggle button{background:transparent;border:0;color:var(--ink-faint);font-family:inherit;font-size:11.5px;padding:4px 12px;cursor:pointer}
+  .toggle button.on{background:rgba(212,168,83,.14);color:var(--gold-soft);font-weight:700}
+
+  footer{text-align:center;color:var(--ink-faint);font-size:11.5px;margin-top:26px;line-height:1.9}
+  footer a{color:var(--gold-deep);text-decoration:none} footer a:hover{color:var(--gold-soft)}
+  .credo{color:var(--ink-faint);font-size:12px;margin-bottom:8px}
+  .credo b{color:var(--gold-soft);font-weight:700}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);opacity:0;
+    background:var(--panel2);border:1px solid var(--gold-deep);color:var(--gold-soft);
+    padding:10px 18px;border-radius:999px;font-size:13px;pointer-events:none;transition:.25s;z-index:9}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">下読みドック</div>
+    <div class="sub">埋もれた一話を、点検にかける。</div>
+    <div class="tagline">読む / 読まない、の二択をやめる。── どれくらい「読むべき」か。</div>
+  </header>
+
+  <!-- STEP 1 -->
+  <section class="panel">
+    <h2><span class="step">01</span>　原稿を入れる
+      <span class="toggle" id="modeToggle">
+        <button data-mode="reader" class="on">読者モード</button>
+        <button data-mode="author">作者モード</button>
+      </span>
+    </h2>
+    <div class="row">
+      <div>
+        <label class="f" for="title">作品名（任意）</label>
+        <input type="text" id="title" placeholder="無題でもOK">
+      </div>
+      <div>
+        <label class="f" for="src">出典・URL（任意）</label>
+        <input type="text" id="src" placeholder="カクヨムのURLなど">
+      </div>
+    </div>
+    <div style="margin-top:11px">
+      <label class="f" for="ms">第1話 / 冒頭の本文</label>
+      <textarea id="ms" placeholder="ここに第1話、または冒頭をまるごと貼る。&#10;下限1,200字 / 推奨3,000〜5,000字。&#10;逐語で点検するので、抜粋ではなく“ひとかたまり”で。"></textarea>
+      <div class="meta">
+        <span class="count" id="count"><b>0</b> 字</span>
+        <span id="countHint">— 貼ったら鍛えるへ</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="panel">
+    <h2><span class="step">02</span>　プロンプトを鍛える</h2>
+    <span class="badge">⚖ 第0条：逐語読解・読み飛ばし禁止</span>
+    <p class="note">下読み用プロンプトを生成して、好きなAI（ChatGPT / Gemini / Claude いずれも可）に原稿ごと渡す。返ってきた<code>JSON</code>を STEP&nbsp;03 に貼ると、点検結果がメーターになる。</p>
+    <div class="btnrow">
+      <button class="btn" id="copyPrompt">📋 プロンプトをコピー</button>
+      <button class="btn ghost sm" id="previewPrompt">中身を見る</button>
+    </div>
+    <textarea id="promptPreview" class="hide" style="margin-top:11px;min-height:200px;font-size:12px;color:var(--ink-dim)" readonly></textarea>
+
+    <details class="adv" style="margin-top:13px">
+      <summary>上級者向け：APIキーで直接採点する（任意）</summary>
+      <p class="note" style="margin-top:10px">キーは<b style="color:var(--gold-soft)">このブラウザ内だけ</b>に保存され、AI提供元へ直接送信される（サーバを経由しない）。ブラウザから直接叩ける Gemini / Claude に対応。OpenAIはCORS不可なので上のコピー方式で。</p>
+      <div class="row" style="margin-top:9px">
+        <div>
+          <label class="f" for="provider">提供元</label>
+          <select id="provider">
+            <option value="gemini">Google Gemini</option>
+            <option value="claude">Anthropic Claude</option>
+          </select>
+        </div>
+        <div>
+          <label class="f" for="model">モデル名（変わるので必要なら書換）</label>
+          <input type="text" id="model" placeholder="gemini-2.0-flash">
+        </div>
+      </div>
+      <div style="margin-top:9px">
+        <label class="f" for="apikey">APIキー</label>
+        <input type="text" id="apikey" placeholder="sk-... / AIza...">
+      </div>
+      <div class="meta" style="margin-top:8px">
+        <label style="font-size:12px;color:var(--ink-dim);cursor:pointer"><input type="checkbox" id="remember" style="width:auto;vertical-align:-1px;margin-right:6px">このブラウザに記憶</label>
+        <span></span>
+      </div>
+      <div class="btnrow">
+        <button class="btn full" id="scoreNow">⚡ 直接採点する</button>
+      </div>
+      <p class="note" id="byokStatus"></p>
+    </details>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="panel">
+    <h2><span class="step">03</span>　採点を貼る → 点検結果</h2>
+    <label class="f" for="paste">AIが返した JSON をここに貼る（直接採点なら自動で入る）</label>
+    <textarea id="paste" placeholder='{ "scores": { "character": 0.7, ... }, "comments": {...}, "yomugo": "...", "reader": "..." }'></textarea>
+    <div class="btnrow">
+      <button class="btn" id="render">🔬 点検する</button>
+      <button class="btn ghost sm" id="demo">サンプルで試す</button>
+    </div>
+
+    <div id="result" class="hide" style="margin-top:18px">
+      <div class="verdict">
+        <div class="num" id="vNum">0.00</div>
+        <div class="word" id="vWord">—</div>
+        <div class="cap" id="vTitle"></div>
+      </div>
+      <div class="zones"><span>0.0 見送り</span><span>条件付き</span><span>読むべき 1.0</span></div>
+      <div class="track"><div class="mark" id="vMark" style="left:0%"></div></div>
+
+      <div id="gauges"></div>
+
+      <div class="block" id="weakBlock" style="display:none">
+        <div class="bt">弱点（作者モード）</div>
+        <div class="weak" id="weak"></div>
+      </div>
+      <div class="block">
+        <div class="bt">想定読後感</div>
+        <p id="yomugo">—</p>
+      </div>
+      <div class="block" id="readerBlock" style="display:none">
+        <div class="bt">推奨読者層</div>
+        <p id="reader">—</p>
+      </div>
+
+      <div class="btnrow" style="margin-top:16px">
+        <button class="btn sm" id="shareX">𝕏 で結果をシェア</button>
+        <button class="btn ghost sm" id="copyResult">結果テキストをコピー</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="credo"><b>Boolean → Float</b>　読むか読まないかの二値を、0.00〜1.00 の「読むべき度」に。</div>
+    タイトル・あらすじ・冒頭3行だけで切らない。読解コストはAIが肩代わりする。<br>
+    0PVの傑作に、光を。　<span style="opacity:.6">#全人類UX改善</span><br>
+    <a href="https://osakenpiro.github.io/furiko/">フリコ</a>　·　<a href="https://osakenpiro.github.io/yutori/">ゆとり</a>　·　<a href="https://osakenpiro.github.io/bakuun/">バクーン</a>　·　<span style="opacity:.5">下読みドック v0.1 / 2026-06-23</span>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const BUILD="2026-06-23-v0.1";
+// 重み（原典の優先順位：キャラ>プロット>わかりやすさ=文章 / 独創性は加点せずコメントのみ）
+const W={character:0.35, plot:0.30, clarity:0.175, prose:0.175, originality:0.0};
+const LABEL={character:"キャラクター",plot:"プロット期待値",prose:"文章力",clarity:"わかりやすさ",originality:"独創性"};
+const ORDER=["character","plot","prose","clarity","originality"];
+
+let MODE="reader";
+
+/* ---------- char counter ---------- */
+function countChars(){
+  const t=$("#ms").value.replace(/\s/g,"");
+  const n=t.length;
+  const el=$("#count"), hint=$("#countHint");
+  el.querySelector("b").textContent=n.toLocaleString();
+  el.className="count "+(n<1200?"warn":n<3000?"ok":"good");
+  hint.textContent = n===0 ? "— 貼ったら鍛えるへ"
+    : n<1200 ? "下限1,200字に未達（短いと誤判定が出やすい）"
+    : n<3000 ? "最低限OK。推奨は3,000字〜"
+    : n<=6000 ? "ちょうどいい分量" : "長め。冒頭の一話で十分";
+}
+$("#ms").addEventListener("input",countChars);
+
+/* ---------- mode ---------- */
+$("#modeToggle").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b)return;
+  MODE=b.dataset.mode;
+  $("#modeToggle").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));
+  if(STATE) render(STATE); // re-render emphasis
+});
+
+/* ---------- prompt forge ---------- */
+function buildPrompt(){
+  const ms=$("#ms").value.trim();
+  const title=$("#title").value.trim();
+  const head = title? `◇対象作品：「${title}」\n` : "";
+  return `あなたは文学賞の下読みを10年以上やってきた、プロのWeb小説レビュワーです。
+以下の小説（Web小説の第1話、または冒頭）を「逐語読解」してください。
+
+◇絶対事項（第0条）
+・逐語で読む。読み飛ばしは一切不可。要約で済ませない。
+・投稿者に迎合しない。両論併記は禁止。必ず明確に評価を下す。
+・各観点の評価と総合の論理的整合性を保つ。
+
+◇採点：次の5観点を、それぞれ 0.00〜1.00 の連続値で評価する（0.50が平均・中央値）
+・character … キャラクターの作り込み・魅力
+・plot … 「冒頭・第1話」として、今後おもしろくなるかの期待値
+・prose … 語彙の幅・表現の幅・描写力
+・clarity … 読解コストの低さ・要点整理（わかりやすさ）
+・originality … 既存作との差異（構成/語彙/主題/視点/語り口）。AI執筆の疑いがあれば指摘。※加点要素ではなくコメントのみ。
+
+◇出力：下記JSONを\`\`\`json のコードフェンスで「1つだけ」返す。前後によけいな文章を書かない。
+\`\`\`json
+{
+  "scores": {"character":0.00,"plot":0.00,"prose":0.00,"clarity":0.00,"originality":0.00},
+  "comments": {"character":"…","plot":"…","prose":"…","clarity":"…","originality":"…"},
+  "yomugo": "想定読後感（読者が得られる体験を予測して一言）",
+  "reader": "推奨読者層（総合が中庸=判断が割れるときのみ記入。不要なら空文字\\"\\"）"
+}
+\`\`\`
+
+${head}◇本文（この <<< >>> の中だけを対象に）
+<<<
+${ms||"（ここに本文を貼ってから生成してください）"}
+>>>`;
+}
+function copyText(t,msg){navigator.clipboard.writeText(t).then(()=>toast(msg||"コピーした")).catch(()=>toast("コピー失敗"));}
+$("#copyPrompt").addEventListener("click",()=>{
+  if($("#ms").value.trim().length<1)return toast("先に本文を貼って");
+  copyText(buildPrompt(),"プロンプトをコピーした → AIに貼る");
+});
+$("#previewPrompt").addEventListener("click",()=>{
+  const p=$("#promptPreview"); p.classList.toggle("hide");
+  if(!p.classList.contains("hide")) p.value=buildPrompt();
+});
+
+/* ---------- parse ---------- */
+function normScore(v){
+  let n=parseFloat(v); if(isNaN(n))return null;
+  if(n>1 && n<=5) n=n/5;          // 1–5 スケールで来たら正規化
+  else if(n>5 && n<=100) n=n/100; // 0–100 スケール
+  return Math.max(0,Math.min(1,n));
+}
+function parseResult(raw){
+  if(!raw||!raw.trim())throw new Error("空です");
+  let t=raw.trim();
+  const fence=t.match(/```(?:json)?\s*([\s\S]*?)```/i); if(fence)t=fence[1];
+  const a=t.indexOf("{"), b=t.lastIndexOf("}"); if(a<0||b<0)throw new Error("JSONが見つからない");
+  const obj=JSON.parse(t.slice(a,b+1));
+  const sc=obj.scores||obj.score||obj;
+  const scores={};
+  ORDER.forEach(k=>{ scores[k]=normScore(sc[k]!=null?sc[k]:(obj[k])); });
+  if(ORDER.every(k=>scores[k]===null))throw new Error("scoresが読めない");
+  ORDER.forEach(k=>{if(scores[k]===null)scores[k]=0.5;});
+  return {scores, comments:obj.comments||{}, yomugo:obj.yomugo||obj.afterglow||"", reader:obj.reader||obj.audience||""};
+}
+function yomubekido(scores){
+  let s=0; for(const k in W) s+=W[k]*(scores[k]??0);
+  return Math.max(0,Math.min(1,s));
+}
+function verdict(y){
+  if(y<0.40)return{cls:"miokuri",word:"見送り",cap:"読まなくていい（1〜2相当）"};
+  if(y<0.62)return{cls:"jouken",word:"条件付き推薦",cap:"刺さる人には刺さる（3相当）"};
+  return{cls:"yomu",word:"読むべき",cap:"フォロー推奨（4〜5相当）"};
+}
+
+/* ---------- render ---------- */
+let STATE=null;
+function render(r){
+  STATE=r;
+  const y=yomubekido(r.scores), v=verdict(y);
+  $("#result").classList.remove("hide");
+  $("#vNum").textContent=y.toFixed(2);
+  const w=$("#vWord"); w.textContent=v.word; w.className="word "+v.cls;
+  const ttl=$("#title").value.trim();
+  $("#vTitle").textContent = (ttl?`「${ttl}」は、`:"") + v.cap;
+  setTimeout(()=>{$("#vMark").style.left=(y*100).toFixed(1)+"%";},60);
+
+  const g=$("#gauges"); g.innerHTML="";
+  ORDER.forEach(k=>{
+    const val=r.scores[k]??0, dim=(W[k]===0);
+    const com=r.comments&&r.comments[k]?`<div class="gcom">${esc(r.comments[k])}</div>`:"";
+    g.insertAdjacentHTML("beforeend",
+     `<div class="gauge ${dim?'dim':''}">
+        <div class="gl"><span class="nm">${LABEL[k]}${dim?' <small>※加点せず・参考</small>':` <small>重み${(W[k]*100)|0}%</small>`}</span><span class="vv">${val.toFixed(2)}</span></div>
+        <div class="bar"><i data-w="${(val*100).toFixed(1)}"></i></div>${com}
+      </div>`);
+  });
+  setTimeout(()=>{g.querySelectorAll(".bar > i").forEach(i=>i.style.width=i.dataset.w+"%");},60);
+
+  // author mode: weak spots = 2 lowest weighted観点 (excl originality)
+  const wb=$("#weakBlock");
+  if(MODE==="author"){
+    const ranked=ORDER.filter(k=>W[k]>0).sort((a,b)=>r.scores[a]-r.scores[b]).slice(0,2);
+    $("#weak").innerHTML=ranked.map(k=>`<span>${LABEL[k]} ${r.scores[k].toFixed(2)}</span>`).join("");
+    wb.style.display="block";
+  }else wb.style.display="none";
+
+  $("#yomugo").textContent=r.yomugo||"—";
+  const rb=$("#readerBlock");
+  if(r.reader&&r.reader.trim()){$("#reader").textContent=r.reader;rb.style.display="block";}else rb.style.display="none";
+}
+function esc(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+
+$("#render").addEventListener("click",()=>{
+  try{ render(parseResult($("#paste").value)); toast("点検した"); $("#result").scrollIntoView({behavior:"smooth",block:"nearest"});}
+  catch(e){ toast("読めない: "+e.message); }
+});
+$("#demo").addEventListener("click",()=>{
+  $("#paste").value=JSON.stringify({
+    scores:{character:0.78,plot:0.66,prose:0.52,clarity:0.44,originality:0.71},
+    comments:{character:"主人公の欠落が一行目で立つ。脇役の名前が機能している。",plot:"日常→裂け目の角度が良い。引きは弱い。",prose:"比喩は一発当てるが連発で疲れる。",clarity:"固有名詞の洪水で最初の200字が重い。",originality:"既視感の薄い導入。AI臭はない。"},
+    yomugo:"静かな喪失感のあと、ほんの少し前を向ける。",
+    reader:"静かな一人称SFが好きな読者。テンプレ転生に疲れた人。"
+  },null,2);
+  toast("サンプルを入れた → 点検する");
+});
+
+/* ---------- BYOK direct scoring ---------- */
+const LS="shitayomi-dock";
+function loadCfg(){try{const c=JSON.parse(localStorage.getItem(LS)||"{}");
+  if(c.provider)$("#provider").value=c.provider;
+  if(c.model)$("#model").value=c.model;
+  if(c.remember){$("#remember").checked=true; if(c.apikey)$("#apikey").value=c.apikey;}
+}catch(e){}}
+function saveCfg(){const c={provider:$("#provider").value,model:$("#model").value,remember:$("#remember").checked};
+  if(c.remember)c.apikey=$("#apikey").value; localStorage.setItem(LS,JSON.stringify(c));}
+["provider","model","apikey","remember"].forEach(id=>$("#"+id).addEventListener("change",saveCfg));
+function defModel(){return $("#provider").value==="gemini"?"gemini-2.0-flash":"claude-sonnet-4-6";}
+$("#provider").addEventListener("change",()=>{if(!$("#model").value.trim())$("#model").value=defModel();});
+
+async function callLLM(prompt){
+  const prov=$("#provider").value, key=$("#apikey").value.trim(), model=$("#model").value.trim()||defModel();
+  if(!key)throw new Error("APIキー未入力");
+  if(prov==="gemini"){
+    const url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
+    const res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.4,responseMimeType:"application/json"}})});
+    if(!res.ok)throw new Error("Gemini "+res.status);
+    const j=await res.json();
+    return j.candidates?.[0]?.content?.parts?.map(p=>p.text).join("")||"";
+  }else{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model,max_tokens:1200,messages:[{role:"user",content:prompt}]})});
+    if(!res.ok)throw new Error("Claude "+res.status);
+    const j=await res.json();
+    return (j.content||[]).map(b=>b.text||"").join("");
+  }
+}
+$("#scoreNow").addEventListener("click",async()=>{
+  if($("#ms").value.trim().length<1)return toast("先に本文を貼って");
+  const st=$("#byokStatus"); st.textContent="採点中…（10〜30秒）"; saveCfg();
+  try{
+    const out=await callLLM(buildPrompt());
+    $("#paste").value=out;
+    render(parseResult(out));
+    st.textContent="完了"; toast("直接採点した"); $("#result").scrollIntoView({behavior:"smooth",block:"nearest"});
+  }catch(e){ st.textContent="失敗: "+e.message+"（コピー方式に切替を）"; toast("失敗: "+e.message); }
+});
+
+/* ---------- share ---------- */
+$("#shareX").addEventListener("click",()=>{
+  if(!STATE)return; const y=yomubekido(STATE.scores), v=verdict(y);
+  const ttl=$("#title").value.trim();
+  const txt=`下読みドックで点検：${ttl?`「${ttl}」は`:"この一話は"}読むべき度 ${y.toFixed(2)}（${v.word}）。\n読む/読まないの二択を、Floatに。`;
+  const url="https://twitter.com/intent/tweet?text="+encodeURIComponent(txt)+"&url="+encodeURIComponent("https://osakenpiro.github.io/shitayomi-dock/")+"&hashtags=全人類UX改善";
+  window.open(url,"_blank","noopener");
+});
+$("#copyResult").addEventListener("click",()=>{
+  if(!STATE)return; const y=yomubekido(STATE.scores), v=verdict(y);
+  let s=`【下読みドック】${$("#title").value.trim()||"無題"}\n読むべき度 ${y.toFixed(2)}（${v.word}）\n`;
+  ORDER.forEach(k=>s+=`・${LABEL[k]} ${STATE.scores[k].toFixed(2)}\n`);
+  if(STATE.yomugo)s+=`読後感：${STATE.yomugo}\n`;
+  if(STATE.reader)s+=`推奨読者：${STATE.reader}\n`;
+  copyText(s,"結果をコピーした");
+});
+
+/* ---------- toast ---------- */
+let tt; function toast(m){const e=$("#toast");e.textContent=m;e.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>e.classList.remove("show"),1800);}
+
+/* init */
+$("#model").value=defModel(); loadCfg(); countChars();
+console.log("下読みドック",BUILD,"ready");
+</script>
+</body>
+</html>
