@@ -252,7 +252,7 @@
     <div class="credo"><b>Boolean → Float</b>　読むか読まないかの二値を、0.00〜1.00 の「読むべき度」に。</div>
     タイトル・あらすじ・冒頭3行だけで切らない。読解コストはAIが肩代わりする。<br>
     0PVの傑作に、光を。　<span style="opacity:.6">#全人類UX改善</span><br>
-    <a href="https://osakenpiro.github.io/furiko/">フリコ</a>　·　<a href="https://osakenpiro.github.io/yutori/">ゆとり</a>　·　<a href="https://osakenpiro.github.io/bakuun/">バクーン</a>　·　<span style="opacity:.5">下読みドック v0.1 / 2026-06-23</span>
+    <a href="https://osakenpiro.github.io/furiko/">フリコ</a>　·　<a href="https://osakenpiro.github.io/yutori/">ゆとり</a>　·　<a href="https://osakenpiro.github.io/bakuun/">バクーン</a>　·　<span style="opacity:.5">下読みドック v0.1.1 / 2026-06-23</span>
   </footer>
 </div>
 
@@ -261,7 +261,7 @@
 <script>
 "use strict";
 const $=s=>document.querySelector(s);
-const BUILD="2026-06-23-v0.1";
+const BUILD="2026-06-23-v0.1.1";
 // 重み（原典の優先順位：キャラ>プロット>わかりやすさ=文章 / 独創性は加点せずコメントのみ）
 const W={character:0.35, plot:0.30, clarity:0.175, prose:0.175, originality:0.0};
 const LABEL={character:"キャラクター",plot:"プロット期待値",prose:"文章力",clarity:"わかりやすさ",originality:"独創性"};
@@ -278,7 +278,7 @@ function countChars(){
   el.className="count "+(n<1200?"warn":n<3000?"ok":"good");
   hint.textContent = n===0 ? "— 貼ったら鍛えるへ"
     : n<1200 ? "下限1,200字に未達（短いと誤判定が出やすい）"
-    : n<3000 ? "最低限OK。推奨は3,000字〜"
+    : n<3000 ? "完結した短い章ならこれで十分。長編の“読ませる導入”なら3,000字〜で精度が上がる"
     : n<=6000 ? "ちょうどいい分量" : "長め。冒頭の一話で十分";
 }
 $("#ms").addEventListener("input",countChars);
