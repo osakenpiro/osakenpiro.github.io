@@ -1,0 +1,44 @@
+---
+type: entity
+entity_kind: person
+name: "Cherny, Boris"
+affiliation: "Anthropic — Creator & Head of Claude Code"
+field: ["AI Engineering", "Developer Tools", "Software Engineering", "TypeScript"]
+referenced_in: [[LoopEngineering]]
+positioned_against: []
+positioned_with: [[Osada_Kenshiro]]
+osakenpiro_stance: "Loop Engineeringの提唱者。手番Float論の輸入元であり、Float化して乗り越える対話相手"
+---
+
+## 概要
+
+ボリス・チェルニーは Anthropic の **Claude Code 創設者兼ヘッド**。O'Reilly『Programming TypeScript』(2019) の著者で、Meta を経て Anthropic に参加した。2025年後半以降「手でコードを一行も書いていない」と公言し、数千〜数万のAIエージェントを同時に束ねて、Claude Code 自身に Claude Code を書かせる運用を実践している。Claude Code はターミナル発のプロトタイプから、調査対象の開発者に最も使われるAIコーディングツールへ成長し、GitHub の全コミットの約4%を占めるに至った。
+
+## 主要な貢献
+
+- **Claude Code の創設** — ターミナル上の小さなプロトタイプを、最速級で普及した開発者プロダクトへ
+- **Loop Engineering（ループ設計）の提唱** — プロンプトを磨くのではなく「AIが回るループそのものを書く」ことへ仕事の重心を移す設計思想
+- 「もう Claude にプロンプトは打っていない。動いているのはループのほうだ」という運用宣言（2025年11月以降 IDE を開かない）
+- 大規模エージェント・オーケストレーション（数万エージェント同時管理）の実地化
+- 『Programming TypeScript』著者としての型システム実務知
+
+## osakenpiro wiki での扱われ方
+
+[[LoopEngineering]] の二人の originator の一人（もう一人は [[Osada_Kenshiro]]）。Boris の Loop Engineering 論は「人間をループから**外したか／外さないか**」を暗に二値で語るが、osakenpiro 版はここを [[BooleanToFloat]] で開き直し、**手番Float（0.0〜1.0）** として連続値で記述する。すなわち Boris は概念の**輸入元**であると同時に、osakenpiro が Float 化して乗り越える**対話相手**でもある。「IDEを消した」は到達点であって入口ではない——この再定義の起点に立つ人物。彼の「数万エージェント」は、[[MarchBunshin]] の分進合撃を企業規模で先取りした実例として参照される。
+
+## 関連する concepts
+
+- [[LoopEngineering]]: Boris が提唱、osakenpiro が手番Float化
+- [[BooleanToFloat]]: Boris の二値的自動化観を連続値へ翻訳する母概念
+- [[ModelRouting]]: 「誰がループを書き、誰が回すか」の運用形
+- [[MarchBunshin]]: 複数ループの並走オーケストレーション（Boris の数万エージェントの個人版）
+
+## 関連する entities
+
+- [[Osada_Kenshiro]]: [[LoopEngineering]] の共同 originator。Boris の論を手番Floatとして受け継ぎ、関所（手番Float=1.0）の死守という条件を足す
+
+## 出典
+
+- The New Stack — Loop Engineering (Boris Cherny)
+- Lenny's Newsletter「Head of Claude Code: What happens after coding is solved」/ Fortune (2026-06)
+- O'Reilly『Programming TypeScript』(Boris Cherny, 2019)
