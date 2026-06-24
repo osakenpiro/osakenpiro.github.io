@@ -1,44 +1,76 @@
----
-type: entity
-entity_kind: person
-name: "Cherny, Boris"
-affiliation: "Anthropic — Creator & Head of Claude Code"
-field: ["AI Engineering", "Developer Tools", "Software Engineering", "TypeScript"]
-referenced_in: [[LoopEngineering]]
-positioned_against: []
-positioned_with: [[Osada_Kenshiro]]
-osakenpiro_stance: "Loop Engineeringの提唱者。手番Float論の輸入元であり、Float化して乗り越える対話相手"
----
-
-## 概要
-
-ボリス・チェルニーは Anthropic の **Claude Code 創設者兼ヘッド**。O'Reilly『Programming TypeScript』(2019) の著者で、Meta を経て Anthropic に参加した。2025年後半以降「手でコードを一行も書いていない」と公言し、数千〜数万のAIエージェントを同時に束ねて、Claude Code 自身に Claude Code を書かせる運用を実践している。Claude Code はターミナル発のプロトタイプから、調査対象の開発者に最も使われるAIコーディングツールへ成長し、GitHub の全コミットの約4%を占めるに至った。
-
-## 主要な貢献
-
-- **Claude Code の創設** — ターミナル上の小さなプロトタイプを、最速級で普及した開発者プロダクトへ
-- **Loop Engineering（ループ設計）の提唱** — プロンプトを磨くのではなく「AIが回るループそのものを書く」ことへ仕事の重心を移す設計思想
-- 「もう Claude にプロンプトは打っていない。動いているのはループのほうだ」という運用宣言（2025年11月以降 IDE を開かない）
-- 大規模エージェント・オーケストレーション（数万エージェント同時管理）の実地化
-- 『Programming TypeScript』著者としての型システム実務知
-
-## osakenpiro wiki での扱われ方
-
-[[LoopEngineering]] の二人の originator の一人（もう一人は [[Osada_Kenshiro]]）。Boris の Loop Engineering 論は「人間をループから**外したか／外さないか**」を暗に二値で語るが、osakenpiro 版はここを [[BooleanToFloat]] で開き直し、**手番Float（0.0〜1.0）** として連続値で記述する。すなわち Boris は概念の**輸入元**であると同時に、osakenpiro が Float 化して乗り越える**対話相手**でもある。「IDEを消した」は到達点であって入口ではない——この再定義の起点に立つ人物。彼の「数万エージェント」は、[[MarchBunshin]] の分進合撃を企業規模で先取りした実例として参照される。
-
-## 関連する concepts
-
-- [[LoopEngineering]]: Boris が提唱、osakenpiro が手番Float化
-- [[BooleanToFloat]]: Boris の二値的自動化観を連続値へ翻訳する母概念
-- [[ModelRouting]]: 「誰がループを書き、誰が回すか」の運用形
-- [[MarchBunshin]]: 複数ループの並走オーケストレーション（Boris の数万エージェントの個人版）
-
-## 関連する entities
-
-- [[Osada_Kenshiro]]: [[LoopEngineering]] の共同 originator。Boris の論を手番Floatとして受け継ぎ、関所（手番Float=1.0）の死守という条件を足す
-
-## 出典
-
-- The New Stack — Loop Engineering (Boris Cherny)
-- Lenny's Newsletter「Head of Claude Code: What happens after coding is solved」/ Fortune (2026-06)
-- O'Reilly『Programming TypeScript』(Boris Cherny, 2019)
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>統合凡例マップ — Boolean→Float 一望</title><style>
+:root{--gold:#d4a853;--void:#0a0a10;--void2:#13131d;--ink:#ece7da;--mut:#8b8676;--line:#262433;--warn:#e0a33a}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1300px 760px at 78% -12%,#1a1726 0,var(--void) 62%);
+color:var(--ink);font-family:-apple-system,"Segoe UI","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;font-size:14px;line-height:1.62}
+.wrap{max-width:1080px;margin:0 auto;padding:30px 22px 90px}
+.eyebrow{color:var(--gold);font-size:12px;letter-spacing:.16em;text-transform:uppercase;margin:0 0 6px}
+h1{font-size:25px;margin:0 0 4px;letter-spacing:.01em}
+h1 .g{color:var(--gold)}
+.sub{color:var(--mut);font-size:13px;margin:0 0 26px}
+.spine{background:linear-gradient(90deg,rgba(212,168,83,.10),rgba(212,168,83,.02));border:1px solid var(--line);
+border-left:3px solid var(--gold);border-radius:10px;padding:13px 17px;margin:0 0 30px;font-size:13.5px}
+.spine b{color:var(--gold)}
+h2{font-size:13px;color:var(--mut);letter-spacing:.06em;margin:34px 0 14px;font-weight:600;
+border-bottom:1px solid var(--line);padding-bottom:7px}
+h2 .no{color:var(--gold);font-variant-numeric:tabular-nums;margin-right:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.axcard{background:var(--void2);border:1px solid var(--line);border-radius:11px;padding:16px 18px}
+.axcard .h{font-size:15px;margin:0 0 3px}.axcard .h b{color:var(--gold)}
+.axcard .d{color:var(--mut);font-size:12.5px;margin:0 0 12px}
+.pgrid{display:flex;flex-direction:column;gap:7px}
+.pcard{display:flex;align-items:center;gap:11px}
+.pdot{display:flex;gap:3px;flex:none}
+.sw{width:13px;height:13px;border-radius:3px;display:inline-block;box-shadow:0 0 0 1px rgba(255,255,255,.07)}
+.sw.cool{border-radius:50%}
+.pmeta{font-size:12.5px;line-height:1.3}
+.pmeta b{color:var(--ink)}.pmeta .pn{color:var(--mut)}
+.pmeta .pv{display:block;color:#6f6a5e;font-size:11px}
+/* ladder */
+.ladder{background:var(--void2);border:1px solid var(--line);border-radius:13px;padding:22px 24px 18px}
+.bands{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:0 0 9px}
+.band{text-align:center;padding:0 6px}
+.band .em{font-size:20px}
+.band .bn{display:block;font-weight:700;font-size:13.5px;margin-top:2px}
+.band .alt{display:block;color:var(--mut);font-size:11.5px}
+.bar{position:relative;height:20px;border-radius:6px;overflow:hidden;
+background:linear-gradient(90deg,rgba(212,168,83,.05) 0%,rgba(212,168,83,.30) 38%,rgba(212,168,83,.62) 70%,rgba(212,168,83,.92) 100%);
+border:1px solid var(--line)}
+.bar i{position:absolute;top:0;bottom:0;width:1px;background:rgba(255,255,255,.22)}
+.cuts{position:relative;height:18px;color:var(--mut);font-size:11px;font-variant-numeric:tabular-nums}
+.cuts span{position:absolute;transform:translateX(-50%);top:2px}
+.barwrap{position:relative;margin:0 2px}
+.lo{color:var(--mut);font-size:11px;display:flex;justify-content:space-between;margin-top:1px}
+.fold{margin-top:16px;background:rgba(0,0,0,.18);border:1px dashed var(--line);border-radius:9px;padding:12px 15px;font-size:12.5px}
+.fold .ft{color:var(--gold);font-weight:600;margin-bottom:5px;font-size:12px;letter-spacing:.04em}
+.fold .row{margin:3px 0}
+.fold code{background:#0f0f17;border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--ink);font-size:11.5px}
+.kill{color:var(--warn)}
+/* orthogonal */
+.ogrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:12px}
+.ocard{background:var(--void2);border:1px solid var(--line);border-radius:11px;padding:14px 15px;position:relative}
+.ocard .neq{position:absolute;top:11px;right:12px;color:#5a5550;font-size:10.5px;border:1px solid var(--line);
+border-radius:5px;padding:1px 6px}
+.ocard h3{margin:0 0 4px;font-size:14px}.ocard h3 b{color:var(--gold)}
+.ocard p{margin:0;color:var(--mut);font-size:12px}
+.ocard .vals{margin-top:7px;font-size:11.5px;color:#7a756a}
+/* tools */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{color:var(--mut);font-size:11px;font-weight:600;letter-spacing:.05em}
+.tn{font-weight:600;white-space:nowrap}
+.tax{white-space:nowrap;color:var(--mut);font-size:11px;position:relative;min-width:150px}
+.ax0,.ax1{font-variant-numeric:tabular-nums}
+.axbar{display:inline-block;width:64px;height:4px;border-radius:2px;margin:0 7px;vertical-align:middle;
+background:linear-gradient(90deg,rgba(212,168,83,.12),var(--gold))}
+.axlab{display:block;color:#6f6a5e;font-size:11px;margin-top:1px}
+.tm{color:var(--mut);font-size:12px}
+.tw{color:#6f6a5e;font-size:11px}
+.tag{font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:5px}
+.tag.live{background:rgba(212,168,83,.16);color:var(--gold)}
+.tag.db{background:rgba(255,255,255,.035);color:var(--mut);border:1px solid var(--line)}
+.foot{margin-top:34px;border-top:1px solid var(--line);padding-top:16px;color:var(--mut);font-size:12px}
+.foot b{color:var(--ink)}
+.foot .pri{color:var(--gold)}
+@media(max-width:680px){.two{grid-template-columns:1fr}.bands .bn{font-size:12px}}
+</style></head><body><div class="wrap"><p class="eyebrow">osakenpiro / OSApedia ・ 凡例の正本</p><h1>統合凡例マップ <span class="g">— Boolean→Float 一望</span></h1><p class="sub">緊急度は1軸に畳む。柱・直交軸は引き剥がす。散らかってたのは「同じ軸の方言が4つ」だっただけ。 ・ 2026-06-24</p><div class="spine"><b>背骨＝Boolean→Float</b>。二値（入れる/入れない・やる/やらない）を連続値 0.0–1.0 に開く。<b>真値＝Float</b>／バンド・emoji＝その表示。全プロジェクトを貫く1原理。</div><h2><span class="no">①</span>主軸は2本だけ</h2><div class="two"><div class="axcard"><div class="h"><b>軸A</b> だれの＝<b>柱</b></div><div class="d">色の次元（むつあかり六色・二層＝絵あかり×UI鉱物）。序列じゃない。</div><div class="pgrid"><div class="pcard"><div class="pdot"><span class="sw" style="background:#d4a853" title="絵=あかり 金茶"></span><span class="sw cool" style="background:#8c9cab" title="UI=鉱物 鋼"></span></div><div class="pmeta"><b>T</b> <span class="pn">Hi-Me TooL</span><span class="pv">空気＝金茶（手元の作業灯）／ UI＝鋼</span></div></div><div class="pcard"><div class="pdot"><span class="sw" style="background:#b0524a" title="絵=あかり 茜"></span><span class="sw cool" style="background:#9d87b8" title="UI=鉱物 紫水晶"></span></div><div class="pmeta"><b>R</b> <span class="pn">Re:DeSign</span><span class="pv">空気＝茜（熾火・作り直す炎）／ UI＝紫水晶</span></div></div><div class="pcard"><div class="pdot"><span class="sw" style="background:#5b7a9d" title="絵=あかり 宵藍"></span><span class="sw cool" style="background:#7da58f" title="UI=鉱物 緑青"></span></div><div class="pmeta"><b>B</b> <span class="pn">BookBug</span><span class="pv">空気＝宵藍（夜のインク）／ UI＝緑青</span></div></div><div class="pcard"><div class="pdot"><span class="sw" style="background:#c9553d" title="絵=あかり 朱"></span><span class="sw cool" style="background:#c08a6a" title="UI=鉱物 銅"></span></div><div class="pmeta"><b>P</b> <span class="pn">Postboy</span><span class="pv">空気＝朱（街角のポスト）／ UI＝銅</span></div></div><div class="pcard"><div class="pdot"><span class="sw" style="background:#8a7ab0" title="絵=あかり 菫"></span><span class="sw cool" style="background:#8689b8" title="UI=鉱物 蛍石"></span></div><div class="pmeta"><b>G</b> <span class="pn">Gaming Gathering</span><span class="pv">空気＝菫（消灯後の画面残光）／ UI＝蛍石</span></div></div><div class="pcard"><div class="pdot"><span class="sw" style="background:#6f8f78" title="絵=あかり 青磁"></span><span class="sw cool" style="background:#6f9f9b" title="UI=鉱物 孔雀石"></span></div><div class="pmeta"><b>O</b> <span class="pn">Opaarts</span><span class="pv">空気＝青磁（時間をまとう器）／ UI＝孔雀石</span></div></div></div></div><div class="axcard"><div class="h"><b>軸B</b> いつやる＝<b>緊急度Float</b></div><div class="d">序列の次元（0–1・4段 🔴🟡🟢⚪）。下の統一ラダーが正本。ここに「優先度」も「投入」も畳まれる。</div><div style="margin-top:8px;color:#7a756a;font-size:12px">▼ ②へ</div></div></div><h2><span class="no">②</span>緊急度 ── 統一ラダー（4方言を1本に畳む）</h2><div class="ladder"><div class="bands"><div class="band"><span class="em">⚪</span><span class="bn">見送り</span><span class="alt">＝いつか</span></div><div class="band"><span class="em">🟢</span><span class="bn">次版</span><span class="alt">＝今期</span></div><div class="band"><span class="em">🟡</span><span class="bn">初回UP</span><span class="alt">＝今月</span></div><div class="band"><span class="em">🔴</span><span class="bn">今すぐ</span><span class="alt">＝最優先</span></div></div><div class="barwrap"><div class="bar"><i style="left:25%"></i><i style="left:50%"></i><i style="left:75%"></i></div><div class="cuts"><span style="left:25%">0.25</span><span style="left:50%">0.50</span><span style="left:75%">0.75</span></div><div class="lo"><span>0.0 ＝ 入れない/やらない</span><span>gold が濃いほど Float 大</span><span>1.0 ＝ 今</span></div></div><div class="fold"><div class="ft">畳まれた4方言</div><div class="row">・優先度（プロジェクトDB）: <code>🔴最優先 / 🟡今月 / 🟢今期 / ⚪いつか</code></div><div class="row">・投入（秘書CoTASK）: <code>今すぐ / 初回UP / 次版 / 見送り</code>（0.75/0.50/0.25）</div><div class="row">→ この2つは<b>同一ラダーの着せ替え</b>（＝規格の個別最適化）。構造は1つ、名前だけ文脈別。</div><div class="row kill">・Phase 0/1/2/3 は「緊急度」じゃない → ③の直交軸へ移す</div><div class="row kill">・秘書CoTASKスコア（Priority×自走×重×Horizon）は Priority別名に退化済 → 緊急度Float一本化で<b>廃止</b></div></div></div><h2><span class="no">③</span>直交軸 ── 緊急度に混ぜない（混線の正体）</h2><div class="ogrid"><div class="ocard"><span class="neq">≠序列</span><h3><b>柱</b> だれの仕事</h3><p>むつあかり六色。所属の次元。</p><div class="vals">T R B P G O</div></div><div class="ocard"><span class="neq">≠序列</span><h3><b>重さ</b> 労力</h3><p>かかる手数。緊急度と独立。</p><div class="vals">S ・ M ・ L</div></div><div class="ocard"><span class="neq">≠序列</span><h3><b>Phase 0-3</b> 役割</h3><p>タスク集合のグルーピング。順位じゃない。</p><div class="vals">齟齬 / 本命 / 備え / 継続</div></div><div class="ocard"><span class="neq">≠序列</span><h3><b>状態</b> ライフサイクル</h3><p>進行の段階。</p><div class="vals">未着手 / 進行中 / 完了</div></div><div class="ocard"><span class="neq">⊥全部</span><h3><b>腐葉土</b> 時間</h3><p>蓄積→栄養。劣化させず保持。全軸に直交。</p><div class="vals">現役 → 古層 → 栄養</div></div></div><h2><span class="no">④</span>道具 ── Float計器は「同じ一族」</h2><p style="color:var(--mut);font-size:12.5px;margin:-4px 0 12px">バラバラの発明じゃない。全部「あるFloat軸の計器」。軸が違うだけ。</p><table><thead><tr><th>道具</th><th>軸（0 ↔ 1）</th><th>意味</th><th>置き場</th></tr></thead><tbody><tr><td class="tn">振り子 furiko</td><td class="tax"><span class="ax0">0</span><span class="axbar"></span><span class="ax1">1</span><span class="axlab">B ↔ A</span></td><td class="tm">決断がどちらへ振れたか</td><td><span class="tag live">Live</span> <span class="tw">osakenpiro.github.io/furiko</span></td></tr><tr><td class="tn">ゆとり yutori</td><td class="tax"><span class="ax0">0</span><span class="axbar"></span><span class="ax1">1</span><span class="axlab">間に合わない ↔ 間に合う</span></td><td class="tm">締切のゆとり度</td><td><span class="tag live">Live</span> <span class="tw">osakenpiro.github.io/yutori</span></td></tr><tr><td class="tn">爆運スカウター bakuun</td><td class="tax"><span class="ax0">0</span><span class="axbar"></span><span class="ax1">1</span><span class="axlab">不運 ↔ 幸運</span></td><td class="tm">運の計測（やめ時も）</td><td><span class="tag live">Live</span> <span class="tw">osakenpiro.github.io/bakuun-scouter</span></td></tr><tr><td class="tn">投入Float</td><td class="tax"><span class="ax0">0</span><span class="axbar"></span><span class="ax1">1</span><span class="axlab">見送り ↔ 今すぐ</span></td><td class="tm">機能を入れるタイミング</td><td><span class="tag db">DB</span> <span class="tw">秘書CoTASK / hishoco</span></td></tr><tr><td class="tn">画面録 screen-time</td><td class="tax"><span class="ax0">0</span><span class="axbar"></span><span class="ax1">1</span><span class="axlab">乱れ ↔ 調和</span></td><td class="tm">スクリーンタイムの調和</td><td><span class="tag live">Live</span> <span class="tw">osakenpiro.github.io/screen-time-rpg</span></td></tr><tr><td class="tn">FABULA</td><td class="tax"><span class="ax0">0</span><span class="axbar"></span><span class="ax1">1</span><span class="axlab">弱 ↔ 強</span></td><td class="tm">規定力＝幹の太さ</td><td><span class="tag live">Live</span> <span class="tw">osakenpiro.github.io/fabula</span></td></tr><tr><td class="tn">地図とりあい hello-warld</td><td class="tax"><span class="ax0">0</span><span class="axbar"></span><span class="ax1">1</span><span class="axlab">0 ↔ 1</span></td><td class="tm">等高線＝領有の度合い</td><td><span class="tag live">Live</span> <span class="tw">osakenpiro.github.io/hello-warld</span></td></tr><tr><td class="tn">夢見 yumemi</td><td class="tax"><span class="ax0">0</span><span class="axbar"></span><span class="ax1">1</span><span class="axlab">覚醒 ↔ 眠り</span></td><td class="tm">眠りFloat 1.00→0.00</td><td><span class="tag live">Live</span> <span class="tw">artifact</span></td></tr><tr><td class="tn">三つ編み mitsuami</td><td class="tax"><span class="ax0">0</span><span class="axbar"></span><span class="ax1">1</span><span class="axlab">低 ↔ 高</span></td><td class="tm">命名＝音×意×構の採点</td><td><span class="tag live">Live</span> <span class="tw">osakenpiro.github.io/mitsuami</span></td></tr><tr><td class="tn">生態系監査 EHI</td><td class="tax"><span class="ax0">0</span><span class="axbar"></span><span class="ax1">1</span><span class="axlab">健全 6軸</span></td><td class="tm">Ecosystem Health Index</td><td><span class="tag db">DB</span> <span class="tw">ecosystem-audit</span></td></tr></tbody></table><div class="foot"><b>この1枚＝凡例の正本（SoT候補）</b>。運用プロトコルv1 / OSApedia からここへリンクすれば、緊急度の方言は1つに揃う。<br>原理：<span class="pri">個別最適の規格化</span>（構造を統一）／ <span class="pri">規格の個別最適化</span>（文脈で着せ替え）／ 三重がけ命名。<br><span style="color:#5a5550">生成 2026-06-24 ・ Cowork ・ JSなし静的・void+gold</span></div></div></body></html>
