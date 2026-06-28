@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d0d0f">
+<title>毎日道具 — Daily Float計器</title>
+<style>
+  :root{
+    --void:#0d0d0f; --void2:#15151a; --panel:#17171d;
+    --gold:#d4a853; --gold-bright:#e8c987; --gold-dim:#8a7038;
+    --ink:#ece7df; --ink-dim:#9a948a;
+    --line:rgba(212,168,83,.22); --line-hi:rgba(212,168,83,.55);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1px 1px at 18% 22%, rgba(236,231,223,.20) 50%, transparent 51%),
+      radial-gradient(1px 1px at 72% 14%, rgba(236,231,223,.15) 50%, transparent 51%),
+      radial-gradient(1px 1px at 41% 68%, rgba(236,231,223,.12) 50%, transparent 51%),
+      radial-gradient(1px 1px at 88% 54%, rgba(236,231,223,.16) 50%, transparent 51%),
+      radial-gradient(1200px 600px at 50% -10%, rgba(212,168,83,.06), transparent 60%),
+      var(--void);
+    color:var(--ink);
+    font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",YuGothic,"Noto Sans JP",sans-serif;
+    min-height:100vh; padding:32px 18px 60px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px;margin:0 auto;}
+  header{text-align:center;margin-bottom:26px;}
+  h1{
+    font-size:1.5rem;letter-spacing:.18em;margin:0 0 6px;
+    color:var(--gold-bright);font-weight:600;
+  }
+  h1 .dot{color:var(--gold-dim);}
+  .sub{font-size:.74rem;color:var(--ink-dim);letter-spacing:.08em;margin:0;}
+  .bar{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    margin:22px 2px 14px;flex-wrap:wrap;
+  }
+  .modes{display:flex;gap:6px;}
+  .btn{
+    background:var(--void2);color:var(--ink-dim);border:1px solid var(--line);
+    border-radius:999px;padding:6px 13px;font-size:.72rem;cursor:pointer;
+    letter-spacing:.05em;transition:.15s;font-family:inherit;
+  }
+  .btn:hover{border-color:var(--line-hi);color:var(--ink);}
+  .btn.on{color:var(--void);background:var(--gold);border-color:var(--gold);font-weight:700;}
+  .grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;
+  }
+  .card{
+    position:relative;display:flex;align-items:center;gap:13px;
+    background:linear-gradient(180deg,var(--panel),var(--void2));
+    border:1px solid var(--line);border-radius:14px;padding:15px 15px;
+    cursor:pointer;text-decoration:none;color:inherit;transition:.16s;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+    background:linear-gradient(var(--gold),var(--gold-dim));opacity:.0;transition:.16s;
+  }
+  .card:hover{border-color:var(--line-hi);transform:translateY(-2px);
+    box-shadow:0 6px 22px rgba(0,0,0,.45),0 0 0 1px rgba(212,168,83,.10);}
+  .card:hover::before{opacity:1;}
+  .mono{
+    flex:none;width:42px;height:42px;border-radius:50%;
+    border:1.5px solid var(--line-hi);display:grid;place-items:center;
+    color:var(--gold-bright);font-size:1.15rem;font-weight:700;
+    background:radial-gradient(circle at 50% 35%,rgba(212,168,83,.14),transparent 70%);
+  }
+  .meta{flex:1;min-width:0;}
+  .name{font-size:.97rem;color:var(--gold-bright);font-weight:600;letter-spacing:.03em;}
+  .desc{font-size:.72rem;color:var(--ink-dim);margin-top:3px;line-height:1.45;
+    overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+  .cnt{
+    position:absolute;top:9px;right:11px;font-size:.64rem;color:var(--gold-dim);
+    letter-spacing:.04em;font-variant-numeric:tabular-nums;
+  }
+  .cnt b{color:var(--gold);font-weight:700;}
+  .note{
+    margin-top:18px;border:1px dashed var(--line);border-radius:12px;
+    padding:12px 14px;font-size:.72rem;color:var(--ink-dim);line-height:1.6;
+  }
+  .note b{color:var(--ink);}
+  footer{text-align:center;margin-top:26px;font-size:.66rem;color:var(--gold-dim);letter-spacing:.08em;}
+  footer a{color:var(--gold-dim);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>毎日道具 <span class="dot">◆</span> Daily Float計器</h1>
+    <p class="sub">使うほど上に来る — 個別最適の規格化 / #全人類UX改善</p>
+  </header>
+
+  <div class="bar">
+    <div class="modes">
+      <button class="btn" id="m-freq">よく使う順</button>
+      <button class="btn" id="m-def">既定順</button>
+    </div>
+    <button class="btn" id="reset" title="使用回数をリセット">回数リセット</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="note">
+    <b>TADASHI（校正レイヤー）</b>は常駐型の拡張なので、ここからは開かない（note/Notion/カクヨムを開けば右下に出る）。<br>
+    並び順と使用回数はこのブラウザだけに保存（localStorage）。スマホはこのページを<b>ホーム画面に追加</b>すると1タップ起動。
+  </div>
+
+  <footer>osakenpiro.github.io/dougu — void+gold</footer>
+</div>
+
+<script>
+"use strict";
+// ── 道具カタログ（v0：実測Live 200の6計器）。追加は1行足すだけ ──
+var TOOLS = [
+  {id:"furiko",   name:"振り子 furiko",       url:"https://osakenpiro.github.io/furiko/",          mono:"振", desc:"決断の振り子。二択を引っぱって 0–1 のFloatに。"},
+  {id:"yutori",   name:"ゆとり yutori",        url:"https://osakenpiro.github.io/yutori/",          mono:"猶", desc:"締切のゆとり度。間に合う/合わないをFloatで可視化。"},
+  {id:"bakuun",   name:"バク運スカウター",     url:"https://osakenpiro.github.io/bakuun-scouter/",  mono:"運", desc:"運Float計測。やめ時メーター＋狂気度の告白。"},
+  {id:"screen",   name:"画面録 RPG",          url:"https://osakenpiro.github.io/screen-time-rpg/", mono:"録", desc:"スクリーンタイム→調和Float主役の反煽りRPG。"},
+  {id:"mimicopy", name:"耳コピTAB",           url:"https://osakenpiro.github.io/mimicopy-tab/",    mono:"耳", desc:"耳コピ→TAB自動採譜＋運指ソルバ。"},
+  {id:"mitsuami", name:"三つ編み mitsuami",    url:"https://osakenpiro.github.io/mitsuami/",         mono:"三", desc:"三重がけ命名（音韻×意味×構造）をFloat採点。"}
+];
+
+var CK="dougu_counts_v1", MK="dougu_mode_v1";
+function counts(){ try{return JSON.parse(localStorage.getItem(CK))||{};}catch(e){return {};} }
+function saveCounts(c){ localStorage.setItem(CK, JSON.stringify(c)); }
+function mode(){ return localStorage.getItem(MK) || "freq"; }
+function setMode(m){ localStorage.setItem(MK, m); paintModes(); render(); }
+
+function ordered(){
+  var c=counts();
+  var arr=TOOLS.map(function(t,i){return {t:t,n:(c[t.id]||0),i:i};});
+  if(mode()==="freq"){
+    arr.sort(function(a,b){ return (b.n-a.n) || (a.i-b.i); }); // 同数は既定順
+  }else{
+    arr.sort(function(a,b){ return a.i-b.i; });
+  }
+  return arr;
+}
+
+function render(){
+  var c=counts(), grid=document.getElementById("grid"), arr=ordered();
+  grid.innerHTML="";
+  arr.forEach(function(o){
+    var t=o.t, n=c[t.id]||0;
+    var a=document.createElement("a");
+    a.className="card"; a.href=t.url; a.target="_blank"; a.rel="noopener";
+    a.innerHTML =
+      '<div class="mono">'+t.mono+'</div>'+
+      '<div class="meta"><div class="name">'+t.name+'</div>'+
+      '<div class="desc">'+t.desc+'</div></div>'+
+      '<div class="cnt">'+(n>0?('×<b>'+n+'</b>'):'')+'</div>';
+    a.addEventListener("click", function(){
+      var cc=counts(); cc[t.id]=(cc[t.id]||0)+1; saveCounts(cc);
+      // freqモードなら開いた直後に並びへ反映（使うほど上）
+      setTimeout(render, 120);
+    });
+    grid.appendChild(a);
+  });
+}
+
+function paintModes(){
+  document.getElementById("m-freq").classList.toggle("on", mode()==="freq");
+  document.getElementById("m-def").classList.toggle("on", mode()==="def");
+}
+
+document.getElementById("m-freq").onclick=function(){ setMode("freq"); };
+document.getElementById("m-def").onclick =function(){ setMode("def"); };
+document.getElementById("reset").onclick =function(){
+  if(confirm("使用回数をリセットする？")){ saveCounts({}); render(); }
+};
+
+paintModes(); render();
+</script>
+</body>
+</html>
