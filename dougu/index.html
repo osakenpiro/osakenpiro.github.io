@@ -79,6 +79,13 @@
     letter-spacing:.04em;font-variant-numeric:tabular-nums;
   }
   .cnt b{color:var(--gold);font-weight:700;}
+  .fbar{position:relative;height:4px;border-radius:3px;margin-top:8px;
+    background:rgba(212,168,83,.10);overflow:hidden;}
+  .fbar > i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;width:0;
+    background:linear-gradient(90deg,var(--gold-dim),var(--gold-bright));
+    transition:width .4s cubic-bezier(.4,0,.2,1);}
+  .fval{position:absolute;bottom:8px;right:11px;font-size:.6rem;color:var(--gold-dim);
+    letter-spacing:.03em;font-variant-numeric:tabular-nums;}
   .note{
     margin-top:18px;border:1px dashed var(--line);border-radius:12px;
     padding:12px 14px;font-size:.72rem;color:var(--ink-dim);line-height:1.6;
@@ -106,11 +113,12 @@
   <div class="grid" id="grid"></div>
 
   <div class="note">
+    <b>金のバー</b>＝使用頻度Float（最多の道具を 1.00 に正規化した相対頻度）。使うほど伸びて上に来る。<br>
     <b>TADASHI（校正レイヤー）</b>は常駐型の拡張なので、ここからは開かない（note/Notion/カクヨムを開けば右下に出る）。<br>
     並び順と使用回数はこのブラウザだけに保存（localStorage）。スマホはこのページを<b>ホーム画面に追加</b>すると1タップ起動。
   </div>
 
-  <footer>osakenpiro.github.io/dougu — void+gold</footer>
+  <footer>osakenpiro.github.io/dougu — void+gold · v1（使用頻度Floatバー）</footer>
 </div>
 
 <script>
@@ -144,16 +152,20 @@ function ordered(){
 
 function render(){
   var c=counts(), grid=document.getElementById("grid"), arr=ordered();
+  var max=0; arr.forEach(function(o){ var k=c[o.t.id]||0; if(k>max) max=k; });
   grid.innerHTML="";
   arr.forEach(function(o){
     var t=o.t, n=c[t.id]||0;
+    var fl=(max>0? n/max : 0), fv=fl.toFixed(2);   // 使用頻度Float（最多=1.00で正規化）
     var a=document.createElement("a");
     a.className="card"; a.href=t.url; a.target="_blank"; a.rel="noopener";
     a.innerHTML =
       '<div class="mono">'+t.mono+'</div>'+
       '<div class="meta"><div class="name">'+t.name+'</div>'+
-      '<div class="desc">'+t.desc+'</div></div>'+
-      '<div class="cnt">'+(n>0?('×<b>'+n+'</b>'):'')+'</div>';
+      '<div class="desc">'+t.desc+'</div>'+
+      '<div class="fbar" title="使用頻度Float '+fv+'"><i style="width:'+(fl*100).toFixed(1)+'%"></i></div></div>'+
+      '<div class="cnt">'+(n>0?('×<b>'+n+'</b>'):'')+'</div>'+
+      (n>0?('<div class="fval">'+fv+'</div>'):'');
     a.addEventListener("click", function(){
       var cc=counts(); cc[t.id]=(cc[t.id]||0)+1; saveCounts(cc);
       // freqモードなら開いた直後に並びへ反映（使うほど上）
