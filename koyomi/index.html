@@ -173,7 +173,7 @@
 
 <div class="hud">
   <div>
-    <div class="appttl">楕円の暦<small>KAN-REKI v0.7</small></div>
+    <div class="appttl">楕円の暦<small>KAN-REKI v0.8</small></div>
     <div class="age" id="ageBadge">満 <b>—</b> 歳</div>
   </div>
   <div class="nav">
@@ -184,7 +184,7 @@
   </div>
 </div>
 
-<div class="banner"><b>v0.7</b>・輪をドラッグ=回す（地球儀）／中央・外=移動・ズーム=スクロール/ピンチ・中央の穴=今日
+<div class="banner"><b>v0.8</b>・輪をドラッグ=回す（地球儀）／中央・外=移動・ズーム=スクロール/ピンチ・中央の穴=今日・写真は端末内保存
   <button id="bannerHide">隠す</button></div>
 
 <svg id="stage" viewBox="0 0 1140 920" preserveAspectRatio="xMidYMid meet" aria-label="楕円の年カレンダー">
@@ -235,14 +235,18 @@
   <label>絵文字（任意）<input type="text" id="efEmoji" maxlength="2" placeholder="📍"></label>
   <label>タイトル<input type="text" id="efTitleIn" placeholder="例：三鷹に引っ越し"></label>
   <label>メモ（任意）<textarea id="efNote" rows="3"></textarea></label>
-  <label>画像URL（任意）<input type="text" id="efImg" placeholder="https://…"></label>
+  <label>写真を選ぶ（任意・この端末内に保存）<input type="file" id="efPhoto" accept="image/*"></label>
+  <div id="efPhotoPrev" style="display:none;align-items:center;gap:8px;margin:-2px 0 6px">
+    <img id="efPhotoImg" alt="" style="width:54px;height:54px;object-fit:cover;border-radius:6px;border:1px solid var(--line,#0003)">
+    <button type="button" id="efPhotoClear">写真を外す</button></div>
+  <label>画像URL（任意・外部リンク）<input type="text" id="efImg" placeholder="https://…"></label>
   <div class="modal-row"><button id="efDelete" class="danger" style="display:none">削除</button><span style="flex:1"></span><button id="efCancel">キャンセル</button><button id="efSave" class="primary">保存</button></div>
 </div></div>
 <div id="settings" class="modal" role="dialog" aria-modal="true" aria-label="設定"><div class="modal-card">
   <h3>設定</h3>
   <label>誕生日<input type="date" id="setBirthday"></label>
   <div class="modal-row" style="flex-wrap:wrap"><button id="setSample">サンプル読込</button><button id="setExport">JSON書き出し</button><button id="setImport">JSON読み込み</button><button id="setClear" class="danger">全消去</button></div>
-  <p class="fineprint">データはこの端末のブラウザ内（localStorage）にのみ保存され、外部には送信されません。バックアップはJSON書き出しから。</p>
+  <p class="fineprint">データはこの端末のブラウザ内（localStorage、写真はIndexedDB）にのみ保存され、外部には送信されません。バックアップはJSON書き出しから（写真も同梱されます）。</p>
   <div class="modal-row"><span style="flex:1"></span><button id="setClose" class="primary">閉じる</button></div>
   <input type="file" id="importFile" accept="application/json,.json" style="display:none">
 </div></div>
@@ -261,7 +265,7 @@
 
 <script>
 /* ============================================================================
-   楕円の暦 v0.7 — 季節リング帯＋カーブ日付＋中央に年（v0.7=JSON堅牢化/a11y/OGP）
+   楕円の暦 v0.8 — 季節リング帯＋カーブ日付＋中央に年（v0.8=写真をIndexedDBへ/export同梱/import intern・v0.7=JSON堅牢化/a11y/OGP）
    編集は DATA だけ。type: memory|photo|event|future。年度キー=4月始まり。
    ========================================================================== */
 const SAMPLE = {
@@ -558,9 +562,14 @@ function openPanel(e,sameDay){
   $('pKind').textContent=(e.emoji?e.emoji+' ':'')+(KIND_JA[e.type]||'記録');
   $('pDate').textContent=fmtDateLong(p); $('pRel').textContent=relDays(p.dt)+(sameDay&&sameDay>1?` ・同日 他${sameDay-1}件`:'');
   $('pTitle').textContent=e.title; $('pNote').textContent=e.note||'';
+  revokeObjURLs();
   const ph=document.querySelector('.p-photo'); ph.querySelector('img')?.remove();
-  if(e.img){ const img=document.createElement('img'); img.src=e.img; ph.prepend(img); ph.querySelector('.ph').style.display='none'; }
-  else{ const phl=ph.querySelector('.ph'); phl.style.display='flex'; phl.textContent=e.type==='photo'?'写真をここに':(e.emoji||'記録'); phl.style.fontSize=e.type==='photo'?'13px':'40px'; }
+  const phl=ph.querySelector('.ph');
+  const showPlaceholder=(txt,big)=>{ phl.style.display='flex'; phl.textContent=txt; phl.style.fontSize=big?'40px':'13px'; };
+  if(e.img){ const img=document.createElement('img'); ph.prepend(img); phl.style.display='none';
+    if(isIdbRef(e.img)){ idbGet(e.img.slice(4)).then(b=>{ if(b){ const u=URL.createObjectURL(b); _objURLs.add(u); img.src=u; } else { img.remove(); showPlaceholder('画像が見つかりません',false); } }).catch(()=>{ img.remove(); showPlaceholder('画像の読込に失敗',false); }); }
+    else img.src=e.img; }
+  else showPlaceholder(e.type==='photo'?'写真をここに':(e.emoji||'記録'), e.type!=='photo');
   $('panel').classList.add('open');
 }
 $('pClose').addEventListener('click',()=>$('panel').classList.remove('open'));
@@ -675,8 +684,11 @@ $('todayBtn').addEventListener('click',()=>{ goFY(fyOf(TODAY)); animateTo(1.0,CX
 $('bannerHide').addEventListener('click',()=>document.querySelector('.banner').style.display='none');
 $('todayCard').addEventListener('click',()=>closeTodayCard());
 $('themeBtn').addEventListener('click',()=>{ const d=document.body.classList.toggle('dark'); $('themeBtn').textContent=d?'☾':'☀'; try{ localStorage.setItem('kanreki.theme',d?'dark':'light'); }catch(e){} });
-function exportJSON(){ const data=JSON.stringify({ version:1, birthday:DATA.birthday, anniversaries:DATA.anniversaries, events:DATA.events },null,2);
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type:'application/json'})); a.download='kanreki-backup-'+isoToday().replace(/-/g,'')+'.json'; a.click(); showToast('JSONを書き出しました'); }
+async function exportJSON(){ showToast('書き出し中…');
+  const events=await photoInlineEvents(DATA.events);
+  const nph=Object.keys(events).reduce((s,fy)=>s+events[fy].filter(e=>typeof e.img==='string'&&e.img.slice(0,11)==='data:image/').length,0);
+  const data=JSON.stringify({ version:1, birthday:DATA.birthday, anniversaries:DATA.anniversaries, events },null,2);
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type:'application/json'})); a.download='kanreki-backup-'+isoToday().replace(/-/g,'')+'.json'; a.click(); showToast('JSON書き出し完了'+(nph?'（写真'+nph+'枚同梱）':'')); }
 
 /* ---- 往復堅牢化: 検証つきインポート / トースト ---- */
 const DATE_RE=/^\d{4}-\d{2}-\d{2}$/, EV_TYPES=['memory','photo','event','future'];
@@ -711,6 +723,45 @@ let toastTimer=0;
 function showToast(msg){ const t=$('toast'); if(!t)return; t.textContent=msg; t.classList.add('show');
   clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),3400); }
 
+/* ============ 商用化②: 写真をIndexedDBへ（localStorageを圧迫しない） ============ */
+/*PHOTO-IDB-START*/
+const IDB_NAME='kanreki-photos', IDB_STORE='photos';
+let _photoDB=null; const _objURLs=new Set();
+function idbOpen(){ if(_photoDB) return Promise.resolve(_photoDB);
+  return new Promise((res,rej)=>{ let rq; try{ rq=indexedDB.open(IDB_NAME,1); }catch(e){ return rej(e); }
+    rq.onupgradeneeded=()=>{ const db=rq.result; if(!db.objectStoreNames.contains(IDB_STORE)) db.createObjectStore(IDB_STORE); };
+    rq.onsuccess=()=>{ _photoDB=rq.result; res(_photoDB); }; rq.onerror=()=>rej(rq.error); }); }
+function idbPut(id,blob){ return idbOpen().then(db=>new Promise((res,rej)=>{ const tx=db.transaction(IDB_STORE,'readwrite'); tx.objectStore(IDB_STORE).put(blob,id); tx.oncomplete=()=>res(id); tx.onerror=()=>rej(tx.error); tx.onabort=()=>rej(tx.error||new Error('abort')); })); }
+function idbGet(id){ return idbOpen().then(db=>new Promise((res,rej)=>{ const rq=db.transaction(IDB_STORE,'readonly').objectStore(IDB_STORE).get(id); rq.onsuccess=()=>res(rq.result||null); rq.onerror=()=>rej(rq.error); })); }
+function idbDel(id){ return idbOpen().then(db=>new Promise((res,rej)=>{ const tx=db.transaction(IDB_STORE,'readwrite'); tx.objectStore(IDB_STORE).delete(id); tx.oncomplete=()=>res(); tx.onerror=()=>rej(tx.error); })); }
+function idbKeys(){ return idbOpen().then(db=>new Promise((res,rej)=>{ const rq=db.transaction(IDB_STORE,'readonly').objectStore(IDB_STORE).getAllKeys(); rq.onsuccess=()=>res(rq.result||[]); rq.onerror=()=>rej(rq.error); })); }
+function newPhotoId(){ return 'p_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8); }
+function isIdbRef(s){ return typeof s==='string' && s.slice(0,4)==='idb:'; }
+function blobToDataURI(blob){ if(typeof FileReader!=='undefined') return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=()=>rej(r.error); r.readAsDataURL(blob); });
+  return blob.arrayBuffer().then(ab=>{ const u=new Uint8Array(ab); let s=''; for(let i=0;i<u.length;i++)s+=String.fromCharCode(u[i]); return 'data:'+(blob.type||'application/octet-stream')+';base64,'+btoa(s); }); }
+function dataURIToBlob(uri){ const m=/^data:([^;,]*?)(;base64)?,([\s\S]*)$/.exec(uri); if(!m) return null; const mime=m[1]||'application/octet-stream';
+  if(m[2]){ const bin=atob(m[3]); const u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i); return new Blob([u],{type:mime}); }
+  return new Blob([decodeURIComponent(m[3])],{type:mime}); }
+/* 長辺MAXpxへ縮小しJPEG Blob化（ブラウザ専用） */
+function compressImageFile(file, MAX=1600, q=0.82){ return new Promise((res,rej)=>{ const url=URL.createObjectURL(file); const img=new Image();
+  img.onload=()=>{ URL.revokeObjectURL(url); let w=img.naturalWidth||img.width, h=img.naturalHeight||img.height; const sc=Math.min(1, MAX/Math.max(w,h));
+    w=Math.max(1,Math.round(w*sc)); h=Math.max(1,Math.round(h*sc)); const c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(img,0,0,w,h);
+    c.toBlob(b=>{ b?res(b):rej(new Error('toBlob failed')); },'image/jpeg',q); };
+  img.onerror=()=>{ URL.revokeObjectURL(url); rej(new Error('画像を読めませんでした')); }; img.src=url; }); }
+/* export用: idb:参照 → data: 実体化（バックアップを自己完結に） */
+async function photoInlineEvents(events){ const out=JSON.parse(JSON.stringify(events||{}));
+  for(const fy in out){ for(const e of out[fy]){ if(isIdbRef(e.img)){ try{ const b=await idbGet(e.img.slice(4)); if(b) e.img=await blobToDataURI(b); else delete e.img; }catch(_){ delete e.img; } } } }
+  return out; }
+/* import後: data:image → IDB格納しidb:参照へ（localStorage節約）。戻り値=intern数 */
+async function photoInternEvents(events){ let n=0;
+  for(const fy in events){ for(const e of events[fy]){ if(typeof e.img==='string' && e.img.slice(0,11)==='data:image/'){ const b=dataURIToBlob(e.img); if(b){ const id=newPhotoId(); try{ await idbPut(id,b); e.img='idb:'+id; n++; }catch(_){ } } } } }
+  return n; }
+/* DATA.eventsから参照されないIDB画像を掃除 */
+async function gcPhotos(){ try{ const used=new Set(); for(const fy in DATA.events) for(const e of DATA.events[fy]) if(isIdbRef(e.img)) used.add(e.img.slice(4));
+  const keys=await idbKeys(); for(const k of keys) if(!used.has(k)) await idbDel(k); }catch(_){ } }
+function revokeObjURLs(){ for(const u of _objURLs){ try{ URL.revokeObjectURL(u); }catch(_){ } } _objURLs.clear(); }
+/*PHOTO-IDB-END*/
+
 /* ====================== 商用化①: CRUD / 設定 / 永続化 =================== */
 let panelEvent=null, editingKey=null;
 function isoToday(){ return TODAY.getFullYear()+'-'+pad2(TODAY.getMonth()+1)+'-'+pad2(TODAY.getDate()); }
@@ -718,21 +769,29 @@ function openEditForm(ev){ editingKey=ev||null;
   $('efTitle').textContent=ev?'イベントを編集':'イベントを追加';
   $('efDate').value=ev?ev.date:isoToday(); $('efType').value=ev?ev.type:'memory';
   $('efEmoji').value=ev?(ev.emoji||''):''; $('efTitleIn').value=ev?ev.title:'';
-  $('efNote').value=ev?(ev.note||''):''; $('efImg').value=ev?(ev.img||''):'';
-  $('efDelete').style.display=ev?'inline-block':'none'; $('editForm').classList.add('open');
+  $('efNote').value=ev?(ev.note||''):''; $('efImg').value=(ev&&ev.img&&!isIdbRef(ev.img))?ev.img:'';
+  efResetPhoto(ev); $('efDelete').style.display=ev?'inline-block':'none'; $('editForm').classList.add('open');
   setTimeout(()=>{ try{ $('efTitleIn').focus(); }catch(e){} },0); }
+let efPendingBlob=null, efPhotoAction=null;
+function efSetPrev(src){ const p=$('efPhotoPrev'); if(src){ $('efPhotoImg').src=src; p.style.display='flex'; } else { p.style.display='none'; $('efPhotoImg').removeAttribute('src'); } }
+function efResetPhoto(ev){ efPendingBlob=null; efPhotoAction=null; $('efPhoto').value='';
+  if(ev&&ev.img){ if(isIdbRef(ev.img)){ idbGet(ev.img.slice(4)).then(b=>{ if(b){ const u=URL.createObjectURL(b); _objURLs.add(u); efSetPrev(u); } }).catch(()=>{}); } else efSetPrev(ev.img); }
+  else efSetPrev(null); }
 function closeEditForm(){ $('editForm').classList.remove('open'); editingKey=null; }
 function removeEvent(ev){ for(const fy in DATA.events){ const a=DATA.events[fy], i=a.indexOf(ev);
   if(i>=0){ a.splice(i,1); if(!a.length) delete DATA.events[fy]; return true; } } return false; }
-function saveEvent(){ const date=$('efDate').value, title=$('efTitleIn').value.trim();
+async function saveEvent(){ const date=$('efDate').value, title=$('efTitleIn').value.trim();
   if(!date||!title){ alert('日付とタイトルは必須です'); return; }
-  if(editingKey) removeEvent(editingKey);
+  const prev=editingKey; if(editingKey) removeEvent(editingKey);
   const obj={ date, type:$('efType').value, emoji:$('efEmoji').value.trim(), title, note:$('efNote').value.trim() };
-  const img=$('efImg').value.trim();
-  if(img){ if(!/^(https?:|data:image\/)/.test(img)){ alert('画像URLは https:// か data:image/ で始まる必要があります'); return; } obj.img=img; }
+  if(efPhotoAction==='set' && efPendingBlob){ const id=newPhotoId(); try{ await idbPut(id,efPendingBlob); obj.img='idb:'+id; }catch(e){ alert('画像の保存に失敗しました（端末の空き容量が不足している可能性）'); } }
+  else if(efPhotoAction==='clear'){ /* 写真なし */ }
+  else { const img=$('efImg').value.trim();
+    if(img){ if(!/^(https?:|data:image\/)/.test(img)){ alert('画像URLは https:// か data:image/ で始まる必要があります'); return; } obj.img=img; }
+    else if(prev&&prev.img) obj.img=prev.img; }
   const fy=parseDate(date).fy; (DATA.events[fy]=DATA.events[fy]||[]).push(obj);
-  saveData(); closeEditForm(); goFY(fy); }
-function deleteEvent(){ if(editingKey&&confirm('このイベントを削除しますか？')){ removeEvent(editingKey); saveData(); closeEditForm(); render(); } }
+  saveData(); efPendingBlob=null; efPhotoAction=null; closeEditForm(); goFY(fy); gcPhotos(); }
+function deleteEvent(){ if(editingKey&&confirm('このイベントを削除しますか？')){ removeEvent(editingKey); saveData(); closeEditForm(); render(); gcPhotos(); } }
 function openSettings(){ const b=DATA.birthday; $('setBirthday').value=b?(b.y+'-'+pad2(b.m)+'-'+pad2(b.d)):''; $('settings').classList.add('open');
   setTimeout(()=>{ try{ $('setBirthday').focus(); }catch(e){} },0); }
 function closeSettings(){ $('settings').classList.remove('open'); }
@@ -743,6 +802,10 @@ $('pEdit').addEventListener('click',()=>{ if(panelEvent){ $('panel').classList.r
 $('efSave').addEventListener('click',saveEvent);
 $('efCancel').addEventListener('click',closeEditForm);
 $('efDelete').addEventListener('click',deleteEvent);
+$('efPhoto').addEventListener('change',async ev=>{ const f=ev.target.files&&ev.target.files[0]; if(!f) return;
+  try{ efPendingBlob=await compressImageFile(f); efPhotoAction='set'; const u=URL.createObjectURL(efPendingBlob); _objURLs.add(u); efSetPrev(u); }
+  catch(err){ alert('画像を読み込めませんでした'); efPendingBlob=null; efPhotoAction=null; ev.target.value=''; } });
+$('efPhotoClear').addEventListener('click',()=>{ efPendingBlob=null; efPhotoAction='clear'; $('efPhoto').value=''; $('efImg').value=''; efSetPrev(null); });
 $('editForm').addEventListener('click',e=>{ if(e.target.id==='editForm') closeEditForm(); });
 $('setBirthday').addEventListener('change',()=>{ const v=$('setBirthday').value; if(v){ const a=v.split('-').map(Number); DATA.birthday={y:a[0],m:a[1],d:a[2]}; } else DATA.birthday=null; saveData(); updateHud(); });
 $('setSample').addEventListener('click',()=>{ if(confirm('サンプルを読み込みます。今のデータは置き換わります。')){ DATA={ birthday:DATA.birthday, anniversaries:Object.assign({},SAMPLE.anniversaries), events:JSON.parse(JSON.stringify(SAMPLE.events)) }; saveData(); closeSettings(); goFY(fyOf(TODAY)); } });
@@ -750,13 +813,14 @@ $('setClear').addEventListener('click',()=>{ if(confirm('全イベントを消�
 $('setExport').addEventListener('click',exportJSON);
 $('setImport').addEventListener('click',()=>$('importFile').click());
 $('importFile').addEventListener('change',ev=>{ const f=ev.target.files&&ev.target.files[0]; ev.target.value=''; if(!f) return; const r=new FileReader();
-  r.onload=()=>{ let o; try{ o=JSON.parse(r.result); }catch(err){ alert('JSONとして読めませんでした（ファイル破損の可能性）'); return; }
+  r.onload=async()=>{ let o; try{ o=JSON.parse(r.result); }catch(err){ alert('JSONとして読めませんでした（ファイル破損の可能性）'); return; }
     const res=sanitizeImport(o);
     if(!res.ok){ alert('読み込めない形式でした：'+res.reason); return; }
     if(!confirm('イベント'+res.count+'件を読み込みます。現在のデータは置き換え（直前分は自動バックアップ）。'+(res.dropped?'\n※形式不正の'+res.dropped+'件はスキップ':''))) return;
     try{ localStorage.setItem(LS_KEY+'.bak', payloadJSON()); }catch(e){}
-    DATA=res.data; saveData(); closeSettings(); goFY(fyOf(TODAY));
-    showToast('読み込み完了：'+res.count+'件'+(res.dropped?'（'+res.dropped+'件スキップ）':'')); };
+    DATA=res.data; let interned=0; try{ interned=await photoInternEvents(DATA.events); }catch(_){ }
+    saveData(); await gcPhotos(); closeSettings(); goFY(fyOf(TODAY));
+    showToast('読み込み完了：'+res.count+'件'+(interned?'（写真'+interned+'枚を端末に保存）':'')+(res.dropped?'（'+res.dropped+'件スキップ）':'')); };
   r.readAsText(f); });
 $('settings').addEventListener('click',e=>{ if(e.target.id==='settings') closeSettings(); });
 $('setClose').addEventListener('click',closeSettings);
@@ -764,6 +828,8 @@ $('setClose').addEventListener('click',closeSettings);
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeEditForm(); closeSettings(); } });
 
 render();
+/* 旧バージョンでlocalStorageにdata:画像を抱えている場合、IDBへ移して軽量化（初回のみ実質発火） */
+(async function migratePhotos(){ try{ const n=await photoInternEvents(DATA.events); if(n) saveData(); await gcPhotos(); }catch(_){ } })();
 </script>
 </body>
 </html>
