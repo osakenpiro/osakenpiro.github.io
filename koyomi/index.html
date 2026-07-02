@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>楕円の暦 — 年を一枚で置く</title>
+<meta name="description" content="楕円の暦 / KAN-REKI — 1年を一枚の楕円に置くライフログカレンダー。節目・写真・予定を糸で引き出す。データは端末内のみ。">
+<link rel="canonical" href="https://osakenpiro.github.io/koyomi/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="楕円の暦 / KAN-REKI — 年を一枚で置く">
+<meta property="og:description" content="1年を一枚の楕円に置くライフログカレンダー。節目・写真・予定を糸で引き出す。データは端末内のみ。">
+<meta property="og:url" content="https://osakenpiro.github.io/koyomi/">
+<meta property="og:image" content="https://osakenpiro.github.io/koyomi/ogp.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23fbf7ee'/%3E%3Cellipse cx='32' cy='34' rx='22' ry='18' fill='none' stroke='%23b07d22' stroke-width='4'/%3E%3Ccircle cx='32' cy='16' r='5' fill='%23b07d22'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --sumi:#efe7d6; --sumi-2:#f7f1e4; --washi:#2c2733; --washi-dim:#6f6779;
+    --thread:#b07d22; --thread-soft:#b89a55; --line:#c4b79d; --line-faint:#ddd3bf;
+    --haru:#5f9e3e; --natsu:#2f8fb8; --aki:#bd6526; --fuyu:#6f7e95;
+    --past:#9c8550; --future:#3a86b0; --sun:#bf514e; --sat:#41699f;
+    --bg1:#fbf7ee; --bg2:#efe7d6; --bg3:#e3d9c5; --glow0:#ffffff;
+    --surface:rgba(250,245,235,.97); --panel-bg:linear-gradient(180deg,#fbf7ee,#f0e7d6);
+    --track:rgba(0,0,0,.08); --btn-hover:#efe5d1; --card-ink:#2c2733; --ncard:rgba(255,255,255,.5);
+    --mincho:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+    --gothic:"Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic","Noto Sans JP",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --mono:ui-monospace,"SF Mono","Roboto Mono","Source Code Pro",monospace;
+  }
+  body.dark{
+    --sumi:#14131a; --sumi-2:#1b1a23; --washi:#ede8dd; --washi-dim:#9a93a8;
+    --thread:#c9a24b; --thread-soft:#8a7a4e; --line:#4a4658; --line-faint:#2a2833;
+    --haru:#8fbf6b; --natsu:#4fa8c9; --aki:#cc7a3d; --fuyu:#9aa6be;
+    --past:#cdbf9a; --future:#6fb6d6; --sun:#d98a8a; --sat:#8aa6d9;
+    --bg1:#1d1b26; --bg2:#14131a; --bg3:#0f0e14; --glow0:#2a2740;
+    --surface:rgba(20,19,26,.96); --panel-bg:linear-gradient(180deg,#1c1a24,#161520);
+    --track:rgba(255,255,255,.08); --btn-hover:#222029; --card-ink:#ffffff; --ncard:rgba(16,15,21,.55);
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; height:100%; }
+  body{ background:radial-gradient(120% 90% at 50% 42%, var(--bg1) 0%, var(--bg2) 62%, var(--bg3) 100%);
+    color:var(--washi); font-family:var(--gothic); -webkit-font-smoothing:antialiased; overflow:hidden; }
+
+  .hud{ position:fixed; top:0; left:0; right:0; z-index:6; display:flex; align-items:flex-start;
+    justify-content:space-between; padding:18px 24px; pointer-events:none; }
+  .hud > *{ pointer-events:auto; }
+  .appttl{ font-family:var(--mincho); font-size:15px; letter-spacing:.22em; color:var(--washi); }
+  .appttl small{ display:block; font-family:var(--mono); font-size:10px; letter-spacing:.18em; color:var(--washi-dim); margin-top:3px; }
+  .age{ margin-top:10px; font-family:var(--mono); font-size:12px; color:var(--washi-dim);
+    border:1px solid var(--line); border-radius:999px; padding:4px 11px; display:inline-flex; gap:.5em;
+    background:transparent; }
+  .age b{ color:var(--washi); font-weight:600; } .age .warn{ color:var(--thread); }
+  .nav{ display:flex; align-items:center; gap:10px; }
+  .nav button{ font-family:var(--mincho); color:var(--washi); background:var(--sumi-2);
+    border:1px solid var(--line); border-radius:10px; cursor:pointer; width:40px; height:40px; font-size:18px;
+    line-height:1; transition:border-color .15s,background .15s,transform .1s; }
+  .nav button:hover{ border-color:var(--thread); background:var(--btn-hover); }
+  .nav button:active{ transform:translateY(1px); }
+  .nav .today{ width:auto; padding:0 14px; font-family:var(--gothic); font-size:13px; }
+  button:focus-visible{ outline:2px solid var(--thread); outline-offset:2px; }
+
+  #stage{ position:fixed; inset:0; display:block; touch-action:none; cursor:grab; }
+  #stage:active{ cursor:grabbing; }
+  svg{ width:100%; height:100%; display:block; -webkit-user-select:none; user-select:none; touch-action:none; }
+  svg text, svg tspan{ -webkit-user-select:none; user-select:none; }
+
+  .mlabel{ font-family:var(--mincho); }
+  .daynum{ font-family:var(--mono); }
+  .node-label{ font-family:var(--gothic); fill:var(--washi); }
+  .boundary-label{ font-family:var(--mincho); fill:var(--washi-dim); letter-spacing:.06em; }
+  .yr-era{ font-family:var(--mincho); fill:var(--washi-dim); letter-spacing:.18em; }
+  .yr-big{ font-family:var(--mincho); fill:var(--washi); font-weight:600; }
+  .yr-flip{ font-family:var(--mincho); fill:var(--washi-dim); }
+  .yr-today{ font-family:var(--mono); fill:var(--washi-dim); }
+
+  .node-g{ cursor:pointer; }
+  .node-g .thread{ transition:stroke .15s,stroke-width .15s,opacity .15s; }
+  .node-g:hover .thread{ stroke:var(--thread); stroke-width:2; opacity:1; }
+  .node-g:hover .dot{ r:7.5; }
+  .node-g:focus-visible .ring2{ opacity:1; }
+  .almanac-g .glyph{ transition:font-size .15s; }
+  .almanac-g:hover .glyph{ font-size:18px; }
+  .daycell.has{ cursor:pointer; }
+  .daycell.has:hover .hl{ opacity:.34; }
+  .mhead{ cursor:pointer; }
+  .mhead:hover{ opacity:.7; }
+
+  #tip{ position:fixed; z-index:9; pointer-events:none; opacity:0; transform:translate(-50%,-120%);
+    transition:opacity .12s; background:var(--surface); border:1px solid var(--line); border-radius:9px;
+    padding:7px 11px; max-width:240px; font-size:12.5px; color:var(--washi); box-shadow:0 8px 26px rgba(0,0,0,.5); }
+  #tip .t-date{ font-family:var(--mono); font-size:11px; color:var(--washi-dim); margin-bottom:2px; }
+  #tip .t-title{ font-weight:600; white-space:pre-line; }
+
+  #panel{ position:fixed; top:0; right:0; bottom:0; width:min(360px,86vw); z-index:8;
+    background:var(--panel-bg); border-left:1px solid var(--line);
+    transform:translateX(102%); transition:transform .28s cubic-bezier(.2,.7,.2,1); display:flex; flex-direction:column; }
+  #panel.open{ transform:translateX(0); }
+  .p-photo{ height:170px; flex:none; position:relative; overflow:hidden; background:var(--sumi-2); }
+  .p-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .p-photo .ph{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:var(--washi-dim); font-size:13px; font-family:var(--mincho); letter-spacing:.1em; }
+  .p-close{ position:absolute; top:10px; right:10px; z-index:2; width:34px; height:34px; border-radius:8px;
+    background:rgba(0,0,0,.4); border:1px solid var(--line); color:var(--washi); cursor:pointer; font-size:16px; }
+  .p-close:hover{ border-color:var(--thread); }
+  .p-body{ padding:20px 22px; overflow:auto; }
+  .p-kind{ display:inline-flex; align-items:center; gap:.5em; font-size:11.5px; letter-spacing:.12em;
+    padding:3px 9px; border-radius:999px; border:1px solid var(--line); color:var(--washi-dim); }
+  .p-date{ font-family:var(--mono); font-size:12.5px; color:var(--washi-dim); margin:14px 0 4px; }
+  .p-rel{ font-size:11.5px; color:var(--thread); }
+  .p-title{ font-family:var(--mincho); font-size:21px; font-weight:600; margin:8px 0 12px; line-height:1.35; }
+  .p-note{ font-size:13.5px; line-height:1.7; color:var(--washi); white-space:pre-wrap; }
+
+  .legend{ position:fixed; left:0; right:0; bottom:0; z-index:5; pointer-events:none; display:flex; gap:16px;
+    flex-wrap:wrap; justify-content:center; padding:12px 18px 14px; font-size:11.5px; color:var(--washi-dim); }
+  .legend span{ display:inline-flex; align-items:center; gap:6px; }
+  .sw{ width:11px; height:11px; border-radius:3px; display:inline-block; }
+  .dotleg{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .banner{ position:fixed; left:50%; top:64px; transform:translateX(-50%); z-index:5; font-size:11.5px;
+    color:var(--washi-dim); background:var(--surface); border:1px solid var(--line-faint);
+    border-radius:999px; padding:5px 14px; pointer-events:auto; }
+  .banner b{ color:var(--thread); font-weight:600; }
+  .banner button{ background:none; border:none; color:var(--washi-dim); cursor:pointer; text-decoration:underline; font-size:11.5px; margin-left:6px; }
+
+  .zoom{ position:fixed; right:18px; bottom:52px; z-index:6; display:flex; flex-direction:column; gap:8px; }
+  .zoom .seg{ display:flex; border:1px solid var(--line); border-radius:9px; overflow:hidden; }
+  .zoom .seg button{ border:none; flex:1; padding:7px 10px; font-size:12px; background:var(--sumi-2); color:var(--washi); cursor:pointer; }
+  .zoom .seg button.on{ background:rgba(176,125,34,.16); color:var(--thread); }
+  .zbtns{ display:flex; flex-direction:column; gap:6px; }
+  .zbtns button{ font-family:var(--gothic); color:var(--washi); background:var(--sumi-2);
+    border:1px solid var(--line); border-radius:9px; cursor:pointer; padding:8px 0; width:44px; font-size:16px; }
+  .zoom button:hover{ border-color:var(--thread); }
+  .hint{ font-size:10.5px; color:var(--washi-dim); text-align:center; opacity:.7; }
+  .util{ position:fixed; left:18px; bottom:52px; z-index:5; }
+  .util button{ font-size:12px; color:var(--washi-dim); background:var(--sumi-2);
+    border:1px solid var(--line-faint); border-radius:8px; padding:6px 11px; cursor:pointer; }
+  .util button:hover{ border-color:var(--thread); color:var(--washi); }
+  #todayCard{ position:fixed; left:50%; top:50%; transform:translate(-50%,-50%) scale(.96); z-index:9;
+    background:var(--surface); border:1px solid var(--thread); border-radius:14px; padding:17px 21px;
+    font-size:14px; line-height:1.85; color:var(--washi); box-shadow:0 18px 50px rgba(0,0,0,.55);
+    max-width:300px; opacity:0; pointer-events:none; transition:opacity .18s,transform .18s; }
+  #todayCard.show{ opacity:1; pointer-events:auto; transform:translate(-50%,-50%) scale(1); }
+  #todayCard b{ font-family:var(--mincho); font-size:15px; color:var(--card-ink); }
+  #todayCard .cardnote{ margin-top:9px; font-size:10.5px; color:var(--washi-dim); letter-spacing:.05em; }
+  #todayCard .prog{ height:5px; border-radius:3px; background:var(--track); margin:9px 0 11px; overflow:hidden; }
+  #todayCard .prog i{ display:block; height:100%; background:var(--thread); }
+
+  .modal{ position:fixed; inset:0; z-index:12; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.4); }
+  .modal.open{ display:flex; }
+  .modal-card{ width:min(390px,93vw); max-height:88vh; overflow:auto; background:var(--surface); border:1px solid var(--line);
+    border-radius:16px; padding:20px 22px; box-shadow:0 24px 60px rgba(0,0,0,.45); }
+  .modal-card h3{ margin:0 0 12px; font-family:var(--mincho); font-size:18px; color:var(--washi); font-weight:600; }
+  .modal-card label{ display:block; font-size:12px; color:var(--washi-dim); margin:11px 0 0; }
+  .modal-card input, .modal-card select, .modal-card textarea{ width:100%; margin-top:4px; padding:8px 10px; font:inherit;
+    font-size:14px; color:var(--washi); background:var(--sumi-2); border:1px solid var(--line); border-radius:8px; }
+  .modal-card textarea{ resize:vertical; }
+  .modal-row{ display:flex; align-items:center; gap:8px; margin-top:18px; }
+  .modal button{ font:inherit; font-size:13px; padding:8px 14px; border-radius:9px; cursor:pointer;
+    background:var(--sumi-2); color:var(--washi); border:1px solid var(--line); }
+  .modal button:hover{ border-color:var(--thread); }
+  .modal button.primary{ background:var(--thread); color:#fff; border-color:var(--thread); }
+  .modal button.danger{ color:#c0524f; border-color:rgba(192,82,79,.4); background:transparent; }
+  .fineprint{ font-size:11px; color:var(--washi-dim); line-height:1.6; margin:14px 0 0; }
+  .util{ display:flex; gap:8px; }
+  #toast{ position:fixed; left:50%; bottom:120px; transform:translateX(-50%); z-index:14; background:var(--surface);
+    border:1px solid var(--thread); border-radius:10px; padding:9px 16px; font-size:12.5px; color:var(--washi);
+    box-shadow:0 10px 30px rgba(0,0,0,.35); opacity:0; pointer-events:none; transition:opacity .2s; max-width:86vw; }
+  #toast.show{ opacity:1; }
+  @media (max-width:560px){ .legend{ font-size:10.5px; gap:10px; padding-bottom:8px; }
+    #panel{ width:100vw; } .banner{ top:auto; bottom:118px; } .zoom{ bottom:96px; } .util{ bottom:96px; } }
+  @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="hud">
+  <div>
+    <div class="appttl">楕円の暦<small>KAN-REKI v0.7</small></div>
+    <div class="age" id="ageBadge">満 <b>—</b> 歳</div>
+  </div>
+  <div class="nav">
+    <button id="themeBtn" title="背景の明暗を切り替え" aria-label="背景の明暗を切り替え">☀</button>
+    <button id="prev" title="前の年度（←）" aria-label="前の年度">◀</button>
+    <button id="todayBtn" class="today" title="今日の年度へ">今日へ</button>
+    <button id="next" title="次の年度（→）" aria-label="次の年度">▶</button>
+  </div>
+</div>
+
+<div class="banner"><b>v0.7</b>・輪をドラッグ=回す（地球儀）／中央・外=移動・ズーム=スクロール/ピンチ・中央の穴=今日
+  <button id="bannerHide">隠す</button></div>
+
+<svg id="stage" viewBox="0 0 1140 920" preserveAspectRatio="xMidYMid meet" aria-label="楕円の年カレンダー">
+  <defs>
+    <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:var(--glow0)" stop-opacity="0.55"/>
+      <stop offset="72%" stop-color="#1a1925" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <g id="vp">
+    <ellipse id="glowEl" fill="url(#centerGlow)"/>
+    <g id="gBand"></g>
+    <g id="gCenter"></g>
+    <g id="gAlmanac"></g>
+    <g id="gBoundary"></g>
+    <g id="gDays"></g>
+    <g id="gEvents"></g>
+    <g id="gTodayRim"></g>
+  </g>
+</svg>
+
+<div class="legend">
+  <span><span class="sw" style="background:var(--haru)"></span>春</span>
+  <span><span class="sw" style="background:var(--natsu)"></span>夏</span>
+  <span><span class="sw" style="background:var(--aki)"></span>秋</span>
+  <span><span class="sw" style="background:var(--fuyu)"></span>冬</span>
+  <span><span class="dotleg" style="background:var(--past)"></span>記録</span>
+  <span><span class="dotleg" style="background:transparent;border:1.5px dashed var(--future)"></span>予定</span>
+  <span><span style="color:var(--thread)">━</span> 糸＝節目・写真・予定</span>
+  <span>🔒 データは端末内のみ</span>
+</div>
+
+<div class="zoom">
+  <div class="seg"><button id="segAll" class="on">全体</button><button id="segMonth">月暦</button></div>
+  <div class="seg"><button id="layNormal">通常</button><button id="layCurve" class="on">カーブ</button></div>
+  <div class="zbtns" style="flex-direction:row"><button id="rotL" title="左に回す（前の月を上へ）" aria-label="左に回す">⟲</button><button id="rotHome" title="年度の向きに戻す" aria-label="年度の向きに戻す">⌂</button><button id="rotR" title="右に回す（次の月を上へ）" aria-label="右に回す">⟳</button></div>
+  <div class="zbtns"><button id="zin" title="拡大（+）" aria-label="拡大">＋</button><button id="zout" title="縮小（−）" aria-label="縮小">−</button></div>
+  <div class="hint">輪をドラッグで回す<br>⌂で年度の向き</div>
+</div>
+<div class="util"><button id="addBtn">＋ イベント</button><button id="setBtn" title="設定">⚙ 設定</button></div>
+
+<div id="editForm" class="modal" role="dialog" aria-modal="true" aria-labelledby="efTitle"><div class="modal-card">
+  <h3 id="efTitle">イベントを追加</h3>
+  <label>日付<input type="date" id="efDate"></label>
+  <label>種別<select id="efType"><option value="memory">節目</option><option value="photo">写真</option><option value="event">出来事</option><option value="future">予定</option></select></label>
+  <label>絵文字（任意）<input type="text" id="efEmoji" maxlength="2" placeholder="📍"></label>
+  <label>タイトル<input type="text" id="efTitleIn" placeholder="例：三鷹に引っ越し"></label>
+  <label>メモ（任意）<textarea id="efNote" rows="3"></textarea></label>
+  <label>画像URL（任意）<input type="text" id="efImg" placeholder="https://…"></label>
+  <div class="modal-row"><button id="efDelete" class="danger" style="display:none">削除</button><span style="flex:1"></span><button id="efCancel">キャンセル</button><button id="efSave" class="primary">保存</button></div>
+</div></div>
+<div id="settings" class="modal" role="dialog" aria-modal="true" aria-label="設定"><div class="modal-card">
+  <h3>設定</h3>
+  <label>誕生日<input type="date" id="setBirthday"></label>
+  <div class="modal-row" style="flex-wrap:wrap"><button id="setSample">サンプル読込</button><button id="setExport">JSON書き出し</button><button id="setImport">JSON読み込み</button><button id="setClear" class="danger">全消去</button></div>
+  <p class="fineprint">データはこの端末のブラウザ内（localStorage）にのみ保存され、外部には送信されません。バックアップはJSON書き出しから。</p>
+  <div class="modal-row"><span style="flex:1"></span><button id="setClose" class="primary">閉じる</button></div>
+  <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+</div></div>
+<div id="todayCard" role="status"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="tip" aria-hidden="true"><div class="t-date"></div><div class="t-title"></div></div>
+<div id="panel" role="dialog" aria-label="イベント詳細">
+  <div class="p-photo"><button class="p-close" id="pClose" aria-label="閉じる">✕</button><div class="ph">写真をここに（任意）</div></div>
+  <div class="p-body">
+    <span class="p-kind" id="pKind">イベント</span>
+    <div class="p-date" id="pDate"></div><div class="p-rel" id="pRel"></div>
+    <div class="p-title" id="pTitle"></div><div class="p-note" id="pNote"></div>
+    <div class="modal-row"><span style="flex:1"></span><button id="pEdit" class="primary">編集</button></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================================
+   楕円の暦 v0.7 — 季節リング帯＋カーブ日付＋中央に年（v0.7=JSON堅牢化/a11y/OGP）
+   編集は DATA だけ。type: memory|photo|event|future。年度キー=4月始まり。
+   ========================================================================== */
+const SAMPLE = {
+  birthday:{ y:1990,m:6,d:15 },   // ← 自分の誕生日に（仮の値）
+  anniversaries:{ /* '06-29':'記念日' のように足すと中央カードに🎏で出る */ },
+  events:{
+    2024:[
+      {date:'2024-04-06',type:'memory',emoji:'📦',title:'三鷹に引っ越し',note:'（サンプル）「いつ引っ越した？」をここに固定。上連雀。'},
+      {date:'2024-08-12',type:'photo', emoji:'🎆',title:'夏の夜',note:'（サンプル写真）img にURLを入れると表示。'},
+      {date:'2024-11-20',type:'event', emoji:'📄',title:'論文投稿（例）',note:'（サンプル）'},
+      {date:'2025-02-03',type:'event', emoji:'🫘',title:'節分の豆まき（例）',note:'（サンプル）'},
+    ],
+    2025:[
+      {date:'2025-04-15',type:'memory',emoji:'🌱',title:'新年度の始動（例）',note:'（サンプル）'},
+      {date:'2025-07-07',type:'photo', emoji:'🎋',title:'七夕の一枚',note:'（サンプル写真）'},
+      {date:'2025-09-23',type:'event', emoji:'📚',title:'KDP出版（例）',note:'（サンプル）'},
+      {date:'2025-12-25',type:'photo', emoji:'❄️',title:'冬の一枚',note:'（サンプル写真）'},
+      {date:'2026-01-10',type:'event', emoji:'🎲',title:'ボードゲーム会（例）',note:'（サンプル）'},
+      {date:'2026-03-08',type:'memory',emoji:'🌸',title:'年度末の節目（例）',note:'（サンプル）'},
+    ],
+    2026:[
+      {date:'2026-04-02',type:'memory',emoji:'🗓️',title:'昭和六十三年のはる ep2（例）',note:'（サンプル）新年度の創作節目。'},
+      {date:'2026-06-22',type:'event', emoji:'🛠️',title:'ひとRe 全44話化（例）',note:'（サンプル）直近の実作業。'},
+      {date:'2026-06-29',type:'memory',emoji:'📍',title:'このツールの構想日',note:'今日。記録のサンプル。'},
+      {date:'2026-07-01',type:'future',emoji:'📮',title:'ひとRe Wave1 投稿（予定）',note:'20:00〜。人間ゲート。'},
+      {date:'2026-08-13',type:'future',emoji:'🌠',title:'ペルセウス座流星群（予定）',note:'目安。'},
+      {date:'2026-10-15',type:'future',emoji:'📖',title:'IMASICA ep48（予定・例）',note:'（サンプル予定）'},
+      {date:'2026-12-31',type:'future',emoji:'🔔',title:'大晦日',note:'年の境目。'},
+      {date:'2027-02-14',type:'future',emoji:'💠',title:'サンプル予定',note:''},
+    ],
+  }
+};
+const ALMANAC=[
+  {m:5,d:5,kind:'sekku',emoji:'🎏',label:'端午の節句'},{m:7,d:7,kind:'sekku',emoji:'🎋',label:'七夕'},
+  {m:9,d:9,kind:'sekku',emoji:'🌼',label:'重陽の節句'},{m:11,d:15,kind:'event',emoji:'🎴',label:'七五三'},
+  {m:12,d:22,kind:'astro',emoji:'🌗',label:'冬至（目安）'},{m:12,d:14,kind:'astro',emoji:'🌠',label:'ふたご座流星群（目安）'},
+  {m:1,d:1,kind:'event',emoji:'🎍',label:'元日'},{m:1,d:7,kind:'sekku',emoji:'🥣',label:'七草'},
+  {m:2,d:3,kind:'event',emoji:'👹',label:'節分（目安）'},{m:3,d:3,kind:'sekku',emoji:'🎎',label:'桃の節句'},
+  {m:3,d:20,kind:'astro',emoji:'🌸',label:'春分（目安）'},{m:6,d:21,kind:'astro',emoji:'🌞',label:'夏至（目安）'},
+  {m:4,d:10,kind:'shun',emoji:'🌿',label:'旬：筍'},{m:5,d:20,kind:'shun',emoji:'🐟',label:'旬：初鰹'},
+  {m:9,d:18,kind:'shun',emoji:'🍂',label:'旬：秋刀魚／新米'},{m:12,d:10,kind:'shun',emoji:'🦪',label:'旬：牡蠣'},
+];
+
+/* ---- データ正本（localStorage・端末ローカル） ---- */
+const LS_KEY='kanreki.v1';
+function emptyData(){ return { birthday:null, anniversaries:{}, events:{} }; }
+function loadData(){ try{ const raw=localStorage.getItem(LS_KEY); if(raw){ const o=JSON.parse(raw); return { birthday:o.birthday||null, anniversaries:o.anniversaries||{}, events:o.events||{} }; } }catch(e){ console.warn('load',e); } return null; }
+function payloadJSON(){ return JSON.stringify({ version:1, birthday:DATA.birthday, anniversaries:DATA.anniversaries, events:DATA.events }); }
+function saveData(){ try{ localStorage.setItem(LS_KEY, payloadJSON()); }
+  catch(e){ console.warn('save',e); showToast('⚠ 保存できませんでした（容量不足の可能性）。「JSON書き出し」でバックアップを推奨'); } }
+let DATA = loadData();
+if(!DATA){ DATA = { birthday:null, anniversaries:Object.assign({},SAMPLE.anniversaries), events:JSON.parse(JSON.stringify(SAMPLE.events)) }; saveData(); }
+
+/* ---- 幾何 ---- */
+const CX=570, CY=460, RX=384, RY=340, TAU=Math.PI/180;
+const VBW=1140, VBH=920;
+const BAND_IN=0.66, BAND_OUT=1.14;     // リング帯の内・外半径（倍率）
+const RIM_LABEL=1.205, ALM_R=1.165, THREAD_R=1.33;
+function daysInMonth(y,m){ return new Date(y,m,0).getDate(); }
+function dateToT(y,m,d){ const fm=(m-4+12)%12; return fm+(d-1)/daysInMonth(y,m); }
+function tToDeg(t){ return (t<=8)? 225-(t/8)*180 : 45-((t-8)/4)*180; }
+function polar(deg,radial=1){ const a=(deg+rot)*TAU; return [CX+RX*radial*Math.cos(a), CY-RY*radial*Math.sin(a)]; }
+function fyOf(dt){ return (dt.getMonth()+1)>=4 ? dt.getFullYear() : dt.getFullYear()-1; }
+function parseDate(s){ const[y,m,d]=s.split('-').map(Number); const dt=new Date(y,m-1,d);
+  return {y,m,d,dt,fy:fyOf(dt),t:dateToT(y,m,d),deg:tToDeg(dateToT(y,m,d))}; }
+
+const TODAY=new Date(); let curFY=fyOf(TODAY); let layout='curve';
+let rot=0, spinning=false, dragMode=null, rotStart=0, angStart=0, spinRAF=0;
+const SVGNS="http://www.w3.org/2000/svg"; const $=id=>document.getElementById(id);
+function el(tag,attrs={},parent=null){ const n=document.createElementNS(SVGNS,tag);
+  for(const k in attrs) n.setAttribute(k,attrs[k]); if(parent) parent.appendChild(n); return n; }
+function clear(g){ while(g.firstChild) g.removeChild(g.firstChild); }
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)); const pad2=n=>String(n).padStart(2,'0');
+const smooth=(lo,hi,v)=>{ let p=clamp((v-lo)/(hi-lo),0,1); return p*p*(3-2*p); };
+
+const SEASONS=[{char:'春',color:'var(--haru)'},{char:'夏',color:'var(--natsu)'},{char:'秋',color:'var(--aki)'},{char:'冬',color:'var(--fuyu)'}];
+const KIND_JA={memory:'節目',photo:'写真',event:'出来事',future:'予定',sekku:'節句',astro:'天文',shun:'旬'};
+const TYPE_COLOR={memory:'var(--thread)',photo:'var(--natsu)',event:'var(--past)',future:'var(--future)'};
+const WD=['日','月','火','水','木','金','土'];
+
+/* ---- パス生成（t空間でサンプル＝非等間隔カーブに正しく沿う） ---- */
+function ptsStr(a){ return a.map(p=>p[0].toFixed(2)+' '+p[1].toFixed(2)).join(' L '); }
+function arcByT(t0,t1,r,steps=10){ let p=[]; for(let i=0;i<=steps;i++){ const t=t0+(t1-t0)*i/steps; p.push(polar(tToDeg(t),r)); } return 'M '+ptsStr(p); }
+function sectorByT(t0,t1,rIn,rOut,steps=8){
+  let out=[],inn=[];
+  for(let i=0;i<=steps;i++){ const t=t0+(t1-t0)*i/steps; out.push(polar(tToDeg(t),rOut)); }
+  for(let i=steps;i>=0;i--){ const t=t0+(t1-t0)*i/steps; inn.push(polar(tToDeg(t),rIn)); }
+  return 'M '+ptsStr(out)+' L '+ptsStr(inn)+' Z';
+}
+function evMapFor(fy){ const m={}; (DATA.events[fy]||[]).forEach(e=>{ (m[e.date]=m[e.date]||[]).push(e); }); return m; }
+
+/* ====================== 帯（季節リング・常時表示） ====================== */
+let monthCenters=[];
+function drawBand(){
+  const g=$('gBand'); clear(g); monthCenters=[];
+  $('glowEl').setAttribute('cx',CX); $('glowEl').setAttribute('cy',CY);
+  $('glowEl').setAttribute('rx',RX*BAND_IN*1.04); $('glowEl').setAttribute('ry',RY*BAND_IN*1.04);
+  // 季節の塗り（12ヶ月＝12セクター）
+  for(let fm=0;fm<12;fm++){ const s=SEASONS[Math.floor(fm/3)];
+    el('path',{d:sectorByT(fm,fm+1,BAND_IN,BAND_OUT),fill:s.color,opacity:0.2,stroke:'none'},g);
+  }
+  // 内外リム
+  el('path',{d:arcByT(0,12,BAND_OUT,120)+' Z',fill:'none',stroke:'var(--line)','stroke-width':1.4,opacity:.95},g);
+  el('path',{d:arcByT(0,12,BAND_IN,120)+' Z',fill:'none',stroke:'var(--line)','stroke-width':1.1,opacity:.82},g);
+  // 月の境界線
+  for(let fm=0;fm<12;fm++){ const [x1,y1]=polar(tToDeg(fm),BAND_IN),[x2,y2]=polar(tToDeg(fm),BAND_OUT);
+    el('line',{x1,y1,x2,y2,stroke:'var(--line)','stroke-width':1,opacity:.45},g); }
+  // 週・曜日グリッド（カーブ並びのとき帯に表示）
+  if(layout==='curve' && !spinning) for(let fm=0;fm<12;fm++){ const rm=((fm+3)%12)+1, ry=rm>=4?curFY:curFY+1;
+    const fst=new Date(ry,rm-1,1).getDay(), dm=daysInMonth(ry,rm), wk=Math.ceil((fst+dm)/7), rt=(BAND_OUT-BAND_IN)/wk;
+    for(let w=1;w<wk;w++) el('path',{d:arcByT(fm,fm+1,BAND_OUT-w*rt,6),fill:'none',stroke:'var(--line)','stroke-width':0.6,opacity:.12},g);
+    for(let c=1;c<7;c++){ const [a1,b1]=polar(tToDeg(fm+c/7),BAND_IN),[a2,b2]=polar(tToDeg(fm+c/7),BAND_OUT);
+      el('line',{x1:a1,y1:b1,x2:a2,y2:b2,stroke:'var(--line)','stroke-width':0.5,opacity:.10},g); } }
+  // 月ラベル（外リム外側・常時）
+  for(let fm=0;fm<12;fm++){ const realMonth=((fm+3)%12)+1; const s=SEASONS[Math.floor(fm/3)];
+    const [x,y]=polar(tToDeg(fm+0.5),RIM_LABEL); monthCenters.push({fm});
+    const head=el('g',{class:'mhead'},g);
+    el('rect',{x:x-15,y:y-12,width:30,height:24,fill:'transparent'},head);
+    const t=el('text',{x,y,'text-anchor':'middle','dominant-baseline':'middle',class:'mlabel',
+      'font-size':16,fill:s.color},head); t.textContent=realMonth+'月';
+    head.addEventListener('click',e=>{ if(didPan)return; e.stopPropagation();
+      const [ccx,ccy]=polar(tToDeg(fm+0.5),(BAND_IN+BAND_OUT)/2); animateTo(2.9,ccx,ccy); });
+  }
+}
+
+/* ====================== 中央の年（デッドスペース埋め） ================= */
+function drawCenter(){
+  const g=$('gCenter'); clear(g);
+  const rWa=curFY-2018; const era= rWa>=1?`令和${rWa===1?'元':rWa}年度`:`${curFY}年度`;
+  let t=el('text',{x:CX,y:CY-70,'text-anchor':'middle',class:'yr-era','font-size':15},g); t.textContent=era;
+  let big=el('text',{x:CX,y:CY-14,'text-anchor':'middle',class:'yr-big','font-size':74},g); big.textContent=curFY;
+  let fl=el('text',{x:CX,y:CY+30,'text-anchor':'middle',class:'yr-flip','font-size':17},g); fl.textContent='→ '+(curFY+1);
+  // 区切り
+  el('line',{x1:CX-46,y1:CY+48,x2:CX+46,y2:CY+48,stroke:'var(--line)','stroke-width':1,opacity:.5},g);
+  const m=TODAY.getMonth()+1,d=TODAY.getDate();
+  let td=el('text',{x:CX,y:CY+68,'text-anchor':'middle',class:'yr-today','font-size':12.5},g);
+  td.textContent=`本日 ${TODAY.getFullYear()}.${pad2(m)}.${pad2(d)}（${WD[TODAY.getDay()]}）`;
+  // ③ 段階開示：薄いヒント行＋中央ヒットエリア（普段は静か／ホバーで一行／クリックでカード）
+  const hintEl=el('text',{id:'centerHint',x:CX,y:CY+90,'text-anchor':'middle',class:'yr-today','font-size':11,fill:'var(--thread)',opacity:.9},g);
+  hintEl.textContent=emptyHint();
+  const hit=el('ellipse',{cx:CX,cy:CY,rx:RX*0.5,ry:RY*0.5,fill:'transparent',style:'cursor:pointer'},g);
+  hit.addEventListener('mouseenter',()=>{ if(curFY!==fyOf(TODAY))return; const f=todayFacts(); setCenterHint(f.mp.name+' ・ 年度'+f.fday+'日目 ・ クリックで詳細'); });
+  hit.addEventListener('mouseleave',()=>setCenterHint(emptyHint()));
+  hit.addEventListener('click',e=>{ if(didPan)return; e.stopPropagation(); const c=$('todayCard'); if(c.classList.contains('show')) closeTodayCard(); else openTodayCardForToday(); });
+}
+
+/* ====================== 日付（帯の上にカーブ配置・ズームで濃く） ====== */
+function drawDays(){ if(layout==='curve') drawCurved(); else drawNormal(); }
+function drawCurved(){
+  const g=$('gDays'); clear(g); const evMap=evMapFor(curFY);
+  for(let fm=0;fm<12;fm++){
+    const realMonth=((fm+3)%12)+1, realYear=realMonth>=4?curFY:curFY+1;
+    const first=new Date(realYear,realMonth-1,1).getDay(), dim=daysInMonth(realYear,realMonth);
+    const weeks=Math.ceil((first+dim)/7); const rowThk=(BAND_OUT-BAND_IN)/weeks;
+    // 日
+    for(let d=1;d<=dim;d++){
+      const dow=(first+d-1)%7, w=Math.floor((first+d-1)/7);
+      const tC0=fm+dow/7, tC1=fm+(dow+1)/7, tMid=(tC0+tC1)/2;
+      const rOut=BAND_OUT-w*rowThk, rIn=rOut-rowThk, rMid=(rOut+rIn)/2;
+      const [nx,ny]=polar(tToDeg(tMid),rMid);
+      const key=`${realYear}-${pad2(realMonth)}-${pad2(d)}`; const evs=evMap[key];
+      const isToday=(realYear===TODAY.getFullYear()&&realMonth===TODAY.getMonth()+1&&d===TODAY.getDate());
+      const cellG=el('g',{class:'daycell'+(evs?' has':'')},g);
+      if(isToday) el('path',{d:sectorByT(tC0,tC1,rIn+0.004,rOut-0.004,3),fill:'var(--thread)',opacity:.20},cellG);
+      if(evs){ const c0=TYPE_COLOR[evs[0].type]||'var(--past)';
+        el('path',{class:'hl',d:sectorByT(tC0,tC1,rIn+0.004,rOut-0.004,3),fill:c0,opacity:.20},cellG); }
+      const num=el('text',{x:nx,y:ny,'text-anchor':'middle','dominant-baseline':'middle',class:'daynum',
+        'font-size':7.6,fill:isToday?'var(--thread)':dow===0?'var(--sun)':dow===6?'var(--sat)':'var(--washi)'},cellG);
+      num.textContent=d;
+      if(isToday) el('path',{d:sectorByT(tC0,tC1,rIn+0.004,rOut-0.004,3),fill:'none',stroke:'var(--thread)','stroke-width':1,opacity:.8},cellG);
+      if(evs){
+        const [dx,dy]=polar(tToDeg(tC1-0.012),rOut-0.022);
+        el('circle',{cx:dx,cy:dy,r:1.8,fill:TYPE_COLOR[evs[0].type]||'var(--past)'},cellG);
+        el('path',{d:sectorByT(tC0,tC1,rIn,rOut,3),fill:'transparent'},cellG);
+        cellG.addEventListener('click',e=>{ if(didPan)return; e.stopPropagation(); openPanel(evs[0],evs.length); });
+        cellG.addEventListener('mouseenter',e=>showTip(e,`${realMonth}/${d}（${WD[new Date(realYear,realMonth-1,d).getDay()]}）`,
+          evs.map(x=>(x.emoji||'')+x.title).join('\n')));
+        cellG.addEventListener('mousemove',moveTip); cellG.addEventListener('mouseleave',hideTip);
+      }
+    }
+  }
+}
+
+/* ====================== 通常並び：上下左右どこでもふつうのカレンダー === */
+function drawNormal(){
+  const g=$('gDays'); clear(g); const evMap=evMapFor(curFY);
+  const colW=13, rowH=12.5, headH=19;
+  for(let fm=0;fm<12;fm++){
+    const rm=((fm+3)%12)+1, ry=rm>=4?curFY:curFY+1;
+    const first=new Date(ry,rm-1,1).getDay(), dim=daysInMonth(ry,rm), weeks=Math.ceil((first+dim)/7);
+    const cardW=colW*7, cardH=headH+weeks*rowH;
+    const [ccx,ccy]=polar(tToDeg(fm+0.5),0.93); const ox=ccx-cardW/2, oy=ccy-cardH/2;
+    const s=SEASONS[Math.floor(fm/3)];
+    el('rect',{x:ox-3,y:oy-2,width:cardW+6,height:cardH+5,rx:6,fill:'var(--ncard)',stroke:s.color,'stroke-width':0.8,'stroke-opacity':.4},g);
+    const mn=el('text',{x:ox+cardW/2,y:oy+12,'text-anchor':'middle',class:'mlabel',fill:s.color,'font-size':12,'font-weight':600},g); mn.textContent=rm+'月';
+    for(let c=0;c<7;c++){ const w=el('text',{x:ox+c*colW+colW/2,y:oy+headH-2.5,'text-anchor':'middle',class:'daynum','font-size':6.4,
+      fill:c===0?'var(--sun)':c===6?'var(--sat)':'var(--washi-dim)'},g); w.textContent=WD[c]; }
+    for(let d=1;d<=dim;d++){
+      const dow=(first+d-1)%7, wk=Math.floor((first+d-1)/7);
+      const cellX=ox+dow*colW, cellY=oy+headH+wk*rowH, cx_=cellX+colW/2, cy_=cellY+rowH/2;
+      const key=`${ry}-${pad2(rm)}-${pad2(d)}`, evs=evMap[key];
+      const isToday=(ry===TODAY.getFullYear()&&rm===TODAY.getMonth()+1&&d===TODAY.getDate());
+      const cellG=el('g',{class:'daycell'+(evs?' has':'')},g);
+      if(isToday) el('rect',{x:cellX+0.5,y:cellY+0.5,width:colW-1,height:rowH-1,rx:2.5,fill:'var(--thread)',opacity:.22},cellG);
+      if(evs) el('rect',{class:'hl',x:cellX+0.5,y:cellY+0.5,width:colW-1,height:rowH-1,rx:2.5,fill:TYPE_COLOR[evs[0].type]||'var(--past)',opacity:.20},cellG);
+      const num=el('text',{x:cx_,y:cy_,'text-anchor':'middle','dominant-baseline':'middle',class:'daynum','font-size':7.6,
+        fill:isToday?'var(--thread)':dow===0?'var(--sun)':dow===6?'var(--sat)':'var(--washi)'},cellG); num.textContent=d;
+      if(isToday) el('rect',{x:cellX+0.5,y:cellY+0.5,width:colW-1,height:rowH-1,rx:2.5,fill:'none',stroke:'var(--thread)','stroke-width':1,opacity:.8},cellG);
+      if(evs){ el('circle',{cx:cellX+colW-3,cy:cellY+3,r:1.8,fill:TYPE_COLOR[evs[0].type]||'var(--past)'},cellG);
+        el('rect',{x:cellX,y:cellY,width:colW,height:rowH,fill:'transparent'},cellG); cellG.style.cursor='pointer';
+        cellG.addEventListener('click',e=>{ if(didPan)return; e.stopPropagation(); openPanel(evs[0],evs.length); });
+        cellG.addEventListener('mouseenter',e=>showTip(e,`${rm}/${d}（${WD[new Date(ry,rm-1,d).getDay()]}）`,evs.map(x=>(x.emoji||'')+x.title).join('\n')));
+        cellG.addEventListener('mousemove',moveTip); cellG.addEventListener('mouseleave',hideTip); }
+    }
+  }
+}
+
+/* ====================== 糸（節目・写真・予定＝俯瞰でも引き出す） ======= */
+function drawThreads(){
+  const g=$('gEvents'); clear(g);
+  const notable=(DATA.events[curFY]||[]).map(e=>({...e,p:parseDate(e.date)}))
+    .filter(e=>e.p.fy===curFY && (e.type==='memory'||e.type==='photo'||e.type==='future'))
+    .sort((a,b)=>a.p.t-b.p.t);
+  let prevDeg=999,level=0;
+  notable.forEach(e=>{ if(Math.abs(e.p.deg-prevDeg)<10) level++; else level=0; prevDeg=e.p.deg; e._r=THREAD_R+level*0.12; });
+  notable.forEach(e=>{
+    const [ax,ay]=polar(e.p.deg,BAND_OUT);          // 帯の外リムから
+    const [nx,ny]=polar(e.p.deg,e._r);
+    const isFuture=e.type==='future'||e.p.dt>TODAY;
+    const grp=el('g',{class:'node-g',tabindex:0,'aria-label':`${e.p.m}月${e.p.d}日 ${e.title}`},g);
+    const [tx,ty]=polar(e.p.deg+(isFuture?3:-3),(BAND_OUT+e._r)/2);
+    el('path',{class:'thread',d:`M ${ax.toFixed(1)} ${ay.toFixed(1)} Q ${tx.toFixed(1)} ${ty.toFixed(1)} ${nx.toFixed(1)} ${ny.toFixed(1)}`,
+      fill:'none',stroke:'var(--thread-soft)','stroke-width':1,opacity:.55},grp);
+    el('circle',{class:'ring2',cx:nx,cy:ny,r:11,fill:'none',stroke:'var(--thread)','stroke-width':1,opacity:0},grp);
+    if(isFuture) el('circle',{class:'dot',cx:nx,cy:ny,r:5,fill:'var(--sumi)',stroke:'var(--future)','stroke-width':1.6,'stroke-dasharray':'2.4 2',style:'transition:r .15s'},grp);
+    else el('circle',{class:'dot',cx:nx,cy:ny,r:5,fill:e.type==='photo'?'var(--natsu)':'var(--thread)',style:'transition:r .15s'},grp);
+    const em=el('text',{x:nx,y:ny-11,'text-anchor':'middle','dominant-baseline':'middle','font-size':12.5},grp); em.textContent=e.emoji||'•';
+    const onRight=nx>=CX;
+    const lx=clamp(nx+(onRight?11:-11),58,VBW-58);
+    const lbl=el('text',{x:lx,y:ny+4,'text-anchor':onRight?'start':'end',class:'node-label','font-size':12,
+      fill:isFuture?'var(--future)':'var(--washi)'},grp); lbl.textContent=clip(e.title,11);
+    grp.addEventListener('mouseenter',ev=>showTip(ev,fmtDate(e.p),e.title));
+    grp.addEventListener('mousemove',moveTip); grp.addEventListener('mouseleave',hideTip);
+    grp.addEventListener('click',()=>{ if(didPan)return; openPanel(e); });
+    grp.addEventListener('keydown',ev=>{ if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();openPanel(e);} });
+  });
+}
+
+/* ====================== 暦グリフ / 今日リム / 境界 ===================== */
+function drawAlmanac(){
+  const g=$('gAlmanac'); clear(g);
+  ALMANAC.forEach(a=>{ const yr=a.m>=4?curFY:curFY+1; const [x,y]=polar(tToDeg(dateToT(yr,a.m,a.d)),ALM_R);
+    const grp=el('g',{class:'almanac-g'},g);
+    const tx=el('text',{x,y:y+0.5,'text-anchor':'middle','dominant-baseline':'middle',class:'glyph','font-size':13},grp);
+    tx.textContent=a.emoji;
+    grp.addEventListener('mouseenter',e=>showTip(e,`${a.m}/${a.d}`,a.label));
+    grp.addEventListener('mousemove',moveTip); grp.addEventListener('mouseleave',hideTip);
+  });
+}
+function drawTodayRim(){
+  const g=$('gTodayRim'); clear(g); if(fyOf(TODAY)!==curFY) return;
+  const deg=tToDeg(dateToT(TODAY.getFullYear(),TODAY.getMonth()+1,TODAY.getDate()));
+  const [ix,iy]=polar(deg,BAND_OUT),[ox,oy]=polar(deg,1.245);
+  el('line',{x1:ix,y1:iy,x2:ox,y2:oy,stroke:'var(--washi)','stroke-width':1.4,opacity:.8},g);
+  el('circle',{cx:ox,cy:oy,r:4.5,fill:'var(--washi)',filter:'url(#glow)'},g);
+  const t=el('text',{x:ox,y:oy-8,'text-anchor':'middle',class:'node-label','font-size':11.5,fill:'var(--washi)'},g);
+  t.textContent='今日';
+}
+function drawBoundary(){
+  const g=$('gBoundary'); clear(g);
+  let d=tToDeg(8.5),[x,y]=polar(d,1.29);
+  let t=el('text',{x,y,'text-anchor':'middle','dominant-baseline':'middle',class:'boundary-label','font-size':12},g);
+  t.textContent=curFY+' ｜ '+(curFY+1);
+  d=tToDeg(11.5);[x,y]=polar(d,1.29);
+  let t2=el('text',{x,y,'text-anchor':'middle','dominant-baseline':'middle',class:'boundary-label','font-size':12},g);
+  t2.textContent='年度替わり';
+}
+
+/* ====================== HUD / カード / tip ============================== */
+function updateHud(){
+  const b=DATA.birthday;
+  if(!b){ $('ageBadge').innerHTML='<span class="warn">＋ 誕生日を設定</span>'; return; }
+  const refDate=(fyOf(TODAY)===curFY)?TODAY:new Date(curFY,11,31);
+  $('ageBadge').innerHTML=`満 <b>${ageAt(b,refDate)}</b> 歳`;
+}
+function ageAt(b,d){ let a=d.getFullYear()-b.y; if((d.getMonth()+1)*100+d.getDate()<b.m*100+b.d) a--; return a; }
+const tip=$('tip');
+function showTip(e,ds,t){ tip.querySelector('.t-date').textContent=ds; tip.querySelector('.t-title').textContent=t; tip.style.opacity=1; moveTip(e); }
+function moveTip(e){ tip.style.left=e.clientX+'px'; tip.style.top=(e.clientY-6)+'px'; }
+function hideTip(){ tip.style.opacity=0; }
+function openPanel(e,sameDay){
+  panelEvent=e;
+  const p=parseDate(e.date);
+  $('pKind').textContent=(e.emoji?e.emoji+' ':'')+(KIND_JA[e.type]||'記録');
+  $('pDate').textContent=fmtDateLong(p); $('pRel').textContent=relDays(p.dt)+(sameDay&&sameDay>1?` ・同日 他${sameDay-1}件`:'');
+  $('pTitle').textContent=e.title; $('pNote').textContent=e.note||'';
+  const ph=document.querySelector('.p-photo'); ph.querySelector('img')?.remove();
+  if(e.img){ const img=document.createElement('img'); img.src=e.img; ph.prepend(img); ph.querySelector('.ph').style.display='none'; }
+  else{ const phl=ph.querySelector('.ph'); phl.style.display='flex'; phl.textContent=e.type==='photo'?'写真をここに':(e.emoji||'記録'); phl.style.fontSize=e.type==='photo'?'13px':'40px'; }
+  $('panel').classList.add('open');
+}
+$('pClose').addEventListener('click',()=>$('panel').classList.remove('open'));
+const clip=(s,n)=>[...s].length>n?[...s].slice(0,n).join('')+'…':s;
+const fmtDate=p=>`${p.m}/${p.d}（${WD[p.dt.getDay()]}）`;
+const fmtDateLong=p=>`${p.y}年 ${p.m}月 ${p.d}日（${WD[p.dt.getDay()]}）`;
+function relDays(dt){ const ms=new Date(dt).setHours(0,0,0,0)-new Date().setHours(0,0,0,0);
+  const days=Math.round(ms/86400000); return days===0?'今日':days>0?`${days}日後`:`${-days}日前`; }
+
+/* ====================== ズーム / パン ================================== */
+const svg=$('stage'), vp=$('vp'); const KMIN=0.7, KMAX=6;
+let k=1, tx=0, ty=0; const reduceMotion=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function applyT(){ vp.setAttribute('transform',`translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${k.toFixed(4)})`); updateLOD(); }
+function updateLOD(){
+  const s=smooth(1.05,1.45,k); const gIn=spinning?0:Math.max(0.3,s), gOut=1-s; const set=(id,o)=>$(id).setAttribute('opacity',o.toFixed(3));
+  set('gDays',gIn); set('gEvents',gOut);
+  $('gDays').style.pointerEvents=(gIn>0.6&&!spinning)?'auto':'none'; $('gEvents').style.pointerEvents=gOut>0.5?'auto':'none';
+  $('segAll').classList.toggle('on',k<1.25); $('segMonth').classList.toggle('on',k>=1.25);
+}
+function clientToVB(cx,cy){ const r=svg.getBoundingClientRect(); return [(cx-r.left)/r.width*VBW,(cy-r.top)/r.height*VBH]; }
+function zoomAt(vx,vy,f){ let nk=clamp(k*f,KMIN,KMAX); f=nk/k; tx=vx-(vx-tx)*f; ty=vy-(vy-ty)*f; k=nk; applyT(); }
+function animateTo(nk,wx,wy){ const tk=clamp(nk,KMIN,KMAX); const ttx=VBW/2-wx*tk, tty=VBH/2-wy*tk;
+  if(reduceMotion){ k=tk;tx=ttx;ty=tty;applyT();return; }
+  const k0=k,tx0=tx,ty0=ty,t0=performance.now(),dur=340;
+  (function step(t){ let p=Math.min((t-t0)/dur,1); p=1-Math.pow(1-p,3);
+    k=k0+(tk-k0)*p; tx=tx0+(ttx-tx0)*p; ty=ty0+(tty-ty0)*p; applyT(); if(p<1) requestAnimationFrame(step); })(performance.now()); }
+/* 回転（地球儀）：角度だけ回す。数字は常に水平のまま、中央の年は動かない */
+function ptrAngle(cx,cy){ const [vx,vy]=clientToVB(cx,cy); const wx=(vx-tx)/k, wy=(vy-ty)/k; return Math.atan2(-(wy-CY),wx-CX)/TAU; }
+function ringR(cx,cy){ const [vx,vy]=clientToVB(cx,cy); const wx=(vx-tx)/k, wy=(vy-ty)/k; return Math.hypot((wx-CX)/RX,(wy-CY)/RY); }
+function onRing(cx,cy){ const r=ringR(cx,cy); return r>=0.58 && r<=1.20; }
+function centerHole(cx,cy){ return ringR(cx,cy)<0.5; }
+function renderRing(){ drawBand(); drawAlmanac(); drawBoundary(); drawTodayRim(); drawThreads(); applyT(); }
+function scheduleSpin(){ if(spinRAF) return; spinRAF=requestAnimationFrame(()=>{ spinRAF=0; renderRing(); }); }
+function currentTopFm(){ let best=0,bd=999; for(let fm=0;fm<12;fm++){ const a=((tToDeg(fm+0.5)+rot)%360+360)%360; const d=Math.min(Math.abs(a-90),360-Math.abs(a-90)); if(d<bd){bd=d;best=fm;} } return best; }
+function rotToTop(fm){ let t=90-tToDeg(fm+0.5); while(t-rot>180)t-=360; while(t-rot<-180)t+=360; return t; }
+function rotHome(){ let t=0; while(t-rot>180)t-=360; while(t-rot<-180)t+=360; return t; }
+function animateRot(target){ if(reduceMotion){ rot=target; render(); return; }
+  const r0=rot,t0=performance.now(),dur=440; spinning=true;
+  (function step(t){ let p=Math.min((t-t0)/dur,1); p=1-Math.pow(1-p,3); rot=r0+(target-r0)*p; renderRing();
+    if(p<1) requestAnimationFrame(step); else { spinning=false; render(); } })(performance.now()); }
+svg.addEventListener('wheel',e=>{ e.preventDefault(); const [vx,vy]=clientToVB(e.clientX,e.clientY); zoomAt(vx,vy,Math.exp(-e.deltaY*0.0016)); },{passive:false});
+const pointers=new Map(); let didPan=false,dragStart=null,pinchDist=null;
+const twoPts=()=>[...pointers.values()]; const twoDist=()=>{const p=twoPts();return Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);};
+const twoMid=()=>{const p=twoPts();return{x:(p[0].x+p[1].x)/2,y:(p[0].y+p[1].y)/2};};
+svg.addEventListener('pointerdown',e=>{ e.preventDefault(); svg.setPointerCapture(e.pointerId); pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  didPan=false; dragStart={x:e.clientX,y:e.clientY};
+  if(pointers.size===2){ pinchDist=twoDist(); dragMode='pinch'; spinning=false; }
+  else if(onRing(e.clientX,e.clientY)){ dragMode='rotate'; rotStart=rot; angStart=ptrAngle(e.clientX,e.clientY); spinning=true; svg.style.cursor='grabbing'; }
+  else { dragMode='pan'; svg.style.cursor='grabbing'; } });
+svg.addEventListener('pointermove',e=>{ if(!pointers.has(e.pointerId))return;
+  const prev=pointers.get(e.pointerId); pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pointers.size===2){ const d=twoDist(); if(pinchDist){ const m=twoMid(); const [vx,vy]=clientToVB(m.x,m.y); zoomAt(vx,vy,d/pinchDist); } pinchDist=d; didPan=true; }
+  else if(dragMode==='rotate'){ rot=rotStart+(ptrAngle(e.clientX,e.clientY)-angStart); didPan=true; scheduleSpin(); }
+  else if(pointers.size===1){ const dx=e.clientX-prev.x,dy=e.clientY-prev.y,r=svg.getBoundingClientRect();
+    tx+=dx/r.width*VBW; ty+=dy/r.height*VBH; if(Math.hypot(e.clientX-dragStart.x,e.clientY-dragStart.y)>4) didPan=true; applyT(); } });
+function endPtr(e){ pointers.delete(e.pointerId); if(pointers.size<2) pinchDist=null;
+  if(dragMode==='rotate' && pointers.size===0){ spinning=false; if(didPan) render(); else applyT(); }
+  if(pointers.size===0){ dragMode=null; svg.style.cursor=''; } }
+svg.addEventListener('pointerup',endPtr); svg.addEventListener('pointercancel',endPtr);
+svg.addEventListener('pointermove',e=>{ if(pointers.size) return; svg.style.cursor=onRing(e.clientX,e.clientY)?'grab':'move'; });
+$('zin').addEventListener('click',()=>zoomAt(VBW/2,VBH/2,1.3)); $('zout').addEventListener('click',()=>zoomAt(VBW/2,VBH/2,1/1.3));
+$('segAll').addEventListener('click',()=>animateTo(1.0,CX,CY)); $('segMonth').addEventListener('click',()=>animateTo(1.5,CX,CY));
+$('layNormal').addEventListener('click',()=>{ layout='normal'; $('layNormal').classList.add('on'); $('layCurve').classList.remove('on'); render(); });
+$('layCurve').addEventListener('click',()=>{ layout='curve'; $('layCurve').classList.add('on'); $('layNormal').classList.remove('on'); render(); });
+$('rotL').addEventListener('click',()=>animateRot(rotToTop((currentTopFm()+11)%12)));
+$('rotR').addEventListener('click',()=>animateRot(rotToTop((currentTopFm()+1)%12)));
+$('rotHome').addEventListener('click',()=>animateRot(rotHome()));
+document.addEventListener('keydown',e=>{ const tg=e.target;
+  if(tg&&(tg.tagName==='INPUT'||tg.tagName==='TEXTAREA'||tg.tagName==='SELECT'))return;
+  if(e.key==='ArrowLeft')goFY(curFY-1); if(e.key==='ArrowRight')goFY(curFY+1);
+  if(e.key==='Home'){ goFY(fyOf(TODAY)); animateTo(1.0,CX,CY); if(layout==='curve') animateRot(rotToTop((TODAY.getMonth()+1-4+12)%12)); }
+  if(e.key==='+'||e.key==='=')zoomAt(VBW/2,VBH/2,1.3); if(e.key==='-')zoomAt(VBW/2,VBH/2,1/1.3); if(e.key==='Escape'){ $('panel').classList.remove('open'); closeTodayCard(); } });
+
+/* ====================== ナビ ============================================ */
+/* ====================== ③ 今日の情報（純関数・段階開示） ============== */
+function doy(d){ return Math.floor((d-new Date(d.getFullYear(),0,0))/864e5); }
+function yearLen(y){ return ((y%4===0&&y%100!==0)||y%400===0)?366:365; }
+function fyStart(d){ return new Date(fyOf(d),3,1); }
+function daysBetween(a,b){ return Math.round((b-a)/864e5); }
+function moonPhase(d){ const syn=29.530588853, ref=Date.UTC(2000,0,6,18,14)/864e5;
+  const age=(((d/864e5)-ref)%syn+syn)%syn, frac=age/syn;
+  const names=['新月','三日月','上弦','十三夜','満月','十六夜','下弦','有明'];
+  return { age:Math.round(age*10)/10, name:names[Math.floor(frac*8+0.5)%8], illum:Math.round((1-Math.cos(frac*2*Math.PI))/2*100) }; }
+const TERMS=[['1-5','小寒'],['1-20','大寒'],['2-4','立春'],['2-19','雨水'],['3-5','啓蟄'],['3-20','春分'],['4-5','清明'],['4-20','穀雨'],['5-5','立夏'],['5-21','小満'],['6-6','芒種'],['6-21','夏至'],['7-7','小暑'],['7-23','大暑'],['8-7','立秋'],['8-23','処暑'],['9-7','白露'],['9-23','秋分'],['10-8','寒露'],['10-23','霜降'],['11-7','立冬'],['11-22','小雪'],['12-7','大雪'],['12-22','冬至']];
+function nextTerm(d){ const today=new Date(d.getFullYear(),d.getMonth(),d.getDate()); let best=null;
+  for(let off=0;off<2;off++) for(const [md,nm] of TERMS){ const [m,day]=md.split('-').map(Number); const t=new Date(today.getFullYear()+off,m-1,day);
+    if(t>=today && (!best||t<best.date)) best={date:t,name:nm}; } return best; }
+function todayFacts(){ const d=TODAY, fs=fyStart(d), fy=fyOf(d);
+  const flen=daysBetween(fs,new Date(fy+1,3,1)), nt=nextTerm(d), today=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  return { fday:daysBetween(fs,d)+1, flen, cday:doy(d), clen:yearLen(d.getFullYear()), mp:moonPhase(d),
+    nt, ntDays:daysBetween(today,nt.date), anni:(DATA.anniversaries||{})[pad2(d.getMonth()+1)+'-'+pad2(d.getDate())] }; }
+function setCenterHint(t){ const h=$('centerHint'); if(h) h.textContent=t; }
+function emptyHint(){ return Object.keys(DATA.events).some(fy=>(DATA.events[fy]||[]).length)?'':'まだ記録がありません — 左下「＋ イベント」から'; }
+function openTodayCard(html){ const c=$('todayCard'); c.innerHTML=html; c.classList.add('show'); }
+function closeTodayCard(){ const c=$('todayCard'); if(c) c.classList.remove('show'); }
+function openTodayCardForToday(){
+  if(curFY!==fyOf(TODAY)){ openTodayCard('<b>いまは別の年度を見ています</b><br>「今日へ」で本日の年度に戻れます。'); return; }
+  const f=todayFacts(), d=TODAY; const pct=Math.round(f.fday/f.flen*100);
+  openTodayCard(
+    '<b>'+d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日（'+WD[d.getDay()]+'）</b>'+
+    "<div class='prog'><i style='width:"+pct+"%'></i></div>"+
+    '年度 '+f.fday+'/'+f.flen+'日（'+pct+'%・残'+(f.flen-f.fday)+'）<br>暦年 '+f.cday+'/'+f.clen+'日<br>'+
+    '月相 '+f.mp.name+'（輝面'+f.mp.illum+'%・月齢'+f.mp.age+'）<br>'+
+    '次の節気 '+f.nt.name+'（'+(f.ntDays===0?'今日':'あと'+f.ntDays+'日')+'）'+(f.anni?'<br>🎏 '+f.anni:'')+
+    "<div class='cardnote'>月相・節気は目安／クリックかEscで閉じる</div>");
+}
+function render(){ updateHud(); drawBand(); drawCenter(); drawAlmanac(); drawBoundary(); drawTodayRim();
+  drawDays(); drawThreads(); applyT(); $('panel').classList.remove('open'); }
+function goFY(fy){ curFY=fy; render(); }
+$('prev').addEventListener('click',()=>goFY(curFY-1)); $('next').addEventListener('click',()=>goFY(curFY+1));
+$('todayBtn').addEventListener('click',()=>{ goFY(fyOf(TODAY)); animateTo(1.0,CX,CY); if(layout==='curve') animateRot(rotToTop((TODAY.getMonth()+1-4+12)%12)); });
+$('bannerHide').addEventListener('click',()=>document.querySelector('.banner').style.display='none');
+$('todayCard').addEventListener('click',()=>closeTodayCard());
+$('themeBtn').addEventListener('click',()=>{ const d=document.body.classList.toggle('dark'); $('themeBtn').textContent=d?'☾':'☀'; try{ localStorage.setItem('kanreki.theme',d?'dark':'light'); }catch(e){} });
+function exportJSON(){ const data=JSON.stringify({ version:1, birthday:DATA.birthday, anniversaries:DATA.anniversaries, events:DATA.events },null,2);
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([data],{type:'application/json'})); a.download='kanreki-backup-'+isoToday().replace(/-/g,'')+'.json'; a.click(); showToast('JSONを書き出しました'); }
+
+/* ---- 往復堅牢化: 検証つきインポート / トースト ---- */
+const DATE_RE=/^\d{4}-\d{2}-\d{2}$/, EV_TYPES=['memory','photo','event','future'];
+function validDateStr(s){ if(typeof s!=='string'||!DATE_RE.test(s))return false; const a=s.split('-').map(Number);
+  if(a[0]<1800||a[0]>2200)return false; const dt=new Date(a[0],a[1]-1,a[2]);
+  return dt.getFullYear()===a[0]&&dt.getMonth()===a[1]-1&&dt.getDate()===a[2]; }
+function sanitizeImport(o){
+  if(!o||typeof o!=='object'||Array.isArray(o)) return {ok:false,reason:'オブジェクトではありません'};
+  if(o.version!==undefined&&o.version!==1) return {ok:false,reason:'未知のバージョン（'+o.version+'）です'};
+  if(o.events===undefined&&o.birthday===undefined&&o.anniversaries===undefined) return {ok:false,reason:'このツールのバックアップ形式ではありません'};
+  if(Array.isArray(o.events)) return {ok:false,reason:'events の形式が不正（配列）です'};
+  const out=emptyData(); let count=0,dropped=0;
+  const b=o.birthday;
+  if(b&&typeof b==='object'&&Number.isInteger(b.y)&&Number.isInteger(b.m)&&Number.isInteger(b.d)&&validDateStr(b.y+'-'+pad2(b.m)+'-'+pad2(b.d))) out.birthday={y:b.y,m:b.m,d:b.d};
+  if(o.anniversaries&&typeof o.anniversaries==='object'&&!Array.isArray(o.anniversaries))
+    for(const k in o.anniversaries){ if(/^\d{2}-\d{2}$/.test(k)&&typeof o.anniversaries[k]==='string') out.anniversaries[k]=o.anniversaries[k].slice(0,60); }
+  const evsrc=o.events;
+  if(evsrc&&typeof evsrc==='object')
+    for(const fy in evsrc){ const arr=evsrc[fy]; if(!Array.isArray(arr)){ dropped++; continue; }
+      for(const e of arr){
+        if(!e||typeof e!=='object'||!validDateStr(e.date)||typeof e.title!=='string'||!e.title.trim()){ dropped++; continue; }
+        const ne={ date:e.date, type:EV_TYPES.indexOf(e.type)>=0?e.type:'event',
+          emoji:(typeof e.emoji==='string'?Array.from(e.emoji).slice(0,2).join(''):''), title:e.title.trim().slice(0,120) };
+        if(typeof e.note==='string'&&e.note) ne.note=e.note.slice(0,2000);
+        if(typeof e.img==='string'&&/^(https?:|data:image\/)/.test(e.img)) ne.img=e.img;
+        const bucket=parseDate(ne.date).fy;  // 年度キーは日付から再計算（キーずれ修復）
+        (out.events[bucket]=out.events[bucket]||[]).push(ne); count++;
+      } }
+  return {ok:true,data:out,count:count,dropped:dropped};
+}
+let toastTimer=0;
+function showToast(msg){ const t=$('toast'); if(!t)return; t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),3400); }
+
+/* ====================== 商用化①: CRUD / 設定 / 永続化 =================== */
+let panelEvent=null, editingKey=null;
+function isoToday(){ return TODAY.getFullYear()+'-'+pad2(TODAY.getMonth()+1)+'-'+pad2(TODAY.getDate()); }
+function openEditForm(ev){ editingKey=ev||null;
+  $('efTitle').textContent=ev?'イベントを編集':'イベントを追加';
+  $('efDate').value=ev?ev.date:isoToday(); $('efType').value=ev?ev.type:'memory';
+  $('efEmoji').value=ev?(ev.emoji||''):''; $('efTitleIn').value=ev?ev.title:'';
+  $('efNote').value=ev?(ev.note||''):''; $('efImg').value=ev?(ev.img||''):'';
+  $('efDelete').style.display=ev?'inline-block':'none'; $('editForm').classList.add('open');
+  setTimeout(()=>{ try{ $('efTitleIn').focus(); }catch(e){} },0); }
+function closeEditForm(){ $('editForm').classList.remove('open'); editingKey=null; }
+function removeEvent(ev){ for(const fy in DATA.events){ const a=DATA.events[fy], i=a.indexOf(ev);
+  if(i>=0){ a.splice(i,1); if(!a.length) delete DATA.events[fy]; return true; } } return false; }
+function saveEvent(){ const date=$('efDate').value, title=$('efTitleIn').value.trim();
+  if(!date||!title){ alert('日付とタイトルは必須です'); return; }
+  if(editingKey) removeEvent(editingKey);
+  const obj={ date, type:$('efType').value, emoji:$('efEmoji').value.trim(), title, note:$('efNote').value.trim() };
+  const img=$('efImg').value.trim();
+  if(img){ if(!/^(https?:|data:image\/)/.test(img)){ alert('画像URLは https:// か data:image/ で始まる必要があります'); return; } obj.img=img; }
+  const fy=parseDate(date).fy; (DATA.events[fy]=DATA.events[fy]||[]).push(obj);
+  saveData(); closeEditForm(); goFY(fy); }
+function deleteEvent(){ if(editingKey&&confirm('このイベントを削除しますか？')){ removeEvent(editingKey); saveData(); closeEditForm(); render(); } }
+function openSettings(){ const b=DATA.birthday; $('setBirthday').value=b?(b.y+'-'+pad2(b.m)+'-'+pad2(b.d)):''; $('settings').classList.add('open');
+  setTimeout(()=>{ try{ $('setBirthday').focus(); }catch(e){} },0); }
+function closeSettings(){ $('settings').classList.remove('open'); }
+$('addBtn').addEventListener('click',()=>openEditForm(null));
+$('setBtn').addEventListener('click',openSettings);
+$('ageBadge').addEventListener('click',openSettings); $('ageBadge').style.cursor='pointer';
+$('pEdit').addEventListener('click',()=>{ if(panelEvent){ $('panel').classList.remove('open'); openEditForm(panelEvent); } });
+$('efSave').addEventListener('click',saveEvent);
+$('efCancel').addEventListener('click',closeEditForm);
+$('efDelete').addEventListener('click',deleteEvent);
+$('editForm').addEventListener('click',e=>{ if(e.target.id==='editForm') closeEditForm(); });
+$('setBirthday').addEventListener('change',()=>{ const v=$('setBirthday').value; if(v){ const a=v.split('-').map(Number); DATA.birthday={y:a[0],m:a[1],d:a[2]}; } else DATA.birthday=null; saveData(); updateHud(); });
+$('setSample').addEventListener('click',()=>{ if(confirm('サンプルを読み込みます。今のデータは置き換わります。')){ DATA={ birthday:DATA.birthday, anniversaries:Object.assign({},SAMPLE.anniversaries), events:JSON.parse(JSON.stringify(SAMPLE.events)) }; saveData(); closeSettings(); goFY(fyOf(TODAY)); } });
+$('setClear').addEventListener('click',()=>{ if(confirm('全イベントを消去します。元に戻せません。')){ DATA=emptyData(); saveData(); closeSettings(); goFY(fyOf(TODAY)); } });
+$('setExport').addEventListener('click',exportJSON);
+$('setImport').addEventListener('click',()=>$('importFile').click());
+$('importFile').addEventListener('change',ev=>{ const f=ev.target.files&&ev.target.files[0]; ev.target.value=''; if(!f) return; const r=new FileReader();
+  r.onload=()=>{ let o; try{ o=JSON.parse(r.result); }catch(err){ alert('JSONとして読めませんでした（ファイル破損の可能性）'); return; }
+    const res=sanitizeImport(o);
+    if(!res.ok){ alert('読み込めない形式でした：'+res.reason); return; }
+    if(!confirm('イベント'+res.count+'件を読み込みます。現在のデータは置き換え（直前分は自動バックアップ）。'+(res.dropped?'\n※形式不正の'+res.dropped+'件はスキップ':''))) return;
+    try{ localStorage.setItem(LS_KEY+'.bak', payloadJSON()); }catch(e){}
+    DATA=res.data; saveData(); closeSettings(); goFY(fyOf(TODAY));
+    showToast('読み込み完了：'+res.count+'件'+(res.dropped?'（'+res.dropped+'件スキップ）':'')); };
+  r.readAsText(f); });
+$('settings').addEventListener('click',e=>{ if(e.target.id==='settings') closeSettings(); });
+$('setClose').addEventListener('click',closeSettings);
+(function(){ try{ if(localStorage.getItem('kanreki.theme')==='dark'){ document.body.classList.add('dark'); $('themeBtn').textContent='☾'; } }catch(e){} })();
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeEditForm(); closeSettings(); } });
+
+render();
+</script>
+</body>
+</html>
