@@ -164,6 +164,20 @@
     border:1px solid var(--thread); border-radius:10px; padding:9px 16px; font-size:12.5px; color:var(--washi);
     box-shadow:0 10px 30px rgba(0,0,0,.35); opacity:0; pointer-events:none; transition:opacity .2s; max-width:86vw; }
   #toast.show{ opacity:1; }
+  /* --- v0.10 写真ギャラリー + リングサムネ --- */
+  #gallery .gal-card{ width:min(720px,95vw); }
+  #gallery .gal-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); gap:10px; margin-top:8px; max-height:64vh; overflow:auto; padding:2px; }
+  #gallery .gal-item{ position:relative; aspect-ratio:1/1; padding:0; font:inherit; color:var(--washi); border:1px solid var(--line); border-radius:10px; overflow:hidden; cursor:pointer; background:var(--sumi-2); }
+  #gallery .gal-item:hover{ border-color:var(--thread); }
+  #gallery .gal-item img{ width:100%; height:100%; object-fit:cover; display:block; }
+  #gallery .gal-item .cap{ position:absolute; left:0; right:0; bottom:0; padding:9px 6px 3px; font-size:10px; line-height:1.2; color:#fff;
+    text-align:left; background:linear-gradient(180deg,transparent,rgba(0,0,0,.68)); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #gallery .gal-item.gal-missing{ display:flex; align-items:center; justify-content:center; }
+  #gallery .gal-item.gal-missing img{ display:none; }
+  #gallery .gal-empty{ display:none; margin:16px 2px; font-size:13px; color:var(--washi-dim); line-height:1.75; font-family:var(--mincho); }
+  .phthumb{ pointer-events:none; }
+  .ph-ring{ transition:stroke-width .15s; pointer-events:none; }
+  .node-g:hover .ph-ring{ stroke-width:2.6; }
   @media (max-width:560px){ .legend{ font-size:10.5px; gap:10px; padding-bottom:8px; }
     #panel{ width:100vw; } .banner{ top:auto; bottom:118px; } .zoom{ bottom:96px; } .util{ bottom:96px; } }
   @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
@@ -173,7 +187,7 @@
 
 <div class="hud">
   <div>
-    <div class="appttl">楕円の暦<small>KAN-REKI v0.9</small></div>
+    <div class="appttl">楕円の暦<small>KAN-REKI v0.10</small></div>
     <div class="age" id="ageBadge">満 <b>—</b> 歳</div>
   </div>
   <div class="nav">
@@ -184,7 +198,7 @@
   </div>
 </div>
 
-<div class="banner"><b>v0.9</b>・輪をドラッグ=回す（地球儀）／中央・外=移動・ズーム=スクロール/ピンチ・中央の穴=今日・写真は端末内保存・カレンダー取込
+<div class="banner"><b>v0.10</b>・輪をドラッグ=回す（地球儀）／中央・外=移動・ズーム=スクロール/ピンチ・中央の穴=今日・写真は端末内保存・カレンダー取込・🖼写真一覧
   <button id="bannerHide">隠す</button></div>
 
 <svg id="stage" viewBox="0 0 1140 920" preserveAspectRatio="xMidYMid meet" aria-label="楕円の年カレンダー">
@@ -226,7 +240,7 @@
   <div class="zbtns"><button id="zin" title="拡大（+）" aria-label="拡大">＋</button><button id="zout" title="縮小（−）" aria-label="縮小">−</button></div>
   <div class="hint">輪をドラッグで回す<br>⌂で年度の向き</div>
 </div>
-<div class="util"><button id="addBtn">＋ イベント</button><button id="setBtn" title="設定">⚙ 設定</button></div>
+<div class="util"><button id="addBtn">＋ イベント</button><button id="galBtn" title="写真ギャラリー">🖼 写真</button><button id="setBtn" title="設定">⚙ 設定</button></div>
 
 <div id="editForm" class="modal" role="dialog" aria-modal="true" aria-labelledby="efTitle"><div class="modal-card">
   <h3 id="efTitle">イベントを追加</h3>
@@ -250,6 +264,12 @@
   <div class="modal-row"><span style="flex:1"></span><button id="setClose" class="primary">閉じる</button></div>
   <input type="file" id="importFile" accept="application/json,.json" style="display:none">
 </div></div>
+<div id="gallery" class="modal" role="dialog" aria-modal="true" aria-label="写真ギャラリー"><div class="modal-card gal-card">
+  <h3>写真ギャラリー <small id="galCount" style="font-family:var(--mono);font-size:11px;color:var(--washi-dim);letter-spacing:.08em"></small></h3>
+  <div id="galGrid" class="gal-grid"></div>
+  <div id="galEmpty" class="gal-empty">まだ写真つきの記録がありません。<br>「＋ イベント」または各記録の「編集」から写真を追加できます。</div>
+  <div class="modal-row"><span style="flex:1"></span><button id="galClose" class="primary">閉じる</button></div>
+</div></div>
 <div id="todayCard" role="status"></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="tip" aria-hidden="true"><div class="t-date"></div><div class="t-title"></div></div>
@@ -265,7 +285,7 @@
 
 <script>
 /* ============================================================================
-   楕円の暦 v0.9 — 季節リング帯＋カーブ日付＋中央に年（v0.9=Googleカレンダーics取込・v0.8=写真をIndexedDBへ・v0.7=JSON堅牢化/a11y/OGP）
+   楕円の暦 v0.10 — 季節リング帯＋カーブ日付＋中央に年（v0.10=写真リングサムネ＋ギャラリー・v0.9=Googleカレンダーics取込・v0.8=写真をIndexedDBへ・v0.7=JSON堅牢化/a11y/OGP）
    編集は DATA だけ。type: memory|photo|event|future。年度キー=4月始まり。
    ========================================================================== */
 const SAMPLE = {
@@ -501,9 +521,18 @@ function drawThreads(){
     el('path',{class:'thread',d:`M ${ax.toFixed(1)} ${ay.toFixed(1)} Q ${tx.toFixed(1)} ${ty.toFixed(1)} ${nx.toFixed(1)} ${ny.toFixed(1)}`,
       fill:'none',stroke:'var(--thread-soft)','stroke-width':1,opacity:.55},grp);
     el('circle',{class:'ring2',cx:nx,cy:ny,r:11,fill:'none',stroke:'var(--thread)','stroke-width':1,opacity:0},grp);
-    if(isFuture) el('circle',{class:'dot',cx:nx,cy:ny,r:5,fill:'var(--sumi)',stroke:'var(--future)','stroke-width':1.6,'stroke-dasharray':'2.4 2',style:'transition:r .15s'},grp);
-    else el('circle',{class:'dot',cx:nx,cy:ny,r:5,fill:e.type==='photo'?'var(--natsu)':'var(--thread)',style:'transition:r .15s'},grp);
-    const em=el('text',{x:nx,y:ny-11,'text-anchor':'middle','dominant-baseline':'middle','font-size':12.5},grp); em.textContent=e.emoji||'•';
+    const hasThumb = e.img && !spinning;
+    if(hasThumb){
+      const R=9, cid='phc'+(_phSeq++);
+      const cp=el('clipPath',{id:cid,clipPathUnits:'userSpaceOnUse'},grp); el('circle',{cx:nx,cy:ny,r:R},cp);
+      const im=el('image',{x:(nx-R).toFixed(1),y:(ny-R).toFixed(1),width:2*R,height:2*R,'clip-path':'url(#'+cid+')',preserveAspectRatio:'xMidYMid slice',class:'phthumb'},grp);
+      el('circle',{class:'ph-ring',cx:nx,cy:ny,r:R,fill:'none',stroke:e.type==='photo'?'var(--natsu)':'var(--thread)','stroke-width':1.6},grp);
+      loadThumb(im,e.img);
+    } else {
+      if(isFuture) el('circle',{class:'dot',cx:nx,cy:ny,r:5,fill:'var(--sumi)',stroke:'var(--future)','stroke-width':1.6,'stroke-dasharray':'2.4 2',style:'transition:r .15s'},grp);
+      else el('circle',{class:'dot',cx:nx,cy:ny,r:5,fill:e.type==='photo'?'var(--natsu)':'var(--thread)',style:'transition:r .15s'},grp);
+      const em=el('text',{x:nx,y:ny-11,'text-anchor':'middle','dominant-baseline':'middle','font-size':12.5},grp); em.textContent=e.emoji||'•';
+    }
     const onRight=nx>=CX;
     const lx=clamp(nx+(onRight?11:-11),58,VBW-58);
     const lbl=el('text',{x:lx,y:ny+4,'text-anchor':onRight?'start':'end',class:'node-label','font-size':12,
@@ -764,6 +793,34 @@ async function gcPhotos(){ try{ const used=new Set(); for(const fy in DATA.event
 function revokeObjURLs(){ for(const u of _objURLs){ try{ URL.revokeObjectURL(u); }catch(_){ } } _objURLs.clear(); }
 /*PHOTO-IDB-END*/
 
+/*PHOTO-THUMB+GALLERY-START*/
+const _phThumb=new Map(); let _phSeq=0;
+function setImgHref(im,url){ im.setAttribute('href',url); try{ im.setAttributeNS('http://www.w3.org/1999/xlink','xlink:href',url); }catch(_){ } }
+function loadThumb(im,ref){
+  if(isIdbRef(ref)){ const id=ref.slice(4);
+    if(_phThumb.has(id)){ setImgHref(im,_phThumb.get(id)); return; }
+    idbGet(id).then(b=>{ if(b){ const u=URL.createObjectURL(b); _phThumb.set(id,u); setImgHref(im,u); } }).catch(()=>{}); }
+  else setImgHref(im,ref);
+}
+function galItems(){ const a=[]; for(const fy in DATA.events) for(const e of DATA.events[fy]) if(e.img) a.push(e);
+  a.sort((x,y)=> x.date<y.date?1:x.date>y.date?-1:0); return a; }
+function openGallery(){ const grid=$('galGrid'); grid.innerHTML=''; const items=galItems();
+  $('galCount').textContent=items.length?'（'+items.length+'枚）':''; $('galEmpty').style.display=items.length?'none':'block';
+  $('gallery').classList.add('open');
+  for(const e of items){ const p=parseDate(e.date);
+    const it=document.createElement('button'); it.type='button'; it.className='gal-item'; it.setAttribute('aria-label',(e.title||'写真')+' '+p.m+'月'+p.d+'日');
+    const img=document.createElement('img'); img.alt=''; img.loading='lazy';
+    const cap=document.createElement('span'); cap.className='cap'; cap.textContent=(e.emoji?e.emoji+' ':'')+p.m+'/'+p.d+' '+clip(e.title||'',7);
+    it.appendChild(img); it.appendChild(cap); grid.appendChild(it);
+    it.addEventListener('click',()=>{ closeGallery(); goFY(p.fy); openPanel(e); });
+    if(isIdbRef(e.img)){ const id=e.img.slice(4);
+      if(_phThumb.has(id)){ img.src=_phThumb.get(id); }
+      else idbGet(id).then(b=>{ if(b){ const u=URL.createObjectURL(b); _phThumb.set(id,u); img.src=u; } else { it.classList.add('gal-missing'); cap.textContent='（写真が見つかりません）'; } }).catch(()=>{ it.classList.add('gal-missing'); cap.textContent='（読込失敗）'; }); }
+    else img.src=e.img; }
+}
+function closeGallery(){ $('gallery').classList.remove('open'); }
+/*PHOTO-THUMB+GALLERY-END*/
+
 /* ============ 商用化③: Googleカレンダー ics 取込（Worori中継→パース→マージ） ============ */
 /*ICS-START*/
 // ics-parse.js — 環暦(KAN-REKI) 用の軽量 iCalendar パーサ
@@ -959,6 +1016,9 @@ function openSettings(){ const b=DATA.birthday; $('setBirthday').value=b?(b.y+'-
 function closeSettings(){ $('settings').classList.remove('open'); }
 $('addBtn').addEventListener('click',()=>openEditForm(null));
 $('setBtn').addEventListener('click',openSettings);
+$('galBtn').addEventListener('click',openGallery);
+$('galClose').addEventListener('click',closeGallery);
+$('gallery').addEventListener('click',e=>{ if(e.target.id==='gallery') closeGallery(); });
 $('ageBadge').addEventListener('click',openSettings); $('ageBadge').style.cursor='pointer';
 $('pEdit').addEventListener('click',()=>{ if(panelEvent){ $('panel').classList.remove('open'); openEditForm(panelEvent); } });
 $('efSave').addEventListener('click',saveEvent);
@@ -988,7 +1048,7 @@ $('importFile').addEventListener('change',ev=>{ const f=ev.target.files&&ev.targ
 $('settings').addEventListener('click',e=>{ if(e.target.id==='settings') closeSettings(); });
 $('setClose').addEventListener('click',closeSettings);
 (function(){ try{ if(localStorage.getItem('kanreki.theme')==='dark'){ document.body.classList.add('dark'); $('themeBtn').textContent='☾'; } }catch(e){} })();
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeEditForm(); closeSettings(); } });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeEditForm(); closeSettings(); closeGallery(); } });
 
 render();
 /* 旧バージョンでlocalStorageにdata:画像を抱えている場合、IDBへ移して軽量化（初回のみ実質発火） */
