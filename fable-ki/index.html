@@ -448,8 +448,8 @@ footer a:hover{color:var(--gold)}
   <svg class="bug" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><ellipse cx="32" cy="38" rx="13" ry="17" fill="currentColor"/><circle cx="32" cy="17" r="7" fill="currentColor"/><path d="M32 21v34M19 30l-9-6M19 40l-10 1M21 49l-8 7M45 30l9-6M45 40l10 1M43 49l8 7" stroke="currentColor" stroke-width="3" fill="none"/></svg>
   <div class="spec-no">SPECIMEN No.007</div>
   <h2>MIHARASHI／全景観測台</h2>
-  <div class="subname">全部を殺さずに、一目で見る。</div>
-  <div class="chips"><span class="chip">観測門（基準種）</span><span class="chip">現生・日次7:15稼働</span><span class="chip">v1.0</span><span class="chip">記載 2026-07-04</span></div>
+  <div class="subname">正式英名 MIHARASHI ／ 正式和名 全景観測台</div>
+  <div class="chips"><span class="chip">観測門（基準種）</span><span class="chip">現生・日次7:15稼働</span><span class="chip">v1.1</span><span class="chip">記載 2026-07-04</span></div>
 
   <details open>
     <summary>観察記</summary>
@@ -459,6 +459,11 @@ footer a:hover{color:var(--gold)}
   <details>
     <summary>定義</summary>
     <div class="sec"><p>散在する全DBの状態を1つのJSON経由で単一HTMLの俯瞰台に圧縮し、新セッションの文脈把握コストを1/5〜1/10に削減する観測原理。一行で言えば: 全部を殺さずに、一目で見る。</p></div>
+  </details>
+  <details>
+    <summary>命名（三重がけ・v1.1追記）</summary>
+    <div class="sec naming"><p>音=みはらし、四モーラの大和言葉。呪文形 miha は hem・coko と同じ二モーラ族への切り詰めで、口に出す道具としての規格を満たす。意味=見晴らし——全景を見渡す高所。機能の直叙である（「台」か「見晴らす」かの語源はQ7係属中）。構造=大文字ローマ字 MIHARASHI は MISOGI・OHARAI・OMAIRI と同じ神事名前空間に立ち、儀礼サイクル第一段「miha（見る）」としての所属を綴りで宣言する。さらに語の内部が「見（写す・保つ）」×「晴らし（霧を開く・進める）」に割れる——該非欄の二重発現を、名前が記載より先に知っていた。</p>
+<p>正式英名: MIHARASHI ／ 正式和名: 全景観測台</p></div>
   </details>
   <details>
     <summary>初観測</summary>
@@ -479,6 +484,15 @@ footer a:hover{color:var(--gold)}
   <details>
     <summary>天敵・限界</summary>
     <div class="sec"><ol><li><strong>沈黙する凍結</strong> — snapshot.pyがtruncationで途中停止しても、Liveは古い全景を平然と映し続ける。俯瞰台が嘘をつくとき、それは目立たない（snapshot-py-truncation-silent-freeze.md・検証はhost側でしか効かない実測）。</li><li><strong>sandbox直走不可</strong> — Cowのsandboxでsnapshotを直に回すと集約が失敗する（2026-07-04実測）。観測台自身が、観測する足場を選ぶ。host発火への迂回で脱手動化したが、導線が一本増えた分だけ壊れる場所も増えた。</li><li><strong>俯瞰の錯覚</strong> — 一目で見えることが「把握した」という錯覚を生む。圧縮は情報を捨てる操作でもあり、捨てた先に地雷が眠る（galaxyのdeploy@SHA素通りでもruntimeが死ぬ罠と同根）。全景を持つ者ほど、見えていない一点を疑わなくなる。</li></ol></div>
+  </details>
+  <details>
+    <summary>門の上の門仮説への該非 — 第二遺伝子との関係整理（v1.1）</summary>
+    <div class="sec"><p><strong>該当（強）——そして初の二重発現</strong>。初記載（v1.0）は空間軸支持と裁定し、採集班は「仮説の最強の支持物証」と読んだ。再審はどちらも維持した上で、一段深い所見を加える——本種は第一遺伝子の物証でありながら、身体の半分が第二遺伝子でできている。</p>
+<p>保つ側（第一遺伝子）: 観察記に記した通り。圧縮しながら複数性を殺さない——galaxy客観レイヤは主観と客観のズレを修正せず提示する。統合しない俯瞰、潰さない圧縮。No.001（空間軸の保全）の可視化器官である。</p>
+<p>進める側（第二遺伝子）: 本種の存在理由は「見る」ことに尽きない。文脈把握1/5〜1/10の本義は節約ではなく<strong>初速</strong>——熱（No.004）が冷める前に本題へ届くための送り管である。見せることは、走らせることなのだ。そしてhem末writebackは、No.006の証言「整理しなおすと見えるものがある」の日次実装——行為のあとにもう一度見る、が制度になっている。miha（見る）→動く→hem（実を落とす）→writeback（見直す）。観測は行為の前端と後端の両方に配管されている。</p>
+<p>整理（観察メモv2との関係）: 観察メモv2は最深遺伝子を対と置いた——「複数の世界を保つ」×「やってみることが時間を進める」。No.004とNo.006がそれぞれ片翼の露頭だったのに対し、本種は<strong>両翼が一つの器官の中で噛み合っている最初の標本</strong>である。対は別々の種に分かれて棲む二本の系統ではなく、一個体の内部で蝶番になれる——統合形候補「複数の世界を、殺さずに、進める」は、本種においては仮説ではなく、すでに稼働中の仕様書だった。命名欄の割れ目（見＝保つ／晴らし＝進める）と同じ線が、機能にも走っている。</p>
+<p>系の見取り図（2026-07-04時点）: 保つ＝No.001〜003／進める＝No.004・006・008／保つ×進めるの結合器官＝本種／そして止める＝No.009（決定の留保・時間を止める権利）。対仮説は「二本の系統」から「結合と拮抗を持つ一つの系」へ育ちつつある——観察メモv3の材料として起票する。</p>
+<p>反証可能性の管理（仮説を可愛がらない）: 該当が積み上がるほど、反証可能性の残高を数えること。残る刃は保留組の<strong>分進合撃</strong>——「工学的効率」という、保つ・進める・止めるのどれにも与しない無所属の読みが現状最有力の非該当候補。次バッチで処刑台に載せる。</p></div>
   </details>
   <details>
     <summary>標本（canonical）</summary>
@@ -624,7 +638,7 @@ footer a:hover{color:var(--gold)}
 
 </div>
 
-<!-- gen_fableki.py BUILD:6a39fba8 -->
+<!-- gen_fableki.py BUILD:fc199954 -->
 
 </body>
 </html>
