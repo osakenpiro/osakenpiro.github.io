@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>オーパーツ・オッズ / OOPArts Odds — 別種度を賭ける</title>
+<style>
+  :root{
+    --void-0:#0a0a0f;
+    --void-1:#12101a;
+    --gold:#d4a853;
+    --gold-dim:#b8935f;
+    --amber-lo:#c8922e;
+    --amber-hi:#e8c877;
+    --warm-white:#e8e2d4;
+    --warm-dim:#9a927f;
+    --line:rgba(212,168,83,0.18);
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;
+    background:radial-gradient(ellipse at 50% -10%, var(--void-1) 0%, var(--void-0) 60%);
+    color:var(--warm-white);
+    font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  #stars{
+    position:fixed;top:0;left:0;width:100%;height:100%;
+    z-index:0;pointer-events:none;
+  }
+  .star{
+    position:absolute;
+    background:var(--warm-white);
+    border-radius:50%;
+    opacity:0.5;
+    animation:twinkle 4s ease-in-out infinite;
+  }
+  @keyframes twinkle{
+    0%,100%{opacity:0.15;}
+    50%{opacity:0.75;}
+  }
+  #app{
+    position:relative;z-index:1;
+    max-width:720px;
+    margin:0 auto;
+    padding:24px 18px 60px;
+    min-height:100vh;
+  }
+  .screen{display:none;}
+  .screen.active{display:block;animation:fadein 0.4s ease;}
+  @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  h1,h2,h3{
+    font-weight:600;
+    letter-spacing:0.02em;
+  }
+  .gold-leaf{
+    background:linear-gradient(135deg,var(--amber-hi),var(--gold) 45%,var(--amber-lo));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  /* ===== 入口 ===== */
+  .title-block{
+    text-align:center;
+    padding:36px 8px 20px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:24px;
+  }
+  .title-block h1{
+    font-size:1.9rem;
+    margin:0 0 6px;
+  }
+  .title-en{
+    font-size:0.95rem;
+    color:var(--warm-dim);
+    letter-spacing:0.12em;
+    margin-bottom:14px;
+  }
+  .subtitle{
+    font-size:1.05rem;
+    color:var(--gold);
+    margin-bottom:10px;
+  }
+  .intro-line{
+    font-size:0.88rem;
+    color:var(--warm-dim);
+    line-height:1.8;
+    max-width:520px;
+    margin:0 auto 6px;
+  }
+  .observer-line{
+    font-size:0.78rem;
+    color:var(--warm-dim);
+    margin-top:14px;
+    font-style:italic;
+    opacity:0.85;
+  }
+  .best-score{
+    margin:18px auto 4px;
+    font-size:0.85rem;
+    color:var(--warm-dim);
+  }
+  .best-score b{
+    color:var(--gold);
+    font-size:1.15rem;
+    font-style:normal;
+  }
+
+  .meta-panels{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    margin:22px 0 28px;
+  }
+  .meta-panel{
+    background:linear-gradient(160deg, rgba(200,146,46,0.09), rgba(232,200,119,0.04));
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:16px 18px;
+  }
+  .meta-panel .meta-head{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:8px;
+  }
+  .meta-glyph{font-size:1.4rem;}
+  .meta-name{font-size:1.02rem;color:var(--warm-white);font-weight:600;}
+  .meta-sci{
+    font-style:italic;
+    font-family:Georgia,"Times New Roman",serif;
+    color:var(--warm-dim);
+    font-size:0.82rem;
+    margin-left:2px;
+  }
+  .meta-body{
+    font-size:0.85rem;
+    line-height:1.75;
+    color:var(--warm-white);
+    opacity:0.88;
+  }
+  .meta-body b{color:var(--gold);font-weight:600;}
+  .meta-src{
+    font-size:0.68rem;
+    color:var(--warm-dim);
+    opacity:0.55;
+    margin-top:8px;
+    word-break:break-all;
+  }
+  .meta-caption{
+    text-align:center;
+    font-size:0.8rem;
+    color:var(--warm-dim);
+    margin-bottom:10px;
+    letter-spacing:0.03em;
+  }
+
+  .cta-wrap{text-align:center;margin-top:28px;}
+  button{
+    font-family:inherit;
+    cursor:pointer;
+  }
+  .btn-primary{
+    background:linear-gradient(135deg,var(--amber-hi),var(--gold) 55%,var(--amber-lo));
+    color:#1a1408;
+    border:none;
+    border-radius:999px;
+    padding:14px 36px;
+    font-size:1.02rem;
+    font-weight:700;
+    letter-spacing:0.03em;
+    box-shadow:0 2px 18px rgba(212,168,83,0.22);
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 22px rgba(212,168,83,0.32);}
+  .btn-primary:active{transform:translateY(0);}
+  .btn-secondary{
+    background:transparent;
+    color:var(--gold);
+    border:1px solid var(--gold-dim);
+    border-radius:999px;
+    padding:11px 28px;
+    font-size:0.92rem;
+    font-weight:600;
+    letter-spacing:0.02em;
+    transition:background 0.15s ease;
+  }
+  .btn-secondary:hover{background:rgba(212,168,83,0.08);}
+
+  /* ===== 賭け画面 ===== */
+  .progress-bar-wrap{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:18px;
+  }
+  .progress-track{
+    flex:1;height:4px;border-radius:2px;
+    background:rgba(212,168,83,0.12);
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg,var(--amber-lo),var(--gold));
+    transition:width 0.3s ease;
+  }
+  .progress-label{
+    font-size:0.78rem;color:var(--warm-dim);white-space:nowrap;
+    min-width:52px;text-align:right;
+  }
+
+  .cabochon{
+    position:relative;
+    border-radius:28px;
+    padding:26px 22px 22px;
+    background:
+      radial-gradient(120% 140% at 20% 0%, rgba(232,200,119,0.14), transparent 55%),
+      linear-gradient(160deg, rgba(200,146,46,0.16), rgba(18,16,26,0.5) 65%);
+    border:1px solid rgba(212,168,83,0.28);
+    box-shadow:
+      inset 0 1px 0 rgba(232,200,119,0.15),
+      inset 0 -18px 40px rgba(0,0,0,0.35),
+      0 8px 30px rgba(0,0,0,0.4);
+    overflow:hidden;
+  }
+  .cabochon::before{
+    content:'';
+    position:absolute;top:-40%;left:-20%;
+    width:80%;height:80%;
+    background:radial-gradient(circle, rgba(232,200,119,0.15), transparent 70%);
+    pointer-events:none;
+  }
+  .card-head{
+    display:flex;align-items:flex-start;gap:14px;
+    margin-bottom:14px;
+    position:relative;z-index:1;
+  }
+  .card-glyph{
+    font-size:2.3rem;
+    line-height:1;
+    filter:drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+    flex-shrink:0;
+  }
+  .card-titles{flex:1;min-width:0;}
+  .card-name{
+    font-size:1.15rem;font-weight:700;color:var(--warm-white);
+    margin-bottom:2px;
+  }
+  .card-sci{
+    font-style:italic;
+    font-family:Georgia,"Times New Roman",serif;
+    color:var(--gold);
+    font-size:0.88rem;
+    opacity:0.85;
+  }
+  .card-group-tag{
+    font-size:0.66rem;
+    color:var(--warm-dim);
+    border:1px solid rgba(212,168,83,0.3);
+    border-radius:999px;
+    padding:2px 9px;
+    display:inline-block;
+    margin-top:6px;
+    letter-spacing:0.05em;
+  }
+  .card-fields{
+    position:relative;z-index:1;
+    display:flex;flex-direction:column;gap:10px;
+    margin-bottom:8px;
+  }
+  .card-field{font-size:0.86rem;line-height:1.7;}
+  .field-label{
+    color:var(--gold);
+    font-size:0.7rem;
+    letter-spacing:0.08em;
+    margin-right:6px;
+    opacity:0.9;
+  }
+  .field-text{color:var(--warm-white);opacity:0.9;}
+  .card-status{
+    display:inline-block;
+    margin-top:4px;
+    font-size:0.72rem;
+    color:var(--void-0);
+    background:linear-gradient(135deg,var(--amber-hi),var(--gold));
+    border-radius:999px;
+    padding:3px 12px;
+    font-weight:700;
+    letter-spacing:0.03em;
+  }
+
+  .stake-panel{
+    margin-top:26px;
+    padding-top:20px;
+    border-top:1px dashed rgba(212,168,83,0.25);
+  }
+  .stake-label-row{
+    display:flex;justify-content:space-between;align-items:baseline;
+    margin-bottom:10px;
+  }
+  .stake-label{font-size:0.92rem;color:var(--warm-white);font-weight:600;}
+  .stake-value{
+    font-size:1.6rem;font-weight:700;
+    color:var(--gold);
+    font-variant-numeric:tabular-nums;
+    text-shadow:0 0 14px rgba(212,168,83,0.25);
+  }
+  .stake-scale{
+    display:flex;justify-content:space-between;
+    font-size:0.68rem;color:var(--warm-dim);
+    margin-top:4px;
+    padding:0 2px;
+  }
+
+  input[type=range]{
+    -webkit-appearance:none;
+    appearance:none;
+    width:100%;
+    height:8px;
+    border-radius:999px;
+    background:linear-gradient(90deg, rgba(200,146,46,0.35), rgba(232,200,119,0.55));
+    outline:none;
+    margin:6px 0;
+    cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    appearance:none;
+    width:28px;height:28px;
+    border-radius:50%;
+    background:radial-gradient(circle at 32% 30%, var(--amber-hi), var(--gold) 60%, var(--amber-lo));
+    border:2px solid rgba(255,247,222,0.6);
+    box-shadow:0 2px 10px rgba(212,168,83,0.5), 0 0 0 4px rgba(212,168,83,0.08);
+    cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:28px;height:28px;
+    border-radius:50%;
+    background:radial-gradient(circle at 32% 30%, var(--amber-hi), var(--gold) 60%, var(--amber-lo));
+    border:2px solid rgba(255,247,222,0.6);
+    box-shadow:0 2px 10px rgba(212,168,83,0.5);
+    cursor:pointer;
+  }
+  input[type=range]::-moz-range-track{
+    height:8px;border-radius:999px;
+    background:linear-gradient(90deg, rgba(200,146,46,0.35), rgba(232,200,119,0.55));
+  }
+  input[type=range]:focus-visible::-webkit-slider-thumb{
+    box-shadow:0 0 0 5px rgba(212,168,83,0.35);
+  }
+
+  .confirm-row{margin-top:22px;text-align:center;}
+  .confirm-row .btn-primary{width:100%;max-width:320px;}
+
+  /* ===== reveal 画面 ===== */
+  .reveal-axis-wrap{
+    margin:22px 0 10px;
+    padding:20px 16px 14px;
+    background:rgba(232,200,119,0.03);
+    border:1px solid var(--line);
+    border-radius:16px;
+  }
+  .reveal-axis-title{
+    font-size:0.78rem;color:var(--warm-dim);
+    text-align:center;margin-bottom:14px;
+    letter-spacing:0.04em;
+  }
+  .axis-svg{width:100%;height:auto;display:block;}
+  .axis-caption-row{
+    display:flex;justify-content:space-between;
+    font-size:0.68rem;color:var(--warm-dim);
+    margin-top:2px;padding:0 4px;
+  }
+
+  .reveal-stats{
+    display:flex;flex-wrap:wrap;gap:10px;
+    margin:18px 0;
+  }
+  .stat-chip{
+    flex:1;min-width:100px;
+    background:rgba(212,168,83,0.06);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:10px 12px;
+    text-align:center;
+  }
+  .stat-chip .stat-label{
+    font-size:0.66rem;color:var(--warm-dim);
+    letter-spacing:0.04em;margin-bottom:4px;
+  }
+  .stat-chip .stat-value{
+    font-size:1.25rem;font-weight:700;color:var(--gold);
+    font-variant-numeric:tabular-nums;
+  }
+  .points-hero{
+    text-align:center;
+    margin:20px 0 6px;
+  }
+  .points-hero .points-num{
+    font-size:2.6rem;font-weight:800;
+    color:var(--gold);
+    text-shadow:0 0 24px rgba(212,168,83,0.3);
+    font-variant-numeric:tabular-nums;
+  }
+  .points-hero .points-suffix{
+    font-size:0.95rem;color:var(--warm-dim);
+    margin-left:4px;
+  }
+  .penalty-note{
+    background:rgba(200,146,46,0.1);
+    border:1px solid rgba(212,168,83,0.35);
+    border-radius:12px;
+    padding:10px 14px;
+    font-size:0.82rem;
+    color:var(--amber-hi);
+    text-align:center;
+    margin:14px 0;
+    line-height:1.6;
+  }
+  .reveal-line{
+    font-size:0.92rem;
+    line-height:1.85;
+    color:var(--warm-white);
+    opacity:0.92;
+    text-align:center;
+    margin:18px 4px 8px;
+    font-style:italic;
+  }
+  .reveal-line::before{content:'「';font-style:normal;opacity:0.6;}
+  .reveal-line::after{content:'」';font-style:normal;opacity:0.6;}
+
+  .next-row{margin-top:26px;text-align:center;}
+  .next-row .btn-primary{width:100%;max-width:320px;}
+
+  /* ===== 較正結果 ===== */
+  .finale-head{text-align:center;margin-bottom:6px;}
+  .finale-total{
+    font-size:3rem;font-weight:800;
+    color:var(--gold);
+    text-shadow:0 0 28px rgba(212,168,83,0.32);
+    font-variant-numeric:tabular-nums;
+    margin:6px 0 2px;
+  }
+  .finale-total-label{font-size:0.82rem;color:var(--warm-dim);letter-spacing:0.06em;}
+  .finale-best-row{
+    text-align:center;font-size:0.8rem;color:var(--warm-dim);margin-top:6px;
+  }
+  .finale-best-row.is-new{color:var(--gold);font-weight:700;}
+
+  .finale-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin:20px 0;
+  }
+  .finale-grid .stat-chip{min-width:0;}
+
+  .scatter-wrap{
+    margin:24px 0 8px;
+    padding:16px 12px 10px;
+    background:rgba(232,200,119,0.03);
+    border:1px solid var(--line);
+    border-radius:16px;
+  }
+  .scatter-title{
+    font-size:0.78rem;color:var(--warm-dim);
+    text-align:center;margin-bottom:10px;
+  }
+  .scatter-legend{
+    display:flex;justify-content:center;gap:18px;
+    font-size:0.68rem;color:var(--warm-dim);
+    margin-top:8px;
+  }
+  .legend-dot{
+    display:inline-block;width:9px;height:9px;border-radius:50%;
+    background:var(--gold);margin-right:5px;vertical-align:middle;
+  }
+  .legend-band{
+    display:inline-block;width:14px;height:8px;border-radius:3px;
+    background:linear-gradient(90deg,var(--amber-lo),var(--amber-hi));
+    opacity:0.55;margin-right:5px;vertical-align:middle;
+  }
+
+  .verdict-panel{
+    margin:22px 0;
+    padding:18px 18px;
+    background:linear-gradient(160deg, rgba(200,146,46,0.1), rgba(232,200,119,0.03));
+    border:1px solid rgba(212,168,83,0.3);
+    border-radius:16px;
+    text-align:center;
+  }
+  .verdict-text{
+    font-size:0.98rem;line-height:1.85;
+    color:var(--warm-white);
+    font-style:italic;
+  }
+
+  .share-panel{
+    margin:18px 0;
+    padding:14px 16px;
+    background:rgba(212,168,83,0.05);
+    border:1px dashed rgba(212,168,83,0.3);
+    border-radius:12px;
+  }
+  .share-label{font-size:0.7rem;color:var(--warm-dim);margin-bottom:6px;letter-spacing:0.04em;}
+  .share-text{
+    font-size:0.82rem;color:var(--warm-white);opacity:0.9;
+    line-height:1.7;white-space:pre-wrap;word-break:break-word;
+  }
+  .share-copy-btn{
+    margin-top:10px;
+    font-size:0.76rem;
+    background:transparent;
+    color:var(--gold);
+    border:1px solid var(--gold-dim);
+    border-radius:999px;
+    padding:6px 16px;
+  }
+  .share-copy-btn:hover{background:rgba(212,168,83,0.08);}
+
+  .finale-cta{text-align:center;margin-top:26px;display:flex;flex-direction:column;gap:12px;align-items:center;}
+  .finale-cta .btn-primary{width:100%;max-width:320px;}
+
+  footer.foot-note{
+    text-align:center;
+    font-size:0.68rem;
+    color:var(--warm-dim);
+    opacity:0.5;
+    margin-top:40px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+  }
+
+  @media (max-width:400px){
+    .title-block h1{font-size:1.5rem;}
+    .finale-total{font-size:2.3rem;}
+    .points-hero .points-num{font-size:2.1rem;}
+    .card-glyph{font-size:1.9rem;}
+    .stake-value{font-size:1.3rem;}
+  }
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<div id="app">
+
+  <!-- ============ SCREEN 1: 入口 ============ -->
+  <section id="screen-entry" class="screen active">
+    <div class="title-block">
+      <h1 class="gold-leaf">オーパーツ・オッズ</h1>
+      <div class="title-en">O O P A r t s &nbsp;O d d s</div>
+      <div class="subtitle">別種度を賭ける</div>
+      <p class="intro-line">18枚の「置き場所が確定していない生物」標本に、0/1でなく別種度Floatを賭ける。答えが割れている問題ほど高配当——断定するほど、割れた問題では損をする。</p>
+      <div class="observer-line">観察者: Claude Fable 5 ／ Fable記の賭博棟</div>
+      <div class="best-score" id="best-score-line">ベストスコア: <b>—</b></div>
+    </div>
+
+    <p class="meta-caption">なぜ別種度はFloatなのか</p>
+    <div class="meta-panels" id="meta-panels"></div>
+
+    <div class="cta-wrap">
+      <button class="btn-primary" id="btn-start">18枚に賭ける</button>
+    </div>
+
+    <footer class="foot-note">標本18・メタ2 ／ 論争度が高いほどオッズは高い ／ 断定は罠</footer>
+  </section>
+
+  <!-- ============ SCREEN 2: 賭け ============ -->
+  <section id="screen-bet" class="screen">
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="progress-label" id="progress-label">1 / 18</div>
+    </div>
+
+    <div class="cabochon" id="bet-card">
+      <div class="card-head">
+        <div class="card-glyph" id="card-glyph">🌀</div>
+        <div class="card-titles">
+          <div class="card-name" id="card-name">—</div>
+          <div class="card-sci" id="card-sci">—</div>
+          <div class="card-group-tag" id="card-group-tag">A群</div>
+        </div>
+      </div>
+      <div class="card-fields">
+        <div class="card-field"><span class="field-label">HOOK</span><span class="field-text" id="card-hook">—</span></div>
+        <div class="card-field"><span class="field-label">WHY</span><span class="field-text" id="card-why">—</span></div>
+        <div class="card-field"><span class="field-label">NOW</span><span class="field-text" id="card-now">—</span></div>
+      </div>
+      <div id="card-status" class="card-status">—</div>
+
+      <div class="stake-panel">
+        <div class="stake-label-row">
+          <span class="stake-label">別種度スライダー</span>
+          <span class="stake-value" id="stake-value">0.50</span>
+        </div>
+        <input type="range" id="stake-slider" min="0" max="1" step="0.01" value="0.5" aria-label="別種度を0.00から1.00で入力">
+        <div class="stake-scale">
+          <span>0.00（完全に同種側）</span>
+          <span>1.00（完全に別種側）</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="confirm-row">
+      <button class="btn-primary" id="btn-confirm-bet">賭ける</button>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN 3: reveal ============ -->
+  <section id="screen-reveal" class="screen">
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill-2"></div></div>
+      <div class="progress-label" id="progress-label-2">1 / 18</div>
+    </div>
+
+    <div class="points-hero">
+      <span class="points-num" id="points-num">0</span><span class="points-suffix">点 獲得</span>
+    </div>
+
+    <div class="reveal-axis-wrap">
+      <div class="reveal-axis-title" id="reveal-card-name">— の判定</div>
+      <svg id="reveal-svg" class="axis-svg" viewBox="0 0 640 130" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="axis-caption-row"><span>0.00 同種寄り</span><span>1.00 別種寄り</span></div>
+    </div>
+
+    <div class="reveal-stats">
+      <div class="stat-chip">
+        <div class="stat-label">あなたの賭け</div>
+        <div class="stat-value" id="stat-guess">—</div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-label">別種度（正解）</div>
+        <div class="stat-value" id="stat-besshu">—</div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-label">論争度＝オッズ</div>
+        <div class="stat-value" id="stat-ronsou">—</div>
+      </div>
+    </div>
+
+    <div class="penalty-note" id="penalty-note" style="display:none;">未決着に白黒つけた：断定ペナルティで減点</div>
+
+    <p class="reveal-line" id="reveal-line">—</p>
+
+    <div class="next-row">
+      <button class="btn-primary" id="btn-next">次へ</button>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN 4: 較正結果 ============ -->
+  <section id="screen-finale" class="screen">
+    <div class="finale-head">
+      <div class="finale-total-label">合計スコア（満点5400）</div>
+      <div class="finale-total" id="finale-total">0</div>
+      <div class="finale-best-row" id="finale-best-row">ベスト: —</div>
+    </div>
+
+    <div class="finale-grid">
+      <div class="stat-chip">
+        <div class="stat-label">平均誤差</div>
+        <div class="stat-value" id="finale-mean-error">—</div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-label">Boolean度</div>
+        <div class="stat-value" id="finale-bool-degree">—</div>
+      </div>
+    </div>
+
+    <div class="scatter-wrap">
+      <div class="scatter-title">賭け vs 正解（18標本）</div>
+      <svg id="scatter-svg" class="axis-svg" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="scatter-legend">
+        <span><span class="legend-dot"></span>あなた</span>
+        <span><span class="legend-band"></span>正解（帯＝論争度）</span>
+      </div>
+    </div>
+
+    <div class="verdict-panel">
+      <p class="verdict-text" id="verdict-text">—</p>
+    </div>
+
+    <div class="share-panel">
+      <div class="share-label">Xシェア文面</div>
+      <div class="share-text" id="share-text">—</div>
+      <button class="share-copy-btn" id="btn-copy-share">文面をコピー</button>
+    </div>
+
+    <div class="finale-cta">
+      <button class="btn-primary" id="btn-replay">もう一周</button>
+    </div>
+
+    <footer class="foot-note">オーパーツ・オッズ ／ Fable記の賭博棟 ／ osakenpiro</footer>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     DATA — verbatim from design spec §3. Do not alter facts.
+     ============================================================ */
+  const CARDS = [
+    // ===== A群：真核生物のオーファン系統（別種度=上位群としての新規性・置けなさ）=====
+    { id:'provora', group:'A', glyph:'🌀', name:'プロヴォラ', sci:'Provora',
+      hook:'海の微生物を丸呑み／齧りつく超高速捕食者（2022 Nature）',
+      why:'18S rRNAが既知のどれとも大きく異なり単独スーパーグループへ。3年で命名が2度動いた',
+      now:'2025.11、Provora＋Meteora＋Hemimastigophoraが新スーパーグループ Promethea へ統合',
+      besshu:0.85, ronsou:0.50, status:'進行中',
+      reveal:'「発見」より「再配置」の連続。輪郭は後から仲間を集めて濃くなる',
+      src:'https://en.wikipedia.org/wiki/Provora' },
+
+    { id:'hemimastix', group:'A', glyph:'✴️', name:'ヘミマスティゴフォラ', sci:'Hemimastix kukwesjijk',
+      hook:'8本鞭毛の捕食性微生物。種小名はミクマク族伝承の怪物クウェス由来（2018 Nature）',
+      why:'発見時「既存のどのスーパーグループにも属さない」。門程度から超・王国級へ',
+      now:'Meteora近縁→Provoraと統合され Promethea の一角。仲間が増え続けている',
+      besshu:0.85, ronsou:0.45, status:'進行中',
+      reveal:'分類群の輪郭は、後から仲間を集めて濃くなる“成長するオーパーツ”',
+      src:'https://www.nature.com/articles/s41586-018-0708-8' },
+
+    { id:'meteora', group:'A', glyph:'☄️', name:'メテオラ', sci:'Meteora sporadica',
+      hook:'地中海水深1230mの海底発見。腕状突起の単細胞。当初「所属不明」',
+      why:'20年以上どのグループにも結びつかない典型的孤児系統',
+      now:'2024 Hemimastigophora近縁判明。2025 新門Caelestes・新王国Disparia提案（できたて）',
+      besshu:0.80, ronsou:0.60, status:'新提案',
+      reveal:'「分類不能」は永続でなく、いつか覆る暫定状態',
+      src:'https://en.wikipedia.org/wiki/Meteora_sporadica' },
+
+    { id:'ancoracysta', group:'A', glyph:'⚓', name:'アンコラキスタ', sci:'Ancoracysta twista',
+      hook:'水槽の脳サンゴ表面から発見。錨型の未知オルガネラで獲物を麻痺（2017）',
+      why:'既知系統と近縁を確認できず「強いて言えばHaptista近縁」',
+      now:'Provora（Nebulidia門）の一員として整理。確定',
+      besshu:0.55, ronsou:0.25, status:'確定',
+      reveal:'孤独な発見が、後の“家族の再結成”の起点に。オーパーツは解ける',
+      src:'https://en.wikipedia.org/wiki/Ancoracysta_twista' },
+
+    { id:'rhodelphis', group:'A', glyph:'🩸', name:'ロデルフィス', sci:'Rhodelphis',
+      hook:'非光合成の色素体を持つ捕食性鞭毛虫。紅藻の姉妹系統（2019）',
+      why:'「植物の仲間なのに肉食」。動物的/植物的の境界線上',
+      now:'Archaeplastida内で紅藻・Picozoaと近縁。暫定〜確定寄り（内部枝順は議論）',
+      besshu:0.55, ronsou:0.40, status:'確定寄り',
+      reveal:'「植物なのに肉食」が界の大区分を踏み越える。進化の途中経過を生きたまま保存',
+      src:'https://royalsocietypublishing.org/doi/10.1098/rsob.210376' },
+
+    { id:'telonemia', group:'A', glyph:'🔤', name:'テロネミア', sci:'Telonemia',
+      hook:'淡水・海水の捕食性原生生物。スーパーグループ「TSAR」の頭文字T本人',
+      why:'看板の頭文字本人が、後の解析で看板から外れる珍事',
+      now:'再配置進行中。TSARでなくHaptistaに含む/姉妹説が有力（解析ごとにばらつき未決着）',
+      besshu:0.50, ronsou:0.60, status:'未決着',
+      reveal:'固定的な名前と、流動的な実体のズレの象徴',
+      src:'https://en.wikipedia.org/wiki/Telonemia' },
+
+    { id:'crums', group:'A', glyph:'🧩', name:'クラムス', sci:'CRuMs (Collodictyon+Rigifilida+Mantamonas)',
+      hook:'形態が全く違う3孤立系統が、遺伝子では一家族と判明して統合',
+      why:'見た目も生態もバラバラな“はぐれ者”が実は家族。形態分類の限界',
+      now:'Amorpheaの姉妹として強く支持。Opimoda超系統説も（内部順は手法依存）',
+      besshu:0.55, ronsou:0.35, status:'支持強い',
+      reveal:'分類は「似たものをまとめる」でなく「同じ祖先を見つける」——直感と系統学のズレ',
+      src:'https://academic.oup.com/gbe/article/10/2/427/4817507' },
+
+    { id:'malawimonad', group:'A', glyph:'🧺', name:'マラウィモナス', sci:'Malawimonadida',
+      hook:'1999年記載の従属栄養性鞭毛虫。長らく「エクスカバータ」の一員',
+      why:'形態はエクスカバータ似なのに、遺伝子ではAmorphea近くへ飛ぶ',
+      now:'エクスカバータからの離脱進行中。根の位置は対立仮説あり未決着',
+      besshu:0.50, ronsou:0.60, status:'未決着',
+      reveal:'人が最初に作った便利な“カゴ”が、DNAを当てた瞬間にほどける',
+      src:'https://en.wikipedia.org/wiki/Malawimonad' },
+
+    { id:'asgard', group:'A', glyph:'🪓', name:'アスガルド古細菌', sci:'Heimdallarchaeia',
+      hook:'真核生物特有タンパク質を持つ古細菌群（ロキ・トール・オーディン…）',
+      why:'生命樹の根本構造そのもの。3ドメイン説→2ドメイン説（真核=古細菌の内側）',
+      now:'ホットな論争。2023=真核はHeimdall内部にネスト／2025.5=Heimdallの外側と反論。根の置き方も継続',
+      besshu:0.70, ronsou:0.95, status:'論争中',
+      reveal:'「ヒトはどこから来たか」が権威2チームで割れる。最も深い場所こそ最もFloat',
+      src:'https://www.nature.com/articles/s41586-025-08955-7' },
+
+    { id:'picozoa', group:'A', glyph:'🔬', name:'ピコゾア', sci:'Picozoa',
+      hook:'ピコサイズの海洋性従属栄養生物。当初は謎の独立系統',
+      why:'「植物界に組み込まれた非光合成生物」——語感と系統の箱の不一致',
+      now:'Archaeplastida内、紅藻・Rhodelphis近縁説が有力（PR2 v5等）。内部枝順は流動的',
+      besshu:0.50, ronsou:0.45, status:'有力説',
+      reveal:'“植物”の語感が、系統の箱に一致しない',
+      src:'https://academic.oup.com/gbe/article/10/2/427/4817507' },
+
+    // ===== B群：種の境界のFloat（別種度=別種である度／境界の壊れ度）=====
+    { id:'ensatina', group:'B', glyph:'🦎', name:'エンサティナ（輪のサンショウウオ）', sci:'Ensatina eschscholtzii',
+      hook:'カリフォルニア中央渓谷を囲む7亜種のリング種。隣は交配、輪が閉じる南端は別種',
+      why:'A=B, B=C, なのにA≠C——推移律が地図上で破れる反例',
+      now:'分子系統で複数の別系統を内包。当初の遺伝子流動仮説は不支持、より複雑。分類に異論も',
+      besshu:0.70, ronsou:0.60, status:'論争あり',
+      reveal:'「同じ/違う」の推移律が、地図の上でだけ破れる',
+      src:'https://en.wikipedia.org/wiki/Ring_species' },
+
+    { id:'gull_warbler', group:'B', glyph:'🐦', name:'セグロカモメ／アオジムシクイ', sci:'Larus / Phylloscopus trochiloides',
+      hook:'リング種論争の両極端の教材。輪状分布の代表2種',
+      why:'同じ「輪の分類群」でも、検証の深さで運命が分かれる',
+      now:'明暗。アオジムシクイ=理想形に近い（2014 Nature）／セグロカモメ=「リング種ではない」と結論（2004）',
+      besshu:0.45, ronsou:0.65, status:'明暗が分かれる',
+      reveal:'称号剥奪が、線引きの脆さそのものを物語る',
+      src:'https://www.nature.com/articles/nature13285' },
+
+    { id:'pizzly', group:'B', glyph:'🐻‍❄️', name:'ピズリー／グローラーベア', sci:'Ursus maritimus × arctos',
+      hook:'ホッキョクグマ×ハイイログマの自然交雑。父がどちらかで呼び分け',
+      why:'「別種」の重みが1頭の生殖史で揺らぐ',
+      now:'2024.6の800頭超ゲノム解析で、確認済み交雑は世界8頭のみ・全て1989年生の単一雌の子孫。極稀（確定）',
+      besshu:0.50, ronsou:0.20, status:'確定',
+      reveal:'派手に聞こえて、実は決着済み。別種同士の“交雑＝ど真ん中”。断定した者ほど外す罠',
+      src:'https://polarbearsinternational.org/news-media/articles/hybridization-extremely-rare-between-grizzly-and-polar-bears-study-finds/' },
+
+    { id:'coywolf', group:'B', glyph:'🐺', name:'コヨウルフ（イヌ属交雑複合体）', sci:'Canis sp.',
+      hook:'イースタン・ウルフ等、Canis属の複雑な交雑個体群。全種78染色体を共有し交配可能',
+      why:'「何種？」の答えが研究チームで変わる',
+      now:'未決着。mtDNAと核ゲノムで結論が割れ、「独立種」説と「交雑実体」説が並立',
+      besshu:0.50, ronsou:0.85, status:'未決着',
+      reveal:'交雑は一回でなく数千年の進行形。答えは点でなく帯',
+      src:'https://academic.oup.com/mbe/article/40/4/msad055/7103497' },
+
+    { id:'neanderthal', group:'B', glyph:'🧬', name:'ネアンデルタール／デニソワ交雑', sci:'Homo neanderthalensis / Denisova',
+      hook:'現生人類との交配。遺伝子が現代人ゲノムに残存',
+      why:'「種が違う」判定と「交配して子孫を残せる」事実が同時成立',
+      now:'交配は確定（非アフリカ系の約2%）。複数回・複数地域の独立交配。「別種か同種内変異か」は見解が分かれる',
+      besshu:0.55, ronsou:0.70, status:'見解が分かれる',
+      reveal:'最も身近な「生物学的種概念」への、あなた自身のゲノムによる反証',
+      src:'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9641937/' },
+
+    { id:'mixotricha', group:'B', glyph:'🦠', name:'ミクソトリカ（5ゲノムの一匹）', sci:'Mixotricha paradoxa',
+      hook:'シロアリ腸内の原生生物。3種の共生細菌を纏い内部共生体も宿す「5ゲノムの複合体」',
+      why:'「1」という数が疑わしくなる生物。個体という境界すらFloat',
+      now:'種名は安定。「一個体か、複合ホロビオントか」は未解決の哲学的論点。2025に機能分業が判明',
+      besshu:0.60, ronsou:0.55, status:'未解決（哲学）',
+      reveal:'別種以前に、「一匹」の境界がにじむ',
+      src:'https://en.wikipedia.org/wiki/Mixotricha_paradoxa' },
+
+    { id:'hatena', group:'B', glyph:'❓', name:'ハテナ（緑と白を行き来する者）', sci:'Hatena arenicola',
+      hook:'2000年に日本の砂浜で発見（属名は日本語「はてな」）。緑藻を取り込むと光合成生物のように振る舞う',
+      why:'「共生か捕食か」の二択が失効',
+      now:'分裂で緑（藻を継ぐ）と白（捕食者に戻る）に分かれ、共生が毎世代リセットされる“半永久盗葉緑体”',
+      besshu:0.60, ronsou:0.40, status:'実例確立',
+      reveal:'境界は一度引いたら固定でなく、毎世代引き直されるプロセス',
+      src:'https://www.science.org/doi/full/10.1126/science.1116125' },
+
+    { id:'bdelloid', group:'B', glyph:'💧', name:'ヒルガタワムシ', sci:'Bdelloid Rotifers',
+      hook:'8000万年以上オス無し・完全無性生殖で存続する唯一の“古代から多様な”動物群（360種記載）',
+      why:'種定義の最有力基準（交配可能性）がそもそも使えない相手',
+      now:'形態種の中に複数の遺伝的種（隠蔽種）が確定的に蓄積。定義法は継続課題。HGTで外部遺伝子も輸入',
+      besshu:0.65, ronsou:0.50, status:'継続課題',
+      reveal:'「交配できるか」というものさしが、最初から折れている相手',
+      src:'https://journals.plos.org/plosbiology/article?id=10.1371%2Fjournal.pbio.0050087' },
+  ];
+
+  // ===== メタ（賭けデッキ外。イントロ／哲学レイヤの2枚。“なぜ別種度はFloatなのか”）=====
+  const META = [
+    { id:'species_problem', glyph:'📏', name:'種問題', sci:'The Species Problem',
+      body:'「種とは何か」の基準が複数併存（生物学的/系統学的/形態学的/生態学的…）。どれを採るかで種数が変わる。モニズム対プルーラリズムは未解決。<b>別種度がFloatである原因そのもの。ものさしが1本でない。</b>',
+      src:'https://plato.stanford.edu/entries/species/' },
+    { id:'reticulate', glyph:'🕸️', name:'網状進化 / 水平伝播', sci:'HGT / Reticulate evolution',
+      body:'遺伝子が種を超えて水平に伝わり、系統関係が「木」でなく「網」に。原核で確立、真核でも「頻度低・影響大」。<b>「生命の樹」という比喩自体が理想化された特殊ケース。祖先は遺伝子ごとに違う答えを持つ。</b>',
+      src:'https://www.nature.com/articles/nrg3962' },
+  ];
+
+  /* ============================================================
+     SCORING — verbatim from design spec §2. Do not re-derive.
+     ============================================================ */
+  function scoreCard(guess, besshu, ronsou) {
+    const hit    = 1 - Math.abs(guess - besshu);          // 近さ 0..1
+    const stakes = 1 + 2 * ronsou;                        // オッズ 1..3（論争度）
+    let raw      = 100 * hit * stakes;                     // 0..300
+    const extreme = (guess <= 0.08 || guess >= 0.92);     // Boolean的断定
+    const dampen  = (extreme && ronsou >= 0.5) ? (1 - 0.4 * ronsou) : 1; // 断定ペナルティ
+    return Math.round(raw * dampen);
+  }
+
+  /* ============================================================
+     Storage — try/catch wrapped, never throws
+     ============================================================ */
+  const STORAGE_BEST_KEY = 'oopaats_best';
+  const STORAGE_CALIB_KEY = 'oopaats_calib';
+
+  function safeGetItem(key){
+    try{
+      return window.localStorage.getItem(key);
+    }catch(e){
+      return null;
+    }
+  }
+  function safeSetItem(key, value){
+    try{
+      window.localStorage.setItem(key, value);
+      return true;
+    }catch(e){
+      return false;
+    }
+  }
+  function loadBest(){
+    try{
+      const raw = safeGetItem(STORAGE_BEST_KEY);
+      if(raw === null) return null;
+      const n = parseInt(raw, 10);
+      return isNaN(n) ? null : n;
+    }catch(e){
+      return null;
+    }
+  }
+  function saveBest(total){
+    try{
+      const current = loadBest();
+      if(current === null || total > current){
+        safeSetItem(STORAGE_BEST_KEY, String(total));
+        return true; // new best
+      }
+      return false;
+    }catch(e){
+      return false;
+    }
+  }
+  function loadCalib(){
+    try{
+      const raw = safeGetItem(STORAGE_CALIB_KEY);
+      if(!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    }catch(e){
+      return [];
+    }
+  }
+  function saveCalib(meanError, boolDegree){
+    try{
+      const history = loadCalib();
+      history.push({ t: Date.now(), meanError: meanError, boolBias: boolDegree });
+      // keep last few plays only
+      const trimmed = history.slice(-8);
+      safeSetItem(STORAGE_CALIB_KEY, JSON.stringify(trimmed));
+    }catch(e){
+      // silently ignore — storage unavailable or quota exceeded
+    }
+  }
+
+  /* ============================================================
+     Utility
+     ============================================================ */
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+  function clamp01(v){
+    return Math.max(0, Math.min(1, v));
+  }
+  function fmt2(v){
+    return v.toFixed(2);
+  }
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
+  /* ============================================================
+     Star field (decorative, void night sky)
+     ============================================================ */
+  function buildStars(){
+    const container = document.getElementById('stars');
+    if(!container) return;
+    const frag = document.createDocumentFragment();
+    const count = 70;
+    for(let i = 0; i < count; i++){
+      const s = document.createElement('div');
+      s.className = 'star';
+      const size = (Math.random() * 1.6 + 0.6).toFixed(2);
+      s.style.width = size + 'px';
+      s.style.height = size + 'px';
+      s.style.left = (Math.random() * 100).toFixed(2) + '%';
+      s.style.top = (Math.random() * 100).toFixed(2) + '%';
+      s.style.animationDelay = (Math.random() * 4).toFixed(2) + 's';
+      s.style.animationDuration = (3 + Math.random() * 3).toFixed(2) + 's';
+      frag.appendChild(s);
+    }
+    container.appendChild(frag);
+  }
+
+  /* ============================================================
+     Game state
+     ============================================================ */
+  const state = {
+    order: [],          // shuffled CARDS for this playthrough
+    idx: 0,             // current card index within order
+    results: [],        // { card, guess, points, extreme, dampened }
+    currentGuess: 0.5
+  };
+
+  /* ============================================================
+     Screen switcher
+     ============================================================ */
+  function showScreen(id){
+    const screens = document.querySelectorAll('.screen');
+    screens.forEach(function(s){ s.classList.remove('active'); });
+    const target = document.getElementById(id);
+    if(target) target.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  /* ============================================================
+     SCREEN 1: entry — render META panels + best score
+     ============================================================ */
+  function renderEntry(){
+    const bestLine = document.getElementById('best-score-line');
+    const best = loadBest();
+    bestLine.innerHTML = best === null
+      ? 'ベストスコア: <b>—（まだ賭けていない）</b>'
+      : 'ベストスコア: <b>' + best + '</b> 点';
+
+    const panelsRoot = document.getElementById('meta-panels');
+    panelsRoot.innerHTML = '';
+    META.forEach(function(m){
+      const div = document.createElement('div');
+      div.className = 'meta-panel';
+      div.innerHTML =
+        '<div class="meta-head">' +
+          '<span class="meta-glyph">' + esc(m.glyph) + '</span>' +
+          '<span class="meta-name">' + esc(m.name) + '</span>' +
+          '<span class="meta-sci">' + esc(m.sci) + '</span>' +
+        '</div>' +
+        '<div class="meta-body">' + m.body + '</div>' +
+        '<div class="meta-src">' + esc(m.src) + '</div>';
+      panelsRoot.appendChild(div);
+    });
+  }
+
+  /* ============================================================
+     Start a new playthrough
+     ============================================================ */
+  function startGame(){
+    state.order = shuffle(CARDS);
+    state.idx = 0;
+    state.results = [];
+    renderBetScreen();
+    showScreen('screen-bet');
+  }
+
+  /* ============================================================
+     SCREEN 2: bet — render current card
+     ============================================================ */
+  function renderBetScreen(){
+    const card = state.order[state.idx];
+    const total = state.order.length;
+
+    document.getElementById('progress-label').textContent = (state.idx + 1) + ' / ' + total;
+    document.getElementById('progress-fill').style.width = (((state.idx) / total) * 100) + '%';
+
+    document.getElementById('card-glyph').textContent = card.glyph;
+    document.getElementById('card-name').textContent = card.name;
+    document.getElementById('card-sci').textContent = card.sci;
+    document.getElementById('card-group-tag').textContent = card.group === 'A' ? 'A群・上位系統' : 'B群・種の境界';
+    document.getElementById('card-hook').textContent = card.hook;
+    document.getElementById('card-why').textContent = card.why;
+    document.getElementById('card-now').textContent = card.now;
+    document.getElementById('card-status').textContent = card.status;
+
+    const slider = document.getElementById('stake-slider');
+    slider.value = '0.5';
+    state.currentGuess = 0.5;
+    document.getElementById('stake-value').textContent = '0.50';
+  }
+
+  function onSliderInput(e){
+    const v = parseFloat(e.target.value);
+    state.currentGuess = v;
+    document.getElementById('stake-value').textContent = fmt2(v);
+  }
+
+  function confirmBet(){
+    const card = state.order[state.idx];
+    const guess = clamp01(state.currentGuess);
+    const points = scoreCard(guess, card.besshu, card.ronsou);
+    const extreme = (guess <= 0.08 || guess >= 0.92);
+    const dampened = extreme && card.ronsou >= 0.5;
+
+    state.results.push({
+      card: card,
+      guess: guess,
+      points: points,
+      extreme: extreme,
+      dampened: dampened
+    });
+
+    renderRevealScreen();
+    showScreen('screen-reveal');
+  }
+
+  /* ============================================================
+     SCREEN 3: reveal
+     ============================================================ */
+  function renderRevealScreen(){
+    const total = state.order.length;
+    const result = state.results[state.results.length - 1];
+    const card = result.card;
+
+    document.getElementById('progress-label-2').textContent = (state.idx + 1) + ' / ' + total;
+    document.getElementById('progress-fill-2').style.width = (((state.idx + 1) / total) * 100) + '%';
+
+    document.getElementById('points-num').textContent = result.points;
+    document.getElementById('reveal-card-name').textContent = card.name + ' の判定';
+
+    document.getElementById('stat-guess').textContent = fmt2(result.guess);
+    document.getElementById('stat-besshu').textContent = fmt2(card.besshu);
+    document.getElementById('stat-ronsou').textContent = fmt2(card.ronsou) + ' ×' + (1 + 2 * card.ronsou).toFixed(1);
+
+    const penaltyEl = document.getElementById('penalty-note');
+    penaltyEl.style.display = result.dampened ? 'block' : 'none';
+
+    document.getElementById('reveal-line').textContent = card.reveal;
+
+    drawRevealAxis(result);
+  }
+
+  // Draw the single-card reveal axis: amber band (besshu ± ronsou*0.5) + gold needle (guess)
+  function drawRevealAxis(result){
+    const svg = document.getElementById('reveal-svg');
+    const card = result.card;
+    const W = 640, H = 130;
+    const padX = 24;
+    const axisY = 70;
+    const trackW = W - padX * 2;
+
+    const halfWidth = clamp01(card.ronsou * 0.5);
+    const bandLo = clamp01(card.besshu - halfWidth);
+    const bandHi = clamp01(card.besshu + halfWidth);
+
+    function xOf(v){ return padX + v * trackW; }
+
+    const bandX = xOf(bandLo);
+    const bandW = xOf(bandHi) - xOf(bandLo);
+    const guessX = xOf(result.guess);
+    const besshuX = xOf(card.besshu);
+
+    let svgNS = 'http://www.w3.org/2000/svg';
+    let html = '';
+
+    // base axis line
+    html += '<line x1="' + padX + '" y1="' + axisY + '" x2="' + (W - padX) + '" y2="' + axisY +
+            '" stroke="rgba(154,146,127,0.35)" stroke-width="2" />';
+
+    // tick marks at 0, 0.25, 0.5, 0.75, 1
+    [0, 0.25, 0.5, 0.75, 1].forEach(function(t){
+      const tx = xOf(t);
+      html += '<line x1="' + tx + '" y1="' + (axisY - 6) + '" x2="' + tx + '" y2="' + (axisY + 6) +
+              '" stroke="rgba(154,146,127,0.4)" stroke-width="1.5" />';
+    });
+
+    // amber controversy band (answer is a band, not a point)
+    html += '<rect x="' + bandX + '" y="' + (axisY - 16) + '" width="' + Math.max(bandW, 2) + '" height="32" rx="10" ' +
+            'fill="url(#ambergrad)" opacity="0.85" />';
+
+    // besshu center tick (thin line inside the band)
+    html += '<line x1="' + besshuX + '" y1="' + (axisY - 20) + '" x2="' + besshuX + '" y2="' + (axisY + 20) +
+            '" stroke="#e8c877" stroke-width="1.5" opacity="0.9" />';
+
+    // player guess needle (gold marker above the axis)
+    html += '<line x1="' + guessX + '" y1="' + (axisY - 34) + '" x2="' + guessX + '" y2="' + (axisY + 34) +
+            '" stroke="#d4a853" stroke-width="2.5" />';
+    html += '<circle cx="' + guessX + '" cy="' + (axisY - 34) + '" r="6" fill="#d4a853" stroke="#12101a" stroke-width="1.5" />';
+    html += '<circle cx="' + guessX + '" cy="' + (axisY + 34) + '" r="4" fill="#d4a853" opacity="0.8" />';
+
+    // labels
+    html += '<text x="' + guessX + '" y="' + (axisY - 44) + '" text-anchor="middle" fill="#d4a853" font-size="13" font-weight="700">賭け ' + fmt2(result.guess) + '</text>';
+    html += '<text x="' + besshuX + '" y="' + (axisY + 52) + '" text-anchor="middle" fill="#e8c877" font-size="12">別種度 ' + fmt2(card.besshu) + '</text>';
+
+    // gradient def
+    const defs = '<defs><linearGradient id="ambergrad" x1="0" y1="0" x2="1" y2="0">' +
+                 '<stop offset="0%" stop-color="#c8922e" stop-opacity="0.55"/>' +
+                 '<stop offset="50%" stop-color="#e8c877" stop-opacity="0.85"/>' +
+                 '<stop offset="100%" stop-color="#c8922e" stop-opacity="0.55"/>' +
+                 '</linearGradient></defs>';
+
+    svg.innerHTML = defs + html;
+  }
+
+  function goNextAfterReveal(){
+    state.idx += 1;
+    if(state.idx >= state.order.length){
+      renderFinale();
+      showScreen('screen-finale');
+    } else {
+      renderBetScreen();
+      showScreen('screen-bet');
+    }
+  }
+
+  /* ============================================================
+     SCREEN 4: finale
+     ============================================================ */
+  function renderFinale(){
+    const results = state.results;
+    const n = results.length;
+
+    const total = results.reduce(function(sum, r){ return sum + r.points; }, 0);
+    const meanError = results.reduce(function(sum, r){ return sum + Math.abs(r.guess - r.card.besshu); }, 0) / n;
+
+    // Boolean度 = fraction of cards with ronsou>=0.5 where the player bet an extreme
+    const contestedCards = results.filter(function(r){ return r.card.ronsou >= 0.5; });
+    const extremeOnContested = contestedCards.filter(function(r){ return r.extreme; });
+    const boolDegree = contestedCards.length > 0 ? (extremeOnContested.length / contestedCards.length) : 0;
+
+    document.getElementById('finale-total').textContent = total;
+
+    const prevBest = loadBest();
+    const isNewBest = saveBest(total);
+    const bestRow = document.getElementById('finale-best-row');
+    if(isNewBest){
+      bestRow.textContent = '新記録！ ベスト更新: ' + total + ' 点';
+      bestRow.classList.add('is-new');
+    } else {
+      bestRow.textContent = 'ベスト: ' + (prevBest === null ? total : Math.max(prevBest, total)) + ' 点';
+      bestRow.classList.remove('is-new');
+    }
+
+    document.getElementById('finale-mean-error').textContent = fmt2(meanError);
+    document.getElementById('finale-bool-degree').textContent = (boolDegree * 100).toFixed(0) + '%';
+
+    saveCalib(meanError, boolDegree);
+
+    drawScatter(results);
+
+    // Verdict copy — branches on Boolean度 per spec §4
+    const verdictEl = document.getElementById('verdict-text');
+    let verdict;
+    if(boolDegree <= 0.25 && meanError <= 0.15){
+      verdict = 'あなたは境界をFloatで見ている。分類学者の現在地に近い';
+    } else if(boolDegree > 0.25){
+      verdict = 'まだBoolean的に断定しがち。割れている問いほど、答えは点でなく帯だ';
+    } else {
+      verdict = '中間は張れている。あとは各系統の“いま”を知るだけ';
+    }
+    verdictEl.textContent = verdict;
+
+    // Share text
+    const shareText =
+      'オーパーツ・オッズで ' + total + '点／18標本。平均誤差 ' + fmt2(meanError) +
+      '・Boolean度 ' + (boolDegree * 100).toFixed(0) + '%。' +
+      '別種度はFloatで賭けるほど勝つ。 #オーパーツオッズ #BooleanToFloat';
+    document.getElementById('share-text').textContent = shareText;
+  }
+
+  function drawScatter(results){
+    const svg = document.getElementById('scatter-svg');
+    const W = 640, H = 300;
+    const padX = 36, padTop = 20, padBottom = 36;
+    const plotW = W - padX * 2;
+    const plotH = H - padTop - padBottom;
+
+    function xOf(v){ return padX + clamp01(v) * plotW; }
+    function yOf(v){ return padTop + (1 - clamp01(v)) * plotH; } // guess/besshu axis (vertical) — visually "answer" reference
+
+    let html = '';
+    const defs = '<defs><linearGradient id="ambergrad2" x1="0" y1="0" x2="1" y2="0">' +
+                 '<stop offset="0%" stop-color="#c8922e" stop-opacity="0.5"/>' +
+                 '<stop offset="50%" stop-color="#e8c877" stop-opacity="0.8"/>' +
+                 '<stop offset="100%" stop-color="#c8922e" stop-opacity="0.5"/>' +
+                 '</linearGradient></defs>';
+
+    // axes
+    html += '<line x1="' + padX + '" y1="' + (padTop + plotH) + '" x2="' + (padX + plotW) + '" y2="' + (padTop + plotH) +
+            '" stroke="rgba(154,146,127,0.4)" stroke-width="1.5" />';
+    html += '<line x1="' + padX + '" y1="' + padTop + '" x2="' + padX + '" y2="' + (padTop + plotH) +
+            '" stroke="rgba(154,146,127,0.4)" stroke-width="1.5" />';
+
+    // diagonal reference (perfect guess line, guess == besshu)
+    html += '<line x1="' + xOf(0) + '" y1="' + yOf(0) + '" x2="' + xOf(1) + '" y2="' + yOf(1) +
+            '" stroke="rgba(154,146,127,0.25)" stroke-width="1" stroke-dasharray="4,4" />';
+
+    // axis labels
+    html += '<text x="' + (padX + plotW / 2) + '" y="' + (H - 8) + '" text-anchor="middle" fill="#9a927f" font-size="11">別種度（正解）0.00 → 1.00</text>';
+    html += '<text x="12" y="' + (padTop + plotH / 2) + '" text-anchor="middle" fill="#9a927f" font-size="11" transform="rotate(-90 12 ' + (padTop + plotH / 2) + ')">あなたの賭け 0.00 → 1.00</text>';
+
+    results.forEach(function(r){
+      const card = r.card;
+      const halfWidth = clamp01(card.ronsou * 0.5);
+      const bandLo = clamp01(card.besshu - halfWidth);
+      const bandHi = clamp01(card.besshu + halfWidth);
+      const cx = xOf(card.besshu);
+      const bandX1 = xOf(bandLo);
+      const bandX2 = xOf(bandHi);
+      const cy = yOf(r.guess);
+
+      // faint amber vertical band at besshu position (controversy width)
+      html += '<rect x="' + bandX1 + '" y="' + padTop + '" width="' + Math.max(bandX2 - bandX1, 1.5) + '" height="' + plotH +
+              '" fill="url(#ambergrad2)" opacity="0.16" />';
+
+      // gold dot for player's guess vs this card's besshu
+      html += '<circle cx="' + cx + '" cy="' + cy + '" r="5" fill="#d4a853" stroke="#0a0a0f" stroke-width="1" opacity="0.92" />';
+    });
+
+    svg.innerHTML = defs + html;
+  }
+
+  function copyShareText(){
+    const text = document.getElementById('share-text').textContent;
+    const btn = document.getElementById('btn-copy-share');
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(function(){
+          flashCopyState(btn);
+        }).catch(function(){
+          fallbackCopy(text, btn);
+        });
+      } else {
+        fallbackCopy(text, btn);
+      }
+    }catch(e){
+      fallbackCopy(text, btn);
+    }
+  }
+  function fallbackCopy(text, btn){
+    try{
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      flashCopyState(btn);
+    }catch(e){
+      // clipboard unavailable — silently ignore, text is already visible for manual copy
+    }
+  }
+  function flashCopyState(btn){
+    if(!btn) return;
+    const original = btn.textContent;
+    btn.textContent = 'コピーしました';
+    setTimeout(function(){ btn.textContent = original; }, 1600);
+  }
+
+  /* ============================================================
+     Wire up events
+     ============================================================ */
+  function init(){
+    buildStars();
+    renderEntry();
+
+    document.getElementById('btn-start').addEventListener('click', startGame);
+    document.getElementById('stake-slider').addEventListener('input', onSliderInput);
+    document.getElementById('btn-confirm-bet').addEventListener('click', confirmBet);
+    document.getElementById('btn-next').addEventListener('click', goNextAfterReveal);
+    document.getElementById('btn-replay').addEventListener('click', function(){
+      renderEntry();
+      showScreen('screen-entry');
+    });
+    document.getElementById('btn-copy-share').addEventListener('click', copyShareText);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();
+</script>
+
+</body>
+</html>
