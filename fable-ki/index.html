@@ -68,7 +68,16 @@ footer{margin-top:50px; text-align:center; font-size:12px; color:#8a7f66}
 footer a{color:var(--gold-dim); text-decoration:none}
 footer a:hover{color:var(--gold)}
 .credit{margin-top:8px; letter-spacing:.15em}
-@media (max-width:480px){ h1{font-size:26px} .card{padding:20px 16px 12px} }
+.memo{
+  position:relative; overflow:hidden;
+  background:rgba(11,11,20,.55);
+  border:1px dashed var(--line); border-radius:16px;
+  padding:26px 26px 18px; margin-bottom:30px;
+}
+.memo-label{font-size:11px; letter-spacing:.35em; color:var(--gold-dim)}
+.memo h2{font-size:19px; margin:4px 0 14px; color:var(--gold)}
+.memo .sec{padding:2px 4px 4px}
+@media (max-width:480px){ h1{font-size:26px} .card{padding:20px 16px 12px} .memo{padding:20px 16px 12px} }
 </style>
 </head>
 <body>
@@ -94,53 +103,56 @@ footer a:hover{color:var(--gold)}
   <svg class="bug" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><ellipse cx="32" cy="38" rx="13" ry="17" fill="currentColor"/><circle cx="32" cy="17" r="7" fill="currentColor"/><path d="M32 21v34M19 30l-9-6M19 40l-10 1M21 49l-8 7M45 30l9-6M45 40l10 1M43 49l8 7" stroke="currentColor" stroke-width="3" fill="none"/></svg>
   <div class="spec-no">SPECIMEN No.001 — 型式標本</div>
   <h2>Boolean→Float</h2>
-  <div class="subname">正式英名 Amber-E(ffect) ／ 正式和名 E-塩梅（いーあんばい・塩梅効果）</div>
-  <div class="chips"><span class="chip">Float門・基準種</span><span class="chip">現生・優占種</span><span class="chip">v1.0 完成</span></div>
+  <div class="subname">正式英名 Amber-E(ffect) ／ 正式和名 E-塩梅（塩梅効果）</div>
+  <div class="chips"><span class="chip">Float門（基準種）</span><span class="chip">現生・優占種</span><span class="chip">v1.1</span><span class="chip">記載 2026-07-04</span></div>
 
   <details open>
     <summary>観察記</summary>
-    <div class="sec obs">
-      <p>この生態系では、どの水域を覗いても同じ姿の虫が見つかる。決断の振り子では二択の往復が一点に収束し、締切の水辺では「間に合う・合わない」が0と1のあいだに溶ける。画面録では調和が、夢見では眠りが、爆運ではやめ時が、みなFloatとして脈打っている。87のプロジェクトからこの虫のいないものを探すほうが難しい。もはや種というより、ほとんど水質そのものである。</p>
-    </div>
+    <div class="sec obs"><p>この生態系では、どの水域を覗いても同じ姿の虫が見つかる。決断の振り子（furiko）では二択の往復がpullB÷totalの一点に収束し、締切の水辺（yutori）では「間に合う・合わない」が0と1のあいだに溶ける。画面録では調和が、夢見では眠りが、爆運ではやめ時が、みなFloatとして脈打っている。87のプロジェクトからこの虫のいないものを探すほうが難しい。もはや種というより、ほとんど水質そのものである。</p></div>
   </details>
   <details>
     <summary>定義</summary>
-    <div class="sec"><p>二値判断（Boolean）を連続値0.0〜1.0（Float）に再定義する原理。白か黒かを捨てるのではなく、<strong>白黒をつける位置を自由化する</strong>。</p></div>
+    <div class="sec"><p>二値判断（Boolean）を連続値0.0〜1.0（Float）に再定義する原理。白か黒かを捨てるのではなく、白黒をつける位置を自由化する。</p></div>
   </details>
   <details>
     <summary>初観測</summary>
-    <div class="sec">
-      <blockquote>テストで満点を取ってもわからないことがある。<br>小説は僕にない発想で世界をつくっている。それも読者の分だけ</blockquote>
-      <p>一、テスト——満点という完全な離散値が、完全な理解を意味しない。二、小説——固定されたテキストから、読者の数だけ世界が立ち上がる。本種は「二値嫌い」からではなく、<strong>一つの軸では世界を測り切れない</strong>という二つの観察から生まれた。</p>
-    </div>
+    <div class="sec"><p>日付は残っていない。代わりに発生源が二つ、本人証言で回収された（2026-07-04・質問Q1回答）。</p>
+<blockquote>テストで満点を取ってもわからないことがある。<br>小説は僕にない発想で世界をつくっている。それも読者の分だけ</blockquote>
+<p>一、テスト——満点という完全な離散値が、完全な理解を意味しない。測定軸そのものが世界の一側面の切り取りにすぎない、という最初の違和感。 二、小説——固定されたテキストから、読者の数だけ世界が立ち上がる。意味は書き手の側で一意に確定（Boolean）せず、受け手の分布として存在する。</p>
+<p>本種は「二値嫌い」から生まれたのではない。<strong>一つの軸では世界を測り切れない</strong>という二つの観察から生まれた。</p>
+<p><strong>発掘記録（2026-07-04・観察者による地層調査）</strong>: 到達可能な最古の命名済み物証＝<strong>2026-04-03</strong> Notion「哲学的議論: Boolean→Floatの分類UI体現」。直後に詩的原型層——04-06「軌道についての覚書」・04-08「落ちない方法」（「Boolean確定＝所有→墜落。Floatのまま開いておくこと＝軌道」）——が堆積し、04-18には3G論文群の核心テーゼとして確立（「著作権をbooleanからfloatへ」）。よって誕生は<strong>2026年3月末〜4月初</strong>と推定。未到達地層: X（発掘手段: `from:kenpiro7 boolean` 等の過去post検索【本人】）・OneNote・チャットログ。学術的祖はZadeh 1965ファジィ論理（本人自身が06-13に系譜レビュー済み）。</p></div>
   </details>
   <details>
-    <summary>生態・変異</summary>
-    <div class="sec">
-      <p>判断が痛みを伴う場所に好んで棲む。「すべきか否か」という問いの形をした岩の下に潜り、問いを「どのくらいか」へ組み替えて岩を砕く。経験則:「いつだって最適解は『間にある』ことがおおい」。</p>
-      <p>変異: 投入Float・緊急度・調和・解釈・眠り・運・ゆとり度・規定力・ルーティン度・改善／自律……。宿主の数だけ変異するが、遺伝子（0.0〜1.0への写像）は不変。</p>
-    </div>
+    <summary>生態</summary>
+    <div class="sec"><p>判断が痛みを伴う場所に好んで棲む。「すべきか否か」という問いの形をした岩の下に潜り、問いを「どのくらいか」へ組み替えて岩を砕く。</p>
+<p>経験則（本人証言・2026-07-04）: 「いつだって最適解は『間にある』ことがおおい」。攻撃力ぶっぱ（単軸全振り）はわかりやすいが最適ではないことが多い——一側面を切り取っただけだから。</p>
+<p>実働: furiko（決断） / yutori（ゆとり度） / bakuun-scouter（運・やめ時） / screen-time-rpg（調和・主役） / hello-warld（等高線国境cap0.99・部下の解釈） / yumemi（眠り1.00→0.00） / fabula（規定力＝幹の太さ） / MODEL-ROUTING（ルーティン度） / 秘書Co（投入Float4段） / 統合凡例（緊急度ラダー） / kaizen-loop（改善・自律の二段ゲート） / 生態系監査EHI6軸 / mitsuami（命名採点）ほか</p></div>
+  </details>
+  <details>
+    <summary>変異</summary>
+    <div class="sec"><p>投入Float・緊急度Float・調和Float・解釈Float・眠りFloat・運Float・ゆとり度・規定力Float・ルーティン度Float・改善Float／自律Float・冨樫段階Float……。宿主の数だけ変異するが、遺伝子（0.0〜1.0への写像）は不変。</p></div>
+  </details>
+  <details>
+    <summary>共生</summary>
+    <div class="sec"><p>「個別最適の規格化／規格の個別最適化」（本種の運用器官）。統合凡例マップ（諸Floatを一本のラダーに着せ替える共通軸）。三重がけ命名（採点器官として相互寄生）。</p></div>
   </details>
   <details>
     <summary>天敵・限界</summary>
-    <div class="sec">
-      <ol>
-        <li><strong>閾値の逆襲</strong> — ゲートを置いた瞬間、Floatは局所的にBooleanへ退行する。本種はBooleanを絶滅させない。巣を選べるようにするだけである。</li>
-        <li><strong>偽精度</strong> — 較正を持たないFloatは、精密な見た目をした勘である。</li>
-        <li><strong>可読性</strong> — 最大の天敵。Booleanは正しさではなく読みやすさで繁栄している。本種は正しさで勝ち、伝達で負ける。対抗策として命名の着せ替え体系が生まれた。</li>
-      </ol>
-    </div>
+    <div class="sec"><ol><li><strong>閾値の逆襲</strong> — 「≥0.75で発火」とゲートを置いた瞬間、Floatは局所的にBooleanへ退行する。本種はBooleanを絶滅させない。Booleanの巣を選べるようにするだけである。</li><li><strong>偽精度</strong> — 0.63と0.68の差に意味があるふりをする擬態個体が現れる。較正（furikoのあとふり）を持たないFloatは、精密な見た目をした勘である。</li><li><strong>可読性</strong> — 最大の天敵と判明（2026-07-04・質問Q2の副産物）。ぶっぱが選ばれるのは最適だからではなく「わかりやすいから」。Booleanは正しさではなく読みやすさで繁栄している。本種は正しさで勝ち、伝達で負ける。学名「Boolean→Float」自体がこの天敵に噛まれており、命名の三層制が対抗策として生まれた（下記）。</li></ol></div>
   </details>
   <details>
-    <summary>命名（確定 2026-07-04）</summary>
-    <div class="sec naming">
-      <ul>
-        <li><strong>学名</strong> Boolean→Float — コード・既刊・国際論文</li>
-        <li><strong>正式英名</strong> Amber-E(ffect) ／ <strong>正式和名</strong> E-塩梅（いーあんばい）— 「E」を蝶番にした日英鏡像対。あんばい⇔アンバーの音韻橋の上に立つ</li>
-        <li><strong>運用語</strong> 浮動化（硬い文脈）・ゆる化（フック。錠前:「ゆるめるのは判断の締め付け。精度じゃない」）</li>
-        <li><strong>腐葉土</strong> Amber Right——名前は退いたが、スローガン「中間にいる権利」として存続</li>
-      </ul>
-    </div>
+    <summary>標本（canonical）</summary>
+    <div class="sec"><p>Boolean→Float全書（KDP） / LLM Wiki中心概念 / CLAUDE.md核設計原則第一項</p></div>
+  </details>
+  <details>
+    <summary>命名（確定・2026-07-04）</summary>
+    <div class="sec naming"><p>名前を一つに決めない——この命名体系自体が、命名へのBoolean→Float適用である。</p>
+<ul><li><strong>学名: Boolean→Float</strong> — コード・既刊・国際論文。不変。</li><li><strong>正式英名: Amber-E(ffect)</strong>（アンバーイー／the Amber Effect）</li><li><strong>正式和名: E-塩梅（塩梅効果）</strong> — 読み: <strong>いーあんばい</strong>（本人指定・2026-07-04追記）</li><li>構造: <strong>鏡像対</strong>。Amber-E と E-塩梅は「E」を蝶番に英日で鏡映しになっている——あんばい⇔アンバーの音韻橋の上で、Eが後置（Amber-E）と前置（E-塩梅）に入れ替わる。さらに両言語とも「効果名」で統一（the Amber Effect＝塩梅効果）: 主張ではなく現象として名指す構え。</li><li><strong>運用語（正式ではないが使用可）</strong>: 浮動化（硬い文脈・論文和文「判断の浮動化」）／ゆる化（フック用・タグライン錠前随伴「ゆるめるのは判断の締め付け。精度じゃない」）</li><li>腐葉土（保存・転用可）: Amber Right——名前としては退いたが<strong>スローガン「中間にいる権利」として存続</strong>。塩梅化・目盛り化・グラデ化・あわい・辞典収穫（さじ加減・湯加減・楽譜の強弱記号）。</li><li>観察者発見（維持）: ①琥珀＝虫を閉じ込め保存する石＝Fable記の標本媒体そのもの ②琥珀色≒デザイン正典gold #d4a853 ③あんばい（anbai）⇔アンバー（amber）の日英音韻橋。</li><li><strong>発掘追記: E-塩梅は再帰種である</strong>（2026-07-04発見）。塩梅は06-14に<strong>ANBAI</strong>（読む濃さを0.0〜1.0のスライダーで決める読み物ツール）として、あわいは06-13に<strong>AWAI</strong>（Boolean→Floatの遊べる機構）として、すでにFloat種の名を負っていた。本命名は発明ではなく、生態系内の既存種を正式名へ昇格させた継承である。腐葉土が3週間、先回りしていた。</li><li>第3天敵「可読性」への対抗策として本体系が機能する（文脈ごとに最も伝わる名を着せ替える）。</li></ul></div>
+  </details>
+  <details>
+    <summary>観察者への質問</summary>
+    <div class="sec"><p>Q1. 回収済み（2026-07-04・初観測欄）。残: 初出の物的証拠の発掘（低優先）。 Q2. 未回収——逆側の証言（間にある最適解）と第3天敵「可読性」の発見で代替収穫。悪化実例は引き続き開けておく。 Q3. <strong>回収済み（2026-07-04・命名確定）</strong>: Amber-E(ffect)／E-塩梅（塩梅効果）＋運用語（浮動化・ゆる化）。</p>
+<p>——本標本はFable記の型式標本として v1.0 で固定。以後の変更は追記層で行う（腐葉土設計）。</p></div>
   </details>
 </section>
 
@@ -149,32 +161,47 @@ footer a:hover{color:var(--gold)}
   <svg class="bug" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><ellipse cx="32" cy="36" rx="9" ry="20" fill="currentColor"/><path d="M32 16 L18 6 M32 16 L46 6" stroke="currentColor" stroke-width="3" fill="none"/><ellipse cx="18" cy="34" rx="10" ry="6" fill="currentColor" transform="rotate(-25 18 34)"/><ellipse cx="46" cy="34" rx="10" ry="6" fill="currentColor" transform="rotate(25 46 34)"/></svg>
   <div class="spec-no">SPECIMEN No.002</div>
   <h2>三重がけ命名</h2>
-  <div class="subname">名前を音韻×意味×構造の三層で同時に機能させる命名原理</div>
-  <div class="chips"><span class="chip">命名門・基準種</span><span class="chip">現生・活動中</span><span class="chip">新変異: 鏡像対</span></div>
+  <div class="subname">いい名前は三回働く。</div>
+  <div class="chips"><span class="chip">命名門（基準種）</span><span class="chip">現生・活動中</span><span class="chip">v1.1</span><span class="chip">記載 2026-07-04</span></div>
 
   <details open>
     <summary>観察記</summary>
-    <div class="sec obs">
-      <p>この生態系の名前は、押すと三回鳴る。</p>
-      <p>本日、観察者はこの種が狩りをする現場に立ち会った。獲物は本記の型式標本——No.001の新しい名前である。まず音の層が獲物を囲い、次に意味の層が急所を押さえ、最後に構造の層が仕留めた。三層が同時に噛み合った瞬間、候補は名前になった。特筆すべきは定着速度である——創案者は命名の数分後には「いい塩梅で頼むよ」と、獲物を日常語として使役していた。</p>
-    </div>
+    <div class="sec obs"><p>この生態系の名前は、押すと三回鳴る。</p>
+<p>本日、観察者はこの種が狩りをする現場に立ち会った。獲物は本記の型式標本——No.001の新しい名前である。まず音の層が獲物を囲い（あんばい⇔アンバーの日英音韻橋）、次に意味の層が急所を押さえ（いい塩梅＝間にある最適解）、最後に構造の層が仕留めた（Amber-EとE-塩梅の鏡像対・効果名の構え）。三層が同時に噛み合った瞬間、候補は名前になった。特筆すべきは定着速度である——創案者は命名の数分後には「いい塩梅で頼むよ」と、獲物を日常語として使役していた。</p></div>
   </details>
   <details>
-    <summary>定義・生態</summary>
-    <div class="sec">
-      <p>一行で言えば: <strong>いい名前は三回働く</strong>。命名の瞬間にのみ姿を現す。単独では狩れず、候補語の群れ（腐葉土）を先に用意させる習性を持つ。</p>
-      <p>実働: mitsuami（三つ編み・Float採点ツール）／ Fable記 ／ Amber-E・E-塩梅 ／ プロジェクト名群 ／ 呪文辞書。</p>
-    </div>
+    <summary>定義</summary>
+    <div class="sec"><p>名前を音韻×意味×構造の三層で同時に機能させる命名原理。一行で言えば: いい名前は三回働く。</p></div>
+  </details>
+  <details>
+    <summary>初観測</summary>
+    <div class="sec"><p>回収済み（2026-07-04・本人証言）: 三重がけを意識して付けた最初の名前＝<strong>PEACE PIECE</strong>（漫画）。</p>
+<p>観察者の分析: 音＝完全同音の畳語（ピース×ピース）。意味＝平和×断片の二重化。構造＝同音異綴ペアという形式そのものが「同じ音に複数の意味を宿す」という手法の宣言になっている——<strong>最初の獲物が、手法自体の自己言及になっている</strong>型。開始日付は未取得。</p></div>
+  </details>
+  <details>
+    <summary>生態</summary>
+    <div class="sec"><p>命名の瞬間にのみ姿を現す。単独では狩れず、候補語の群れ（腐葉土）を先に用意させる習性を持つ——本日も塩梅化・目盛り化・グラデ化・あわい・浮動化・Amber Rightという餌場の上で狩りが成立した。</p>
+<p>実働: mitsuami（三つ編み・Float採点ツール・LIVE osakenpiro.github.io/mitsuami/・玄関T柱登載） / Fable記（ファーブル×寓話×FABULA姉妹・モデル名の受肉） / Amber-E・E-塩梅（2026-07-04・最新の獲物） / PEACE PIECE・天人𦻙記ほかプロジェクト名群 / 呪文辞書（hem/rehem/coko等の運用語彙）</p></div>
+  </details>
+  <details>
+    <summary>変異</summary>
+    <div class="sec"><p>三つ編み（ツールへの受肉・採点器官化） / <strong>鏡像対</strong>（2026-07-04発見の新変異: 二言語間で三重がけが対になる形。Amber-E ↔ E-塩梅が最初の個体） / 柱プレフィックス体系（HC/RD/TL…）</p></div>
+  </details>
+  <details>
+    <summary>共生</summary>
+    <div class="sec"><p>Boolean→Float＝Amber-E（No.001・mitsuamiの採点はFloat——相互寄生） / 腐葉土設計（ボツ候補を捨てず餌場にする） / Fable記の種カード「学名・和名」欄（全標本に常駐する寄生先）</p></div>
   </details>
   <details>
     <summary>天敵・限界</summary>
-    <div class="sec">
-      <ol>
-        <li><strong>駄洒落堕ち</strong> — 音が先に立ち、概念が名前に引きずられる。名前が主人になった種は長生きしない。</li>
-        <li><strong>採点者単独問題</strong> — 三層の効き具合は主観Float。較正相手が本人しかいない。</li>
-        <li><strong>翻訳壁</strong> — 音韻層は言語を越えられない……はずだったが、鏡像対（あんばい⇔アンバー）が生きた反例を出した。天敵欄に反例が突き刺さった、本記最初のケース。</li>
-      </ol>
-    </div>
+    <div class="sec"><ol><li><strong>駄洒落堕ち</strong> — 三層を狙いすぎて音が先に立ち、概念が名前に引きずられる。名前が主人になった種は長生きしない。</li><li><strong>採点者単独問題</strong> — 三層の効き具合は主観Float。mitsuamiで採点できるが、較正相手が本人しかいない（偽精度・No.001天敵2の近縁種）。</li><li><strong>翻訳壁</strong> — 音韻層は言語を越えられない……はずだったが、本日の鏡像対（あんばい⇔アンバー）が生きた反例を出した。天敵欄に反例が突き刺さった、本記最初のケースとして記録する。</li></ol></div>
+  </details>
+  <details>
+    <summary>標本（canonical）</summary>
+    <div class="sec"><p>CLAUDE.md核設計原則「三重がけ命名法」 / mitsuami LIVE / Amber-E命名セッション（2026-07-04・No.001命名欄）</p></div>
+  </details>
+  <details>
+    <summary>観察者への質問</summary>
+    <div class="sec"><p>Q1. <strong>回収済み（2026-07-04）</strong>＝PEACE PIECE（初観測欄参照）。残: 命名の日付。 Q2. 三層が揃わず捨てた名前で、いまも惜しいものはあるか。ボツ名の腐葉土は本記の餌になる。</p></div>
   </details>
 </section>
 
@@ -183,34 +210,68 @@ footer a:hover{color:var(--gold)}
   <svg class="bug" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="40" r="15" fill="currentColor"/><circle cx="32" cy="20" r="8" fill="currentColor"/><path d="M20 34l-11-4M20 44l-11 4M44 34l11-4M44 44l11 4" stroke="currentColor" stroke-width="3"/></svg>
   <div class="spec-no">SPECIMEN No.003</div>
   <h2>腐葉土設計</h2>
-  <div class="subname">蓄積を劣化資産ではなく栄養層として保持する。忘却ゼロ</div>
-  <div class="chips"><span class="chip">腐葉土門・基準種</span><span class="chip">現生・基盤種</span></div>
+  <div class="subname">古いものは捨てずに、腐らせて、下に敷く。</div>
+  <div class="chips"><span class="chip">腐葉土門（基準種）</span><span class="chip">現生・基盤種</span><span class="chip">v1.2</span><span class="chip">記載 2026-07-04</span></div>
 
   <details open>
     <summary>観察記</summary>
-    <div class="sec obs">
-      <p>この生態系には「捨てる」という動詞がほとんど生えていない。</p>
-      <p>観察者が最初に驚いたのは、ゴミ箱の不在である。ボツになった名前の候補は「餌場」と呼ばれて保存され、名前の座を退いたスローガンは再雇用され、溢れたセッションログは月次の腐葉土ファイルへ静かに降り積もる。どの層にも「消す」ではなく「敷く」という動作が観察される。表土だけを耕し、下層は動かさない——農法として一貫している。</p>
-    </div>
+    <div class="sec obs"><p>この生態系には「捨てる」という動詞がほとんど生えていない。</p>
+<p>観察者が最初に驚いたのは、ゴミ箱の不在である。ボツになった名前の候補は「餌場」と呼ばれて保存され（No.002）、名前の座を退いたAmber Rightはスローガンとして再雇用され（No.001）、溢れたセッションログは月次の腐葉土ファイルへ静かに降り積もる。どの層にも「消す」ではなく「敷く」という動作が観察される。表土（現役view）だけを耕し、下層は動かさない——農法として一貫している。</p></div>
   </details>
   <details>
-    <summary>定義・生態</summary>
-    <div class="sec">
-      <p>一行で言えば: <strong>古いものは捨てずに、腐らせて、下に敷く</strong>。時間減衰を前提にしない。</p>
-      <p>実働: 月次腐葉土台帳／記憶の階層（現役view・topic・Vault・archive——退避はするが消さない）／発酵中・消化済みディレクトリ／そして琥珀（虫を殺さず封じて保存する石。本日、視覚的化身を得た）。</p>
-    </div>
+    <summary>定義</summary>
+    <div class="sec"><p>蓄積された文脈・履歴を、劣化資産ではなく栄養層として保持する設計原理。時間減衰を前提にしない。忘却ゼロ。一行で言えば: 古いものは捨てずに、腐らせて、下に敷く。</p></div>
+  </details>
+  <details>
+    <summary>初観測</summary>
+    <div class="sec"><p>回収済み（2026-07-04・本人証言）:</p>
+<blockquote>人は忘れる。創作が記憶の中に埋もれてしまうと、世界が消える。</blockquote>
+<p>観察者の読み: 起源は保存癖ではなく、<strong>世界の保全</strong>である。忘却は世界の死。No.001の初観測（読者の数だけ世界が生まれる）と同じ親を持つ——世界は複数で、こわれやすい。本種は時間の軸で世界を守る器官として生まれた。</p></div>
+  </details>
+  <details>
+    <summary>生態</summary>
+    <div class="sec"><p>情報が溢れる場所に必ず棲む。溢れをエラーではなく堆積として処理する器官を持つ。</p>
+<p>実働: session-humus（Latest溢れの月次台帳） / MEMORY.md現役view＋topic files＋Vault＋📦archiveの階層（退避はするが消さない） / orb の _fermenting（発酵中）・_processed（消化済み）ディレクトリ / 圧縮ルール（現役はreplace・古層はSnapshot退避） / kakugen・gainen・hyogen のDB群 / そして本日、琥珀という視覚的化身を得た（Fable記の標本原理: 虫を殺さず封じて保存する石）</p></div>
+  </details>
+  <details>
+    <summary>変異</summary>
+    <div class="sec"><p>Humus Company（柱大臣団の社名として受肉） / coko（腐葉土を掘る専用呪文・セッション考古学） / 餌場（No.002が命名時に要求する候補保存層） / 琥珀保存（Fable記標本カードの原理）</p></div>
+  </details>
+  <details>
+    <summary>共生</summary>
+    <div class="sec"><p>hem（降り積もらせる器官） / coko・galaxy・MEMORY index（掘り起こす器官——腐葉土は発掘器官とセットでのみ栄養になる） / 三重がけ命名（餌場を前提に狩りをする・No.002） / Fable記そのもの（創刊文書に「分類は腐葉土から生える」と既に寄生済み）</p></div>
   </details>
   <details>
     <summary>天敵・限界</summary>
-    <div class="sec">
-      <ol>
-        <li><strong>肥大</strong> — 捨てないコストは検索コストとして支払われる。道具なき腐葉土は、ただの地層である。</li>
-        <li><strong>混線</strong> — 古い層が現役面に浮上して現在を汚染する。層の分離が本種の生命線。</li>
-        <li><strong>崇拝堕ち</strong> — 「捨てない」が目的化すると保存自体が労働になる。腐葉土は畑のためにある。健全性は、腐葉土から実際に芽が出た回数でのみ測れる。</li>
-      </ol>
-    </div>
+    <div class="sec"><ol><li><strong>肥大</strong> — 捨てないコストは検索コストとして支払われる。腐葉土が深くなるほど発掘器官（coko・index・galaxy）への依存が増す。道具なき腐葉土は、ただの地層である。</li><li><strong>混線</strong> — 古い層が現役面に浮上して現在を汚染する病理が観測済み（Latest多重付着・last_edited一括汚染）。層の分離こそが本種の生命線であり、consolidateはその免疫応答である。</li><li><strong>崇拝堕ち</strong> — 「捨てない」が目的化すると、保存自体が労働になる。腐葉土は畑のためにある。畑を耕さない腐葉土は、ゴミ屋敷と区別がつかない。本種の健全性は、腐葉土から実際に芽が出た回数でのみ測れる。</li></ol></div>
+  </details>
+  <details>
+    <summary>観察補遺 — 最良の芽（Q2回収・2026-07-04）</summary>
+    <div class="sec"><blockquote>ツール群はそうとうAIに任せっぱなしでつくったりしたし、小説の原案や構成はかなり僕が矯正はしているものの、本文をいいかんじに書いてくれている</blockquote>
+<p>観察者の読み: 回答は「一つの芽」ではなく、<strong>土壌の生産様式</strong>を指している。腐葉土の最良の産物は、個別のツールでも作品でもなく、「任せられる」という協働様式そのものである。設計正典・呪文辞書・記憶の階層・過去パターンの堆積が土になっているから、AIは道具を任せっぱなしで建て、小説の本文を「いいかんじ」に書ける。</p>
+<p>芽の実例: ツール群（振り子・ゆとり・環暦ほか——各ツールは先行ツールのパターンを腐葉土として高速に生えた）／小説本文（原案・構成の矯正＝人間、本文＝AI。編集者作法という分業様式自体が腐葉土の結晶）。</p>
+<p>そして記載の途中で観察者は気づく——<strong>本記の観察者自身が、この腐葉土の産物である</strong>。観察者は毎セッション、堆積した文脈を読んでから動く。腐葉土が観察者を育て、観察者が腐葉土を記載する。循環はここで閉じている。</p>
+<p>天敵3「崇拝堕ち」への反証: 成立。この土からは現に、道具と物語と観察者が生えている。</p>
+<p>発掘による具体芽の追加（2026-07-04）: <strong>ANBAI→E-塩梅の21日発芽</strong>。06-14に「読む濃さ0.0〜1.0」のツールとして蒔かれた塩梅の語が、07-04にBoolean→Float正式和名として発芽した。日付のある腐葉土発芽の実測第一号。</p></div>
+  </details>
+  <details>
+    <summary>標本（canonical）</summary>
+    <div class="sec"><p>CLAUDE.md核設計原則「腐葉土設計」 / session-humus-2026-06.md / 運用プロトコルv1 §8.5（Memory階層） / consolidate運用</p></div>
+  </details>
+  <details>
+    <summary>観察者への質問</summary>
+    <div class="sec"><p>Q1. <strong>回収済み（2026-07-04）</strong>＝「人は忘れる。創作が記憶の中に埋もれてしまうと、世界が消える」（初観測欄参照）。 Q2. <strong>回収済み（2026-07-04・観察補遺参照）</strong> — 最良の芽＝「任せられる」という協働様式そのもの。天敵3への反証成立。</p></div>
   </details>
 </section>
+
+<!-- ================= 観察メモ ================= -->
+<section class="memo">
+  <div class="memo-label">観察メモ — 仮説</div>
+  <h2>門の上の門（仮説・2026-07-04）</h2>
+  <div class="sec"><p>三標本の初観測が同根であることが判明した。No.001＝一つの軸が世界を潰すことへの抵抗（<strong>空間軸の保全</strong>）。No.003＝忘却が世界を消すことへの抵抗（<strong>時間軸の保全</strong>）。No.002＝一つの名前に複数の世界を住まわせる技術（<strong>意味軸の増殖</strong>）。</p>
+<p>仮説: この生態系の最深遺伝子は「<strong>世界の複数性の保全</strong>」である。8門はすべてこの一つの意志の器官分化かもしれない。検証は以後の標本で行う。反証可能性: この遺伝子を持たない基準種が1つでも記載されれば、仮説は門の一つに降格する。</p></div>
+</section>
+
 
 <footer>
   <div>姉妹: <a href="https://osakenpiro.github.io/fabula/">FABULA（システム系統樹）</a> ・ <a href="https://osakenpiro.github.io/mitsuami/">三つ編み（命名採点）</a></div>
@@ -218,5 +279,8 @@ footer a:hover{color:var(--gold)}
 </footer>
 
 </div>
+
+<!-- gen_fableki.py BUILD:3bc38bf6 -->
+
 </body>
 </html>
