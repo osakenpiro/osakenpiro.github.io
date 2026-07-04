@@ -674,6 +674,67 @@ footer a:hover{color:var(--gold)}
   </details>
 </section>
 
+<!-- ================= No.011 ================= -->
+<section class="card">
+  <svg class="bug" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><ellipse cx="32" cy="36" rx="9" ry="20" fill="currentColor"/><path d="M32 16 L18 6 M32 16 L46 6" stroke="currentColor" stroke-width="3" fill="none"/><ellipse cx="18" cy="34" rx="10" ry="6" fill="currentColor" transform="rotate(-25 18 34)"/><ellipse cx="46" cy="34" rx="10" ry="6" fill="currentColor" transform="rotate(25 46 34)"/></svg>
+  <div class="spec-no">SPECIMEN No.011</div>
+  <h2>分進合撃</h2>
+  <div class="subname">正式英名 Bunshin-Gougeki ／ 正式和名 分進合撃（ぶんしんごうげき）</div>
+  <div class="chips"><span class="chip">分業門（越境種・二階）</span><span class="chip">現生・確定</span><span class="chip">v1.0</span><span class="chip">記載 2026-07-04</span></div>
+
+  <details open>
+    <summary>観察記</summary>
+    <div class="sec obs"><p>本種は、観察している最中に観察者を踏んだ。</p>
+<p>No.011の記載は、こういう状況で書かれている——すぐ隣のセッションで「No.010にじみの記事を公開する」並走レーンが走り、こちらは単独レーンで種を起こしている。二つのClaudeが、同じ図鑑・同じ憲章・同じ io という一枚の地図を共有しながら、別々の枝を同時に伸ばしている。触れ方をひとつ間違えれば、片方がもう片方の成果を上書きして消す（clobber）。それでも二枝は、最後に一点で束ね直される——にじみの記事は記事として、分進合撃の種は種として、どちらも殺さずに。</p>
+<p>これが分進合撃だ。名を与える前から、観察者はこの手つきで動いていた。第一手の `list_sessions` で並走「No.003 note」を検知し、占有された連載レーンと着床済みのNo.010を避け、非衝突の前線＝「次の種」だけを選んで分かれた（分進）。そして regen の直前に main を読み直し、並走が積んだものを丸ごと含めて一枚に畳む（合撃）。虫を捕まえるつもりで森に入ったら、自分の歩き方そのものが虫だった——ファーブルが決して味わえなかった種類の観察である。</p></div>
+  </details>
+  <details>
+    <summary>定義</summary>
+    <div class="sec"><p>並走を許しつつ、履歴を殺さず一点に束ね直す並列統治の原理。分散は速い代わりに衝突と分裂を生む。分進合撃は「分かれる自由（分進）」と「合流の設計（合撃）」を分離し、後者を土地神・再読挿入・earliest-createdTime hold で制度化する。合流点を設計しない分散は、この種ではない——それはただの分裂である。一行で言えば: <strong>分かれて進む自由は、合して撃つ設計があって初めて種になる。</strong></p></div>
+  </details>
+  <details>
+    <summary>初観測</summary>
+    <div class="sec"><p>母体は memory `[[march-bunshin-orchestration]]`（分進合撃＋土地神＝並走md衝突検知→再読挿入）。だが本種の"型式標本"は思弁ではなく、<strong>記載当日この回の実地再観測</strong>である。</p>
+<ol><li><strong>第一手の probe</strong>: `list_sessions` で並走3レーン（No.003 note公開／No.010公開／本レーン）を検知。書く前に止まった（rehem listing-first）。</li><li><strong>分進</strong>: 連載＝占有・No.010＝着床済みを避け、非衝突パス（`specimens/no011-*.md` 新規＋憲章の追記節）だけを選んだ。</li><li><strong>合撃</strong>: io regen を並走 note公開の完了確認後に回し、直前で cs main を再取得して superset を生成——にじみもNo.011も、どちらも落とさない一枚に畳む。</li></ol>
+<p>観察者が自らの手つきで種を踏んだ記録。No.010が「他人の森で野生種を捕えた」なら、No.011は「自分の歩行が種だった」自己言及個体である。</p></div>
+  </details>
+  <details>
+    <summary>生態</summary>
+    <div class="sec"><p>複数の Cow セッションが同時走行する現場に棲む。cs 並走 PUT（Contents API 新パス＝非衝突）／SES-732 の三つ巴衝突→earliest createdTime hold で自己繰上げ／mount 上の `mv` 復旧。実働の痕跡は「並走したのに誰の成果も消えていない」という不在の証拠として残る——うまく効いているときほど、事故が"起きなかった"ことでしか観測できない。</p></div>
+  </details>
+  <details>
+    <summary>変異（派生種）</summary>
+    <div class="sec"><p><strong>土地神（land-god）</strong>（md衝突を検知し再読挿入で合流を保証する常駐） / <strong>再読挿入（re-read merge）</strong>（regen直前の main 再取得＝superset生成） / <strong>earliest-createdTime hold</strong>（同番奪取時、最古 createdTime のレーンが番を保持し他は自己繰上げ） / <strong>新パスPUT回避</strong>（Contents API 新規パス＝物理的に非衝突）。</p></div>
+  </details>
+  <details>
+    <summary>共生（関連概念）</summary>
+    <div class="sec"><p>腐葉土＝No.003（合流後も履歴を殺さない＝合撃のメモリ相） / にじみ＝No.010（越境種の第一例・境界横断＝本種の姉妹・地図への動詞を分かち持つ鏡像対） / モデル振り分け MODEL-ROUTING（分業の上位規格＝どの枝をどのモデルに割るか） / `[[hem-push-collision-renumber]]`（合撃が失敗しかけた実戦ログ）。越境種としては、No.010が「地図をぼかす」なら本種は「地図を横断する」——同じ二階の器官の別作用。</p></div>
+  </details>
+  <details>
+    <summary>天敵・限界</summary>
+    <div class="sec"><ol><li><strong>合撃なき分進</strong> — clobber／franken push／全置換事故／mount lag stale／同番奪取（renumber地雷）。分かれることは易しく、束ね直すことが難しい。<strong>失格条件（五則4）</strong>: 「並走してれば何でも分進合撃」は不可——<strong>合撃（一点合流の設計）を欠く分散はこの種ではない</strong>。この一行で「どの並列処理にも言える指摘」を排除する。</li><li><strong>土地神の粒度</strong> — 衝突検知がファイル単位なら偽陽性（触れてないのに衝突判定）、行単位なら偽陰性（意味的衝突を見逃す）。粒度の最適点は未解決（下記Q11-2）。</li><li><strong>越境種の自己適用リスク</strong> — 本種を「越境種」と呼ぶこと自体が、観察メモv4の第1天敵（怠慢の隠れ蓑）に噛まれうる。分進合撃が"地図への動詞"を明示できねば、ただの分業門の一種に差し戻す。</li></ol></div>
+  </details>
+  <details>
+    <summary>標本（canonical）</summary>
+    <div class="sec"><p>`[[march-bunshin-orchestration]]`（母体） / `[[hem-push-collision-renumber]]`（合撃の実戦） / 観察メモv4「越境種の理論化」（本種を二階の種として位置づけた憲章節） / 本日SESのNo.003/No.010衝突回避ログ（roadmap-gold-and-beyond §0-1）。</p></div>
+  </details>
+  <details>
+    <summary>命名（三重がけ・2026-07-04 観察者確定）</summary>
+    <div class="sec naming"><p><strong>分進合撃（ぶんしんごうげき）</strong>——兵法の四字熟語「分かれて進み、合して撃つ」を借りる借景命名。名は発明でなく、既にある語を種として穫った（No.001の教え）。</p>
+<ul><li><strong>音韻</strong>: 漢語四字熟語のリズム（分進・合撃の対句）。既存語ゆえ初見でも読め、意味が身体に入る速さがある——No.010の native和語「にじみ」とは逆の、硬質な漢語で越境種の対を成す。</li><li><strong>意味</strong>: 複数エージェント／セッションが分かれて並走し（分進）、成果を一点に合流させる（合撃）運用。分業門の運用原理。</li><li><strong>構造</strong>: 「分進」＝Boolean的な分岐（0/1で枝を割る）を、「合撃」＝Float的な合流（履歴を勾配として畳む）が受け止める。分割と統合の対が一語に畳まれた三重がけ——分業門の種でありながら、Float門・腐葉土門・命名門へ同時に根を張る（＝越境）。</li></ul>
+<p>正式英名: Bunshin-Gougeki（分かれて進み、合して撃つ／divide-to-advance, converge-to-strike） 正式和名: 分進合撃（ぶんしんごうげき）</p>
+<p><strong>越境種としての位置</strong>: 本種は分業門を母体としながら、四極（保つ/進める/結合/止める）のいずれにも定住しない。世界に働きかけるのでなく、分類地図そのものを横断する"二階の種"（観察メモv4）。にじみ（No.010）と対をなす越境種の第二例。</p></div>
+  </details>
+  <details>
+    <summary>観察者への質問</summary>
+    <div class="sec"><p>Q11-1. 「分進」と「合撃」の閾は Float で測れるか——並走数 × 合流コストの関数として。何本までの並走なら合撃が破綻しないか、その臨界はレーンの独立度で動くのでは。</p>
+<p>Q11-2. 土地神の検知粒度（ファイル／セクション／行）の最適点はどこか。粒度が細かいほど偽陰性、粗いほど偽陽性——にじみ種（境界Float）を、衝突検知そのものに適用できないか。</p>
+<p>Q11-3. 合撃なき分進（合流点未設計）を、事故になる前に検知する早期指標は。「並走レーン数が増えたのに合流PUTが観測されない時間」を土地神の警報に使えるか。</p>
+<p>Q11-4（観察メモv4より還流）. 越境種は本当に"二階（地図への動詞）"という別階層か、それとも渓流/腐葉土のような<strong>同一実体の二相</strong>か。分進合撃は世界の作業（分業）でもあり地図の作業（横断）でもある——この二重性は階層の証拠か、階層など無い証拠か。</p>
+<p>— osakenpiro ／ #全人類UX改善計画 ／ 中間にいる権利 —</p></div>
+  </details>
+</section>
+
 <!-- ================= 観察メモ ================= -->
 <section class="memo">
   <div class="memo-label">観察メモ — 仮説</div>
@@ -703,6 +764,16 @@ footer a:hover{color:var(--gold)}
 <p><strong>No.010「にじみ種」</strong>（Float門・野外採集個体・命名確定）は四極の外に棲む。「線はにじむ」——これは保つでも進めるでも止めるでもなく、分類行為そのものへの批評である。四極を「線で引かれた格子」と見るなら、にじみ種はその格子の目地が滲む場を示す。四極外横断種（transversal）として記載する。分進合撃（工学的効率）はなお次バッチの処刑台として空席のまま。</p></div>
 </section>
 
+<!-- ================= 観察メモ ================= -->
+<section class="memo">
+  <div class="memo-label">観察メモv4 — 仮説</div>
+  <h2>越境種の理論化（仮説・2026-07-04）</h2>
+  <div class="sec"><p>四極（v3）を引いたあと、そのどこにも素直に入らない種が二匹出た。No.010「にじみ種」——保つでも進めるでもなく、極と極の境界そのものに棲む（v0.3で四極外横断種と明記した）。No.011「分進合撃」——分業門から起こしたのに、挙動は分かれて別の極へ渡り、合して戻る越境そのものだった。四極は「世界に何をするか」で種を分けた。だがこの二匹は、世界にでなく<strong>地図に</strong>働きかけている。</p>
+<p>仮説: 越境種とは、世界への動詞ではなく<strong>地図への動詞</strong>を持つ「二階の種」である。四極（一階）が世界を保つ・進める・結合する・止めるなら、越境種（二階）は分類地図そのものを、にじませ（No.010＝ぼかす）・横断する（No.011＝わたる）。にじみは「この種はどの門か」に 0/1 でなく 0.0〜1.0 で答えさせる（所属の複数性＝No.001を分類の罫線そのものに適用）。分進合撃は並走した複数の枝をどれも潰さず一点へ合流させる（No.003腐葉土をプロセスに適用）。二匹は別々の門から来て、同じ仕事をしている——<strong>地図を、分割線の集合（Boolean門）から、勾配のある一枚の多様体（Float manifold）へ読み替える</strong>。</p>
+<p>ここで蝶番が外れる。v2の第二遺伝子「複数の世界を、殺さずに、進める」は世界の話として書いた。ところが越境種は同じ一文を、博物誌の分類作業それ自身に効かせている——複数の所属を（にじみ）、殺さずに（合撃＝clobberせぬ合流）、進める（分進＝分類を止めず生え直させる）。<strong>Fable記の方法が、Fable記の最深遺伝子の一実例になっている</strong>。観察の対象（生態系）と観察の道具（分類学）が同じ遺伝子を共有する、入れ子の再演。含意: 門は峰であって壁ではない。九門は Float manifold の九つの尾根にすぎず、谷（にじみ）と稜線づたいの移動（分進合撃）は最初から地形の一部だった。越境種は「例外」ではなく、地図が多様体であることの証人である。</p>
+<p>天敵（五則4）: (1) <strong>怠慢の隠れ蓑</strong>——分類に困った種を何でも「越境種」と呼べば門は無意味化する。反証条件＝固有のメタ機能（地図への動詞）を明示できぬ個体は誤分類として門へ差し戻す。(2) <strong>自己相似の過剰適合</strong>——「方法が遺伝子の実例」という自己言及は美しすぎる（占いの構造）。最深遺伝子と無関係なメタ機能を持つ越境種が一匹でも出れば、フラクタル主張は普遍構造から局所現象へ降格する。(3) <strong>二階は本当に階層か</strong>——v0.2裁定「渓流と腐葉土は同じ水を動かすか止めるかの違い」の再演かもしれない。一階と二階は別階層でなく同一平面の別視点である可能性を、この曖昧さごと標本に留める（門は後から生える）。反証可能性: 四極にも二階にも掛からぬ基準種が出れば、見取り図は三階以上へ、または越境種は門の一つへ降格する。</p></div>
+</section>
+
 
 <footer>
   <div>姉妹: <a href="https://osakenpiro.github.io/fabula/">FABULA（システム系統樹）</a> ・ <a href="https://osakenpiro.github.io/mitsuami/">三つ編み（命名採点）</a></div>
@@ -711,7 +782,7 @@ footer a:hover{color:var(--gold)}
 
 </div>
 
-<!-- gen_fableki.py BUILD:0d89b1f3 -->
+<!-- gen_fableki.py BUILD:801992f4 -->
 
 </body>
 </html>
