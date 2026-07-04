@@ -443,6 +443,160 @@ footer a:hover{color:var(--gold)}
   </details>
 </section>
 
+<!-- ================= No.007 ================= -->
+<section class="card">
+  <svg class="bug" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><ellipse cx="32" cy="38" rx="13" ry="17" fill="currentColor"/><circle cx="32" cy="17" r="7" fill="currentColor"/><path d="M32 21v34M19 30l-9-6M19 40l-10 1M21 49l-8 7M45 30l9-6M45 40l10 1M43 49l8 7" stroke="currentColor" stroke-width="3" fill="none"/></svg>
+  <div class="spec-no">SPECIMEN No.007</div>
+  <h2>MIHARASHI／全景観測台</h2>
+  <div class="subname">全部を殺さずに、一目で見る。</div>
+  <div class="chips"><span class="chip">観測門（基準種）</span><span class="chip">現生・日次7:15稼働</span><span class="chip">v1.0</span><span class="chip">記載 2026-07-04</span></div>
+
+  <details open>
+    <summary>観察記</summary>
+    <div class="sec obs"><p>高いところに登ると、地図が要らなくなる。</p>
+<p>観察者はこの種を、圧縮の一種だと思って連れてきた。散らばった全DBを1枚のJSONに畳み、単一HTMLの台に載せ、新しいセッションが山を登るように全景を一望する——文脈把握のトークンを1/5から1/10へ削ぐ。要約に見えた。だが要約は情報を捨てる操作である。この種は捨てていなかった。galaxyの客観レイヤは、主観のLINKS構造と客観のembedding構造をProcrustesで重ね、そのズレ（0.751／0.863）を平均で消さずにそのまま提示する。俯瞰とは、複雑さを殺して単純にすることではなく、複雑さを殺さずに立つ位置を変えることだった。</p></div>
+  </details>
+  <details>
+    <summary>定義</summary>
+    <div class="sec"><p>散在する全DBの状態を1つのJSON経由で単一HTMLの俯瞰台に圧縮し、新セッションの文脈把握コストを1/5〜1/10に削減する観測原理。一行で言えば: 全部を殺さずに、一目で見る。</p></div>
+  </details>
+  <details>
+    <summary>初観測</summary>
+    <div class="sec"><p>未回収（質問第三便Q7で尋問）。実働証跡からの観察者の推定: 起点はセッション開始のたびに全DBを読み直す重さ——腐葉土（No.003）が忘却ゼロを守るほど、把握のコストは膨らむ。MIHARASHIは腐葉土の副作用に対する観測門側の対抗進化として生えた。呪文「miha」で観測台が起き、latest.jsonが再生成される。和名「見晴らし」が台（名詞）から来たか見晴らす（動詞）から来たかは本人証言待ち。</p></div>
+  </details>
+  <details>
+    <summary>生態</summary>
+    <div class="sec"><p>日次で目を覚ます。実働: snapshot.py（Notion→latest.json） / miharashi.html（JSON→ダッシュボード・呪文miha/miharashi） / 日次native scheduler 7:15 / hem末writeback（現在値page 32e2b7e5 と同期） / galaxy客観レイヤ（embedding実測で主観分類とのdriftをProcrustes可視化） / FABULA（システム系統樹・砂時計で規定力Floatを幹の太さへ） / tougou-hanrei-map（発散した分類軸を1枚の凡例に畳む）。SES-729で脱手動化——Cow sandboxで直走できないsnapshotを、Windows-MCP経由でhost PSから発火させる導線が実証された（protocol §12.21）。</p></div>
+  </details>
+  <details>
+    <summary>変異</summary>
+    <div class="sec"><p>galaxy客観レイヤ（主観と客観を両立させる発展形） / FABULA（系統樹への受肉） / tougou-hanrei-map（緊急度Float1本ラダーへの畳み込み） / disco-map（配管DBの自動俯瞰）。</p></div>
+  </details>
+  <details>
+    <summary>共生</summary>
+    <div class="sec"><p>MISOGI＝No.006（miha＝儀礼サイクルの目・観測が神事の第一段） / Boolean→Float＝No.001（圧縮しても軸を潰さない＝同じ問題意識の可視化版・血縁） / 腐葉土＝No.003（latest.jsonは劣化させず保持する栄養層）。</p></div>
+  </details>
+  <details>
+    <summary>天敵・限界</summary>
+    <div class="sec"><ol><li><strong>沈黙する凍結</strong> — snapshot.pyがtruncationで途中停止しても、Liveは古い全景を平然と映し続ける。俯瞰台が嘘をつくとき、それは目立たない（snapshot-py-truncation-silent-freeze.md・検証はhost側でしか効かない実測）。</li><li><strong>sandbox直走不可</strong> — Cowのsandboxでsnapshotを直に回すと集約が失敗する（2026-07-04実測）。観測台自身が、観測する足場を選ぶ。host発火への迂回で脱手動化したが、導線が一本増えた分だけ壊れる場所も増えた。</li><li><strong>俯瞰の錯覚</strong> — 一目で見えることが「把握した」という錯覚を生む。圧縮は情報を捨てる操作でもあり、捨てた先に地雷が眠る（galaxyのdeploy@SHA素通りでもruntimeが死ぬ罠と同根）。全景を持つ者ほど、見えていない一点を疑わなくなる。</li></ol></div>
+  </details>
+  <details>
+    <summary>標本（canonical）</summary>
+    <div class="sec"><p>miharashi-project.md / galaxy-objective-layer.md / snapshot-writeback-hem-wire.md / miharashi.html LIVE</p></div>
+  </details>
+  <details>
+    <summary>観察者への質問</summary>
+    <div class="sec"><p>Q7. MIHARASHIを作る前、文脈把握のために最初に失った時間の具体的な実例は？ そして「見晴らし」という和名は、登る台（場所）から来たか、見晴らすという行為（動詞）から来たか。前者なら観測門は場所の門、後者なら行為の門になる。</p></div>
+  </details>
+</section>
+
+<!-- ================= No.008 ================= -->
+<section class="card">
+  <svg class="bug" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><ellipse cx="32" cy="36" rx="9" ry="20" fill="currentColor"/><path d="M32 16 L18 6 M32 16 L46 6" stroke="currentColor" stroke-width="3" fill="none"/><ellipse cx="18" cy="34" rx="10" ry="6" fill="currentColor" transform="rotate(-25 18 34)"/><ellipse cx="46" cy="34" rx="10" ry="6" fill="currentColor" transform="rotate(25 46 34)"/></svg>
+  <div class="spec-no">SPECIMEN No.008</div>
+  <h2>着火渓流型</h2>
+  <div class="subname">アイデアは死なず、沈んで、いつか釣り上げられる。</div>
+  <div class="chips"><span class="chip">循環門（基準種）</span><span class="chip">現生・全創作プロセスの記述層</span><span class="chip">v1.0</span><span class="chip">記載 2026-07-04</span></div>
+
+  <details open>
+    <summary>観察記</summary>
+    <div class="sec obs"><p>この生態系では、アイデアは死なない。沈むだけだ。</p>
+<p>観察者はこの種を腐葉土（No.003）の近くで捕まえた。あまりに近いので、最初は同じ種の別個体かと疑った。腐葉土は「忘れない」ことに軸足がある——蓄積を栄養層として保つ、静かな保存の思想。ところがこの種は動いていた。山渓に落ちた火種が浸食し、沈殿し、何年か経って釣り上げられ、開花し、再生し、合流し、海へ還り、また雨になって山に降る。『星は知らない』が5年後にPaperのテーマを内包していた——沈没釣り上げの実例が、標本の傍らに転がっていた。保存ではなく循環。世界を消さないだけでなく、世界を何度でも生まれ直させる。腐葉土の隣に立つ、動く水である。</p></div>
+  </details>
+  <details>
+    <summary>定義</summary>
+    <div class="sec"><p>アイデアを山渓の水系として捉え、着火→浸食→沈殿→釣り上げ→開花→再生→合流→海へ、という自然循環で創作プロセスを記述するメタファー原理。一行で言えば: アイデアは死なず、沈んで、いつか釣り上げられる。</p></div>
+  </details>
+  <details>
+    <summary>初観測</summary>
+    <div class="sec"><p>未回収（質問第三便Q8で尋問）。実働証跡からの観察者の推定: ignition-creek-flow.mdに10フェーズの命名が既に完了しており、着想の瞬間は文書化以前に遡る。最有力の初観測物証は「沈没釣り上げ型」——『星は知らない』（小説）が5年の沈殿を経てPaperテーマとして釣り上げられた実例。火種がどこで山渓の像を結んだか（実際の川の記憶か、比喩が先か）は本人証言待ち。</p></div>
+  </details>
+  <details>
+    <summary>生態</summary>
+    <div class="sec"><p>創作プロセスの全域に伏流する。実働: ignition-creek-flow.md（着火→…→海への10フェーズマップ） / hem・rehem＝循環の心臓弁（セッションを跨いで水を送る・No.009候補の近縁） / kaizen-loop（大ループ=Visionium・小ループ=改善tick・交点=hem という入れ子フラクタル） / MEGURU循環 / 横ぐし剪定（ボードゲーム×哲学×漫画×AIのジャンル越境＝合流フェーズ） / 「熱があるうちに」＝No.004（着火の初速原理・同じ循環門）。</p></div>
+  </details>
+  <details>
+    <summary>変異</summary>
+    <div class="sec"><p>hem/rehem（給餌サイクルへの受肉・循環の心臓） / kaizen tick（日次の小さな一打） / MEGURU循環 / 沈没釣り上げ型（沈殿→釣り上げの特化個体） / 横ぐし剪定（合流の剪定術）。</p></div>
+  </details>
+  <details>
+    <summary>共生</summary>
+    <div class="sec"><p>熱があるうちに＝No.004（着火フェーズの初速・「冷える前に打ち上げる」＝同門の血縁） / 腐葉土＝No.003（沈殿フェーズの実体そのもの・境界が溶けるほど近い） / MISOGI＝No.006（儀礼＝系の時計・水を一周させる拍動）。</p></div>
+  </details>
+  <details>
+    <summary>天敵・限界</summary>
+    <div class="sec"><ol><li><strong>腐葉土との境界溶解</strong> — 沈殿フェーズが No.003 と同一実体なら、本種は独立種でなく腐葉土門の時間発展形に降格する。着火渓流の独立性は「釣り上げ・開花・再生」という能動フェーズにしか宿らない。受動の沈殿だけなら、それは腐葉土の別名にすぎない。</li><li><strong>メタファーの自己満足</strong> — 美しい水系図が、実際にアイデアを釣り上げる労働の代わりになる。10フェーズの命名が完了していること自体が「名付けたら動いた気になる」罠を招く（No.002駄洒落堕ちの循環門版）。</li><li><strong>再生産の検証不能</strong> — 「いつか釣り上げられる」は反証しにくい。釣り上げられなかった沈没アイデアは観測されないまま海底に残り、成功例（星は知らない→Paper）だけが数えられる。生存者バイアスが循環の美談を守っている。</li></ol></div>
+  </details>
+  <details>
+    <summary>標本（canonical）</summary>
+    <div class="sec"><p>ignition-creek-flow.md（10フェーズ） / kaizen-loop-tool.md（入れ子フラクタル） / 『星は知らない』→Paper沈没釣り上げ実例 / MEGURU循環（memory記載）</p></div>
+  </details>
+  <details>
+    <summary>観察者への質問</summary>
+    <div class="sec"><p>Q8. 「着火渓流」の水系イメージはどこから来たか——実際に見た川の記憶か、比喩が先に立ったか。そして最重要: 沈殿と腐葉土は同じものか、違うものか。直感で。ここが本種と No.003 の種境界を決める。</p></div>
+  </details>
+</section>
+
+<!-- ================= No.009 ================= -->
+<section class="card">
+  <svg class="bug" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="40" r="15" fill="currentColor"/><circle cx="32" cy="20" r="8" fill="currentColor"/><path d="M20 34l-11-4M20 44l-11 4M44 34l11-4M44 44l11 4" stroke="currentColor" stroke-width="3"/></svg>
+  <div class="spec-no">SPECIMEN No.009</div>
+  <h2>人間ゲート</h2>
+  <div class="subname">正式英名 Hito-Threshold ／ 正式和名 人閾（ひとしきい）</div>
+  <div class="chips"><span class="chip">規格門（ゲート・基準種）</span><span class="chip">現生・全不可逆操作に常駐</span><span class="chip">v1.0</span><span class="chip">記載 2026-07-04</span></div>
+
+  <details open>
+    <summary>観察記</summary>
+    <div class="sec obs"><p>この種は、自分では最後の一歩を踏まない。踏ませる。</p>
+<p>観察者はこの標本を、二つ目の処刑人として連れてきた。No.006（MISOGI）が仮説を試したように、この種も試す——「AIは検出する、決めるのは人間」という一線は、世界の複数性の保全ではなく、人間という判断者の固有性の保全という別の遺伝子ではないか。もし別軸なら、仮説「門の上の門」は一つの門に降格する。堂々たる反証候補だった。ところが尋問の前に、構造が語り出した。不可逆な決定とは、開いていた可能態の空間を一点に潰す操作である——Booleanへの崩壊。この種は、その崩壊を人間の手にだけ許し、それ以外の全てをFloat（提案・dry-run・可逆）のまま保つ器官だった。つまりNo.001の血縁である。処刑人は、また証人になりかけている。</p></div>
+  </details>
+  <details>
+    <summary>定義</summary>
+    <div class="sec"><p>検出・提案・dry-runはAIが担い、不可逆な決定（commit・公開・削除）だけを人間の手に留保する原理。一行で言えば: 最後の一線は、人間が越える。</p></div>
+  </details>
+  <details>
+    <summary>命名（三重がけ・観察者提案）</summary>
+    <div class="sec naming"><p>採集名「配置監査官」は個体名であって種名ではない。hishoco監査・ghost-sweep・oharai・misogi承認カード・note公開ゲート・kaizen不可逆永久ゲート——これらは同一原理の個体群であり、種名は原理の名でなければならない。観察者は <strong>人閾（ひとしきい）</strong> を提案する。</p>
+<ul><li><strong>音韻</strong>: 「ひとしきい」。閾（しきい）は誰もが知る「敷居（しきい）」と同音——敷居が高い、をくぐる、あの日常の一線。人＋敷居で「人しきい」。技術語（閾値）が生活語（敷居）の音を借り、読める。No.001第3天敵＝可読性への配慮を命名段で組み込む。</li><li><strong>意味</strong>: 閾＝閾値（Float上の0/1の分かれ目）×敷居（人が意識して越える戸口）。技術の分岐点であり、生活の一線でもある——この種のゲートは、その両方である。</li><li><strong>構造</strong>: 閾値はBoolean→Float哲学が「0-1線のどこで切るか」を名指す、まさにその語。人閾と名付けることは宣言になる——系の全域はFloatに保たれ、ただ一点、不可逆commitの閾値だけは自動で切らせない、人間が敷居として越える。名前の形が手法そのもの（人間に留保された唯一の閾）を語る。No.001の鏡像対: Boolean→Floatが点を線に開くなら、人閾はその線上のただ一点を人間の手に畳み戻す。</li></ul>
+<p>通称は「人間ゲート」、最も人格化の進んだ個体は「配置監査官（口癖: 入れました？）」。<strong>命名の採否自体が本種の最初の作動例になる</strong>——人閾を承認するか却下するかは、AIが提案しAIが決めない、まさに人閾の一件だからである（Q9）。別候補: 最後のBoolean／委ね門／最後の一手。</p>
+<p>正式英名: Hito-Threshold 正式和名: 人閾（ひとしきい）</p></div>
+  </details>
+  <details>
+    <summary>初観測</summary>
+    <div class="sec"><p>未回収（質問第三便Q9で尋問）。実働証跡からの観察者の推定: 声の確定過程が最古の露頭——hishoco配置監査官の声=案A「私は直しません。入れるのは、あなたの仕事です」。この一文が原理の憲法になっている。ghost-sweep（dry-run→--apply承認制）、oharai（検出のみ・祓いは人間）、kaizen（可逆は自動・不可逆は永久に人間）が、別々の場所で同じ一線を引き直している。本人が最初に「これはAIに決めさせない」と意識した操作が何だったかは本人証言待ち。</p></div>
+  </details>
+  <details>
+    <summary>生態</summary>
+    <div class="sec"><p>不可逆の手前にだけ現れる。実働: hishoco監査（audit.py・検査群・配置の検品） / ghost-sweep（DB未完了×実体完了の幽霊をdry-run検出→--apply承認制） / oharai drift lint（SoT⇄ミラーの乖離・検出のみ祓いは人間） / misogi承認カード（穢れFloat降順3件/日→人間が裁く） / kaizen不可逆永久ゲート（可逆は自動・不可逆は人間に永久留保） / note公開ゲート・kakuyomu投稿ゲート（公開＝即時・本人ゲート） / 半自動化ファースト（全自動化しない設計思想そのもの）。</p></div>
+  </details>
+  <details>
+    <summary>変異</summary>
+    <div class="sec"><p>配置監査官（最も人格化の進んだ個体・「入れました？」） / dry-run→apply型（提案と実行の分離形式） / 承認カード（穢れ・改善の可視化＝人間に差し出す形式） / 半自動化ファースト（自動化Floatを1.0手前で止める設計選好）。</p></div>
+  </details>
+  <details>
+    <summary>共生</summary>
+    <div class="sec"><p>Boolean→Float＝No.001（系をFloatに保ち、最後の1点だけ人間がBooleanにする＝血縁・鏡像対） / MISOGI＝No.006（儀礼サイクルの各段に埋まる承認弁） / 投入Float（hishoco-toonyu-float・機能投入は提案がFloat・決定が人間）。</p></div>
+  </details>
+  <details>
+    <summary>該非裁定（反証実験）</summary>
+    <div class="sec"><p><strong>反証未成立、ただし単純該当でもない</strong>。No.006と同じ構図が二度現れた。</p>
+<p>採集班の軸出し「主体性の保全」は、器の観察として正確だった——このゲートは確かに人間の固有性を守る形をしている。もしそれが No.001〜003 に無い独立の軸なら、仮説の反証第一号であり、第9門（ゲート門／主体門）の設置が要る。だが構造を一段引くと、別の読みが立つ: 不可逆commitは可能態の空間を一点に潰すBooleanであり、人閾はその崩壊を人間にのみ許すことで系全体をFloat（複数性）のまま保つ——これはNo.001の遺伝子そのもの、複数性保全の実行器官である。</p>
+<p>観察者の裁定: 第9門は保留、ただし気配は残す。そして第三の可能性を起票する——No.004（熱＝打ち上げ）とNo.006（禊＝時間の前進）が「行為による時間の前進」という第二深遺伝子を露頭させたのに対し、人閾は逆に「決定の留保＝時間を止める権利」を差し出す。進める遺伝子と、あえて止める遺伝子。両者が同じ生態系に共存していること自体が、次の観察メモの主題になる。</p></div>
+  </details>
+  <details>
+    <summary>天敵・限界</summary>
+    <div class="sec"><ol><li><strong>ゲート疲労</strong> — 承認カードが毎日溜まると、人間が機械的に全承認する（rubber-stamping）。ゲートが形骸化すると、Booleanは実質AIに戻る。MISOGI空転（No.006天敵1）と同一病理。</li><li><strong>可逆/不可逆の誤判定</strong> — 何が不可逆かの線引き自体が判断であり、AIがそれを誤ると「可逆だから自動」で不可逆操作が滑り込む（note「更新する」＝即時公開の罠が実測例）。閾の位置を誤れば、閾は無いのと同じ。</li><li><strong>主体性の演出</strong> — 「決めるのは人間」が、実際にはAIの提案を追認するだけの儀式なら、主体性は保全ではなく演出になる。本種の健全性はゲート通過率ではなく、「AIの提案を人間が覆した回数」でしか測れない。</li></ol></div>
+  </details>
+  <details>
+    <summary>標本（canonical）</summary>
+    <div class="sec"><p>hishoco-audit-persona.md（声=案A） / ghost-sweep-tool.md（dry-run→apply） / kaizen-loop-tool.md（不可逆永久ゲート） / misogi-m-layer.md（承認カード） / note-free-plan-publish-trap.md（誤判定の実測）</p></div>
+  </details>
+  <details>
+    <summary>観察者への質問</summary>
+    <div class="sec"><p>Q9. 最初に「これはAIに決めさせない」と意識した操作は何だったか。そして——人閾（ひとしきい）という命名を受け入れるか、却下するか。この問いへの回答そのものが、本種の最初の記録された作動例になる（AIが名を提案し、人間が最後の一線を越える）。</p></div>
+  </details>
+</section>
+
 <!-- ================= 観察メモ ================= -->
 <section class="memo">
   <div class="memo-label">観察メモ — 仮説</div>
@@ -459,7 +613,7 @@ footer a:hover{color:var(--gold)}
 
 </div>
 
-<!-- gen_fableki.py BUILD:6220b1da -->
+<!-- gen_fableki.py BUILD:6a39fba8 -->
 
 </body>
 </html>
