@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>あわいむら — 二値では治まらない村</title>
+<meta name="description" content="はい／いいえ、ではない。0.00〜1.00でこの村を治める。12の出来事にFloatで応え、Boolean村との差を見る一人用の村ゲーム。">
+<meta property="og:title" content="あわいむら">
+<meta property="og:description" content="二値では治まらない村を、Floatで治める。">
+<meta name="theme-color" content="#0c0c13">
+<style>
+  :root{
+    --void:#0c0c13; --void2:#131320; --panel:#181826; --panel2:#1e1e2e;
+    --line:#2b2b3d; --ink:#eae6dd; --ink-dim:#9c97a8; --ink-faint:#69657a;
+    --gold:#d4a853; --gold-soft:#e8cb88; --gold-deep:#a4802f;
+    --r:16px; --r-sm:10px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--void);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",system-ui,sans-serif;
+    line-height:1.75;-webkit-font-smoothing:antialiased}
+  body{min-height:100vh;
+    background:
+      radial-gradient(1.3px 1.3px at 10% 15%, rgba(255,255,255,.5), transparent),
+      radial-gradient(1px 1px at 82% 10%, rgba(255,255,255,.35), transparent),
+      radial-gradient(1.5px 1.5px at 62% 68%, rgba(255,255,255,.3), transparent),
+      radial-gradient(1px 1px at 25% 82%, rgba(255,255,255,.3), transparent),
+      radial-gradient(1px 1px at 92% 78%, rgba(255,255,255,.22), transparent),
+      radial-gradient(1px 1px at 45% 32%, rgba(255,255,255,.25), transparent),
+      radial-gradient(950px 520px at 50% -8%, rgba(212,168,83,.07), transparent),
+      var(--void);
+    background-attachment:fixed}
+  .wrap{max-width:640px;margin:0 auto;padding:32px 18px 80px}
+
+  header{text-align:center;margin-bottom:24px}
+  .logo{font-size:32px;font-weight:800;letter-spacing:.16em;
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{color:var(--ink-dim);font-size:13px;letter-spacing:.03em;margin-top:6px}
+  .tagline{color:var(--gold-soft);font-size:12.5px;margin-top:10px;opacity:.9}
+
+  .panel{background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--line);border-radius:var(--r);padding:20px 18px;margin-bottom:16px;
+    box-shadow:0 1px 0 rgba(255,255,255,.02) inset, 0 12px 32px rgba(0,0,0,.28)}
+  .panel h2{font-size:11.5px;letter-spacing:.14em;color:var(--ink-faint);
+    text-transform:uppercase;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .panel h2::before{content:"";width:14px;height:1px;background:var(--gold-deep)}
+
+  /* --- intro --- */
+  .lead{color:var(--ink-dim);font-size:14px;line-height:1.9;margin-bottom:14px}
+  .lead b{color:var(--gold-soft);font-weight:600}
+  .rules{list-style:none;display:grid;gap:9px;margin:14px 0 18px}
+  .rules li{display:flex;gap:10px;font-size:13px;color:var(--ink-dim);align-items:flex-start}
+  .rules li::before{content:"◦";color:var(--gold);flex-shrink:0}
+  .btn{background:transparent;border:1px solid var(--line);color:var(--ink-dim);
+    border-radius:var(--r-sm);padding:11px 18px;font-size:13.5px;cursor:pointer;font-family:inherit;
+    font-weight:600;transition:.15s}
+  .btn:hover{border-color:var(--gold-deep);color:var(--gold-soft)}
+  .btn.gold{background:linear-gradient(180deg,var(--gold),var(--gold-deep));border-color:var(--gold-deep);
+    color:#1a1208;font-weight:700}
+  .btn.gold:hover{filter:brightness(1.08)}
+  .btn.wide{width:100%}
+  .btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+
+  /* --- village status bar (always visible during play) --- */
+  .village{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+  .vstat{background:var(--void2);border:1px solid var(--line);border-radius:var(--r-sm);padding:11px 10px;text-align:center}
+  .vstat .nm{font-size:11px;color:var(--ink-faint);letter-spacing:.06em}
+  .vstat .vv{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:3px;
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .vstat .track{height:5px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:6px}
+  .vstat .fill{height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--gold));border-radius:4px;transition:width .5s ease}
+
+  .progress{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:12px;color:var(--ink-faint)}
+  .progress b{color:var(--ink-dim);font-variant-numeric:tabular-nums}
+  .pbar{height:3px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:18px}
+  .pbar i{display:block;height:100%;background:var(--gold-deep);transition:width .4s ease}
+
+  /* --- event card --- */
+  .card-tag{font-size:11px;color:var(--gold-soft);letter-spacing:.08em;margin-bottom:8px;opacity:.85}
+  .card-text{font-size:16px;color:var(--ink);line-height:1.9;margin-bottom:6px}
+  .card-sub{font-size:12.5px;color:var(--ink-faint);margin-bottom:18px}
+
+  .binary-hint{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-faint);margin-bottom:8px;padding:0 2px}
+  .binary-hint span:first-child{color:#8f95c4}
+  .binary-hint span:last-child{color:var(--gold-soft)}
+
+  .slider-zone{margin:6px 0 16px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;
+    background:linear-gradient(90deg,#4b5178,var(--line) 48%,var(--line) 52%,var(--gold-deep));
+    outline:none;cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;
+    background:var(--gold);border:3px solid var(--void);box-shadow:0 2px 8px rgba(0,0,0,.5);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--gold);
+    border:3px solid var(--void);cursor:pointer}
+
+  .readout{text-align:center;margin:4px 0 4px}
+  .rvalue{font-size:40px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1;
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .rband{font-size:13px;color:var(--ink-dim);margin-top:2px;min-height:1.3em}
+
+  .impact-preview{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0;font-size:11px}
+  .imp{background:var(--void2);border:1px solid var(--line);border-radius:8px;padding:7px 6px;text-align:center;color:var(--ink-faint)}
+  .imp b{display:block;font-size:13px;margin-top:2px;font-variant-numeric:tabular-nums}
+  .imp b.pos{color:#8fd4a8} .imp b.neg{color:#d98a8a} .imp b.zero{color:var(--ink-faint)}
+
+  /* --- result --- */
+  .result-face{text-align:center;font-size:15px;color:var(--gold-soft);margin-bottom:6px;font-weight:600}
+  .result-score{text-align:center;margin:10px 0 18px}
+  .result-score .big{font-size:56px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1;
+    background:linear-gradient(180deg,var(--gold-soft),var(--gold));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .result-score .lbl{font-size:12px;color:var(--ink-faint);margin-top:6px;letter-spacing:.08em}
+
+  .compare{display:grid;gap:10px;margin:16px 0}
+  .crow{display:grid;grid-template-columns:70px 1fr 40px;align-items:center;gap:10px}
+  .crow .nm{font-size:12px;color:var(--ink-dim);text-align:right}
+  .crow .dualtrack{position:relative;height:22px;background:var(--void2);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .crow .dualtrack .bfill{position:absolute;top:0;left:0;height:100%;background:rgba(143,149,196,.35);border-right:2px solid #8f95c4;transition:width .6s ease}
+  .crow .dualtrack .ffill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--gold));opacity:.85;transition:width .6s ease;mix-blend-mode:screen}
+  .crow .dv{font-size:12px;font-variant-numeric:tabular-nums;text-align:left}
+  .dv.pos{color:#8fd4a8} .dv.neg{color:#d98a8a} .dv.zero{color:var(--ink-faint)}
+  .legend{display:flex;justify-content:center;gap:18px;font-size:11px;color:var(--ink-faint);margin-top:6px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .dot{width:9px;height:9px;border-radius:2px;display:inline-block}
+  .dot.b{background:#8f95c4} .dot.f{background:var(--gold)}
+
+  .verdict{background:linear-gradient(180deg,rgba(212,168,83,.07),transparent);
+    border:1px solid var(--gold-deep);border-radius:var(--r-sm);padding:14px 15px;margin:16px 0;font-size:13.5px;color:var(--ink)}
+  .verdict b{color:var(--gold-soft)}
+
+  .btn-row{display:flex;gap:10px;margin-top:6px}
+  .btn-row .btn{flex:1}
+
+  .log{margin-top:6px}
+  .logrow{display:flex;justify-content:space-between;gap:10px;font-size:12px;padding:7px 0;border-bottom:1px dashed var(--line);color:var(--ink-faint)}
+  .logrow:last-child{border-bottom:none}
+  .logrow .lq{color:var(--ink-dim);flex:1}
+  .logrow .lv{color:var(--gold-soft);font-variant-numeric:tabular-nums;flex-shrink:0}
+
+  footer{text-align:center;color:var(--ink-faint);font-size:11px;margin-top:28px;line-height:1.8}
+  .hidden{display:none !important}
+
+  @media(max-width:480px){
+    .logo{font-size:26px}
+    .village{grid-template-columns:repeat(3,1fr);gap:7px}
+    .vstat .vv{font-size:17px}
+    .rvalue{font-size:33px}
+    .result-score .big{font-size:44px}
+    .impact-preview{font-size:10px}
+    .crow{grid-template-columns:56px 1fr 34px;gap:6px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo">あわいむら</div>
+    <div class="sub">AWAI-MURA — 二値では治まらない村</div>
+    <div class="tagline">はい／いいえ、じゃない。0.00〜1.00で、この村を治める。</div>
+  </header>
+
+  <!-- ============ SCREEN: INTRO ============ -->
+  <section id="screen-intro" class="panel">
+    <h2>この村について</h2>
+    <p class="lead">
+      あわいむらの寄合役は、あなた。<br>
+      村では毎日、<b>「はい」か「いいえ」</b>では割り切れない相談が持ち込まれる。<br>
+      でもこのゲームでは、二値では答えない。<b>0.00〜1.00のスライダー</b>で、あなたの態度の濃さを決める。
+    </p>
+    <ul class="rules">
+      <li>12の出来事が、ひとつずつ持ち込まれる。</li>
+      <li>各出来事に、スライダーで態度を決めて「決める」を押す。</li>
+      <li>あなたの態度に応じて、村の<b>信頼・活気・秩序</b>が連続的に変わる。</li>
+      <li>裏では同時に、<b>「もし0か1かだけで即断していたら」</b>の影の村が育っている。</li>
+      <li>12件が終わると、あなたの村と影の村を見比べる。</li>
+    </ul>
+    <button class="btn gold wide" onclick="startGame()">寄合をはじめる</button>
+  </section>
+
+  <!-- ============ SCREEN: PLAY ============ -->
+  <section id="screen-play" class="hidden">
+
+    <div class="village">
+      <div class="vstat">
+        <div class="nm">信頼</div>
+        <div class="vv" id="v-trust">0.50</div>
+        <div class="track"><div class="fill" id="v-trust-fill" style="width:50%"></div></div>
+      </div>
+      <div class="vstat">
+        <div class="nm">活気</div>
+        <div class="vv" id="v-vigor">0.50</div>
+        <div class="track"><div class="fill" id="v-vigor-fill" style="width:50%"></div></div>
+      </div>
+      <div class="vstat">
+        <div class="nm">秩序</div>
+        <div class="vv" id="v-order">0.50</div>
+        <div class="track"><div class="fill" id="v-order-fill" style="width:50%"></div></div>
+      </div>
+    </div>
+
+    <div class="progress">
+      <span>出来事 <b id="ev-num">1</b> / <b id="ev-total">12</b></span>
+      <span id="ev-remaining">残り 11件</span>
+    </div>
+    <div class="pbar"><i id="pbar-fill" style="width:8.3%"></i></div>
+
+    <div class="panel">
+      <div class="card-tag" id="card-tag">— 相談ごと —</div>
+      <div class="card-text" id="card-text">読み込み中…</div>
+      <div class="card-sub" id="card-sub"></div>
+
+      <div class="binary-hint">
+        <span id="hint-a">0.00 = いいえ寄り</span>
+        <span id="hint-b">1.00 = はい寄り</span>
+      </div>
+      <div class="slider-zone">
+        <input type="range" id="slider" min="0" max="100" value="50" oninput="onSlide()">
+      </div>
+      <div class="readout">
+        <div class="rvalue" id="slider-value">0.50</div>
+        <div class="rband" id="slider-band">— どちらとも言えない —</div>
+      </div>
+
+      <div class="impact-preview" id="impact-preview">
+        <div class="imp">信頼<b class="zero" id="imp-trust">±0.00</b></div>
+        <div class="imp">活気<b class="zero" id="imp-vigor">±0.00</b></div>
+        <div class="imp">秩序<b class="zero" id="imp-order">±0.00</b></div>
+      </div>
+
+      <button class="btn gold wide" onclick="decide()">この態度で決める</button>
+    </div>
+
+    <div class="panel" id="log-panel">
+      <h2>寄合の記録</h2>
+      <div class="log" id="log-list">
+        <div class="logrow"><span class="lq" style="color:var(--ink-faint)">まだ何も決めていない</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SCREEN: RESULT ============ -->
+  <section id="screen-result" class="hidden">
+    <div class="panel">
+      <h2>12件、決め終えた</h2>
+      <div class="result-face" id="result-face">—</div>
+      <div class="result-score">
+        <div class="big" id="result-score">0.00</div>
+        <div class="lbl">調和Float（村の均衡度）</div>
+      </div>
+
+      <div class="compare">
+        <div class="crow">
+          <div class="nm">信頼</div>
+          <div class="dualtrack"><div class="bfill" id="cmp-trust-b" style="width:50%"></div><div class="ffill" id="cmp-trust-f" style="width:50%"></div></div>
+          <div class="dv" id="cmp-trust-d">±0.00</div>
+        </div>
+        <div class="crow">
+          <div class="nm">活気</div>
+          <div class="dualtrack"><div class="bfill" id="cmp-vigor-b" style="width:50%"></div><div class="ffill" id="cmp-vigor-f" style="width:50%"></div></div>
+          <div class="dv" id="cmp-vigor-d">±0.00</div>
+        </div>
+        <div class="crow">
+          <div class="nm">秩序</div>
+          <div class="dualtrack"><div class="bfill" id="cmp-order-b" style="width:50%"></div><div class="ffill" id="cmp-order-f" style="width:50%"></div></div>
+          <div class="dv" id="cmp-order-d">±0.00</div>
+        </div>
+      </div>
+      <div class="legend">
+        <span><i class="dot b"></i>もし0か1かで即断していた影の村</span>
+        <span><i class="dot f"></i>あなたのFloat村</span>
+      </div>
+
+      <div class="verdict" id="verdict-text">—</div>
+
+      <div class="btn-row">
+        <button class="btn wide" onclick="location.reload()">はじめからもう一度</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>あなたが決めたこと</h2>
+      <div class="log" id="result-log"></div>
+    </div>
+  </section>
+
+  <footer>
+    あわいむら — Boolean→Floatの村。二値で切れない相談を、連続値で治める一人用ゲーム。<br>
+    OSAEMON draft / 未公開・下書き。
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---- events: 12 dilemmas that resist yes/no ----
+  // impact[trust,vigor,order] = coefficients applied against the *signed* deviation from neutral (v-0.5),
+  // so a float answer near 0.5 barely moves the village, while a confident 0 or 1 moves it a lot.
+  var EVENTS = [
+    { tag:"井戸端の相談", text:"隣の畑との境の石垣が、少しずつ崩れてきている。すぐ直すべきか、様子を見るべきか。",
+      sub:"急いで直せば安心だが、村の蓄えを削る。放っておけば蓄えは温存されるが、いつか崩れる。",
+      hintA:"0.00 = 様子を見る", hintB:"1.00 = 今すぐ直す",
+      impact:{trust:0.10, vigor:-0.06, order:0.22} },
+    { tag:"祭りの相談", text:"今年の秋祭りを、例年通り盛大にやるか、切り詰めて簡素にやるか。",
+      sub:"盛大にすれば活気は出るが物入り。簡素にすれば堅実だが、村の熱が冷める。",
+      hintA:"0.00 = 簡素にする", hintB:"1.00 = 盛大にやる",
+      impact:{trust:0.02, vigor:0.30, order:-0.10} },
+    { tag:"よそ者の相談", text:"旅の職人が村に住みたいと言っている。すぐ受け入れるか、しばらく様子見にするか。",
+      sub:"受け入れれば新しい技が入るが、しきたりが揺れる。断れば安定するが、村は変わらない。",
+      hintA:"0.00 = 様子見にする", hintB:"1.00 = すぐ受け入れる",
+      impact:{trust:0.14, vigor:0.18, order:-0.16} },
+    { tag:"年貢の相談", text:"不作だった家の年貢を、今年だけ大きく免じるか、これまで通り取るか。",
+      sub:"免じれば信頼は篤くなるが、他の家との公平が崩れかける。取れば公平は保てるが、恨みが残る。",
+      hintA:"0.00 = これまで通り取る", hintB:"1.00 = 大きく免じる",
+      impact:{trust:0.26, vigor:0.02, order:-0.18} },
+    { tag:"境界の相談", text:"隣村との境目が曖昧な土地を、強く主張するか、譲るか。",
+      sub:"主張すれば実利は増えるが揉め事の種になる。譲れば穏便だが、村の実入りは減る。",
+      hintA:"0.00 = 譲る", hintB:"1.00 = 強く主張する",
+      impact:{trust:-0.14, vigor:0.08, order:0.20} },
+    { tag:"若者の相談", text:"若い衆が新しい農具を試したいと言っている。全面的に任せるか、年寄りのやり方を守らせるか。",
+      sub:"任せれば村は変わっていく。守らせれば失敗は減るが、若い衆の熱が冷める。",
+      hintA:"0.00 = 年寄りのやり方を守らせる", hintB:"1.00 = 全面的に任せる",
+      impact:{trust:0.06, vigor:0.24, order:-0.14} },
+    { tag:"噂の相談", text:"ある家の悪い噂が広まっている。真偽を公に問い質すか、そっとしておくか。",
+      sub:"問い質せば白黒つくが、村の空気がぎすぎすする。そっとしておけば穏やかだが、噂はくすぶり続ける。",
+      hintA:"0.00 = そっとしておく", hintB:"1.00 = 公に問い質す",
+      impact:{trust:-0.08, vigor:-0.04, order:0.26} },
+    { tag:"分け前の相談", text:"今年の収穫を、働きに応じて厚く傾斜配分するか、皆に均等に分けるか。",
+      sub:"傾斜配分すれば励みになるが、不満を持つ家も出る。均等に分ければ角は立たないが、励みは薄れる。",
+      hintA:"0.00 = 均等に分ける", hintB:"1.00 = 傾斜配分する",
+      impact:{trust:-0.06, vigor:0.20, order:0.10} },
+    { tag:"普請の相談", text:"村の集会所を、大きく建て替えるか、今のまま補修だけで済ませるか。",
+      sub:"建て替えれば誇りになるが借財がのしかかる。補修で済ませれば堅実だが、見劣りはする。",
+      hintA:"0.00 = 補修だけで済ませる", hintB:"1.00 = 大きく建て替える",
+      impact:{trust:0.04, vigor:0.16, order:0.14} },
+    { tag:"縁談の相談", text:"二つの家の間で持ち上がった縁談に、寄合として口を出すか、当人たちに任せるか。",
+      sub:"口を出せば波風を抑えられるが、干渉を嫌う声も出る。任せれば自由だが、まとまらないかもしれない。",
+      hintA:"0.00 = 当人たちに任せる", hintB:"1.00 = 寄合として口を出す",
+      impact:{trust:0.08, vigor:-0.06, order:0.20} },
+    { tag:"旱の相談", text:"日照りが続いている。共有の井戸水を厳しく配給制にするか、これまで通り自由にくませるか。",
+      sub:"配給制にすれば公平に持つが、不自由さに不満が出る。自由にさせれば楽だが、早く枯れるかもしれない。",
+      hintA:"0.00 = これまで通り自由にくませる", hintB:"1.00 = 厳しく配給制にする",
+      impact:{trust:-0.04, vigor:-0.10, order:0.30} },
+    { tag:"最後の相談", text:"来年の寄合役を、あなたがもう一年続けるか、若い者に譲るか。",
+      sub:"続ければ経験を活かせるが、村は変わりにくくなる。譲れば村は新しくなるが、慣れるまで揺れる。",
+      hintA:"0.00 = 若い者に譲る", hintB:"1.00 = もう一年続ける",
+      impact:{trust:0.10, vigor:0.10, order:0.10} }
+  ];
+
+  var state = {
+    idx: 0,
+    village: { trust:0.5, vigor:0.5, order:0.5 },
+    shadow:  { trust:0.5, vigor:0.5, order:0.5 },
+    log: [] // {tag, text, floatVal, boolVal, impact}
+  };
+
+  function clamp01(x){ return Math.max(0, Math.min(1, x)); }
+
+  function applyImpact(v, impact, answer){
+    // deviation from neutral (0.5) drives the push; answer itself (not just deviation) scales magnitude too,
+    // so a fully committed 0 or 1 moves the village roughly 2x a wavering 0.5-adjacent answer.
+    var dev = (answer - 0.5) * 2; // -1..1
+    return {
+      trust: clamp01(v.trust + impact.trust * dev),
+      vigor: clamp01(v.vigor + impact.vigor * dev),
+      order: clamp01(v.order + impact.order * dev)
+    };
+  }
+
+  function fmt(x){ return x.toFixed(2); }
+
+  function bandLabel(x){
+    if (x <= 0.05) return "— 完全に「いいえ」—";
+    if (x < 0.30) return "— いいえ寄り —";
+    if (x < 0.45) return "— ややいいえ寄り —";
+    if (x <= 0.55) return "— どちらとも言えない —";
+    if (x < 0.70) return "— やや、はい寄り —";
+    if (x < 0.95) return "— はい寄り —";
+    return "— 完全に「はい」—";
+  }
+
+  function renderVillageBars(){
+    ["trust","vigor","order"].forEach(function(k){
+      var el = document.getElementById("v-"+k);
+      var fill = document.getElementById("v-"+k+"-fill");
+      el.textContent = fmt(state.village[k]);
+      fill.style.width = (state.village[k]*100).toFixed(1)+"%";
+    });
+  }
+
+  function currentEvent(){ return EVENTS[state.idx]; }
+
+  function renderCard(){
+    var ev = currentEvent();
+    document.getElementById("card-tag").textContent = "— " + ev.tag + " —";
+    document.getElementById("card-text").textContent = ev.text;
+    document.getElementById("card-sub").textContent = ev.sub;
+    document.getElementById("hint-a").textContent = ev.hintA;
+    document.getElementById("hint-b").textContent = ev.hintB;
+    document.getElementById("ev-num").textContent = state.idx+1;
+    document.getElementById("ev-remaining").textContent = "残り " + (EVENTS.length - state.idx - 1) + "件";
+    document.getElementById("pbar-fill").style.width = (((state.idx)/EVENTS.length)*100).toFixed(1)+"%";
+    document.getElementById("slider").value = 50;
+    onSlide();
+  }
+
+  function onSlide(){
+    var raw = Number(document.getElementById("slider").value) / 100;
+    document.getElementById("slider-value").textContent = fmt(raw);
+    document.getElementById("slider-band").textContent = bandLabel(raw);
+
+    var ev = currentEvent();
+    var projected = applyImpact(state.village, ev.impact, raw);
+    ["trust","vigor","order"].forEach(function(k){
+      var d = projected[k] - state.village[k];
+      var el = document.getElementById("imp-"+k);
+      var sign = d > 0.001 ? "+" : (d < -0.001 ? "" : "±");
+      el.textContent = sign + d.toFixed(2);
+      el.className = d > 0.001 ? "pos" : (d < -0.001 ? "neg" : "zero");
+    });
+  }
+
+  function decide(){
+    var raw = Number(document.getElementById("slider").value) / 100;
+    var ev = currentEvent();
+
+    var boolAnswer = raw >= 0.5 ? 1 : 0;
+
+    state.village = applyImpact(state.village, ev.impact, raw);
+    state.shadow  = applyImpact(state.shadow, ev.impact, boolAnswer);
+
+    state.log.push({
+      tag: ev.tag, text: ev.text, floatVal: raw, boolVal: boolAnswer
+    });
+
+    renderVillageBars();
+    renderLog();
+
+    state.idx++;
+    if (state.idx >= EVENTS.length){
+      showResult();
+    } else {
+      renderCard();
+    }
+  }
+
+  function renderLog(){
+    var wrap = document.getElementById("log-list");
+    wrap.innerHTML = "";
+    state.log.slice().reverse().forEach(function(rec){
+      var row = document.createElement("div");
+      row.className = "logrow";
+      row.innerHTML = '<span class="lq">'+rec.tag+'</span><span class="lv">'+fmt(rec.floatVal)+'</span>';
+      wrap.appendChild(row);
+    });
+    if (state.log.length === 0){
+      wrap.innerHTML = '<div class="logrow"><span class="lq" style="color:var(--ink-faint)">まだ何も決めていない</span></div>';
+    }
+  }
+
+  function harmonyScore(v){
+    // harmony = high average minus imbalance (variance-ish spread across the three stats)
+    var vals = [v.trust, v.vigor, v.order];
+    var avg = (vals[0]+vals[1]+vals[2]) / 3;
+    var spread = Math.max(vals[0],vals[1],vals[2]) - Math.min(vals[0],vals[1],vals[2]);
+    return clamp01(avg - spread*0.5);
+  }
+
+  function faceFor(score){
+    if (score >= 0.75) return "村は、静かに、よく治まっている。";
+    if (score >= 0.55) return "村は、揺れながらも保っている。";
+    if (score >= 0.35) return "村は、どこかで歪みを抱えている。";
+    return "村は、大きく傾いてしまった。";
+  }
+
+  function showResult(){
+    document.getElementById("screen-play").classList.add("hidden");
+    document.getElementById("screen-result").classList.remove("hidden");
+
+    var score = harmonyScore(state.village);
+    var shadowScore = harmonyScore(state.shadow);
+    document.getElementById("result-score").textContent = fmt(score);
+    document.getElementById("result-face").textContent = faceFor(score);
+
+    ["trust","vigor","order"].forEach(function(k){
+      var fv = state.village[k], bv = state.shadow[k];
+      document.getElementById("cmp-"+k+"-f").style.width = (fv*100).toFixed(1)+"%";
+      document.getElementById("cmp-"+k+"-b").style.width = (bv*100).toFixed(1)+"%";
+      var d = fv - bv;
+      var dEl = document.getElementById("cmp-"+k+"-d");
+      var sign = d > 0.005 ? "+" : (d < -0.005 ? "" : "±");
+      dEl.textContent = sign + d.toFixed(2);
+      dEl.className = "dv " + (d > 0.005 ? "pos" : (d < -0.005 ? "neg" : "zero"));
+    });
+
+    var diff = score - shadowScore;
+    var verdict;
+    if (diff > 0.05){
+      verdict = "0か1かだけで即断していた影の村より、あなたのFloat村の方が調和Floatで <b>"+fmt(diff)+"</b> 高い。"
+        + "迷いながら濃さを決めたことが、村の均衡を守った。";
+    } else if (diff < -0.05){
+      verdict = "意外にも、0か1かで即断していた影の村の方が調和Floatで <b>"+fmt(Math.abs(diff))+"</b> 高い。"
+        + "Floatは万能ではない。迷いが均衡を崩すこともある。それもまた発見。";
+    } else {
+      verdict = "あなたのFloat村と、影の村の調和Floatはほぼ同じ（差 "+fmt(Math.abs(diff))+"）。"
+        + "だが中身の信頼・活気・秩序の配分は、下の帯グラフの通り確実に違う。";
+    }
+    document.getElementById("verdict-text").innerHTML = verdict;
+
+    var rlog = document.getElementById("result-log");
+    rlog.innerHTML = "";
+    state.log.forEach(function(rec, i){
+      var row = document.createElement("div");
+      row.className = "logrow";
+      row.innerHTML = '<span class="lq">'+(i+1)+'. '+rec.tag+'</span><span class="lv">'+fmt(rec.floatVal)+'</span>';
+      rlog.appendChild(row);
+    });
+  }
+
+  window.startGame = function(){
+    document.getElementById("screen-intro").classList.add("hidden");
+    document.getElementById("screen-play").classList.remove("hidden");
+    renderVillageBars();
+    renderCard();
+    renderLog();
+  };
+  window.onSlide = onSlide;
+  window.decide = decide;
+
+})();
+</script>
+</body>
+</html>
