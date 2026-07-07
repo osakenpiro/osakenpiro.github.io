@@ -75,12 +75,12 @@ footer a:hover{color:var(--gold)}
   <section class="cat">
     <h2>OBSERVATION ／ 観測</h2>
     <div class="pipe live">
-      <span class="src">秘書CoDB today / GCal今日 / hardゲート≤7d / 接近惑星 <span class="meta">★最優先。実装+webhook+通電確認(204+実画面)完了。本番ドライラン2026-06-01: 実4ソース839字</span></span>
+      <span class="src">秘書CoDB today / GCal今日 / hardゲート≤7d / 接近惑星 / 朝コンパス(🌤三鷹天気Open-Meteo・🗑ごみ上連雀6-9地区・📍予定先リンク) <span class="meta">★最優先。実装+webhook+通電確認(204+実画面)完了。本番ドライラン2026-06-01: 実4ソース839字</span></span>
       <span class="flow">▶ forward<span class="way">──Webhook──▶</span></span>
       <span class="chwrap"><span class="ch">#daily-briefing</span><span class="meta">task-inbox-daily-briefing (0 7) 相乗り【step6 実装済・ガード付】</span></span>
     </div>
     <div class="pipe live">
-      <span class="src">成果物DB (95626952 / ds 85a65f30) <span class="meta">実装+テスト完了(204×2: daily/即時)。script=workspace/disco/artifact_lo</span></span>
+      <span class="src">成果物DB (95626952 / ds 85a65f30) / 創作Done通知3本(daily-seeds 6:38🌱・daily-reef 12:06🪨・weekly-wiki-scan 月9:07📚) <span class="meta">実装+テスト完了(204×2: daily/即時)。script=workspace/disco/artifact_lo</span></span>
       <span class="flow">◀ backward<span class="way">──Webhook──▶</span></span>
       <span class="chwrap"><span class="ch">#artifact-log</span><span class="meta">日次 0 21 (artifact-log-daily) + 即時(投入時 artifact_log.py post)</span></span>
     </div>
@@ -93,12 +93,17 @@ footer a:hover{color:var(--gold)}
   <section class="cat">
     <h2>LIVE OPS ／ 実務</h2>
     <div class="pipe new">
+      <span class="src">PP質問キュー(3752b7e5-43e0-818a-9780-d6907ff758a5)+構成マスター目次から補充 <span class="meta">2026-06-05 SES-398新設。繰越式=未回答は翌日も同じ質問。回答→A:欄or口頭。残❓≤1で最大3問自動補</span></span>
+      <span class="flow">▶ forward<span class="way">──Webhook──▶</span></span>
+      <span class="chwrap"><span class="ch">#daily-briefing</span><span class="meta">40 7 * * * (daily-tree)</span></span>
+    </div>
+    <div class="pipe new">
       <span class="src">ツール群プロモ (tool-promo-rotation) <span class="meta">成果物DB最終宣伝/宣伝回数でローテ。X+note下書き→#postboy-schedule承認制、自動Xなし。初回6/</span></span>
       <span class="flow">▶ forward<span class="way">──Webhook──▶</span></span>
       <span class="chwrap"><span class="ch">#postboy-schedule</span><span class="meta">0 8 月水金 (tool-promo-rotation)</span></span>
     </div>
-    <div class="pipe check">
-      <span class="src">PostBoy (pbsc-daily-feed) <span class="meta">cron遅延+/tmp stale罠(embed投稿)。【2026-06-02 Lane④突合】pbsc-daily-f</span></span>
+    <div class="pipe live">
+      <span class="src">PostBoy (pbsc-daily-feed) + pbsc-evening-feed(17:05夕枠専任) <span class="meta">cron遅延+/tmp stale罠(embed投稿)。【2026-06-02 Lane④突合】pbsc-daily-f</span></span>
       <span class="flow">▶ forward<span class="way">──BotEvent──▶</span></span>
       <span class="chwrap"><span class="ch">#postboy-schedule</span><span class="meta">0 7 (pbsc-daily-feed)</span></span>
     </div>
@@ -135,8 +140,8 @@ footer a:hover{color:var(--gold)}
     </div>
   </section>
   <footer>
-    正本 = <a href="https://www.notion.so/3a093c4c6e7a4d19abc1cef61dcb6119">🔌 Discord配管DB</a>（Discord実体=参照） · 10配管 / 🟢8 🟡1 🔴0 ⬜1<br>
-    自動生成 2026-06-02 20:03 JST · disco_map_gen.py（配管DB query→render→GH Pages） · 朝=forward / 夜=backward<br>
+    正本 = <a href="https://www.notion.so/3a093c4c6e7a4d19abc1cef61dcb6119">🔌 Discord配管DB</a>（Discord実体=参照） · 11配管 / 🟢9 🟡0 🔴0 ⬜2<br>
+    自動生成 2026-07-07 18:27 JST · disco_map_gen.py（配管DB query→render→GH Pages） · 朝=forward / 夜=backward<br>
     <span class="crest">osakenpiro</span> · #全人類UX改善計画
   </footer>
 </main>
