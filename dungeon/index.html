@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>僕のダンジョン — 探索型リンクハブ</title>
+<meta property="og:title" content="僕のダンジョン">
+<meta property="og:description" content="ぼくの生態系を、探索して地図を埋める。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://osakenpiro.github.io/dungeon/">
+<meta property="og:image" content="https://osakenpiro.github.io/ogp.png">
+<meta name="twitter:card" content="summary">
+<style>
+  :root{
+    --bg:#0b0c16;
+    --bg2:#12142400;
+    --fog:#080910;
+    --peri:#9aa5ff;        /* periwinkle */
+    --peri-dim:#4a4f80;
+    --room:#1b1e36;
+    --room-lit:#232a52;
+    --gold:#f2c85b;
+    --line:#3a4080;
+    --text:#e7e9ff;
+    --muted:#8a8fbf;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:radial-gradient(circle at 50% 30%, #14162b 0%, var(--bg) 70%);
+    color:var(--text);
+    font-family:"Courier New",ui-monospace,monospace;
+    min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;
+    padding:16px;
+  }
+  header{width:100%;max-width:860px;text-align:center;margin-bottom:10px}
+  h1{font-size:20px;letter-spacing:2px;color:var(--peri);text-shadow:0 0 12px rgba(154,165,255,.4)}
+  .sub{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:1px}
+  .bar-wrap{width:100%;max-width:860px;margin:10px 0 6px}
+  .bar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:3px}
+  .bar{height:8px;background:#191b30;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+  .bar-fill{height:100%;width:0;background:linear-gradient(90deg,var(--peri-dim),var(--peri));transition:width .5s ease}
+
+  .stage{
+    position:relative;width:100%;max-width:860px;aspect-ratio:12/9;
+    background:
+      linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px) 0 0/ calc(100%/12) calc(100%/9),
+      linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px) 0 0/ calc(100%/12) calc(100%/9),
+      var(--fog);
+    border:1px solid var(--line);border-radius:8px;overflow:hidden;
+    box-shadow:inset 0 0 60px rgba(0,0,0,.7);
+  }
+  svg.paths{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .path{stroke:var(--line);stroke-width:2;stroke-dasharray:3 4;opacity:0}
+  .path.on{opacity:.8;stroke:var(--peri-dim)}
+
+  .room{
+    position:absolute;transform:translate(-50%,-50%);
+    width:12%;aspect-ratio:1;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border-radius:8px;cursor:default;
+    transition:all .35s ease;opacity:0;pointer-events:none;
+  }
+  .room .emoji{font-size:clamp(16px,3.4vw,28px);line-height:1}
+  .room .name{font-size:9px;color:var(--muted);margin-top:3px;text-align:center;max-width:120%}
+  /* 気配（隣接・未踏）: 輪郭だけ光る */
+  .room.sensed{
+    opacity:1;pointer-events:auto;cursor:pointer;
+    background:transparent;border:1px dashed var(--peri-dim);
+    filter:grayscale(.6);
+  }
+  .room.sensed .emoji{opacity:.35}
+  .room.sensed .name{opacity:0}
+  .room.sensed::after{content:"？";position:absolute;font-size:14px;color:var(--peri-dim)}
+  .room.sensed:hover{border-color:var(--peri);box-shadow:0 0 16px rgba(154,165,255,.35)}
+  /* 踏破済み */
+  .room.lit{
+    opacity:1;pointer-events:auto;cursor:pointer;
+    background:var(--room-lit);border:1px solid var(--peri);
+    box-shadow:0 0 18px rgba(154,165,255,.25);
+  }
+  .room.lit.entrance{border-color:var(--gold);box-shadow:0 0 20px rgba(242,200,91,.3)}
+  .room.current{outline:2px solid var(--gold);outline-offset:2px}
+
+  /* 中身パネル */
+  .panel{
+    width:100%;max-width:860px;margin-top:12px;min-height:96px;
+    background:var(--room);border:1px solid var(--line);border-radius:8px;padding:14px 16px;
+  }
+  .panel.empty{color:var(--muted);font-size:12px;display:flex;align-items:center;justify-content:center}
+  .p-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .p-emoji{font-size:26px}
+  .p-title{font-size:15px;color:var(--peri)}
+  .p-type{font-size:10px;color:var(--muted);border:1px solid var(--line);padding:1px 6px;border-radius:10px}
+  .p-blurb{font-size:12px;color:var(--text);line-height:1.7;margin:6px 0 10px}
+  .chest{
+    display:inline-flex;align-items:center;gap:8px;
+    background:linear-gradient(90deg,#2a2410,#3a3116);
+    border:1px solid var(--gold);color:var(--gold);
+    font-family:inherit;font-size:12px;padding:8px 14px;border-radius:6px;cursor:pointer;
+    text-decoration:none;transition:all .2s;
+  }
+  .chest:hover{background:linear-gradient(90deg,#3a3116,#4a3f1c);box-shadow:0 0 14px rgba(242,200,91,.35)}
+
+  .banner{
+    position:absolute;inset:0;display:none;flex-direction:column;
+    align-items:center;justify-content:center;
+    background:rgba(11,12,22,.9);text-align:center;padding:20px;z-index:5;
+  }
+  .banner.show{display:flex}
+  .banner h2{color:var(--gold);font-size:22px;letter-spacing:3px;text-shadow:0 0 20px rgba(242,200,91,.5)}
+  .banner p{color:var(--muted);font-size:12px;margin-top:8px}
+  footer{font-size:10px;color:var(--peri-dim);margin-top:16px;letter-spacing:1px}
+  footer a{color:var(--peri);text-decoration:none}
+  footer a:hover{text-decoration:underline}
+
+  @media (max-width:480px){
+    body{padding:8px}
+    h1{font-size:16px}
+    .sub{font-size:10px}
+    .room .name{font-size:8px}
+    .panel{padding:10px 12px}
+    .chest{padding:10px 16px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>◆ 僕のダンジョン ◆</h1>
+  <div class="sub">— ぼくの生態系を、探索して地図を埋める（僕の惑星 alt-edition）—</div>
+</header>
+
+<div class="bar-wrap">
+  <div class="bar-label"><span>踏破率</span><span id="pct">0%</span></div>
+  <div class="bar"><div class="bar-fill" id="fill"></div></div>
+</div>
+
+<div class="stage" id="stage">
+  <svg class="paths" id="paths" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+  <div class="banner" id="banner">
+    <h2>DUNGEON CLEARED</h2>
+    <p>ぼくの生態系を、すべて踏破した。<br>この地図は、きみが自分で歩いて描いたものだ。</p>
+  </div>
+</div>
+
+<div class="panel empty" id="panel">霧の向こうから、いくつかの気配がする。「？」を選んで、足を踏み入れてみる。</div>
+
+<footer>osakenpiro.github.io — #全人類UX改善計画 / データ構造1つ・様式複数 ／ 🪐 公転で見る — <a href="https://osakenpiro.github.io/cosmos/">僕の惑星</a></footer>
+
+<script>
+/* ───────────────────────────────────────────────
+   ノードデータ（「僕の惑星」cosmos-index.html の SATELLITES 18件 + 入口）
+   x,y は 12×9 グリッド座標（float可）。ビルド時に深さ逆リング配置で計算しハードコード。
+─────────────────────────────────────────────── */
+const ROOMS = [
+  {id:'me', emoji:'🌍', name:'入り口（ぼく）', type:'HUB', x:5.5, y:4.0, entrance:true,
+   blurb:'すべての通路が、ここから伸びている。osakenpiro という生態系の中心。',
+   link:'https://osakenpiro.github.io/cosmos/'},
+  {id:'note', emoji:'📝', name:'note', type:'作品', x:10.1, y:6.7,
+   blurb:'エッセイ・連載・地面の言葉',
+   link:'https://note.com/osakenpiro'},
+  {id:'panda', emoji:'📕', name:'パンダと哲学とAI', type:'作品', x:9.9, y:1.3,
+   blurb:'Kindle ¥980 / KU無料 / ペーパーバック ¥1,480',
+   link:'#'},
+  {id:'kakuyomu', emoji:'📖', name:'星は知らない', type:'作品', x:8.2, y:6.7,
+   blurb:'カクヨム — 8編構成SF長編',
+   link:'https://kakuyomu.jp/users/osakenpiro'},
+  {id:'jikoshoukai', emoji:'🧬', name:'じこしょうかい', type:'作品', x:8.0, y:0.8,
+   blurb:'全17巻85キャラ完結 — 絵本シリーズ',
+   link:'https://osakenpiro.github.io/jikoshoukai/'},
+  {id:'negai', emoji:'⭐', name:'願い片道きっぷ', type:'作品', x:1.2, y:1.6,
+   blurb:'届かないかもしれない想いを、夜空に。',
+   link:'https://osakenpiro.github.io/negai-kippu/'},
+  {id:'materials', emoji:'📘', name:'人類の素材図鑑', type:'作品', x:1.7, y:7.2,
+   blurb:'11章の物語 + 15セクションの図鑑 — Boolean→Float',
+   link:'https://osakenpiro.github.io/materials-of-civilization/'},
+  {id:'ningen', emoji:'🃏', name:'人間図鑑', type:'作品', x:9.9, y:3.1,
+   blurb:'人間観察カードゲーム — 4編37枚',
+   link:'https://osakenpiro.github.io/ningen-zukan/'},
+  {id:'zenodo', emoji:'🔬', name:'論文 8本', type:'学問', x:1.3, y:3.4,
+   blurb:'Zenodo プレプリント・DOI付き',
+   link:'https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Osada%2C%20Kenshiro%22'},
+  {id:'moon', emoji:'🌙', name:'月', type:'学問', x:0.8, y:5.4,
+   blurb:'全ツール一覧 — 可視化・哲学・ユーティリティ',
+   link:'https://osakenpiro.github.io/moon/'},
+  {id:'mission', emoji:'🛰', name:'Mission Control', type:'学問', x:9.9, y:4.9,
+   blurb:'全チャット共有タスクボード',
+   link:'https://www.notion.so/Mission-Control-Claude-3282b7e543e0815db7c0d5afdae9ae76'},
+  {id:'orcid', emoji:'🆔', name:'ORCID', type:'学問', x:5.5, y:7.1,
+   blurb:'0009-0004-9167-3186',
+   link:'https://orcid.org/0009-0004-9167-3186'},
+  {id:'x', emoji:'𝕏', name:'X', type:'SNS', x:5.8, y:2.2,
+   blurb:'日常哲学 / 論文告知',
+   link:'https://twitter.com/kenpiro7'},
+  {id:'tiktok', emoji:'▶', name:'TikTok', type:'SNS', x:3.6, y:1.2,
+   blurb:'30秒哲学 / PEACE PIECE',
+   link:'https://www.tiktok.com/@panio54'},
+  {id:'ig', emoji:'◻', name:'Instagram', type:'SNS', x:7.7, y:2.6,
+   blurb:'Reels / カルーセル',
+   link:'https://www.instagram.com/osakenpiro/'},
+  {id:'yt', emoji:'△', name:'YouTube', type:'SNS', x:3.5, y:4.8,
+   blurb:'SATORI / 総集編',
+   link:'https://www.youtube.com/channel/UCdvMT7OAZQuWBln8D3GrFBQ'},
+  {id:'pixiv', emoji:'✦', name:'pixiv', type:'SNS', x:3.6, y:3.0,
+   blurb:'PEACE PIECE まとめ読み',
+   link:'https://www.pixiv.net/users/11085694'},
+  {id:'spotify', emoji:'♪', name:'Spotify', type:'SNS', x:3.5, y:6.7,
+   blurb:'オリジナル作詞',
+   link:'https://open.spotify.com/intl-ja/artist/6QtgEcJeDSxhatNDzxGm8v'},
+  {id:'booth', emoji:'🏪', name:'BOOTH', type:'SNS', x:7.7, y:4.7,
+   blurb:'アイコン・素材',
+   link:'https://osakenpiro.booth.pm/'},
+];
+
+/* 通路（双方向・id ペア）
+   入口→ring1全7室 / ring2各室→最寄りring1室(4本) / ring3各室→最寄りring2室(7本) / ring3内隣接チェーン3本 */
+const EDGES = [
+  ["me","x"],
+  ["me","tiktok"],
+  ["me","ig"],
+  ["me","yt"],
+  ["me","pixiv"],
+  ["me","spotify"],
+  ["me","booth"],
+  ["zenodo","pixiv"],
+  ["moon","yt"],
+  ["mission","booth"],
+  ["orcid","spotify"],
+  ["note","mission"],
+  ["panda","mission"],
+  ["kakuyomu","mission"],
+  ["jikoshoukai","mission"],
+  ["negai","zenodo"],
+  ["materials","moon"],
+  ["ningen","mission"],
+  ["jikoshoukai","panda"],
+  ["panda","ningen"],
+  ["note","kakuyomu"]
+];
+
+/* 隣接テーブル */
+const adj = {};
+ROOMS.forEach(r=>adj[r.id]=[]);
+EDGES.forEach(([a,b])=>{adj[a].push(b);adj[b].push(a)});
+const byId = Object.fromEntries(ROOMS.map(r=>[r.id,r]));
+
+/* ── state ──
+   localStorage に踏破状況を保存・復元する。不可環境（プライベートモード等）は try/catch でメモリフォールバック。 */
+const KEY='dungeon-map-v1';
+let visited;
+try{
+  visited = new Set(JSON.parse(localStorage.getItem(KEY)||'["me"]'));
+}catch(e){
+  visited = new Set(["me"]);
+}
+let current = "me";
+const save = ()=>{
+  try{
+    localStorage.setItem(KEY, JSON.stringify([...visited]));
+  }catch(e){
+    /* localStorage不可環境: メモリ内のみで継続 */
+  }
+};
+
+const stage = document.getElementById("stage");
+const svg = document.getElementById("paths");
+const gx = x => (x+0.5)/12*100;          // グリッド→％
+const gy = y => (y+0.5)/9*100;
+
+/* 通路SVG生成 */
+EDGES.forEach(([a,b])=>{
+  const A=byId[a],B=byId[b];
+  const l=document.createElementNS("http://www.w3.org/2000/svg","line");
+  l.setAttribute("x1",gx(A.x));l.setAttribute("y1",gy(A.y));
+  l.setAttribute("x2",gx(B.x));l.setAttribute("y2",gy(B.y));
+  l.setAttribute("class","path");l.dataset.a=a;l.dataset.b=b;
+  svg.appendChild(l);
+});
+
+/* 部屋DOM生成 */
+ROOMS.forEach(r=>{
+  const d=document.createElement("div");
+  d.className="room";d.dataset.id=r.id;
+  d.style.left=gx(r.x)+"%";d.style.top=gy(r.y)+"%";
+  if(r.entrance) d.classList.add("entrance");
+  d.innerHTML=`<div class="emoji">${r.emoji}</div><div class="name">${r.name}</div>`;
+  d.addEventListener("click",()=>enter(r.id));
+  stage.appendChild(d);
+});
+
+function sensed(){                       // 踏破済みの隣接＝気配
+  const s=new Set();
+  visited.forEach(v=>adj[v].forEach(n=>{if(!visited.has(n))s.add(n)}));
+  return s;
+}
+
+function enter(id){
+  const canGo = visited.has(id) || sensed().has(id);
+  if(!canGo) return;                     // 霧の奥（未気配）へは飛べない
+  visited.add(id); current=id; save();
+  render(); showPanel(id);
+}
+
+function render(){
+  const sense=sensed();
+  document.querySelectorAll(".room").forEach(d=>{
+    const id=d.dataset.id;
+    d.classList.remove("lit","sensed","current");
+    if(visited.has(id)){d.classList.add("lit"); if(id===current)d.classList.add("current");}
+    else if(sense.has(id)){d.classList.add("sensed");}
+  });
+  document.querySelectorAll(".path").forEach(l=>{
+    const on = visited.has(l.dataset.a)&&visited.has(l.dataset.b);
+    l.classList.toggle("on",on);
+  });
+  const pct=Math.round(visited.size/ROOMS.length*100);
+  document.getElementById("pct").textContent=pct+"%";
+  document.getElementById("fill").style.width=pct+"%";
+  if(visited.size===ROOMS.length){
+    setTimeout(()=>document.getElementById("banner").classList.add("show"),400);
+  }
+}
+
+function showPanel(id){
+  const r=byId[id];
+  const p=document.getElementById("panel");
+  p.classList.remove("empty");
+  const chest = r.link==="#"
+    ? `<span class="chest" style="opacity:.5;cursor:not-allowed">🔒 宝箱（準備中）</span>`
+    : `<a class="chest" href="${r.link}" target="_blank" rel="noopener">🗝️ 宝箱を開ける →</a>`;
+  p.innerHTML=`
+    <div class="p-head">
+      <span class="p-emoji">${r.emoji}</span>
+      <span class="p-title">${r.name}</span>
+      <span class="p-type">${r.type}</span>
+    </div>
+    <div class="p-blurb">${r.blurb}</div>
+    ${chest}`;
+}
+
+render();
+</script>
+</body>
+</html>
