@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>あそびば — Boolean→Float Playground</title>
-<meta name="description" content="世界は0か1で教わる。でも本当のことは、たいていその間（はざま）にある。論理・確率・技・審美——Boolean→Floatを手で触れて遊ぶ、4つの遊び場。">
+<meta name="description" content="世界は0か1で教わる。でも本当のことは、たいていその間（はざま）にある。論理・確率・技・審美・分類・音・魔法・保存——Boolean→Floatを手で触れて遊ぶ、8つの遊び場。">
 <meta property="og:title" content="あそびば — Boolean→Float Playground">
 <meta property="og:description" content="0でも1でもない、その間で遊ぶ。">
 <style>
@@ -48,7 +48,7 @@
     <h1>あそびば</h1>
     <div style="font-family:var(--serif);font-size:18px;letter-spacing:.04em;"><span class="b">Boolean</span> <span class="ar">→</span> <span class="f">Float</span></div>
     <p class="sub">世界は「0か1」で教わる。でも本当のことは、たいてい<b>その間（はざま）</b>にある。
-    二値を連続値に開く——それを、論理で・確率で・技で・色で・分類で・音で・魔法で、手で触れて遊ぶ7つの遊び場。</p>
+    二値を連続値に開く——それを、論理で・確率で・技で・色で・分類で・音で・魔法で・保存で、手で触れて遊ぶ8つの遊び場。</p>
   </div>
 
   <div class="grid">
@@ -96,4 +96,38 @@
     </a>
     <a class="card" href="https://osakenpiro.github.io/majo/">
       <div class="facet">魔法</div>
-      <svg class="ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M24 6l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/><circle cx="38" cy="12" r="2"/><c
+      <svg class="ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M24 6l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/><circle cx="38" cy="12" r="2"/><circle cx="10" cy="35" r="1.6"/><circle cx="39" cy="38" r="1.4"/></svg>
+      <div class="nm">0.5の魔女</div><div class="en">MAJO · MANA ALLOCATION</div>
+      <div class="ds">魔法力は保存される——全部に1.0は注げない。限られた魔法力を0.0〜1.0で配り、呪文が望む「ちょうどの強さ」を探す配分パズル。</div>
+      <div class="go">配りに行く →</div>
+    </a>
+    <a class="card" href="https://osakenpiro.github.io/wanori/">
+      <div class="facet">保存</div>
+      <svg class="ic" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><circle cx="24" cy="24" r="15"/><circle cx="24" cy="9" r="3" fill="currentColor"/><circle cx="37" cy="31" r="2.4"/><circle cx="11" cy="31" r="2.4"/><path d="M21 5l3 4 3-4"/></svg>
+      <div class="nm">わのり</div><div class="en">WANORI · CONSERVATION</div>
+      <div class="ds">呪文を唱えても魔力は減らない——隣の節へ移るだけ。総量1.000が固定された環状盤で、偏りだけを設計する保存則パズル。0.5の魔女の姉妹盤。</div>
+      <div class="go">輪を回す →</div>
+    </a>
+  </div>
+
+  <div class="manifesto">
+    <p>これらは全部、ひとつの問いから生まれた。——<b>「はい／いいえ」で切り捨ててきたものは、本当に二択だったのか？</b>
+    点いているか消えているか。勝ちか負けか。運がいいか悪いか。正しいか間違いか。
+    そのほとんどは、<b>0.0と1.0の間（はざま）</b>に、連続した濃淡として在る。
+    二値を連続値に開きなおす——それが <b>Boolean→Float</b>。遊びながら、その手触りを。</p>
+  </div>
+
+  <footer>
+    <b>あそびば / Boolean→Float Playground</b> — #全人類UX改善 / Visionium.<br>
+    設計思想 Boolean→Float（二値判断を連続値0.0〜1.0に開く）。自走セッションの4作を1枚に。
+  </footer>
+</div>
+<script>
+(function(){ const c=document.getElementById('stars'); if(!c||!c.getContext) return; const x=c.getContext('2d'); let w,h,st;
+  function rs(){ w=c.width=innerWidth; h=c.height=innerHeight; st=Array.from({length:Math.min(150,Math.floor(w*h/9000))},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.2+0.2,a:Math.random()*0.5+0.15,t:Math.random()*6.28})); }
+  function d(){ x.clearRect(0,0,w,h); for(const s of st){ s.t+=0.011; const tw=s.a*(0.6+0.4*Math.sin(s.t)); x.beginPath(); x.arc(s.x,s.y,s.r,0,6.28); x.fillStyle='rgba(212,168,83,'+tw.toFixed(3)+')'; x.fill(); } requestAnimationFrame(d); }
+  rs(); d(); addEventListener('resize',rs);
+})();
+</script>
+</body>
+</html>
