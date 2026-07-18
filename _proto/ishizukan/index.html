@@ -32,7 +32,7 @@
   .window::before{content:"";position:absolute;inset:12px;border:1px solid rgba(200,210,230,.12);border-radius:8px;pointer-events:none;z-index:3}
   /* ガラス面の斜め反射ハイライト */
   .window::after{content:"";position:absolute;inset:0;z-index:4;pointer-events:none;
-    background:linear-gradient(118deg,transparent 30%,rgba(220,228,240,.10) 44%,rgba(220,228,240,.02) 50%,transparent 58%)}
+    background:linear-gradient(118deg,transparent 30%,rgba(220,228,240,.08) 44%,rgba(220,228,240,.02) 50%,transparent 58%)}
   #stage{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:2}
   .plate{position:absolute;left:0;right:0;bottom:0;z-index:5;padding:14px 18px 16px;text-align:left;
     background:linear-gradient(0deg,rgba(6,6,10,.86),transparent);}
@@ -41,6 +41,7 @@
   .plate .sub{font-size:.72rem;color:var(--fg-3);letter-spacing:.06em;margin-top:3px}
   .cap{font-size:.75rem;color:var(--fg-3);letter-spacing:.06em;margin-top:22px;line-height:1.9}
   .cap b{color:var(--gold)}
+  .hint{position:absolute;top:10px;right:12px;z-index:5;font-size:.6rem;letter-spacing:.12em;color:var(--fg-3);opacity:.6}
 </style>
 </head>
 <body>
@@ -51,6 +52,7 @@
 
   <div class="window">
     <canvas id="stage"></canvas>
+    <div class="hint">drag to rotate</div>
     <div class="plate">
       <div class="no">No.01 · QUARTZ</div>
       <div class="nm">石英（せきえい）</div>
@@ -58,130 +60,203 @@
     </div>
   </div>
 
-  <div class="cap">これは <b>石のクオリティ検討用</b> のプロトタイプ。<br>「ガラスの窓に封じた標本を、回して眺める」方向。<br>石の質感・ガラスの反射・金の額装がこの路線で良ければ、図鑑フォーマットを組む。</div>
+  <div class="cap">これは <b>石のクオリティ検討用</b> のプロトタイプ。<br>「ガラスの窓に封じた標本を、回して眺める」方向。<br>実物の透明感・屈折・虹の分散がこの路線で良ければ、図鑑フォーマットを組む。</div>
 </main>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-(function(){
-  "use strict";
-  /* 星空 */
-  var sky=document.getElementById("sky");
-  for(var i=0;i<60;i++){var s=document.createElement("div");s.className="star"+(Math.random()<0.16?" g":"");var z=(Math.random()*1.7+0.5).toFixed(2);s.style.width=z+"px";s.style.height=z+"px";s.style.left=(Math.random()*100).toFixed(2)+"%";s.style.top=(Math.random()*100).toFixed(2)+"%";s.style.animationDelay=(Math.random()*4).toFixed(2)+"s";sky.appendChild(s);}
+  /* 星空(CSSページ背景・窓の外側にも散る) */
+  (function(){var sky=document.getElementById("sky");for(var i=0;i<60;i++){var s=document.createElement("div");s.className="star"+(Math.random()<0.16?" g":"");var z=(Math.random()*1.7+0.5).toFixed(2);s.style.width=z+"px";s.style.height=z+"px";s.style.left=(Math.random()*100).toFixed(2)+"%";s.style.top=(Math.random()*100).toFixed(2)+"%";s.style.animationDelay=(Math.random()*4).toFixed(2)+"s";sky.appendChild(s);}})();
+  /* 検証ハーネス: 初回描画でtitleを OKRENDER に。失敗はERR / 5秒沈黙はTIMEOUT。 */
+  window.__ok=false;
+  window.addEventListener("error",function(e){document.title="ERR: "+((e&&e.message)||(e&&e.error)||"unknown");});
+  window.addEventListener("unhandledrejection",function(e){document.title="ERR: "+((e&&e.reason&&e.reason.message)||"promise");});
+  setTimeout(function(){if(!window.__ok)document.title="TIMEOUT("+document.title+")";},5000);
+</script>
 
-  var canvas=document.getElementById("stage");
-  var wrap=canvas.parentElement;
-  var scene=new THREE.Scene();
-  scene.fog=new THREE.FogExp2(0x020204,0.09);
-  var camera=new THREE.PerspectiveCamera(38,1,0.1,100);
-  camera.position.set(0,0.2,6.2);
-  camera.lookAt(0,0,0);
-  var renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
-  renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=1.15;
-  renderer.outputEncoding=THREE.sRGBEncoding;
-  function resize(){var w=wrap.clientWidth,h=wrap.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/"
+}}
+</script>
 
-  /* --- 手続き的スタジオ環境(envMap): 面に周囲が映り込むと結晶が一気に"本物"になる。
-         キャンバスにグラデ＋暖色/白のブライトスポットを描き、PMREMで環境マップ化する。 --- */
-  var envTex=(function(){
-    var c=document.createElement("canvas");c.width=256;c.height=128;var g=c.getContext("2d");
-    var grd=g.createLinearGradient(0,0,0,128);
-    grd.addColorStop(0,"#3a3320");grd.addColorStop(0.45,"#12131a");grd.addColorStop(1,"#050507");
-    g.fillStyle=grd;g.fillRect(0,0,256,128);
-    function blob(x,y,r,col){var rg=g.createRadialGradient(x,y,0,x,y,r);rg.addColorStop(0,col);rg.addColorStop(1,"rgba(0,0,0,0)");g.fillStyle=rg;g.fillRect(0,0,256,128);}
-    blob(66,38,58,"rgba(255,232,185,0.95)");   // 金の主光(窓)
-    blob(200,28,42,"rgba(255,255,255,0.9)");    // 白の艶
-    blob(150,112,52,"rgba(120,150,205,0.5)");   // 冷たい下反射
-    var t=new THREE.CanvasTexture(c);t.mapping=THREE.EquirectangularReflectionMapping;return t;
-  })();
-  var pmrem=new THREE.PMREMGenerator(renderer);
-  var envRT=pmrem.fromEquirectangular(envTex);
-  scene.environment=envRT.texture;
-  envTex.dispose();pmrem.dispose();
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
-  /* ライティング: 金の主光源＋中性フィル＋白リム(ガラスの艶) */
-  scene.add(new THREE.AmbientLight(0x30343f,0.7));
-  var goldKey=new THREE.PointLight(0xd4a853,1.35,26,2);goldKey.position.set(2.8,3.0,3.6);scene.add(goldKey);
-  var coolFill=new THREE.PointLight(0xbcc8dc,0.72,26,2);coolFill.position.set(-3.2,-0.4,2.8);scene.add(coolFill);
-  var whiteRim=new THREE.PointLight(0xffffff,0.95,24,2);whiteRim.position.set(-2.0,2.8,-3.2);scene.add(whiteRim);
-  /* 結晶の艶を出す鋭いハイライト光(小範囲・近距離＝面がキラッと光る) */
-  var spec=new THREE.PointLight(0xffffff,1.25,6,2);spec.position.set(1.3,1.9,2.5);scene.add(spec);
+const canvas = document.getElementById('stage');
+const wrap = canvas.parentElement;
 
-  var rig=new THREE.Group();scene.add(rig);
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.18;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-  /* --- ガラス板(封入媒体): 半透明＋clearcoatで艶。r128はtransmission非対応なので
-         透明opacity＋clearcoat＋白リムで"ガラス"を作る。 --- */
-  var glassGeo=new THREE.BoxGeometry(2.7,3.1,0.6);
-  var glassMat=new THREE.MeshPhysicalMaterial({
-    color:0xb6c2d4, metalness:0.0, roughness:0.03, transparent:true, opacity:0.07,
-    clearcoat:1.0, clearcoatRoughness:0.02, ior:1.5, envMapIntensity:1.2, side:THREE.DoubleSide, depthWrite:false
-  });
-  var glass=new THREE.Mesh(glassGeo,glassMat);
-  rig.add(glass);
-  /* ガラスの稜線を金で(額の内側の光) */
-  var glassEdge=new THREE.LineSegments(new THREE.EdgesGeometry(glassGeo),
-    new THREE.LineBasicMaterial({color:0xd4a853,transparent:true,opacity:0.35}));
-  rig.add(glassEdge);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
+camera.position.set(0, 0.25, 6.6);
 
-  /* --- 石英クリスタル: 六角柱＋両端の六角錐(石英の典型形)。封入体の中心。 --- */
-  var crystal=new THREE.Group();
-  /* 透き通ったカット結晶: clearcoatで艶、弱emissiveで内側から光が透ける感、低roughnessで面がキラッと */
-  var xMat=new THREE.MeshPhysicalMaterial({
-    color:0xf0f4fa, metalness:0.0, roughness:0.04, transparent:true, opacity:0.60,
-    clearcoat:1.0, clearcoatRoughness:0.02, ior:1.54, reflectivity:0.6,
-    envMapIntensity:1.5, emissive:0x0e1626, emissiveIntensity:0.35, flatShading:true
-  });
-  var prism=new THREE.Mesh(new THREE.CylinderGeometry(0.46,0.46,1.5,6,1),xMat);
-  crystal.add(prism);
-  var tip1=new THREE.Mesh(new THREE.ConeGeometry(0.46,0.62,6,1),xMat);tip1.position.y=1.06;crystal.add(tip1);
-  var tip2=new THREE.Mesh(new THREE.ConeGeometry(0.46,0.62,6,1),xMat);tip2.position.y=-1.06;tip2.rotation.x=Math.PI;crystal.add(tip2);
-  /* 寄り添う小結晶(クラスタ感) */
-  var small=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.2,0.8,6,1),xMat);
-  small.position.set(0.5,-0.25,0.15);small.rotation.z=0.5;crystal.add(small);
-  var stip=new THREE.Mesh(new THREE.ConeGeometry(0.2,0.3,6,1),xMat);stip.position.set(0.62,0.28,0.15);stip.rotation.z=0.5;crystal.add(stip);
-  /* 面の稜線をくっきり(カット結晶＝ゲームアイテムの明快なエッジ) */
-  [prism,tip1,tip2,small,stip].forEach(function(m){
-    var e=new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry),
-      new THREE.LineBasicMaterial({color:0xeef4fb,transparent:true,opacity:0.30}));
-    e.position.copy(m.position);e.rotation.copy(m.rotation);e.scale.copy(m.scale);crystal.add(e);
-  });
-  /* 内部の淡い金の滲み(封じ込めた光) */
-  var glow=new THREE.Mesh(new THREE.IcosahedronGeometry(0.5,0),new THREE.MeshBasicMaterial({color:0xd4a853,transparent:true,opacity:0.05}));
-  crystal.add(glow);
-  crystal.rotation.set(0.15,0.4,0.22);
-  crystal.position.z=0.02;
-  rig.add(crystal);
+/* --- 反射用の環境マップ(void+金の単一暖色・鋭い白グリント)。equirectを手続き生成しPMREM化。 --- */
+function makeEquirectEnv(){
+  const c=document.createElement('canvas'); c.width=1024; c.height=512; const g=c.getContext('2d');
+  const grd=g.createLinearGradient(0,0,0,512);
+  grd.addColorStop(0,'#4a4020'); grd.addColorStop(0.42,'#12131b'); grd.addColorStop(1,'#050507');
+  g.fillStyle=grd; g.fillRect(0,0,1024,512);
+  const blob=(x,y,r,col)=>{const rg=g.createRadialGradient(x,y,0,x,y,r);rg.addColorStop(0,col);rg.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=rg;g.fillRect(0,0,1024,512);};
+  blob(240,150,320,'rgba(255,224,170,1)');       // 金の主光(大・強)
+  blob(245,150,96,'rgba(255,250,236,1)');         // その芯(白熱)
+  blob(770,120,190,'rgba(255,255,255,0.95)');     // 白の艶(大)
+  blob(786,124,46,'rgba(255,255,255,1)');         // 鋭い白グリント
+  blob(900,360,180,'rgba(255,220,160,0.6)');      // 右の巻き込み光(面がまわると閃く)
+  blob(540,430,220,'rgba(130,160,215,0.42)');     // 冷たい下反射
+  const bar=(x,y,w,h,a)=>{const rg=g.createLinearGradient(x,y,x,y+h);rg.addColorStop(0,'rgba(255,255,255,0)');rg.addColorStop(0.5,'rgba(255,255,255,'+a+')');rg.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=rg;g.fillRect(x,y,w,h);};
+  blob(512,210,470,'rgba(255,252,246,0.26)');     // 広い中性フィル=結晶がクリアに読める(琥珀化を抑える)
+  bar(120,50,150,320,0.5);                         // 縦ソフトボックス左(面に映る"窓"=写真っぽさ)
+  bar(650,60,120,280,0.42);                        // 縦ソフトボックス右
+  for(let i=0;i<20;i++) blob(Math.random()*1024, Math.random()*512, 2+Math.random()*4, 'rgba(255,242,214,1)'); // 微光点(鋭い星)
+  const t=new THREE.CanvasTexture(c); t.mapping=THREE.EquirectangularReflectionMapping; t.colorSpace=THREE.SRGBColorSpace; return t;
+}
+const pmrem = new THREE.PMREMGenerator(renderer);
+const envTex = makeEquirectEnv();
+scene.environment = pmrem.fromEquirectangular(envTex).texture;
+envTex.dispose(); pmrem.dispose();
 
-  /* 回転(慣性ドラッグ＋自動) */
-  var rotY=-0.35,rotX=0.02,velY=0,velX=0,drag=false,lx=0,ly=0,spin=true;
-  function dn(x,y){drag=true;lx=x;ly=y;spin=false;velY=0;velX=0;}
-  function mv(x,y){if(!drag)return;var dx=x-lx,dy=y-ly;velY=dx*0.006;velX=dy*0.004;rotY+=velY;rotX=Math.max(-0.5,Math.min(0.5,rotX+velX));lx=x;ly=y;}
-  function up(){drag=false;}
-  canvas.addEventListener("mousedown",function(e){dn(e.clientX,e.clientY);});
-  window.addEventListener("mousemove",function(e){mv(e.clientX,e.clientY);});
-  window.addEventListener("mouseup",up);
-  canvas.addEventListener("touchstart",function(e){var t=e.touches[0];dn(t.clientX,t.clientY);},{passive:true});
-  canvas.addEventListener("touchmove",function(e){var t=e.touches[0];mv(t.clientX,t.clientY);},{passive:true});
-  canvas.addEventListener("touchend",up);
+/* --- 背景の額(不透明メッシュ=結晶が"屈折して映す"対象)。void+金グロー+星。 --- */
+function makeBackdropTexture(){
+  const c=document.createElement('canvas'); c.width=1024; c.height=1024; const g=c.getContext('2d');
+  const grd=g.createLinearGradient(0,0,0,1024);
+  grd.addColorStop(0,'#131109'); grd.addColorStop(0.5,'#08090e'); grd.addColorStop(1,'#040406');
+  g.fillStyle=grd; g.fillRect(0,0,1024,1024);
+  const blob=(x,y,r,col)=>{const rg=g.createRadialGradient(x,y,0,x,y,r);rg.addColorStop(0,col);rg.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=rg;g.fillRect(0,0,1024,1024);};
+  blob(330,300,380,'rgba(230,175,85,0.62)');  // 金グロー(奥の光源)
+  blob(330,300,110,'rgba(255,232,182,0.95)');  // 芯
+  blob(760,250,160,'rgba(220,232,255,0.5)');   // 白青の遠光
+  blob(512,780,440,'rgba(150,120,70,0.34)');   // 下の灯った台(結晶の足元が光る)
+  blob(560,830,300,'rgba(70,100,160,0.2)');    // 冷フィル
+  g.globalCompositeOperation='lighter';
+  for(let i=0;i<140;i++){const gold=Math.random()<0.18;const a=(0.25+Math.random()*0.6).toFixed(2);g.fillStyle=gold?`rgba(212,168,83,${a})`:`rgba(232,224,208,${a})`;const s=Math.random()*1.6+0.4;g.beginPath();g.arc(Math.random()*1024,Math.random()*1024,s,0,7);g.fill();}
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t;
+}
+const backdrop = new THREE.Mesh(
+  new THREE.PlaneGeometry(20,20),
+  new THREE.MeshBasicMaterial({ map: makeBackdropTexture() })
+);
+backdrop.position.z = -4.5;
+scene.add(backdrop);
 
-  var clock=new THREE.Clock();
-  function animate(){
-    requestAnimationFrame(animate);
-    if(spin)rotY+=0.003;
-    if(!drag){rotY+=velY;velY*=0.94;if(Math.abs(velY)<1e-4)velY=0;rotX+=velX;velX*=0.94;if(Math.abs(velX)<1e-4)velX=0;rotX=Math.max(-0.5,Math.min(0.5,rotX));}
-    rig.rotation.y=rotY;rig.rotation.x=rotX;
-    /* 結晶だけ僅かに逆回転させて封入体が"浮いてる"感 */
-    crystal.rotation.y=0.4-rotY*0.3;
-    var t=clock.elapsedTime;
-    goldKey.position.set(Math.cos(t*0.3)*3.4,3.0+Math.sin(t*0.24)*0.5,Math.sin(t*0.3)*3.4);
-    glow.material.opacity=0.04+Math.sin(t*0.9)*0.02;
-    renderer.render(scene,camera);
+/* 結晶の奥の柔らかな発光核=背光。結晶がこれを透かして"光って"見える(硝子の撮り方)。 */
+function makeHaloTex(){
+  const s=256,c=document.createElement('canvas');c.width=c.height=s;const g=c.getContext('2d');
+  g.fillStyle='#06070c'; g.fillRect(0,0,s,s);
+  const rg=g.createRadialGradient(s/2,s/2,0,s/2,s/2,s/2);
+  rg.addColorStop(0,'rgba(255,245,226,1)'); rg.addColorStop(0.34,'rgba(230,188,122,0.72)'); rg.addColorStop(1,'rgba(6,7,12,1)');
+  g.fillStyle=rg; g.fillRect(0,0,s,s);
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t;
+}
+const halo = new THREE.Mesh(new THREE.CircleGeometry(1.7,48), new THREE.MeshBasicMaterial({ map: makeHaloTex() }));
+halo.position.set(0,0,-1.9); scene.add(halo);
+
+/* --- ライト: 面の鋭いきらめき用。フィルは環境マップが担う。 --- */
+const key = new THREE.DirectionalLight(0xffe6b4, 3.4); key.position.set(3.2,4.0,3.0); scene.add(key);
+const rim = new THREE.DirectionalLight(0xbcd0ff, 1.8); rim.position.set(-3.4,1.2,-1.5); scene.add(rim);
+/* 近距離の鋭い点光源=面が回ると熱いグリントが走る(石英の艶の主役) */
+const glint = new THREE.PointLight(0xfff0d6, 42, 30, 2); glint.position.set(1.7,2.2,3.2); scene.add(glint);
+/* 背光: 結晶の後ろから前へ=縁が光り、透過が"光って"見える */
+const back = new THREE.DirectionalLight(0xfff0e0, 2.6); back.position.set(-0.6,0.6,-3.5); scene.add(back);
+
+/* --- 石英の結晶形: 六角柱＋両端の六角錐(両錐水晶)。これが"特徴"そのもの。 --- */
+function quartzGeometry(rad, prismH, tipH){
+  const prism = new THREE.CylinderGeometry(rad, rad, prismH, 6, 1);
+  const top = new THREE.ConeGeometry(rad, tipH, 6, 1); top.translate(0, prismH/2 + tipH/2, 0);
+  const bot = new THREE.ConeGeometry(rad, tipH, 6, 1); bot.rotateX(Math.PI); bot.translate(0, -(prismH/2 + tipH/2), 0);
+  const geo = mergeGeometries([prism, top, bot], false).toNonIndexed();
+  geo.computeVertexNormals();   // 非インデックス化で各面が独立=結晶らしい明快なファセット
+  return geo;
+}
+
+/* 石英の縦条線(striation)=プリズム面に走る横縞。石英同定の決め手＝"特徴"。法線マップで表現。 */
+function makeStriationNormal(){
+  const s=512,c=document.createElement('canvas');c.width=c.height=s;const g=c.getContext('2d');
+  const img=g.createImageData(s,s),d=img.data;
+  for(let y=0;y<s;y++){
+    const ridge=Math.sin(y*0.55)*0.5+Math.sin(y*0.17+1.3)*0.3+Math.sin(y*1.9)*0.12;
+    for(let x=0;x<s;x++){
+      const n=Math.sin(x*0.3+y*0.1)*0.04, i=(y*s+x)*4;
+      d[i]=128+n*127; d[i+1]=128+ridge*46; d[i+2]=255; d[i+3]=255;
+    }
   }
-  window.addEventListener("resize",resize);
-  resize();animate();
-})();
+  g.putImageData(img,0,0);
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.NoColorSpace; t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(3,2); return t;
+}
+/* 表面の微かな拭き跡・埃=完璧すぎるCG感を消す。roughnessを揺らす。 */
+function makeSmudgeRough(){
+  const s=256,c=document.createElement('canvas');c.width=c.height=s;const g=c.getContext('2d');
+  g.fillStyle='#e6e6e6'; g.fillRect(0,0,s,s);
+  for(let i=0;i<26;i++){const x=Math.random()*s,y=Math.random()*s,r=8+Math.random()*26;const rg=g.createRadialGradient(x,y,0,x,y,r);rg.addColorStop(0,Math.random()<0.5?'rgba(255,255,255,0.5)':'rgba(140,140,140,0.4)');rg.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=rg;g.fillRect(0,0,s,s);}
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.NoColorSpace; t.wrapS=t.wrapT=THREE.RepeatWrapping; return t;
+}
+
+/* 透明な結晶: transmissionで背景を実屈折・dispersionで縁に虹・striation法線で石英の縦条線 */
+const quartzMat = new THREE.MeshPhysicalMaterial({
+  color: 0xffffff,
+  metalness: 0.0,
+  roughness: 0.05,
+  roughnessMap: makeSmudgeRough(),
+  normalMap: makeStriationNormal(),
+  normalScale: new THREE.Vector2(0.10, 0.10),
+  transmission: 0.98,        // ほぼクリア。存在は背光＋反射ハイライトで見せる
+  thickness: 1.4,
+  ior: 1.55,                 // 石英の実屈折率
+  dispersion: 0.45,          // 縁の虹(r162+)
+  attenuationColor: 0xeaf1ff,
+  attenuationDistance: 3.5,  // 厚い所にごく淡い芯
+  clearcoat: 1.0,
+  clearcoatRoughness: 0.02,
+  specularIntensity: 1.0,
+  specularColor: 0xffffff,
+  envMapIntensity: 1.6,      // 反射を強く=面が閃く
+  transparent: true
+});
+
+const crystal = new THREE.Group();
+const main = new THREE.Mesh(quartzGeometry(0.46, 1.5, 0.62), quartzMat);
+crystal.add(main);
+/* 寄り添う小結晶(クラスタ=これも石英の特徴) */
+const comp = new THREE.Mesh(quartzGeometry(0.19, 0.7, 0.30), quartzMat);
+comp.position.set(0.52, -0.55, 0.18); comp.rotation.set(0.12, 0.3, 0.5); crystal.add(comp);
+const comp2 = new THREE.Mesh(quartzGeometry(0.12, 0.5, 0.22), quartzMat);
+comp2.position.set(-0.42, -0.62, 0.0); comp2.rotation.set(-0.1, 0.6, -0.42); crystal.add(comp2);
+
+crystal.rotation.set(0.10, 0.5, 0.14);
+scene.add(crystal);
+
+/* --- 操作: OrbitControlsで回す。慣性・自動回転・上下制限。 --- */
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+controls.enablePan = false;
+controls.enableZoom = true; controls.minDistance = 4.8; controls.maxDistance = 8.6;
+controls.autoRotate = true; controls.autoRotateSpeed = 0.9;
+controls.minPolarAngle = Math.PI*0.24; controls.maxPolarAngle = Math.PI*0.76;
+controls.target.set(0,0,0);
+controls.addEventListener('start', ()=>{ controls.autoRotate = false; });
+
+function resize(){
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w/h; camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize);
+resize();
+
+function animate(){
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+  if(!window.__ok){ window.__ok = true; document.title = 'OKRENDER'; }
+}
+animate();
 </script>
 </body>
 </html>
