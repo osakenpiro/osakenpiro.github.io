@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>護錆 — 錆びない金属ほど、よく錆びる | 人類の素材図鑑 3D教科書</title>
+<meta name="description" content="錆は敵か味方か。その二値を、酸化層の緻密さのFloatに開く3D教科書。スライダーで、同じ錆が 裂ける薄皮→密封する鎧→剥がれる瘡蓋 に変わる。#全人類UX改善計画">
+<meta property="og:title" content="護錆（ごせい）— 錆びない金属ほど、よく錆びる">
+<meta property="og:description" content="アルミは鉄より酸化しやすい。なのに錆びない。先に、いちばん激しく錆びるからだ。錆が鎧になる境目を、P–B比のスライダーで触る3D教科書。">
+<meta property="og:url" content="https://osakenpiro.github.io/gosei/">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://osakenpiro.github.io/gosei/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="護錆（ごせい）— 錆びない金属ほど、よく錆びる">
+<meta name="twitter:description" content="守るために、いちばん先に錆びる。人類の素材図鑑 3D教科書 No.002">
+<meta name="twitter:image" content="https://osakenpiro.github.io/gosei/og.png">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; background:#06060a; font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic Medium",system-ui,sans-serif; overflow-x:hidden; }
+  :root{
+    --void:#06060a; --void-deep:#020203; --surface:#131119; --surface-hi:#1a1722;
+    --gold:#d4a853; --gold-soft:rgba(212,168,83,.12); --gold-glow:rgba(212,168,83,.28); --gold-edge:rgba(212,168,83,.45);
+    --fg-1:#e8e0d0; --fg-2:#b8b0a0; --fg-3:#807868; --dim:#5a5448;
+    --border:rgba(200,184,160,.08); --border-hover:rgba(212,168,83,.22);
+    --serif:"Cormorant Garamond","游明朝体","Yu Mincho",YuMincho,"Hiragino Mincho ProN",serif;
+    --mono:"JetBrains Mono","SF Mono",Menlo,Consolas,monospace;
+  }
+  a{color:var(--gold);text-decoration:none}
+
+  /* ===== 星空背景 ===== */
+  #sky{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .star{position:absolute;border-radius:50%;background:#e8e0d0;animation:tw 4s ease-in-out infinite}
+  .star.g{background:var(--gold)}
+  @keyframes tw{0%,100%{opacity:.12}50%{opacity:.75}}
+
+  main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:44px 20px 90px}
+
+  /* ===== ①表題プレート ===== */
+  .kanban{position:relative;text-align:center;margin:10px auto 0;max-width:640px}
+  .plate{position:relative;display:inline-block;background:var(--surface);border:1px solid var(--gold-edge);
+    border-radius:10px;padding:30px 42px 24px;box-shadow:0 14px 44px rgba(0,0,0,.55)}
+  .rivet{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--gold);opacity:.75;box-shadow:0 0 6px var(--gold-glow)}
+  .rivet.tl{top:9px;left:9px}.rivet.tr{top:9px;right:9px}.rivet.bl{bottom:9px;left:9px}.rivet.br{bottom:9px;right:9px}
+  .eyebrow{font-size:.7rem;letter-spacing:.35em;color:var(--fg-3);text-transform:uppercase;margin-bottom:10px}
+  .eyebrow b{color:var(--gold);font-weight:600}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,5.4vw,2.5rem);letter-spacing:.05em;line-height:1.3;color:var(--fg-1)}
+  h1 small{display:block;font-size:.42em;letter-spacing:.2em;color:var(--fg-3);margin-top:10px;font-family:-apple-system,sans-serif;font-weight:400}
+  .triname{margin-top:16px;font-size:.78rem;color:var(--fg-3);letter-spacing:.08em;line-height:2}
+  .triname b{color:var(--gold);font-weight:500}
+
+  /* ===== ②3Dステージ ===== */
+  .stage-wrap{position:relative;max-width:640px;margin:34px auto 0;border:1px solid var(--border);border-radius:16px 16px 0 0;
+    background:radial-gradient(circle at 50% 38%,rgba(212,168,83,.05),transparent 60%),var(--void-deep);
+    overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);border-bottom:none}
+  #stage{width:100%;height:min(58vw,420px);display:block;touch-action:none;cursor:grab}
+  #stage:active{cursor:grabbing}
+  .stage-hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);font-size:.72rem;letter-spacing:.1em;
+    color:var(--fg-3);pointer-events:none;transition:opacity .6s;background:rgba(6,6,10,.5);padding:4px 12px;border-radius:999px}
+  .stage-badge{position:absolute;top:14px;right:14px;font-size:.66rem;letter-spacing:.15em;color:var(--gold);
+    border:1px solid var(--gold-edge);border-radius:999px;padding:3px 11px;background:rgba(6,6,10,.55)}
+  .stage-verdict{position:absolute;top:14px;left:14px;font-size:.72rem;letter-spacing:.06em;color:var(--fg-1);
+    background:rgba(6,6,10,.62);border:1px solid var(--border-hover);border-radius:8px;padding:6px 12px;max-width:58%;line-height:1.6}
+  .stage-verdict b{color:var(--gold);font-weight:600}
+  .stage-verdict .anom{display:block;margin-top:6px;padding-top:6px;border-top:1px dashed var(--gold-edge);
+    color:var(--gold);font-size:.92em;line-height:1.55}
+
+  /* ===== 操作盤 ===== */
+  .console{max-width:640px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-top:1px solid var(--border-hover);
+    border-radius:0 0 16px 16px;padding:22px 26px 24px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .ctl{margin-bottom:18px}
+  .ctl:last-of-type{margin-bottom:14px}
+  .ctl-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:10px}
+  .ctl-head .lab{font-size:.78rem;color:var(--fg-2);letter-spacing:.08em}
+  .ctl-head .lab small{color:var(--fg-3);font-size:.86em;letter-spacing:.02em}
+  .ctl-head .val{font-family:var(--mono);font-size:.9rem;color:var(--gold)}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:999px;
+    background:linear-gradient(90deg,rgba(212,168,83,.5),rgba(212,168,83,.14));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;
+    background:var(--gold);cursor:pointer;box-shadow:0 0 10px var(--gold-glow);border:none}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--gold);cursor:pointer;border:none}
+  .ticks{position:relative;height:14px;margin-top:6px;font-size:.62rem;color:var(--dim);letter-spacing:.04em}
+  .ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+  .presets{display:flex;flex-wrap:wrap;gap:8px;border-top:1px dashed var(--border);padding-top:16px}
+  .presets .pl{font-size:.68rem;color:var(--fg-3);letter-spacing:.15em;width:100%;margin-bottom:2px}
+  .preset{background:transparent;border:1px solid var(--border-hover);color:var(--fg-2);border-radius:999px;
+    padding:5px 13px;font-size:.76rem;cursor:pointer;font-family:inherit;transition:.18s;letter-spacing:.03em}
+  .preset:hover{border-color:var(--gold-edge);color:var(--fg-1);background:var(--gold-soft)}
+  .preset.on{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+  .preset.anom{border-style:dashed}
+  .preset .r{font-family:var(--mono);font-size:.86em;color:var(--fg-3);margin-left:6px}
+  .preset.on .r{color:var(--gold)}
+
+  /* ===== けじめ線 ===== */
+  .kejime{display:flex;align-items:center;gap:14px;margin:56px 0 28px}
+  .kejime::before,.kejime::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-edge),transparent)}
+  .kejime span{color:var(--gold);font-size:.76rem;letter-spacing:.32em;white-space:nowrap}
+
+  /* ===== ③教科書本文 ===== */
+  .lesson{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 30px;margin-bottom:18px}
+  .lesson h2{font-family:var(--serif);font-size:1.15rem;color:var(--gold);font-weight:600;letter-spacing:.03em;margin-bottom:14px;
+    display:flex;align-items:baseline;gap:10px}
+  .lesson h2 .no{font-family:var(--mono);font-size:.8rem;color:var(--fg-3);letter-spacing:.1em}
+  .lesson p{font-size:.94rem;color:var(--fg-2);line-height:1.95;margin-bottom:12px}
+  .lesson p:last-child{margin-bottom:0}
+  .lesson b{color:var(--fg-1);font-weight:600}
+  .lesson .gold-word{color:var(--gold);font-weight:500}
+  .lesson .ruled{border-left:2px solid var(--gold-edge);padding-left:16px;margin:16px 0;color:var(--fg-2);font-size:.9rem;line-height:1.9}
+
+  /* クイズ導入 */
+  .quiz{border:1px dashed var(--gold-edge);border-radius:12px;background:var(--gold-soft);padding:20px 24px;margin:0 auto 30px;max-width:640px}
+  .quiz .qlabel{font-size:.68rem;letter-spacing:.3em;color:var(--gold);margin-bottom:8px}
+  .quiz p{font-size:.94rem;color:var(--fg-1);line-height:1.85}
+  .quiz .ans{margin-top:10px;font-size:.84rem;color:var(--fg-3)}
+  .quiz .ans b{color:var(--gold)}
+
+  /* データ値札 */
+  .froshiki{position:relative;max-width:640px;margin:0 auto 30px;background:rgba(200,184,160,.045);
+    border:1px solid rgba(200,184,160,.16);border-radius:6px;padding:24px 28px 20px 94px}
+  .stamp{position:absolute;left:20px;top:24px;width:50px;height:50px;border:2px solid var(--gold-edge);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;color:var(--gold);font-family:var(--serif);font-size:1.4rem;
+    transform:rotate(-8deg);opacity:.9}
+  .froshiki dl{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-size:.84rem}
+  .froshiki dt{color:var(--fg-3);letter-spacing:.13em}
+  .froshiki dd{color:var(--fg-1);font-family:var(--mono);font-size:.82rem;line-height:1.7}
+  .froshiki .src{margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);font-size:.72rem;color:var(--dim);line-height:1.8}
+
+  /* ===== ④Float数直線 ===== */
+  .gauge-block{max-width:640px;margin:0 auto 10px;background:var(--surface);border:1px solid var(--border);
+    border-radius:14px;padding:26px 30px}
+  .gauge-block h2{font-family:var(--serif);font-size:1.1rem;color:var(--gold);font-weight:600;margin-bottom:10px}
+  .gauge-block .lede{font-size:.88rem;color:var(--fg-2);line-height:1.85;margin-bottom:22px}
+  .gauge-block .lede b{color:var(--fg-1)}
+
+  /* 4レーン(上2・下2)。Cr2.07とSi2.15は数直線上でほぼ重なるので、必ず別レーンに置く。 */
+  .axis{position:relative;height:172px;margin:0 6px 4px}
+  .axis .bands{position:absolute;top:78px;left:0;right:0;height:16px;border-radius:4px;overflow:hidden;display:flex}
+  .axis .band{height:100%;border-right:1px solid rgba(6,6,10,.9);display:flex;align-items:center;justify-content:center;
+    font-size:.56rem;letter-spacing:.04em;white-space:nowrap;overflow:hidden}
+  .band.b1{background:rgba(200,184,160,.05)}
+  .band.b2{background:rgba(212,168,83,.2)}
+  .band.b3{background:rgba(200,184,160,.05)}
+  /* 帯の中に文字を置くとピンに食われて切れる。凡例は軸の外に出す。 */
+  .legend{display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:center;margin-top:2px;font-size:.66rem;letter-spacing:.04em}
+  .legend i{display:inline-block;width:16px;height:9px;border-radius:2px;margin-right:6px;vertical-align:middle}
+  .legend .lg{color:var(--dim);white-space:nowrap}
+  .legend .lg.p{color:var(--gold)}
+  .legend i.i1,.legend i.i3{background:rgba(200,184,160,.12);border:1px solid rgba(200,184,160,.2)}
+  .legend i.i2{background:rgba(212,168,83,.4);border:1px solid var(--gold-edge)}
+  .pin{position:absolute;top:0;height:172px;width:0;cursor:pointer}
+  .pin .dot{position:absolute;top:82px;left:-4px;width:8px;height:8px;border-radius:50%;background:var(--fg-3);
+    box-shadow:0 0 0 3px var(--void-deep);z-index:2}
+  .pin.hi .dot{background:var(--gold);box-shadow:0 0 0 3px var(--void-deep),0 0 10px var(--gold-glow);
+    width:10px;height:10px;top:81px;left:-5px}
+  .pin .stem{position:absolute;left:0;width:1px;background:rgba(200,184,160,.18)}
+  .pin.hi .stem{background:var(--gold-edge)}
+  .pin .nm{position:absolute;left:0;transform:translateX(-50%);font-size:.63rem;color:var(--fg-3);
+    white-space:nowrap;letter-spacing:.02em;font-family:var(--mono)}
+  .pin.hi .nm{color:var(--gold)}
+  .pin.u2 .nm{top:0}       .pin.u2 .stem{top:14px;height:68px}
+  .pin.u1 .nm{top:26px}    .pin.u1 .stem{top:40px;height:42px}
+  .pin.d1 .nm{top:100px}   .pin.d1 .stem{top:90px;height:10px}
+  .pin.d2 .nm{top:126px}   .pin.d2 .stem{top:90px;height:36px}
+  .axis .scale{position:absolute;top:152px;left:0;right:0;height:12px}
+  .axis .scale span{position:absolute;transform:translateX(-50%);font-size:.6rem;color:var(--dim);font-family:var(--mono)}
+  .anom-note{margin-top:26px;border:1px dashed var(--gold-edge);border-radius:10px;background:var(--gold-soft);padding:16px 18px;
+    font-size:.85rem;color:var(--fg-2);line-height:1.9}
+  .anom-note b{color:var(--gold);font-weight:600}
+  .gauge-note{margin-top:16px;font-size:.82rem;color:var(--fg-3);line-height:1.85;border-top:1px dashed var(--border);padding-top:14px}
+  .gauge-note b{color:var(--gold);font-weight:500}
+
+  /* ===== 開き戸 ===== */
+  .hirakido{max-width:640px;margin:0 auto 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface);overflow:hidden}
+  .hirakido summary{cursor:pointer;padding:13px 18px;font-size:.88rem;color:var(--fg-2);list-style:none}
+  .hirakido summary::-webkit-details-marker{display:none}
+  .hirakido summary:hover{color:var(--fg-1);background:var(--surface-hi)}
+  .dia{color:var(--gold);margin-right:10px}
+  .hirakido .hd-body{padding:4px 20px 18px;font-size:.85rem;color:var(--fg-2);line-height:1.9;border-top:1px dashed var(--border)}
+  .hirakido .hd-body b{color:var(--fg-1)}
+  .hirakido .hd-body ul{margin:10px 0 0 18px}
+  .hirakido .hd-body li{margin-bottom:8px}
+
+  .shime{max-width:640px;margin:44px auto 0;text-align:center;font-family:var(--serif);font-size:clamp(1.1rem,3.4vw,1.5rem);
+    color:var(--fg-1);letter-spacing:.1em;line-height:1.9}
+  .shime .em{color:var(--gold)}
+
+  footer{position:relative;z-index:1;text-align:center;padding:40px 20px 60px;font-size:.72rem;color:var(--dim);letter-spacing:.1em}
+  footer .foot-line{margin-top:9px;font-size:.94em;letter-spacing:.04em;line-height:1.8;color:var(--dim)}
+
+  @media(max-width:560px){
+    .plate{padding:24px 22px 20px}
+    .lesson{padding:22px 20px}
+    .console{padding:20px 18px}
+    .froshiki{padding:22px 18px 18px 78px}
+    .gauge-block{padding:22px 18px}
+    .stamp{left:14px;width:46px;height:46px}
+    .stage-verdict{max-width:64%;font-size:.66rem}
+    .pin .nm{font-size:.56rem}
+  }
+</style>
+</head>
+<body>
+<div id="sky"></div>
+
+<main>
+
+  <!-- ①表題 -->
+  <div class="kanban">
+    <div class="plate">
+      <span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>
+      <div class="eyebrow">人類の素材図鑑 <b>3D教科書</b> · No.002</div>
+      <h1>護錆<small>ゴセイ — 錆びない金属ほど、よく錆びる</small></h1>
+      <div class="triname">
+        音韻: <b>悟性</b>・互生・五声と同音、みな“層”の語 &nbsp;/&nbsp; 意味: <b>守る錆</b>＝不動態皮膜 &nbsp;/&nbsp; 構造: 護(＋)と錆(−)が<b>反対を向いたまま釣り合う</b>一語
+      </div>
+    </div>
+  </div>
+
+  <!-- ②3Dステージ -->
+  <div class="stage-wrap">
+    <canvas id="stage"></canvas>
+    <div class="stage-badge">drag to rotate</div>
+    <div class="stage-verdict" id="verdict">—</div>
+    <div class="stage-hint" id="hint">下のつまみを動かす — 金は金属、灰は錆</div>
+  </div>
+
+  <!-- 操作盤 -->
+  <div class="console">
+    <div class="ctl">
+      <div class="ctl-head">
+        <span class="lab">酸化物の体積比 <small>P–B比 ＝ 酸化物の体積 ÷ 消費された金属の体積</small></span>
+        <span class="val" id="pbVal">1.28</span>
+      </div>
+      <input type="range" id="pb" min="0.5" max="3.3" step="0.01" value="1.28">
+      <div class="ticks">
+        <span style="left:0%">0.5</span>
+        <span style="left:17.9%">1.0</span>
+        <span style="left:53.6%">2.0</span>
+        <span style="left:100%">3.3</span>
+      </div>
+    </div>
+
+    <div class="ctl">
+      <div class="ctl-head">
+        <span class="lab">時間 <small>酸化がどれだけ進んだか（模式）</small></span>
+        <span class="val" id="tVal">0.00</span>
+      </div>
+      <input type="range" id="tm" min="0" max="1" step="0.005" value="0">
+      <div class="ticks">
+        <span style="left:0%">新品</span>
+        <span style="left:100%">経年</span>
+      </div>
+    </div>
+
+    <div class="presets">
+      <span class="pl">実在の金属を置いてみる</span>
+      <button class="preset" data-pb="0.81">マグネシウム<span class="r">0.81</span></button>
+      <button class="preset on" data-pb="1.28">アルミニウム<span class="r">1.28</span></button>
+      <button class="preset" data-pb="1.73">チタン<span class="r">1.73</span></button>
+      <button class="preset anom" data-pb="2.07">クロム<span class="r">2.07</span></button>
+      <button class="preset" data-pb="2.14">鉄（赤錆）<span class="r">2.14</span></button>
+      <button class="preset" data-pb="3.30">タングステン<span class="r">3.3</span></button>
+    </div>
+  </div>
+
+  <div class="kejime"><span>読み物として、錆を読む</span></div>
+
+  <!-- クイズ -->
+  <div class="quiz">
+    <div class="qlabel">Q. まず、常識を裏切る一問</div>
+    <p>アルミと鉄。<b>より酸素と結びつきたがるのは、アルミのほうだ。</b>反応のしやすさで言えばアルミの圧勝である。ではなぜ、アルミ製品は錆びていないように見えるのか？</p>
+    <div class="ans">答えはこの下。<b>先に自分の予想を決めてから</b>読み進めてほしい。</div>
+  </div>
+
+  <!-- ③本文 -->
+  <div class="lesson">
+    <h2><span class="no">§1</span>錆びないのではない — 先に、激しく錆びている</h2>
+    <p>酸化物のできやすさは、<b>標準生成ギブズエネルギー</b>という数字で比べられる。値が負に大きいほど「その酸化物になりたがっている」。25℃での代表値は、酸化アルミニウム(Al₂O₃)が約 <span class="gold-word">−1582 kJ/mol</span>、酸化鉄(Fe₂O₃)が約 <span class="gold-word">−742 kJ/mol</span> とされる。同じ M₂O₃ の形で並べても、<b>アルミは鉄の倍以上の勢いで酸素に飛びつく</b>。</p>
+    <p>それでもアルミの鍋は赤錆に覆われない。アルミは空気に触れた瞬間に酸化し、その酸化物が<b>数ナノメートルの薄さで、緻密に、金属に密着した膜</b>になって表面を封じてしまうからだ。以後、酸素は中に入れない。これを<span class="gold-word">不動態(passivation)</span>という。</p>
+    <p class="ruled">アルミが錆びないのは、錆びにくいからではない。<b>いちばん先に、いちばん激しく錆びて、その錆が蓋になったから</b>だ。錆は、ここでは鎧である。</p>
+    <p>いっぽう鉄の赤錆は、同じ「錆」でありながら、ぼろぼろと剥がれ落ちて新しい金属面を晒し続ける。だから鉄は食われ続ける。——同じ現象が、守りにもなり、壊しにもなる。この符号は、いったい何が決めているのか。</p>
+  </div>
+
+  <div class="lesson">
+    <h2><span class="no">§2</span>P–B比 — 「錆の体積」で守りと壊しを分ける規則</h2>
+    <p>1923年、N.B. Pilling と R.E. Bedworth は、高温の乾燥空気中で金属が酸化する挙動を調べ、ひとつの比を提案した（"The Oxidation of Metals at High Temperatures", J. Inst. Met. 29, 529–591）。</p>
+    <p class="ruled"><b>P–B比 ＝ できた酸化物の体積 ÷ それを作るのに消費された金属の体積</b></p>
+    <p>錆は元の金属より大きくなったり小さくなったりする。小さすぎれば表面を覆いきれず、大きすぎれば行き場をなくして自分を壊す。この比だけで、酸化物が保護膜になるかどうかが<b>三つの箱</b>に分けられる、とされた。</p>
+    <p><b>1未満</b> … 酸化物が小さく、覆いきれずに隙間や割れができる → 保護しない（マグネシウム 0.81）。<br>
+       <b>1〜2</b> … ほどよく大きく、緻密で密着した膜になる → 不動態（アルミニウム 1.28、チタン 1.73）。<br>
+       <b>2超</b> … 大きすぎて応力で浮き、剥がれ落ちる → 保護しない（酸化鉄Fe₂O₃ 2.14、酸化タングステン 3.3）。</p>
+    <p>上のつまみは、この比そのものだ。動かすと、同じ「錆」が、<b>裂ける薄皮 → 密封する鎧 → 剥がれ落ちる瘡蓋</b>へと連続的に姿を変える。</p>
+  </div>
+
+  <div class="lesson">
+    <h2><span class="no">§3</span>規則は、自分の表に破られている</h2>
+    <p>ここで、教科書がそろって書く一文を読む。——「1〜2の例＝<b>アルミニウム、チタン、クロムを含む鋼</b>」。クロムは不動態金属の代表格で、ステンレス鋼の耐食性を支えているのだから、当然そう書きたくなる。</p>
+    <p>ところが同じ資料の表には、こう載っている。<span class="gold-word">Cr₂O₃ ＝ 2.07</span>。</p>
+    <p class="ruled">2.07 は「<b>2超＝剥がれ落ちる</b>」の箱の中だ。規則が保護の例として挙げた当の金属が、規則自身の表では、保護しない側に立っている。<b>線は、引かれた瞬間から破られている。</b></p>
+    <p>上の操作盤で「クロム」を押すと、模型はきちんと剥がれてみせる。剥がれているのは<b>クロムではなく、規則のほう</b>だ。実物のクロムは、いまも世界中の流し台を守っている。</p>
+    <p>例外はクロムだけではない。P–B比の例外は数多いことが知られており、その多くは<b>酸化物がどう育つか</b>で説明される。P–B比は暗黙に「酸素が皮膜を透って金属表面まで潜り込む」と仮定しているが、実際には<b>金属イオンのほうが外側へ拡散して、空気と酸化物の境界で錆になる</b>場合が多いとされる。育ち方が違えば、体積比だけでは決まらない。</p>
+    <p>そもそもこの規則は、<b>高温・乾燥空気の酸化</b>を見て作られた経験則だ。雨ざらしの自転車に浮く赤錆は、水と電気が絡む別の機構（電気化学的な腐食）で進む。P–B比は、その日常の錆をそのまま説明する式ではない。</p>
+  </div>
+
+  <!-- データ値札 -->
+  <div class="froshiki">
+    <div class="stamp">護錆</div>
+    <dl>
+      <dt>指標</dt><dd>Pilling–Bedworth比（P–B比 / R<sub>PB</sub>）</dd>
+      <dt>初出</dt><dd>Pilling &amp; Bedworth, J. Inst. Met. 29 (1923) 529–591</dd>
+      <dt>定義</dt><dd>酸化物の単位胞体積 ÷ 対応する金属の単位胞体積</dd>
+      <dt>適用範囲</dt><dd>高温・乾燥空気中の酸化（湿食＝電気化学的腐食は対象外）</dd>
+      <dt>代表値</dt><dd>Mg 0.81 / Al 1.28 / Zr 1.56 / Zn 1.58 / Ni 1.65 / Cu 1.68 / FeO 1.7 / Ti 1.73 / Fe₃O₄ 1.90 / <b>Cr₂O₃ 2.07</b> / Fe₂O₃ 2.14 / SiO₂ 2.15 / WO₃ 3.3</dd>
+      <dt>既知の弱点</dt><dd>例外が多数。金属イオン外向き拡散を考慮していない</dd>
+    </dl>
+    <div class="src">
+      数値は Xu, C. &amp; Gao, W. "Pilling–Bedworth ratio for oxidation of alloys", Mat. Res. Innovat. 3 (2000) 231–235 / ASM Handbook Vol.13 "Corrosion" (1987) に基づく代表値として流通しているものを引いた。天然・実材料では組成・温度・下地で揺れる。<b>本ページの3Dは実測でも数値シミュレーションでもなく、比の意味を手で触るための模式図である。</b>
+    </div>
+  </div>
+
+  <div class="kejime"><span>Boolean → Float</span></div>
+
+  <!-- ④Float数直線 -->
+  <div class="gauge-block">
+    <h2>皮膜の緻密さ <span style="font-size:.6em;color:var(--fg-3);font-weight:400;letter-spacing:.05em">Compactness Float</span></h2>
+    <p class="lede">「錆は敵か、味方か」——この問いはBooleanで立てられている。P–B比はそれを三つの箱に開いた。だが箱は三つでも、まだ箱だ。<b>下の数直線に実在の金属を置くと、線のほうが先に折れる。</b></p>
+
+    <div class="axis" id="axis">
+      <div class="bands">
+        <div class="band b1" style="flex:0 0 17.9%"></div>
+        <div class="band b2" style="flex:0 0 35.7%"></div>
+        <div class="band b3" style="flex:1 1 auto"></div>
+      </div>
+      <!-- ピン・目盛はJSで配置 -->
+    </div>
+    <div class="legend">
+      <span class="lg"><i class="i1"></i>1未満 ＝ 保護しない</span>
+      <span class="lg p"><i class="i2"></i>1〜2 ＝ 不動態・守る</span>
+      <span class="lg"><i class="i3"></i>2超 ＝ 保護しない</span>
+    </div>
+
+    <div class="anom-note">
+      <b>◆ 折れている場所</b><br>
+      クロム(2.07)は「保護しない」の箱に落ちているのに、現実には不動態金属の代表格。ケイ素(2.15)も同じ箱にいるが、シリコンウェハの酸化膜は半導体産業がまるごと依存するほど安定している。——箱の境界は、自然が引いた線ではない。<b>人が、説明のために引いた線</b>だ。
+    </div>
+
+    <div class="gauge-note">
+      では正しい線はどこか、ではない。<b>線がない</b>のだ。皮膜が金属を守る度合いは、体積比・密着性・イオンの拡散のしやすさ・温度・下地の粗さが混ざった<b>連続量</b>で、P–B比はその一次近似にすぎない。この図の数直線は「答えの目盛り」ではなく、<b>Booleanの箱がどこで破れるかを見るための定規</b>として置いている。値はすべて公開された代表値であり、本ページの著者による実測ではない。
+    </div>
+  </div>
+
+  <details class="hirakido">
+    <summary><span class="dia">◆</span>この教材の留保（設計メモ）</summary>
+    <div class="hd-body">
+      3D模型は<b>模式図</b>である。実測でも数値シミュレーションでもなく、P–B比という一つの数を「体積」「隙間」「浮き上がり」という見える量に割り当てただけの装置だ。以下は、断定を避けるべき点。
+      <ul>
+        <li><b>適用範囲</b>：P–B比は高温・乾燥空気の酸化を対象とした1923年の経験則。日常の赤錆（水がある電気化学的腐食）を直接説明するものではない。</li>
+        <li><b>例外の多さ</b>：規則の例外は数多い。クロム(2.07)・ケイ素(2.15)は「2超＝保護しない」に落ちるが、実際には強力な保護膜をつくる。本ページはこの矛盾を<b>隠さず主題にした</b>。</li>
+        <li><b>機構の単純化</b>：P–B比は酸素が内側へ拡散すると仮定するが、実際は金属イオンが外側へ拡散する場合が多いとされる。体積比だけで保護性は決まらない。</li>
+        <li><b>数値の出所</b>：Xu &amp; Gao (2000) / ASM Handbook Vol.13 に基づき流通する代表値。鉄はFeO 1.7 / Fe₃O₄ 1.90 / Fe₂O₃ 2.14 と酸化物ごとに異なり、「鉄のP–B比」という単一の値は存在しない。本ページで鉄に2.14を当てたのは、赤錆(Fe₂O₃)の話をしているからにすぎない。</li>
+        <li><b>時間つまみ</b>：金属が食われる速さは、P–B比から著者が組んだ<b>作り物の関数</b>で描いている。実際の酸化速度則（放物線則など）とは別物であり、傾向を体で掴むための演出である。</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="shime">守るために、<span class="em">いちばん先に錆びる。</span></div>
+
+</main>
+
+<footer>
+  人類の素材図鑑 3D教科書 No.002 「護錆」 / osakenpiro · Visionium
+  <div class="foot-line">
+    数値は公開された代表値の引用であり、著者による実測ではない。3Dは模式図。
+  </div>
+  <div class="foot-line">#全人類UX改善計画</div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  /* ===== 星空 ===== */
+  var sky = document.getElementById("sky");
+  for (var i = 0; i < 70; i++) {
+    var s = document.createElement("div");
+    s.className = "star" + (Math.random() < 0.16 ? " g" : "");
+    var size = (Math.random() * 1.8 + 0.6).toFixed(2);
+    s.style.width = size + "px";
+    s.style.height = size + "px";
+    s.style.left = (Math.random() * 100).toFixed(2) + "%";
+    s.style.top = (Math.random() * 100).toFixed(2) + "%";
+    s.style.animationDelay = (Math.random() * 4).toFixed(2) + "s";
+    sky.appendChild(s);
+  }
+
+  /* ===== 定数 ===== */
+  var PB_MIN = 0.5, PB_MAX = 3.3;
+  var COLS = 10, ROWS = 6;
+  var SLAB_W = 4.2, SLAB_D = 2.5, SLAB_H0 = 0.62;
+  var TILE_W = SLAB_W / COLS, TILE_D = SLAB_D / ROWS;
+
+  /* 決定論的な疑似乱数(タイルごとの揺れ) */
+  function rnd(i, salt) {
+    var n = Math.sin(i * 12.9898 + salt * 78.233) * 43758.5453;
+    return n - Math.floor(n);
+  }
+
+  /* ===== Three.js ===== */
+  var canvas = document.getElementById("stage");
+  var wrap = canvas.parentElement;
+
+  var scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x020203, 0.055);
+
+  var camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
+  camera.position.set(0, 2.0, 6.4);
+  camera.lookAt(0, 0, 0);
+
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+  function resize() {
+    var w = wrap.clientWidth;
+    var cssH = parseFloat(getComputedStyle(canvas).height) || Math.min(w * 0.58, 420);
+    renderer.setSize(w, cssH, false);
+    camera.aspect = w / cssH;
+    camera.updateProjectionMatrix();
+  }
+
+  /* 金の主光源＝金属を光らせる / 中性光＝錆を「灰」として読ませる。
+     色相は金(#d4a853)と無彩色のみ。第二の暖色は入れない(設計正典)。 */
+  scene.add(new THREE.AmbientLight(0x2c2c33, 0.85));
+  var goldKey = new THREE.PointLight(0xd4a853, 1.55, 26, 2);
+  goldKey.position.set(3.0, 3.4, 3.6);
+  scene.add(goldKey);
+  var neutralFill = new THREE.PointLight(0xc8ccd4, 0.62, 26, 2);
+  neutralFill.position.set(-3.4, 1.6, 3.0);
+  scene.add(neutralFill);
+  var rim = new THREE.PointLight(0xffffff, 0.5, 26, 2);
+  rim.position.set(-1.8, 3.4, -3.8);
+  scene.add(rim);
+
+  var rig = new THREE.Group();
+  scene.add(rig);
+
+  /* --- 金属スラブ(box primitive) --- */
+  var slabGeo = new THREE.BoxGeometry(SLAB_W, 1, SLAB_D);
+  /* metalnessを上げすぎるとenvMap無しでは金属が黒く沈む(three.jsの常)。
+     envMapを積まない方針(単一HTML・外部資産ゼロ)なので、metalnessは中庸＋弱emissiveで金を保つ。 */
+  var slabMat = new THREE.MeshStandardMaterial({
+    color: 0xd4a853, metalness: 0.5, roughness: 0.31, emissive: 0x2a1e08
+  });
+  var slab = new THREE.Mesh(slabGeo, slabMat);
+  rig.add(slab);
+
+  /* --- 母材の“消えた分”を示す影スラブ(元の輪郭) --- */
+  var ghostGeo = new THREE.BoxGeometry(SLAB_W * 1.001, SLAB_H0, SLAB_D * 1.001);
+  var ghostMat = new THREE.MeshBasicMaterial({ color: 0xd4a853, transparent: true, opacity: 0.05, wireframe: true });
+  var ghost = new THREE.Mesh(ghostGeo, ghostMat);
+  ghost.position.y = 0;
+  rig.add(ghost);
+
+  /* --- 酸化層タイル(box primitive の格子) --- */
+  var oxGeo = new THREE.BoxGeometry(1, 1, 1);
+  var tiles = [];
+  for (var r = 0; r < ROWS; r++) {
+    for (var c = 0; c < COLS; c++) {
+      var idx = r * COLS + c;
+      var m = new THREE.MeshStandardMaterial({ color: 0x4a4844, metalness: 0.06, roughness: 0.96, flatShading: true });
+      var t = new THREE.Mesh(oxGeo, m);
+      t.userData = {
+        cx: -SLAB_W / 2 + TILE_W * (c + 0.5),
+        cz: -SLAB_D / 2 + TILE_D * (r + 0.5),
+        j1: rnd(idx, 1), j2: rnd(idx, 2), j3: rnd(idx, 3), j4: rnd(idx, 4)
+      };
+      rig.add(t);
+      tiles.push(t);
+    }
+  }
+
+  /* ===== モデル: P–B比 → 見える量 =====
+     ・coverage: PB<1 で覆いきれず隙間が開く(多孔・割れ)
+     ・thickness: 酸化物の体積 ∝ PB
+     ・spall: PB>2 で浮き上がり・傾き(剥落)
+     ・protect: 1〜2 の窓でのみ高い(＝規則が主張する箱)
+     すべて模式であり実測・数値計算ではない。 */
+  function coverageOf(pb) { return pb < 1 ? Math.max(0.42, pb) : 1; }
+  function thicknessOf(pb) { return 0.055 + 0.115 * pb; }
+  /* 剥落は2.0を越えた瞬間から立ち上がる(冪0.35)。鉄2.14が規則の代表例である以上、
+     ここが「ほぼ無変化」では教材にならない。W3.3で飽和。 */
+  function spallOf(pb) { return pb <= 2 ? 0 : Math.min(1, Math.pow((pb - 2) / 1.3, 0.35)); }
+  function protectOf(pb) {
+    if (pb <= 1) return 0;
+    if (pb < 1.15) return (pb - 1) / 0.15;
+    if (pb <= 1.85) return 1;
+    if (pb < 2.15) return 1 - (pb - 1.85) / 0.3;
+    return 0;
+  }
+
+  var state = { pb: 1.28, tm: 0 };
+
+  /* 判定文は「P–B比という規則がそう言っている」という意味しか持たない。
+     2.0〜2.2の帯には実物が規則を裏切る金属(Cr 2.07 / Si 2.15)がいるので、そこは明示する。 */
+  function verdictOf(pb) {
+    if (pb < 1) return { k: "裂ける薄皮", d: "酸化物が小さすぎて覆いきれない。隙間から母材が食われ続ける。", a: null };
+    if (pb <= 2) return { k: "密封する鎧", d: "緻密で密着した膜が母材を封じる。＝不動態。", a: null };
+    var anom = (pb <= 2.2)
+      ? "※この帯にクロム2.07・ケイ素2.15がいる。実物は保護する。破れているのは規則のほう。"
+      : null;
+    return { k: "剥がれる瘡蓋", d: "酸化物が大きすぎて応力で浮く。剥落し、母材が晒され続ける。", a: anom };
+  }
+
+  var verdictEl = document.getElementById("verdict");
+
+  function apply() {
+    var pb = state.pb, tm = state.tm;
+    var cov = coverageOf(pb);
+    var th = thicknessOf(pb);
+    var sp = spallOf(pb);
+    var pr = protectOf(pb);
+
+    /* 母材の消耗: 守られているほど食われない(模式の関数) */
+    var eaten = tm * (1 - 0.9 * pr) * 0.5;       // 0〜0.5（模型が痩せ切らない上限）
+    var slabH = Math.max(0.06, SLAB_H0 * (1 - eaten));
+    slab.scale.set(1, slabH, 1);
+    slab.position.y = -SLAB_H0 / 2 + slabH / 2;   // 底面を固定して上面が下がる
+    var topY = slab.position.y + slabH / 2;
+    ghost.position.y = 0;
+
+    /* 錆の育ち: 時間で厚みが増す(上限あり) */
+    var grow = 0.35 + 0.65 * Math.min(1, tm * (1.6 - 0.8 * pr));
+    var thNow = th * grow;
+
+    for (var i = 0; i < tiles.length; i++) {
+      var t = tiles[i], u = t.userData;
+      var lift = sp * (0.10 + u.j1 * 0.55) * (0.35 + 0.65 * tm);
+      var gap = (1 - cov) * (0.55 + u.j2 * 0.45);
+
+      t.scale.set(TILE_W * (cov - gap * 0.25), thNow, TILE_D * (cov - gap * 0.25));
+      t.position.set(
+        u.cx + sp * (u.j3 - 0.5) * 0.5 * tm,
+        topY + thNow / 2 + lift,
+        u.cz + sp * (u.j4 - 0.5) * 0.5 * tm
+      );
+      t.rotation.set(
+        sp * (u.j1 - 0.5) * 1.1 * (0.3 + 0.7 * tm),
+        sp * (u.j2 - 0.5) * 0.7,
+        sp * (u.j4 - 0.5) * 1.1 * (0.3 + 0.7 * tm)
+      );
+
+      /* 錆は無彩色(灰)。守る錆ほど締まって明るい灰、壊す錆ほど暗くくすむ。
+         金は母材だけに残す＝「金は金属、灰は錆」を色で守る。 */
+      var lum = 0.22 + 0.20 * pr;
+      t.material.color.setRGB(lum * 1.04, lum, lum * 0.94);
+      t.material.emissive.setRGB(pr * 0.035, pr * 0.026, pr * 0.010);
+    }
+
+    var v = verdictOf(pb);
+    verdictEl.innerHTML = "<b>" + v.k + "</b><br>" + v.d
+      + (v.a ? '<br><span class="anom">' + v.a + "</span>" : "");
+  }
+
+  /* ===== UI ===== */
+  var pbEl = document.getElementById("pb");
+  var tmEl = document.getElementById("tm");
+  var pbVal = document.getElementById("pbVal");
+  var tVal = document.getElementById("tVal");
+  var hintEl = document.getElementById("hint");
+  var presets = Array.prototype.slice.call(document.querySelectorAll(".preset"));
+
+  function syncPresets() {
+    presets.forEach(function (b) {
+      b.classList.toggle("on", Math.abs(parseFloat(b.getAttribute("data-pb")) - state.pb) < 0.005);
+    });
+  }
+  function syncPins() {
+    var pins = Array.prototype.slice.call(document.querySelectorAll(".pin"));
+    pins.forEach(function (p) {
+      p.classList.toggle("hi", Math.abs(parseFloat(p.getAttribute("data-pb")) - state.pb) < 0.06);
+    });
+  }
+
+  pbEl.addEventListener("input", function () {
+    state.pb = parseFloat(pbEl.value);
+    pbVal.textContent = state.pb.toFixed(2);
+    syncPresets(); syncPins(); apply();
+    if (hintEl) hintEl.style.opacity = "0";
+  });
+  tmEl.addEventListener("input", function () {
+    state.tm = parseFloat(tmEl.value);
+    tVal.textContent = state.tm.toFixed(2);
+    apply();
+    if (hintEl) hintEl.style.opacity = "0";
+  });
+
+  function setPb(v) {
+    state.pb = v;
+    pbEl.value = String(v);
+    pbVal.textContent = v.toFixed(2);
+    syncPresets(); syncPins(); apply();
+    if (hintEl) hintEl.style.opacity = "0";
+  }
+  presets.forEach(function (b) {
+    b.addEventListener("click", function () { setPb(parseFloat(b.getAttribute("data-pb"))); });
+  });
+
+  /* ===== Float数直線のピン配置 ===== */
+  /* lane: u2(最上) / u1 / d1 / d2(最下)。
+     Cr 2.07・Fe 2.14・Si 2.15 は数直線上で団子になるため、必ず別レーンへ散らす。 */
+  var METALS = [
+    { n: "Mg 0.81", v: 0.81, lane: "u2" },
+    { n: "Al 1.28", v: 1.28, lane: "d1" },
+    { n: "Zn 1.58", v: 1.58, lane: "u1" },
+    { n: "Ti 1.73", v: 1.73, lane: "d2" },
+    { n: "Cr 2.07", v: 2.07, lane: "u2" },
+    { n: "Fe 2.14", v: 2.14, lane: "d1" },
+    { n: "Si 2.15", v: 2.15, lane: "u1" },
+    { n: "W 3.3",   v: 3.3,  lane: "d2" }
+  ];
+  var axis = document.getElementById("axis");
+  METALS.forEach(function (m) {
+    var pct = ((m.v - PB_MIN) / (PB_MAX - PB_MIN)) * 100;
+    var el = document.createElement("div");
+    el.className = "pin " + m.lane;
+    el.style.left = pct + "%";
+    el.setAttribute("data-pb", String(m.v));
+    el.innerHTML = '<span class="nm">' + m.n + '</span><div class="stem"></div><div class="dot"></div>';
+    el.addEventListener("click", function () {
+      setPb(m.v);
+      document.querySelector(".stage-wrap").scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    axis.appendChild(el);
+  });
+  var scale = document.createElement("div");
+  scale.className = "scale";
+  [[1.0, "1.0"], [2.0, "2.0"], [3.0, "3.0"]].forEach(function (s) {
+    var sp = document.createElement("span");
+    sp.style.left = (((s[0] - PB_MIN) / (PB_MAX - PB_MIN)) * 100) + "%";
+    sp.textContent = s[1];
+    scale.appendChild(sp);
+  });
+  axis.appendChild(scale);
+
+  /* ===== ドラッグ回転(慣性・OrbitControls不使用) ===== */
+  var rotY = -0.42, rotX = 0.0, velY = 0, velX = 0;
+  var dragging = false, lastX = 0, lastY = 0, autoSpin = true;
+
+  function pointerDown(x, y) {
+    dragging = true; lastX = x; lastY = y; autoSpin = false; velY = 0; velX = 0;
+    if (hintEl) hintEl.style.opacity = "0";
+  }
+  function pointerMove(x, y) {
+    if (!dragging) return;
+    var dx = x - lastX, dy = y - lastY;
+    velY = dx * 0.006; velX = dy * 0.004;
+    rotY += velY;
+    rotX = Math.max(-0.15, Math.min(0.75, rotX + velX));
+    lastX = x; lastY = y;
+  }
+  function pointerUp() { dragging = false; }
+
+  canvas.addEventListener("mousedown", function (e) { pointerDown(e.clientX, e.clientY); });
+  window.addEventListener("mousemove", function (e) { pointerMove(e.clientX, e.clientY); });
+  window.addEventListener("mouseup", pointerUp);
+  canvas.addEventListener("touchstart", function (e) { var t = e.touches[0]; pointerDown(t.clientX, t.clientY); }, { passive: true });
+  canvas.addEventListener("touchmove", function (e) { var t = e.touches[0]; pointerMove(t.clientX, t.clientY); }, { passive: true });
+  canvas.addEventListener("touchend", pointerUp);
+
+  /* ===== ループ ===== */
+  var clock = new THREE.Clock();
+  function animate() {
+    requestAnimationFrame(animate);
+    if (autoSpin) rotY += 0.0022;
+    if (!dragging) {
+      rotY += velY; velY *= 0.94; if (Math.abs(velY) < 0.0001) velY = 0;
+      rotX += velX; velX *= 0.94; if (Math.abs(velX) < 0.0001) velX = 0;
+      rotX = Math.max(-0.15, Math.min(0.75, rotX));
+    }
+    rig.rotation.y = rotY;
+    rig.rotation.x = rotX;
+
+    var t = clock.elapsedTime;
+    goldKey.position.set(Math.cos(t * 0.26) * 3.6, 3.0 + Math.sin(t * 0.2) * 0.7, Math.sin(t * 0.26) * 3.6);
+
+    renderer.render(scene, camera);
+  }
+
+  window.addEventListener("resize", resize);
+  resize();
+  rig.rotation.x = 0.28; rotX = 0.28;
+  setPb(1.28);
+  syncPins();
+  apply();
+  animate();
+})();
+</script>
+</body>
+</html>
