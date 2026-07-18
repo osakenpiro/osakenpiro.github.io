@@ -3,61 +3,81 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>体でえた — 筋群ホログラム</title>
-<meta name="description" content="本物の解剖メッシュ467構造を青ホログラムで発光させ、トレーニング種目ごとに効く筋群をFloat濃淡で可視化する。Boolean→Float。">
+<meta name="description" content="本物の解剖メッシュ467構造を青ホログラムで発光させ、トレーニング種目ごとに効く筋群をFloat濃淡で可視化する。クリックで筋名・起始停止・作用も表示。Boolean→Float。">
 <meta property="og:title" content="体でえた — 筋群ホログラム">
-<meta property="og:description" content="本物の解剖メッシュ467構造を青ホログラムで発光。種目ごとに効く筋群をFloat濃淡で可視化する。Boolean→Float。">
+<meta property="og:description" content="本物の解剖メッシュ467構造を青ホログラムで発光。種目ごとに効く筋群をFloat濃淡で可視化し、クリックで筋の詳細も見られる。Boolean→Float。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://osakenpiro.github.io/karada-de-eta/">
 <meta property="og:image" content="https://osakenpiro.github.io/karada-de-eta/og.png">
 <meta name="twitter:card" content="summary_large_image">
+<title>体でえた — 筋群ホログラム</title>
 <style>
-  :root{ --bg:#05070d; --fg:#cfe9ff; --dim:#5f7fa6; --accent:#3fd0ff; --panel:rgba(8,14,26,.72); }
+  :root{ --bg:#05070d; --fg:#cfe9ff; --dim:#5f7fa6; --accent:#3fd0ff; --gold:#ffcf6b; --panel:rgba(8,14,26,.74); }
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);
     font-family:-apple-system,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
   #app{position:fixed;inset:0}
-  canvas{display:block}
-  /* ── top title ── */
+  canvas{display:block;touch-action:none}
   #title{position:fixed;left:16px;top:12px;z-index:5;pointer-events:none;text-shadow:0 1px 10px #000}
   #title b{font-size:19px;letter-spacing:.14em;color:#eaf6ff}
-  #title small{display:block;font-size:10.5px;letter-spacing:.22em;color:var(--dim);margin-top:2px}
-  /* ── exercise dock ── */
+  #title small{display:block;font-size:10.5px;letter-spacing:.2em;color:var(--dim);margin-top:2px}
+  /* top-right controls */
+  #ctl{position:fixed;right:14px;top:12px;z-index:7;display:flex;gap:6px}
+  button.tg{appearance:none;cursor:pointer;border:1px solid rgba(63,208,255,.28);background:var(--panel);color:var(--dim);
+    font:inherit;font-size:11.5px;font-weight:600;padding:6px 10px;border-radius:10px;backdrop-filter:blur(7px);transition:.16s}
+  button.tg:hover{border-color:var(--accent);color:#fff}
+  button.tg.on{color:#fff;border-color:var(--accent);background:linear-gradient(180deg,rgba(63,208,255,.3),rgba(63,208,255,.12))}
+  /* exercise dock */
   #dock{position:fixed;left:12px;bottom:12px;z-index:6;display:flex;flex-direction:column;gap:8px;max-width:min(46vw,340px)}
   .row{display:flex;flex-wrap:wrap;gap:6px}
   .rowlabel{font-size:10px;letter-spacing:.18em;color:var(--dim);margin:0 0 -2px 2px}
-  button.ex{appearance:none;cursor:pointer;border:1px solid rgba(63,208,255,.28);
-    background:var(--panel);color:var(--fg);font:inherit;font-size:12.5px;font-weight:600;
-    padding:7px 11px;border-radius:11px;backdrop-filter:blur(7px);transition:.16s;white-space:nowrap}
+  button.ex{appearance:none;cursor:pointer;border:1px solid rgba(63,208,255,.28);background:var(--panel);color:var(--fg);
+    font:inherit;font-size:12.5px;font-weight:600;padding:7px 11px;border-radius:11px;backdrop-filter:blur(7px);transition:.16s;white-space:nowrap}
   button.ex:hover{border-color:var(--accent);color:#fff}
-  button.ex.active{background:linear-gradient(180deg,rgba(63,208,255,.34),rgba(63,208,255,.14));
-    border-color:var(--accent);color:#fff;box-shadow:0 0 18px rgba(63,208,255,.35)}
+  button.ex.active{background:linear-gradient(180deg,rgba(63,208,255,.34),rgba(63,208,255,.14));border-color:var(--accent);color:#fff;box-shadow:0 0 18px rgba(63,208,255,.35)}
   button.ex.reset{border-color:rgba(150,170,200,.3);color:var(--dim)}
-  /* ── legend (Float breakdown) ── */
-  #legend{position:fixed;right:14px;top:54px;z-index:6;width:min(40vw,232px);background:var(--panel);
-    border:1px solid rgba(63,208,255,.18);border-radius:14px;padding:13px 14px;backdrop-filter:blur(8px);
+  /* legend (Float breakdown) */
+  #legend{position:fixed;right:14px;top:52px;z-index:6;width:min(40vw,232px);background:var(--panel);
+    border:1px solid rgba(63,208,255,.18);border-radius:14px;padding:12px 14px;backdrop-filter:blur(8px);
     opacity:0;transform:translateY(-6px);transition:.22s;pointer-events:none}
   #legend.show{opacity:1;transform:none}
   #legend h3{margin:0 0 3px;font-size:14px;color:#eaf6ff;letter-spacing:.04em}
-  #legend .cue{margin:0 0 9px;font-size:10.5px;color:var(--dim);line-height:1.45}
+  #legend .cue{margin:0 0 8px;font-size:10.5px;color:var(--dim);line-height:1.45}
   .bar{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:11.5px}
   .bar .nm{flex:0 0 74px;color:#bcd8f5;text-align:right}
   .bar .track{flex:1;height:7px;border-radius:4px;background:rgba(120,150,190,.16);overflow:hidden}
   .bar .fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#1d6fa8,#3fd0ff,#eafcff)}
   .bar .val{flex:0 0 30px;font-variant-numeric:tabular-nums;color:var(--accent)}
-  /* ── hint + attribution ── */
-  #hint{position:fixed;right:14px;bottom:52px;z-index:5;font-size:10.5px;color:var(--dim);text-align:right;pointer-events:none;text-shadow:0 1px 8px #000}
-  #attrib{position:fixed;right:10px;bottom:8px;z-index:5;font-size:9px;line-height:1.5;color:#42597a;text-align:right;max-width:52vw}
-  #attrib a{color:#5f83ad;text-decoration:none}
-  /* ── loading ── */
-  #load{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;
-    background:radial-gradient(circle at 50% 42%,#0a1122,#05070d 70%);transition:opacity .6s}
+  /* muscle info panel */
+  #info{position:fixed;right:14px;bottom:52px;z-index:8;width:min(46vw,300px);background:var(--panel);
+    border:1px solid rgba(255,207,107,.34);border-radius:14px;padding:13px 15px;backdrop-filter:blur(9px);
+    opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none}
+  #info.show{opacity:1;transform:none;pointer-events:auto}
+  #info .x{position:absolute;right:9px;top:7px;cursor:pointer;color:var(--dim);font-size:15px;line-height:1;padding:4px}
+  #info .x:hover{color:#fff}
+  #info h3{margin:0 4px 1px 0;font-size:15px;color:var(--gold);letter-spacing:.02em;padding-right:16px}
+  #info .sub{font-size:10.5px;color:var(--dim);margin-bottom:9px}
+  #info dl{margin:0;display:grid;grid-template-columns:44px 1fr;gap:3px 9px;font-size:11.5px;line-height:1.4}
+  #info dt{color:#8fb2d8;text-align:right;white-space:nowrap}
+  #info dd{margin:0;color:#d6e9ff}
+  #info .lk{margin-top:10px;display:flex;gap:8px}
+  #info .lk a{font-size:11px;color:var(--accent);text-decoration:none;border:1px solid rgba(63,208,255,.3);border-radius:8px;padding:3px 9px}
+  #info .lk a:hover{background:rgba(63,208,255,.12)}
+  /* hint + attribution */
+  #hint{position:fixed;left:50%;transform:translateX(-50%);bottom:8px;z-index:5;font-size:10.5px;color:var(--dim);pointer-events:none;text-shadow:0 1px 8px #000;text-align:center}
+  #attrib{position:fixed;right:10px;bottom:8px;z-index:4;font-size:9px;line-height:1.5;color:#42597a;text-align:right;max-width:40vw;pointer-events:none}
+  #attrib a{color:#5f83ad;text-decoration:none;pointer-events:auto}
+  /* loading */
+  #load{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 42%,#0a1122,#05070d 70%);transition:opacity .6s}
   #load.hide{opacity:0;pointer-events:none}
   #load .ring{width:52px;height:52px;border-radius:50%;border:2px solid rgba(63,208,255,.18);border-top-color:var(--accent);animation:spin 1s linear infinite}
   #load .t{margin-top:18px;font-size:12px;letter-spacing:.24em;color:var(--dim)}
   #load .p{margin-top:6px;font-size:11px;color:var(--accent);font-variant-numeric:tabular-nums}
   @keyframes spin{to{transform:rotate(360deg)}}
-  @media (max-width:560px){ #legend{top:auto;bottom:120px} #title small{letter-spacing:.16em} }
+  #toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:9;background:var(--panel);border:1px solid rgba(63,208,255,.3);
+    border-radius:10px;padding:6px 13px;font-size:11.5px;color:var(--fg);backdrop-filter:blur(7px);opacity:0;transition:.25s;pointer-events:none}
+  #toast.show{opacity:1}
+  @media (max-width:600px){ #legend{width:44vw} #info{width:52vw} #title small{letter-spacing:.14em} }
 </style>
 </head>
 <body>
@@ -65,29 +85,31 @@
 
 <div id="title"><b>体 で え た</b><small>KARADA-DE-ETA · 467 STRUCTURES · BOOLEAN→FLOAT · by osakenpiro</small></div>
 
+<div id="ctl">
+  <button class="tg" id="btnSkel" title="骨格を重ねる">🦴 骨</button>
+  <button class="tg" id="btnSpin" title="自動回転">⟳ 回転</button>
+</div>
+
 <div id="dock">
-  <div>
-    <p class="rowlabel">ジム 5種目</p>
-    <div class="row" id="rowGym"></div>
-  </div>
-  <div>
-    <p class="rowlabel">自重 4種目</p>
-    <div class="row" id="rowBody"></div>
-  </div>
+  <div><p class="rowlabel">ジム 5種目</p><div class="row" id="rowGym"></div></div>
+  <div><p class="rowlabel">自重 4種目</p><div class="row" id="rowBody"></div></div>
 </div>
 
-<div id="legend">
-  <h3 id="lgName">—</h3>
-  <p class="cue" id="lgCue"></p>
-  <div id="lgBars"></div>
+<div id="legend"><h3 id="lgName">—</h3><p class="cue" id="lgCue"></p><div id="lgBars"></div></div>
+
+<div id="info">
+  <span class="x" id="infoX">✕</span>
+  <h3 id="ifName">—</h3>
+  <div class="sub" id="ifSub"></div>
+  <dl id="ifDl"></dl>
+  <div class="lk" id="ifLk"></div>
 </div>
 
-<div id="hint">ドラッグ=回転 · ホイール=ズーム · 右ドラッグ=移動</div>
+<div id="toast"></div>
+<div id="hint">ドラッグ=回転 · ホイール=ズーム · <b>筋をクリック=名前と作用</b></div>
 <div id="attrib">
-  Mesh: <a href="https://lifesciencedb.jp/bp3d/" target="_blank" rel="noopener">BodyParts3D</a> © DBCLS
-  <a href="https://creativecommons.org/licenses/by-sa/2.1/jp/" target="_blank" rel="noopener">CC BY-SA 2.1 JP</a>
-  ／ <a href="https://www.z-anatomy.com/" target="_blank" rel="noopener">Z-Anatomy</a>
-  <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>
+  Mesh: <a href="https://lifesciencedb.jp/bp3d/" target="_blank" rel="noopener">BodyParts3D</a> © DBCLS <a href="https://creativecommons.org/licenses/by-sa/2.1/jp/" target="_blank" rel="noopener">CC BY-SA 2.1 JP</a>
+  ／ <a href="https://www.z-anatomy.com/" target="_blank" rel="noopener">Z-Anatomy</a> <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>
   ／ loader: <a href="https://github.com/JohanBellander/BodyExplorer" target="_blank" rel="noopener">BodyExplorer</a> (MIT)
 </div>
 
@@ -98,16 +120,14 @@
 <script src="./lib/OrbitControls.js"></script>
 <script>
 "use strict";
-/* ============================================================
-   体でえた / KARADA-DE-ETA
-   本物の解剖メッシュ(BodyParts3D+Z-Anatomy, 467構造)を
-   青フレネル・ホログラムで発光させ、種目→筋群を Float濃淡 で可視化。
-   分類ロジック・座標変換は BodyExplorer(MIT) から移植。
-   ============================================================ */
+/* 体でえた / KARADA-DE-ETA v2
+   実解剖メッシュ(BodyParts3D+Z-Anatomy,467)を青フレネル発光。
+   種目→筋群Float発光 ＋ クリックで筋の同定/起始停止/作用。
+   分類・座標変換・情報DB は BodyExplorer(MIT) から移植。 */
 
-/* ---- 1. 筋群分類 (BodyExplorer classifyMuscleGroup 移植) ---- */
+/* 1. 筋群分類 (classifyMuscleGroup 移植) */
 function classifyMuscleGroup(name){
-  const n = name.toLowerCase();
+  const n=name.toLowerCase();
   if(n.includes('sternocleidomastoid')||n.includes('platysma')||n.includes('digastric')||n.includes('mylohyoid')||n.includes('sternohyoid')||n.includes('omohyoid')||n.includes('thyrohyoid')||n.includes('stylohyoid')||n.includes('splenius')||n.includes('longus colli')||n.includes('rectus capitis')||n.includes('levator palpebrae')||n.includes('oblique arytenoid')||n.includes('cricothyroid')||n.includes('levator veli')||n.includes('tensor veli')||n.includes('arytenoid')||n.includes('vocal')||n.includes('scalenus')||n.includes('geniohyoid')||n.includes('sternothyroid')||n.includes('longus capitis')||n.includes('crico-arytenoid')||n.includes('cricoarytenoid')||n.includes('thyro-arytenoid')||n.includes('thyroarytenoid')||n.includes('transverse arytenoid')||n.includes('frontalis')||n.includes('orbicularis oculi')||n.includes('orbicularis oris')||n.includes('zygomaticus')||n.includes('levator labii')||n.includes('depressor labii')||n.includes('depressor anguli')||n.includes('risorius')||n.includes('mentalis')||n.includes('procerus')||n.includes('nasalis')||n.includes('corrugator supercilii')||n.includes('temporalis')||n.includes('masseter')||n.includes('pterygoid')) return 'HEAD_NECK';
   if(n.includes('lateral rectus')||n.includes('medial rectus')||n.includes('superior rectus')||n.includes('inferior rectus')||n.includes('superior oblique')||n.includes('inferior oblique')) return 'HEAD_NECK';
   if(n.includes('deltoid')||n.includes('supraspinatus')||n.includes('infraspinatus')||n.includes('subscapularis')||n.includes('teres')||n.includes('levator scapulae')||n.includes('subclavius')) return 'SHOULDER';
@@ -125,224 +145,201 @@ function classifyMuscleGroup(name){
   return null;
 }
 
-/* ---- 2. 筋群メタ (JP名 + ホログラム色相ずらし) ---- */
-const GROUPS = {
-  HEAD_NECK:{jp:'頭頸部'}, SHOULDER:{jp:'肩'}, CHEST:{jp:'胸'}, BACK:{jp:'背中'},
-  UPPER_ARM:{jp:'上腕'}, FOREARM:{jp:'前腕'}, ABDOMEN:{jp:'腹'}, HIP:{jp:'臀・股'},
-  UPPER_LEG:{jp:'大腿'}, LOWER_LEG:{jp:'下腿'}, HAND:{jp:'手'}, FOOT:{jp:'足'},
-  TRUNK:{jp:'体幹'}, OTHER:{jp:'その他'}
-};
-const GROUP_KEYS = Object.keys(GROUPS);
+/* 2. 群メタ */
+const GROUPS={HEAD_NECK:{jp:'頭頸部'},SHOULDER:{jp:'肩'},CHEST:{jp:'胸'},BACK:{jp:'背中'},UPPER_ARM:{jp:'上腕'},FOREARM:{jp:'前腕'},ABDOMEN:{jp:'腹'},HIP:{jp:'臀・股'},UPPER_LEG:{jp:'大腿'},LOWER_LEG:{jp:'下腿'},HAND:{jp:'手'},FOOT:{jp:'足'},TRUNK:{jp:'体幹'},OTHER:{jp:'その他'}};
+const GROUP_KEYS=Object.keys(GROUPS);
 
-/* ---- 3. 種目 → 筋群Float (寄与度 0..1) ---- */
-const EXERCISES = {
+/* 3. 種目→筋群Float */
+const EXERCISES={
   chestpress:{jp:'チェストプレス',cue:'胸を張り肩甲骨を寄せて押す。肘は伸ばし切らない。',map:{CHEST:1.0,SHOULDER:0.6,UPPER_ARM:0.55,ABDOMEN:0.2}},
-  latpull:   {jp:'ラットプルダウン',cue:'鎖骨に引き下ろす。反動を使わず背中で引く。',map:{BACK:1.0,UPPER_ARM:0.6,SHOULDER:0.45,FOREARM:0.35}},
-  legpress:  {jp:'レッグプレス',cue:'膝はつま先と同じ向き。伸展で押し切らない。',map:{UPPER_LEG:1.0,HIP:0.7,LOWER_LEG:0.4}},
-  abdominal: {jp:'アブドミナル',cue:'息を吐きながら丸める。腰を反らせない。',map:{ABDOMEN:1.0,TRUNK:0.5,HIP:0.3}},
-  treadmill: {jp:'トレッドミル',cue:'着地は足裏全体。会話できる強度から。',map:{LOWER_LEG:0.85,UPPER_LEG:0.6,HIP:0.45,ABDOMEN:0.25}},
-  plank:     {jp:'プランク',cue:'頭〜踵を一直線。腰を落とさない。',map:{ABDOMEN:0.9,TRUNK:0.6,HIP:0.4,SHOULDER:0.35}},
-  squat:     {jp:'スクワット',cue:'股関節から折る。膝を内に入れない。',map:{UPPER_LEG:1.0,HIP:0.8,LOWER_LEG:0.45,ABDOMEN:0.3}},
-  pushup:    {jp:'腕立て伏せ',cue:'体を板に保つ。肘は45度に開く。',map:{CHEST:0.9,UPPER_ARM:0.6,SHOULDER:0.55,ABDOMEN:0.4}},
-  pullup:    {jp:'懸垂',cue:'肩を下げてから引く。顎はバーを越える。',map:{BACK:1.0,UPPER_ARM:0.7,SHOULDER:0.5,FOREARM:0.45}}
+  latpull:{jp:'ラットプルダウン',cue:'鎖骨に引き下ろす。反動を使わず背中で引く。',map:{BACK:1.0,UPPER_ARM:0.6,SHOULDER:0.45,FOREARM:0.35}},
+  legpress:{jp:'レッグプレス',cue:'膝はつま先と同じ向き。伸展で押し切らない。',map:{UPPER_LEG:1.0,HIP:0.7,LOWER_LEG:0.4}},
+  abdominal:{jp:'アブドミナル',cue:'息を吐きながら丸める。腰を反らせない。',map:{ABDOMEN:1.0,TRUNK:0.5,HIP:0.3}},
+  treadmill:{jp:'トレッドミル',cue:'着地は足裏全体。会話できる強度から。',map:{LOWER_LEG:0.85,UPPER_LEG:0.6,HIP:0.45,ABDOMEN:0.25}},
+  plank:{jp:'プランク',cue:'頭〜踵を一直線。腰を落とさない。',map:{ABDOMEN:0.9,TRUNK:0.6,HIP:0.4,SHOULDER:0.35}},
+  squat:{jp:'スクワット',cue:'股関節から折る。膝を内に入れない。',map:{UPPER_LEG:1.0,HIP:0.8,LOWER_LEG:0.45,ABDOMEN:0.3}},
+  pushup:{jp:'腕立て伏せ',cue:'体を板に保つ。肘は45度に開く。',map:{CHEST:0.9,UPPER_ARM:0.6,SHOULDER:0.55,ABDOMEN:0.4}},
+  pullup:{jp:'懸垂',cue:'肩を下げてから引く。顎はバーを越える。',map:{BACK:1.0,UPPER_ARM:0.7,SHOULDER:0.5,FOREARM:0.45}}
 };
 
-/* ---- 4. ホログラム ShaderMaterial (フレネル発光・不透明・ACES前提) ---- */
-const holoVert = `
-  varying vec3 vN; varying vec3 vV; varying vec3 vW;
-  void main(){
-    vec4 mv = modelViewMatrix * vec4(position,1.0);
-    vN = normalMatrix * normal;
-    vV = -mv.xyz;
-    vW = (modelMatrix * vec4(position,1.0)).xyz;
-    gl_Position = projectionMatrix * mv;
-  }`;
-const holoFrag = `
-  precision highp float;
-  uniform float uAct; uniform float uTime; uniform float uGhost;
-  uniform vec3 uBase; uniform vec3 uDark; uniform vec3 uGlow;
-  varying vec3 vN; varying vec3 vV; varying vec3 vW;
-  void main(){
-    vec3 N = normalize(vN); vec3 V = normalize(vV);
-    float fres = pow(1.0 - abs(dot(N,V)), 2.6);
-    float act  = max(uGhost, uAct);
-    // horizontal scan line drifting up
-    float scan = 0.85 + 0.15*sin(vW.y*8.0 - uTime*1.6);
-    vec3 body = mix(uDark, uBase, fres) * (0.45 + 0.35*act);
-    vec3 glow = uGlow * act * (0.30 + 0.70*fres) * scan;
-    vec3 col = body + glow;
-    // subtle flicker on strongly-active tissue
-    col += uGlow * act * act * 0.06 * (0.5 + 0.5*sin(uTime*3.0 + vW.y*3.0));
-    gl_FragColor = vec4(col, 1.0);
-  }`;
-
-function makeHoloMaterial(){
-  return new THREE.ShaderMaterial({
-    uniforms:{
-      uAct:{value:0.0}, uTime:{value:0.0}, uGhost:{value:0.05},
-      uBase:{value:new THREE.Color(0.18,0.52,0.95)},
-      uDark:{value:new THREE.Color(0.015,0.05,0.13)},
-      uGlow:{value:new THREE.Color(0.45,0.92,1.0)}
-    },
-    vertexShader:holoVert, fragmentShader:holoFrag,
-    side:THREE.DoubleSide
-  });
+/* 4. 名称整形 / 側 / 情報照会 (BodyExplorer 移植) */
+function titleWord(w){return w?w.charAt(0).toUpperCase()+w.slice(1).toLowerCase():w;}
+function formatMuscleName(name){
+  let c=name.replace(/\s*\(\d+\)\s*$/,'').replace(/_/g,' ').replace(/\s+/g,' ').trim();
+  const m=c.match(/^(.+?)\s+(part|head|belly)\s+of\s+(?:(left|right)\s+)?(.+)$/i);
+  if(m){const s=m[3]?titleWord(m[3])+' ':'';c=`${s}${m[4]} (${m[1]} ${m[2]})`;}
+  const small=new Set(['of','the','and','in','at','to','for','on','by','or']);
+  return c.split(' ').map((w,i)=>i>0&&small.has(w.toLowerCase())?w.toLowerCase():titleWord(w)).join(' ');
+}
+function determineSide(name){const l=name.toLowerCase();return l.includes('left')?'Left':l.includes('right')?'Right':'Center';}
+let ANATOMY={};
+function getMuscleInfo(meshName){
+  const nl=meshName.toLowerCase();
+  const stripped=nl.replace(/^(left|right)\s+/,'').replace(/\s+(of\s+)?(left|right)\s+.*$/,'').replace(/\s*\(\d+\)$/,'').trim();
+  if(ANATOMY[stripped])return ANATOMY[stripped];
+  for(const k in ANATOMY){if(nl.includes(k))return ANATOMY[k];}
+  for(const k in ANATOMY){const kw=k.split(' ');if(kw.length>=2&&kw.every(w=>nl.includes(w)))return ANATOMY[k];}
+  return null;
 }
 
-/* ---- 5. 座標変換 (BodyExplorer transformGeometry 移植: BP3D→Three) ---- */
-function transformGeometry(geometry, center, s){
-  const p = geometry.getAttribute('position');
-  if(p){ const a=p.array;
-    for(let i=0;i<a.length;i+=3){
-      const bx=a[i], by=a[i+1], bz=a[i+2];
-      a[i]   = (bx-center.x)*s;      // X left-right
-      a[i+1] = (bz-center.z)*s;      // Y up (was Z)
-      a[i+2] = -(by-center.y)*s;     // Z front (was -Y)
-    } p.needsUpdate=true; }
-  const nm = geometry.getAttribute('normal');
-  if(nm){ const a=nm.array;
-    for(let i=0;i<a.length;i+=3){ const nx=a[i],ny=a[i+1],nz=a[i+2]; a[i]=nx; a[i+1]=nz; a[i+2]=-ny; }
-    nm.needsUpdate=true; }
-  geometry.computeBoundingBox(); geometry.computeBoundingSphere();
+/* 5. ホログラム shader */
+const holoVert=`varying vec3 vN;varying vec3 vV;varying vec3 vW;
+void main(){vec4 mv=modelViewMatrix*vec4(position,1.0);vN=normalMatrix*normal;vV=-mv.xyz;vW=(modelMatrix*vec4(position,1.0)).xyz;gl_Position=projectionMatrix*mv;}`;
+const holoFrag=`precision highp float;uniform float uAct;uniform float uTime;uniform float uGhost;uniform vec3 uBase;uniform vec3 uDark;uniform vec3 uGlow;
+varying vec3 vN;varying vec3 vV;varying vec3 vW;
+void main(){vec3 N=normalize(vN);vec3 V=normalize(vV);float fres=pow(1.0-abs(dot(N,V)),2.6);float act=max(uGhost,uAct);
+float scan=0.85+0.15*sin(vW.y*8.0-uTime*1.6);vec3 body=mix(uDark,uBase,fres)*(0.45+0.35*act);
+vec3 glow=uGlow*act*(0.30+0.70*fres)*scan;vec3 col=body+glow;
+col+=uGlow*act*act*0.06*(0.5+0.5*sin(uTime*3.0+vW.y*3.0));gl_FragColor=vec4(col,1.0);}`;
+function makeHolo(base,glow,ghost){return new THREE.ShaderMaterial({uniforms:{uAct:{value:0},uTime:{value:0},uGhost:{value:ghost==null?0.05:ghost},
+  uBase:{value:new THREE.Color(base||0x2e85f2)},uDark:{value:new THREE.Color(0.015,0.05,0.13)},uGlow:{value:new THREE.Color(glow||0x73ebff)}},
+  vertexShader:holoVert,fragmentShader:holoFrag,side:THREE.DoubleSide});}
+
+/* 6. 座標変換 (BP3D→Three) */
+function transformGeometry(g,c,s){
+  const p=g.getAttribute('position');if(p){const a=p.array;for(let i=0;i<a.length;i+=3){const bx=a[i],by=a[i+1],bz=a[i+2];a[i]=(bx-c.x)*s;a[i+1]=(bz-c.z)*s;a[i+2]=-(by-c.y)*s;}p.needsUpdate=true;}
+  const nm=g.getAttribute('normal');if(nm){const a=nm.array;for(let i=0;i<a.length;i+=3){const nx=a[i],ny=a[i+1],nz=a[i+2];a[i]=nx;a[i+1]=nz;a[i+2]=-ny;}nm.needsUpdate=true;}
+  g.computeBoundingBox();g.computeBoundingSphere();
 }
 
-/* ---- 6. Scene ---- */
-const app = document.getElementById('app');
-const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x05070d, 0.012);
-const camera = new THREE.PerspectiveCamera(42, innerWidth/innerHeight, 0.1, 400);
-camera.position.set(0, 2, 46);
-
-const renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:'high-performance'});
-renderer.setSize(innerWidth, innerHeight);
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.outputEncoding = THREE.sRGBEncoding;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;   // 加算白飛び対策
-renderer.toneMappingExposure = 1.05;
+/* 7. scene */
+const app=document.getElementById('app');
+const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x05070d,0.012);
+const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,0.1,400);camera.position.set(0,2,46);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
 app.appendChild(renderer.domElement);
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;controls.dampingFactor=0.07;controls.minDistance=14;controls.maxDistance=120;controls.target.set(0,1,0);
+controls.autoRotate=true;controls.autoRotateSpeed=0.55;
 
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true; controls.dampingFactor = 0.07;
-controls.minDistance = 18; controls.maxDistance = 120;
-controls.target.set(0, 1, 0);
-controls.autoRotate = true; controls.autoRotateSpeed = 0.55;
+const groupMat={};for(const k of GROUP_KEYS)groupMat[k]=makeHolo();
+const defaultMat=makeHolo();
+const tendonMat=makeHolo(0x8bb8d9,0xb3d9f2);
+const selectMat=makeHolo(0xffb347,0xffd98a,1.0);selectMat.uniforms.uAct.value=1.0;   // 選択ハイライト=金
+const boneMat=new THREE.MeshBasicMaterial({color:0xbcd0e6,transparent:true,opacity:0.16,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending});
+const allHolo=[...Object.values(groupMat),defaultMat,tendonMat,selectMat];
 
-/* group materials (14+default+tendon) */
-const groupMat = {}; for(const k of GROUP_KEYS) groupMat[k] = makeHoloMaterial();
-const defaultMat = makeHoloMaterial();
-const tendonMat = makeHoloMaterial();
-tendonMat.uniforms.uBase.value = new THREE.Color(0.55,0.72,0.85);
-tendonMat.uniforms.uGlow.value = new THREE.Color(0.7,0.85,0.95);
-const allMats = [...Object.values(groupMat), defaultMat, tendonMat];
+const bodyGroup=new THREE.Group();scene.add(bodyGroup);
+const skelGroup=new THREE.Group();skelGroup.visible=false;bodyGroup.add(skelGroup);
+const muscleMeshes=[];
+let anatomyCenter=null,scaleFactor=1,skelLoaded=false,skelLoading=false;
 
-const bodyGroup = new THREE.Group();
-scene.add(bodyGroup);
+/* particles */
+(function(){const N=420,g=new THREE.BufferGeometry(),pos=new Float32Array(N*3);
+  for(let i=0;i<N;i++){const r=10+Math.random()*22,a=Math.random()*Math.PI*2;pos[i*3]=Math.cos(a)*r;pos[i*3+1]=(Math.random()-0.5)*40;pos[i*3+2]=Math.sin(a)*r;}
+  g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const m=new THREE.PointsMaterial({color:0x3fd0ff,size:0.12,transparent:true,opacity:0.5,blending:THREE.AdditiveBlending,depthWrite:false});
+  const pts=new THREE.Points(g,m);pts.name='dust';scene.add(pts);})();
 
-/* particle dust */
-(function(){
-  const N=420, g=new THREE.BufferGeometry(), pos=new Float32Array(N*3);
-  for(let i=0;i<N;i++){ const r=10+Math.random()*22, a=Math.random()*Math.PI*2;
-    pos[i*3]=Math.cos(a)*r; pos[i*3+1]=(Math.random()-0.5)*40; pos[i*3+2]=Math.sin(a)*r; }
-  g.setAttribute('position', new THREE.BufferAttribute(pos,3));
-  const m=new THREE.PointsMaterial({color:0x3fd0ff,size:0.12,transparent:true,opacity:0.5,
-    blending:THREE.AdditiveBlending,depthWrite:false});
-  const pts=new THREE.Points(g,m); pts.name='dust'; scene.add(pts);
-})();
-
-/* ---- 7. Load anatomy.glb ---- */
-const loader = new THREE.GLTFLoader();
-const loadEl = document.getElementById('load'), loadP = document.getElementById('loadp');
-loader.load('./anatomy.glb', (gltf)=>{
-  const root = gltf.scene;
-  const box = new THREE.Box3().setFromObject(root);
-  const center = box.getCenter(new THREE.Vector3());
-  const size = box.getSize(new THREE.Vector3());
-  const s = 30 / size.z;                 // BP3D Z=height → 30 units tall
+/* 8. load muscleinfo.json + anatomy.glb */
+const loader=new THREE.GLTFLoader();
+const loadEl=document.getElementById('load'),loadP=document.getElementById('loadp');
+fetch('./muscleinfo.json').then(r=>r.json()).then(j=>{ANATOMY=j;}).catch(()=>{ANATOMY={};});
+loader.load('./anatomy.glb',(gltf)=>{
+  const root=gltf.scene;const box=new THREE.Box3().setFromObject(root);
+  anatomyCenter=box.getCenter(new THREE.Vector3());const size=box.getSize(new THREE.Vector3());scaleFactor=30/size.z;
   let count=0;
   root.traverse((c)=>{
-    if(!c.isMesh) return;
-    const name=c.name||('mesh_'+count), nl=name.toLowerCase();
-    const isTendon = nl.includes('tendon')||nl.includes('ligament')||nl.includes('retinaculum')||nl.includes('membrane');
-    const grp = classifyMuscleGroup(name);
-    const geo = c.geometry.clone();
-    transformGeometry(geo, center, s);
-    const mat = isTendon ? tendonMat : (grp && groupMat[grp] ? groupMat[grp] : defaultMat);
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.userData.group = grp || 'OTHER';
-    bodyGroup.add(mesh); count++;
+    if(!c.isMesh)return;const name=c.name||('mesh_'+count),nl=name.toLowerCase();
+    const isTendon=nl.includes('tendon')||nl.includes('ligament')||nl.includes('retinaculum')||nl.includes('membrane');
+    const grp=classifyMuscleGroup(name);
+    const geo=c.geometry.clone();transformGeometry(geo,anatomyCenter,scaleFactor);
+    const base=isTendon?tendonMat:(grp&&groupMat[grp]?groupMat[grp]:defaultMat);
+    const mesh=new THREE.Mesh(geo,base);
+    mesh.userData={grp:grp||'OTHER',raw:name,disp:formatMuscleName(name),side:determineSide(name),isTendon,baseMat:base};
+    muscleMeshes.push(mesh);bodyGroup.add(mesh);count++;
   });
-  // face the viewer: empirically the anterior sits on +Z after transform → no yaw
-  bodyGroup.rotation.y = 0;
-  bodyGroup.position.y = 1;
-  console.log('[karada-de-eta] meshes loaded:', count);
-  window.__READY__ = count;             // headless verify hook
-  loadEl.classList.add('hide');
-  setExercise(null);
-}, (pr)=>{
-  if(pr && pr.total>0) loadP.textContent = Math.round(pr.loaded/pr.total*100)+'%';
-}, (err)=>{
-  console.error('load failed', err);
-  loadP.textContent = 'LOAD ERROR';
-  window.__READY__ = -1;
-});
+  bodyGroup.rotation.y=0;bodyGroup.position.y=1;
+  console.log('[karada-de-eta] meshes loaded:',count);
+  window.__READY__=count;
+  loadEl.classList.add('hide');setExercise(null);
+},(pr)=>{if(pr&&pr.total>0)loadP.textContent=Math.round(pr.loaded/pr.total*100)+'%';},
+(err)=>{console.error('load failed',err);loadP.textContent='LOAD ERROR';window.__READY__=-1;});
 
-/* ---- 8. Exercise selection ---- */
-let activeKey = null;
+/* 9. 種目選択 */
+let activeKey=null;
 function setExercise(key){
-  activeKey = key;
-  const map = key ? EXERCISES[key].map : null;
-  for(const k of GROUP_KEYS){
-    const v = map && map[k] ? map[k] : 0.0;
-    groupMat[k].uniforms.uAct.value = v;
-  }
-  // tendons/default follow a faint global cue so silhouette stays readable
-  const glob = key ? 0.12 : 0.0;
-  defaultMat.uniforms.uAct.value = glob; tendonMat.uniforms.uAct.value = glob;
+  activeKey=key;const map=key?EXERCISES[key].map:null;
+  for(const k of GROUP_KEYS)groupMat[k].uniforms.uAct.value=map&&map[k]?map[k]:0.0;
+  const glob=key?0.12:0.0;defaultMat.uniforms.uAct.value=glob;tendonMat.uniforms.uAct.value=glob;
   renderLegend(key);
-  document.querySelectorAll('button.ex').forEach(b=>b.classList.toggle('active', b.dataset.k===key));
+  document.querySelectorAll('button.ex').forEach(b=>b.classList.toggle('active',b.dataset.k===key));
 }
 function renderLegend(key){
   const lg=document.getElementById('legend');
-  if(!key){ lg.classList.remove('show'); return; }
-  const ex=EXERCISES[key];
-  document.getElementById('lgName').textContent = ex.jp;
-  document.getElementById('lgCue').textContent = ex.cue;
-  const entries = Object.entries(ex.map).sort((a,b)=>b[1]-a[1]);
-  document.getElementById('lgBars').innerHTML = entries.map(([g,v])=>
-    `<div class="bar"><span class="nm">${GROUPS[g].jp}</span>`+
-    `<span class="track"><span class="fill" style="width:${Math.round(v*100)}%"></span></span>`+
-    `<span class="val">${v.toFixed(2)}</span></div>`).join('');
+  if(!key){lg.classList.remove('show');return;}
+  const ex=EXERCISES[key];document.getElementById('lgName').textContent=ex.jp;document.getElementById('lgCue').textContent=ex.cue;
+  const es=Object.entries(ex.map).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('lgBars').innerHTML=es.map(([g,v])=>`<div class="bar"><span class="nm">${GROUPS[g].jp}</span><span class="track"><span class="fill" style="width:${Math.round(v*100)}%"></span></span><span class="val">${v.toFixed(2)}</span></div>`).join('');
   lg.classList.add('show');
 }
-/* build buttons */
-function mkBtn(k){ const b=document.createElement('button'); b.className='ex'; b.dataset.k=k;
-  b.textContent=EXERCISES[k].jp; b.onclick=()=>setExercise(activeKey===k?null:k); return b; }
+function mkBtn(k){const b=document.createElement('button');b.className='ex';b.dataset.k=k;b.textContent=EXERCISES[k].jp;b.onclick=()=>setExercise(activeKey===k?null:k);return b;}
 ['chestpress','latpull','legpress','abdominal','treadmill'].forEach(k=>document.getElementById('rowGym').appendChild(mkBtn(k)));
 ['plank','squat','pushup','pullup'].forEach(k=>document.getElementById('rowBody').appendChild(mkBtn(k)));
-(function(){ const r=document.createElement('button'); r.className='ex reset'; r.dataset.k='__';
-  r.textContent='ぜんぶ消す'; r.onclick=()=>setExercise(null); document.getElementById('rowBody').appendChild(r); })();
+(function(){const r=document.createElement('button');r.className='ex reset';r.dataset.k='__';r.textContent='ぜんぶ消す';r.onclick=()=>setExercise(null);document.getElementById('rowBody').appendChild(r);})();
 
-/* ---- 9. Animate (breathing + scan + autorotate) ---- */
-const clock = new THREE.Clock();
-function tick(){
-  const t = clock.getElapsedTime();
-  for(const m of allMats) m.uniforms.uTime.value = t;
-  // breathing: subtle chest-forward + scale pulse
-  const br = Math.sin(t*0.9);
-  bodyGroup.scale.setScalar(1 + br*0.010);
-  const dust = scene.getObjectByName('dust'); if(dust) dust.rotation.y = t*0.03;
-  controls.update();
-  renderer.render(scene, camera);
-  requestAnimationFrame(tick);
+/* 10. クリックで筋を同定 */
+const ray=new THREE.Raycaster();const ndc=new THREE.Vector2();
+let selected=null;
+const SIDE_JP={Left:'左',Right:'右',Center:'正中'};
+function selectMuscle(mesh){
+  if(selected&&selected!==mesh)selected.material=selected.userData.baseMat;
+  selected=mesh;mesh.material=selectMat;
+  const u=mesh.userData,info=getMuscleInfo(u.raw);
+  document.getElementById('ifName').textContent=u.disp;
+  document.getElementById('ifSub').textContent=`${GROUPS[u.grp].jp}${u.isTendon?'（腱・靱帯）':''} · ${SIDE_JP[u.side]}`;
+  const dl=document.getElementById('ifDl');
+  if(info){
+    const rows=[['起始',info.origin],['停止',info.insertion],['作用',info.action],['神経',info.innervation],['備考',info.notes]].filter(r=>r[1]);
+    dl.innerHTML=rows.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join('');
+  }else{
+    dl.innerHTML='<dt>情報</dt><dd>この構造の詳細DBは未収載。名称と筋群のみ表示。</dd>';
+  }
+  const q=encodeURIComponent(u.disp.replace(/\s*\(.*\)$/,''));
+  document.getElementById('ifLk').innerHTML=`<a href="https://en.wikipedia.org/wiki/Special:Search?search=${q}" target="_blank" rel="noopener">Wikipedia</a><a href="https://www.kenhub.com/en/search?q=${q}" target="_blank" rel="noopener">Kenhub</a>`;
+  document.getElementById('info').classList.add('show');
 }
-tick();
-
-addEventListener('resize', ()=>{
-  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
+function deselect(){if(selected){selected.material=selected.userData.baseMat;selected=null;}document.getElementById('info').classList.remove('show');}
+document.getElementById('infoX').onclick=deselect;
+let dx=0,dy=0,dt=0;
+renderer.domElement.addEventListener('pointerdown',e=>{dx=e.clientX;dy=e.clientY;dt=Date.now();});
+renderer.domElement.addEventListener('pointerup',e=>{
+  if(Math.hypot(e.clientX-dx,e.clientY-dy)>6||Date.now()-dt>500)return; // ドラッグは無視
+  const r=renderer.domElement.getBoundingClientRect();
+  ndc.x=((e.clientX-r.left)/r.width)*2-1;ndc.y=-((e.clientY-r.top)/r.height)*2+1;
+  ray.setFromCamera(ndc,camera);
+  const hits=ray.intersectObjects(muscleMeshes,false);
+  if(hits.length){selectMuscle(hits[0].object);}else{deselect();}
 });
-/* pause autorotate briefly on interaction */
-controls.addEventListener('start', ()=>{ controls.autoRotate=false; });
+
+/* 11. トグル: 骨格 / 回転 */
+const btnSkel=document.getElementById('btnSkel'),btnSpin=document.getElementById('btnSpin');
+btnSpin.classList.add('on');
+btnSpin.onclick=()=>{controls.autoRotate=!controls.autoRotate;btnSpin.classList.toggle('on',controls.autoRotate);};
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),1800);}
+btnSkel.onclick=()=>{
+  if(skelLoading)return;
+  if(skelLoaded){skelGroup.visible=!skelGroup.visible;btnSkel.classList.toggle('on',skelGroup.visible);return;}
+  skelLoading=true;toast('骨格を読み込み中…');
+  loader.load('./skeleton.glb',(g)=>{
+    g.scene.traverse((c)=>{if(!c.isMesh)return;const geo=c.geometry.clone();transformGeometry(geo,anatomyCenter,scaleFactor);
+      const b=new THREE.Mesh(geo,boneMat);b.renderOrder=-1;skelGroup.add(b);});
+    skelGroup.visible=true;skelLoaded=true;skelLoading=false;btnSkel.classList.add('on');toast('骨格 201本');
+  },null,()=>{skelLoading=false;toast('骨格の読込に失敗');});
+};
+
+/* 12. animate */
+const clock=new THREE.Clock();
+function tick(){const t=clock.getElapsedTime();
+  for(const m of allHolo)m.uniforms.uTime.value=t;
+  bodyGroup.scale.setScalar(1+Math.sin(t*0.9)*0.010);
+  const d=scene.getObjectByName('dust');if(d)d.rotation.y=t*0.03;
+  controls.update();renderer.render(scene,camera);requestAnimationFrame(tick);}
+tick();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+controls.addEventListener('start',()=>{controls.autoRotate=false;btnSpin.classList.remove('on');});
 </script>
 </body>
 </html>
