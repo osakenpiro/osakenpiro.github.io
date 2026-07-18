@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>体でえた — 筋群ホログラム</title>
+<meta name="description" content="本物の解剖メッシュ467構造を青ホログラムで発光させ、トレーニング種目ごとに効く筋群をFloat濃淡で可視化する。Boolean→Float。">
+<meta property="og:title" content="体でえた — 筋群ホログラム">
+<meta property="og:description" content="本物の解剖メッシュ467構造を青ホログラムで発光。種目ごとに効く筋群をFloat濃淡で可視化する。Boolean→Float。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://osakenpiro.github.io/karada-de-eta/">
+<meta property="og:image" content="https://osakenpiro.github.io/karada-de-eta/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root{ --bg:#05070d; --fg:#cfe9ff; --dim:#5f7fa6; --accent:#3fd0ff; --panel:rgba(8,14,26,.72); }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);
+    font-family:-apple-system,"Segoe UI",Roboto,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
+  #app{position:fixed;inset:0}
+  canvas{display:block}
+  /* ── top title ── */
+  #title{position:fixed;left:16px;top:12px;z-index:5;pointer-events:none;text-shadow:0 1px 10px #000}
+  #title b{font-size:19px;letter-spacing:.14em;color:#eaf6ff}
+  #title small{display:block;font-size:10.5px;letter-spacing:.22em;color:var(--dim);margin-top:2px}
+  /* ── exercise dock ── */
+  #dock{position:fixed;left:12px;bottom:12px;z-index:6;display:flex;flex-direction:column;gap:8px;max-width:min(46vw,340px)}
+  .row{display:flex;flex-wrap:wrap;gap:6px}
+  .rowlabel{font-size:10px;letter-spacing:.18em;color:var(--dim);margin:0 0 -2px 2px}
+  button.ex{appearance:none;cursor:pointer;border:1px solid rgba(63,208,255,.28);
+    background:var(--panel);color:var(--fg);font:inherit;font-size:12.5px;font-weight:600;
+    padding:7px 11px;border-radius:11px;backdrop-filter:blur(7px);transition:.16s;white-space:nowrap}
+  button.ex:hover{border-color:var(--accent);color:#fff}
+  button.ex.active{background:linear-gradient(180deg,rgba(63,208,255,.34),rgba(63,208,255,.14));
+    border-color:var(--accent);color:#fff;box-shadow:0 0 18px rgba(63,208,255,.35)}
+  button.ex.reset{border-color:rgba(150,170,200,.3);color:var(--dim)}
+  /* ── legend (Float breakdown) ── */
+  #legend{position:fixed;right:14px;top:54px;z-index:6;width:min(40vw,232px);background:var(--panel);
+    border:1px solid rgba(63,208,255,.18);border-radius:14px;padding:13px 14px;backdrop-filter:blur(8px);
+    opacity:0;transform:translateY(-6px);transition:.22s;pointer-events:none}
+  #legend.show{opacity:1;transform:none}
+  #legend h3{margin:0 0 3px;font-size:14px;color:#eaf6ff;letter-spacing:.04em}
+  #legend .cue{margin:0 0 9px;font-size:10.5px;color:var(--dim);line-height:1.45}
+  .bar{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:11.5px}
+  .bar .nm{flex:0 0 74px;color:#bcd8f5;text-align:right}
+  .bar .track{flex:1;height:7px;border-radius:4px;background:rgba(120,150,190,.16);overflow:hidden}
+  .bar .fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#1d6fa8,#3fd0ff,#eafcff)}
+  .bar .val{flex:0 0 30px;font-variant-numeric:tabular-nums;color:var(--accent)}
+  /* ── hint + attribution ── */
+  #hint{position:fixed;right:14px;bottom:52px;z-index:5;font-size:10.5px;color:var(--dim);text-align:right;pointer-events:none;text-shadow:0 1px 8px #000}
+  #attrib{position:fixed;right:10px;bottom:8px;z-index:5;font-size:9px;line-height:1.5;color:#42597a;text-align:right;max-width:52vw}
+  #attrib a{color:#5f83ad;text-decoration:none}
+  /* ── loading ── */
+  #load{position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:radial-gradient(circle at 50% 42%,#0a1122,#05070d 70%);transition:opacity .6s}
+  #load.hide{opacity:0;pointer-events:none}
+  #load .ring{width:52px;height:52px;border-radius:50%;border:2px solid rgba(63,208,255,.18);border-top-color:var(--accent);animation:spin 1s linear infinite}
+  #load .t{margin-top:18px;font-size:12px;letter-spacing:.24em;color:var(--dim)}
+  #load .p{margin-top:6px;font-size:11px;color:var(--accent);font-variant-numeric:tabular-nums}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media (max-width:560px){ #legend{top:auto;bottom:120px} #title small{letter-spacing:.16em} }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<div id="title"><b>体 で え た</b><small>KARADA-DE-ETA · 467 STRUCTURES · BOOLEAN→FLOAT · by osakenpiro</small></div>
+
+<div id="dock">
+  <div>
+    <p class="rowlabel">ジム 5種目</p>
+    <div class="row" id="rowGym"></div>
+  </div>
+  <div>
+    <p class="rowlabel">自重 4種目</p>
+    <div class="row" id="rowBody"></div>
+  </div>
+</div>
+
+<div id="legend">
+  <h3 id="lgName">—</h3>
+  <p class="cue" id="lgCue"></p>
+  <div id="lgBars"></div>
+</div>
+
+<div id="hint">ドラッグ=回転 · ホイール=ズーム · 右ドラッグ=移動</div>
+<div id="attrib">
+  Mesh: <a href="https://lifesciencedb.jp/bp3d/" target="_blank" rel="noopener">BodyParts3D</a> © DBCLS
+  <a href="https://creativecommons.org/licenses/by-sa/2.1/jp/" target="_blank" rel="noopener">CC BY-SA 2.1 JP</a>
+  ／ <a href="https://www.z-anatomy.com/" target="_blank" rel="noopener">Z-Anatomy</a>
+  <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>
+  ／ loader: <a href="https://github.com/JohanBellander/BodyExplorer" target="_blank" rel="noopener">BodyExplorer</a> (MIT)
+</div>
+
+<div id="load"><div class="ring"></div><div class="t">LOADING ANATOMY</div><div class="p" id="loadp">0%</div></div>
+
+<script src="./lib/three.min.js"></script>
+<script src="./lib/GLTFLoader.js"></script>
+<script src="./lib/OrbitControls.js"></script>
+<script>
+"use strict";
+/* ============================================================
+   体でえた / KARADA-DE-ETA
+   本物の解剖メッシュ(BodyParts3D+Z-Anatomy, 467構造)を
+   青フレネル・ホログラムで発光させ、種目→筋群を Float濃淡 で可視化。
+   分類ロジック・座標変換は BodyExplorer(MIT) から移植。
+   ============================================================ */
+
+/* ---- 1. 筋群分類 (BodyExplorer classifyMuscleGroup 移植) ---- */
+function classifyMuscleGroup(name){
+  const n = name.toLowerCase();
+  if(n.includes('sternocleidomastoid')||n.includes('platysma')||n.includes('digastric')||n.includes('mylohyoid')||n.includes('sternohyoid')||n.includes('omohyoid')||n.includes('thyrohyoid')||n.includes('stylohyoid')||n.includes('splenius')||n.includes('longus colli')||n.includes('rectus capitis')||n.includes('levator palpebrae')||n.includes('oblique arytenoid')||n.includes('cricothyroid')||n.includes('levator veli')||n.includes('tensor veli')||n.includes('arytenoid')||n.includes('vocal')||n.includes('scalenus')||n.includes('geniohyoid')||n.includes('sternothyroid')||n.includes('longus capitis')||n.includes('crico-arytenoid')||n.includes('cricoarytenoid')||n.includes('thyro-arytenoid')||n.includes('thyroarytenoid')||n.includes('transverse arytenoid')||n.includes('frontalis')||n.includes('orbicularis oculi')||n.includes('orbicularis oris')||n.includes('zygomaticus')||n.includes('levator labii')||n.includes('depressor labii')||n.includes('depressor anguli')||n.includes('risorius')||n.includes('mentalis')||n.includes('procerus')||n.includes('nasalis')||n.includes('corrugator supercilii')||n.includes('temporalis')||n.includes('masseter')||n.includes('pterygoid')) return 'HEAD_NECK';
+  if(n.includes('lateral rectus')||n.includes('medial rectus')||n.includes('superior rectus')||n.includes('inferior rectus')||n.includes('superior oblique')||n.includes('inferior oblique')) return 'HEAD_NECK';
+  if(n.includes('deltoid')||n.includes('supraspinatus')||n.includes('infraspinatus')||n.includes('subscapularis')||n.includes('teres')||n.includes('levator scapulae')||n.includes('subclavius')) return 'SHOULDER';
+  if(n.includes('pectoralis')||n.includes('serratus anterior')) return 'CHEST';
+  if(n.includes('trapezius')||n.includes('latissimus')||n.includes('rhomboid')||n.includes('serratus posterior')||n.includes('erector')||n.includes('levatores costarum')||n.includes('iliocostalis')||n.includes('longissimus')||n.includes('spinalis')||n.includes('semispinalis')||n.includes('interspinal')||n.includes('intertransversar')||n.includes('multifidus')||n.includes('rotatores')||n.includes('thoracolumbar fascia')||n.includes('quadratus lumborum')) return 'BACK';
+  if(n.includes('biceps brachii')||n.includes('triceps brachii')||(n.includes('brachialis')&&!n.includes('brachioradialis'))||n.includes('coracobrachialis')||n.includes('anconeus')) return 'UPPER_ARM';
+  if(n.includes('brachioradialis')||n.includes('pronator')||n.includes('supinator')||n.includes('flexor carpi')||n.includes('extensor carpi')||(n.includes('flexor digitorum')&&!n.includes('foot'))||(n.includes('extensor digitorum')&&!n.includes('longus'))||n.includes('extensor indicis')||n.includes('extensor pollicis')||(n.includes('flexor pollicis')&&n.includes('hand'))||n.includes('abductor pollicis longus')||n.includes('extensor digiti minimi')||n.includes('flexor pollicis longus')||n.includes('palmaris')||(n.includes('interosseous membrane')&&n.includes('forearm'))) return 'FOREARM';
+  if((n.includes('of')&&n.includes('hand'))||(n.includes('interossei')&&n.includes('hand'))||(n.includes('lumbricals')&&n.includes('hand'))||n.includes('opponens pollicis')||(n.includes('opponens digiti')&&n.includes('hand'))||n.includes('abductor pollicis brevis')||n.includes('flexor pollicis brevis')||n.includes('adductor pollicis')||(n.includes('retinaculum')&&n.includes('wrist'))||(n.includes('flexor digiti minimi')&&n.includes('hand'))||(n.includes('abductor digiti minimi')&&n.includes('hand'))) return 'HAND';
+  if(n.includes('external oblique')||n.includes('internal oblique')||n.includes('rectus abdominis')||n.includes('transversus abdominis')) return 'ABDOMEN';
+  if(n.includes('intercostal')||n.includes('diaphragm')||n.includes('transversus thoracis')) return 'TRUNK';
+  if(n.includes('gluteus')||n.includes('piriformis')||n.includes('obturator')||n.includes('iliacus')||n.includes('psoas')||n.includes('quadratus femoris')||n.includes('tensor fasciae')||n.includes('gemellus')||n.includes('pectineus')||n.includes('coccygeus')||n.includes('iliococcygeus')||n.includes('pubococcygeus')||n.includes('puborectalis')||n.includes('levator ani')||n.includes('anal sphincter')) return 'HIP';
+  if(n.includes('rectus femoris')||n.includes('vastus')||n.includes('biceps femoris')||n.includes('semitendinosus')||n.includes('semimembranosus')||n.includes('sartorius')||n.includes('gracilis')||(n.includes('adductor')&&!n.includes('hallucis')&&!n.includes('pollicis'))||n.includes('iliotibial')) return 'UPPER_LEG';
+  if(n.includes('gastrocnemius')||n.includes('soleus')||n.includes('tibialis')||n.includes('fibularis')||n.includes('peroneus')||n.includes('plantaris')||n.includes('popliteus')||n.includes('flexor digitorum longus')||n.includes('flexor hallucis longus')||n.includes('extensor digitorum longus')||n.includes('extensor hallucis')||n.includes('calcaneal tendon')||(n.includes('interosseous membrane')&&n.includes('leg'))) return 'LOWER_LEG';
+  if((n.includes('of')&&n.includes('foot'))||(n.includes('lumbrical')&&n.includes('foot'))||(n.includes('interosseous')&&n.includes('foot'))||n.includes('abductor hallucis')||n.includes('adductor hallucis')||n.includes('flexor hallucis brevis')||n.includes('flexor digitorum brevis')||n.includes('flexor accessorius')||n.includes('plantar ligament')||(n.includes('abductor digiti minimi')&&n.includes('foot'))||(n.includes('flexor digiti minimi')&&n.includes('foot'))||(n.includes('opponens digiti minimi')&&n.includes('foot'))) return 'FOOT';
+  return null;
+}
+
+/* ---- 2. 筋群メタ (JP名 + ホログラム色相ずらし) ---- */
+const GROUPS = {
+  HEAD_NECK:{jp:'頭頸部'}, SHOULDER:{jp:'肩'}, CHEST:{jp:'胸'}, BACK:{jp:'背中'},
+  UPPER_ARM:{jp:'上腕'}, FOREARM:{jp:'前腕'}, ABDOMEN:{jp:'腹'}, HIP:{jp:'臀・股'},
+  UPPER_LEG:{jp:'大腿'}, LOWER_LEG:{jp:'下腿'}, HAND:{jp:'手'}, FOOT:{jp:'足'},
+  TRUNK:{jp:'体幹'}, OTHER:{jp:'その他'}
+};
+const GROUP_KEYS = Object.keys(GROUPS);
+
+/* ---- 3. 種目 → 筋群Float (寄与度 0..1) ---- */
+const EXERCISES = {
+  chestpress:{jp:'チェストプレス',cue:'胸を張り肩甲骨を寄せて押す。肘は伸ばし切らない。',map:{CHEST:1.0,SHOULDER:0.6,UPPER_ARM:0.55,ABDOMEN:0.2}},
+  latpull:   {jp:'ラットプルダウン',cue:'鎖骨に引き下ろす。反動を使わず背中で引く。',map:{BACK:1.0,UPPER_ARM:0.6,SHOULDER:0.45,FOREARM:0.35}},
+  legpress:  {jp:'レッグプレス',cue:'膝はつま先と同じ向き。伸展で押し切らない。',map:{UPPER_LEG:1.0,HIP:0.7,LOWER_LEG:0.4}},
+  abdominal: {jp:'アブドミナル',cue:'息を吐きながら丸める。腰を反らせない。',map:{ABDOMEN:1.0,TRUNK:0.5,HIP:0.3}},
+  treadmill: {jp:'トレッドミル',cue:'着地は足裏全体。会話できる強度から。',map:{LOWER_LEG:0.85,UPPER_LEG:0.6,HIP:0.45,ABDOMEN:0.25}},
+  plank:     {jp:'プランク',cue:'頭〜踵を一直線。腰を落とさない。',map:{ABDOMEN:0.9,TRUNK:0.6,HIP:0.4,SHOULDER:0.35}},
+  squat:     {jp:'スクワット',cue:'股関節から折る。膝を内に入れない。',map:{UPPER_LEG:1.0,HIP:0.8,LOWER_LEG:0.45,ABDOMEN:0.3}},
+  pushup:    {jp:'腕立て伏せ',cue:'体を板に保つ。肘は45度に開く。',map:{CHEST:0.9,UPPER_ARM:0.6,SHOULDER:0.55,ABDOMEN:0.4}},
+  pullup:    {jp:'懸垂',cue:'肩を下げてから引く。顎はバーを越える。',map:{BACK:1.0,UPPER_ARM:0.7,SHOULDER:0.5,FOREARM:0.45}}
+};
+
+/* ---- 4. ホログラム ShaderMaterial (フレネル発光・不透明・ACES前提) ---- */
+const holoVert = `
+  varying vec3 vN; varying vec3 vV; varying vec3 vW;
+  void main(){
+    vec4 mv = modelViewMatrix * vec4(position,1.0);
+    vN = normalMatrix * normal;
+    vV = -mv.xyz;
+    vW = (modelMatrix * vec4(position,1.0)).xyz;
+    gl_Position = projectionMatrix * mv;
+  }`;
+const holoFrag = `
+  precision highp float;
+  uniform float uAct; uniform float uTime; uniform float uGhost;
+  uniform vec3 uBase; uniform vec3 uDark; uniform vec3 uGlow;
+  varying vec3 vN; varying vec3 vV; varying vec3 vW;
+  void main(){
+    vec3 N = normalize(vN); vec3 V = normalize(vV);
+    float fres = pow(1.0 - abs(dot(N,V)), 2.6);
+    float act  = max(uGhost, uAct);
+    // horizontal scan line drifting up
+    float scan = 0.85 + 0.15*sin(vW.y*8.0 - uTime*1.6);
+    vec3 body = mix(uDark, uBase, fres) * (0.45 + 0.35*act);
+    vec3 glow = uGlow * act * (0.30 + 0.70*fres) * scan;
+    vec3 col = body + glow;
+    // subtle flicker on strongly-active tissue
+    col += uGlow * act * act * 0.06 * (0.5 + 0.5*sin(uTime*3.0 + vW.y*3.0));
+    gl_FragColor = vec4(col, 1.0);
+  }`;
+
+function makeHoloMaterial(){
+  return new THREE.ShaderMaterial({
+    uniforms:{
+      uAct:{value:0.0}, uTime:{value:0.0}, uGhost:{value:0.05},
+      uBase:{value:new THREE.Color(0.18,0.52,0.95)},
+      uDark:{value:new THREE.Color(0.015,0.05,0.13)},
+      uGlow:{value:new THREE.Color(0.45,0.92,1.0)}
+    },
+    vertexShader:holoVert, fragmentShader:holoFrag,
+    side:THREE.DoubleSide
+  });
+}
+
+/* ---- 5. 座標変換 (BodyExplorer transformGeometry 移植: BP3D→Three) ---- */
+function transformGeometry(geometry, center, s){
+  const p = geometry.getAttribute('position');
+  if(p){ const a=p.array;
+    for(let i=0;i<a.length;i+=3){
+      const bx=a[i], by=a[i+1], bz=a[i+2];
+      a[i]   = (bx-center.x)*s;      // X left-right
+      a[i+1] = (bz-center.z)*s;      // Y up (was Z)
+      a[i+2] = -(by-center.y)*s;     // Z front (was -Y)
+    } p.needsUpdate=true; }
+  const nm = geometry.getAttribute('normal');
+  if(nm){ const a=nm.array;
+    for(let i=0;i<a.length;i+=3){ const nx=a[i],ny=a[i+1],nz=a[i+2]; a[i]=nx; a[i+1]=nz; a[i+2]=-ny; }
+    nm.needsUpdate=true; }
+  geometry.computeBoundingBox(); geometry.computeBoundingSphere();
+}
+
+/* ---- 6. Scene ---- */
+const app = document.getElementById('app');
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x05070d, 0.012);
+const camera = new THREE.PerspectiveCamera(42, innerWidth/innerHeight, 0.1, 400);
+camera.position.set(0, 2, 46);
+
+const renderer = new THREE.WebGLRenderer({antialias:true, powerPreference:'high-performance'});
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;   // 加算白飛び対策
+renderer.toneMappingExposure = 1.05;
+app.appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = 0.07;
+controls.minDistance = 18; controls.maxDistance = 120;
+controls.target.set(0, 1, 0);
+controls.autoRotate = true; controls.autoRotateSpeed = 0.55;
+
+/* group materials (14+default+tendon) */
+const groupMat = {}; for(const k of GROUP_KEYS) groupMat[k] = makeHoloMaterial();
+const defaultMat = makeHoloMaterial();
+const tendonMat = makeHoloMaterial();
+tendonMat.uniforms.uBase.value = new THREE.Color(0.55,0.72,0.85);
+tendonMat.uniforms.uGlow.value = new THREE.Color(0.7,0.85,0.95);
+const allMats = [...Object.values(groupMat), defaultMat, tendonMat];
+
+const bodyGroup = new THREE.Group();
+scene.add(bodyGroup);
+
+/* particle dust */
+(function(){
+  const N=420, g=new THREE.BufferGeometry(), pos=new Float32Array(N*3);
+  for(let i=0;i<N;i++){ const r=10+Math.random()*22, a=Math.random()*Math.PI*2;
+    pos[i*3]=Math.cos(a)*r; pos[i*3+1]=(Math.random()-0.5)*40; pos[i*3+2]=Math.sin(a)*r; }
+  g.setAttribute('position', new THREE.BufferAttribute(pos,3));
+  const m=new THREE.PointsMaterial({color:0x3fd0ff,size:0.12,transparent:true,opacity:0.5,
+    blending:THREE.AdditiveBlending,depthWrite:false});
+  const pts=new THREE.Points(g,m); pts.name='dust'; scene.add(pts);
+})();
+
+/* ---- 7. Load anatomy.glb ---- */
+const loader = new THREE.GLTFLoader();
+const loadEl = document.getElementById('load'), loadP = document.getElementById('loadp');
+loader.load('./anatomy.glb', (gltf)=>{
+  const root = gltf.scene;
+  const box = new THREE.Box3().setFromObject(root);
+  const center = box.getCenter(new THREE.Vector3());
+  const size = box.getSize(new THREE.Vector3());
+  const s = 30 / size.z;                 // BP3D Z=height → 30 units tall
+  let count=0;
+  root.traverse((c)=>{
+    if(!c.isMesh) return;
+    const name=c.name||('mesh_'+count), nl=name.toLowerCase();
+    const isTendon = nl.includes('tendon')||nl.includes('ligament')||nl.includes('retinaculum')||nl.includes('membrane');
+    const grp = classifyMuscleGroup(name);
+    const geo = c.geometry.clone();
+    transformGeometry(geo, center, s);
+    const mat = isTendon ? tendonMat : (grp && groupMat[grp] ? groupMat[grp] : defaultMat);
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.userData.group = grp || 'OTHER';
+    bodyGroup.add(mesh); count++;
+  });
+  // face the viewer: empirically the anterior sits on +Z after transform → no yaw
+  bodyGroup.rotation.y = 0;
+  bodyGroup.position.y = 1;
+  console.log('[karada-de-eta] meshes loaded:', count);
+  window.__READY__ = count;             // headless verify hook
+  loadEl.classList.add('hide');
+  setExercise(null);
+}, (pr)=>{
+  if(pr && pr.total>0) loadP.textContent = Math.round(pr.loaded/pr.total*100)+'%';
+}, (err)=>{
+  console.error('load failed', err);
+  loadP.textContent = 'LOAD ERROR';
+  window.__READY__ = -1;
+});
+
+/* ---- 8. Exercise selection ---- */
+let activeKey = null;
+function setExercise(key){
+  activeKey = key;
+  const map = key ? EXERCISES[key].map : null;
+  for(const k of GROUP_KEYS){
+    const v = map && map[k] ? map[k] : 0.0;
+    groupMat[k].uniforms.uAct.value = v;
+  }
+  // tendons/default follow a faint global cue so silhouette stays readable
+  const glob = key ? 0.12 : 0.0;
+  defaultMat.uniforms.uAct.value = glob; tendonMat.uniforms.uAct.value = glob;
+  renderLegend(key);
+  document.querySelectorAll('button.ex').forEach(b=>b.classList.toggle('active', b.dataset.k===key));
+}
+function renderLegend(key){
+  const lg=document.getElementById('legend');
+  if(!key){ lg.classList.remove('show'); return; }
+  const ex=EXERCISES[key];
+  document.getElementById('lgName').textContent = ex.jp;
+  document.getElementById('lgCue').textContent = ex.cue;
+  const entries = Object.entries(ex.map).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('lgBars').innerHTML = entries.map(([g,v])=>
+    `<div class="bar"><span class="nm">${GROUPS[g].jp}</span>`+
+    `<span class="track"><span class="fill" style="width:${Math.round(v*100)}%"></span></span>`+
+    `<span class="val">${v.toFixed(2)}</span></div>`).join('');
+  lg.classList.add('show');
+}
+/* build buttons */
+function mkBtn(k){ const b=document.createElement('button'); b.className='ex'; b.dataset.k=k;
+  b.textContent=EXERCISES[k].jp; b.onclick=()=>setExercise(activeKey===k?null:k); return b; }
+['chestpress','latpull','legpress','abdominal','treadmill'].forEach(k=>document.getElementById('rowGym').appendChild(mkBtn(k)));
+['plank','squat','pushup','pullup'].forEach(k=>document.getElementById('rowBody').appendChild(mkBtn(k)));
+(function(){ const r=document.createElement('button'); r.className='ex reset'; r.dataset.k='__';
+  r.textContent='ぜんぶ消す'; r.onclick=()=>setExercise(null); document.getElementById('rowBody').appendChild(r); })();
+
+/* ---- 9. Animate (breathing + scan + autorotate) ---- */
+const clock = new THREE.Clock();
+function tick(){
+  const t = clock.getElapsedTime();
+  for(const m of allMats) m.uniforms.uTime.value = t;
+  // breathing: subtle chest-forward + scale pulse
+  const br = Math.sin(t*0.9);
+  bodyGroup.scale.setScalar(1 + br*0.010);
+  const dust = scene.getObjectByName('dust'); if(dust) dust.rotation.y = t*0.03;
+  controls.update();
+  renderer.render(scene, camera);
+  requestAnimationFrame(tick);
+}
+tick();
+
+addEventListener('resize', ()=>{
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+/* pause autorotate briefly on interaction */
+controls.addEventListener('start', ()=>{ controls.autoRotate=false; });
+</script>
+</body>
+</html>
