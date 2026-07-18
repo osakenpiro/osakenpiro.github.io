@@ -185,6 +185,11 @@
 
   footer{position:relative;z-index:1;text-align:center;padding:40px 20px 60px;font-size:.72rem;color:var(--dim);letter-spacing:.1em}
   footer .foot-line{margin-top:9px;font-size:.94em;letter-spacing:.04em;line-height:1.8;color:var(--dim)}
+  footer .series{display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap}
+  footer .series a{color:var(--fg-3);border-bottom:1px solid var(--border-hover);padding-bottom:1px}
+  footer .series a:hover{color:var(--gold);border-color:var(--gold-edge)}
+  footer .series .here{color:var(--gold)}
+  footer .series .sep{color:var(--dim)}
 
   @media(max-width:560px){
     .plate{padding:24px 22px 20px}
@@ -368,6 +373,9 @@
 
 <footer>
   人類の素材図鑑 3D教科書 No.002 「護錆」 / osakenpiro · Visionium
+  <div class="foot-line series">
+    <a href="https://osakenpiro.github.io/kokuyouhen/">No.001 黒曜片</a><span class="sep">·</span><span class="here">No.002 護錆</span>
+  </div>
   <div class="foot-line">
     数値は公開された代表値の引用であり、著者による実測ではない。3Dは模式図。
   </div>
