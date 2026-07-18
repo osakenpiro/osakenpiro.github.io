@@ -104,8 +104,13 @@
   .hirakido .hd-body{padding:4px 20px 18px;font-size:.85rem;color:var(--fg-2);line-height:1.9;border-top:1px dashed var(--border)}
   .hirakido .hd-body b{color:var(--fg-1)}
 
-  footer{position:relative;z-index:1;text-align:center;padding:30px 20px 60px;font-size:.72rem;color:var(--dim);letter-spacing:.1em}
-  footer .draft-mark{display:inline-block;margin-top:10px;border:1px dashed var(--gold-edge);border-radius:999px;padding:4px 16px;color:var(--fg-3)}
+  footer{position:relative;z-index:1;text-align:center;padding:40px 20px 60px;font-size:.72rem;color:var(--dim);letter-spacing:.1em}
+  footer .foot-line{margin-top:9px;font-size:.94em;letter-spacing:.04em;line-height:1.8;color:var(--dim)}
+  footer .series{display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap}
+  footer .series a{color:var(--fg-3);border-bottom:1px solid var(--border-hover);padding-bottom:1px}
+  footer .series a:hover{color:var(--gold);border-color:var(--gold-edge)}
+  footer .series .here{color:var(--gold)}
+  footer .series .sep{color:var(--dim)}
 
   @media(max-width:560px){
     .plate{padding:24px 22px 20px}
@@ -222,8 +227,14 @@
 </main>
 
 <footer>
-  人類の素材図鑑 3D教科書 No.001 — 下書き / osakenpiro OSAEMON
-  <div class="draft-mark">DRAFT — 未公開・未デプロイ</div>
+  人類の素材図鑑 3D教科書 No.001 「黒曜片」 / osakenpiro · Visionium
+  <div class="foot-line series">
+    <span class="here">No.001 黒曜片</span><span class="sep">·</span><a href="https://osakenpiro.github.io/gosei/">No.002 護錆</a>
+  </div>
+  <div class="foot-line">
+    Floatの数値は公開された定性的記述から著者が読み下した目安であり、鉱物学的な実測値ではない。
+  </div>
+  <div class="foot-line">#全人類UX改善計画</div>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
