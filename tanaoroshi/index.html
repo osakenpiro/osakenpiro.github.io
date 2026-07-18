@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>全部がぼく — 棚卸し地図 (ReDes v0)</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--void:#08080c;--void2:#0e0e14;--gold:#d4a853;--gold-dim:#8a7a4a;--fg:#e8e0d0;--fg2:#9a9284;--fg3:#6f6a60;--line:#2a2a33;
+    --serif:"Cormorant Garamond","Yu Mincho","Hiragino Mincho ProN",serif}
+  html,body{background:var(--void);color:var(--fg);font-family:-apple-system,"Hiragino Sans","Yu Gothic",system-ui,sans-serif;line-height:1.5}
+  .wrap{max-width:1180px;margin:0 auto;padding:32px 22px 80px}
+  header h1{font-family:var(--serif);font-weight:600;font-size:2.1rem;letter-spacing:.04em}
+  header h1 b{color:var(--gold)}
+  .lede{color:var(--fg2);font-size:.86rem;margin-top:6px;letter-spacing:.02em}
+  .stat{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 6px}
+  .stat .pill{border:1px solid var(--line);border-radius:20px;padding:5px 13px;font-size:.76rem;color:var(--fg2)}
+  .stat .pill b{color:var(--gold);font-size:.9rem}
+  .controls{position:sticky;top:0;background:linear-gradient(var(--void),var(--void) 70%,transparent);padding:14px 0 12px;z-index:5;margin-top:8px}
+  #q{width:100%;background:var(--void2);border:1px solid var(--line);border-radius:10px;color:var(--fg);padding:11px 14px;font-size:.95rem;outline:none}
+  #q:focus{border-color:var(--gold-dim)}
+  .hint{color:var(--fg3);font-size:.72rem;margin-top:6px}
+  section{margin-top:26px}
+  .sh{display:flex;align-items:baseline;gap:10px;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:12px}
+  .sh h2{font-family:var(--serif);font-size:1.28rem;color:var(--fg);font-weight:600;letter-spacing:.03em}
+  .sh .k{color:var(--gold);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase}
+  .sh .c{margin-left:auto;color:var(--fg3);font-size:.74rem}
+  .sh .d{color:var(--fg2);font-size:.76rem}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:9px}
+  .card{background:var(--void2);border:1px solid var(--line);border-radius:9px;padding:10px 12px;transition:border-color .12s,transform .12s;display:block;text-decoration:none;color:inherit}
+  a.card:hover{border-color:var(--gold);transform:translateY(-1px)}
+  .card .nm{font-size:.9rem;color:var(--fg);font-weight:600}
+  .card .nm .ext{color:var(--gold-dim);font-size:.7rem;margin-left:4px}
+  .card .ds{font-size:.73rem;color:var(--fg2);margin-top:3px;line-height:1.45}
+  .card .tg{display:inline-block;margin-top:6px;font-size:.62rem;letter-spacing:.08em;color:var(--fg3);border:1px solid var(--line);border-radius:4px;padding:1px 6px}
+  .tg.live{color:var(--gold);border-color:var(--gold-dim)}
+  .tg.int{color:#8fa2c8;border-color:#3a4560}
+  .tg.book{color:#c8a08f;border-color:#5a4038}
+  .flag{background:#161009;border:1px solid var(--gold-dim);border-radius:10px;padding:14px 16px;margin-top:14px}
+  .flag h3{color:var(--gold);font-size:.92rem;margin-bottom:8px}
+  .flag li{color:var(--fg2);font-size:.8rem;margin:5px 0 5px 2px;list-style:none;padding-left:16px;position:relative}
+  .flag li:before{content:"⚑";position:absolute;left:0;color:var(--gold-dim);font-size:.7rem;top:2px}
+  .flag li b{color:var(--fg)}
+  .none{color:var(--fg3);font-size:.8rem;padding:8px 2px;display:none}
+  footer{margin-top:40px;color:var(--fg3);font-size:.72rem;border-top:1px solid var(--line);padding-top:14px}
+  mark{background:rgba(212,168,83,.28);color:var(--fg);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>全部がぼく — <b>棚卸し地図</b></h1>
+  <div class="lede">ReDes v1 · 2026-07-18 · 作成物を一枚に束ね「見える化」＋<b>内部↔公開をHTTP実証で突合</b>。作る速度が畳む速度を超えた時の地図。<br>公開＝HP実体 / 内部＝claude-shared projects / 著作＝カクヨム・KDP・note。</div>
+  <div class="stat" id="stat"></div>
+</header>
+
+<div class="controls">
+  <input id="q" placeholder="検索（名前・説明・タグ）… 例: Float / 図鑑 / 惑星 / ダンジョン" autocomplete="off">
+  <div class="hint">キーワードで全カテゴリを横断フィルタ。クリックで実物へ（公開物のみ）。</div>
+</div>
+
+<div class="flag">
+  <h3>⚑ 整理候補（この地図で見つかった重複・多面体・迷子）</h3>
+  <ul>
+    <li><b>バク運スカウターが2つ</b> — <code>/bakuun/</code> と <code>/bakuun-scouter/</code>。同名2実体＝統合 or 役割分けを明示すべき。</li>
+    <li><b>素材図鑑が3面体</b> — ツール版(materials-of-civilization)／読み物版(同URL)／KDP『人類の素材図鑑』。3つが同じ幹＝関係を1本に整理。</li>
+    <li><b>石の図鑑の親は「立体図鑑 zukan3d」</b> — 護錆→石英はここの3D教科書系譜。PhysicalTwin石図鑑はzukan3d配下に畳むのが筋。</li>
+    <li><b>cosmos / note が二重掲載</b> — cosmosはT柱とFILEに、noteはB柱とP柱に重複露出。玄関の導線がダブってる。</li>
+    <li><b>突合の結果（HTTP実証）</b> — 公開実体＝スラッグ一致8＋別スラッグ4＋別媒体6。内部専用は"見せないのが正"で迷子ではない。<b>掃除の主戦場は⚠️要確認（昭和六十三年のはる=未カクヨムGATE 等）</b>。ダンジョンは <code>/dungeon/</code> で公開中＝掃除対象確定。</li>
+  </ul>
+</div>
+
+<div id="board"></div>
+<div class="none" id="none">該当なし。</div>
+
+<footer>
+  非破壊の観測。公開デプロイは本人GATE。次段=「内部projects↔公開HPの突合表」でPhysicalTwin/図鑑/惑星/ダンジョンの所在を確定。<br>
+  既存の俯瞰面（WORKS / DD / 生態系総観 / MIHARASHI）とは別レイヤ＝これは"作成物の棚卸し"に特化。
+</footer>
+</div>
+
+<script>
+const DATA = {
+  "T｜Hi-Me TooL（ひみつーる・道具）": {k:"Pillar 01 · 鋼", d:"二値を0.0〜1.0に再定義する小道具群", items:[
+    ["FABULA","システムの分類学＝系統樹ツール","https://osakenpiro.github.io/fabula/","live"],
+    ["Shortcuts & Tools","PowerToys/Win/Chrome/CSP/ComfyUI 等の短縮集","https://osakenpiro.github.io/shortcuts/","live"],
+    ["フリコ / FURIKO","二択の迷いを連続値にする決断の振り子","https://osakenpiro.github.io/furiko/","live"],
+    ["あらいざらい","サブスク洗い出し＆解約ナビ","https://osakenpiro.github.io/araizarai/","live"],
+    ["かげん / KAGEN","ファジィ所属度エクスプローラ","https://osakenpiro.github.io/kagen/","live"],
+    ["三つ編み / Mitsuami","音韻×意味×構造の三重がけ命名ツール","https://osakenpiro.github.io/mitsuami/","live"],
+    ["バネットマップ","力学的関係ビジュアライザ","https://osakenpiro.github.io/banet-map/","live"],
+    ["深海テスト","9問6軸(PHI/CRE/TEC/OUT/VIT/EXP)診断","https://osakenpiro.github.io/shinkai/","live"],
+    ["日本地震マップ","1850-2060の震災を三重同心円で","https://osakenpiro.github.io/japan-earthquake-map/","live"],
+    ["あまっちゃ／にがっちゃ","抹茶の甘さを0-1で選ぶ飲料UX試作","https://osakenpiro.github.io/amaccha-nigaccha/","live"],
+    ["ぼうけんのしょ","積みゲーを倒すRPG風管理","https://osakenpiro.github.io/boukennosho/","live"],
+    ["HIBIKI","4コードアルペジオメーカー","https://osakenpiro.github.io/hibiki/","live"],
+    ["日本可視化列島","人口/家計/地震ハブ","https://osakenpiro.github.io/japan-visualization/","live"],
+    ["あしあとマップ","地面に残すサイン","https://osakenpiro.github.io/ashiato/","live"],
+    ["HIRAMEKI","改善アイデアをカード化しXへ","https://osakenpiro.github.io/hirameki/","live"],
+    ["わたしのお財布","日本人の自由度マップ","https://osakenpiro.github.io/watashi-wallet/","live"],
+    ["MIERU（見える）","CSVをアップして可視化","https://osakenpiro.github.io/MIERU/","live"],
+    ["画鋲 pin-wall","生成画像を貼る場","https://osakenpiro.github.io/pin-wall/","live"],
+    ["文体測り","読点率など原稿の文体計測","https://osakenpiro.github.io/buntai-hakari/","live"],
+    ["たなずかん","tier shelf dictionary","https://osakenpiro.github.io/tana-zukan/","live"],
+    ["あいまい / AIMAI","「はい・いいえ」をやめるボタン","https://osakenpiro.github.io/aimai/","live"],
+    ["わっかずかん","同心円の視覚分類器","https://osakenpiro.github.io/wakkazukan/","live"],
+    ["KON-NICHI-WAR(L)D","美しい日本語カード","https://osakenpiro.github.io/konnichiwarld/","live"],
+    ["日本のお財布","人口と権力1400年の可視化","https://osakenpiro.github.io/japan-wallet-map/","live"],
+    ["立体図鑑 zukan3d","駒・素材を3D/ARで観る図鑑（石図鑑の親）","https://osakenpiro.github.io/zukan3d/","live"],
+    ["SATORI","開眼系AI賢人","https://osakenpiro.github.io/satori/","live"],
+    ["素材図鑑（ツール版）","文明を素材の系譜として並べる","https://osakenpiro.github.io/materials-of-civilization/","live"],
+    ["cosmos（軌道）＝僕の惑星","軌道 FILE 004（惑星リアル化の対象）","https://osakenpiro.github.io/cosmos/","live"],
+    ["KAGAMI（鏡）","毎日の問い→洞察→行動の日記","https://osakenpiro.github.io/kagami/","live"],
+    ["ワクワク","白紙恐怖を消す長編スケルトン","https://osakenpiro.github.io/wakuwaku/","live"],
+    ["Breathe","4-7-8/Box/Calm 呼吸法ガイド","https://osakenpiro.github.io/breathe/","live"],
+    ["何度メーター","迷い→確信度%（BeeF三姉妹）","https://osakenpiro.github.io/nandometer/","live"],
+    ["フワッカ","fuzzy todo（BeeF三姉妹）","https://osakenpiro.github.io/fuwakka/","live"],
+    ["怠け通し","サボれる習慣（BeeF三姉妹）","https://osakenpiro.github.io/namakedooshi/","live"]
+  ]},
+  "R｜Re:DeSign（系譜）": {k:"Pillar 02 · 紫水晶", d:"デザインを良し悪しでなく系譜で捉え直す", items:[
+    ["うなり / UNARI","音のBoolean→Float","https://osakenpiro.github.io/unari/","live"],
+    ["なおしかた / NAOSHIKATA","Re:DeSign パターン図鑑","https://osakenpiro.github.io/naoshikata/","live"],
+    ["ゆらぎ / YURAGI","p5.js生成アート(流れ場×粒子)","https://osakenpiro.github.io/yuragi/","live"],
+    ["僕の銀河系 Galaxy","全体構造をforce-directed graphで","https://osakenpiro.github.io/galaxy/","live"]
+  ]},
+  "B｜BookBug（読む）": {k:"Pillar 03 · 緑青", d:"論文・読み物版図鑑・note", items:[
+    ["あんばい / ANBAI","読む濃さをFloatにした可変深度リーダー","https://osakenpiro.github.io/anbai/","live"],
+    ["社会考証ビジュアライザ","ひとRe:(人類消失SF)の社会考証","https://osakenpiro.github.io/shakai-vis/","live"],
+    ["Visionium 論文群","論文9-10本 / ORCID・Zenodo DOI","https://orcid.org/0009-0004-9167-3186","live"],
+    ["godwiki（神話DB）","ギリシャ/北欧/日本の神話24件","https://osakenpiro.github.io/godwiki/","live"],
+    ["note 記事","思索の中間生成物","https://note.com/osakenpiro","live"]
+  ]},
+  "P｜Postboy（届ける）": {k:"Pillar 04 · 銅", d:"外へ出ていく広報係", items:[
+    ["おすそわけ / OSUSOWAKE","Boolean→Float三部作の届け先LP","https://osakenpiro.github.io/osusowake/","live"],
+    ["ポートフォリオデモ","制作デモ(こむぎ日和/FlowTask)","https://osakenpiro.github.io/portfolio-demos/","live"],
+    ["x-post スキル","X投稿 Web Intent方式","https://github.com/osakenpiro/claude-shared/tree/main/skills/x-post","int"],
+    ["あったらいいな図鑑","みんなの願いを投稿で集める","https://osakenpiro.github.io/attara-iina/","live"],
+    ["Web制作ヒアリングシート","初回ヒアリングフォーム","https://osakenpiro.github.io/hearing-sheet/","live"],
+    ["X @osakenpiro","開発ログ・思索","https://twitter.com/osakenpiro","live"],
+    ["TikTok @panio54","口語の osakenpiro","https://www.tiktok.com/@panio54","live"],
+    ["Wick ショップ","作品販売(手数料0%)","https://wick-share.com/sns/share/VLSxH0mj","live"]
+  ]},
+  "G｜Gaming Gathering（遊技場）": {k:"Pillar 05 · 蛍石", d:"勝敗の手前の駆け引き・運・配置", items:[
+    ["0.5の魔女 / HALF-WITCH","魔法力(Float予算)配分パズル","https://osakenpiro.github.io/majo/","live"],
+    ["六剋（りくこく）","六属性が剋しあう Boolean→Float RPG","https://osakenpiro.github.io/rikkoku/","live"],
+    ["あそびば","Boolean→Float 7作の入口ハブ","https://osakenpiro.github.io/asobiba/","live"],
+    ["あわい / AWAI","Boolean→Floatを遊べる機構に","https://osakenpiro.github.io/awai/","live"],
+    ["はざま / HAZAMA","ファジー論理パズル＋工房","https://osakenpiro.github.io/hazama/","live"],
+    ["ドラコロ / DRACORO","skill-vs-luck デュエル","https://osakenpiro.github.io/dracoro/","live"],
+    ["バク運スカウター (bakuun)","運をFloat資源に(press-your-luck)","https://osakenpiro.github.io/bakuun/","live"],
+    ["帝国運用カードゲーム ECG","74枚/単一HTML/vs CPU+2P","https://osakenpiro.github.io/ecg/","live"],
+    ["HELLO WAR(L)D","地図とりあい観察庭 P0","https://osakenpiro.github.io/hello-warld/","live"],
+    ["バク運スカウター (scouter)","運力計測器＝遊ばない日が運になる","https://osakenpiro.github.io/bakuun-scouter/","live"],
+    ["夢見る少女は眠れない","起こさず遊ぶ二重放置ゲー","https://osakenpiro.github.io/yumemi-shoujo/","live"],
+    ["百ますグリッド","hyakumasu","https://osakenpiro.github.io/hyakumasu/","live"],
+    ["炎上！SNS","炎上シミュレーター v6","https://osakenpiro.github.io/enjou-sns/","live"],
+    ["VR Akinator","分類法のメタ分類","https://osakenpiro.github.io/vr-akinator/","live"]
+  ]},
+  "O｜Opaarts（原典）": {k:"Pillar 06 · 孔雀石", d:"体系の原点・源", items:[
+    ["げんてん / GENTEN","Boolean→Floatの原典オーパーツ","https://osakenpiro.github.io/genten/","live"]
+  ]},
+  "案内所・どうぐばこ（俯瞰面）": {k:"Hub", d:"既存の全体俯瞰。この棚卸しと別レイヤ", items:[
+    ["WORKS","とりせつ全索引","https://osakenpiro.github.io/works/","live"],
+    ["月 moon","","https://osakenpiro.github.io/moon/","live"],
+    ["DD Design Dashboard","論文/創作/ツールを一枚に","https://osakenpiro.github.io/dd/","live"],
+    ["生態系相関総観","","https://osakenpiro.github.io/ecosystem/","live"],
+    ["役割分化地図","","https://osakenpiro.github.io/ecosystem/topology.html","live"],
+    ["生態系チェッカー","","https://osakenpiro.github.io/ecosystem-checker/","live"],
+    ["部品工場 PARTS","作る人の部品","https://osakenpiro.github.io/parts/","live"],
+    ["big-light","","https://osakenpiro.github.io/big-light/","live"],
+    ["status / 経験値","FILE 005","https://osakenpiro.github.io/status/","live"]
+  ]},
+  "図鑑 & PhysicalTwin（今回の主戦場）": {k:"New", d:"物体を写真級で持つ系譜", items:[
+    ["PhysicalTwin 基準器","実物と見まがう写真級ツイン(Blender Cycles)。2026-07-18確立","","new"],
+    ["石の図鑑 v7ラスタ(proto)","three r168 transmission・回せる使い捨て","https://osakenpiro.github.io/_proto/ishizukan/","live"],
+    ["石の図鑑 パストレ(proto)","three-gpu-pathtracer・実機収束のみ(保留)","https://osakenpiro.github.io/_proto/ishizukan-pt/","live"],
+    ["護錆（人類の素材図鑑 3D教科書 No.002）","立体図鑑系譜の既存作","https://osakenpiro.github.io/works/gosei.html","live"]
+  ]},
+  "ほんだな（著作）": {k:"Books", d:"KDP・カクヨム他", items:[
+    ["パンダと哲学とAI","KDP","https://www.amazon.co.jp/dp/B0GT4HJBF4","book"],
+    ["人類の素材図鑑","KDP（素材図鑑の第3面）","https://www.amazon.co.jp/dp/B0GX2X9YF3","book"],
+    ["A＼mI／DA","カクヨム","https://kakuyomu.jp/works/2912051601256382667","book"],
+    ["じこしょうかいシリーズ","","https://osakenpiro.github.io/jikoshoukai/","live"],
+    ["絵本 17 / 論文 9 / KDP 2","INDEX（HP脚注の集計）","","book"]
+  ]},
+  "内部→公開ツール（突合済・HTTP実証）": {k:"突合 · 公開", d:"内部projectの公開実体（別スラッグ含む）", items:[
+    ["僕の銀河系 Galaxy","internal: visionium-galaxy","https://osakenpiro.github.io/galaxy/","live"],
+    ["社会考証ビジュアライザ","internal: hito-re（＋小説はカクヨム）","https://osakenpiro.github.io/shakai-vis/","live"],
+    ["原典 GENTEN","internal: opaarts","https://osakenpiro.github.io/genten/","live"],
+    ["僕のダンジョン","internal: dungeon-map（19室21辺・掃除対象）","https://osakenpiro.github.io/dungeon/","live"],
+    ["六剋 RIKKOKU","internal: rikkoku","https://osakenpiro.github.io/rikkoku/","live"],
+    ["わっかずかん","internal: wakkazukan","https://osakenpiro.github.io/wakkazukan/","live"],
+    ["ワクワク","internal: wakuwaku","https://osakenpiro.github.io/wakuwaku/","live"],
+    ["逗子の家（民泊）","internal: zushinoie","https://osakenpiro.github.io/zushinoie/","live"],
+    ["思想の博物誌 fable記","internal: fable-ki（＋note）","https://osakenpiro.github.io/fable-ki/","live"],
+    ["銀幕亭 ginmakutei","internal: ginmakutei","https://osakenpiro.github.io/ginmakutei/","live"],
+    ["論文hub papers","internal: papers（ORCID/Zenodo）","https://osakenpiro.github.io/papers/","live"],
+    ["blueprint-standard","internal: 規格ページ","https://osakenpiro.github.io/blueprint-standard/","live"]
+  ]},
+  "内部→別媒体で公開（突合済）": {k:"突合 · 別媒体", d:"GH Pagesでなくカクヨム/note/KDPで公開", items:[
+    ["軌道街 KIDOGAI","internal: kidogai（降下×忘却SF）","https://kakuyomu.jp/works/2912051602519321608","book"],
+    ["ひとRe:","internal: hito-re（人類消失SF）","https://kakuyomu.jp/works/2912051602520137961","book"],
+    ["A＼mI／DA","internal: amida","https://kakuyomu.jp/works/2912051601256382667","book"],
+    ["IMASICA","internal: imasica（カクヨム連載）","https://kakuyomu.jp/","book"],
+    ["普通教 futsuukyo","internal: futsuukyo（note全8回）","https://note.com/osakenpiro","book"],
+    ["note各種","internal: note / note-paper-series / note-pokemon-frlg","https://note.com/osakenpiro","book"]
+  ]},
+  "内部専用（インフラ・ops｜公開面なしが正）": {k:"突合 · 内部", d:"見せない裏方＝迷子ではない", items:[
+    ["MIHARASHI","全景観測台","","int"],["秘書Co / 配置監査","hishoco(+automation-lane)","","int"],
+    ["kaizen / oharai / misogi","改善ループ・drift・承認カード","","int"],["orb / queue / loops","inbox・キュー・循環","","int"],
+    ["model-routing / calibrators","モデル振分・判断基準器","","int"],["agent-team","協業チーム","","int"],
+    ["gh-read-proxy / shared-push-proxy / rain-worker","読取/押上/Rain worker","","int"],["portal","gen_* 成果物ポータル","","int"],
+    ["human-gate-card / ecosystem-evolution / craft-flow","規格・進化・工程","","int"],
+    ["branding / marketing / postboy","広報基盤","","int"],["forge-imagegen","画像生成","","int"],
+    ["himetool / fuyoudo / visionium / lexilium / osk_taste","メタ概念・DB・嗜好","","int"],
+    ["tadashi","RT校正拡張(note○)","","int"],["fable-codex-lane / gakumon / bcp / 3d-phase4 / osaemon","運用レーン","","int"]
+  ]},
+  "⚠️ 要確認（未公開・GATE・曖昧＝掃除の主戦場）": {k:"突合 · 要判断", d:"内部に在るが公開状態が不明/停止", items:[
+    ["昭和六十三年のはる","showa63-haru：ep01-02 repo正本・未カクヨム(GATE)","","int"],
+    ["創作レーン群 要確認","genxhi / kimigao / tutorial-tokui / vampire-rumor-comedy / visionary-miserable / shugi-zettai-shugi","","int"],
+    ["bro-ve-dat / ipo-watch","用途・公開状態が地図から不明","","int"]
+  ]}
+};
+
+const board=document.getElementById('board'), stat=document.getElementById('stat'), q=document.getElementById('q'), none=document.getElementById('none');
+let liveCount=0, intCount=0, total=0;
+const secEls=[];
+for(const [name,meta] of Object.entries(DATA)){
+  const sec=document.createElement('section'); sec.dataset.name=name;
+  const sh=document.createElement('div'); sh.className='sh';
+  sh.innerHTML=`<span class="k">${meta.k}</span><h2>${name.replace(/｜/g,' ｜ ')}</h2><span class="d">${meta.d||''}</span><span class="c">${meta.items.length}</span>`;
+  sec.appendChild(sh);
+  const grid=document.createElement('div'); grid.className='grid';
+  for(const it of meta.items){
+    const [nm,ds,url,tag]=it; total++;
+    if(tag==='live') liveCount++; if(tag==='int') intCount++;
+    const el=document.createElement(url?'a':'div'); el.className='card'; if(url){el.href=url;el.target='_blank';el.rel='noopener';}
+    el.dataset.txt=(nm+' '+ds+' '+(tag||'')).toLowerCase();
+    const tl={live:'公開',int:'内部',book:'著作',new:'基準'}[tag]||'';
+    el.innerHTML=`<div class="nm">${nm}${url?'<span class="ext">↗</span>':''}</div>${ds?`<div class="ds">${ds}</div>`:''}<span class="tg ${tag}">${tl}</span>`;
+    grid.appendChild(el);
+  }
+  sec.appendChild(grid); board.appendChild(sec); secEls.push(sec);
+}
+stat.innerHTML=`<span class="pill"><b>${total}</b> 総項目</span><span class="pill">公開 <b>${liveCount}</b></span><span class="pill">内部 <b>${intCount}</b></span><span class="pill">柱 <b>6</b></span><span class="pill">整理候補 <b>5</b></span>`;
+
+q.addEventListener('input',()=>{
+  const s=q.value.trim().toLowerCase(); let any=false;
+  for(const sec of secEls){
+    let shown=0;
+    for(const c of sec.querySelectorAll('.card')){
+      const hit=!s||c.dataset.txt.includes(s);
+      c.style.display=hit?'':'none';
+      if(hit){shown++;
+        const nm=c.querySelector('.nm');
+        if(s){ nm.innerHTML=nm.innerHTML.replace(/<mark>|<\/mark>/g,''); }
+      }
+    }
+    sec.style.display=shown?'':'none'; if(shown)any=true;
+    sec.querySelector('.c').textContent=shown;
+  }
+  none.style.display=any?'none':'block';
+});
+</script>
+</body>
+</html>
