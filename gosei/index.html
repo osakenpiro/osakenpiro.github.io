@@ -451,39 +451,31 @@
   var rig = new THREE.Group();
   scene.add(rig);
 
-  /* --- 金属スラブ(box primitive) --- */
-  var slabGeo = new THREE.BoxGeometry(SLAB_W, 1, SLAB_D);
-  /* metalnessを上げすぎるとenvMap無しでは金属が黒く沈む(three.jsの常)。
-     envMapを積まない方針(単一HTML・外部資産ゼロ)なので、metalnessは中庸＋弱emissiveで金を保つ。 */
+  /* --- 金属コイン(標本): 磨いた金属の円盤。"板"ではなく"試料"に見せる --- */
+  var COUPON_R = 1.78, COUPON_H = 0.55;
+  var slabGeo = new THREE.CylinderGeometry(COUPON_R, COUPON_R * 0.97, COUPON_H, 64, 1);
+  /* envMap無しでmetalnessを上げすぎると金属が黒く沈む→中庸metal＋弱emissiveで金を保つ */
   var slabMat = new THREE.MeshStandardMaterial({
-    color: 0xd4a853, metalness: 0.5, roughness: 0.31, emissive: 0x2a1e08
+    color: 0xd4a853, metalness: 0.55, roughness: 0.25, emissive: 0x241a06
   });
   var slab = new THREE.Mesh(slabGeo, slabMat);
   rig.add(slab);
 
-  /* --- 母材の“消えた分”を示す影スラブ(元の輪郭) --- */
-  var ghostGeo = new THREE.BoxGeometry(SLAB_W * 1.001, SLAB_H0, SLAB_D * 1.001);
-  var ghostMat = new THREE.MeshBasicMaterial({ color: 0xd4a853, transparent: true, opacity: 0.05, wireframe: true });
-  var ghost = new THREE.Mesh(ghostGeo, ghostMat);
-  ghost.position.y = 0;
-  rig.add(ghost);
-
-  /* --- 酸化層タイル(box primitive の格子) --- */
-  var oxGeo = new THREE.BoxGeometry(1, 1, 1);
-  var tiles = [];
-  for (var r = 0; r < ROWS; r++) {
-    for (var c = 0; c < COLS; c++) {
-      var idx = r * COLS + c;
-      var m = new THREE.MeshStandardMaterial({ color: 0x4a4844, metalness: 0.06, roughness: 0.96, flatShading: true });
-      var t = new THREE.Mesh(oxGeo, m);
-      t.userData = {
-        cx: -SLAB_W / 2 + TILE_W * (c + 0.5),
-        cz: -SLAB_D / 2 + TILE_D * (r + 0.5),
-        j1: rnd(idx, 1), j2: rnd(idx, 2), j3: rnd(idx, 3), j4: rnd(idx, 4)
-      };
-      rig.add(t);
-      tiles.push(t);
-    }
+  /* --- 酸化スケール: 上面に散る不揃いの薄片(六角プレート)。
+         積み木の格子でなく、錆の"うろこ"。極座標でジッター配置＝グリッドにしない。 --- */
+  var PLATE_N = 30;
+  var plates = [];
+  for (var pi = 0; pi < PLATE_N; pi++) {
+    var pang = rnd(pi, 5) * Math.PI * 2;
+    var prr = Math.sqrt(rnd(pi, 6)) * (COUPON_R * 0.84);   // 中心密・縁疎の自然分布
+    var prad = 0.16 + rnd(pi, 7) * 0.17;                   // 薄片ごとに大きさ違い
+    var pgeo = new THREE.CylinderGeometry(prad, prad * (0.72 + rnd(pi, 8) * 0.28), 1, 6, 1); // 六角薄片
+    var pmat = new THREE.MeshStandardMaterial({ color: 0x4a4844, metalness: 0.05, roughness: 0.97, flatShading: true });
+    var plate = new THREE.Mesh(pgeo, pmat);
+    plate.userData = { ang: pang, rr: prr, hex: rnd(pi, 9) * Math.PI,
+                       j1: rnd(pi, 1), j2: rnd(pi, 2), j3: rnd(pi, 3), j4: rnd(pi, 4) };
+    rig.add(plate);
+    plates.push(plate);
   }
 
   /* ===== モデル: P–B比 → 見える量 =====
@@ -528,39 +520,38 @@
     var pr = protectOf(pb);
 
     /* 母材の消耗: 守られているほど食われない(模式の関数) */
-    var eaten = tm * (1 - 0.9 * pr) * 0.5;       // 0〜0.5（模型が痩せ切らない上限）
-    var slabH = Math.max(0.06, SLAB_H0 * (1 - eaten));
-    slab.scale.set(1, slabH, 1);
-    slab.position.y = -SLAB_H0 / 2 + slabH / 2;   // 底面を固定して上面が下がる
-    var topY = slab.position.y + slabH / 2;
-    ghost.position.y = 0;
+    var eaten = tm * (1 - 0.9 * pr) * 0.5;
+    var couponH = Math.max(0.12, COUPON_H * (1 - eaten));
+    slab.scale.set(1, couponH / COUPON_H, 1);
+    slab.position.y = -(COUPON_H - couponH) / 2;   // 上面が下がる
+    var topY = slab.position.y + couponH / 2;
 
     /* 錆の育ち: 時間で厚みが増す(上限あり) */
-    var grow = 0.35 + 0.65 * Math.min(1, tm * (1.6 - 0.8 * pr));
+    var grow = 0.4 + 0.6 * Math.min(1, tm * (1.5 - 0.7 * pr));
     var thNow = th * grow;
+    var lum = 0.24 + 0.20 * pr;   // 守る錆ほど締まって明るい灰
 
-    for (var i = 0; i < tiles.length; i++) {
-      var t = tiles[i], u = t.userData;
-      var lift = sp * (0.10 + u.j1 * 0.55) * (0.35 + 0.65 * tm);
-      var gap = (1 - cov) * (0.55 + u.j2 * 0.45);
+    for (var i = 0; i < plates.length; i++) {
+      var p = plates[i], u = p.userData;
+      /* coverage<1: 薄片が縮み、一部は消える＝隙間から母材が覗く(多孔) */
+      var rS = (0.55 + 0.45 * cov) * (0.85 + u.j1 * 0.3);
+      p.visible = (u.j2 < cov + 0.32);
+      /* spall>2: 浮いて傾く(剥落) */
+      var lift = sp * (0.05 + u.j3 * 0.5) * (0.4 + 0.6 * tm);
+      var tilt = sp * (u.j4 - 0.5) * 1.25 * (0.3 + 0.7 * tm);
 
-      t.scale.set(TILE_W * (cov - gap * 0.25), thNow, TILE_D * (cov - gap * 0.25));
-      t.position.set(
-        u.cx + sp * (u.j3 - 0.5) * 0.5 * tm,
-        topY + thNow / 2 + lift,
-        u.cz + sp * (u.j4 - 0.5) * 0.5 * tm
+      p.scale.set(rS, Math.max(0.03, thNow * 1.5), rS);
+      var px = Math.cos(u.ang) * u.rr, pz = Math.sin(u.ang) * u.rr;
+      p.position.set(
+        px + sp * (u.j3 - 0.5) * 0.35 * tm,
+        topY + thNow * 0.75 + lift,
+        pz + sp * (u.j4 - 0.5) * 0.35 * tm
       );
-      t.rotation.set(
-        sp * (u.j1 - 0.5) * 1.1 * (0.3 + 0.7 * tm),
-        sp * (u.j2 - 0.5) * 0.7,
-        sp * (u.j4 - 0.5) * 1.1 * (0.3 + 0.7 * tm)
-      );
+      p.rotation.set(tilt, u.hex, sp * (u.j1 - 0.5) * 1.0 * (0.3 + 0.7 * tm));
 
-      /* 錆は無彩色(灰)。守る錆ほど締まって明るい灰、壊す錆ほど暗くくすむ。
-         金は母材だけに残す＝「金は金属、灰は錆」を色で守る。 */
-      var lum = 0.22 + 0.20 * pr;
-      t.material.color.setRGB(lum * 1.04, lum, lum * 0.94);
-      t.material.emissive.setRGB(pr * 0.035, pr * 0.026, pr * 0.010);
+      /* 錆は無彩色(灰)。金は母材だけに残す＝「金は金属、灰は錆」を色で守る */
+      p.material.color.setRGB(lum * 1.05, lum, lum * 0.92);
+      p.material.emissive.setRGB(pr * 0.03, pr * 0.022, pr * 0.008);
     }
 
     var v = verdictOf(pb);
