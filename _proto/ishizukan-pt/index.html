@@ -205,13 +205,15 @@ pathTracer.setScene(scene, camera);
 resize();
 controls.addEventListener('change', ()=> pathTracer.updateCamera());
 
+/* bakeモード(?bake=N): 1フレームでNサンプル焚いて即収束(検証・静止画用)。通常は1/frame。 */
+const BAKE = parseInt(new URLSearchParams(location.search).get('bake')||'0',10);
 function animate(){
   requestAnimationFrame(animate);
-  controls.update();
-  pathTracer.renderSample();
+  if(BAKE>0){ for(let k=0;k<BAKE;k++) pathTracer.renderSample(); }
+  else { pathTracer.renderSample(); }
   if(!window.__ok){ window.__ok = true; document.title = 'OKRENDER'; }
   const s = pathTracer.samples || 0;
-  if(statusEl) statusEl.textContent = s < 1 ? 'rendering…' : (s < 60 ? ('収束中 ' + (s|0) + ' spp') : ('収束 ' + (s|0) + ' spp'));
+  if(statusEl) statusEl.textContent = s < 1 ? 'rendering…' : (s < 80 ? ('収束中 ' + (s|0) + ' spp') : ('収束 ' + (s|0) + ' spp'));
 }
 animate();
 </script>
