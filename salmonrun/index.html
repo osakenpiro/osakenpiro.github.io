@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>サーモンラン 金バッジ遡上マップ｜でんせつ999までの心得と手順</title>
+<meta name="description" content="スプラトゥーン3サーモンランで金バッジ（でんせつ999）に到達するための一枚もの。評価値の増減ルール、勝率別の所要時間、心得8条、段階別ロードマップ、二人で潜るときの共有ルール、オオモノ11種の優先度、特殊WAVE8種、7ステージ別の定石、ブキ別の得手不得手。">
+<meta property="og:title" content="サーモンラン 金バッジ遡上マップ — でんせつ999までの心得と手順">
+<meta property="og:description" content="スプラトゥーン3サーモンランで金バッジ（でんせつ999）に到達するための一枚もの。評価値の増減ルール、勝率別の所要時間、心得8条、段階別ロードマップ、二人で潜るときの共有ルール、オオモノ11種の優先度、特殊WAVE8種、7ステージ別の定石、ブキ別の得手不得手。">
+<meta property="og:url" content="https://osakenpiro.github.io/salmonrun/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="osakenpiro">
+<meta property="og:image" content="https://osakenpiro.github.io/salmonrun/ogp.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://osakenpiro.github.io/salmonrun/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2312100c'/%3E%3Ccircle cx='16' cy='16' r='9' fill='%23ffc73d'/%3E%3Ccircle cx='16' cy='16' r='4.6' fill='%23ff6a13'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#12100c; --bg2:#1b1813; --bg3:#242019;
+  --line:#3a3227;
+  --tx:#f3ede2; --tx2:#c3b8a4; --tx3:#8d8271;
+  --kuma:#ff6a13;   /* クマサンオレンジ */
+  --ika:#b5ff3d;    /* イカグリーン */
+  --gold:#ffc73d;   /* 金バッジ */
+  --sil:#c9d3dc; --bro:#d08c4a;
+  --danger:#ff4d6d;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:74px}
+body{
+  margin:0; background:var(--bg); color:var(--tx);
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Noto Sans JP",system-ui,sans-serif;
+  line-height:1.75; font-size:15px; letter-spacing:.01em;
+}
+.wrap{max-width:1020px; margin:0 auto; padding:0 18px 90px}
+
+/* header */
+header.hero{
+  background:
+    radial-gradient(900px 300px at 12% -10%, rgba(255,106,19,.30), transparent 60%),
+    radial-gradient(700px 260px at 88% 0%, rgba(181,255,61,.16), transparent 60%),
+    var(--bg2);
+  border-bottom:1px solid var(--line);
+  padding:44px 18px 34px;
+}
+.hero-in{max-width:1020px;margin:0 auto}
+.eyebrow{font-size:12px;letter-spacing:.22em;color:var(--kuma);font-weight:700;margin:0 0 10px}
+h1{font-size:clamp(25px,5.2vw,40px); line-height:1.28; margin:0 0 6px; font-weight:800}
+h1 .g{color:var(--gold)}
+.sub{color:var(--tx2); margin:6px 0 0; font-size:14.5px}
+.meta{margin-top:16px;font-size:12px;color:var(--tx3)}
+
+/* nav */
+nav.toc{
+  position:sticky; top:0; z-index:50; background:rgba(18,16,12,.93);
+  backdrop-filter:blur(10px); border-bottom:1px solid var(--line);
+}
+.toc-in{max-width:1020px;margin:0 auto;padding:9px 12px;display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.toc a{
+  flex:0 0 auto; color:var(--tx2); text-decoration:none; font-size:12.5px; font-weight:700;
+  padding:6px 11px; border-radius:999px; border:1px solid var(--line); white-space:nowrap;
+}
+.toc a:hover{color:var(--bg); background:var(--ika); border-color:var(--ika)}
+.toc::-webkit-scrollbar{height:0}
+
+/* sections */
+section{margin:52px 0 0; scroll-margin-top:74px}
+h2{
+  font-size:22px; margin:0 0 6px; font-weight:800; line-height:1.4;
+  padding-left:14px; border-left:5px solid var(--kuma);
+}
+h2 .num{color:var(--kuma); font-size:13px; display:block; letter-spacing:.16em; margin-bottom:2px}
+h3{font-size:16.5px; margin:30px 0 8px; font-weight:800; color:var(--ika)}
+h4{font-size:14.5px; margin:18px 0 5px; font-weight:800; color:var(--tx)}
+p{margin:9px 0}
+a{color:var(--ika)}
+strong{color:#fff}
+em{font-style:normal; color:var(--gold); font-weight:700}
+
+.lead{color:var(--tx2); font-size:14.5px; margin-bottom:14px}
+
+/* summary box */
+.tldr{
+  background:linear-gradient(135deg,rgba(255,199,61,.13),rgba(255,106,19,.07));
+  border:1px solid rgba(255,199,61,.4); border-radius:var(--r); padding:20px 22px; margin:26px 0 0;
+}
+.tldr h2{border:0;padding:0;font-size:15px;color:var(--gold);margin-bottom:10px;letter-spacing:.1em}
+.tldr ol{margin:0;padding-left:22px}
+.tldr li{margin:8px 0;font-size:15.5px}
+
+/* cards */
+.card{background:var(--bg2); border:1px solid var(--line); border-radius:var(--r); padding:18px 20px; margin:14px 0}
+.card.hl{border-color:rgba(255,106,19,.55); background:linear-gradient(180deg,rgba(255,106,19,.09),var(--bg2))}
+.card.warn{border-color:rgba(255,77,109,.5); background:linear-gradient(180deg,rgba(255,77,109,.08),var(--bg2))}
+.card h4:first-child{margin-top:0}
+.grid{display:grid; gap:13px; grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}
+
+/* tables */
+.tw{overflow-x:auto; margin:14px 0; -webkit-overflow-scrolling:touch}
+table{border-collapse:collapse; width:100%; min-width:440px; font-size:13.5px}
+th,td{border:1px solid var(--line); padding:8px 11px; text-align:left; vertical-align:top}
+th{background:var(--bg3); color:var(--tx); font-weight:700; white-space:nowrap}
+tbody tr:nth-child(even){background:rgba(255,255,255,.022)}
+td.c,th.c{text-align:center}
+
+/* badge chips */
+.chip{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:800;line-height:1.7;white-space:nowrap}
+.c-gold{background:var(--gold);color:#3a2a00}
+.c-sil{background:var(--sil);color:#232a30}
+.c-bro{background:var(--bro);color:#2e1a06}
+.c-non{background:#4d463a;color:#e2dbcc}
+.c-x{background:var(--danger);color:#fff}
+.c-o{background:var(--ika);color:#17250a}
+.c-m{background:#5b6f8a;color:#eaf1fb}
+
+/* rules list */
+ol.rules{counter-reset:r; list-style:none; padding:0; margin:16px 0}
+ol.rules>li{
+  counter-increment:r; position:relative; padding:14px 16px 14px 56px; margin:10px 0;
+  background:var(--bg2); border:1px solid var(--line); border-radius:var(--r);
+}
+ol.rules>li::before{
+  content:counter(r); position:absolute; left:16px; top:13px;
+  width:27px;height:27px;border-radius:8px;background:var(--kuma);color:#1a0d00;
+  font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;
+}
+ol.rules>li b{display:block;font-size:15.5px;color:#fff;margin-bottom:3px}
+ol.rules>li span{color:var(--tx2);font-size:13.8px}
+
+ul.tight{margin:8px 0;padding-left:20px}
+ul.tight li{margin:5px 0}
+ul.check{list-style:none;padding:0;margin:10px 0}
+ul.check li{padding:6px 0 6px 27px;position:relative;border-bottom:1px dashed var(--line);font-size:13.8px}
+ul.check li::before{content:"☐";position:absolute;left:4px;top:6px;color:var(--kuma);font-size:15px}
+
+/* stage cards */
+.stage{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;margin:13px 0}
+.stage h4{margin:0 0 4px;font-size:16px;color:var(--gold);display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.stage h4 .diff{font-size:11px;padding:1px 8px;border-radius:999px;background:var(--bg3);color:var(--tx2);border:1px solid var(--line);font-weight:700}
+.kv{display:grid;grid-template-columns:76px 1fr;gap:4px 12px;margin-top:9px;font-size:13.6px}
+.kv dt{color:var(--kuma);font-weight:800;font-size:12.5px;padding-top:1px}
+.kv dd{margin:0;color:var(--tx2)}
+.kv dd b{color:#fff}
+.no{color:var(--danger);font-weight:800}
+.yes{color:var(--ika);font-weight:800}
+
+/* callout */
+.note{border-left:3px solid var(--kuma);padding:2px 0 2px 13px;margin:12px 0;color:var(--tx2);font-size:13.6px}
+.note b{color:#fff}
+
+/* sources */
+.src{font-size:12.5px;color:var(--tx3)}
+.src a{color:var(--tx3);text-decoration:underline}
+footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--line);color:var(--tx3);font-size:12.5px}
+
+@media print{
+  body{background:#fff;color:#111}
+  nav.toc{display:none} header.hero{background:#fff;border-bottom:2px solid #111}
+  .card,.stage,ol.rules>li{background:#fff;border-color:#bbb;break-inside:avoid}
+  a{color:#111} h2{border-left-color:#111} h3{color:#111}
+  strong,em,.kv dd b{color:#111} .kv dt{color:#111}
+}
+@media(max-width:520px){
+  .kv{grid-template-columns:64px 1fr}
+  ol.rules>li{padding-left:50px}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-in">
+    <p class="eyebrow">SALMON RUN NEXT WAVE / GOLD BADGE</p>
+    <h1>金バッジ遡上マップ<br><span class="g">— でんせつ999までの心得と手順</span></h1>
+    <p class="sub">サケが川を遡るように、40時間のシフトの中で評価値を上げきる。<br>そのための「考え方」と「手順」と「二人でやるときのルール」を一枚にまとめたもの。</p>
+    <p class="meta">2026-07-26 作成 ／ 二人で金バッジを目指す人向け ／ 情報は日本語攻略サイト複数ソースの突き合わせ。数値の食い違いは本文中に明記</p>
+  </div>
+</header>
+
+<nav class="toc"><div class="toc-in">
+  <a href="#tldr">3行まとめ</a>
+  <a href="#rule">0. ルールの正体</a>
+  <a href="#mind">1. 心得8条</a>
+  <a href="#road">2. ロードマップ</a>
+  <a href="#pair">3. 二人の共有ルール</a>
+  <a href="#boss">4. オオモノ優先度</a>
+  <a href="#wave">5. 特殊WAVE</a>
+  <a href="#stage">6. ステージ別</a>
+  <a href="#weapon">7. ブキ別</a>
+  <a href="#ng">8. NGリスト</a>
+  <a href="#src">出典</a>
+</div></nav>
+
+<div class="wrap">
+
+<!-- ===== TLDR ===== -->
+<div class="tldr" id="tldr">
+  <h2>■ 3行まとめ</h2>
+  <ol>
+    <li><strong>金バッジ＝でんせつ999。1勝で+20しか進まない。</strong>つまり「40時間のシフト内で、48連勝ぶんの貯金を積む」競技。腕前の勝負であると同時に<em>時間と勝率の設計</em>の勝負。</li>
+    <li><strong>一番効くレバレッジは、うまくなることより「同じステージを掘る」こと。</strong>銅(400到達)→銀(600到達)と積むと次から開始点が上がり、金までの必要連勝が48回→30回に圧縮される。</li>
+    <li><strong>二人でやるなら最優先は「評価値を揃える」。</strong>一緒に潜ると<em>一番評価値が低い人しか上がらない</em>。高い側は勝っても±0なのに、負けたときだけ普通に下がる。</li>
+  </ol>
+</div>
+
+<!-- ===== 0 ===== -->
+<section id="rule">
+  <h2><span class="num">SECTION 0</span>ルールの正体 ＝ 勝ち筋の設計図</h2>
+  <p class="lead">感覚でやると遠回りになる。まずは「何をすると何点動くのか」を数字で握る。ここが全ての土台。</p>
+
+  <h3>バッジは4段階。金＝でんせつ999</h3>
+  <div class="tw"><table>
+    <thead><tr><th>バッジ</th><th class="c">到達条件</th><th>次のシフトの開始評価値</th></tr></thead>
+    <tbody>
+      <tr><td><span class="chip c-non">無印</span></td><td class="c">でんせつ <b>200</b></td><td>底上げなし（でんせつ40スタート）</td></tr>
+      <tr><td><span class="chip c-bro">銅</span></td><td class="c">でんせつ <b>400</b></td><td><b>でんせつ200</b> スタート</td></tr>
+      <tr><td><span class="chip c-sil">銀</span></td><td class="c">でんせつ <b>600</b></td><td><b>でんせつ300</b> スタート</td></tr>
+      <tr><td><span class="chip c-gold">金</span></td><td class="c">でんせつ <b>999</b></td><td><b>でんせつ400</b> スタート</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note"><b>バッジはステージごと。</b>7ステージ（アラマキ砦／シェケナダム／ムニ・エール海洋発電所／難破船ドン・ブラコ／すじこジャンクション跡／トキシラズいぶし工房／どんぴこ闘技場）それぞれに4種類ある。開始レートの底上げも<b>そのステージのバッジしか効かない</b>。だから「得意ステージを1つ決めて掘る」が正解になる。</p>
+
+  <h3>評価値の増減。ここが一番大事</h3>
+  <div class="tw"><table>
+    <thead><tr><th>結果</th><th class="c">評価値</th><th>読み替え</th></tr></thead>
+    <tbody>
+      <tr><td>3WAVE 全クリア</td><td class="c"><b style="color:var(--ika)">+20</b></td><td>これしか増えない。全ての行動はここに収束する</td></tr>
+      <tr><td>WAVE3 で失敗</td><td class="c"><b>±0</b></td><td><em>減点ゼロ</em>。WAVE3は「攻めても損しない」区間</td></tr>
+      <tr><td>WAVE2 で失敗</td><td class="c" style="color:var(--danger)"><b>-10</b></td><td>1勝の半分が消える</td></tr>
+      <tr><td>WAVE1 で失敗</td><td class="c" style="color:var(--danger)"><b>-20</b></td><td><span class="no">最悪。1勝が丸ごと消える</span></td></tr>
+    </tbody>
+  </table></div>
+  <ul class="tight">
+    <li><strong>キケン度で増減は変わらない。</strong>キケン度が効くのは報酬（クマサンポイント等）の倍率だけ。評価を上げたいだけなら無理にキケン度を上げる意味はない。</li>
+    <li><strong>オカシラ戦（EXTRA WAVE）の勝敗は評価値に一切影響しない。</strong>負けても減らない。変わるのはウロコの色だけ。カンスト狙いの日は気楽に殴っていい。</li>
+    <li><strong>1シフトは40時間。</strong>シフトが変わると称号は残るが評価値はリセット。＝<em>999は「1シフト内」で到達しないといけない</em>。</li>
+    <li><strong>自分で評価をリセットできる</strong>（「いちにんまえ」以上・評価値40超で、100単位で下げられる）。→ 二人の評価値を揃えるときの唯一の手段。</li>
+  </ul>
+
+  <h3>で、実際どれくらいかかるのか</h3>
+  <p>攻略サイトの「最速時間」は<b>全勝前提</b>の理論値。実感に近い数字が欲しいので、負け方の内訳を仮定して計算したのが下表。</p>
+  <p class="note"><b>計算の前提（これは出典ではなく自作モデル）：</b>1試合あたり約7.5分（実働＋マッチング＋オカシラ）。負けの内訳を「WAVE3落ち60% / WAVE2落ち30% / WAVE1落ち10%」と仮定 → 平均失点 -5。1試合あたりの期待値 ＝ 勝率×20 −（1−勝率）×5。</p>
+  <div class="tw"><table>
+    <thead><tr><th>勝率</th><th class="c">1試合の期待値</th><th class="c">40スタート→999<br>（バッジなし）</th><th class="c">400スタート→999<br>（金バッジ持ち）</th></tr></thead>
+    <tbody>
+      <tr><td>90%</td><td class="c">+17.5</td><td class="c">約55戦 / <b>7時間</b></td><td class="c">約35戦 / <b>4.3時間</b></td></tr>
+      <tr><td>80%</td><td class="c">+15.0</td><td class="c">約64戦 / <b>8時間</b></td><td class="c">約40戦 / <b>5時間</b></td></tr>
+      <tr><td>70%</td><td class="c">+12.5</td><td class="c">約77戦 / <b>9.6時間</b></td><td class="c">約48戦 / <b>6時間</b></td></tr>
+      <tr><td>60%</td><td class="c">+10.0</td><td class="c">約96戦 / <b>12時間</b></td><td class="c">約60戦 / <b>7.5時間</b></td></tr>
+      <tr><td>50%</td><td class="c">+7.5</td><td class="c">約128戦 / <b>16時間</b></td><td class="c">約80戦 / <b>10時間</b></td></tr>
+    </tbody>
+  </table></div>
+  <div class="card hl">
+    <h4>この表から出る結論は3つ</h4>
+    <ul class="tight">
+      <li><strong>勝率60%以下だと、1シフト40時間で999はほぼ不可能</strong>（実プレイ12時間以上を1シフト内に確保する必要がある）。まずやることは「999を目指す」ではなく<em>勝率を70%以上にする</em>こと。</li>
+      <li><strong>金バッジを持っている状態の効果が異常に大きい。</strong>同じ勝率70%でも 9.6時間 → 6時間。つまり<em>1枚目の金バッジが一番しんどく、2枚目以降のカンスト維持はずっと楽</em>。</li>
+      <li><strong>だから戦略は「銅・銀を先に揃えてから、金を狙う日を作る」。</strong>いきなり40スタートから999を狙わない。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== 1 ===== -->
+<section id="mind">
+  <h2><span class="num">SECTION 1</span>心得 8条</h2>
+  <p class="lead">技術より先に、意思決定の基準。迷ったときにここへ戻る。</p>
+
+  <ol class="rules">
+    <li><b>金バッジは「うまさ」ではなく「連勝の設計」で取る</b>
+      <span>1勝+20という設計上、瞬間的な神プレイより、事故らない試合を積み上げる方が強い。派手に稼ぐ日ではなく、落とさない日をつくる。</span></li>
+
+    <li><b>WAVE1を落とすのが一番高くつく。WAVE3落ちはタダ</b>
+      <span>-20 / -10 / ±0 という非対称。WAVE1・2は多少無茶してでも取りに行く価値がある（残り時間が足りないならスペシャルを全部吐いてでも通す）。逆にWAVE3は失敗しても減点ゼロなので、危ない遠征をするかどうかは「勝てる見込み」だけで判断していい。</span></li>
+
+    <li><b>倒すより先に運ぶ。納品は「あとで」が効かない</b>
+      <span>伸び悩む人の最大公約数は納品不足。オオモノ処理に夢中になって、コンテナのそばに落ちてる金イクラを踏んで通過している。<em>コンテナ近くの金イクラは見えた瞬間に入れる</em>。倒したオオモノの金イクラは最低1個は自分で持ち帰る。</span></li>
+
+    <li><b>「寄らない3種」だけは、湧いた瞬間に誰かが行く</b>
+      <span>タワー・カタパッド・テッキュウは自分から近づいてこないうえ、遠距離から永久に撃ってくる。放置＝盤面がじわじわ壊れる。逆にテッパン・モグラ・ダイバー・ヘビ・バクダンは向こうから来るので、慌てて海岸まで突っ込むのがむしろ悪手。<em>「寄る／寄らない」で処理判断がほぼ決まる。</em></span></li>
+
+    <li><b>スペシャルは通貨ではなく消火器。温存は損</b>
+      <span>「ピンチになってから」では遅い。危なくなる<b>予感</b>で切る。WAVE2までに使い切るくらいでちょうどいい。オカシラ用に取っておく必要もない（オカシラは評価値に無関係）。</span></li>
+
+    <li><b>デスは2回まで。3回目から構造的に足りなくなる</b>
+      <span>自分が死ぬ＝味方2人が「救助」に時間を使う＝実質3人分の火力が止まる。生存はチーム火力そのもの。危ない位置に行かない、というだけで勝率は上がる。</span></li>
+
+    <li><b>勝てた試合こそ振り返る。祝砲は撃たない</b>
+      <span>勝った試合の「危なかった30秒」に、次に落とす原因が全部入っている。クリア後の残り時間はイカ祝いではなく練習に使う。Switchの録画（Cボタン）で30秒だけ見返すのが一番安い。</span></li>
+
+    <li><b>40時間の中で「焚く日」を決める</b>
+      <span>ダラダラ長時間潜ると集中が落ちて勝率が下がり、かえって遠のく（減点があるので、疲れた状態の1戦はマイナス期待値になりうる）。<em>熱があるうちに、まとまった時間を1本取る</em>。逆に「今日は乗ってない」と思ったら潜らないのも戦略。</span></li>
+  </ol>
+</section>
+
+<!-- ===== 2 ===== -->
+<section id="road">
+  <h2><span class="num">SECTION 2</span>成長ロードマップ — 段階別に「今やること」を1つに絞る</h2>
+  <p class="lead">全部を一度に直そうとすると何も直らない。今いる帯で、直す項目を1つだけ持つ。</p>
+
+  <div class="grid">
+    <div class="card">
+      <h4>STEP 0 ／ 〜たつじん＋3</h4>
+      <p><b>やること：型を1つ作る</b></p>
+      <ul class="tight">
+        <li>WAVE開始前の<b>壁塗り</b>を必ずやる（コンテナ周りの壁＝逃げ道＝納品ルート）</li>
+        <li>金イクラを1個は自分で持ち帰る癖をつける</li>
+        <li>デスしたら<b>必ずヘルプを押す</b>（押さないと味方から見えない／連打はしない）</li>
+      </ul>
+      <p class="src">この帯で覚えるのは「立ち回り」ではなく「習慣」。</p>
+    </div>
+
+    <div class="card">
+      <h4>STEP 1 ／ でんせつ40 → 200（無印）</h4>
+      <p><b>やること：オオモノの処理優先度を体に入れる</b></p>
+      <ul class="tight">
+        <li>タワー・カタパッド・テッキュウが見えたら口に出す（「タワー行く」）</li>
+        <li>コンテナ近くの金イクラを踏んで通らない</li>
+        <li>残り<b>50秒と30秒</b>でノルマを確認する習慣（足りなければスペシャル）</li>
+      </ul>
+      <p class="src">200で止まる人の原因は、ほぼ「納品確認の甘さ」と「特殊WAVEの知識不足」。</p>
+    </div>
+
+    <div class="card">
+      <h4>STEP 2 ／ 200 → 400（銅）</h4>
+      <p><b>やること：特殊WAVEを事故らせない</b></p>
+      <ul class="tight">
+        <li>8種の特殊WAVE（→<a href="#wave">§5</a>）の定石を覚える。<b>ここが一番リターンが大きい</b></li>
+        <li>スペシャルを「予感で切る」に変える</li>
+        <li>デス3回以上した試合の原因を1行で書く</li>
+      </ul>
+      <p class="src">昼WAVEは慣れで通る。落ちる試合の大半は夜（特殊WAVE）と満潮。</p>
+    </div>
+
+    <div class="card">
+      <h4>STEP 3 ／ 400 → 600（銀）</h4>
+      <p><b>やること：得意ステージを1つ決めて掘る</b></p>
+      <ul class="tight">
+        <li>7ステージから<b>1つだけ</b>選び、そのステージの満潮・干潮の定石を覚え切る（→<a href="#stage">§6</a>）</li>
+        <li>そのステージが来たシフトは優先的に潜る</li>
+        <li>苦手ブキが支給された日の「代替の仕事」を決めておく</li>
+      </ul>
+      <p class="src">銅→銀→金は同じステージで積み上がる。分散させると一生届かない。</p>
+    </div>
+
+    <div class="card hl">
+      <h4>STEP 4 ／ 600 → 999（金）</h4>
+      <p><b>やること：条件を揃えた日に、時間を確保して一気に</b></p>
+      <ul class="tight">
+        <li>条件＝<b>①得意ステージ ②扱えるブキ編成 ③まとまった時間</b></li>
+        <li>銀持ちなら300スタート、勝率75%前後で約6〜7時間。半端に始めない</li>
+        <li><b>途中でやめても翌シフトでリセットされる</b>ので、「今日で終わらせる」計画で入る</li>
+        <li>疲れて勝率が落ちたら即撤退（マイナス期待値の試合を積まない）</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h4>ずっと効く：練習の場をわける</h4>
+      <ul class="tight">
+        <li><b>プライベートバイト</b>＝キケン度もブキも自由に選べる。ただし<span class="no">評価値もバッジも進まない</span> → <em>純粋な練習専用</em></li>
+        <li>「新しいことを試す」のはプライベート、「積む」のは通常バイト。この線引きをしないと本番で実験して減点する</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 3 ===== -->
+<section id="pair">
+  <h2><span class="num">SECTION 3</span>二人でやるときの共有ルール</h2>
+  <p class="lead">ここだけ読めば、二人で潜るときに損しない。</p>
+
+  <div class="card warn">
+    <h4>⚠ 最重要：一緒に潜ると「一番評価値が低い人」しか上がらない</h4>
+    <div class="tw"><table>
+      <thead><tr><th></th><th class="c">評価値が<b>低い</b>方</th><th class="c">評価値が<b>高い</b>方</th></tr></thead>
+      <tbody>
+        <tr><td>クリアしたとき</td><td class="c"><b style="color:var(--ika)">+20（上がる）</b></td><td class="c"><b>±0（上がらない＝サポート扱い）</b></td></tr>
+        <tr><td>失敗したとき</td><td class="c" style="color:var(--danger)">通常どおり下がる</td><td class="c" style="color:var(--danger)"><b>通常どおり下がる</b></td></tr>
+      </tbody>
+    </table></div>
+    <p>キケン度も低い方に合わせられる。<strong>同じ評価値の人が複数いれば、その全員が上がる。</strong></p>
+    <p class="note">つまり<b>評価値が離れたまま一緒に潜ると、高い側は「上がらないのに下がるだけ」の完全な持ち出し</b>になる。二人とも金バッジを狙うなら、<em>先に評価値を揃える</em>のが唯一の正解。揃える手段は「高い方が評価リセット機能で100単位で下げる」。<br><span class="src">※ 判定基準が「評価値」か「称号」かは、攻略サイト間で表記が割れている（挙動の結論は同じ）。</span></p>
+  </div>
+
+  <h3>一緒に潜る方法と、その限界</h3>
+  <div class="tw"><table>
+    <thead><tr><th>やり方</th><th>2人だけで完結</th><th>残り2枠</th><th>評価値・バッジ</th><th>向いてる用途</th></tr></thead>
+    <tbody>
+      <tr><td><b>通常バイト＋フレンド合流</b><br><span class="src">サーモンランのメニューでL/Rを押してフレンドリストを開き、「募集中」の相手を選ぶ</span></td><td class="c"><span class="chip c-x">不可</span></td><td>野良で自動的に埋まる（常に4人）</td><td class="c"><span class="chip c-o">進む</span></td><td>本番。バッジ狙い</td></tr>
+      <tr><td><b>プライベートバイト</b></td><td class="c"><span class="chip c-o">可</span></td><td>埋めなくてよい</td><td class="c"><span class="chip c-x">進まない</span></td><td>練習・実験・ブキ縛り</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note"><b>フレンドがバイト実行中だと合流できない。</b>1試合終わって「募集中」になるのを待つ必要がある。片方が先に入って待つ運用が楽。</p>
+
+  <h3>運用パターン3つ。先に決めておく</h3>
+  <div class="grid">
+    <div class="card">
+      <h4>① 揃えて並走</h4>
+      <p>高い方が評価リセットで下げて、二人の評価値を合わせる。<b>同値なら二人とも+20が入る。</b></p>
+      <p class="src">◎ 二人とも同じステージの金を狙うとき<br>△ 高い方が一時的に大きく損をする</p>
+    </div>
+    <div class="card">
+      <h4>② 交代の押し上げ</h4>
+      <p>今日は「Aを上げる日」と決めて、Bはサポートに徹する（自分の評価は上がらない前提で入る）。次のシフトで逆をやる。</p>
+      <p class="src">◎ 実力差・進捗差があるとき<br>◎ 「今日は自分の記録は伸びない」と最初から合意できるので揉めない</p>
+    </div>
+    <div class="card">
+      <h4>③ 別々に潜って、共有だけ一緒</h4>
+      <p>各自が野良でカンストを狙い、<b>振り返りと定石の共有だけ</b>二人でやる。</p>
+      <p class="src">◎ 時間が合わないとき<br>◎ 実は評価値効率は最も良い（お互い+20が入る）</p>
+    </div>
+  </div>
+  <p class="note"><b>おすすめの流れ：</b>ふだんは③で各自積む → 週末など時間が取れる日に②か①で一緒に潜る。「一緒に潜る＝効率は落ちる、でも楽しい」という前提を先に共有しておくと、後で不満が出ない。</p>
+
+  <h3>ゲーム内の意思疎通（シグナルは弱い。だから事前合意が効く）</h3>
+  <div class="grid">
+    <div class="card">
+      <h4>3つのシグナルの正しい使い方</h4>
+      <ul class="tight">
+        <li><b>カモン</b>＝「来て」だけでなく<b>「ここで処理する」の宣言</b>。1〜2回押して来なければ諦めて自分で処理する。<span class="no">連打はノイズにしかならない</span></li>
+        <li><b>ヘルプ</b>＝やられたら<b>必ず押す</b>。押さないと味方の画面に位置が出ない。ただし連打しない</li>
+        <li><b>ナイス</b>＝「見えてる／任せた」の返事。無言でいるより事故が減る</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>二人の間だけの共通言語（声で言う3語）</h4>
+      <p>同じ部屋にいるなら、これだけ言えば十分。増やすと言わなくなる。</p>
+      <ul class="tight">
+        <li><b>「◯◯行く」</b>（例：「タワー行く」）＝ 行動の宣言。<b>被りが消える</b></li>
+        <li><b>「タゲ持った」</b> ＝ 自分が狙われている。相方は近寄らない／援護する</li>
+        <li><b>「ノルマあと◯」</b> ＝ 残り50秒・30秒で言う。足りなければスペシャル</li>
+      </ul>
+      <p class="src">※ 野良2人には伝わらないので、あくまで二人の間の同期用。</p>
+    </div>
+  </div>
+
+  <h3>事故に先に名前をつけておく（名前があると減る）</h3>
+  <div class="tw"><table>
+    <thead><tr><th>呼び名</th><th>何が起きているか</th><th>次にどうするか</th></tr></thead>
+    <tbody>
+      <tr><td><b>置き逃げ</b></td><td>バクダンを起動させたのに倒し切れず、コンテナ前に爆弾が残る</td><td>起動させた人が責任を持って倒す。無理なら「カモン」で呼ぶ</td></tr>
+      <tr><td><b>とぐろ</b></td><td>ヘビが通路を塞いでコンテナ周辺が封鎖される</td><td>最後尾の操縦手を早期に叩く。正面のアゴから戦わない</td></tr>
+      <tr><td><b>逆誘導</b></td><td>テッキュウを追って前線が下がり、コンテナが空く</td><td>倒したら即帰る。ラスト20秒なら1〜2体は放置して納品優先</td></tr>
+      <tr><td><b>ボム被り</b></td><td>同じカタパ／モグラに二人がボムを投げて1個ぶん無駄になる</td><td>モグラは「自分が狙われている個体」に自分で食わせる。カタパは片翼ずつ、少しずらして投げる</td></tr>
+      <tr><td><b>海岸居座り</b></td><td>湧き位置で倒し続けて金イクラが遠くに溜まる</td><td>倒したら1個持って帰る。ノルマ前は必ずコンテナ側へ寄せる</td></tr>
+      <tr><td><b>寄せすぎ</b></td><td>全員がコンテナ前でカモンを出し続け、誰も間引かない</td><td>最低1人は前で削る。特に満潮のドン・ブラコで頻発</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>1試合1行のふりかえり（増やさない）</h3>
+  <div class="card">
+    <p>失敗した試合だけ、この3項目を1行で書く。それ以上は書かない。</p>
+    <ul class="check">
+      <li>どのWAVEで落ちたか（WAVE1／2／3・潮位・特殊WAVEの種類）</li>
+      <li>直接の原因は何か（ノルマ不足／全滅／特定のオオモノ）</li>
+      <li>次に変える<b>1つ</b>だけ（「満潮のカタパは片翼で我慢する」など）</li>
+    </ul>
+    <p class="src">2つ以上変えようとすると、どちらが効いたか分からなくなって上達が止まる。</p>
+  </div>
+</section>
+
+<!-- ===== 4 ===== -->
+<section id="boss">
+  <h2><span class="num">SECTION 4</span>オオモノ11種 — 優先度は「寄るか／寄らないか」でほぼ決まる</h2>
+  <p class="lead">主要攻略サイト5つで最優先が一致するのは<b>タワー・カタパッド・テッキュウ</b>。この3種は「自分から近づいてこない＋遠距離から永久に撃ってくる」＝寄せられない3種と完全に一致する。逆に最下位で一致するのはテッパン・ダイバー・ナベブタ。</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>オオモノ</th><th class="c">優先度</th><th class="c">寄せ</th><th>倒し方</th><th>放置するとどう詰むか</th></tr></thead>
+    <tbody>
+      <tr><td><b>タワー</b></td><td class="c"><span class="chip c-x">最優先</span></td><td class="c">×</td><td>7段のナベを<b>上から</b>崩す（下から崩すと跳ねて時間を食う）。連射系・ブラスター向き</td><td>遠距離から貫通する砲撃を撃ち続ける。複数湧きで詰む</td></tr>
+      <tr><td><b>カタパッド</b></td><td class="c"><span class="chip c-x">最優先</span></td><td class="c">×</td><td>フタが開いた瞬間に左右へボム。<b>フタとフタの間の下側</b>に爆発物を当てると両方同時に壊せる</td><td>ステージ内どこにいてもミサイルが降る。逃げ場が消えて全滅コースへ</td></tr>
+      <tr><td><b>テッキュウ</b></td><td class="c"><span class="chip c-x">最優先</span></td><td class="c">×</td><td>弱点なし。どこを撃ってもOK（HP1200）。潜水中は無効</td><td>コンテナ周辺を継続爆撃。納品行動そのものが妨害される</td></tr>
+      <tr><td><b>ヘビ</b></td><td class="c"><span class="chip c-m">高</span></td><td class="c">○</td><td><b>最後尾の操縦手</b>を撃つ。ボムはインクカーテンでなく<b>背骨</b>に当てる</td><td>「とぐろ」で通路を物理的に塞ぐ。満潮で複数出ると致命的</td></tr>
+      <tr><td><b>バクダン</b></td><td class="c"><span class="chip c-m">高</span></td><td class="c">○</td><td>頭上に生成された<b>ボム</b>を撃つ（受付は一瞬）。高い位置にいると起動しない性質を使って誘導</td><td>コンテナ前に爆弾を落とされると<b>ゼロ距離納品ができなくなる</b>。移動が遅いので居座る</td></tr>
+      <tr><td><b>コウモリ</b></td><td class="c"><span class="chip c-m">高</span></td><td class="c">準</td><td>飛行中／ひっくり返り中を殴る（HP900）。装甲が剥げた雨弾を<b>撃ち返す</b>と一撃</td><td>アメフラシで広範囲を塗り潰し足場を奪う。地味で発見が遅れる</td></tr>
+      <tr><td><b>ハシラ</b></td><td class="c"><span class="chip c-m">高</span></td><td class="c">定点</td><td>旋回するコジャケ8体を撃つ、または柱を塗って登り上から。1WAVEに3本まで</td><td>上空から塗りをばらまき続け、逃げ場を恒久的に奪う。<b>軽視されがちだが優先度は高い</b></td></tr>
+      <tr><td><b>モグラ</b></td><td class="c"><span class="chip c-m">中</span></td><td class="c">○</td><td><b>ボム1個を食わせる</b>のが最確実（HP1200・攻撃は即死）</td><td>即死攻撃なのでデスに直結。ただし塗り被害はない</td></tr>
+      <tr><td><b>ナベブタ</b></td><td class="c"><span class="chip c-m">中〜低</span></td><td class="c">○</td><td>バリア内に入り、上に乗って本体を撃つ</td><td>放置するとザコを無尽蔵に出す。<b>逆に近くにオオモノがいるなら残して圧死させる</b>（全オオモノを一撃で潰す）</td></tr>
+      <tr><td><b>テッパン</b></td><td class="c"><span class="chip c-non">低</span></td><td class="c">○</td><td>盾を殴って<b>ケツを向かせて</b>から背後を撃つ。2人分担が最効率</td><td>単体では脅威が小さい。誰もタゲを持たないと誘導が崩れる</td></tr>
+      <tr><td><b>ダイバー</b></td><td class="c"><span class="chip c-non">低</span></td><td class="c">実質×</td><td><b>リングの内側を塗り返す</b>と飛び込みに失敗して隙だらけになる</td><td>塗り被害は小さいが、遠くで湧き枠を占有し続ける</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="card hl">
+    <h4>覚えるのは1行だけ</h4>
+    <p><em>「寄らないやつ（タワー・カタパ・テッキュウ）は取りに行く。寄るやつ（テッパン・モグラ・ヘビ・バクダン・コウモリ・ダイバー・ナベブタ）は待って倒す」</em></p>
+    <p class="src">※ ラスト20秒だけは例外。1〜2体のテッキュウは倒さず堪えて納品に回した方が納品数は伸びる（納品数を最大化する「乱獲」文脈の定石）。クリア重視なら基本どおり倒してよい。</p>
+  </div>
+</section>
+
+<!-- ===== 5 ===== -->
+<section id="wave">
+  <h2><span class="num">SECTION 5</span>特殊WAVE 8種 — 落ちる試合の大半はここ</h2>
+  <p class="lead">特殊WAVEは<b>すべて「夜」</b>。WAVE開始時に空が暗くなったら特殊WAVE（夜になる確率は約25%）。昼は通常のオオモノ処理WAVE。ここの定石を覚えるのが、200〜400帯で一番リターンが大きい。</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>種類</th><th class="c">潮位</th><th>クリアの型（1行）</th><th>一番やりがちな失敗</th></tr></thead>
+    <tbody>
+      <tr><td><b>ラッシュ<br>（ヒカリバエ）</b><br><span class="src">難易度：最高</span></td><td class="c">通常<br>満潮</td><td><b>全員1か所に固まって迎え撃つ。</b>ザコを19体倒すごとにキンシャケが1体湧く（＝ザコ処理が金イクラ）。前線をやや上げると立て直しやすい</td><td>分散して各個撃破される／<b>初手セミ・常時セミ</b>で火力が落ちてノルマ不足</td></tr>
+      <tr><td><b>グリル発進</b><br><span class="src">難易度：高</span></td><td class="c">通常<br>満潮</td><td>狙われた人は<b>攻撃せず逃げる</b>のが仕事。<b>段差の昇り降り</b>でその場に釘付けにし、400ダメージでスタン→尻尾（進行方向の逆）を全員で撃つ</td><td>誰がスタンさせるか曖昧／横をすり抜けようとして轢かれる（<b>判定は見た目より広い</b>）／コジャケ放置</td></tr>
+      <tr><td><b>霧</b><br><span class="src">難易度：高（事故率）</span></td><td class="c">全潮位</td><td><b>キンシャケを絶対に遠くで倒さない。</b>移動が遅いのでコンテナの真横まで引っ張ってから倒す（金イクラ最大10個）</td><td><b>ボムの爆風やナベブタの圧殺で、遠くのキンシャケを誤爆キル</b>する（最大の損失）／海岸に居続けて発見が遅れる</td></tr>
+      <tr><td><b>ドスコイ<br>大量発生</b><br><span class="src">難易度：中</span></td><td class="c">干潮</td><td><b>砲台2人・回収2人</b>。砲撃の優先は タワー→カタパッド→テッキュウ→ドスコイ。<b>遠い砲台は届かないので使わない</b></td><td>砲台役が不足する（<b>迷ったらまず砲台に入る</b>）／砲台役が無断で降りて火力が消える</td></tr>
+      <tr><td><b>キンシャケ探し<br>（カンケツセン）</b><br><span class="src">難易度：中／上振れ最大</span></td><td class="c">通常<br>満潮</td><td><b>ハズレはノーリスク</b>なので手数を惜しまない。光が<b>強い＝近い</b>。見つけたら即カモンで全員招集。撃ち切れず潜られるとHPが回復するので毎回撃破を狙う</td><td>遠い位置で戦い続けて納品が伸びない → <b>コンテナから遠い場所で引いたら、寄ってくるまでザコ掃討を優先</b></td></tr>
+      <tr><td><b>ハコビヤ襲来</b><br><span class="src">難易度：低〜中</span></td><td class="c">全潮位</td><td>シャケコプターは<b>必ず空中で撃ち落とす</b>（地上の箱を壊しても金イクラは出ない）。母艦がコンテナに吸着したら<b>3秒以内</b>に全員で追い返す（3秒ごとに1個奪われる）</td><td><b>落とし損ねた箱の放置</b>（そこからシャケが湧き続ける）／持ち場を離れて穴が空く</td></tr>
+      <tr><td><b>ドロシャケ噴出</b><br><span class="src">難易度：低（ボーナス）</span></td><td class="c">通常<br>満潮</td><td>口に<b>ボムを3個</b>入れる。<span class="no">同時に投げるとダメージが1個分しか入らないので必ず時間差で</span>。口の<b>上の方</b>に高く投げるとザコに弾かれにくい。金ドロシャケが最優先</td><td>ボム同時投げの無駄／インク切れでザコ処理役が消える → <b>ボム役とザコ処理役を分ける</b></td></tr>
+      <tr><td><b>巨大タツマキ</b><br><span class="src">難易度：低</span></td><td class="c">干潮</td><td>箱を壊して金イクラを<b>持ち歩かずイクラ投げでリレー</b>。納品は<b>1個で2個換算</b>。1箱だけだと上限に当たるので<b>2箱目をどれだけ早く運ぶか</b>がすべて</td><td>1人で抱えて運ぶ（遅い）／ザコの着地地点に留まってダメージ</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="card warn">
+    <h4>「セミ」について（一番意見が割れるところ）</h4>
+    <p>塗った壁にイカで張り付いて攻撃を避けるテクニック。シャケは壁を登れないので下で群がる。<b>約5秒でジャンプして届く</b>ので、その前に戻る。</p>
+    <ul class="tight">
+      <li><span class="yes">有効</span>：コンテナ周辺に金イクラが溜まっていて<b>安全に納品する時間を作りたい</b>とき／ノルマ達成後の時間つぶし／立て直し</li>
+      <li><span class="no">悪手</span>：<b>初手セミ・常時セミ</b>。火力が落ちてキンシャケの出現数が減り、ノルマ不足で落ちる。<b>金イクラが落ちていないのにセミをしても意味がない</b></li>
+      <li><span class="no">論外</span>：屋内・高台下など、金イクラが運搬困難な場所に溜まる位置でのセミ</li>
+    </ul>
+    <p class="src">結論：セミは<b>デフォルト戦法ではなく、条件が揃ったときだけ切る時間稼ぎカード</b>。</p>
+  </div>
+</section>
+
+<!-- ===== 6 ===== -->
+<section id="stage">
+  <h2><span class="num">SECTION 6</span>ステージ別 — 「ここで戦う／ここは行くな」</h2>
+  <p class="lead">難易度の目安は 難破船ドン・ブラコ ＞ シェケナダム ＞ トキシラズいぶし工房 ＞ ムニ・エール／アラマキ砦／すじこ／どんぴこ。まずは簡単な方で金を1枚取るのが早い。</p>
+
+  <div class="stage">
+    <h4>アラマキ砦 <span class="diff">易しめ</span></h4>
+    <dl class="kv">
+      <dt>地形</dt><dd>中央に螺旋状の大高台＋左右に小高台。<b>コンテナが端にあって湧きから遠い</b>＝納品不足が最大の敗因</dd>
+      <dt>通常</dt><dd><b>オオモノを倒したら即コンテナへ引き返す。</b>海岸で戦い続けて他のオオモノのタゲも取り続けるのが敗因パターン。寄せの最低ラインは「高台左は坂の手前まで／右は蛇行坂を登って金網の下まで」</dd>
+      <dt>満潮</dt><dd><span class="yes">ここで戦う</span>：自衛が苦手な長射程1人だけ中央高台、残り3人はコンテナ周り。<span class="no">危険</span>：左高台（足場が狭くタワー＋ナベブタの布陣ができる）。ヘビは陸に上げず海上で処理</dd>
+      <dt>干潮</dt><dd><span class="no">行くな</span>：タワー・テッキュウ・カタパがいない限り奥地に入る必要は皆無。<span class="yes">ここで戦う</span>：左右両端の陸地の<b>段差の上</b>（陸のシャケが橋を通るので射線が通る）</dd>
+      <dt>小技</dt><dd>中央高台の<b>金網の上に立つとダイバーのタゲから外れる</b>／倒したハシラの柱の上はバクダン誘導の高所に使える</dd>
+      <dt>オカシラ</dt><dd>ヨコヅナは中央高台の2段目に誘導。金イクラは海沿いに落ちるので<b>コンテナまで連れてこなくていい</b></dd>
+    </dl>
+  </div>
+
+  <div class="stage">
+    <h4>ムニ・エール海洋発電所 <span class="diff">易しめ</span></h4>
+    <dl class="kv">
+      <dt>地形</dt><dd>コンテナを囲むように複数の直方体高台。<b>高台の内側の壁は塗れるが、外側は塗れない</b>——これが全て</dd>
+      <dt>通常</dt><dd><span class="no">行くな</span>：高台の外側は原則降りない（外壁が塗れないので帰りが狭い通路頼み＝シャケの進軍ルート）。降りていいのは①WAVE初動で援護が十分 ②その方向の湧きが収まった、の2条件のみ</dd>
+      <dt>復帰</dt><dd>外周の<b>ハシラの上／ナベブタの上</b>からイカダッシュジャンプで高台に戻れる。これを知っているかで生存率が変わる</dd>
+      <dt>満潮</dt><dd>基本は<b>リスキル</b>。湧き方角を見て上陸地点の前に浴びせる。リンゴ／マンゴー方面は湧きがコンテナに極めて近いので対処が遅れると即制圧される</dd>
+      <dt>干潮</dt><dd>昼WAVEで一番難しいという評価。<b>中央が激戦区</b>（左は隙間・右は段差があるため地上シャケが必ず中央を通る）→ <span class="yes">長射程は横の道から</span>。海岸へ行くときも中央でなく横の道</dd>
+      <dt>オカシラ</dt><dd>ヨコヅナは<b>コンテナ前に誘導しない</b>。外回りのオオモノの金イクラを投げられなくなり、メインだけになって火力不足で落ちる</dd>
+    </dl>
+  </div>
+
+  <div class="stage">
+    <h4>シェケナダム <span class="diff">難しい</span></h4>
+    <dl class="kv">
+      <dt>開幕</dt><dd><b>最優先の塗りはコンテナ高台の「桟橋側・金網側の壁面」。</b>これだけで納品難易度が大きく下がり、包囲時の避難ルートにもなる</dd>
+      <dt>通常</dt><dd>金網側で倒すと金網や壁が邪魔で回収困難 → 中央広場やコンテナ前へ誘導。<b>ただしバクダンとヘビは例外</b>：広場まで連れてくると事故るので「コンテナ横の高台と正面の高台の間の坂道」で処理</dd>
+      <dt>桟橋の罠</dt><dd>タワーが3本の桟橋の先に出ることがある。帰路が塞がれる前提で、<b>イカダッシュジャンプで隣の桟橋に跳び移る逃げ方</b>を先に練習しておく</dd>
+      <dt>満潮</dt><dd>4ステージ中もっとも厳しい。<b>金網の下が海面になる</b>ので通常時の避難所が消える。<span class="no">無理に金網地帯へ突入しない</span>（タワーはボム遠投で）。<b>スペシャルは使い果たす覚悟で早めに切る</b>。金網側のカタパは<b>片翼で我慢</b>し、ラスト湧きが終わってから倒しに行く</dd>
+      <dt>干潮</dt><dd>三つ又の細道から大量上陸。<b>迂回ルートが存在しない</b>。雑魚を処理してから回収へ。<span class="yes">干潮側の坂道の位置から金イクラをコンテナに直接入れられる</span></dd>
+      <dt>夜</dt><dd>ヒカリバエは<b>コンテナ横の最高台で1way防衛</b>（ただし非常に狭く、ローラーでも金シャケのノックバックで落ちる）。<span class="no">初手セミ・常時セミは地雷</span></dd>
+    </dl>
+  </div>
+
+  <div class="stage">
+    <h4>難破船ドン・ブラコ <span class="diff">最難関</span></h4>
+    <dl class="kv">
+      <dt>準備</dt><dd>プロペラリフトは左右に各1基、往復<b>7〜8秒</b>かかる（＝近くない）。<b>WAVE1開始前にリフト側面を塗る</b></dd>
+      <dt>通常</dt><dd>テーマは<b>納品不足</b>。他ステージなら勝手に寄ってくるオオモノが寄ってこない。<b>金網より奥で倒すデメリット</b>は4つ：往復に時間／<b>金網上ではイカになれず回復できない</b>／雑魚が多い／攻撃が集中する。<span class="yes">コンテナ前に誘導すべき</span>：テッパン・モグラ・ダイバー・コウモリ・ヘビ</dd>
+      <dt>右下</dt><dd><span class="chip c-m">出典が対立</span> 否定派＝「シャケは最も近い味方に寄るので、ここに留まると全部集結する罠」／肯定派＝「タワー・カタパ・テッキュウ・ヘビ・バクダンは右下で早く倒して金イクラを船上に投げる（投げが苦手ならリフトに乗せる）」。<b>実戦の折衷＝寄せられるものはコンテナ前へ、設置系は右下で早期処理して即帰還</b></dd>
+      <dt>満潮</dt><dd>船の上のみ。<b>死因No.1はコンテナ前の金網が水没ポイントと化すこと。</b>意外な地雷＝<span class="no">高すぎる寄せ意識</span>（初動でコンテナから離れずカモンを出し続ける）。<b>最低1人は金網より船尾側でオオモノを間引く</b></dd>
+      <dt>干潮</dt><dd>中央の潮だまりを迂回して戦う。<b>ノルマ未達なら船の上に避難しない</b>（船下の味方が減って状況が悪化する）。ジェットパックは潮だまりを無視して中央のタワー・カタパをまとめて処理できる</dd>
+      <dt>夜</dt><dd>ヒカリバエは全ステージ最難関でポジションの定説も割れている。<span class="no">リフトでのセミは絶対NG</span>（同期ずれが激しい）。グリルは<b>コンテナを通り越して船首まで寄せない</b></dd>
+    </dl>
+  </div>
+
+  <div class="stage">
+    <h4>すじこジャンクション跡 <span class="diff">易しめ（満潮だけ地獄）</span></h4>
+    <dl class="kv">
+      <dt>地形</dt><dd>ロの字型。手前の上段にコンテナ、奥の下段から湧く。<b>湧きは潮位を問わず左右に二分</b></dd>
+      <dt>通常</dt><dd>基本方針は<b>下段に降りない、上段まで引き寄せてから処理</b>。開始前に<b>右正面の高台とその壁</b>を必ず塗る。<span class="yes">ボム1個で倒せるカタパポイントが左初手・右初手に2か所ある</span></dd>
+      <dt>脅威</dt><dd>左右奥の<b>テッキュウが高台の影になって気づきにくい</b>／<b>ハシラは全潮位でやばい</b>（空からショートカットして内側に入ってくる）</dd>
+      <dt>満潮</dt><dd>過去最低の狭さ。<b>寄せない、見つけ次第倒す。</b>寄せるとコンテナ付近が渋滞する。<b>ハシラとダイバーが最優先</b>（行動範囲を潰すため）。カタパが2体以上湧いたらスペシャルで即処理、出し惜しみが失敗に直結</dd>
+      <dt>干潮</dt><dd>正面の先に新しい土地。<b>距離があるので干潮と分かったら即移動</b>。チームラインがコンテナより後ろに下がると奥のオオモノに届かなくなる</dd>
+      <dt>夜</dt><dd>ヒカリバエもグリルも<b>コンテナ後ろ／横の段差</b>が定位置。グリルは段差の右側の「下」に立って往復させる。<span class="no">カゴ横に誘導するとコジャケが溢れる</span></dd>
+      <dt>オカシラ</dt><dd>タツは通常潮だとコンテナ前に来ない → <b>下の広場でオオモノを倒して金イクラをぶつける</b>。干潮は飛ぶ高度が低くどこからでも当たる</dd>
+    </dl>
+  </div>
+
+  <div class="stage">
+    <h4>トキシラズいぶし工房 <span class="diff">通常は楽・満潮は最難関級</span></h4>
+    <dl class="kv">
+      <dt>開幕</dt><dd><b>右側の高台の壁・壁裏を外壁まで含めて塗る</b>（最重要）。次に左側の高台の壁、プロペラリフト側の壁裏。<b>裏湧き側を丁寧に塗ると夜WAVEのクリア率が上がる</b></dd>
+      <dt>リフト</dt><dd>2基、水平移動のみ。インクを当てると動く／一方通行で降りると自動で戻る。<span class="no">最大の落とし穴</span>：<b>リフトに乗るだけでヘビ・グリルの狙いが自分から外れ、最も近い他人に移る</b>。満潮で安易にタゲ外し目的で乗らない</dd>
+      <dt>リフト事故</dt><dd><b>味方の乗り遅れ＝満潮では即死</b>（ドン・ブラコと違い下が水面）。動かす前に同乗者を確認。<span class="no">対岸にボムを投げるのはやめた方がいい</span>（爆風でリフトが勝手に起動して味方が水没）</dd>
+      <dt>通常</dt><dd>主戦場は<b>コンテナ側の施設</b>。この施設自体が要塞として機能する。対岸へ行くのはタワー・カタパ・テッキュウが湧いたときだけ。<b>ノルマ達成が非常に早く、ハイスコアが出やすいステージ</b></dd>
+      <dt>満潮</dt><dd>中央通路が水没し2つの島に分断される。<span class="no">最大の死因＝対岸に金イクラを拾いに行くこと</span>。壁が塗れている確信がないなら、<b>タワーを倒したら拾わずに即リフトで帰る</b>。<b>ウキワ状態では弾が出せないので、対岸で死ぬと自力では絶対に帰れない</b></dd>
+      <dt>干潮</dt><dd>右側に広い土地。柵があるので転落は少ない。<b>海岸に居座って金イクラを量産し続けると納品未達</b>になる</dd>
+      <dt>オカシラ</dt><dd>タツは通常潮だと8の字に飛んで対岸と自岸を行き来する。<b>最初にオオモノが湧く方向から現れ、顔の向きで飛ぶルートが変わる</b></dd>
+    </dl>
+  </div>
+
+  <div class="stage">
+    <h4>どんぴこ闘技場 <span class="diff">易しめ・干潮が本番</span></h4>
+    <dl class="kv">
+      <dt>地形</dt><dd>中央高台の上にコンテナ。アクセスは<b>壁を登る</b>か金網を歩くかの2択で、金網は遅い → <b>壁塗りが生命線</b>。初動で①中央高台の壁全面（特に干潮側）②インクレールの根本 を塗る</dd>
+      <dt>納品</dt><dd><b>高台の下からでもイクラ投げで直接納品できる</b>。逆にコンテナ横まで寄せて直入れする地形ではない</dd>
+      <dt>レール</dt><dd>サーモンラン唯一のインクレール。<b>バイトではインクが減らない／起動制限もない</b>。<span class="yes">強い使い方</span>：レールの先端にいると<b>バクダンは真下まで起動せずに寄ってくる</b>（バクダンは自分より高い位置にいると起動しない）。ナベブタをレールから直接落とせる。干潮のハシラはコンテナ後ろ以外レールから直接乗れる</dd>
+      <dt>レール禁止</dt><dd><span class="no">テッパンや金シャケを寄せるときはレールを使わない（落ちる）</span>／レール上で止まりすぎるとシャケが跳んで落とされる／ヒカリバエで<b>レールに乗りすぎるとキンシャケ出現数がノルマに足りなくなる</b></dd>
+      <dt>通常</dt><dd>オオモノの基本討伐位置は<b>高台下</b>。海岸へ行くのはタワー・カタパ・テッキュウ・ハシラのときだけで、倒したらレールで急いで戻る。<b>ヘビは金網に上げない</b></dd>
+      <dt>干潮</dt><dd><b>満潮より難しい</b>（2ソース一致）。狭くオオモノが溢れるので処理をガンガン進め、外周には行かない。<span class="no">正面の湧きポイントの足場でテイオウイカを使わない</span>（帰れなくなる）</dd>
+      <dt>夜</dt><dd>グリルは<b>レール上にいるとターゲット時に無敵</b>＝納品タイムに使える。ヒカリバエはレール上からボムを真下に落とす（ただし静止するとダメージ）</dd>
+    </dl>
+  </div>
+</section>
+
+<!-- ===== 7 ===== -->
+<section id="weapon">
+  <h2><span class="num">SECTION 7</span>ブキ別 — 「得意を通す」より「苦手を味方に渡す」</h2>
+  <p class="lead">サーモンランは支給ブキが選べない。だから重要なのは「このブキで何ができるか」より<b>「このブキで何ができないか＝誰に任せるか」</b>。</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>ブキ種</th><th>得意</th><th>苦手（味方に任せる）</th><th>やってはいけない</th></tr></thead>
+    <tbody>
+      <tr><td><b>シューター</b></td><td>ほぼ全部。最も万能</td><td>短射程は高い位置のバクダン・ハシラ</td><td>高火力型（ボールド等）が孤立して死ぬ。低火力型はコンテナ周りの維持を優先</td></tr>
+      <tr><td><b>ローラー</b></td><td>ヘビ（横から轢くと多段）／モグラ／テッキュウ／キンシャケ</td><td>コウモリ／バクダン／<b>タワー（処理速度が全ブキ最低クラス）</b></td><td>高HPシャケへの無思考な轢き（弾かれた先が包囲網・水際）。<b>微速前進</b>で燃費を落とすのが基本</td></tr>
+      <tr><td><b>チャージャー</b></td><td><b>バクダン（弱点に確1）</b>／ヘビ（貫通）／ドスコイ</td><td>タワー／コジャケ</td><td>バクダン狙撃のための単騎突撃／常時フルチャでインクを枯らす（HPに合わせて撃ち分ける）</td></tr>
+      <tr><td><b>スロッシャー</b></td><td>カタパッド／ドスコイ／コウモリ／ダイバー本体</td><td>コジャケ／グリル／平地のハシラ</td><td>金網の上で撃つ（有効射程が落ちる）</td></tr>
+      <tr><td><b>スピナー</b></td><td>タワー（全ブキ屈指）／バクダン／ハシラ・ナベブタ／ヨコヅナ・タツ</td><td>コウモリ（ほぼフルチャが要る）</td><td>囲まれる位置に入る。オカシラ戦でイクラキャノンを撃つ（メインで殴る方が強い）</td></tr>
+      <tr><td><b>マニューバー</b></td><td>ほぼ全部。シューターに次ぐ万能</td><td>バクダン／ハシラ（射程が短い場合）</td><td>インク管理を怠る。囲まれる距離まで詰める</td></tr>
+      <tr><td><b>シェルター</b></td><td>バクダン（カサで爆風を防げる）／ドスコイ／タワー／テッキュウ</td><td>ハシラ／ヘビ・ナベブタ（カサが盾に触れると耐久が飛ぶ）</td><td>カサの不用意な展開（ノックバックで水没）</td></tr>
+      <tr><td><b>ブラスター</b></td><td><b>ハシラ（爆風で確1・最も得意）</b>／タワー／テッパン／密集ザコ</td><td>バクダン本体／<b>モグラ（極めて食われやすい）</b>／コウモリ</td><td>爆風で意図せずリフトを動かす（トキシラズ）</td></tr>
+      <tr><td><b>フデ</b></td><td>コジャケ／モグラ・カタパ／<b>ハシラ（イカノボリで登頂）</b></td><td>バクダン／コウモリ／テッパン</td><td>味方の目が届かない範囲まで移動する</td></tr>
+      <tr><td><b>ワイパー</b></td><td>テッパン／テッキュウ／ヘビ／コウモリ</td><td>バクダン／ダイバー</td><td>広範囲塗りをやろうとする（敵処理に特化して塗りは任せる）</td></tr>
+      <tr><td><b>ストリンガー</b></td><td>バクダン／コウモリ／テッキュウ／タワー（タテ撃ち）</td><td>狂シャケ（正面だと最前列に全弾吸われる）</td><td>ノンチャージ乱用（燃費が悪い）。<b>必要な射程の分だけチャージする</b></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>クマサン印のブキ（全8種）— 支給が「?」のとき</h3>
+  <p class="lead">シューター・フデ・スピナーのクマサン印は存在しない。どれも「極端な長所と極端な短所」なので、<b>短所を知っている方が事故らない</b>。</p>
+  <div class="grid">
+    <div class="card"><h4>ブラスター</h4><p>ブラスター中最強DPS。<b>地形に着弾しても爆発が弱くならない</b>。コジャケ処理はフデ・ローラー以上。<span class="no">バクダンはやや苦手</span>。手動で連射を落とせば立ったまま無限射撃できる</p></div>
+    <div class="card"><h4>チャージャー</h4><p>射程6.3・ダメージ200でほぼ即発射。<span class="no">出力調整ができず常に全力＝燃費が最悪（装弾7発）</span>。得意はコウモリ・モグラ・タワー・テッキュウ。<b>必要弾数を数えて撃つ／緊急回避用に常に1発残す</b></p></div>
+    <div class="card"><h4>シェルター</h4><p>傘がない代わりにDPS400。<b>塗り性能はボールドの2〜3倍で最強の塗りブキ</b>。ダイバー群を数秒で返り討ちにできる。<span class="no">ドスコイに弾を止められる</span>。開幕はまず塗り、支援型に徹する</p></div>
+    <div class="card"><h4>スロッシャー</h4><p>直撃360＋<b>あらゆるものを貫通</b>（カタパの操縦席すら貫通）。代わりにインク消費25%・弾速が遅い。<b>常にタンクの半分は保持</b>しないとオオモノを倒し切れない。モグラは貫通できないのでボム一択</p></div>
+    <div class="card"><h4>マニューバー</h4><p>スライドで足元に爆風。ハシラ・モグラ・カタパ・ダイバーに強い。<span class="no">最重要NG：スライド主体で戦うとデスが激増する</span>（生身で突っ込むため）。<b>メインを基軸に、スライドは補助</b>。海辺でのスライドは水没</p></div>
+    <div class="card"><h4>ストリンガー</h4><p>9本同時発射・減衰なし。<b>集弾性が極端に悪く精密射撃はできないが広範囲爆撃ができる</b>。テッパン・モグラ・テッキュウ・ダイバーを一撃。グリルは3発でスタン。<b>バクダンはあえてエイムをずらして密集部を当てる</b></p></div>
+    <div class="card"><h4>ワイパー</h4><p><b>斬撃波が消えて「弾が出ない」</b>（射程1.1）。タメ斬り1200は装甲も地形も貫通。バクダン・コウモリ・テッキュウを一撃。<span class="no">ハシラが超苦手＝カモンでサポートを頼む</span>。タメ斬りの乱用と、囲まれた状態での構えはNG</p></div>
+    <div class="card"><h4>ローラー</h4><p>タテ振り600・射程6.0本。転がし速度が異常に速い。テッパン・タワー・カタパ・ナベブタに強い。<span class="no">全ブキ最遅の前隙・イカ速が遅く納品に不向き</span>。ヘビ・コウモリ・グリル・オカシラ連合が苦手</p></div>
+  </div>
+</section>
+
+<!-- ===== 8 ===== -->
+<section id="ng">
+  <h2><span class="num">SECTION 8</span>NGリスト — 評価が落ちる直接の原因</h2>
+  <p class="lead">上達は「新しいことを覚える」より「やらかしを1つずつ消す」方が速い。上から順に、消すと効くもの。</p>
+
+  <h3>まず消す（初心者〜中級者）</h3>
+  <ul class="check">
+    <li><b>コンテナ近くの金イクラを踏んで通過する</b>／納品を味方任せにする（最低10個は自分で入れる）</li>
+    <li><b>オオモノをコンテナから遠い場所で倒す</b>（モグラ・テッパン・キンシャケは寄せてから倒すのが基本）</li>
+    <li>WAVE開始前の壁塗り・床塗りをしない（＝夜WAVEの逃げ場が消える）</li>
+    <li>デス時にヘルプを押さない／カモンを連打する</li>
+    <li><b>スペシャルを温存する</b>（ピンチになってからでは遅い。オカシラ用に取っておく必要もない）</li>
+    <li>味方のスペシャルに重ねて自分も撃つ（威力が余る）</li>
+    <li>味方が乗っているナベブタを倒す／コンテナに運搬中のタマヒロイを倒す</li>
+    <li>タゲが付いた状態で味方の元へ移動する（味方を巻き込む）</li>
+    <li><b>誰も倒せない位置でバクダンを起動させる</b></li>
+    <li>タワー・カタパッド・テッキュウを放置する（※ただし残り30秒で大幅なノルマ不足なら遠征しない）</li>
+    <li>テッキュウの発射台に張り付いて帰らない（＝逆誘導）</li>
+    <li>ドスコイ大量発生で砲台役から無断で降りる（<b>砲台は最低2人維持</b>）</li>
+    <li>5デス以上する（レートが適正でないサイン。評価リセットで下げるのも手）</li>
+  </ul>
+
+  <h3>次に消す（中級者が「つい」やる）</h3>
+  <ul class="check">
+    <li><b>ボム被り</b>：同じカタパの片翼／同じモグラに複数人がボムを投げる → モグラは<b>連れてきた人が食わせる</b>、カタパは少しずらして投げる</li>
+    <li><b>行動被り</b>：複数人が同じオオモノを狙い、ザコ処理が空く</li>
+    <li>自分がタゲでないモグラのときにコンテナへ引きこもる（初動要員が1人減る）</li>
+    <li>削れたモグラにボムを投げる（インクが足りるなら殴る）</li>
+    <li><b>停止したバクダン・ナベブタを放置する</b>（起動させた責任は自分で持つ）</li>
+    <li>バクダン・ナベブタの攻撃で<b>キンシャケを巻き込む</b>（霧WAVEでは最大の損失）</li>
+    <li>タマヒロイを誤って倒す／見逃す（定期的に上を見る）</li>
+    <li><b>安易なイクラ投げ</b>（インクを大量に消費するので、盤面を見てから投げる）</li>
+    <li>寄せたオオモノを遠隔で倒した後、金イクラを回収しない（最低1個は持ち帰る）</li>
+    <li>ジョー戦でターゲットが初手突撃する（ターゲットは<b>コンテナ待機</b>）</li>
+    <li>味方を批判する（感情的になると単純に崩れる）</li>
+  </ul>
+
+  <div class="card hl">
+    <h4>オカシラ戦のコツ（評価には影響しないが、勝てると気持ちいい）</h4>
+    <ul class="tight">
+      <li><b>ヨコヅナ</b>：<span class="no">弱点なし＝純粋な火力勝負</span>。腹狙いは無意味。<b>イクラキャノンだけでは絶対に倒せない</b>（50発必要）ので全員メインで殴る。大ジャンプは<b>13秒周期</b>で、判定は予告マーカーより1匹分広く地形を貫通する。<b>空中（ジェットパック中／ナベブタ・ハシラの上）はターゲットから外れる</b></li>
+      <li><b>タツ</b>：弱点は<b>口元にできる緑のボム</b>。イクラキャノン3〜4発で破壊＝大ダメージ。高い位置（ハシラ・ナベブタの上）を取ると短射程でも届く</li>
+      <li><b>ジョー</b>：弱点は頭・背中の赤いコブ。<b>緑の確定ガイドが出たら、範囲から出て「ジョーが元々いた方向」へ動く</b>——脱出しながら弱点を殴れる位置に入れる。<b>ハシラの上に逃げても飲み込まれる</b>（ヨコヅナと逆）。飛び出しの瞬間以外はザコ処理に集中する</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== SRC ===== -->
+<section id="src">
+  <h2><span class="num">SOURCES</span>出典と注意書き</h2>
+  <p class="lead">2026-07-26 時点で日本語攻略サイト複数を突き合わせて作成。<b>ソース間で食い違う箇所は本文中に明記</b>している（ドン・ブラコの「右下」の扱い、カンケツセンの開け順、カタパッド片翼放置の是非、フレンド同伴時の判定キー など）。地形は不変だが、オオモノの性能調整が入っているため「〜が最適」という評価部分は現行環境とズレている可能性がある。</p>
+  <p class="src">
+    <b>バッジ・評価システム：</b>
+    <a href="https://gamepedia.jp/splatoon3/archives/20397">攻略大百科（全バッジ一覧）</a>／
+    <a href="https://gamepedia.jp/splatoon3/archives/6546">攻略大百科（ランクの決まり方・400スタート）</a>／
+    <a href="https://gamepedia.jp/splatoon3/archives/2504">攻略大百科（称号と評価値）</a>／
+    <a href="https://gamepedia.jp/splatoon3/archives/5961">攻略大百科（フレンドと遊ぶ方法）</a>／
+    <a href="https://wikiwiki.jp/splatoon3mix/%E3%82%B5%E3%83%BC%E3%83%A2%E3%83%B3%E3%83%A9%E3%83%B3">スプラトゥーン3 攻略＆検証 Wiki*</a>／
+    <a href="https://game8.jp/splatoon3/481906">ゲームエイト（ランクと評価）</a>／
+    <a href="https://altema.jp/splatoon3/salmonrank">アルテマ（ランクと評価の仕組み）</a>／
+    <a href="https://shioshioblog.com/salmonnw-rank/">しおしおブログ（ランク・マッチング）</a>／
+    <a href="https://splablog.com/entry/2023/11/29/161736">スプラボ！（Ver.6.0.0で400/300/200スタート実装）</a>／
+    <a href="https://splatoon-salmonrun.com/densetsu-400/">サーモンラン攻略Wiki（伝説400スタート）</a>／
+    <a href="https://splatoon-salmonrun.com/splatoon-salmon-run-gold-badge/">同（金バッジ入手時間目安）</a>／
+    <a href="https://splatoon-salmonrun.com/densetsu-200-guide/">同（伝説200のコツ）</a>／
+    <a href="https://macarongamemo.com/entry/splatoon3-salmonrun-999_time">まかろんのゲームメモ（カンスト所要時間）</a>／
+    <a href="https://appmedia.jp/splatoon3/76000715">AppMedia（ランクの上げ方）</a>
+  </p>
+  <p class="src">
+    <b>オオモノ・特殊WAVE：</b>
+    <a href="https://game8.jp/splatoon3/480724">ゲームエイト（オオモノの倒し方と優先順位）</a>／
+    <a href="https://kamigame.jp/splatoon3/page/220193867197107813.html">神ゲー攻略（撃破優先度）</a>／
+    <a href="https://altema.jp/splatoon3/oomonosyake">アルテマ（オオモノ優先度）</a>／
+    <a href="https://appmedia.jp/splatoon3/75984590">AppMedia（撃破優先度）</a>／
+    <a href="https://gamepedia.jp/splatoon3/archives/2567">攻略大百科（オオモノ一覧）</a>／
+    <a href="https://shioshioblog.com/spla3-oomono/">しおしおブログ（オオモノ優先度）</a>／
+    <a href="https://nw.overfishing.wiki/">サーモンランNW 乱獲Wiki</a>／
+    <a href="https://splatoon-salmonrun.com/event-wave-manual/">サーモンラン攻略Wiki（特殊WAVE）</a>／
+    <a href="https://gungee.jp/blog/nw-overfishing-the-grillers/">月刊ガンジー（グリル考察）</a>／
+    <a href="https://salmonrunning.hatenablog.com/entry/2021/01/07/155245">野良カンスト勢が解説するサーモンラン（片翼考察）</a>
+  </p>
+  <p class="src">
+    <b>ステージ・ブキ・オカシラ：</b>
+    <a href="https://wikiwiki.jp/splatoon3mix/%E3%82%B5%E3%83%BC%E3%83%A2%E3%83%B3%E3%83%A9%E3%83%B3/%E3%82%B9%E3%83%86%E3%83%BC%E3%82%B8">検証Wiki（ステージ）</a>／
+    <a href="https://splatoon-salmonrun.com/stage-ranking/">サーモンラン攻略Wiki（ステージ難易度）</a>／
+    <a href="https://gamepedia.jp/splatoon3/archives/24884">攻略大百科（オカシラシャケ）</a>／
+    <a href="https://game8.jp/splatoon3/513240">ゲームエイト（ジョー）</a>／
+    <a href="https://splatoon-salmonrun.com/tatsu/">サーモンラン攻略Wiki（タツ）</a>／
+    <a href="https://wikiwiki.jp/splatoon3mix/%E3%82%B5%E3%83%BC%E3%83%A2%E3%83%B3%E3%83%A9%E3%83%B3/%E3%83%96%E3%82%AD%E5%88%A5%E7%AB%8B%E3%81%A1%E5%9B%9E%E3%82%8A">検証Wiki（ブキ別立ち回り）</a>／
+    <a href="https://note.com/mochituki/n/na75ac39803fe">餅月。note（どんぴこ闘技場のインクレール）</a>／
+    <a href="https://note.com/mochituki/n/n6ec635ff39b5">餅月。note（中級者がやりがちな行動）</a>／
+    <a href="https://gamepedia.jp/splatoon3/archives/24100">攻略大百科（NG行動）</a>／
+    <a href="https://shioshioblog.com/spla3-salmonng/">しおしおブログ（NG行動）</a>
+  </p>
+</section>
+
+<footer>
+  <p><b>使い方の推奨：</b>§0〜§3 を二人で先に読み合わせる → §5（特殊WAVE）を覚える → §6 で得意ステージを1つ決める → §8 のNGを1つずつ消す。<br>
+  全部を一度にやろうとしない。<b>1シフトにつき直す項目は1つ</b>。</p>
+  <p>作成：2026-07-26 ／ 内容は日本語攻略サイトの突き合わせであり、任天堂の公式発表ではありません。仕様はアップデートで変わる可能性があります。誤りを見つけたら <a href="https://github.com/osakenpiro/osakenpiro.github.io/issues">Issue</a> へどうぞ。</p>
+  <p style="margin-top:14px">by <a href="https://osakenpiro.github.io/">osakenpiro</a> <span style="color:var(--tx3)">— #全人類UX改善計画</span></p>
+</footer>
+
+</div>
+</body>
+</html>
