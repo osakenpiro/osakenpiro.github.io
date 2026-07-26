@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>焚べ（くべ） — 熱があるうちに、冷めたものは土になる</title>
+<meta name="description" content="熱量Floatを機構そのものに据えた一夜のローグライト。焚べれば火勢になり、冷め切れば腐葉土になる。夜明けまで火を保て。">
+<meta property="og:title" content="焚べ（くべ）">
+<meta property="og:description" content="熱があるうちに、と、冷めたものは土になる。熱量Floatのローグライト。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://osakenpiro.github.io/kube/">
+<meta property="og:image" content="https://osakenpiro.github.io/kube/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="osakenpiro">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="焚べ（くべ）">
+<meta name="twitter:description" content="熱があるうちに、と、冷めたものは土になる。熱量Floatのローグライト。">
+<meta name="twitter:image" content="https://osakenpiro.github.io/kube/og.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2307070a'/%3E%3Cpath d='M16 4c3 6-4 8-1 13 2 3 7 1 6-5 4 4 5 9 1 13-4 4-12 4-15-1-3-6 2-11 9-20z' fill='%23d4a853'/%3E%3C/svg%3E">
+<style>
+:root{
+  --gold:#d4a853; --gold-dim:#8a6a2f; --gold-hot:#ffdb8a;
+  --void:#07070a; --void-2:#0d0d13; --ink:#e8e2d4; --ink-dim:#9a9284;
+  --ember:#ff8a3c; --ash:#5a5f52; --moss:#7d9a6a; --blood:#c1503c;
+  --line:rgba(212,168,83,.22);
+  --font:"Hiragino Mincho ProN","Yu Mincho",YuMincho,"Noto Serif JP",serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{
+  background:var(--void); color:var(--ink); font-family:var(--font);
+  overflow:hidden; letter-spacing:.02em;
+  -webkit-font-smoothing:antialiased;
+}
+#stage{position:fixed;inset:0;z-index:0}
+#stage canvas{display:block;width:100%;height:100%}
+#fallbackbg{position:fixed;inset:0;z-index:0;
+  background:radial-gradient(120% 90% at 50% 108%, #2a1608 0%, #14100f 38%, var(--void) 72%);}
+#ui{position:fixed;inset:0;z-index:2;display:flex;flex-direction:column;pointer-events:none}
+#ui>*{pointer-events:auto}
+
+/* ---------- HUD (J15 常時表示 / J08 大事なものをより大きく) ---------- */
+#hud{padding:10px 14px 6px;display:grid;gap:8px;
+  grid-template-columns:1fr auto;align-items:start;
+  background:linear-gradient(180deg,rgba(7,7,10,.86),rgba(7,7,10,0));}
+.meters{display:grid;gap:7px;min-width:0;max-width:640px}
+.m{display:grid;grid-template-columns:3.2em 1fr auto;gap:8px;align-items:center;font-size:12px}
+.m .lb{color:var(--ink-dim);letter-spacing:.16em;font-size:11px}
+.m .bar{height:9px;border:1px solid var(--line);position:relative;overflow:hidden;background:rgba(255,255,255,.03)}
+.m .bar i{position:absolute;inset:0 auto 0 0;width:0;transition:width .28s cubic-bezier(.2,.8,.2,1)}
+.m .val{font-family:var(--mono);font-size:12px;min-width:4.6em;text-align:right;color:var(--ink)}
+/* 火勢 = 主役。高さと発光で大きく (J08/F03) */
+#m-fire{grid-template-columns:3.2em 1fr auto}
+#m-fire .bar{height:20px}
+#m-fire .bar i{background:linear-gradient(90deg,#7a2d0c,#ff8a3c 55%,var(--gold-hot));box-shadow:0 0 18px rgba(255,138,60,.55)}
+#m-fire .val{font-size:16px;color:var(--gold-hot)}
+#m-night .bar i{background:linear-gradient(90deg,#1b2340,#4a5f9a 60%,#b9c7f0)}
+#m-pile .bar i{background:linear-gradient(90deg,#3a2a18,#8d6a3a 60%,#c9a56a)}
+#m-pile.low .bar{border-color:var(--blood)} #m-pile.low .val{color:var(--blood)}
+#m-humus .bar i{background:linear-gradient(90deg,#2a2417,#6b5a33 60%,var(--moss))}
+.hudright{display:flex;flex-direction:column;align-items:flex-end;gap:4px;font-size:11px;color:var(--ink-dim)}
+.kama{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:13px;color:var(--gold)}
+.kama .tilt{display:inline-block;transition:transform .5s cubic-bezier(.3,1.6,.4,1)}
+.pill{border:1px solid var(--line);padding:2px 8px;font-family:var(--mono);font-size:11px;color:var(--ink-dim)}
+.pill b{color:var(--gold);font-weight:400}
+
+/* ---------- 中央 = 3Dに譲る空白 + 刻の告知 ---------- */
+#mid{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  gap:10px;padding:0 16px;pointer-events:none;text-align:center}
+#koku{opacity:0;transform:translateY(6px);transition:opacity .4s,transform .4s;
+  font-size:clamp(15px,4.6vw,22px);color:var(--gold);letter-spacing:.3em;
+  text-shadow:0 0 26px rgba(212,168,83,.5)}
+#koku.on{opacity:1;transform:none}
+#koku small{display:block;letter-spacing:.06em;font-size:12px;color:var(--ink-dim);margin-top:5px}
+#toast{min-height:1.4em;font-family:var(--mono);font-size:12px;color:var(--ink-dim)}
+
+/* ---------- 手札 (F02 判定のあるものを強調) ---------- */
+#hand{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:0 10px 8px}
+.seed{position:relative;border:1px solid var(--line);background:rgba(10,10,14,.78);
+  backdrop-filter:blur(3px);padding:8px 9px 9px;text-align:left;color:var(--ink);
+  font-family:var(--font);cursor:pointer;display:flex;flex-direction:column;gap:6px;
+  transition:transform .12s,border-color .18s,box-shadow .18s;min-width:0}
+.seed:disabled{cursor:default;opacity:.42}
+.seed:not(:disabled):hover,.seed:not(:disabled):focus-visible{
+  transform:translateY(-3px);border-color:var(--gold);
+  box-shadow:0 0 0 1px rgba(212,168,83,.3),0 8px 26px rgba(0,0,0,.6);outline:none}
+.seed .top{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.seed .nm{font-size:clamp(17px,4.6vw,22px);line-height:1;color:var(--gold-hot)}
+.seed .kn{font-size:10px;color:var(--ink-dim);letter-spacing:.1em}
+.seed .key{font-family:var(--mono);font-size:10px;border:1px solid var(--line);padding:0 4px;color:var(--ink-dim)}
+.seed .heat{height:7px;border:1px solid var(--line);position:relative;overflow:hidden}
+.seed .heat i{position:absolute;inset:0 auto 0 0;transition:width .25s}
+.seed .num{font-family:var(--mono);font-size:10px;color:var(--ink-dim);display:flex;justify-content:space-between;gap:4px}
+.seed .num b{color:var(--gold);font-weight:400}
+.seed .tr{font-size:10.5px;color:var(--ash);line-height:1.35;min-height:2.6em}
+.seed .pv{font-family:var(--mono);font-size:11px;display:flex;gap:8px;flex-wrap:wrap}
+.seed .pv .g{color:var(--ember)} .seed .pv .w{color:#7f9ad0} .seed .pv .a{color:var(--moss)}
+.seed[data-cold="1"] .nm{color:var(--ash)}
+.seed .fall{font-family:var(--mono)}
+.seed .fall[data-w="0"]{color:var(--ash)} .seed .fall[data-w="1"]{color:var(--gold)} .seed .fall[data-w="2"]{color:var(--blood)}
+
+/* ---------- 操作列 ---------- */
+#dock{display:flex;gap:7px;padding:0 10px 12px;align-items:stretch;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:rgba(10,10,14,.8);color:var(--ink);
+  font-family:var(--font);font-size:13px;padding:9px 14px;cursor:pointer;
+  letter-spacing:.08em;transition:border-color .16s,color .16s,transform .1s}
+.btn:hover,.btn:focus-visible{border-color:var(--gold);color:var(--gold-hot);outline:none}
+.btn:active{transform:translateY(1px)}
+.btn.wide{flex:1}
+.btn small{display:block;font-family:var(--mono);font-size:10px;color:var(--ink-dim);letter-spacing:0;margin-top:2px}
+#log{padding:0 12px 10px;max-height:74px;overflow:auto;font-family:var(--mono);font-size:11px;
+  color:var(--ink-dim);line-height:1.7;scrollbar-width:thin}
+#log div span{color:var(--gold)}
+#log div.bad span{color:var(--blood)}
+#log div.good span{color:var(--moss)}
+
+/* ---------- オーバーレイ ---------- */
+.ov{position:fixed;inset:0;z-index:5;display:none;flex-direction:column;
+  align-items:center;justify-content:center;gap:14px;padding:22px;text-align:center;
+  background:radial-gradient(120% 90% at 50% 100%,rgba(42,22,8,.9),rgba(7,7,10,.96) 60%);
+  overflow:auto}
+.ov.on{display:flex}
+.ov h1{margin:0;font-size:clamp(46px,17vw,110px);letter-spacing:.14em;line-height:.98;
+  color:var(--gold);text-shadow:0 0 50px rgba(212,168,83,.42);font-weight:400}
+.ov h1 .rb{display:block;font-size:.16em;letter-spacing:.6em;color:var(--ink-dim);margin-top:.5em}
+.ov h2{margin:0;font-size:clamp(22px,7vw,38px);color:var(--gold);font-weight:400;letter-spacing:.12em}
+.ov p{margin:0;max-width:38em;font-size:13.5px;line-height:1.95;color:var(--ink-dim)}
+.ov p b{color:var(--ink);font-weight:400}
+.ov .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.card{border:1px solid var(--line);padding:14px 16px;max-width:44em;text-align:left;
+  background:rgba(7,7,10,.6);width:100%}
+.card h3{margin:0 0 8px;font-size:12px;letter-spacing:.28em;color:var(--gold);font-weight:400}
+.card dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:12px;
+  font-family:var(--mono);color:var(--ink-dim)}
+.card dt{color:var(--ink)} .card dd{margin:0;text-align:right}
+.k{font-family:var(--mono);border:1px solid var(--line);padding:0 5px;font-size:11px;color:var(--gold)}
+
+/* 釜（悪魔の釜 = 難易度を賭ける） */
+#kamabox{border:1px solid var(--line);padding:16px 18px;width:min(100%,34em);background:rgba(7,7,10,.55)}
+#kamabox .kh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+#kamabox .kh b{font-size:clamp(30px,9vw,44px);color:var(--gold-hot);font-weight:400;font-family:var(--mono)}
+#kamabox .kh span{font-size:11px;letter-spacing:.24em;color:var(--ink-dim)}
+input[type=range]{width:100%;accent-color:var(--gold);height:26px}
+#kamabox .note{font-size:11.5px;color:var(--ink-dim);line-height:1.8;margin-top:6px}
+#kamabox .note b{color:var(--gold)}
+.deep{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10.5px;color:var(--ash);margin-top:2px}
+
+/* 図鑑（種の台帳）*/
+#ledger{width:min(100%,46em);max-height:52vh;overflow:auto;border:1px solid var(--line);
+  background:rgba(7,7,10,.6)}
+#ledger table{width:100%;border-collapse:collapse;font-size:11.5px;font-family:var(--mono)}
+#ledger th,#ledger td{padding:6px 8px;border-bottom:1px solid rgba(212,168,83,.1);text-align:right;white-space:nowrap}
+#ledger th{color:var(--gold);font-weight:400;letter-spacing:.1em;position:sticky;top:0;background:#0b0b10}
+#ledger td:first-child,#ledger th:first-child{text-align:left}
+#ledger td.tr{text-align:left;white-space:normal;color:var(--ash);font-family:var(--font);min-width:12em}
+#ledger tr.lock{opacity:.4}
+#ledger tr.lock td:first-child::after{content:" 🔒"}
+
+/* デバッグ (K08) — 全【】可変点を live 表示 */
+#dbg{position:fixed;right:0;top:0;bottom:0;width:min(94vw,340px);z-index:9;display:none;
+  background:rgba(4,4,6,.95);border-left:1px solid var(--line);padding:10px;overflow:auto;
+  font-family:var(--mono);font-size:11px;color:var(--ink-dim)}
+#dbg.on{display:block}
+#dbg h4{margin:10px 0 4px;color:var(--gold);font-size:10px;letter-spacing:.2em;font-weight:400}
+#dbg .r{display:flex;justify-content:space-between;gap:8px;padding:1px 0}
+#dbg .r b{color:var(--ink);font-weight:400}
+#dbg input{width:88px}
+
+.hint{font-size:11px;color:var(--ash);font-family:var(--mono)}
+@media (max-width:560px){
+  #hand{grid-template-columns:repeat(2,1fr)}
+  .seed .tr{display:none}
+  #log{max-height:54px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="fallbackbg"></div>
+<div id="stage"></div>
+
+<div id="ui">
+  <header id="hud">
+    <div class="meters">
+      <div class="m" id="m-fire"><span class="lb">火勢</span><span class="bar"><i></i></span><span class="val">0.00</span></div>
+      <div class="m" id="m-night"><span class="lb">夜</span><span class="bar"><i></i></span><span class="val">0.00</span></div>
+      <div class="m" id="m-pile"><span class="lb">薪</span><span class="bar"><i></i></span><span class="val">0</span></div>
+      <div class="m" id="m-humus"><span class="lb">腐葉土</span><span class="bar"><i></i></span><span class="val">0</span></div>
+    </div>
+    <div class="hudright">
+      <div class="kama">釜 <span class="tilt" id="kamaicon">◠</span> <span id="honkival">2.0</span></div>
+      <div class="pill">焔 <b id="homura">0</b></div>
+      <div class="pill">手 <b id="turnval">0</b>/<span id="turnmax">20</span></div>
+    </div>
+  </header>
+
+  <div id="mid">
+    <div id="koku"></div>
+    <div id="toast"></div>
+  </div>
+
+  <div id="hand"></div>
+
+  <div id="dock">
+    <button class="btn wide" id="btn-wait">待つ<small>SPACE ／ 風を送らない・灰にせず土に還す</small></button>
+    <button class="btn" id="btn-retry">やり直す<small>R</small></button>
+    <button class="btn" id="btn-menu">品書<small>ESC</small></button>
+  </div>
+  <div id="log"></div>
+</div>
+
+<!-- ============ タイトル + 釜 ============ -->
+<div class="ov on" id="ov-title">
+  <h1>焚べ<span class="rb">く　べ</span></h1>
+  <p>手のうちの種は毎手ぬるくなる。<b>焚べれば火勢</b>、<b>冷め切れば腐葉土</b>。<br>
+     薪束は有限。夜明けまで火を保て。<br>
+     腐葉土は消えない。次の夜、種はそのぶん熱く手に来る。</p>
+
+  <div id="kamabox">
+    <div class="kh"><span>夜のふかさ</span><b id="honkishow">2.0</b></div>
+    <input type="range" id="honki" min="0" max="9" step="0.5" value="2">
+    <div class="deep"><span>0.0 かがり火（ほぼ夜明けまで持つ）</span><span>9.0 底無し</span></div>
+    <div class="note" id="honkinote"></div>
+  </div>
+
+  <div class="row">
+    <button class="btn" id="btn-start" style="font-size:16px;padding:13px 30px">火を入れる<small>ENTER</small></button>
+    <button class="btn" id="btn-how">遊びかた</button>
+    <button class="btn" id="btn-ledger">種の台帳</button>
+  </div>
+  <div class="hint" id="metaline"></div>
+</div>
+
+<!-- ============ 結果 ============ -->
+<div class="ov" id="ov-result">
+  <h2 id="res-title">夜明け</h2>
+  <p id="res-lead"></p>
+  <div class="card"><h3>この夜の勘定</h3><dl id="res-dl"></dl></div>
+  <div class="row">
+    <button class="btn" id="btn-again" style="font-size:15px;padding:12px 26px">もう一夜<small>R / ENTER</small></button>
+    <button class="btn" id="btn-toTitle">釜を触る<small>ESC</small></button>
+  </div>
+  <div class="hint" id="res-next"></div>
+</div>
+
+<!-- ============ 品書（メニュー） ============ -->
+<div class="ov" id="ov-menu">
+  <h2>品書</h2>
+  <div class="card">
+    <h3>操作</h3>
+    <dl>
+      <dt><span class="k">1</span>〜<span class="k">4</span></dt><dd>その種を焚べる</dd>
+      <dt><span class="k">SPACE</span></dt><dd>待つ（風を送らない）</dd>
+      <dt><span class="k">R</span></dt><dd>即やり直し</dd>
+      <dt><span class="k">ESC</span></dt><dd>品書 / 閉じる</dd>
+      <dt><span class="k">D</span></dt><dd>可変点をぜんぶ出す（?debug=1 でも可）</dd>
+    </dl>
+  </div>
+  <div class="card">
+    <h3>かけひき ── 三すくみ</h3>
+    <p style="max-width:none">
+    <b>火勢</b>：焚べた瞬間の火勢は <b>熱^1.35 × 質量</b>。熱いほど非線形に伸びる。上限を超えた分は空へ消える。<br>
+    <b>風</b>：焚べると風が立ち、<b>残りの種が冷える</b>。強く焚べるほど強く冷える。<br>
+    <b>薪</b>：一夜に使える種は<b>有限</b>。焚べても、冷め切っても、席を埋めるのに薪を1本使う。
+    尽きた席はもう埋まらない。だから風で手札を焼き払うのはタダではない。<br>
+    <b>待つ</b>：風は立たず薪も減らないが、火勢だけが落ちる。<br><br>
+    冷め切った種は消えず<b>腐葉土に落ちる（灰の約2.5倍）</b>。焚べて灰にするか、冷ますのを待って土にするか。<br>
+    ただし<b>火を落とせば腐葉土は半分風に散る</b>。土は夜明けまで火を保った者にだけ残る。<br><br>
+    <b>腐葉土は減らない</b>。積むほど種は熱く手に来て、薪束が厚くなり、新しい種が解禁される。
+    つまり<b>「どの深さに賭けるのが正解か」自体が、積んだ腐葉土で動いていく</b>。</p>
+  </div>
+  <div class="row"><button class="btn" id="btn-closemenu">戻る</button><button class="btn" id="btn-ledger2">種の台帳</button></div>
+</div>
+
+<!-- ============ 種の台帳 ============ -->
+<div class="ov" id="ov-ledger">
+  <h2>種の台帳</h2>
+  <p>質量・冷めやすさ・癖。<b>可変点はすべて外に出してある</b>（【】括り＝触っていい数字）。</p>
+  <div id="ledger"></div>
+  <div class="row"><button class="btn" id="btn-closeledger">戻る<small>ESC</small></button></div>
+</div>
+
+<div id="dbg"></div>
+
+<script>
+/* ==========================================================================
+   焚べ（くべ）— engine
+   ・このスクリプトは classic script。three.js が落ちても遊べる層。
+   ・可変点はすべて CONFIG に外出し（桜井K02 調整インフラ / K03 【】括り）
+   ========================================================================== */
+(function(){
+"use strict";
+
+/* ------------------------- 【CONFIG】= 触っていい数字 ------------------------- */
+const C = {
+  // 夜
+  '【手数】':            20,      // 一夜の手数（夜Float 1.0 まで）
+  '【初期火勢】':        0.50,
+  '【火勢上限】':        0.92,
+  '【基礎圧】':          0.055,   // 毎手 火勢から引かれる
+  '【夜の傾き】':        1.00,    // 夜が深いほど圧が増す係数
+  '【ふかさ圧】':        0.105,   // 夜のふかさ1.0あたりの追加圧
+  // 焚べ
+  '【火勢係数】':        0.320,
+  '【熱の指数】':        1.35,    // >1 = 熱いほど非線形に得。「熱があるうちに」の数式
+  '【風の係数】':        0.220,   // 焚べた強さに比例して他が冷える
+  // 種
+  '【基礎熱】':          0.66,
+  '【腐葉土→熱】':       0.0130,  // ×√腐葉土（逓減）
+  '【熱の上乗せ上限】':   0.26,
+  '【手札】':            4,
+  // 薪束（一夜に使える種の総数＝有限。これが無いと引き直しが無料になって風が痛くない）
+  '【薪】':              28,
+  '【腐葉土→薪】':       0.0150,
+  '【薪の上乗せ上限】':   6,
+  // 還り
+  '【灰の還り】':        0.55,    // 焚べた種 → 腐葉土（質量あたり）
+  '【冷めの還り】':      1.40,    // 冷め切った種 → 腐葉土（質量あたり）
+  '【消火時の残り】':     0.50,    // 火を落とすと腐葉土は半分風に散る
+  // 釜（悪魔の釜）＝死なせない代わりに褒美を壊す
+  '【釜の傾き】':        1.00,    // 一度傾くとふかさがこれだけ下がる
+  '【傾き後の火】':       0.15,
+  '【傾きでこぼす】':     0.30,    // 傾くたび腐葉土をこの割合こぼす
+  '【傾きで失う薪】':     3,       // 傾いた拍子に薪もこぼれる
+  '【傾きの焔損】':       0.12,    // 一度傾くごとに焔の倍率がこの割合しぼむ
+  // 焔（スコア）＝倍率は「最後に保っていたふかさ」で決まる。傾けば遡って安くなる
+  '【焔倍率】':          0.25,    // ふかさ1.0あたり
+  '【夜明けの褒美】':     500,
+  // 手触り（D01 ヒットストップ / H05 画面振動は控えめ / H01 モヤッとさせるな）
+  '【ヒットストップms】':  90,
+  '【揺れ】':            0.5,
+  '【火柱の粒】':        220,
+};
+
+/* ------------------------- 種 8 種（F19 キャラ立て） ------------------------- */
+// mass=質量 / decay=毎手の冷め / dh=初期熱の補正 / need=解禁腐葉土
+const SEEDS = [
+  {id:'wara', nm:'藁', kn:'わら',  mass:0.22, decay:0.26, dh:+0.15, need:0,
+   tr:'いちばん熱くいちばん早く冷める。熱があるうちに以外の使い道がない。'},
+  {id:'sugi', nm:'杉', kn:'すぎ',  mass:0.50, decay:0.10, dh: 0.00, need:0,
+   tr:'基準。何の癖もないのが癖。'},
+  {id:'kashi',nm:'樫', kn:'かし',  mass:0.92, decay:0.05, dh:-0.18, need:0,
+   tr:'重くて冷めにくいが、はじめから温い。育てて使う種。'},
+  {id:'matsu',nm:'松', kn:'まつ',  mass:0.58, decay:0.12, dh: 0.00, need:25,
+   tr:'脂。焚べても風が立たない＝手札を冷やさない。', trait:'nowind'},
+  {id:'koke', nm:'苔', kn:'こけ',  mass:0.30, decay:0.02, dh: 0.00, need:65,
+   tr:'ほとんど冷めない。火勢は細いが、土への還りが倍。', trait:'humus2'},
+  {id:'hota', nm:'榾', kn:'ほた',  mass:0.78, decay:0.14, dh: 0.00, need:130,
+   tr:'焚べると腐葉土の底から熱を引き上げ、残りの種を温める。', trait:'lift'},
+  {id:'kaede',nm:'楓', kn:'かえで',mass:0.46, decay:0.09, dh:+0.05, need:220,
+   tr:'熱いまま焚べるほど風が弱い。冷ますと荒れる。', trait:'calm'},
+  {id:'kaya', nm:'榧', kn:'かや',  mass:0.66, decay:0.07, dh: 0.00, need:340,
+   tr:'残り火が長い。焚べた次の手だけ、夜の圧が半分になる。', trait:'linger'},
+];
+
+/* ------------------------- 刻（B13 単調な坂にしない） ------------------------- */
+const KOKU = [
+  {id:'kogarashi', nm:'木枯らし', sub:'手札の熱がいちどきに落ちる', at:0.30,
+   run:s=>{ s.hand.forEach(x=>{ if(x) x.heat-=0.12; }); return '手札すべて −0.12'; }},
+  {id:'hoshi', nm:'星時雨', sub:'ひとつの種に熱が降る', at:0.55,
+   run:s=>{ const live=s.hand.filter(Boolean); if(!live.length) return '降る先がなかった';
+     const t=live[Math.floor(s.rng()*live.length)]; t.heat=Math.min(1.2,t.heat+0.28);
+     return t.nm+' に +0.28'; }},
+  {id:'shinkou', nm:'深更', sub:'ここから夜の圧が増す', at:0.75,
+   run:s=>{ s.pressMul*=1.25; return '圧 ×1.25（夜明けまで）'; }},
+];
+
+/* ------------------------- 小物 ------------------------- */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const r2=v=>Math.round(v*100)/100;
+const $=s=>document.querySelector(s);
+
+/* ------------------------- メタ（腐葉土は周回を越える） ------------------------- */
+const SAVE='kube.meta.v1';
+function loadMeta(){
+  try{ const m=JSON.parse(localStorage.getItem(SAVE)||'{}');
+    return {humus:m.humus||0, runs:m.runs||0, dawns:m.dawns||0,
+            best:m.best||0, deepest:m.deepest||0, burned:m.burned||{}, seen:m.seen||{}};
+  }catch(e){ return {humus:0,runs:0,dawns:0,best:0,deepest:0,burned:{},seen:{}}; }
+}
+function saveMeta(){ try{ localStorage.setItem(SAVE,JSON.stringify(META)); }catch(e){} }
+let META=loadMeta();
+
+/* ------------------------- 事象バス（3D層と音層が購読する） ------------------------- */
+const bus={};
+function on(k,f){(bus[k]=bus[k]||[]).push(f);}
+function emit(k,p){(bus[k]||[]).forEach(f=>{try{f(p);}catch(e){console.warn(e);}});}
+
+/* ------------------------- 状態 ------------------------- */
+let S=null;
+function unlocked(){ return SEEDS.filter(s=>META.humus>=s.need); }
+function nextUnlock(){ return SEEDS.find(s=>META.humus<s.need)||null; }
+function heatBonus(){ return Math.min(C['【熱の上乗せ上限】'], C['【腐葉土→熱】']*Math.sqrt(Math.max(0,META.humus))); }
+function pileBonus(){ return Math.min(C['【薪の上乗せ上限】'], Math.floor(META.humus*C['【腐葉土→薪】'])); }
+function pileMax(){ return C['【薪】']+pileBonus(); }
+
+// 薪束から1本引く。尽きたら null（席は空いたまま＝引き直しは無料でない）
+function mkSeed(){
+  if(S.pile<=0) return null;
+  S.pile--;
+  const pool=unlocked();
+  const inHand=new Set(S.hand.filter(Boolean).map(x=>x.id));
+  let d=pool[Math.floor(S.rng()*pool.length)];
+  for(let tries=0; tries<3 && inHand.has(d.id) && pool.length>inHand.size; tries++)
+    d=pool[Math.floor(S.rng()*pool.length)];
+  META.seen[d.id]=(META.seen[d.id]||0)+1;
+  return {...d, heat: clamp(C['【基礎熱】']+d.dh+heatBonus(), 0.05, 1.0), born:S.turn};
+}
+
+function newRun(honki){
+  const seed=(Date.now()^Math.floor(Math.random()*1e9))>>>0;
+  S={ rng:mulberry32(seed), seedNum:seed,
+      honki:honki, honki0:honki, tilts:0,
+      fire:C['【初期火勢】'], night:0, turn:0, pressMul:1, linger:0,
+      pile:pileMax(), pile0:pileMax(), burns:0, waits:0, cooled:0, fireSum:0,
+      humus:0, spilled:0, homura:0, over:false, dawn:false,
+      hand:[], kokuQueue:[], kokuDone:[], kokuWarn:null, log:[] };
+  // 刻は3つから2つ（D13 ランダムは彩り、主役でない）
+  const pick=KOKU.slice().sort(()=>S.rng()-0.5).slice(0,2).sort((a,b)=>a.at-b.at);
+  S.kokuQueue=pick.map(k=>({...k}));
+  for(let i=0;i<C['【手札】'];i++) S.hand.push(mkSeed());
+  META.runs++; META.deepest=Math.max(META.deepest,honki); saveMeta();
+  say('火を入れた。夜のふかさ '+honki.toFixed(1)+'／薪 '+S.pile0+'束。','good');
+  emit('reset',S); emit('sync',S);
+  return S;
+}
+
+function say(t,cls){ if(!S) return; S.log.unshift({t,cls}); if(S.log.length>40)S.log.pop(); emit('log',S.log); }
+
+/* 予測（可変点をプレイヤーにも見せる = C12/K02） */
+function preview(i){
+  const s=S.hand[i]; if(!s) return null;
+  const h=clamp(s.heat,0,1.2);
+  const gain=Math.pow(h,C['【熱の指数】'])*s.mass*C['【火勢係数】'];
+  let wind=C['【風の係数】']*(Math.pow(h,C['【熱の指数】'])*s.mass);
+  if(s.trait==='nowind') wind=0;
+  if(s.trait==='calm')   wind*=(1-Math.min(0.85,h*0.8));
+  const ash=s.mass*C['【灰の還り】']*(s.trait==='humus2'?2:1);
+  return {gain:Math.max(0,Math.min(gain, C['【火勢上限】']-S.fire)), rawGain:gain, wind, ash,
+          waste:Math.max(0,S.fire+gain-C['【火勢上限】']),
+          fallIn:Math.max(1,Math.ceil(s.heat/Math.max(0.001,s.decay)))};
+}
+
+/* --------- 一手 --------- */
+function kube(i){
+  if(!S||S.over) return;
+  const s=S.hand[i]; if(!s) return;
+  const p=preview(i);
+  const before=S.fire;
+  S.fire=Math.min(C['【火勢上限】'], S.fire+p.rawGain);
+  const got=r2(S.fire-before);
+
+  // 灰 → 腐葉土
+  S.humus+=p.ash; S.burns++;
+  META.burned[s.id]=(META.burned[s.id]||0)+1;
+
+  // 風 → 残りが冷える
+  S.hand[i]=null;
+  if(p.wind>0) S.hand.forEach(x=>{ if(x) x.heat-=p.wind; });
+  // 癖
+  if(s.trait==='lift') S.hand.forEach(x=>{ if(x) x.heat+=0.10; });
+  if(s.trait==='linger') S.linger=1;
+
+  say('焚べ 〈'+s.nm+'〉 火勢 +'+got.toFixed(2)+(p.wind>0?'／風 −'+p.wind.toFixed(2):'／風なし')+(p.waste>0?'（'+p.waste.toFixed(2)+' は空へ）':''));
+  emit('kube',{seed:s, slot:i, gain:got, wind:p.wind, waste:p.waste});
+  endTurn();
+}
+
+function wait(){
+  if(!S||S.over) return;
+  S.waits++;
+  say('待つ。風は立たず、薪も減らない。');
+  emit('wait',{});
+  endTurn();
+}
+
+function endTurn(){
+  S.turn++;
+  S.night=Math.min(1, S.turn/C['【手数】']);
+
+  // 刻（B13 単調な坂にしない）
+  const q=S.kokuQueue[0];
+  if(q && S.night>=q.at){
+    S.kokuQueue.shift(); const detail=q.run(S); S.kokuDone.push(q.nm);
+    say('刻 ―― '+q.nm+'（'+detail+'）','bad');
+    emit('koku',{nm:q.nm,sub:q.sub,detail});
+  }
+  S.kokuWarn = (S.kokuQueue[0] && (S.night+1/C['【手数】'])>=S.kokuQueue[0].at) ? S.kokuQueue[0] : null;
+
+  // 冷め → 腐葉土（消えない）
+  for(let i=0;i<S.hand.length;i++){
+    const x=S.hand[i]; if(!x) continue;
+    x.heat-=x.decay;
+    if(x.heat<=0){
+      const n=x.mass*C['【冷めの還り】']*(x.trait==='humus2'?2:1);
+      S.humus+=n; S.cooled++;
+      say('〈'+x.nm+'〉 冷め切った。腐葉土 +'+n.toFixed(2),'good');
+      emit('cool',{seed:x,slot:i,nutrient:n});
+      S.hand[i]=null;
+    }
+  }
+
+  // 圧
+  let press=C['【基礎圧】']*(1+S.honki*C['【ふかさ圧】'])*(1+S.night*C['【夜の傾き】'])*S.pressMul;
+  if(S.linger>0){ press*=0.5; S.linger--; }
+  S.fire-=press;
+  S.fireSum+=Math.max(0,S.fire);
+
+  // 釜が傾く（B24 救済は屈辱でなく物理現象。死なせない代わりに褒美を壊す）
+  if(S.fire<=0 && S.honki>0){
+    const spill=S.humus*C['【傾きでこぼす】'];
+    S.humus-=spill; S.spilled+=spill;
+    const lost=Math.min(S.pile, C['【傾きで失う薪】']); S.pile-=lost;
+    S.honki=Math.max(0, r2(S.honki-C['【釜の傾き】']));
+    S.fire=C['【傾き後の火】']; S.tilts++;
+    say('釜が傾いた。ふかさ '+S.honki.toFixed(1)+'／腐葉土 −'+spill.toFixed(2)+'／薪 −'+lost,'bad');
+    emit('tilt',{honki:S.honki,spill,lost});
+  }
+
+  // 空いた席に新しい種（引いた種は当手の冷めを受けない）
+  for(let i=0;i<S.hand.length;i++){
+    if(!S.hand[i]){ S.hand[i]=mkSeed(); emit('draw',{slot:i,seed:S.hand[i]}); }
+  }
+
+  if(S.fire<=0){ finish(false); return; }
+  if(S.night>=1){ finish(true); return; }
+  emit('sync',S);
+}
+
+function finish(dawn){
+  S.over=true; S.dawn=dawn;
+  const keep = dawn ? S.humus : S.humus*C['【消火時の残り】'];
+  S.kept=keep;
+  // 倍率は「最後に保っていたふかさ」。傾いたぶんは遡って安くなる＝賭けが賭けとして効く
+  const mul=(1+S.honki*C['【焔倍率】'])*Math.pow(1-C['【傾きの焔損】'],S.tilts);
+  S.homura=S.fireSum*100*mul + (dawn?C['【夜明けの褒美】']*mul:0);
+  S.mul=mul;
+  if(dawn) META.dawns++;
+  META.humus=r2(META.humus+keep);
+  META.best=Math.max(META.best, Math.round(S.homura));
+  saveMeta();
+  say(dawn?'夜明け。火は残った。':'火が落ちた。灰は半分風に散った。', dawn?'good':'bad');
+  emit(dawn?'dawn':'douse',{kept:keep});
+  emit('sync',S);
+}
+
+/* ------------------------- 公開 ------------------------- */
+window.KUBE={ C, SEEDS, KOKU, on, emit,
+  get S(){return S;}, get META(){return META;},
+  newRun, kube, wait, preview, unlocked, nextUnlock, heatBonus, pileBonus, pileMax,
+  resetMeta(){ META={humus:0,runs:0,dawns:0,best:0,deepest:0,burned:{},seen:{}}; saveMeta(); }
+};
+})();
+</script>
+
+<script>
+/* ==========================================================================
+   焚べ — DOM層（3Dが落ちてもここだけで完全に遊べる）＋ 音（手続き生成）
+   ========================================================================== */
+(function(){
+"use strict";
+const K=window.KUBE, C=K.C, $=s=>document.querySelector(s);
+const el={
+  fire:$('#m-fire'), night:$('#m-night'), humus:$('#m-humus'), pile:$('#m-pile'),
+  homura:$('#homura'), turn:$('#turnval'), turnmax:$('#turnmax'),
+  honkival:$('#honkival'), kamaicon:$('#kamaicon'),
+  hand:$('#hand'), log:$('#log'), koku:$('#koku'), toast:$('#toast'),
+  ovTitle:$('#ov-title'), ovRes:$('#ov-result'), ovMenu:$('#ov-menu'), ovLed:$('#ov-ledger'),
+  honki:$('#honki'), honkishow:$('#honkishow'), honkinote:$('#honkinote'),
+  metaline:$('#metaline'), dbg:$('#dbg'),
+};
+el.turnmax.textContent=C['【手数】'];
+
+/* ---------------- 音: WebAudio 手続き生成（ファイル0・ゼロコスト） ---------------- */
+const A=(function(){
+  let ctx=null, mute=false;
+  const get=()=>{ if(!ctx){ try{ctx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){} } return ctx; };
+  function env(g,t,a,d,peak){ g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(peak,t+a); g.gain.exponentialRampToValueAtTime(0.0001,t+a+d); }
+  function noise(dur,t,f,q,peak){ const c=get(); if(!c)return;
+    const n=c.createBufferSource(), buf=c.createBuffer(1,Math.max(1,c.sampleRate*dur),c.sampleRate), d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*(1-i/d.length);
+    n.buffer=buf; const bp=c.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=f; bp.Q.value=q;
+    const g=c.createGain(); env(g,t,0.005,dur,peak); n.connect(bp).connect(g).connect(c.destination); n.start(t); }
+  function tone(f,t,dur,peak,type){ const c=get(); if(!c)return;
+    const o=c.createOscillator(); o.type=type||'sine'; o.frequency.setValueAtTime(f,t);
+    const g=c.createGain(); env(g,t,0.008,dur,peak); o.connect(g).connect(c.destination); o.start(t); o.stop(t+dur+0.1); }
+  return {
+    resume(){ const c=get(); if(c&&c.state==='suspended') c.resume(); },
+    toggle(){ mute=!mute; return mute; }, get muted(){return mute;},
+    kube(power){ if(mute)return; const c=get(); if(!c)return; const t=c.currentTime;
+      noise(0.34,t,320+power*900,1.1,0.30); tone(70+power*40,t,0.24,0.22,'sine'); tone(150,t+0.02,0.12,0.07,'triangle'); },
+    cool(){ if(mute)return; const c=get(); if(!c)return; const t=c.currentTime;
+      tone(520,t,0.16,0.06,'sine'); tone(330,t+0.07,0.24,0.05,'sine'); },
+    tick(){ if(mute)return; const c=get(); if(!c)return; noise(0.05,c.currentTime,1800,3,0.045); },
+    koku(){ if(mute)return; const c=get(); if(!c)return; const t=c.currentTime;
+      tone(196,t,0.9,0.10,'sine'); tone(294,t+0.05,0.8,0.06,'sine'); noise(0.6,t,240,0.8,0.09); },
+    tilt(){ if(mute)return; const c=get(); if(!c)return; const t=c.currentTime;
+      tone(240,t,0.3,0.12,'square'); tone(120,t+0.12,0.5,0.10,'square'); noise(0.5,t+0.05,500,1,0.13); },
+    dawn(){ if(mute)return; const c=get(); if(!c)return; const t=c.currentTime;
+      [261.6,329.6,392,523.3].forEach((f,i)=>tone(f,t+i*0.10,1.5,0.10,'sine')); },
+    douse(){ if(mute)return; const c=get(); if(!c)return; const t=c.currentTime;
+      noise(0.9,t,180,0.6,0.20); tone(98,t,1.0,0.10,'sine'); tone(92,t+0.1,1.1,0.08,'sine'); },
+  };
+})();
+
+/* ---------------- ヒットストップ（D01）＋ 揺れ（H05 控えめ） ---------------- */
+let frozen=0;
+function hitstop(ms){ frozen=performance.now()+ms; }
+window.KUBE_FROZEN=()=>performance.now()<frozen;
+let shake=0;
+function doShake(v){ shake=Math.min(1,v); }
+window.KUBE_SHAKE=()=>shake;
+(function decay(){ shake*=0.86; if(shake<0.001)shake=0; requestAnimationFrame(decay); })();
+
+/* ---------------- 手札を描く ---------------- */
+const heatColor=h=>{ // 色だけに頼らない（C25）が、色も正しく効かせる
+  if(h>=0.75) return 'linear-gradient(90deg,#ff7a2a,#ffd98a)';
+  if(h>=0.45) return 'linear-gradient(90deg,#a5561a,#e8a33f)';
+  if(h>=0.2)  return 'linear-gradient(90deg,#5a3d1c,#9a7434)';
+  return 'linear-gradient(90deg,#33352c,#5a5f52)';
+};
+function renderHand(){
+  const S=K.S; if(!S) return;
+  const frag=document.createDocumentFragment();
+  S.hand.forEach((s,i)=>{
+    const b=document.createElement('button');
+    b.className='seed'; b.type='button'; b.dataset.i=i;
+    if(!s){ b.disabled=true;
+      b.innerHTML='<div class="top"><span class="nm" style="color:var(--ash)">空</span><span class="key">'+(i+1)+'</span></div>'+
+                  '<div class="tr">薪束が尽きた。この席にはもう来ない。</div>';
+      frag.appendChild(b); return; }
+    const p=K.preview(i), h=Math.max(0,Math.min(1,s.heat));
+    b.dataset.cold = h<0.2?'1':'0';
+    b.setAttribute('aria-label', s.nm+' 熱'+h.toFixed(2)+' 火勢+'+p.gain.toFixed(2));
+    b.innerHTML =
+      '<div class="top"><span><span class="nm">'+s.nm+'</span> <span class="kn">'+s.kn+'</span></span><span class="key">'+(i+1)+'</span></div>'+
+      '<div class="heat"><i style="width:'+(h*100).toFixed(1)+'%;background:'+heatColor(h)+'"></i></div>'+
+      '<div class="num"><span>熱 <b>'+s.heat.toFixed(2)+'</b></span><span>質量 '+s.mass.toFixed(2)+'</span>'+
+        '<span class="fall" data-w="'+(p.fallIn<=2?2:p.fallIn<=4?1:0)+'">冷め'+p.fallIn+'手</span></div>'+
+      '<div class="pv"><span class="g">火勢+'+p.gain.toFixed(2)+'</span>'+
+        '<span class="w">'+(p.wind>0?'風−'+p.wind.toFixed(2):'風なし')+'</span>'+
+        '<span class="a">灰+'+p.ash.toFixed(2)+'</span></div>'+
+      '<div class="tr">'+s.tr+'</div>';
+    frag.appendChild(b);
+  });
+  el.hand.replaceChildren(frag);
+}
+el.hand.addEventListener('click',e=>{
+  const b=e.target.closest('.seed'); if(!b||b.disabled) return;
+  A.resume(); K.kube(+b.dataset.i);
+});
+
+/* ---------------- HUD 同期 ---------------- */
+function setM(m,frac,txt){ m.querySelector('i').style.width=(Math.max(0,Math.min(1,frac))*100).toFixed(1)+'%';
+  m.querySelector('.val').textContent=txt; }
+function sync(){
+  const S=K.S; if(!S) return;
+  setM(el.fire, S.fire/C['【火勢上限】'], Math.max(0,S.fire).toFixed(2));
+  setM(el.night, S.night, S.night.toFixed(2));
+  setM(el.pile, S.pile/Math.max(1,S.pile0), S.pile+'/'+S.pile0);
+  el.pile.classList.toggle('low', S.pile<=3);
+  const goal = K.nextUnlock();
+  setM(el.humus, goal? Math.min(1,(K.META.humus)/goal.need) : 1,
+       Math.round(K.META.humus)+(S.humus>0?' +'+S.humus.toFixed(1):''));
+  el.homura.textContent=Math.round(S.fireSum*100*(1+S.honki*C['【焔倍率】'])*Math.pow(1-C['【傾きの焔損】'],S.tilts));
+  el.turn.textContent=S.turn;
+  el.honkival.textContent=S.honki.toFixed(1);
+  el.kamaicon.style.transform='rotate('+(S.tilts*11)+'deg)';
+  renderHand();
+  // 予告（C12 いきなり殺さない）
+  el.toast.textContent = S.kokuWarn ? '次の手 ―― 刻「'+S.kokuWarn.nm+'」が来る' :
+    (S.pile<=0 ? '薪束は空。手のうちの種で夜明けまで持たせる。' :
+    (S.fire<0.18 ? '火が細い。次に落ちれば釜が傾く。' :
+    (S.pile<=4 ? '薪が残り'+S.pile+'。' : '')));
+}
+K.on('sync',sync);
+K.on('log',rows=>{
+  el.log.replaceChildren(...rows.slice(0,14).map(r=>{
+    const d=document.createElement('div'); if(r.cls)d.className=r.cls;
+    d.innerHTML='<span>·</span> '+r.t; return d;
+  }));
+});
+K.on('kube',p=>{ A.kube(Math.min(1,p.gain*6)); hitstop(C['【ヒットストップms】']); doShake(0.5*C['【揺れ】']+p.gain*C['【揺れ】']); });
+K.on('wait',()=>A.tick());
+K.on('cool',()=>A.cool());
+K.on('tilt',()=>{ A.tilt(); doShake(1*C['【揺れ】']); });
+K.on('koku',p=>{ A.koku();
+  el.koku.innerHTML=p.nm+'<small>'+p.sub+' ／ '+p.detail+'</small>';
+  el.koku.classList.add('on'); setTimeout(()=>el.koku.classList.remove('on'),2600); });
+K.on('dawn',()=>{ A.dawn(); showResult(true); });
+K.on('douse',()=>{ A.douse(); showResult(false); });
+
+/* ---------------- 結果（B27 どれだけ良いことをしたか） ---------------- */
+function showResult(dawn){
+  const S=K.S;
+  $('#res-title').textContent = dawn?'夜明け':'火が落ちた';
+  $('#res-lead').textContent = dawn
+    ? '火は残った。腐葉土は'+(S.tilts?'（釜が'+S.tilts+'度こぼしたが）':'')+'すべて次の夜へ。'
+    : '灰は半分風に散った。だが半分は残る。土は減らない方向にしか働かない。';
+  const rows=[
+    ['焔（この夜）', Math.round(S.homura)],
+    ['最高の焔', K.META.best],
+    ['保った深さ', S.honki.toFixed(1)+' / 賭けた '+S.honki0.toFixed(1)+(S.tilts?'（'+S.tilts+'度傾いた）':'（傾かず）')],
+    ['焔の倍率', '×'+S.mul.toFixed(2)+(S.tilts?'（傾きで '+Math.round((1-Math.pow(1-C['【傾きの焔損】'],S.tilts))*100)+'% しぼんだ）':'')],
+    ['火勢の積み', S.fireSum.toFixed(2)],
+    ['焚べ／待ち／冷め', S.burns+' ／ '+S.waits+' ／ '+S.cooled],
+    ['薪', (S.pile0-S.pile)+' 使い、残り '+S.pile],
+    ['この夜の腐葉土', S.humus.toFixed(2)+(S.spilled>0?'（−'+S.spilled.toFixed(2)+' こぼれ）':'')],
+    ['次の夜へ持ち越し', S.kept.toFixed(2)+(dawn?'':' ← 半分')],
+    ['腐葉土（累計）', Math.round(K.META.humus)],
+    ['初期熱／薪の上乗せ', '+'+K.heatBonus().toFixed(3)+' ／ +'+K.pileBonus()],
+    ['刻', S.kokuDone.join('・')||'なし'],
+    ['夜明け／挑んだ夜', K.META.dawns+' / '+K.META.runs],
+  ];
+  $('#res-dl').replaceChildren(...rows.flatMap(([k,v])=>{
+    const dt=document.createElement('dt'), dd=document.createElement('dd');
+    dt.textContent=k; dd.textContent=v; return [dt,dd];
+  }));
+  const nx=K.nextUnlock();
+  $('#res-next').textContent = nx
+    ? '次の解禁：〈'+nx.nm+'〉'+nx.kn+' ── 腐葉土 '+nx.need+'（あと '+Math.max(0,Math.ceil(nx.need-K.META.humus))+'）'
+    : '種はすべて解禁済み。あとはふかさを賭けるだけ。';
+  el.ovRes.classList.add('on');
+}
+
+/* ---------------- 釜（ふかさを自分で賭ける） ---------------- */
+function honkiNote(v){
+  const press=C['【基礎圧】']*(1+v*C['【ふかさ圧】']);
+  const mul=(1+v*C['【焔倍率】']);
+  let word = v<=0.5?'かがり火。ほぼ落ちない。まず一夜通してみる人向け。'
+           : v<2 ? '浅い。かけひきは緩い。'
+           : v<4 ? '基準。ここで釜の傾きを覚える。'
+           : v<7 ? '深い。手札の熱を切らすと戻らない。'
+           : '底無し。腐葉土を積んでから来る場所。';
+  el.honkinote.innerHTML='毎手の圧 <b>'+press.toFixed(3)+'</b>（夜が深まるほど増す）／焔 <b>×'+mul.toFixed(2)+'</b>'+
+    '<br>火が落ちても死なない。<b>釜が傾いてふかさが '+C['【釜の傾き】'].toFixed(1)+' 下がる</b>——'+
+    '腐葉土を '+Math.round(C['【傾きでこぼす】']*100)+'%、薪を '+C['【傾きで失う薪】']+' こぼし、'+
+    '<b>焔の倍率が '+Math.round(C['【傾きの焔損】']*100)+'% しぼむ</b>。だから深く賭けて傾くと、浅く保つより安い。'+
+    '<br><b>賭けの正解は腐葉土で動く。</b>'+word;
+}
+el.honki.addEventListener('input',()=>{
+  const v=+el.honki.value; el.honkishow.textContent=v.toFixed(1); honkiNote(v); A.tick();
+});
+function metaLine(){
+  const nx=K.nextUnlock();
+  el.metaline.textContent='腐葉土 '+Math.round(K.META.humus)+' ／ 初期熱 +'+K.heatBonus().toFixed(3)+
+    ' ／ 薪 '+K.pileMax()+'（+'+K.pileBonus()+'）'+
+    ' ／ 種 '+K.unlocked().length+'/'+K.SEEDS.length+
+    (nx?'（次〈'+nx.nm+'〉まで '+Math.max(0,Math.ceil(nx.need-K.META.humus))+'）':'')+
+    ' ／ 夜明け '+K.META.dawns+'/'+K.META.runs+' ／ 最高の焔 '+K.META.best;
+}
+
+/* ---------------- 台帳（種＋可変点をぜんぶ出す） ---------------- */
+function renderLedger(){
+  const rows=K.SEEDS.map(s=>{
+    const lock=K.META.humus<s.need;
+    return '<tr class="'+(lock?'lock':'')+'"><td>'+s.nm+' <span style="color:#7a7466">'+s.kn+'</span></td>'+
+      '<td>'+s.mass.toFixed(2)+'</td><td>'+s.decay.toFixed(2)+'</td>'+
+      '<td>'+(s.dh>=0?'+':'')+s.dh.toFixed(2)+'</td>'+
+      '<td>'+(lock?s.need:'解禁')+'</td>'+
+      '<td>'+(K.META.burned[s.id]||0)+'</td><td class="tr">'+s.tr+'</td></tr>';
+  }).join('');
+  $('#ledger').innerHTML='<table><thead><tr><th>種</th><th>質量</th><th>冷め/手</th><th>初期熱補正</th>'+
+    '<th>解禁腐葉土</th><th>焚べた数</th><th>癖</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+/* ---------------- デバッグ (K08) ---------------- */
+function buildDbg(){
+  const wrap=document.createElement('div');
+  wrap.innerHTML='<h4>【可変点】K02/K03 — 触ればその場で効く</h4>';
+  Object.keys(C).forEach(k=>{
+    const r=document.createElement('div'); r.className='r';
+    const lb=document.createElement('span'); lb.textContent=k;
+    const inp=document.createElement('input'); inp.type='number'; inp.step='0.001'; inp.value=C[k];
+    inp.addEventListener('input',()=>{ const v=parseFloat(inp.value); if(!isNaN(v)){C[k]=v; sync();} });
+    r.append(lb,inp); wrap.appendChild(r);
+  });
+  const st=document.createElement('div'); st.id='dbgstate';
+  wrap.innerHTML+='<h4>状態</h4>'; wrap.appendChild(st);
+  const bt=document.createElement('button'); bt.className='btn'; bt.style.marginTop='10px';
+  bt.textContent='腐葉土を捨てる（メタ初期化）';
+  bt.onclick=()=>{ if(confirm('腐葉土の累計を0に戻す。よい？')){ K.resetMeta(); metaLine(); renderLedger(); sync(); } };
+  wrap.appendChild(bt);
+  el.dbg.replaceChildren(wrap);
+  setInterval(()=>{ const S=K.S; const d=document.getElementById('dbgstate'); if(!S||!d)return;
+    d.innerHTML=['fire','night','turn','honki','tilts','humus','homura','pressMul','linger','seedNum']
+      .map(k=>'<div class="r"><span>'+k+'</span><b>'+(typeof S[k]==='number'?r2(S[k]):S[k])+'</b></div>').join('')
+      +'<div class="r"><span>3D</span><b>'+(window.KUBE_STAGE_OK?'on':'off')+'</b></div>';
+  },200);
+}
+const r2=v=>Math.round(v*1000)/1000;
+
+/* ---------------- 画面遷移（D17 素早く / J10 必ず閉じられる） ---------------- */
+function closeAll(){ [el.ovTitle,el.ovRes,el.ovMenu,el.ovLed].forEach(o=>o.classList.remove('on')); }
+function toTitle(){ closeAll(); metaLine(); honkiNote(+el.honki.value); el.ovTitle.classList.add('on'); }
+function start(){ A.resume(); closeAll(); K.newRun(+el.honki.value); }
+
+$('#btn-start').onclick=start;
+$('#btn-again').onclick=start;
+$('#btn-toTitle').onclick=toTitle;
+$('#btn-retry').onclick=start;
+$('#btn-how').onclick=()=>{ closeAll(); el.ovMenu.classList.add('on'); };
+$('#btn-menu').onclick=()=>{ closeAll(); el.ovMenu.classList.add('on'); };
+$('#btn-closemenu').onclick=()=>{ closeAll(); if(!K.S||K.S.over) toTitle(); };
+$('#btn-ledger').onclick=()=>{ renderLedger(); closeAll(); el.ovLed.classList.add('on'); };
+$('#btn-ledger2').onclick=()=>{ renderLedger(); closeAll(); el.ovLed.classList.add('on'); };
+$('#btn-closeledger').onclick=()=>{ closeAll(); if(!K.S||K.S.over) toTitle(); else {} };
+$('#btn-wait').onclick=()=>{ A.resume(); K.wait(); };
+
+addEventListener('keydown',e=>{
+  const anyOv=[el.ovTitle,el.ovRes,el.ovMenu,el.ovLed].some(o=>o.classList.contains('on'));
+  if(e.key==='d'||e.key==='D'){ el.dbg.classList.toggle('on'); return; }
+  if(e.key==='m'||e.key==='M'){ const m=A.toggle(); el.toast.textContent=m?'音を切った':'音を戻した'; return; }
+  if(e.key==='Escape'){
+    if(el.ovLed.classList.contains('on')||el.ovMenu.classList.contains('on')){ closeAll(); if(!K.S||K.S.over)toTitle(); }
+    else if(el.ovRes.classList.contains('on')) toTitle();
+    else if(el.ovTitle.classList.contains('on')){ /* stay */ }
+    else { closeAll(); el.ovMenu.classList.add('on'); }
+    return;
+  }
+  if(e.key==='Enter'){ if(el.ovTitle.classList.contains('on')||el.ovRes.classList.contains('on')){ start(); } return; }
+  if(e.key==='r'||e.key==='R'){ start(); return; }
+  if(anyOv) return;
+  if(e.key===' '){ e.preventDefault(); A.resume(); K.wait(); return; }
+  const n=parseInt(e.key,10);
+  if(n>=1&&n<=C['【手札】']){ A.resume(); K.kube(n-1); }
+});
+
+/* URL で debug */
+if(/[?&]debug=1/.test(location.search)) el.dbg.classList.add('on');
+buildDbg(); metaLine(); honkiNote(+el.honki.value); renderLedger();
+})();
+</script>
+
+<script type="module">
+/* ==========================================================================
+   焚べ — 3D舞台（Three.js / primitive幾何 + canvas生成の丸い光のみ）
+   ここが落ちても DOM層だけで遊べる。3Dの担当は3つだけ：
+     ① 熱Float = そのまま発光の強さ    ② 腐葉土 = 実際に積もって炉を持ち上げる
+     ③ 夜Float = 霧と星と月あかりの連続変化
+   three.js は 同階層のローカル版 → cdnjs → jsdelivr → unpkg の順に試す。
+   ========================================================================== */
+const K=window.KUBE;
+let THREE=null;
+for(const u of ['./three.module.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js',
+                'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js',
+                'https://unpkg.com/three@0.160.0/build/three.module.min.js']){
+  try{ THREE=await import(/* @vite-ignore */ u); if(THREE&&THREE.Scene) break; THREE=null; }catch(e){ THREE=null; }
+}
+try{
+if(!THREE) throw new Error('three.js に届かなかった（DOM層のみで続行）');
+const host=document.getElementById('stage');
+const GOLD=0xd4a853;
+
+/* ---- 丸い光（canvas生成＝ファイル0）---- */
+function glowTex(inner,mid){
+  const c=document.createElement('canvas'); c.width=c.height=128; const g=c.getContext('2d');
+  const rg=g.createRadialGradient(64,64,0,64,64,64);
+  rg.addColorStop(0,   'rgba(255,255,255,1)');
+  rg.addColorStop(0.18, inner||'rgba(255,232,178,0.92)');
+  rg.addColorStop(0.48, mid||'rgba(255,148,58,0.30)');
+  rg.addColorStop(1,   'rgba(255,110,30,0)');
+  g.fillStyle=rg; g.fillRect(0,0,128,128);
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t;
+}
+const TEX_EMBER=glowTex();
+const TEX_HALO =glowTex('rgba(255,196,110,0.55)','rgba(255,130,44,0.16)');
+
+const scene=new THREE.Scene();
+scene.fog=new THREE.FogExp2(0x07070a,0.05);
+const cam=new THREE.PerspectiveCamera(46,1,0.1,220);
+
+const rnd=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});
+rnd.setPixelRatio(Math.min(devicePixelRatio,2));
+rnd.toneMapping=THREE.ACESFilmicToneMapping; rnd.toneMappingExposure=0.92;
+rnd.outputColorSpace=THREE.SRGBColorSpace;
+host.appendChild(rnd.domElement);
+let portrait=false;
+function resize(){
+  const w=host.clientWidth||innerWidth, h=host.clientHeight||innerHeight;
+  rnd.setSize(w,h,false); cam.aspect=w/h; portrait=cam.aspect<0.95;
+  cam.fov=portrait?54:46; cam.updateProjectionMatrix();
+}
+addEventListener('resize',resize); resize();
+
+/* ---- 灯り ---- */
+scene.add(new THREE.HemisphereLight(0x2b3a55,0x0b0806,0.20));
+const fireLight=new THREE.PointLight(0xff8a3c,20,34,2); scene.add(fireLight);
+const moon=new THREE.DirectionalLight(0x9fb4e8,0.28); moon.position.set(-6,9,-4); scene.add(moon);
+
+/* ---- 星（夜Floatで現れる）---- */
+const starN=1000, sPos=new Float32Array(starN*3);
+for(let i=0;i<starN;i++){ const r=55+Math.random()*45, t=Math.random()*Math.PI*2, ph=Math.acos(Math.random()*0.85+0.05);
+  sPos[i*3]=r*Math.sin(ph)*Math.cos(t); sPos[i*3+1]=Math.abs(r*Math.cos(ph))*0.75+3; sPos[i*3+2]=r*Math.sin(ph)*Math.sin(t); }
+const stars=new THREE.Points(new THREE.BufferGeometry().setAttribute('position',new THREE.BufferAttribute(sPos,3)),
+  new THREE.PointsMaterial({color:0xcfd8ef,size:0.55,map:TEX_EMBER,transparent:true,opacity:0,
+    depthWrite:false,blending:THREE.AdditiveBlending,sizeAttenuation:true}));
+scene.add(stars);
+
+/* ---- 地 ---- */
+const ground=new THREE.Mesh(new THREE.CircleGeometry(20,64),
+  new THREE.MeshStandardMaterial({color:0x0f0c09,roughness:1,metalness:0}));
+ground.rotation.x=-Math.PI/2; scene.add(ground);
+const ring=new THREE.Mesh(new THREE.RingGeometry(4.55,4.62,80),
+  new THREE.MeshBasicMaterial({color:GOLD,transparent:true,opacity:0.07,side:THREE.DoubleSide}));
+ring.rotation.x=-Math.PI/2; ring.position.y=0.004; scene.add(ring);
+
+/* ---- 腐葉土層（地の上に積もり、炉を押し上げる）---- */
+const DISC_H=0.075;
+const humusG=new THREE.Group(); scene.add(humusG);
+let discs=[];
+function syncHumus(total){
+  const want=Math.min(40,Math.floor(total/16));
+  while(discs.length<want){
+    const i=discs.length;
+    const m=new THREE.Mesh(new THREE.CylinderGeometry(2.62-i*0.028,2.70-i*0.028,DISC_H,6),
+      new THREE.MeshStandardMaterial({color:0x000000,roughness:1,metalness:0}));
+    m.material.color.setHSL(0.10,0.30,0.075+(i%5)*0.011);
+    m.position.y=DISC_H*0.5+i*DISC_H; m.rotation.y=i*0.27; humusG.add(m); discs.push(m);
+  }
+  while(discs.length>want){ const m=discs.pop(); humusG.remove(m); m.geometry.dispose(); m.material.dispose(); }
+  return discs.length*DISC_H;
+}
+
+/* ---- 炉 ---- */
+const hearth=new THREE.Group(); scene.add(hearth);
+const base=new THREE.Mesh(new THREE.CylinderGeometry(1.80,2.10,0.42,6),
+  new THREE.MeshStandardMaterial({color:0x191510,roughness:0.9,metalness:0.2}));
+base.position.y=0.21; hearth.add(base);
+const lip=new THREE.Mesh(new THREE.CylinderGeometry(1.83,1.83,0.055,6),
+  new THREE.MeshStandardMaterial({color:0x4a3a18,emissive:GOLD,emissiveIntensity:0.06,roughness:0.75,metalness:0.15}));
+lip.position.y=0.44; hearth.add(lip);
+const kama=new THREE.Group(); kama.position.y=0.46; hearth.add(kama);
+const kamaMat=new THREE.MeshStandardMaterial({color:0x2e2620,emissive:0x3a1400,emissiveIntensity:0.2,
+  roughness:0.6,metalness:0.6,side:THREE.DoubleSide});
+const kamaMesh=new THREE.Mesh(new THREE.CylinderGeometry(1.34,1.00,0.60,6,1,true),kamaMat);
+kamaMesh.position.y=0.30; kama.add(kamaMesh);
+// 釜の底（炭床）＝黒い穴に見えないように暖色の板を敷く
+const bedMat=new THREE.MeshStandardMaterial({color:0x2a1206,emissive:0xff5a12,emissiveIntensity:0.5,roughness:0.9});
+const bed=new THREE.Mesh(new THREE.CylinderGeometry(1.00,1.00,0.05,6),bedMat);
+bed.position.y=0.03; kama.add(bed);
+
+/* ---- 火 ---- */
+const FN=K.C['【火柱の粒】'];
+const fPos=new Float32Array(FN*3), fVel=new Float32Array(FN*3), fLife=new Float32Array(FN), fSeed=new Float32Array(FN);
+function respawn(i,burst){
+  const a=Math.random()*Math.PI*2, r=Math.random()*(burst?0.42:0.72);
+  fPos[i*3]=Math.cos(a)*r; fPos[i*3+1]=0.10+Math.random()*0.12; fPos[i*3+2]=Math.sin(a)*r;
+  fVel[i*3]=(Math.random()-0.5)*0.28; fVel[i*3+1]=0.85+Math.random()*(burst?2.6:1.05); fVel[i*3+2]=(Math.random()-0.5)*0.28;
+  fLife[i]=0.40+Math.random()*0.58; fSeed[i]=Math.random();
+}
+for(let i=0;i<FN;i++){ respawn(i); fLife[i]*=Math.random(); }
+const fGeo=new THREE.BufferGeometry().setAttribute('position',new THREE.BufferAttribute(fPos,3));
+const fireMat=new THREE.PointsMaterial({color:0xffa754,size:0.22,map:TEX_EMBER,transparent:true,opacity:0.9,
+  blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true});
+const firePts=new THREE.Points(fGeo,fireMat); kama.add(firePts);
+const core=new THREE.Sprite(new THREE.SpriteMaterial({map:TEX_EMBER,color:0xffd79a,transparent:true,
+  opacity:0.8,blending:THREE.AdditiveBlending,depthWrite:false}));
+core.position.y=0.42; core.scale.setScalar(2.0); kama.add(core);
+// 火柱（焚べた瞬間だけ立つ・1本＝H01 モヤッとさせるな）
+const pillar=new THREE.Sprite(new THREE.SpriteMaterial({map:TEX_EMBER,color:0xffc978,transparent:true,
+  opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));
+kama.add(pillar);
+let pillarT=0, pillarPow=0;
+
+/* ---- 種（浮いている・発光＝熱そのもの・寸法＝質量）---- */
+const seeds=[];
+for(let i=0;i<4;i++){
+  const g=new THREE.Group();
+  const box=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),
+    new THREE.MeshStandardMaterial({color:0x2e2415,emissive:0xff6a1e,emissiveIntensity:0.1,roughness:0.85,metalness:0.05,flatShading:true}));
+  const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:TEX_HALO,transparent:true,opacity:0.0,
+    blending:THREE.AdditiveBlending,depthWrite:false}));
+  g.add(box); g.add(halo);
+  g.userData={box,halo,shown:0.001};
+  scene.add(g); seeds.push(g);
+}
+
+/* ---- 事象 ---- */
+K.on('kube',p=>{ pillarT=1; pillarPow=Math.min(1,p.gain*7);
+  for(let i=0;i<FN;i++) if(Math.random()<0.6) respawn(i,true); });
+const fallers=[];
+K.on('cool',p=>{
+  const g=seeds[p.slot]; if(!g) return;
+  const s=0.30+p.seed.mass*0.55;
+  const m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),
+    new THREE.MeshStandardMaterial({color:0x241d10,roughness:1,emissive:0x140c04,emissiveIntensity:0.5,flatShading:true}));
+  m.scale.setScalar(s); m.position.copy(g.position);
+  scene.add(m); fallers.push({m,t:0,y0:g.position.y,tx:(Math.random()-0.5)*3.6,tz:(Math.random()-0.5)*1.8+1.2,s});
+});
+let kamaTilt=0;
+K.on('tilt',()=>{ kamaTilt+=0.15; });
+K.on('reset',()=>{ kamaTilt=0; for(const f of fallers) scene.remove(f.m); fallers.length=0; });
+
+/* ---- ループ ---- */
+let last=performance.now(), camShake=0, humusY=0;
+function frame(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  const step=(window.KUBE_FROZEN&&window.KUBE_FROZEN())?0:dt;
+  const S=K.S;
+  const fire=S?Math.max(0,S.fire):0.5, night=S?S.night:0.12;
+  const f=Math.max(0.03,fire/Math.max(0.2,K.C['【火勢上限】']));
+
+  /* ② 腐葉土が積もって炉が上がる */
+  const hy=syncHumus(K.META.humus+(S?S.humus:0));
+  humusY+=(hy-humusY)*0.08;
+  hearth.position.y=humusY;
+
+  /* ③ 夜 */
+  scene.fog.density=0.026+night*0.050;
+  stars.material.opacity=0.10+night*0.72;
+  stars.rotation.y+=step*0.005;
+  moon.intensity=0.10+night*0.42;
+
+  /* ① 火 */
+  fireLight.position.set(0,humusY+1.35,0);
+  fireLight.intensity=4+f*34+pillarT*30;
+  fireLight.distance=15+f*14;
+  core.scale.setScalar(1.1+f*1.7+pillarT*0.6);
+  core.material.opacity=0.30+f*0.5;
+  fireMat.size=0.13+f*0.16;
+  fireMat.opacity=0.45+f*0.45;
+  bedMat.emissiveIntensity=0.15+f*1.5;
+  kamaMat.emissiveIntensity=0.10+f*0.55;
+
+  const pos=fGeo.attributes.position.array;
+  for(let i=0;i<FN;i++){
+    fLife[i]-=step*(0.95+f*0.5);
+    if(fLife[i]<=0){ respawn(i,pillarT>0.4); continue; }
+    const k=i*3;
+    pos[k]  += fVel[k]*step*(0.6+f);
+    pos[k+1]+= fVel[k+1]*step*(0.5+f*1.4+pillarT*1.2);
+    pos[k+2]+= fVel[k+2]*step*(0.6+f);
+    pos[k]  += Math.sin(now*0.002+fSeed[i]*9)*step*0.22;
+    pos[k+2]+= Math.cos(now*0.0022+fSeed[i]*7)*step*0.22;
+  }
+  fGeo.attributes.position.needsUpdate=true;
+
+  if(pillarT>0){ pillarT=Math.max(0,pillarT-step*2.0);
+    pillar.material.opacity=pillarT*0.42*(0.45+pillarPow);
+    pillar.scale.set(1.1+pillarPow*0.9, 2.6+pillarPow*3.4+(1-pillarT)*1.6, 1);
+    pillar.position.y=0.5+(1-pillarT)*1.9+pillar.scale.y*0.22;
+  } else pillar.material.opacity=0;
+
+  kama.rotation.z += (kamaTilt-kama.rotation.z)*0.06;
+  kama.rotation.x += (kamaTilt*0.42-kama.rotation.x)*0.06;
+
+  /* 種 */
+  const R=portrait?3.20:3.75, SPREAD=portrait?0.360:0.44, ZOFF=portrait?0.60:1.1;
+  if(S) for(let i=0;i<4;i++){
+    const g=seeds[i], d=S.hand[i], ud=g.userData;
+    if(!d){ ud.shown+=(0.001-ud.shown)*0.2; g.scale.setScalar(Math.max(0.001,ud.shown)); ud.halo.material.opacity=0; continue; }
+    const h=Math.max(0,Math.min(1,d.heat));
+    const target=0.42+d.mass*0.80;
+    ud.shown+=(target-ud.shown)*0.14; g.scale.setScalar(ud.shown);
+    const a=(-Math.PI/2)+(i-1.5)*SPREAD;
+    g.position.set(Math.cos(a)*R, humusY+0.80+Math.sin(now*0.0013+i*1.7)*0.08+h*0.10, Math.sin(a)*R+ZOFF);
+    g.rotation.y+=step*(0.12+h*0.45);
+    g.rotation.x=Math.sin(now*0.0009+i)*0.09;
+    const bm=ud.box.material;
+    bm.emissiveIntensity=0.05+Math.pow(h,1.55)*2.0;        // 熱Float = 発光（白飛びさせない）
+    bm.emissive.setHSL(0.040+h*0.052,0.96,0.20+h*0.16);
+    bm.color.setHSL(0.085,0.40,0.055+h*0.045);
+    ud.halo.scale.setScalar(1.5+h*1.1);
+    ud.halo.material.opacity=0.05+h*0.30;
+  }
+
+  /* 落ちた種 → 腐葉土へ平たくなる */
+  for(let i=fallers.length-1;i>=0;i--){
+    const o=fallers[i]; o.t+=step*1.5; const t=Math.min(1,o.t);
+    o.m.position.x += (o.tx-o.m.position.x)*0.08;
+    o.m.position.z += (o.tz-o.m.position.z)*0.08;
+    o.m.position.y = humusY+0.03+(o.y0-humusY)*(1-t)*(1-t);
+    o.m.rotation.y += step*2;
+    const fade=Math.max(0,1-Math.max(0,o.t-1.0)/0.6);
+    o.m.scale.set(o.s*(1+t*0.22)*fade, Math.max(0.02,o.s*(1-t*0.90))*fade, o.s*(1+t*0.22)*fade);
+    if(o.t>1.6){ scene.remove(o.m); o.m.geometry.dispose(); o.m.material.dispose(); fallers.splice(i,1); }
+  }
+
+  /* カメラ（H05 揺れは控えめ）*/
+  const sh=(window.KUBE_SHAKE?window.KUBE_SHAKE():0);
+  camShake+=(sh-camShake)*0.4;
+  const cv=window.KUBE_CAM||{};   // 目線の微調整フック（?debug=1 と併せて構図を詰める用）
+  const dist=cv.dist!==undefined?cv.dist:(portrait?9.6:9.4);
+  const hgt =cv.hgt !==undefined?cv.hgt :(portrait?3.50:3.5);
+  const look=cv.look!==undefined?cv.look:(portrait?-0.60:1.25);
+  cam.position.set(
+    Math.sin(now*0.00019)*0.5+(Math.random()-0.5)*camShake*0.20,
+    humusY+hgt+Math.sin(now*0.00016)*0.16+(Math.random()-0.5)*camShake*0.14,
+    dist-night*0.7);
+  cam.lookAt(0,humusY+look+f*0.25,0.35);
+
+  rnd.render(scene,cam);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+document.getElementById('fallbackbg').style.display='none';
+window.KUBE_STAGE_OK=true;
+}catch(e){ console.warn('3D舞台は出ない:',e&&e.message); window.KUBE_STAGE_OK=false; }
+</script>
+</body>
+</html>
