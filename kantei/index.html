@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>還蹄 — 見た目を捨てても、踝の骨が血をおぼえている | 人類の素材図鑑 3D教科書</title>
+<meta name="description" content="ブタとクジラは同じ仲間。見た目の距離と血縁の距離という二本のFloat軸を並べると、順位が入れ替わる。踝の距骨ひとつが、失われた蹄の記憶を保存している3D教科書。#全人類UX改善計画">
+<meta property="og:title" content="還蹄（カンテイ）— 見た目を捨てても、踝の骨が血をおぼえている">
+<meta property="og:description" content="陸の獣と海の獣を分けた線を、骨ひとつが横切っていく。見た目の距離と血縁の距離、二軸の乖離に触れる3D教科書。">
+<meta property="og:url" content="https://osakenpiro.github.io/kantei/">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://osakenpiro.github.io/kantei/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="還蹄（カンテイ）— 見た目を捨てても、踝の骨が血をおぼえている">
+<meta name="twitter:description" content="見た目で引いた線は、血縁の線と、たいてい重ならない。人類の素材図鑑 3D教科書 生物編">
+<meta name="twitter:image" content="https://osakenpiro.github.io/kantei/og.png">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body { height:100%; background:#06060a; font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic Medium",system-ui,sans-serif; overflow-x:hidden; }
+  :root{
+    --void:#06060a; --void-deep:#020203; --surface:#131119; --surface-hi:#1a1722;
+    --gold:#d4a853; --gold-soft:rgba(212,168,83,.12); --gold-glow:rgba(212,168,83,.28); --gold-edge:rgba(212,168,83,.45);
+    --fg-1:#e8e0d0; --fg-2:#b8b0a0; --fg-3:#807868; --dim:#5a5448;
+    --border:rgba(200,184,160,.08); --border-hover:rgba(212,168,83,.22);
+    --serif:"Cormorant Garamond","游明朝体","Yu Mincho",YuMincho,"Hiragino Mincho ProN",serif;
+    --mono:"JetBrains Mono","SF Mono",Menlo,Consolas,monospace;
+  }
+  a{color:var(--gold);text-decoration:none}
+
+  #sky{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .star{position:absolute;border-radius:50%;background:#e8e0d0;animation:tw 4s ease-in-out infinite}
+  .star.g{background:var(--gold)}
+  @keyframes tw{0%,100%{opacity:.12}50%{opacity:.75}}
+
+  main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:44px 20px 90px}
+
+  /* ①表題プレート */
+  .kanban{position:relative;text-align:center;margin:10px auto 0;max-width:640px}
+  .plate{position:relative;display:inline-block;background:var(--surface);border:1px solid var(--gold-edge);
+    border-radius:10px;padding:30px 42px 24px;box-shadow:0 14px 44px rgba(0,0,0,.55)}
+  .rivet{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--gold);opacity:.75;box-shadow:0 0 6px var(--gold-glow)}
+  .rivet.tl{top:9px;left:9px}.rivet.tr{top:9px;right:9px}.rivet.bl{bottom:9px;left:9px}.rivet.br{bottom:9px;right:9px}
+  .eyebrow{font-size:.7rem;letter-spacing:.35em;color:var(--fg-3);text-transform:uppercase;margin-bottom:10px}
+  .eyebrow b{color:var(--gold);font-weight:600}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(1.7rem,5.4vw,2.5rem);letter-spacing:.05em;line-height:1.3;color:var(--fg-1)}
+  h1 small{display:block;font-size:.42em;letter-spacing:.2em;color:var(--fg-3);margin-top:10px;font-family:-apple-system,sans-serif;font-weight:400}
+  .triname{margin-top:16px;font-size:.78rem;color:var(--fg-3);letter-spacing:.08em;line-height:2}
+  .triname b{color:var(--gold);font-weight:500}
+
+  /* ②3Dステージ */
+  .stage-wrap{position:relative;max-width:640px;margin:34px auto 0;border:1px solid var(--border);border-radius:16px 16px 0 0;
+    background:radial-gradient(circle at 50% 40%,rgba(212,168,83,.06),transparent 62%),var(--void-deep);
+    overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);border-bottom:none}
+  #stage{width:100%;height:min(58vw,420px);display:block;touch-action:none;cursor:grab}
+  #stage:active{cursor:grabbing}
+  .stage-hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);font-size:.72rem;letter-spacing:.1em;
+    color:var(--fg-3);pointer-events:none;transition:opacity .6s;background:rgba(6,6,10,.5);padding:4px 12px;border-radius:999px}
+  .stage-badge{position:absolute;top:14px;right:14px;font-size:.66rem;letter-spacing:.15em;color:var(--gold);
+    border:1px solid var(--gold-edge);border-radius:999px;padding:3px 11px;background:rgba(6,6,10,.55)}
+  .stage-verdict{position:absolute;top:14px;left:14px;font-size:.72rem;letter-spacing:.06em;color:var(--fg-1);
+    background:rgba(6,6,10,.62);border:1px solid var(--border-hover);border-radius:8px;padding:6px 12px;max-width:62%;line-height:1.6}
+  .stage-verdict b{color:var(--gold);font-weight:600}
+
+  /* 操作盤 */
+  .console{max-width:640px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-top:1px solid var(--border-hover);
+    border-radius:0 0 16px 16px;padding:22px 26px 24px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .ctl{margin-bottom:16px}
+  .ctl-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:10px}
+  .ctl-head .lab{font-size:.78rem;color:var(--fg-2);letter-spacing:.08em}
+  .ctl-head .lab small{color:var(--fg-3);font-size:.86em;letter-spacing:.02em}
+  .ctl-head .val{font-family:var(--mono);font-size:.9rem;color:var(--gold)}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:999px;
+    background:linear-gradient(90deg,rgba(212,168,83,.5),rgba(212,168,83,.14));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;
+    background:var(--gold);cursor:pointer;box-shadow:0 0 10px var(--gold-glow);border:none}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--gold);cursor:pointer;border:none}
+  .ticks{position:relative;height:14px;margin-top:6px;font-size:.62rem;color:var(--dim);letter-spacing:.04em}
+  .ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+  .presets{display:flex;flex-wrap:wrap;gap:8px;border-top:1px dashed var(--border);padding-top:15px}
+  .presets .pl{font-size:.68rem;color:var(--fg-3);letter-spacing:.15em;width:100%;margin-bottom:2px}
+  .preset{background:transparent;border:1px solid var(--border-hover);color:var(--fg-2);border-radius:999px;
+    padding:5px 13px;font-size:.76rem;cursor:pointer;font-family:inherit;transition:.18s;letter-spacing:.03em}
+  .preset:hover{border-color:var(--gold-edge);color:var(--fg-1);background:var(--gold-soft)}
+  .preset.on{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+  .preset .r{font-family:var(--mono);font-size:.86em;color:var(--fg-3);margin-left:6px}
+  .preset.on .r{color:var(--gold)}
+  .bonebtn{display:block;width:100%;margin-top:14px;background:transparent;border:1px solid var(--gold-edge);color:var(--gold);
+    border-radius:10px;padding:11px 14px;font-size:.84rem;letter-spacing:.14em;cursor:pointer;font-family:inherit;transition:.2s}
+  .bonebtn:hover{background:var(--gold-soft)}
+  .bonebtn.on{background:var(--gold-soft);border-color:var(--gold);box-shadow:0 0 18px rgba(212,168,83,.16)}
+  .bonebtn small{display:block;margin-top:5px;font-size:.76em;letter-spacing:.02em;color:var(--fg-3)}
+
+  .kejime{display:flex;align-items:center;gap:14px;margin:56px 0 28px}
+  .kejime::before,.kejime::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-edge),transparent)}
+  .kejime span{color:var(--gold);font-size:.76rem;letter-spacing:.32em;white-space:nowrap}
+
+  /* 二軸マップ */
+  .mapblock{max-width:640px;margin:0 auto 22px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px 22px 20px}
+  .mapblock h3{font-family:var(--serif);font-size:1.05rem;color:var(--gold);font-weight:600;letter-spacing:.04em;margin-bottom:6px}
+  .mapblock .sub{font-size:.76rem;color:var(--fg-3);line-height:1.85;margin-bottom:16px}
+  #map{width:100%;height:auto;display:block}
+  .maplegend{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;font-size:.72rem;color:var(--fg-3);letter-spacing:.04em}
+  .maplegend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+  .rankwrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+  .rankwrap .rk{border:1px solid var(--border);border-radius:10px;padding:14px 16px;background:var(--void-deep)}
+  .rankwrap .rk .cap{font-size:.66rem;letter-spacing:.14em;margin-bottom:9px}
+  .rankwrap .rk.look .cap{color:var(--fg-3)}
+  .rankwrap .rk.blood .cap{color:var(--gold)}
+  .rankwrap .rk ol{list-style:none;counter-reset:r}
+  .rankwrap .rk li{counter-increment:r;font-size:.8rem;color:var(--fg-2);line-height:2;display:flex;gap:8px;align-items:baseline}
+  .rankwrap .rk li::before{content:counter(r);font-family:var(--mono);font-size:.78em;color:var(--dim);min-width:1em}
+  .rankwrap .rk li.hit{color:var(--gold)}
+  .rankwrap .rk li .n{font-family:var(--mono);font-size:.86em;color:var(--fg-3);margin-left:auto}
+  @media(max-width:560px){.rankwrap{grid-template-columns:1fr}}
+
+  /* ③本文 */
+  .lesson{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 30px;margin-bottom:18px}
+  .lesson h2{font-family:var(--serif);font-size:1.15rem;color:var(--gold);font-weight:600;letter-spacing:.03em;margin-bottom:14px;
+    display:flex;align-items:baseline;gap:10px}
+  .lesson h2 .no{font-family:var(--mono);font-size:.8rem;color:var(--fg-3);letter-spacing:.1em}
+  .lesson p{font-size:.94rem;color:var(--fg-2);line-height:1.95;margin-bottom:12px}
+  .lesson p:last-child{margin-bottom:0}
+  .lesson b{color:var(--fg-1);font-weight:600}
+  .lesson .gold-word{color:var(--gold);font-weight:500}
+  .lesson .ruled{border-left:2px solid var(--gold-edge);padding-left:16px;margin:16px 0;color:var(--fg-2);font-size:.9rem;line-height:1.9}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+  .twocol .box{border:1px solid var(--border);border-radius:10px;padding:16px 18px;background:var(--void-deep)}
+  .twocol .box .cap{font-size:.66rem;letter-spacing:.14em;color:var(--fg-3);margin-bottom:8px}
+  .twocol .box.old .cap{color:var(--dim)}
+  .twocol .box.new .cap{color:var(--gold)}
+  .twocol .box p{font-size:.84rem;line-height:1.85;margin:0}
+  @media(max-width:560px){.twocol{grid-template-columns:1fr}}
+
+  .quiz{border:1px dashed var(--gold-edge);border-radius:12px;background:var(--gold-soft);padding:20px 24px;margin:0 auto 30px;max-width:640px}
+  .quiz .qlabel{font-size:.68rem;letter-spacing:.3em;color:var(--gold);margin-bottom:8px}
+  .quiz p{font-size:.94rem;color:var(--fg-1);line-height:1.85}
+  .quiz .ans{margin-top:10px;font-size:.84rem;color:var(--fg-3)}
+  .quiz .ans b{color:var(--gold)}
+
+  .hirakido{max-width:640px;margin:0 auto 26px;border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden}
+  .hirakido summary{cursor:pointer;list-style:none;padding:16px 22px;font-size:.82rem;color:var(--fg-2);letter-spacing:.08em}
+  .hirakido summary::-webkit-details-marker{display:none}
+  .hirakido summary .dia{color:var(--gold);margin-right:9px}
+  .hd-body{padding:2px 24px 22px;font-size:.86rem;color:var(--fg-3);line-height:1.95;border-top:1px dashed var(--border)}
+  .hd-body b{color:var(--fg-2)}
+  .hd-body ul{margin:12px 0 0 2px;list-style:none}
+  .hd-body li{margin-bottom:10px;padding-left:16px;position:relative}
+  .hd-body li::before{content:"—";position:absolute;left:0;color:var(--dim)}
+
+  .shime{max-width:640px;margin:40px auto 0;text-align:center;font-family:var(--serif);font-size:clamp(1.05rem,3.6vw,1.4rem);
+    color:var(--fg-2);letter-spacing:.06em;line-height:2}
+  .shime .em{color:var(--gold);display:block;margin-top:8px}
+
+  footer{position:relative;z-index:1;text-align:center;padding:40px 20px 60px;font-size:.72rem;color:var(--dim);letter-spacing:.1em}
+  footer .foot-line{margin-top:9px;font-size:.94em;letter-spacing:.04em;line-height:1.8;color:var(--dim)}
+  footer .series{display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap}
+  footer .series a{color:var(--fg-3);border-bottom:1px solid var(--border-hover);padding-bottom:1px}
+  footer .series a:hover{color:var(--gold);border-color:var(--gold-edge)}
+  footer .series .here{color:var(--gold)}
+  footer .series .sep{color:var(--dim)}
+
+  @media(max-width:560px){
+    .plate{padding:24px 22px 20px}
+    .lesson{padding:22px 20px}
+    .mapblock{padding:20px 16px 16px}
+    .stage-verdict{max-width:68%;font-size:.66rem}
+  }
+</style>
+</head>
+<body>
+<div id="sky"></div>
+
+<main>
+
+  <!-- ①表題 -->
+  <div class="kanban">
+    <div class="plate">
+      <span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>
+      <div class="eyebrow">人類の素材図鑑 <b>3D教科書</b> · 生物編</div>
+      <h1>還蹄<small>カンテイ — 見た目を捨てても、踝の骨が血をおぼえている</small></h1>
+      <div class="triname">
+        音韻: <b>艦艇</b>と同音、陸の獣が海の乗り物になる &nbsp;/&nbsp; 意味: 蹄をもつ祖先が海へ<b>還った</b> &nbsp;/&nbsp; 構造: <b>徴の保存</b>×<b>陸→海の運動</b>の二層
+      </div>
+    </div>
+  </div>
+
+  <!-- ②3Dステージ -->
+  <div class="stage-wrap">
+    <canvas id="stage"></canvas>
+    <div class="stage-badge" id="badge">陸 ⇔ 海</div>
+    <div class="stage-verdict" id="verdict">体は<b>連続的に</b>変わる。<br>踝の骨は<b>変わらない</b>。</div>
+    <div class="stage-hint" id="hint">ドラッグで回す</div>
+  </div>
+
+  <div class="console">
+    <div class="ctl">
+      <div class="ctl-head">
+        <span class="lab">体型（陸 ⇔ 海）<small>／見た目のFloat</small></span>
+        <span class="val" id="mval">0.00</span>
+      </div>
+      <input type="range" id="morph" min="0" max="1" step="0.001" value="0">
+      <div class="ticks">
+        <span style="left:2%">陸</span>
+        <span style="left:50%">中間</span>
+        <span style="left:98%">海</span>
+      </div>
+    </div>
+
+    <div class="presets">
+      <span class="pl">標本</span>
+      <button class="preset on" data-m="0">ブタ<span class="r">0.00</span></button>
+      <button class="preset" data-m="0.42">カバ<span class="r">0.42</span></button>
+      <button class="preset" data-m="1">クジラ<span class="r">1.00</span></button>
+    </div>
+
+    <button class="bonebtn" id="bonebtn">骨で見る
+      <small>体を消して、踝の距骨ひとつを並べる</small>
+    </button>
+  </div>
+
+  <div class="kejime"><span>二 軸 の 乖 離</span></div>
+
+  <!-- 二軸マップ -->
+  <div class="mapblock">
+    <h3>同じ三頭を、二本のものさしで測る</h3>
+    <div class="sub">
+      点は<b>組み合わせ</b>（ブタ–カバ／カバ–クジラ／ブタ–クジラ）。横軸が<b>見た目の距離</b>、縦軸が<b>血縁の距離</b>。
+      二軸が同じ順位を返すなら、点は右上がりの一直線に並ぶはずだ。並ばない。
+    </div>
+    <svg id="map" viewBox="0 0 640 380" role="img" aria-label="形態距離と系統距離の二軸マップ"></svg>
+    <div class="maplegend">
+      <span><i style="background:#d4a853"></i>カバ–クジラ</span>
+      <span><i style="background:#807868"></i>ブタ–カバ</span>
+      <span><i style="background:#5a5448"></i>ブタ–クジラ</span>
+    </div>
+
+    <div class="rankwrap">
+      <div class="rk look">
+        <div class="cap">見た目で近い順</div>
+        <ol>
+          <li>ブタ–カバ<span class="n">0.55</span></li>
+          <li>カバ–クジラ<span class="n">1.15</span></li>
+          <li>ブタ–クジラ<span class="n">1.49</span></li>
+        </ol>
+      </div>
+      <div class="rk blood">
+        <div class="cap">血縁で近い順</div>
+        <ol>
+          <li class="hit">カバ–クジラ<span class="n">約55</span></li>
+          <li>ブタ–カバ<span class="n">約58</span></li>
+          <li>ブタ–クジラ<span class="n">約58</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz">
+    <div class="qlabel">問</div>
+    <p>カバは、ブタとクジラの<b>どちらに近い</b>か。</p>
+    <div class="ans">見た目で答えるなら<b>ブタ</b>。血縁で答えるなら<b>クジラ</b>。──問いが悪いのではなく、<b>「近い」が二つある</b>。</div>
+  </div>
+
+  <div class="kejime"><span>本 文</span></div>
+
+  <!-- ③本文 -->
+  <div class="lesson">
+    <h2><span class="no">§1</span>陸の獣と海の獣を分けた線</h2>
+    <p>
+      ブタは陸にいて、四本の脚で立ち、蹄をもつ。クジラは海にいて、脚がなく、尾で泳ぐ。
+      見ればわかる。<b>別のもの</b>だ。──この「見ればわかる」が、ここでの<span class="gold-word">Boolean</span>にあたる。
+      陸の獣か、海の獣か。0か、1か。
+    </p>
+    <p>
+      ところが分子系統の研究は、この線をまたいで別の線を引いた。クジラは、偶蹄類（蹄が偶数に割れた獣の仲間）の<b>内側</b>にいる。
+      現生の動物のなかでクジラにもっとも近いのは<b>カバ</b>とされ、この二つはまとめて Whippomorpha（カバ＋クジラ）として扱われる。
+      そのため今日では、偶蹄目とクジラをひとつにした<b>鯨偶蹄目（Cetartiodactyla）</b>という枠が使われる。
+    </p>
+    <div class="ruled">
+      つまりカバは、見た目ではブタの隣にいるのに、血縁ではクジラの隣にいる。<br>
+      同じ一頭が、ものさしを替えると<b>席を移す</b>。
+    </div>
+  </div>
+
+  <div class="lesson">
+    <h2><span class="no">§2</span>二本のものさしは、同じ順位を返さない</h2>
+    <p>
+      上のマップで、横軸は<b>見た目の距離</b>、縦軸は<b>血縁の距離</b>だ。
+      血縁の距離には、共通祖先まで何年さかのぼるかという目安を使った。分子時計による推定では、
+      クジラとカバが分かれたのは<b>およそ5,400万〜5,500万年前</b>、
+      ブタの仲間（イノシシ亜目）がそれ以外の系統と分かれたのは<b>およそ5,800万年前</b>とされる
+      （鯨偶蹄目そのものの起源はおよそ6,700万年前・白亜紀と古第三紀の境あたり）。
+    </p>
+    <p>
+      見た目で測ればブタ–カバがいちばん近い。血縁で測ればカバ–クジラがいちばん近い。
+      <b>一位が入れ替わる。</b>片方の軸で「近い」と言えることは、もう片方で「近い」ことを、まったく保証しない。
+    </p>
+    <div class="twocol">
+      <div class="box old">
+        <div class="cap">Boolean の読み</div>
+        <p>陸の獣／海の獣。似ているか、似ていないか。一本の線が、世界をふたつに割る。</p>
+      </div>
+      <div class="box new">
+        <div class="cap">Float の読み</div>
+        <p>見た目の距離と、血縁の距離。二本の連続した軸。<b>軸が二本ある時点で、順位は一つに決まらない。</b></p>
+      </div>
+    </div>
+    <p>
+      なおこの教科書の横軸（見た目の距離）は、四肢の長さ・体の紡錘度・尾の推進器化・体の大きさという四つの値を仮に置いて、
+      機械的に距離を出した<b>図示用の値</b>であり、学術的な形態距離の測定値ではない。
+      縦軸（分岐年代）だけが、公開された推定値にもとづく<b>目安</b>だ。
+    </p>
+  </div>
+
+  <div class="lesson">
+    <h2><span class="no">§3</span>踝の骨ひとつが、線を横切る</h2>
+    <p>
+      では、見た目がこれほど開いてしまった相手を、何を徴に「同じ仲間」と言えるのか。
+      よく挙げられるのが、踝にある<b>距骨（きょこつ・astragalus）</b>ひとつの形だ。
+    </p>
+    <p>
+      偶蹄類の距骨は、両端が<b>滑車のようにくびれている</b>。いわゆる<span class="gold-word">二重滑車（double-pulley）</span>で、
+      骨の上側だけでなく下側でも曲がることができる。
+      多くの哺乳類の距骨は上に滑車がひとつ、下は平ら──この形をもつのは偶蹄類だけとされ、そのため化石の同定に効く。
+    </p>
+    <p>
+      そして2001年、初期のクジラの足首の骨が報告された。パキケタス、イクチオレステス、ロドケタス──
+      これら初期クジラの距骨に、<b>同じ二重滑車が残っていた</b>。
+      海へ移り、脚を失っていく途中の獣が、踝に蹄の親戚である証しを持ち歩いていた。
+    </p>
+    <div class="ruled">
+      体は連続的に変わってよい。<br>
+      変わらなかった一個の骨が、<b>どこから来たか</b>を保存している。
+    </div>
+    <p>
+      これは腐葉土の話でもある。積もったものを劣化させず、栄養層として保つ。
+      失われた蹄そのものではなく、<b>蹄をもっていた頃の関節の形</b>が、体の設計が総取り替えされた後まで残った。
+    </p>
+  </div>
+
+  <details class="hirakido">
+    <summary><span class="dia">◆</span>この教材の留保（設計メモ）</summary>
+    <div class="hd-body">
+      「ブタとクジラは同じ仲間」は、そのままだと誤読を招く。以下は断定を避けるべき点。
+      <ul>
+        <li><b>祖先ではなく、いとこ</b>：ブタがクジラになったのではない。共通祖先から分かれた別々の枝であり、現生のブタもカバもクジラも、それぞれ枝の先端にいる。</li>
+        <li><b>横軸は図示用</b>：形態距離は本ページが体型パラメータ4つから機械的に算出した模式値で、実測値でも学術的指標でもない。二軸の乖離という<b>構造</b>を見せるための足場。</li>
+        <li><b>縦軸は推定であり幅がある</b>：分岐年代は解析手法・較正・データセットで揺れる。カバ–クジラは約54〜55 Ma、イノシシ亜目の分岐は約58 Ma、鯨偶蹄目の起源は約67 Maという<b>目安</b>として置いた。深い節ほど推定が不安定になることは、この分野自身が指摘している。</li>
+        <li><b>3Dは模式</b>：ブタ・カバ・クジラの体も距骨も、box と cylinder だけで組んだ<b>模式形状</b>であり、解剖学的な再現ではない。距骨は「両端がくびれている」という形質の要点だけを写している。</li>
+        <li><b>徴が一つで決まるわけではない</b>：距骨は強い形質だが、系統の結論は分子データ・レトロポゾン挿入・化石など複数の証拠が重なって支えられている。骨ひとつで決まったという話にしない。</li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="shime">見た目で引いた線は、<span class="em">血縁の線と、たいてい重ならない。</span></div>
+
+</main>
+
+<footer>
+  人類の素材図鑑 3D教科書 生物編 「還蹄」 / osakenpiro · Visionium
+  <div class="foot-line series">
+    <a href="https://osakenpiro.github.io/kokuyouhen/">No.001 黒曜片</a><span class="sep">·</span><a href="https://osakenpiro.github.io/gosei/">No.002 護錆</a><span class="sep">·</span><span class="here">還蹄</span>
+  </div>
+  <div class="foot-line">
+    系統・分岐年代は公開された分子系統研究の推定値にもとづく目安。距骨の二重滑車と初期クジラの報告は2001年の足根骨研究による。3D形状とFloat値は模式であり実測値ではない。
+  </div>
+  <div class="foot-line">#全人類UX改善計画</div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- 星空 ---------- */
+  var sky = document.getElementById("sky");
+  for (var i = 0; i < 70; i++) {
+    var s = document.createElement("div");
+    s.className = "star" + (Math.random() < 0.16 ? " g" : "");
+    var sz = (Math.random() * 1.8 + 0.6).toFixed(2);
+    s.style.width = sz + "px"; s.style.height = sz + "px";
+    s.style.left = (Math.random() * 100).toFixed(2) + "%";
+    s.style.top = (Math.random() * 100).toFixed(2) + "%";
+    s.style.animationDelay = (Math.random() * 4).toFixed(2) + "s";
+    sky.appendChild(s);
+  }
+
+  /* ---------- 標本パラメータ（図示用・実測値ではない） ----------
+     limb=四肢の長さ / fusi=体の紡錘度 / fluke=尾の推進器化 / size=体の大きさ
+     形態距離はこの4次元のユークリッド距離。学術指標ではなく、二軸の乖離を見せる足場。 */
+  var TAXA = {
+    pig:   { name:"ブタ",   m:0.00, limb:0.62, fusi:0.28, fluke:0.02, size:0.30 },
+    hippo: { name:"カバ",   m:0.42, limb:0.30, fusi:0.42, fluke:0.05, size:0.72 },
+    whale: { name:"クジラ", m:1.00, limb:0.02, fusi:0.95, fluke:1.00, size:0.98 }
+  };
+  function morphDist(a, b) {
+    var d0 = a.limb - b.limb, d1 = a.fusi - b.fusi, d2 = a.fluke - b.fluke, d3 = a.size - b.size;
+    return Math.sqrt(d0*d0 + d1*d1 + d2*d2 + d3*d3);
+  }
+  /* 系統距離＝共通祖先までの推定年代(Ma)。公開推定にもとづく目安。 */
+  var PAIRS = [
+    { k:"hw", label:"カバ–クジラ", a:TAXA.hippo, b:TAXA.whale, ma:55, color:"#d4a853" },
+    { k:"ph", label:"ブタ–カバ",   a:TAXA.pig,   b:TAXA.hippo, ma:58, color:"#807868" },
+    { k:"pw", label:"ブタ–クジラ", a:TAXA.pig,   b:TAXA.whale, ma:58, color:"#5a5448" }
+  ];
+  PAIRS.forEach(function(p){ p.md = morphDist(p.a, p.b); });
+
+  /* ---------- Three.js ---------- */
+  var canvas = document.getElementById("stage");
+  var wrap = canvas.parentElement;
+  var scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x020203, 0.038);
+  var camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+  camera.position.set(0, 0.7, 8.8);
+  camera.lookAt(0, 0, 0);
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+  function resize() {
+    var w = wrap.clientWidth;
+    var cssH = parseFloat(getComputedStyle(canvas).height) || Math.min(w * 0.58, 420);
+    renderer.setSize(w, cssH, false);
+    camera.aspect = w / cssH; camera.updateProjectionMatrix();
+  }
+
+  /* ライティング: 金の主光源＋中性フィル＋金リム。色相は金と無彩色のみ（設計正典）。
+     体は横長になったので、点光源1つでは左端が闇に沈む（v0実描画で確認）→
+     キーを中央寄りへ、フィルを左へ強めに、さらに全体を起こす方向指向光を足した。 */
+  scene.add(new THREE.AmbientLight(0x3a3a46, 1.0));
+  var goldKey = new THREE.PointLight(0xd4a853, 2.1, 34, 2);
+  goldKey.position.set(1.4, 3.0, 4.4); scene.add(goldKey);
+  var neutralFill = new THREE.PointLight(0xc8ccd4, 0.95, 34, 2);
+  neutralFill.position.set(-4.2, -0.4, 3.4); scene.add(neutralFill);
+  var goldRim = new THREE.PointLight(0xd4a853, 1.3, 30, 2);
+  goldRim.position.set(-2.6, 2.2, -4.0); scene.add(goldRim);
+  var wash = new THREE.DirectionalLight(0xb0b6c0, 0.42);
+  wash.position.set(0.4, 1.0, 1.0); scene.add(wash);
+
+  var rig = new THREE.Group(); scene.add(rig);
+
+  /* envMap無し環境では高metalnessが黒く沈む（護錆で実証）。低metalness＋中roughness。 */
+  var bodyMat = new THREE.MeshStandardMaterial({
+    color: 0x322d3f, metalness: 0.08, roughness: 0.52, flatShading: true,
+    transparent: true, opacity: 1.0
+  });
+  var boneMat = new THREE.MeshStandardMaterial({
+    color: 0xd4a853, metalness: 0.14, roughness: 0.38, flatShading: false,
+    transparent: true, opacity: 1.0
+  });
+  /* 比較用（多くの哺乳類）は無彩色の鈍色。金と明度が近いと対比が消えるため暗めに置く。 */
+  var boneDimMat = new THREE.MeshStandardMaterial({
+    color: 0x4a4740, metalness: 0.06, roughness: 0.68, flatShading: false,
+    transparent: true, opacity: 1.0
+  });
+
+  /* ---------- 体（primitive幾何のみ: box + cylinder） ----------
+     胴は Z 方向に並べた薄いシリンダーのスライス。半径プロファイルを morph で補間する。 */
+  var bodyGroup = new THREE.Group();
+  bodyGroup.position.x = -1.85;
+  rig.add(bodyGroup);
+
+  var SLICES = 16, BODY_LEN = 3.2;
+  var sliceMeshes = [];
+  (function buildSlices(){
+    var segH = BODY_LEN / SLICES;
+    for (var k = 0; k < SLICES; k++) {
+      var g = new THREE.CylinderGeometry(1, 1, segH, 14, 1, false);
+      var mesh = new THREE.Mesh(g, bodyMat);
+      mesh.rotation.x = Math.PI / 2;                       // 軸を Z へ倒す
+      mesh.position.z = -BODY_LEN/2 + segH*(k + 0.5);
+      bodyGroup.add(mesh);
+      sliceMeshes.push(mesh);
+    }
+  })();
+
+  /* 四肢: 4本のシリンダー */
+  var limbs = [];
+  (function buildLimbs(){
+    var sign = [[-1,-1],[1,-1],[-1,1],[1,1]];  // [x, z]
+    for (var k = 0; k < 4; k++) {
+      var g = new THREE.CylinderGeometry(0.105, 0.078, 1.0, 10, 1, false);
+      g.translate(0, -0.5, 0);                             // 上端を原点に＝上から生やす
+      var mesh = new THREE.Mesh(g, bodyMat);
+      mesh.position.set(sign[k][0] * 0.30, -0.28, sign[k][1] * 0.85);
+      bodyGroup.add(mesh);
+      limbs.push(mesh);
+    }
+  })();
+
+  /* 尾びれ: 2枚の平たい box（水平＝クジラ型） */
+  var flukes = [];
+  (function buildFlukes(){
+    for (var k = 0; k < 2; k++) {
+      var g = new THREE.BoxGeometry(0.60, 0.045, 0.34);
+      g.translate((k === 0 ? -0.30 : 0.30), 0, 0);
+      var mesh = new THREE.Mesh(g, bodyMat);
+      mesh.position.set(0, 0, BODY_LEN/2 + 0.10);
+      mesh.rotation.z = (k === 0 ? 0.10 : -0.10);
+      bodyGroup.add(mesh);
+      flukes.push(mesh);
+    }
+  })();
+
+  /* 頭部: 前方(-Z)へ伸びる先細りシリンダー。
+     陸型＝長い吻／海型＝短く鈍いメロン。これが無いと三頭が同じ樽に見える（v0で実描画確認）。 */
+  var head = (function buildHead(){
+    var g = new THREE.CylinderGeometry(0.15, 0.32, 0.55, 14, 1, false);
+    g.rotateX(-Math.PI / 2);      // 局所+Y → 世界-Z（前方）／細い側が前
+    g.translate(0, 0, -0.275);    // 基部を原点へ
+    var mesh = new THREE.Mesh(g, bodyMat);
+    mesh.position.z = -BODY_LEN / 2 + 0.06;
+    bodyGroup.add(mesh);
+    return mesh;
+  })();
+
+  /* ---------- 距骨（二重滑車）: box + cylinder のみ ----------
+     体幹の直方体の両端に、溝で隔てた2本のローラー＝滑車を付ける。
+     doublePulley=false なら遠位端を平らな板にする（多くの哺乳類の模式）。 */
+  function buildAstragalus(doublePulley, mat) {
+    var g = new THREE.Group();
+
+    var core = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.34, 0.42), mat);
+    g.add(core);
+
+    function roller(zPos) {
+      var sub = new THREE.Group();
+      [-0.13, 0.13].forEach(function(xo){
+        var c = new THREE.Mesh(new THREE.CylinderGeometry(0.20, 0.20, 0.19, 22, 1, false), mat);
+        c.rotation.z = Math.PI / 2;     // 軸を X へ
+        c.position.set(xo, 0, zPos);
+        sub.add(c);
+      });
+      return sub;
+    }
+    /* 近位端（上）の滑車は全ての哺乳類がもつ */
+    g.add(roller(-0.28));
+    if (doublePulley) {
+      /* 遠位端（下）にも滑車 ＝ 偶蹄類の徴 */
+      g.add(roller(0.28));
+    } else {
+      /* 平らな底面 */
+      var flat = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.30, 0.20), mat);
+      flat.position.set(0, 0, 0.30);
+      g.add(flat);
+    }
+    return g;
+  }
+
+  var boneGroup = new THREE.Group();
+  boneGroup.position.x = 2.55;
+  rig.add(boneGroup);
+
+  var astra = buildAstragalus(true, boneMat);
+  boneGroup.add(astra);
+
+  /* 比較用: 多くの哺乳類の模式（骨モードでのみ出す） */
+  var compareGroup = new THREE.Group();
+  compareGroup.position.set(1.55, 0, 0);
+  compareGroup.visible = false;
+  rig.add(compareGroup);
+  var astraSingle = buildAstragalus(false, boneDimMat);
+  compareGroup.add(astraSingle);
+
+  /* ---------- 形態プロファイル ---------- */
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  /* m: 0=ブタ / 0.42=カバ / 1=クジラ の連続補間 */
+  function traitsAt(m) {
+    var A, B, t;
+    if (m <= TAXA.hippo.m) { A = TAXA.pig;   B = TAXA.hippo; t = m / TAXA.hippo.m; }
+    else                   { A = TAXA.hippo; B = TAXA.whale; t = (m - TAXA.hippo.m) / (1 - TAXA.hippo.m); }
+    return {
+      limb:  lerp(A.limb,  B.limb,  t),
+      fusi:  lerp(A.fusi,  B.fusi,  t),
+      fluke: lerp(A.fluke, B.fluke, t),
+      size:  lerp(A.size,  B.size,  t)
+    };
+  }
+
+  /* 胴の半径プロファイル: u∈[0,1]（頭→尾）
+     陸型＝ずんぐりした樽、海型＝紡錘（前後がすぼまる） */
+  function radiusAt(u, tr) {
+    var barrel = 0.34 + 0.10 * Math.sin(Math.PI * Math.min(1, Math.max(0, (u - 0.06) / 0.88)));
+    var spindle = 0.40 * Math.pow(Math.sin(Math.PI * Math.min(1, Math.max(0, u))), 0.62);
+    var r = lerp(barrel, spindle, tr.fusi);
+    /* 頭側を少し細く */
+    if (u < 0.12) r *= lerp(0.72, 0.58, tr.fusi);
+    /* 尾側を絞る（海型ほど強く） */
+    if (u > 0.86) r *= lerp(0.68, 0.24, tr.fusi);
+    /* 端で半径が 0 に潰れると鼻先が針金になる（OG生成時に露見）。下限を張る。 */
+    return Math.max(r, 0.085) * lerp(0.86, 1.22, tr.size);
+  }
+
+  var state = { m: 0, boneMode: false, boneT: 0 };
+
+  function applyMorph() {
+    var tr = traitsAt(state.m);
+    var i, u;
+    for (i = 0; i < SLICES; i++) {
+      u = (i + 0.5) / SLICES;
+      var r = radiusAt(u, tr);
+      sliceMeshes[i].scale.set(r, 1, r);
+      /* 縦方向をわずかに潰して背腹の厚みを出す（海型ほど円に近づく） */
+      sliceMeshes[i].scale.y = 1;
+      sliceMeshes[i].scale.x = r * lerp(0.86, 1.0, tr.fusi);
+      sliceMeshes[i].scale.z = r;
+    }
+    /* 偶蹄類は概して脚が短い。v0の 1.15 は犬のように見えたため 0.86 へ。 */
+    var L = lerp(0.08, 0.86, tr.limb);
+    for (i = 0; i < 4; i++) {
+      limbs[i].scale.set(1, L, 1);
+      limbs[i].material.opacity = bodyMat.opacity;
+      limbs[i].visible = tr.limb > 0.035;
+      limbs[i].position.y = -radiusAt(i < 2 ? 0.30 : 0.72, tr) * 0.86;
+    }
+    var F = tr.fluke;
+    for (i = 0; i < 2; i++) {
+      flukes[i].scale.set(Math.max(0.001, F), 1, Math.max(0.001, F));
+      flukes[i].visible = F > 0.04;
+    }
+    /* 頭: 海型ほど太く短い（メロン）／陸型ほど細く長い（吻） */
+    var hr = lerp(0.86, 1.22, tr.fusi) * lerp(0.90, 1.06, tr.size);
+    head.scale.set(hr, hr, lerp(1.30, 0.82, tr.fusi));
+
+    /* 体長: 海型は前後に伸び、陸型はずんぐりする。
+       半径だけでは三頭が同じ樽に見えたため、Z方向の伸びを別軸で足した（v0実描画で修正）。 */
+    var sc = lerp(0.92, 1.02, tr.size);
+    bodyGroup.scale.set(sc, sc, sc * lerp(0.70, 1.50, tr.fusi));
+    document.getElementById("mval").textContent = state.m.toFixed(2);
+
+    /* 標本名をステージに常時出す。スライダーを中間に置くと
+       「今どの獣を見ているか」が分からなくなるため（実描画で確認）。 */
+    if (!state.boneMode) {
+      var m = state.m, nm;
+      if (m < 0.06)      nm = "ブタ";
+      else if (m < 0.36) nm = "ブタ → カバ";
+      else if (m < 0.50) nm = "カバ";
+      else if (m < 0.94) nm = "カバ → クジラ";
+      else               nm = "クジラ";
+      badge.textContent = nm;
+    }
+  }
+
+  /* ---------- 骨モード ---------- */
+  var bonebtn = document.getElementById("bonebtn");
+  var verdict = document.getElementById("verdict");
+  var badge = document.getElementById("badge");
+
+  bonebtn.addEventListener("click", function(){
+    state.boneMode = !state.boneMode;
+    bonebtn.classList.toggle("on", state.boneMode);
+    bonebtn.firstChild.nodeValue = state.boneMode ? "体で見る" : "骨で見る";
+    bonebtn.querySelector("small").textContent = state.boneMode
+      ? "体を戻す（スライダーで陸⇔海を動かす）"
+      : "体を消して、踝の距骨ひとつを並べる";
+    compareGroup.visible = state.boneMode;
+    if (state.boneMode) { badge.textContent = "距 骨"; }
+    else { applyMorph(); }   /* 標本名を復帰させる */
+    verdict.innerHTML = state.boneMode
+      ? '<b>左</b>＝偶蹄類：両端が滑車。<br><b>右</b>＝多くの哺乳類：下は平ら。'
+      : '体は<b>連続的に</b>変わる。<br>踝の骨は<b>変わらない</b>。';
+  });
+
+  /* ---------- 回転 ---------- */
+  var drag = false, lastX = 0, lastY = 0, yaw = -0.30, pitch = 0.12, spin = 0;
+  var hint = document.getElementById("hint");
+  function onDown(e){ drag = true; var p = pt(e); lastX = p.x; lastY = p.y; hint.style.opacity = 0; }
+  function onMove(e){
+    if (!drag) return;
+    var p = pt(e);
+    yaw += (p.x - lastX) * 0.008;
+    pitch += (p.y - lastY) * 0.005;
+    pitch = Math.max(-0.6, Math.min(0.6, pitch));
+    lastX = p.x; lastY = p.y;
+    if (e.cancelable) e.preventDefault();
+  }
+  function onUp(){ drag = false; }
+  function pt(e){
+    if (e.touches && e.touches.length) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    return { x: e.clientX, y: e.clientY };
+  }
+  canvas.addEventListener("mousedown", onDown);
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("mouseup", onUp);
+  canvas.addEventListener("touchstart", onDown, { passive: true });
+  canvas.addEventListener("touchmove", onMove, { passive: false });
+  window.addEventListener("touchend", onUp);
+
+  /* ---------- 操作 ---------- */
+  var slider = document.getElementById("morph");
+  var presets = Array.prototype.slice.call(document.querySelectorAll(".preset"));
+  slider.addEventListener("input", function(){
+    state.m = parseFloat(slider.value);
+    applyMorph();
+    syncPresets();
+  });
+  presets.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      state.m = parseFloat(btn.getAttribute("data-m"));
+      slider.value = String(state.m);
+      applyMorph();
+      syncPresets();
+    });
+  });
+  function syncPresets(){
+    presets.forEach(function(b){
+      b.classList.toggle("on", Math.abs(parseFloat(b.getAttribute("data-m")) - state.m) < 0.02);
+    });
+  }
+
+  /* ---------- ループ ---------- */
+  function tick(){
+    requestAnimationFrame(tick);
+    var target = state.boneMode ? 1 : 0;
+    state.boneT += (target - state.boneT) * 0.09;
+
+    /* 0.94 だと骨モードでも体が opacity 0.06 で残り、骨の背後に亡霊が映った（実描画で確認）。
+       完全に 0 まで落とし、閾値も下げて確実に消す。 */
+    bodyMat.opacity = Math.max(0, 1 - state.boneT * 1.06);
+    bodyMat.visible = bodyMat.opacity > 0.015;
+    bodyGroup.visible = bodyMat.opacity > 0.015;
+
+    /* 骨モードでは2体を左右に開いて拡大。左＝偶蹄類(金) / 右＝多くの哺乳類(鈍色)。
+       verdict の「左/右」と position.x の符号は必ず一致させる（v0で取り違え→修正済）。 */
+    boneGroup.position.x = lerp(2.55, -1.55, state.boneT);
+    boneGroup.scale.setScalar(lerp(1.35, 2.05, state.boneT));
+    compareGroup.position.x = lerp(4.6, 1.55, state.boneT);
+    compareGroup.scale.setScalar(lerp(0.55, 2.05, state.boneT));
+    boneDimMat.opacity = state.boneT;
+
+    /* 回転は rig ではなく各標本にかける。
+       rig を回すと体と骨が互いの周りを公転して左右の配置が崩れ、
+       さらに体が長軸(Z)方向から見えて三頭とも同じ塊に潰れた（v0実描画で判明）。
+       体は +90°オフセットで横向き（プロフィール）を初期姿勢にする。 */
+    if (!drag) spin += 0.0026;
+    rig.rotation.y = 0;
+    rig.rotation.x = pitch;
+    bodyGroup.rotation.y = yaw + spin + Math.PI * 0.5;
+    boneGroup.rotation.y = yaw + spin * 1.7;
+    compareGroup.rotation.y = yaw + spin * 1.7;
+
+    renderer.render(scene, camera);
+  }
+
+  window.addEventListener("resize", resize);
+  resize();
+  applyMorph();
+  syncPresets();
+  tick();
+
+  /* ---------- 二軸マップ（SVG） ---------- */
+  (function drawMap(){
+    var svg = document.getElementById("map");
+    var W = 640, H = 380, L = 78, R = 24, T = 22, B = 54;
+    var x0 = L, x1 = W - R, y0 = T, y1 = H - B;
+
+    var mdMin = 0.3, mdMax = 1.65;
+    var maMin = 53.0, maMax = 60.0;
+    function X(md){ return x0 + (md - mdMin) / (mdMax - mdMin) * (x1 - x0); }
+    function Y(ma){ return y1 - (ma - maMin) / (maMax - maMin) * (y1 - y0); }
+
+    var out = [];
+    function el(tag, attrs, inner){
+      var a = "";
+      for (var k in attrs) { if (Object.prototype.hasOwnProperty.call(attrs, k)) a += " " + k + '="' + attrs[k] + '"'; }
+      return "<" + tag + a + ">" + (inner === undefined ? "" : inner) + "</" + tag + ">";
+    }
+
+    /* 枠 */
+    out.push(el("rect", { x:x0, y:y0, width:(x1-x0), height:(y1-y0), fill:"rgba(212,168,83,.03)",
+      stroke:"rgba(200,184,160,.10)", "stroke-width":1 }));
+
+    /* 目盛（縦＝Ma） */
+    [54, 56, 58, 60].forEach(function(ma){
+      var y = Y(ma);
+      out.push(el("line", { x1:x0, y1:y, x2:x1, y2:y, stroke:"rgba(200,184,160,.07)", "stroke-width":1 }));
+      out.push(el("text", { x:(x0-10), y:(y+4), fill:"#5a5448", "font-size":"11",
+        "text-anchor":"end", "font-family":"monospace" }, String(ma)));
+    });
+    /* 目盛（横＝形態距離） */
+    [0.5, 1.0, 1.5].forEach(function(md){
+      var x = X(md);
+      out.push(el("line", { x1:x, y1:y0, x2:x, y2:y1, stroke:"rgba(200,184,160,.07)", "stroke-width":1 }));
+      out.push(el("text", { x:x, y:(y1+20), fill:"#5a5448", "font-size":"11",
+        "text-anchor":"middle", "font-family":"monospace" }, md.toFixed(1)));
+    });
+
+    /* 「二軸が一致するなら点はこの線上」＝参照の対角線 */
+    out.push(el("line", { x1:X(0.4), y1:Y(53.6), x2:X(1.6), y2:Y(59.6),
+      stroke:"rgba(212,168,83,.20)", "stroke-width":1, "stroke-dasharray":"5 6" }));
+    out.push(el("text", { x:X(1.24), y:Y(59.3), fill:"#5a5448", "font-size":"10.5",
+      "text-anchor":"start" }, "二軸が一致するなら点はこの向きに並ぶ"));
+
+    /* 点 */
+    PAIRS.forEach(function(p){
+      var x = X(p.md), y = Y(p.ma);
+      var isHit = (p.k === "hw");
+      out.push(el("circle", { cx:x, cy:y, r:(isHit ? 9 : 7), fill:p.color,
+        stroke:(isHit ? "#d4a853" : "rgba(200,184,160,.18)"), "stroke-width":(isHit ? 2 : 1),
+        opacity:(isHit ? 1 : .85) }));
+      if (isHit) {
+        out.push(el("circle", { cx:x, cy:y, r:17, fill:"none",
+          stroke:"rgba(212,168,83,.28)", "stroke-width":1 }));
+      }
+      var anchor = (p.k === "pw") ? "end" : "start";
+      var dx = (p.k === "pw") ? -16 : 16;
+      out.push(el("text", { x:(x+dx), y:(y+4), fill:(isHit ? "#d4a853" : "#807868"),
+        "font-size":"12.5", "text-anchor":anchor }, p.label));
+    });
+
+    /* 軸ラベル */
+    out.push(el("text", { x:((x0+x1)/2), y:(H-14), fill:"#807868", "font-size":"12",
+      "text-anchor":"middle" }, "見た目の距離（図示用・大きいほど似ていない）→"));
+    out.push(el("text", { x:28, y:((y0+y1)/2), fill:"#807868", "font-size":"11.5",
+      "text-anchor":"middle", transform:"rotate(-90 28 " + ((y0+y1)/2) + ")" },
+      "血縁の距離（Ma・目安）→"));
+
+    svg.innerHTML = out.join("");
+  })();
+
+})();
+</script>
+</body>
+</html>
