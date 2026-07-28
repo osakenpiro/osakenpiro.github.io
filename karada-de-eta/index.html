@@ -92,7 +92,7 @@
 
 <div id="dock">
   <div><p class="rowlabel">ジム 5種目</p><div class="row" id="rowGym"></div></div>
-  <div><p class="rowlabel">自重 4種目</p><div class="row" id="rowBody"></div></div>
+  <div><p class="rowlabel">自重 5種目</p><div class="row" id="rowBody"></div></div>
 </div>
 
 <div id="legend"><h3 id="lgName">—</h3><p class="cue" id="lgCue"></p><div id="lgBars"></div></div>
@@ -159,7 +159,9 @@ const EXERCISES={
   plank:{jp:'プランク',cue:'頭〜踵を一直線。腰を落とさない。',map:{ABDOMEN:0.9,TRUNK:0.6,HIP:0.4,SHOULDER:0.35}},
   squat:{jp:'スクワット',cue:'股関節から折る。膝を内に入れない。',map:{UPPER_LEG:1.0,HIP:0.8,LOWER_LEG:0.45,ABDOMEN:0.3}},
   pushup:{jp:'腕立て伏せ',cue:'体を板に保つ。肘は45度に開く。',map:{CHEST:0.9,UPPER_ARM:0.6,SHOULDER:0.55,ABDOMEN:0.4}},
-  pullup:{jp:'懸垂',cue:'肩を下げてから引く。顎はバーを越える。',map:{BACK:1.0,UPPER_ARM:0.7,SHOULDER:0.5,FOREARM:0.45}}
+  pullup:{jp:'懸垂',cue:'肩を下げてから引く。顎はバーを越える。',map:{BACK:1.0,UPPER_ARM:0.7,SHOULDER:0.5,FOREARM:0.45}},
+
+  row:{jp:'タオルロウ',cue:'みぞおちへ引く。肩甲骨を寄せて、腕でなく背中で。',map:{BACK:1.0,UPPER_ARM:0.7,SHOULDER:0.5,FOREARM:0.45}},
 };
 
 /* 4. 名称整形 / 側 / 情報照会 (BodyExplorer 移植) */
@@ -277,7 +279,7 @@ function renderLegend(key){
 }
 function mkBtn(k){const b=document.createElement('button');b.className='ex';b.dataset.k=k;b.textContent=EXERCISES[k].jp;b.onclick=()=>setExercise(activeKey===k?null:k);return b;}
 ['chestpress','latpull','legpress','abdominal','treadmill'].forEach(k=>document.getElementById('rowGym').appendChild(mkBtn(k)));
-['plank','squat','pushup','pullup'].forEach(k=>document.getElementById('rowBody').appendChild(mkBtn(k)));
+['plank','squat','pushup','row','pullup'].forEach(k=>document.getElementById('rowBody').appendChild(mkBtn(k)));
 (function(){const r=document.createElement('button');r.className='ex reset';r.dataset.k='__';r.textContent='ぜんぶ消す';r.onclick=()=>setExercise(null);document.getElementById('rowBody').appendChild(r);})();
 
 /* 10. クリックで筋を同定 */
@@ -341,5 +343,452 @@ tick();
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
 controls.addEventListener('start',()=>{controls.autoRotate=false;btnSpin.classList.remove('on');});
 </script>
+<!-- ============================================================ KATA LAYER START
+     型レイヤー — 体でえた（本物の解剖・静止）の横に「動く型」を並べる。
+
+     なぜ並べるのか（設計の理由・消さないこと）:
+       anatomy.glb / skeleton.glb は skins:0 / animations:0 ＝ 骨も重みも持たない
+       静止メッシュの集合で、**そのままではポーズを付けられない**。
+       だから本物のメッシュは「効く場所」を光らせる役、自前ワイヤーは「型」を動かす役。
+       それぞれが素材として出来ることだけをやる。
+
+     禁止（設計指令・消さないこと）:
+       連続日数・達成率・未実施日の可視化を作らない。行けなかった日は 0 ではなく
+       「記録が存在しない」。罪悪感で駆動する設計にしない。集計は直近7日の合計ひとつだけ。
+       （NG表示の赤は「崩れた型」を示す機能色で、記録UIの警告色ではない）
+============================================================================ -->
+<style>
+  #kata{position:fixed;left:12px;top:56px;z-index:6;width:min(44vw,300px);
+    background:var(--panel);border:1px solid rgba(63,208,255,.18);border-radius:14px;
+    padding:10px 12px 12px;backdrop-filter:blur(8px);
+    opacity:0;transform:translateY(-6px);transition:.22s;pointer-events:none}
+  #kata.show{opacity:1;transform:none;pointer-events:auto}
+  #kata .kh{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+  #kata .kh b{font-size:12.5px;color:#eaf6ff;letter-spacing:.04em}
+  #kata .kh i{font-style:normal;font-size:9.5px;letter-spacing:.16em;color:var(--dim);margin-left:auto}
+  #kstage{position:relative;height:170px;border-radius:9px;overflow:hidden;
+    background:linear-gradient(180deg,rgba(10,18,34,.85),rgba(5,9,18,.9));
+    border:1px solid rgba(63,208,255,.10);touch-action:none;cursor:grab}
+  #kstage:active{cursor:grabbing}
+  #kstage canvas{display:block;width:100%;height:100%}
+  #kbeat{position:absolute;left:0;right:0;bottom:0;height:2px;background:rgba(120,150,190,.18)}
+  #kbeat i{display:block;height:100%;width:0;background:var(--accent);transition:width .06s linear}
+  body.kng #kbeat i{background:#ff6b7a}
+  #kphase{position:absolute;right:8px;top:6px;font-size:9.5px;letter-spacing:.12em;
+    color:var(--dim);pointer-events:none;text-align:right;line-height:1.5}
+  #kphase b{display:block;color:var(--accent);font-size:10.5px;font-weight:600}
+  body.kng #kphase b{color:#ff6b7a}
+  #kcues{list-style:none;margin:9px 0 0;padding:0}
+  #kcues li{display:flex;gap:7px;font-size:11.5px;line-height:1.5;margin-bottom:3px;color:#cfe3fa}
+  #kcues li span{flex:0 0 auto;font-size:9px;color:var(--dim);padding-top:3px;font-variant-numeric:tabular-nums}
+  #kng{margin-top:8px;border-left:2px solid #ff6b7a;padding:1px 0 1px 9px;
+    font-size:11px;line-height:1.5;color:var(--dim);display:none}
+  body.kng #kng{display:block}
+  #kng b{color:#ff6b7a;font-weight:600}
+  #kbtns{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+  #kbtns button{appearance:none;cursor:pointer;border:1px solid rgba(63,208,255,.26);
+    background:transparent;color:var(--dim);font:inherit;font-size:10.5px;letter-spacing:.06em;
+    padding:5px 10px;border-radius:9px;transition:.16s}
+  #kbtns button:hover{color:#fff;border-color:var(--accent)}
+  #kbtns button[aria-pressed="true"]{color:#ff6b7a;border-color:#ff6b7a}
+  /* きつさ記録 */
+  #klog{margin-top:10px;padding-top:9px;border-top:1px solid rgba(63,208,255,.12)}
+  #klog .r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  #klog label{font-size:9.5px;letter-spacing:.14em;color:var(--dim)}
+  #ksl{flex:1 1 96px;min-width:80px;accent-color:var(--gold);background:transparent}
+  #kval{font-size:11px;color:var(--gold);font-variant-numeric:tabular-nums;min-width:2.2em;text-align:right}
+  #ksave{appearance:none;cursor:pointer;border:1px solid rgba(255,207,107,.4);background:transparent;
+    color:var(--gold);font:inherit;font-size:10.5px;letter-spacing:.06em;padding:5px 11px;border-radius:9px;transition:.16s}
+  #ksave:hover{background:rgba(255,207,107,.12)}
+  #ksum{margin-top:8px;font-size:10.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+  #krec{list-style:none;margin:5px 0 0;padding:0;font-size:9.5px;line-height:1.85;
+    color:#42597a;font-variant-numeric:tabular-nums}
+  @media (max-width:600px){ #kata{width:52vw;top:52px} #kstage{height:132px} }
+</style>
+
+<div id="kata">
+  <div class="kh"><b id="kname">—</b><i id="ktempo"></i></div>
+  <div id="kstage">
+    <div id="kphase"><b>—</b><span></span></div>
+    <div id="kbeat"><i></i></div>
+  </div>
+  <ul id="kcues"></ul>
+  <div id="kng"></div>
+  <div id="kbtns">
+    <button id="kplay" type="button">■ とめる</button>
+    <button id="kngb" type="button" aria-pressed="false">NGを見る</button>
+  </div>
+  <div id="klog" hidden>
+    <div class="r">
+      <label for="ksl">きつさ</label>
+      <input id="ksl" type="range" min="0" max="1" step="0.1" value="0.5">
+      <output id="kval" for="ksl">0.5</output>
+      <button id="ksave" type="button">記録する</button>
+    </div>
+    <div id="ksum"></div>
+    <ul id="krec"></ul>
+  </div>
+</div>
+
+<script>
+/* 型レイヤー — 本体のロジックには触らず setExercise をラップして乗る */
+(function () {
+'use strict';
+if (typeof THREE === 'undefined') { return; }
+
+/* ---------------------------------------------------------------- 1. 型データ
+   pose = { root:[y, z, rotX], spine, chest, neck, shoulder, elbow, hip, knee, ankle }
+   角度は rad。左右は対称に当てる（矢状面1軸の近似）。
+   pin = 動作中ずっと床/バーに触れている関節。毎フレームそこを基準に体を上下させる
+         ＝ 肘を曲げたら手が下がるのではなく、体が下がる。
+   出どころ:
+     squat / pushup / plank / row … 型でえた v0（2026-07-27 Cl生成）から移植
+       ただし v0 は椅子スクワット・壁腕立て・膝つきプランクの「やさしい版」。
+       体でえた側の種目名（スクワット / 腕立て伏せ / プランク）に合わせて深さを取り直した。
+     pullup … 本セッションで新規に付けた（v0 に懸垂は無い）。 */
+var KATA = {
+  squat: {
+    cam:{y:0.72,r:2.80,theta:0.62,phi:1.34},
+    tempo:{down:2.0,hold:0.15,up:1.0}, label:'2拍でおろす / 1拍で立つ',
+    phase:['おろす','ため','立つ'], pin:'ankleL', pinY:0.0, prop:null,
+    cues:['股関節から折って、お尻を後ろへ','膝はつま先と同じ向き。内に入れない','立ちながら息を吐く'],
+    ng:{t:'膝が先に前へ出て、背中が丸まる',d:'お尻を先に引く。すねを床に近い角度で保てば膝は流れない。'},
+    A :{root:[0.84, 0.00, 0.00],spine: 0.03,chest: 0.00,neck: 0.00,shoulder:-1.42,elbow:-0.18,hip: 0.00,knee:0.00,ankle:0.00},
+    B :{root:[0.52,-0.14, 0.00],spine: 0.46,chest: 0.05,neck:-0.06,shoulder:-1.60,elbow:-0.10,hip:-1.30,knee:1.62,ankle:0.36},
+    NG:{root:[0.56, 0.04, 0.00],spine: 0.18,chest: 0.60,neck: 0.12,shoulder:-1.50,elbow:-0.15,hip:-0.95,knee:1.75,ankle:0.50}
+  },
+  pushup: {
+    cam:{y:0.34,r:2.25,theta:1.30,phi:1.34},
+    tempo:{down:2.0,hold:0.15,up:1.0}, label:'2拍でおろす / 1拍で押す',
+    phase:['おろす','ため','押す'], pin:'handL', pinY:0.0, pin2:'ankleL', pin2Y:0.045, prop:null,
+    cues:['手は肩幅＋こぶし1つ','頭からかかとまで一直線','肘は体側45度。真横に開かない'],
+    ng:{t:'腰が落ちて、反る',d:'骨盤を軽く締めて板になる。きつければ膝をつく＝距離が負荷ツマミ。'},
+    A :{root:[0.45,-0.10, 1.52],spine: 0.03,chest: 0.00,neck:-0.30,shoulder:-1.58,elbow:-0.05,hip:-0.05,knee:0.05,ankle:0.30},
+    B :{root:[0.24,-0.06, 1.52],spine: 0.03,chest: 0.00,neck:-0.26,shoulder:-1.15,elbow:-1.30,hip:-0.05,knee:0.05,ankle:0.30},
+    NG:{root:[0.30,-0.08, 1.30],spine:-0.32,chest:-0.12,neck: 0.25,shoulder:-1.25,elbow:-1.10,hip: 0.30,knee:0.05,ankle:0.30}
+  },
+  plank: {
+    cam:{y:0.32,r:2.25,theta:1.30,phi:1.34},
+    tempo:{down:2.5,hold:0.10,up:2.5}, label:'とめる / 呼吸は続ける',
+    phase:['すう','ため','はく'], pin:'handL', pinY:0.0, pin2:'ankleL', pin2Y:0.045, prop:null,
+    cues:['頭から踵まで一直線','腰を落とさない・上げない','呼吸を止めない'],
+    ng:{t:'腰が落ちて、腰が反る',d:'秒数を伸ばすより、崩れた時点で終了。時間より形が先。'},
+    A :{root:[0.34,-0.12, 1.52],spine: 0.02,chest: 0.00,neck:-0.30,shoulder:-1.62,elbow:-1.45,hip:-0.04,knee:0.04,ankle:0.35},
+    B :{root:[0.35,-0.12, 1.52],spine: 0.05,chest: 0.02,neck:-0.30,shoulder:-1.64,elbow:-1.43,hip:-0.04,knee:0.04,ankle:0.35},
+    NG:{root:[0.24,-0.12, 1.36],spine:-0.30,chest:-0.10,neck: 0.22,shoulder:-1.58,elbow:-1.48,hip: 0.28,knee:0.04,ankle:0.35}
+  },
+  row: {
+    cam:{y:0.80,r:3.20,theta:1.02,phi:1.34},
+    tempo:{down:1.0,hold:0.20,up:2.0}, label:'1拍で引く / 2拍で戻す',
+    phase:['引く','ため','戻す'], pin:'ankleL', pinY:0.0, prop:'post',
+    cues:['みぞおちへ向けて引く','肩甲骨を寄せる。腕で引かない','肩をすくめない'],
+    ng:{t:'肩がすくんで、体が起き上がる',d:'引くときも上体の角度は変えない。首を長く保つ。'},
+    A :{root:[0.81,-0.23,-0.28],spine:-0.03,chest: 0.04,neck: 0.05,shoulder:-0.87,elbow:-0.08,hip: 0.28,knee:0.10,ankle:-0.15},
+    B :{root:[0.81,-0.24,-0.30],spine:-0.05,chest:-0.12,neck: 0.02,shoulder: 0.45,elbow:-2.05,hip: 0.30,knee:0.10,ankle:-0.15},
+    NG:{root:[0.82,-0.14,-0.10],spine: 0.05,chest: 0.30,neck: 0.28,shoulder: 0.10,elbow:-1.75,hip: 0.12,knee:0.10,ankle:-0.08}
+  },
+  pullup: {
+    cam:{y:1.28,r:3.05,theta:0.78,phi:1.34},
+    tempo:{down:1.2,hold:0.15,up:2.0}, label:'1拍で引く / 2拍でおろす',
+    phase:['引く','ため','おろす'], pin:'handL', pinY:2.10, prop:'bar',
+    cues:['肩を下げてから引く','顎はバーを越える','おろすほうをゆっくり'],
+    ng:{t:'肩がすくみ、体を振って上げる',d:'反動で上げた分は効かない。届かないならバーを低く／脚で補助。'},
+    A :{root:[1.05, 0.00, 0.00],spine: 0.02,chest: 0.00,neck:-0.05,shoulder:-3.02,elbow:-0.06,hip:-0.10,knee:0.35,ankle:0.10},
+    B :{root:[1.05, 0.05, 0.00],spine: 0.04,chest: 0.03,neck: 0.10,shoulder:-2.55,elbow:-2.10,hip:-0.14,knee:0.42,ankle:0.10},
+    NG:{root:[1.05, 0.10,-0.15],spine:-0.10,chest:-0.15,neck: 0.35,shoulder:-2.80,elbow:-1.20,hip:-0.35,knee:0.70,ankle:0.10}
+  }
+};
+
+/* -------------------------------------------------- 2. ミニ3D（自前ワイヤーリグ） */
+var C_WIRE = 0x6a72c0, C_BRIGHT = 0xa9b0ff, C_NG = 0xff6b7a, C_PROP = 0x353a66;
+var stage = document.getElementById('kstage');
+var kren = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+kren.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+kren.setClearColor(0x000000, 0);
+stage.insertBefore(kren.domElement, stage.firstChild);
+
+var kscene = new THREE.Scene();
+var kcam = new THREE.PerspectiveCamera(40, 1, 0.05, 60);
+var rig = new THREE.Group(); kscene.add(rig);
+
+var grid = new THREE.GridHelper(4, 12, C_WIRE, 0x1a1d38);
+grid.material.transparent = true; grid.material.opacity = 0.22; kscene.add(grid);
+
+var wireMats = [];
+function mat(color, op){ var m = new THREE.MeshBasicMaterial({ color:color, wireframe:true, transparent:true, opacity:op }); wireMats.push(m); return m; }
+function seg(len, rT, rB, up){
+  var g = new THREE.CylinderGeometry(rT, rB, len, 6, 1, true);
+  g.translate(0, up ? len/2 : -len/2, 0);
+  return new THREE.Mesh(g, mat(C_WIRE, 0.8));
+}
+function grp(parent, x, y, z){ var g = new THREE.Group(); g.position.set(x, y, z); parent.add(g); return g; }
+
+var J = {};
+var pelvis = grp(rig, 0, 0.84, 0); J.pelvis = pelvis;
+pelvis.add(seg(0.16, 0.115, 0.10, true));
+J.spine = grp(pelvis, 0, 0.14, 0); J.spine.add(seg(0.26, 0.10, 0.115, true));
+J.chest = grp(J.spine, 0, 0.26, 0); J.chest.add(seg(0.24, 0.085, 0.125, true));
+J.neck  = grp(J.chest, 0, 0.24, 0); J.neck.add(seg(0.07, 0.035, 0.04, true));
+var head = new THREE.Mesh(new THREE.IcosahedronGeometry(0.098, 1), mat(C_BRIGHT, 0.62));
+head.position.y = 0.155; J.neck.add(head);
+
+['L','R'].forEach(function (s) {
+  var sh = grp(J.chest, (s === 'L' ? -1 : 1) * 0.155, 0.20, 0); J['shoulder' + s] = sh;
+  sh.add(seg(0.26, 0.05, 0.042, false));
+  var el = grp(sh, 0, -0.26, 0); J['elbow' + s] = el;
+  el.add(seg(0.25, 0.042, 0.03, false));
+  J['hand' + s] = grp(el, 0, -0.25, 0);
+  var hp = grp(pelvis, (s === 'L' ? -1 : 1) * 0.085, 0, 0); J['hip' + s] = hp;
+  hp.add(seg(0.42, 0.075, 0.058, false));
+  var kn = grp(hp, 0, -0.42, 0); J['knee' + s] = kn;
+  kn.add(seg(0.40, 0.055, 0.035, false));
+  var an = grp(kn, 0, -0.40, 0); J['ankle' + s] = an;
+  var ft = seg(0.15, 0.032, 0.026, false); ft.rotation.x = -Math.PI / 2; an.add(ft);
+});
+
+/* プロップ（読めないと形が伝わらないものだけ） */
+var props = {};
+function propMat(){ return new THREE.MeshBasicMaterial({ color:C_PROP, wireframe:true, transparent:true, opacity:0.5 }); }
+var bar = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 1.3, 6, 1, true), propMat());
+bar.rotation.z = Math.PI / 2; bar.position.set(0, 2.10, 0.02);
+bar.scale.set(1, 0.55, 1);   /* 横棒は真横から見ると点になるので短くして存在だけ示す */ props.bar = bar; kscene.add(bar);
+var post = new THREE.Group();
+post.add(new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 2.2, 6, 1, true), propMat()));
+post.children[0].position.set(0, 1.1, 0.86);
+var towelGeo = new THREE.BufferGeometry();
+towelGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(12), 3));
+post.add(new THREE.LineSegments(towelGeo, new THREE.LineBasicMaterial({ color:C_BRIGHT, transparent:true, opacity:0.7 })));
+props.post = post; kscene.add(post);
+
+/* -------------------------------------------------- 3. ポーズ適用 */
+var LIMB = ['shoulder','elbow','hip','knee','ankle'];
+var KEYS = ['spine','chest','neck','shoulder','elbow','hip','knee','ankle'];
+function applyPose(p) {
+  pelvis.position.y = p.root[0]; pelvis.position.z = p.root[1]; pelvis.rotation.x = p.root[2];
+  J.spine.rotation.x = p.spine; J.chest.rotation.x = p.chest; J.neck.rotation.x = p.neck;
+  for (var s = 0; s < 2; s++) {
+    var sf = s ? 'R' : 'L';
+    for (var i = 0; i < LIMB.length; i++) J[LIMB[i] + sf].rotation.x = p[LIMB[i]];
+  }
+}
+function lerpPose(a, b, t) {
+  var o = { root:[ a.root[0]+(b.root[0]-a.root[0])*t,
+                   a.root[1]+(b.root[1]-a.root[1])*t,
+                   a.root[2]+(b.root[2]-a.root[2])*t ] };
+  for (var i = 0; i < KEYS.length; i++) { var k = KEYS[i]; o[k] = a[k] + (b[k]-a[k]) * t; }
+  return o;
+}
+function ease(t){ return t*t*(3-2*t); }
+
+/* pin — 床/バーに触れている関節を接地させ、体のほうを動かす。2自由度の解析解。
+     pin  … 第1接地点（手 or 足）。ここを pinY に必ず置く。
+     pin2 … 第2接地点（腕立て・プランクのつま先）。体ごと X 軸まわりに傾けて
+            pin2Y に着ける。これが無いと「板」が宙に浮く（実測: ankle y=0.41）。
+   反復せず閉じた式で解く: 接地点間ベクトルを (dy,dz)、R=hypot, φ=atan2(dz,dy) とすると
+   回転後の高さ差は R·cos(θ+φ)。目標 Δ に対し θ = ±acos(Δ/R) − φ。0に近い枝を採る。 */
+var _v = new THREE.Vector3(), _w = new THREE.Vector3();
+function applyPin(k) {
+  if (!k || !k.pin) { rig.position.y = 0; rig.rotation.x = 0; return; }
+  rig.position.set(0, 0, 0); rig.rotation.x = 0; rig.updateMatrixWorld(true);
+  J[k.pin].getWorldPosition(_v);
+  var th = 0;
+  if (k.pin2) {
+    J[k.pin2].getWorldPosition(_w);
+    var dy = _w.y - _v.y, dz = _w.z - _v.z;
+    var R = Math.sqrt(dy*dy + dz*dz), D = (k.pin2Y || 0) - k.pinY;
+    if (R > 1e-6 && Math.abs(D) <= R) {
+      var phi = Math.atan2(dz, dy), ac = Math.acos(Math.max(-1, Math.min(1, D / R)));
+      var t1 = ac - phi, t2 = -ac - phi;
+      var n = function (a) { while (a > Math.PI) a -= 2*Math.PI; while (a < -Math.PI) a += 2*Math.PI; return a; };
+      t1 = n(t1); t2 = n(t2);
+      th = Math.abs(t1) <= Math.abs(t2) ? t1 : t2;
+    }
+  }
+  rig.rotation.x = th; rig.updateMatrixWorld(true);
+  J[k.pin].getWorldPosition(_v);
+  rig.position.y = k.pinY - _v.y;
+}
+
+/* -------------------------------------------------- 4. カメラ（自前・小窓用） */
+var theta = 0.62, phi = 1.35, radius = 3.2, tgtY = 0.85;
+var drag = false, lx = 0, ly = 0, idle = 0, pinchD = 0;
+function updCam() {
+  phi = Math.max(0.40, Math.min(Math.PI - 0.30, phi));
+  radius = Math.max(1.6, Math.min(6.0, radius));
+  kcam.position.set(radius*Math.sin(phi)*Math.sin(theta), tgtY + radius*Math.cos(phi), radius*Math.sin(phi)*Math.cos(theta));
+  kcam.lookAt(0, tgtY, 0);
+}
+stage.addEventListener('pointerdown', function (e) { drag = true; lx = e.clientX; ly = e.clientY; idle = 0; stage.setPointerCapture(e.pointerId); });
+stage.addEventListener('pointermove', function (e) {
+  if (!drag) return;
+  theta -= (e.clientX - lx) * 0.009; phi -= (e.clientY - ly) * 0.007;
+  lx = e.clientX; ly = e.clientY; idle = 0;
+});
+['pointerup','pointercancel','pointerleave'].forEach(function (t) { stage.addEventListener(t, function () { drag = false; }); });
+stage.addEventListener('wheel', function (e) { e.preventDefault(); radius += e.deltaY * 0.0022; idle = 0; }, { passive:false });
+stage.addEventListener('touchstart', function (e) {
+  if (e.touches.length === 2) { drag = false; pinchD = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY); }
+}, { passive:true });
+stage.addEventListener('touchmove', function (e) {
+  if (e.touches.length !== 2) return;
+  e.preventDefault();
+  var d = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+  radius += (pinchD - d) * 0.006; pinchD = d; idle = 0;
+}, { passive:false });
+
+function ksize() {
+  var w = stage.clientWidth, h = stage.clientHeight;
+  if (!w || !h) return;
+  kren.setSize(w, h, false);
+  kcam.aspect = w / h; kcam.updateProjectionMatrix();
+}
+addEventListener('resize', ksize);
+
+/* -------------------------------------------------- 5. 状態とループ */
+var cur = null, curKey = null, playing = true, ngMode = false, elapsed = 0;
+var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (reduced) playing = false;
+var kclock = new THREE.Clock();
+var elName = document.getElementById('kname'), elTempo = document.getElementById('ktempo');
+var elPhase = document.getElementById('kphase'), elBeat = document.querySelector('#kbeat i');
+var elCues = document.getElementById('kcues'), elNg = document.getElementById('kng');
+var btnPlay = document.getElementById('kplay'), btnNg = document.getElementById('kngb');
+var panel = document.getElementById('kata');
+
+function setWire(c) { for (var i = 0; i < wireMats.length; i++) wireMats[i].color.setHex(c); head.material.color.setHex(ngMode ? C_NG : C_BRIGHT); }
+
+function updTowel() {
+  if (!cur || cur.prop !== 'post') return;
+  var a = towelGeo.attributes.position.array, anchor = new THREE.Vector3(0, 1.05, 0.80);
+  ['L','R'].forEach(function (s, i) {
+    J['hand'+s].getWorldPosition(_v);
+    a[i*6] = _v.x; a[i*6+1] = _v.y; a[i*6+2] = _v.z;
+    a[i*6+3] = anchor.x; a[i*6+4] = anchor.y; a[i*6+5] = anchor.z;
+  });
+  towelGeo.attributes.position.needsUpdate = true;
+}
+
+function kframe() {
+  requestAnimationFrame(kframe);
+  var dt = Math.min(kclock.getDelta(), 0.05);
+  if (!cur || !panel.classList.contains('show')) return;
+  var t = cur.tempo, cyc = t.down + t.hold + t.up, p, ph;
+  if (ngMode) {
+    applyPose(cur.NG); ph = 'NG'; elBeat.style.width = '100%';
+  } else {
+    if (playing) elapsed = (elapsed + dt) % cyc;
+    var e = elapsed;
+    if (e < t.down)              { p = ease(e / t.down);                        ph = cur.phase[0]; }
+    else if (e < t.down + t.hold){ p = 1;                                       ph = cur.phase[1]; }
+    else                         { p = 1 - ease((e - t.down - t.hold) / t.up);  ph = cur.phase[2]; }
+    applyPose(lerpPose(cur.A, cur.B, p));
+    elBeat.style.width = (elapsed / cyc * 100) + '%';
+  }
+  applyPin(cur);
+  elPhase.firstElementChild.textContent = ph;
+  idle += dt;
+  if (idle > 5 && !drag && !reduced && playing) theta += dt * 0.15;  /* 「とめる」は視点も止める */
+  updCam(); kscene.updateMatrixWorld(true); updTowel();
+  kren.render(kscene, kcam);
+}
+
+/* -------------------------------------------------- 6. 種目の切り替え */
+function kataOn(key) {
+  var k = key && KATA[key] ? KATA[key] : null;
+  cur = k; curKey = k ? key : null;
+  if (!k) { panel.classList.remove('show'); return; }
+  var ex = (typeof EXERCISES !== 'undefined' && EXERCISES[key]) ? EXERCISES[key] : null;
+  elName.textContent = ex ? ex.jp : key;
+  elTempo.textContent = k.label;
+  elCues.innerHTML = k.cues.map(function (c, i) { return '<li><span>0' + (i+1) + '</span><div>' + c + '</div></li>'; }).join('');
+  elNg.innerHTML = '<b>' + k.ng.t + '</b><br>' + k.ng.d;
+  for (var pn in props) props[pn].visible = (k.prop === pn);
+  if (k.cam) { tgtY = k.cam.y; radius = k.cam.r; theta = k.cam.theta; phi = k.cam.phi; idle = 0; }
+  elapsed = 0;
+  panel.classList.add('show');
+  ksize();
+  logRender();
+}
+
+/* 本体の setExercise をラップする。関数宣言は global に載るので置き換えが効く。 */
+var _origSet = window.setExercise;
+window.setExercise = function (key) {
+  _origSet(key);
+  kataOn(key);
+  try { history.replaceState(null, '', key ? '#' + key : location.pathname); } catch (e) {}
+};
+
+btnPlay.addEventListener('click', function () {
+  playing = !playing;
+  btnPlay.textContent = playing ? '■ とめる' : '▶ うごかす';
+});
+btnNg.addEventListener('click', function () {
+  ngMode = !ngMode;
+  document.body.classList.toggle('kng', ngMode);
+  btnNg.setAttribute('aria-pressed', ngMode ? 'true' : 'false');
+  btnNg.textContent = ngMode ? '正しい型に戻す' : 'NGを見る';
+  setWire(ngMode ? C_NG : C_WIRE);
+});
+
+/* -------------------------------------------------- 7. きつさ記録（localStorage）
+   ★禁止（消さないこと）: 連続日数・達成率・未実施日の可視化を作らない。
+     行けなかった日は 0 ではなく「記録が存在しない」。集計は直近7日の合計ひとつだけ。 */
+var LOGKEY = 'kata-de-eta-v0';   /* 型でえた v0 と同一オリジン・同一キー＝記録が引き継がれる */
+var ls = null;
+try { ls = window.localStorage; ls.setItem(LOGKEY + ':probe', '1'); ls.removeItem(LOGKEY + ':probe'); } catch (e) { ls = null; }
+var logBox = document.getElementById('klog');
+var sl = document.getElementById('ksl'), val = document.getElementById('kval');
+var sumEl = document.getElementById('ksum'), recEl = document.getElementById('krec');
+function ymd(d){ return d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2); }
+function cutoff7(){ var d = new Date(); d.setDate(d.getDate() - 6); return ymd(d); }
+function load(){ try { var o = JSON.parse(ls.getItem(LOGKEY) || '{"logs":[]}');
+  return (o && Object.prototype.toString.call(o.logs) === '[object Array]') ? o : { logs:[] }; } catch (e) { return { logs:[] }; } }
+function fmt(n){ return (Math.round(n*10)/10).toFixed(1); }
+function jpName(id){ return (typeof EXERCISES !== 'undefined' && EXERCISES[id]) ? EXERCISES[id].jp : id; }
+function logRender() {
+  if (!ls) return;
+  logBox.hidden = false;
+  var logs = load().logs, c = cutoff7(), s = 0, i;
+  for (i = 0; i < logs.length; i++) if (logs[i].d >= c) s += Number(logs[i].f) || 0;
+  sumEl.textContent = '直近7日の合計 ' + fmt(s);
+  recEl.innerHTML = '';
+  var r = logs.slice(-5).reverse();
+  for (i = 0; i < r.length; i++) {
+    var li = document.createElement('li');
+    li.textContent = r[i].d.slice(5) + '　' + jpName(r[i].ex) + '　' + fmt(Number(r[i].f) || 0);
+    recEl.appendChild(li);
+  }
+}
+if (ls) {
+  sl.addEventListener('input', function () { val.textContent = fmt(sl.value); });
+  document.getElementById('ksave').addEventListener('click', function () {
+    if (!curKey) return;
+    var o = load();
+    o.logs.push({ d: ymd(new Date()), ex: curKey, f: Math.round(sl.value * 10) / 10 });
+    if (o.logs.length > 2000) o.logs = o.logs.slice(-2000);
+    try { ls.setItem(LOGKEY, JSON.stringify(o)); } catch (e) {}
+    logRender();
+  });
+  val.textContent = fmt(sl.value);
+}
+
+/* -------------------------------------------------- 8. ハッシュ直リンク */
+function fromHash() {
+  var h = (location.hash || '').replace('#', '');
+  if (h && typeof EXERCISES !== 'undefined' && EXERCISES[h]) window.setExercise(h);
+}
+addEventListener('hashchange', fromHash);
+
+ksize(); updCam(); kframe();
+/* 解剖メッシュのロード完了後に hash を効かせる（本体が最後に setExercise(null) を呼ぶため） */
+(function waitReady(n) {
+  if (window.__READY__) { setTimeout(fromHash, 60); return; }
+  if (n > 400) return;
+  setTimeout(function () { waitReady(n + 1); }, 150);
+})(0);
+})();
+</script>
+<!-- ============================================================ KATA LAYER END -->
+
 </body>
 </html>
