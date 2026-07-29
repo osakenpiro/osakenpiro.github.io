@@ -364,8 +364,8 @@ controls.addEventListener('start',()=>{controls.autoRotate=false;btnSpin.classLi
     opacity:0;transform:translateY(-6px);transition:.22s;pointer-events:none}
   #kata.show{opacity:1;transform:none;pointer-events:auto}
   #kata .kh{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
-  #kata .kh b{font-size:12.5px;color:#eaf6ff;letter-spacing:.04em}
-  #kata .kh i{font-style:normal;font-size:9.5px;letter-spacing:.16em;color:var(--dim);margin-left:auto}
+  #kata .kh b{font-size:12.5px;color:#eaf6ff;letter-spacing:.04em;white-space:nowrap}
+  #kata .kh i{font-style:normal;font-size:9.5px;letter-spacing:.16em;color:var(--dim);margin-left:auto;text-align:right;min-width:0}
   #kstage{position:relative;height:170px;border-radius:9px;overflow:hidden;
     background:linear-gradient(180deg,rgba(10,18,34,.85),rgba(5,9,18,.9));
     border:1px solid rgba(63,208,255,.10);touch-action:none;cursor:grab}
@@ -636,13 +636,33 @@ stage.addEventListener('touchmove', function (e) {
   radius += (pinchD - d) * 0.006; pinchD = d; idle = 0;
 }, { passive:false });
 
+/* パネルは #dock（種目ボタン）の上で止める。iPhone SE のような縦の短い画面だと
+   パネルがボタン列に覆いかぶさって種目が押せなくなる（実測 375x667 で発生）。
+   dock の位置は端末とボタン数で変わるので、CSS の決め打ちではなく実測で合わせる。 */
+function kfit() {
+  var dock = document.getElementById('dock');
+  if (!dock) return;
+  var top = panel.getBoundingClientRect().top;
+  var room = dock.getBoundingClientRect().top - top - 10;
+  if (room < 150) room = 150;
+  panel.style.maxHeight = room + 'px';
+  panel.style.overflowY = 'auto';
+  /* 余白が足りないときはミニ3Dのほうを先に削る。文字より絵を縮める。 */
+  var sh = 170;
+  if (innerWidth <= 600) sh = 132;
+  if (room < 400) sh = Math.max(88, sh - (400 - room));
+  stage.style.height = sh + 'px';
+}
+
 function ksize() {
+  kfit();
   var w = stage.clientWidth, h = stage.clientHeight;
   if (!w || !h) return;
   kren.setSize(w, h, false);
   kcam.aspect = w / h; kcam.updateProjectionMatrix();
 }
 addEventListener('resize', ksize);
+addEventListener('orientationchange', function () { setTimeout(ksize, 250); });
 
 /* -------------------------------------------------- 5. 状態とループ */
 var cur = null, curKey = null, playing = true, ngMode = false, elapsed = 0;
@@ -773,18 +793,23 @@ if (ls) {
 }
 
 /* -------------------------------------------------- 8. ハッシュ直リンク */
-function fromHash() {
-  var h = (location.hash || '').replace('#', '');
+/* 読み込み時点の hash を確保しておく。本体の初期化が setExercise(null) を通すと
+   ラッパが replaceState で hash を消すため、後から location.hash を読むと手遅れになる。 */
+var wantHash = (location.hash || '').replace('#', '');
+function fromHash(h) {
+  if (h === undefined) h = (location.hash || '').replace('#', '');
   if (h && typeof EXERCISES !== 'undefined' && EXERCISES[h]) window.setExercise(h);
 }
-addEventListener('hashchange', fromHash);
+addEventListener('hashchange', function () { fromHash(); });
 
 ksize(); updCam(); kframe();
 /* 解剖メッシュのロード完了後に hash を効かせる（本体が最後に setExercise(null) を呼ぶため） */
+/* 待ち時間を短く切らないこと: anatomy.glb + skeleton.glb で約35MB ある。
+   細い回線のスマホだと解凍まで数分かかる。60秒で諦めると直リンクが黙って死ぬ。 */
 (function waitReady(n) {
-  if (window.__READY__) { setTimeout(fromHash, 60); return; }
-  if (n > 400) return;
-  setTimeout(function () { waitReady(n + 1); }, 150);
+  if (window.__READY__) { setTimeout(function () { fromHash(wantHash); }, 60); return; }
+  if (n > 4000) return;   /* 約20分 */
+  setTimeout(function () { waitReady(n + 1); }, 300);
 })(0);
 })();
 </script>
