@@ -1,8 +1,8 @@
 <!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>背骨と系譜 — Boolean→Float 9 Papers Genealogy · osakenpiro</title>
-<meta name="description" content="Boolean→Float 9本の論文を1枚に。32本の線それぞれに、本文からの逐語引用と出典箇所。論文が自分で言っていることと、この図が読んだことを分けてある。#全人類UX改善">
+<meta name="description" content="Boolean→Float 9本の論文を1枚に。32本は逐語引用で裏取り、2本は「書かれるべきだったが書かれていない依存」として線種を分けた。#全人類UX改善">
 <meta property="og:title" content="背骨と系譜 — Boolean→Float 9 Papers">
-<meta property="og:description" content="9本がどこで繋がっているか。線1本ごとに逐語の根拠と出典。引かなかった線と、この図が間違えた5箇所も残してある。">
+<meta property="og:description" content="9本がどこで繋がっているか。線1本ごとに逐語の根拠と出典。根拠の強度も線種で分けた。引かなかった線と、この図が間違えた5箇所も残してある。">
 <meta property="og:type" content="website">
 <style>
 :root{
@@ -13,6 +13,7 @@
   --k-pre:#5f9ea0;       /* 予告 */
   --k-self:#b06ec4;      /* 自己適用 */
   --k-back:#d4783f;      /* 逆供給 */
+  --k-unw:#6f8ea3;       /* 未執筆の依存 */
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -190,14 +191,15 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 <header class="top">
   <h1><span class="bf">Boolean→Float</span> — 背骨と系譜<br><span style="font-size:19px;color:var(--mut);font-weight:400">9 Papers Genealogy</span></h1>
   <p class="lead">9本を1枚に。1本の背骨に対して各論文がどこを担当しているか、論文どうしがどこで繋がっているか。
-  <strong style="color:var(--ink)">引いた32本は全部、本文か参考文献リストからの逐語引用で裏を取ってある。</strong>
+  <strong style="color:var(--ink)">線は34本。うち32本は本文か参考文献リストからの逐語引用で裏を取ってある。</strong>
+  残り2本は<b style="color:var(--k-unw)">未執筆の依存</b>——両方の本文から導出できるが、どちらの論文にも書かれていない線。線種を分けて、根拠の強度が違うことを図の上で見えるようにしてある。
   「なんとなく近い」で引いた線は1本もない。引かなかった線も、<b>この図が読み込んだだけで論文は言っていないこと</b>も、最後に書いた。</p>
   <p class="lead" style="margin-top:10px;font-size:14px;color:var(--dim)">v2 — 2026-08-02。v1 は敵対的レビュー（skeptic）で5箇所が壊れたので作り直した。何を間違えたかは §09 の訂正履歴に残してある。</p>
 </header>
 
 <div class="tldr"><ol>
   <li><b>背骨は論文の自己記述、層はこの図の読み</b>。Boolean→Float の再定式化は 5・6・7・9 が自分で明示している（9 §2.1 の節題は "Against the Boolean Model of Privacy"）。<b>だが「土台／軸／応用」の階層は論文が否定している</b>——7 abstract は 5・6・7 を <q>unit vectors of a three-dimensional coordinate system</q> ＝同位と宣言する。この図は論文自身のまとまり（四部作／3G／9／8）で描き直した。</li>
-  <li><b>系譜は単調累積。例外は8だけ</b>。<b>引用した先行論文の数</b>は A=0 / B=1 / C=2 / D=3 / 5=4 / 6=5 / 7=6 / 9=8 と1本ずつ増える。<b>8だけ 0</b>（引かれるのは9からの1本のみ）。参考文献28件に2026年のエントリが無く、系列内自己引用が構造的に不可能。8は系譜の外で書かれ、9に1本だけ回収された。<br><span style="color:var(--dim);font-size:13.5px">※ 図の線が32本なのは、5→D が2本（引用＋自己適用）、予告が2本（5→6・6→7）別に立っているため。線の本数と引用先の数は一致しない。</span></li>
+  <li><b>系譜は単調累積。例外は8だけ</b>。<b>引用した先行論文の数</b>は A=0 / B=1 / C=2 / D=3 / 5=4 / 6=5 / 7=6 / 9=8 と1本ずつ増える。<b>8だけ 0</b>（引かれるのは9からの1本のみ）。参考文献28件に2026年のエントリが無く、系列内自己引用が構造的に不可能。8は系譜の外で書かれ、9に1本だけ回収された。<br><span style="color:var(--dim);font-size:13.5px">※ 図の線が34本なのは、5→D が2本（引用＋自己適用）、予告が2本（5→6・6→7）、未執筆の依存が2本（8→5・8→6）別に立っているため。線の本数と引用先の数は一致しない。</span></li>
   <li><b>反証は思ったところに無い</b>。反証条件を明示したのは8だけだが、8の予測は Boolean→Float の真偽と<b>独立</b>（全部当たっても外れてもFloatは無傷）。逆に系列が本当に荷重を掛けている 5・6・7 の限界章は非反証的な語で書かれている。<b>いちばん外しやすい論文に反証条件があり、外せない論文には無い。</b></li>
 </ol></div>
 
@@ -221,25 +223,25 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 番号上は7の次の8が、登録上は6と7のあいだにある（DOI連番＝登録順であって執筆順の証明ではない、という留保つき）。</div>
 
 <!-- ================= 地図 ================= -->
-<h2><span class="n">SECTION 02</span>系譜図 — 32本の線</h2>
+<h2><span class="n">SECTION 02</span>系譜図 — 34本の線</h2>
 <p class="sub">線にカーソルを乗せると根拠が下に出る。ノードを押すとその論文の線だけ残る。矢印は「引いている側 → 引かれている側」。</p>
 
 <div class="mapbox">
   <div class="ctrl">
-    <button class="btn on" id="b-bone">骨組み 19本（明示引用13本を隠す）</button>
-    <button class="btn" id="b-all">ぜんぶ 32本</button>
+    <button class="btn on" id="b-bone">骨組み 21本（明示引用13本を隠す）</button>
+    <button class="btn" id="b-all">ぜんぶ 34本</button>
     <button class="btn" id="b-reset">選択解除</button>
     <span class="hint">クリックで固定 / もう一度で解除</span>
   </div>
   <div class="mapscroll"><svg id="map" viewBox="0 0 1060 838" role="img" aria-label="Boolean→Float 9論文の系譜図。同じ内容は下の「根拠一覧」の表に32行すべて入っている。"></svg></div>
-  <p class="tblhint">図が読みにくい環境（スマホ・印刷・スクリーンリーダー）では、<a href="#etab">下の根拠一覧の表</a>に同じ32本が種類・逐語引用・出典つきで入っている。図は表の索引であって、表の代わりではない。</p>
+  <p class="tblhint">図が読みにくい環境（スマホ・印刷・スクリーンリーダー）では、<a href="#etab">下の根拠一覧の表</a>に同じ34本が種類・逐語引用・出典つきで入っている。図は表の索引であって、表の代わりではない。</p>
   <div class="legend" id="legend"></div>
   <div class="ev" id="ev"><div class="idle">線かノードを選ぶと、ここに根拠（本文からの逐語引用と出典箇所）が出る。</div></div>
 </div>
 
 <!-- ================= エッジ表 ================= -->
-<h2><span class="n">SECTION 03</span>根拠一覧 — 引いた線、全部</h2>
-<p class="sub">図をなぞらなくても読めるように、同じ内容を表にした。<b>根拠が空の行は無い</b>。</p>
+<h2><span class="n">SECTION 03</span>根拠一覧 — 引いた線、全部（34本）</h2>
+<p class="sub">図をなぞらなくても読めるように、同じ内容を表にした。<b>根拠が空の行は無い</b>。<b style="color:var(--k-unw)">未執筆の依存</b>の2行だけは根拠の性質が違う——両側の本文は引くが、両者を繋ぐ文は存在しない。注記に必ずそう書いてある。</p>
 <div class="ctrl" style="border:1px solid var(--line);border-radius:6px 6px 0 0;margin-top:14px">
   <button class="btn on" data-f="all">全部</button>
   <button class="btn" data-f="骨">構造的依存 12</button>
@@ -247,6 +249,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
   <button class="btn" data-f="引用">明示引用 13</button>
   <button class="btn" data-f="予告">予告 2</button>
   <button class="btn" data-f="自己適用">自己適用 1</button>
+  <button class="btn" data-f="未執筆">未執筆の依存 2</button>
   <span class="hint" id="fcount"></span>
 </div>
 <div class="tscroll"><table id="etab"><thead><tr>
@@ -293,6 +296,15 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 8 §6.1: <q>The three states of matter (solid, liquid, gas) are not a physical law but a cognitive convenience. The underlying reality is a continuous spectrum of molecular configurations; humans <b>impose</b> a triadic classification because three is the ground-state resolution of categorization.</q><br><br>
 つまり8を支持として引くと、8はこう言うことになる——<b>「9が三を選んだのは対象が三だからではなく、著者が人間だから」</b>。warrant が調達先によって掘り崩される。
 同じ刃は 7 の三軸（空間感覚・時間経験・所有親密）にも 9 の三層（blockchain・NFT・AI）にも向く。8が系列にとって危険なのは事実だが、<b>危険の所在は「Float の限界」ではなく「系列に遍在する三分割の恣意性」</b>。</div>
+
+<h3>未執筆の依存 —— 引用は無いが、関係はある</h3>
+<div class="warn" style="border-left:3px solid var(--k-unw)"><b>8 → 5 ／ 8 → 6 の2本は、引用ではなく「書かれるべきだったが書かれていない依存」として引いてある。</b>線種を分けてあるので、逐語引用で裏を取った32本とは図の上で区別できる。
+<ul style="margin:10px 0 0;padding-left:19px;line-height:1.75">
+<li><b>8 → 5</b>: 5の貢献ベクトルは人間の自己申告で作られる（5 §9 <q>an informed judgment, not a measurement</q>）。そこに8の予測1（連続刺激空間の自由分類は最頻3カテゴリ）が当たると、<b>[0,1] は実務上3バンドに丸められる</b>。＝Float の実効分解能の上限を8が与えうる。5 §5.3 の <q>even a rough float estimate carries more information than a Boolean</q> は、丸め先が3ならBooleanの2に近いので効き幅が狭まる。</li>
+<li><b>8 → 6</b>: 6は心を6次元 K=(k₁…k₆) で測るが、測るのは §6.3 の分散した人間の代理評価者。8の下方圧縮則（n&gt;3→3）が正しければ<b>6次元は評価者の中で3前後に潰れる</b>。6 §8 の <q>difficult to measure with precision</q> に、8は機構を与えうる。</li>
+</ul>
+<b>どちらも、両側の本文には根拠があるが、両者を繋ぐ文はどこにも存在しない。</b>8は5も6も引かず、5も6も8を引かない。</div>
+<p class="sub tight">なお <b>8 → 7 は引いていない</b>。7 §2.4 は自分の三軸を <q>Why Three Axes—A Hypothesis, Not a Theorem</q> と明言しており、8はまさにその欠けた根拠を出しうるので、<b>未執筆の依存としては上の2本より強い</b>。引かなかったのは今回の指示に含まれていないからで、この空白は意図的。</p>
 
 <h3>読める向き（2）—— 8は制約を主張していない</h3>
 <p class="sub">v1 は8を「Float の使用限界」と読んだ。その読みには<b>記述（人間の既定解像度は3）から規範（設計はその解像度に従うべき）への橋</b>が要る。8はその橋を架けていない。むしろ逆で、
@@ -341,7 +353,9 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 <p class="sub">「引ける気がするが根拠が無い」ものを、根拠が無いこととして残す。ここが空だと系譜は嘘になる。</p>
 <ul class="nodraw">
   <li><b>A → どこにも無し。</b>参考文献14件すべて外部。系列内自己引用ゼロ。唯一の自己言及は <q>The author's philosophical framework was developed over a series of essays published on the Japanese platform Note</q> で、指しているのは note.com の随筆であって論文ではない。<b>Aは根であって、根から出る線は無い。</b></li>
-  <li><b>8 → どこにも無し。</b>参考文献28件に系列内引用ゼロ、2026年の文献ゼロ。8→5, 8→6 は内容的には引けそうに見えるが（3値カテゴリ vs Float、認知容量 vs kokoro 6次元）、<b>テキスト上の根拠が1文字も無いので引かない。</b>紛らわしい空振り2件（Propp の Morphology / Boolean satisfiability）も線にしない。</li>
+  <li><b>8 → 引用としては、どこにも無し。</b>参考文献28件に系列内引用ゼロ、2026年の文献ゼロ。紛らわしい空振り2件（Propp の <q>Morphology of the Folktale</q> ／ <q>Boolean satisfiability</q>）も引用ではない。
+<br><b>ただし 8→5 と 8→6 は「未執筆の依存」として引いた</b>（線種を分けてある）。引用が無いことは変わらない。変えたのは<b>「引用が無い＝関係が無い」ではない</b>という扱いのほう。詳細は「8はどこにいるか」の §未執筆の依存 を参照。
+<br><b>8→7 は引いていない。</b>7 §2.4 は自分の三軸を <q>Why Three Axes—A Hypothesis, Not a Theorem</q> と明言していて、8はまさにその欠けた根拠を出しうる。つまり<b>未執筆の依存としては 8→5・8→6 より強い</b>。それでも引かなかったのは、今回の指示に含まれていないから。<b>引くべきかは本人判断で、この空白は意図的なもの。</b></li>
   <li><b>7 → 8、および 5/6 → 7以降。</b>いずれも当該論文の執筆時点で相手が未完。5→6 と 6→7 は「本文で名指し・参考文献 entry 無し」という半端な形で残っており、これは<b>予告</b>として別の線種にした。実線にすると引用実績を偽装することになる。</li>
   <li><b>B → C以降。</b>Bは唯一 A のみを引く。Bを系列のハブに描きたくなるが、根拠が無い。
 <br>ただし<b>B自身がここで矛盾している</b>のは記録しておく価値がある。脚注03は <q>The argument here is independent of the wider Boolean-to-Float series in which it sits.</q> と系列からの独立を宣言しながら、
@@ -396,7 +410,8 @@ const KINDS={
  '逆供給'  :{c:'var(--k-back)', w:2.6, d:null,     label:'逆供給',     desc:'後続が先行に機構を供給している。ふつう説明は先行→後続へ流れるが、これは逆流。矢印の向きは引用と同じ'},
  '引用'    :{c:'var(--k-cite)', w:1.5, d:null,     label:'明示引用',   desc:'参考文献リストに entry があり、本文で要約されている'},
  '予告'    :{c:'var(--k-pre)',  w:1.8, d:'7 5',    label:'予告',       desc:'本文で名指しされているが参考文献 entry が無い（執筆時点で相手が未完）'},
- '自己適用':{c:'var(--k-self)', w:2.2, d:'2 4',    label:'自己適用',   desc:'後続が先行を含む自シリーズを、自分の道具の適用対象にしている'}
+ '自己適用':{c:'var(--k-self)', w:2.2, d:'2 4',    label:'自己適用',   desc:'後続が先行を含む自シリーズを、自分の道具の適用対象にしている'},
+ '未執筆'  :{c:'var(--k-unw)',  w:2.0, d:'1 6',    label:'未執筆の依存', desc:'両方の本文から導出できるが、どちらの論文にも書かれていない。引用ではなく「書かれるべきだった線」として引いている'}
 };
 
 const NODES=[
@@ -486,7 +501,7 @@ const NODES=[
   bq:'The three states of matter (solid, liquid, gas) are not a physical law but a cognitive convenience. The underlying reality is a continuous spectrum of molecular configurations; humans impose a triadic classification because three is the ground-state resolution of categorization.',
   bqj:'物質の三態（固体・液体・気体）は物理法則ではなく認知の都合である。その下にある実在は分子配置の連続スペクトルだ。人間が三分類を課すのは、三が分類の基底状態の解像度だから。',
   bl:'8 §6.1',
-  role:'系譜の外。出る線0本・入る線1本、その1本は9からの「支持」。<b>8はFloatについて何も言っていない</b>——Float / continuous value / 0.0 は0件、Boolean は SAT の意味のみ。8 §6.2 は3か4かを「a design decision expressing whether closure or openness is desired」＝設計者が選ぶ量と書いており、制約とは書いていない。系列で唯一の反証条件（§3.5）を持つ論文ではあるが、その条件は「三が既定か」を問うもので Boolean→Float の真偽とは独立している。「8はどこにいるか」の節を参照。',
+  role:'引用で言えば出0・入1（その1本は9からの「支持」）。加えて<b>未執筆の依存を2本（8→5・8→6）引いた</b>——引用は無いが両側の本文から導出できる関係。<b>8はFloatについて何も言っていない</b>——Float / continuous value / 0.0 は0件、Boolean は SAT の意味のみ。8 §6.2 は3か4かを「a design decision expressing whether closure or openness is desired」＝設計者が選ぶ量と書いており、制約とは書いていない。系列で唯一の反証条件（§3.5）を持つ論文ではあるが、その条件は「三が既定か」を問うもので Boolean→Float の真偽とは独立している。「8はどこにいるか」の節を参照。',
   give:'Ground State Hypothesis／ 下方圧縮 n&gt;3→3・上方展開 n&lt;3→3／ 観測者＝第三項／ 反証条件4件',
   ref:'系列内引用ゼロ（参考文献28件すべて外部）'}
 ];
@@ -647,6 +662,16 @@ const EDGES=[
  loc:'9 §7',
  n:'9の期待被害 E = D1×D2×D3×I の I（影響の大きさ）は誰にとって重いかで変わる。その重さを7が供給する。'},
 
+{f:'8',t:'5',k:'未執筆',w:'8の3バンド則が、5の貢献ベクトルの実効分解能を上から抑える',
+ q:'【8側】§3.5 予測1: In free categorization tasks where participants are asked to divide a continuous stimulus space … into groups without instruction on how many groups to form, the modal number of categories should be three. ／ §6.1: humans impose a triadic classification because three is the ground-state resolution of categorization. 　【5側】§5.1 原理2: Contributions are represented as continuous values in [0, 1] that sum to 1.0 for any given artifact. ／ §9: Contribution ratios are inherently subjective … this is an informed judgment, not a measurement.',
+ loc:'8 §3.5 / §6.1 ⇄ 5 §5.1 / §9',
+ n:'⚠ <b>この線はどちらの論文にも書かれていない。</b>8は5を引かず、5は8を引かない（5の刊行時に8は未登録）。導出はこう——5の貢献ベクトルは人間の自己申告で作られる（5 §9 が measurement ではないと明言している）。そこに8の予測1が当たると、[0,1] の連続値は実務上3バンド前後に丸められる。つまり<b>Float の実効分解能の上限を8が与えうる</b>。5 §5.3 の「粗いfloat推定でもBooleanより情報量が多い」という断定は、丸め先が3ならBooleanの2に近いので、8はこの断定の効き幅を狭める側に働く。<b>根拠は両側の本文にあるが、両者を繋ぐ文はどこにも無い。</b>'},
+
+{f:'8',t:'6',k:'未執筆',w:'8の下方圧縮則が、6の kokoro 6次元を人間の代理評価者が扱えるかを問う',
+ q:'【8側】§2.2 Working Memory（同時保持は3〜4項目）／ §3.1 Downward Compression (n > 3 → 3)。　【6側】K=(k₁,…,k₆), kᵢ∈[0,1] の6次元 kokoro vector ／ §6.3 The Proxy Problem and Distributed Assessment（評価するのは分散した人間の代理者）／ §8: difficult to measure with precision.',
+ loc:'8 §2.2 / §3.1 ⇄ 6 §4 / §6.3 / §8',
+ n:'⚠ <b>この線はどちらの論文にも書かれていない。</b>6は8を引かず（2026a–e のみ）、8は誰も引かない。導出はこう——6は心を6次元ベクトルで測るが、測るのは §6.3 の分散した人間の代理評価者。8の下方圧縮則（n&gt;3→3）が正しければ、<b>6次元は評価者の中で3前後に潰れる</b>。6 §8 の「精度をもって測るのが難しい」という自己申告に、8は機構を与えうる。<b>ただし8自身は §6.2 で3か4かを「a design decision」と書いており、次元数を制約として主張してはいない。</b>この線は8の主張の延長であって、8の主張ではない。'},
+
 {f:'9',t:'8',k:'骨',w:'9が自分の三段構造の「理論的支持」として8を調達する',
  q:'[Author] (2026h) hypothesized that three is the cognitive ground state of human information processing --- providing theoretical support for the triadic structure of the decodability model (D1, D2, D3) and the three-layer infrastructure (blockchain, NFT, AI).',
  loc:'9 §7 / 参考文献 2026h',
@@ -754,7 +779,7 @@ const gAn2=el('g');svg.appendChild(gAn2);
 gAn2.appendChild(el('rect',{x:712,y:668,width:326,height:36,rx:5,fill:'#12151c',
   stroke:'#262b36','stroke-width':1,opacity:'.94'}));
 const an1=el('text',{x:875,y:683,class:'note-txt','text-anchor':'middle'});
-an1.textContent='入る線1本 / 出る線0本 — その1本は「支持」';gAn2.appendChild(an1);
+an1.textContent='引用: 入1 / 出0（その1本は「支持」）+ 未執筆の依存2本';gAn2.appendChild(an1);
 const an2=el('text',{x:875,y:699,class:'note-txt','text-anchor':'middle','fill':'#8a6a50'});
 an2.textContent='参考文献28件に系列内引用ゼロ・2026年の文献ゼロ';gAn2.appendChild(an2);
 const an3=el('text',{x:250,y:62,class:'note-txt','text-anchor':'middle'});
@@ -910,8 +935,10 @@ REF.forEach(r=>{const n=byId[r.id];const tr=document.createElement('tr');
     if(!KINDS[e.k])errs.push(`E${i}: 未知の線種 ${e.k}`);
   });
   ids.forEach(id=>{if(!EDGES.some(e=>e.f===id||e.t===id))errs.push(`孤立ノード: ${id}`)});
+  const cited=EDGES.filter(e=>e.k!=='未執筆').length, unw=EDGES.filter(e=>e.k==='未執筆').length;
+  EDGES.filter(e=>e.k==='未執筆').forEach(e=>{if(!/書かれていない/.test(e.n))errs.push(`未執筆 ${e.f}->${e.t}: 「書かれていない」の明示が無い`)});
   console.log(errs.length?'⚠ SELF-CHECK FAILED\n'+errs.join('\n')
-    :`✅ SELF-CHECK OK — ノード${NODES.length} / エッジ${EDGES.length} / 根拠の空欄0 / 孤立ノード0`);
+    :`✅ SELF-CHECK OK — ノード${NODES.length} / エッジ${EDGES.length}（引用に基づく${cited} + 未執筆${unw}）/ 根拠の空欄0 / 孤立ノード0`);
 })();
 document.body.addEventListener('click',()=>{if(locked){locked=false;lockedI=null;
   paths.forEach(p=>p.classList.remove('sel'));}});
