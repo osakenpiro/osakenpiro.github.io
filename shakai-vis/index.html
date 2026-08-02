@@ -36,6 +36,7 @@
     font-size:11px; padding:3px 9px; cursor:pointer; font-family:inherit; letter-spacing:.04em;
     transition:color .15s,border-color .15s,background .15s; user-select:none;
   }
+  @media (max-width:600px){ #bGyotai{display:none} }
   button:hover{color:var(--ink); border-color:var(--dim)}
   button.act{color:var(--gold); border-color:var(--gold)}
   #bHonmaru.act{color:#e8b9a0; border-color:#c87a55; background:rgba(200,122,85,.08)}
@@ -45,6 +46,7 @@
   #bDiurnal.act{color:#c9b06a; border-color:#a8893f; background:rgba(200,160,70,.08)}
   #bKosho.act{color:#cf9d6b; border-color:#a87a4a; background:rgba(190,140,80,.08)}
   #bShoryu.act{color:#7fc9c2; border-color:#4f9a95; background:rgba(90,170,165,.10)}
+  #bGyotai.act{color:#e2b866; border-color:#b3873c; background:rgba(200,160,70,.10)}
   .chip{display:flex; align-items:center; gap:5px}
   .chip .dot{width:8px; height:8px; border-radius:50%; background:currentColor; display:inline-block}
   .chip.on{color:var(--ink)}
@@ -88,6 +90,7 @@
   .ldot{display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--life)}
   .ltri{display:inline-block; width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-bottom:9px solid var(--dim)}
   .credit{margin-left:auto; letter-spacing:.04em}
+  footer a{color:var(--gold); text-decoration:underline}
 </style>
 </head>
 <body>
@@ -111,6 +114,7 @@
     </div>
     <div class="grp">
       <button id="bShoryu" title="平時に何がどう回っているか——素材が地面から手元へ流れる8段。本丸☠と重ねると、どの段から止まるかが出る">商流 🌊</button>
+      <button id="bGyotai" title="段の中で、誰が通しているか——9種の商いを柱として立てる。柱の中の液面＝在庫、金の帯＝粗利、折れ方＝死に方。商流🌊 の中で効く">業態 🏮</button>
       <button id="bTenote" title="人がいないと動かない＝人の手依存を常時強調">人の手 ✋</button>
       <button id="bHonmaru" title="人類消失後、何が止まり、何が止まらないかをシミュレート">本丸 ☠</button>
       <button id="bFault" title="ノードをクリックで停止→下流へカスケード波及">障害 ⚡</button>
@@ -139,7 +143,7 @@
   <span class="lg"><span class="ltri"></span> 発生源（△）</span>
   <span class="lg"><span class="ldash"></span> レイヤー間依存</span>
   <span class="lg"><span class="ldot"></span> 生物圏（無人で不滅）</span>
-  <span>時代スライダー＝江戸⇄1965⇄現代を補間／商流🌊＝8段の川／本丸☠＝人類消失シミュ／マウス＝考証</span>
+  <span>時代＝江戸⇄1965⇄現代／商流🌊＝8段の川／業態🏮＝商い9種／本丸☠＝消失シミュ／📚<a href="https://osakenpiro.github.io/sozai-zukan-mokuji/" target="_blank" rel="noopener">素材ライン目次</a></span>
   <span class="credit">HC: 🍵ボク × 🔧ツルこ ／ 🌞タバネさん見守り</span>
 </footer>
 
@@ -275,6 +279,7 @@
 (function(){
   "use strict";
   var LSKEY = "shakai-vis-v0";
+  var MOKUJI_URL = "https://osakenpiro.github.io/sozai-zukan-mokuji/";
 
   /* ---------- era data ---------- */
   var EMB = JSON.parse(document.getElementById("dataEmbed").textContent);
@@ -288,7 +293,7 @@
   function availEras(){ return eraDefs.filter(function(e){ return !!eraData[e.id]; }); }
 
   /* ---------- state ---------- */
-  var state = { view: "top", anim: true, on: { }, solo: null, honmaru: false, clock: 0.0, simPlay: false, era: 0.667, tenote: false, fault: false, faults: [], phantom: false, diurnal: false, kosho: false, shoryu: false, shoSolo: null };
+  var state = { view: "top", anim: true, on: { }, solo: null, honmaru: false, clock: 0.0, simPlay: false, era: 0.667, tenote: false, fault: false, faults: [], phantom: false, diurnal: false, kosho: false, shoryu: false, shoSolo: null, gyoutai: false };
   try {
     var saved = JSON.parse(localStorage.getItem(LSKEY) || "null");
     if (saved) {
@@ -432,6 +437,180 @@
     loop:  { c:0.80, u:"https://www.env.go.jp/recycle/" }
   };
 
+
+  /* ================= 業態9種 v9.2 —— 段の中に立つ柱 =================
+     よこ（段）＝どこを通るか、たて（素材）＝何が通るか。
+     業態はその交点に立っている「誰が通しているか」。持たせたのは3つだけ:
+       own = 何を持つか（0=何も持たない …… 1=在庫を抱えている）
+       mar = どう儲けるか（粗利Float。率であって額ではない）
+       die = 何で死ぬか
+     本丸での寿命は手打ちしない。既存の T[]（段の消失日）から導く:
+       持つ商売（own≥0.30）  … 扱う素材のうち、いちばん最後まで届いている段まで立っている
+       持たない商売（own<0.30）… 最初の1本が切れた時点で折れる（在庫が無いので粘れない）
+     ＝「持っているぶんだけ、立っていられる」というモデル上の前提であって、実測ではない。 */
+  var GYO = [
+    { id:"kensa", stg:3, c:"#c9a75e",
+      nm:{ edo:"極印・目利き", s40:"検査・規格", modern:"検査認証", ooba:"—" },
+      sh:{ edo:"極印", s40:"検査規格", modern:"検査認証", ooba:"—" },
+      own:0.00, ownd:"在庫はゼロ。持っているのは「これは規格どおりだ」と言える立場ひとつ。",
+      mar:0.35, mard:"試験料と、認証を維持するための年間の料金。モノを持たないので、この9つのなかでは粗利率がいちばん高い。",
+      die:"信用", dief:0.95,
+      died:"通してはいけないものを一度通すと、過去に出した印がさかのぼって疑われる。積み上げた年数がそのまま損になる。",
+      ex:{ edo:0.35, s40:0.60, modern:0.90, ooba:0 },
+      mats:["ishi","kino","pura","conc","siri"],
+      d:"JIS・ISO・建材の大臣認定・電気用品の適合。誰も現物を動かさないのに、これが無いと現物が動かない段。" },
+    { id:"sogo", stg:2, c:"#7fb4c9",
+      nm:{ edo:"—", s40:"総合商社", modern:"総合商社", ooba:"—" },
+      own:0.35, ownd:"モノは通り抜けるだけ。近ごろ持っているのは、権益そのもの（鉱山・ガス田）のほう。",
+      mar:0.05, mard:"口銭は数％。いまは事業投資の持分利益のほうが大きい。薄い率を、桁の大きい額で回す。",
+      die:"与信", dief:0.80,
+      died:"1社の焦げつきが1年ぶんの口銭を持っていく。売った瞬間ではなく、入金した瞬間にはじめて儲けが確定する商売。",
+      ex:{ edo:0, s40:1.00, modern:0.75, ooba:0 },
+      mats:["kino","pura","siri"],
+      d:"距離・時間・価格・規制という4つのズレを、まとめて引き受けて通す。持たないことが商品になっている。" },
+    { id:"senmon", stg:2, c:"#8fc79a",
+      nm:{ edo:"—", s40:"専門商社", modern:"専門商社", ooba:"—" },
+      own:0.60, ownd:"分野を絞って在庫を持つ。鉄鋼・化学・紙・建材・電子部品。持つから、小口に切って売れる。",
+      mar:0.10, mard:"仕入れと売りのスプレッド。小分け・即納・返品を引き受けたぶんが乗る。",
+      die:"直販", dief:0.70,
+      died:"メーカーが自分で売りはじめた瞬間に、分野ごと要らなくなる。分野そのものが縮むときも一緒に縮む。",
+      ex:{ edo:0, s40:0.70, modern:0.85, ooba:0 },
+      mats:["ishi","kino","pura","conc","siri"],
+      d:"総合商社が薄く広く通すのに対して、こちらは狭く深く持つ。目利きが在庫として立っている。" },
+    { id:"kinyu", stg:2, c:"#b79ad0",
+      nm:{ edo:"掛け・両替", s40:"商社金融", modern:"商社金融", ooba:"—" },
+      own:0.05, ownd:"持っているのはモノではなく日数。払う日と入る日のあいだを肩代わりしている。",
+      mar:0.02, mard:"金利差と手形の割引。率はこの9つでいちばん薄いが、動かす元本が大きい。",
+      die:"金利と倒産", dief:0.85,
+      died:"自分は何も間違えなくても、金利が上がるか、相手が倒れるかで死ぬ。相手の都合でしか死なない商売。",
+      ex:{ edo:0.60, s40:0.80, modern:0.70, ooba:0 },
+      mats:["kino","pura","siri"],
+      d:"江戸の掛け売り・為替・両替から続いている。商流でいちばん見えにくく、止まるとその段の全部が同時に止まる。" },
+    { id:"tonya", stg:4, c:"#d8a05e",
+      nm:{ edo:"十組問屋・株仲間", s40:"問屋", modern:"卸・問屋", ooba:"—" },
+      sh:{ edo:"十組問屋", s40:"問屋", modern:"卸・問屋", ooba:"—" },
+      own:0.85, ownd:"在庫を抱えて、多対多を畳む。1万×1万の線を、10社で2万本にする。",
+      mar:0.12, mard:"建値と現金のスプレッド。小分け・配送・返品をまとめて引き受けたぶんが粗利になる。",
+      die:"中抜き", dief:0.75,
+      died:"畳んだ線を、誰かがもっと安く畳んだ瞬間に要らなくなる。畳む技術そのものが商品なので、代わりが出ると一気に消える。",
+      ex:{ edo:1.00, s40:0.95, modern:0.55, ooba:0 },
+      mats:["ishi","kino","pura"],
+      d:"江戸ではこの柱がいちばん太い。株仲間として値と量を握り、幕府もそれを使って物価を見ていた。" },
+    { id:"souko", stg:4, c:"#9aa7bd",
+      nm:{ edo:"蔵・河岸", s40:"倉庫・運送", modern:"物流倉庫（3PL）", ooba:"—" },
+      sh:{ edo:"蔵・河岸", s40:"倉庫運送", modern:"物流倉庫", ooba:"—" },
+      own:0.15, ownd:"場所と時間は持っているが、中身は他人のもの。所有権を持たないまま現物を握っている、めずらしい立ち位置。",
+      mar:0.08, mard:"保管料は面積×日数、そこに荷役料が乗る。空いた棚は、空いたまま賃料だけが出ていく。",
+      die:"稼働率", dief:0.70,
+      died:"埋まっていれば黒、少し空くと赤。大口が1社抜けた穴は、同じ大きさの荷主でないと埋まらない。",
+      ex:{ edo:0.50, s40:0.70, modern:0.90, ooba:0 },
+      mats:["kino","pura","siri"],
+      d:"江戸の蔵屋敷と河岸から続く。持たずに預かるので、止まっても中身はそこに在り続ける。" },
+    { id:"disti", stg:4, c:"#6fb0d8",
+      nm:{ edo:"—", s40:"代理店", modern:"ディストリビュータ", ooba:"—" },
+      sh:{ edo:"—", s40:"代理店", modern:"ディストリ", ooba:"—" },
+      own:0.70, ownd:"在庫と、技術サポートを持つ。半導体ではメーカーの代わりに設計の相談まで受ける。",
+      mar:0.07, mard:"スプレッドに、デザインイン報酬（この部品を採用させたら入る）が乗る。",
+      die:"陳腐化", dief:0.80,
+      died:"半導体は待っているだけで値が落ちる。棚の上で在庫が痩せていく。売れ残りは古びるのではなく、安くなる。",
+      ex:{ edo:0, s40:0.30, modern:0.85, ooba:0 },
+      mats:["pura","siri"],
+      d:"問屋との違いは、モノだけでなく「使い方」も一緒に流していること。" },
+    { id:"kouri", stg:5, c:"#e0798b",
+      nm:{ edo:"棒手振・見世", s40:"商店街", modern:"小売・EC", ooba:"—" },
+      sh:{ edo:"棒手振", s40:"商店街", modern:"小売EC", ooba:"—" },
+      own:0.45, ownd:"持つときと持たないときがある。いつでも持っているのは、客の顔と、買った履歴。",
+      mar:0.25, mard:"粗利に、出店手数料と広告が乗る。棚を貸すほうが、売るより厚くなってきている。",
+      die:"送料と返品", dief:0.75,
+      died:"1個あたり数百円の物流費が、粗利をそのまま食う。売れるほど運ぶことになる。",
+      ex:{ edo:0.80, s40:0.90, modern:1.00, ooba:0 },
+      mats:["ishi","kino","pura","siri"],
+      d:"最後の1キロ。この段だけが客の顔を見ていて、そのぶん流れの中でいちばん情報を持っている。" },
+    { id:"recy", stg:7, c:"#7fbf8f",
+      nm:{ edo:"灰買い・紙屑買い", s40:"くず鉄・古紙", modern:"リサイクラー", ooba:"—" },
+      sh:{ edo:"灰買い", s40:"くず鉄", modern:"リサイクラー", ooba:"—" },
+      own:0.90, ownd:"他人が捨てたものを、拾った瞬間に自分のものにする。仕入れがマイナス価格になりうる商売。",
+      mar:0.15, mard:"引き取り料をもらい、素材を売る。両側から取れるが、相場が落ちると両側とも細る。",
+      die:"相場と混合", dief:0.80,
+      died:"混ざったものは、拾っても売れない。分ける手間より相場が安ければ、そこで輪が切れる。",
+      ex:{ edo:1.00, s40:0.70, modern:0.60, ooba:0 },
+      mats:["ishi","kino","pura","conc","siri"],
+      d:"江戸ではこの柱が太かった。灰も紙屑も古着も値がついて、木はほとんど地面へ戻っていた。" }
+  ];
+  /* 商いが立たない段。「地面と手元のあいだにしか、商いは立たない」 */
+  var GYO_NONE = ["掘る人しかいない", "作り変える人しかいない", null, null, null, null, "使う人しかいない", null];
+
+  var gyoKill = {}, gyoAnyKill = false, gyoCutTbl = null, gyoHit = [], gyoHov = null;
+  var GYO_BY_ST = null, shoFrame = null;
+  function gyoByStage(){
+    if (GYO_BY_ST) return GYO_BY_ST;
+    GYO_BY_ST = [[],[],[],[],[],[],[],[]];
+    for (var i = 0; i < GYO.length; i++) { GYO[i].i = i; GYO_BY_ST[GYO[i].stg].push(GYO[i]); }
+    return GYO_BY_ST;
+  }
+  function gyoEraV(g){ var a = g.ex[curBr.A.id] || 0, b = g.ex[curBr.B.id] || 0; return a + (b - a) * curBr.t; }
+  function gyoName(g){ return g.nm[shoEraId()] || g.nm.modern; }
+  function gyoShort(g){ return (g.sh && (g.sh[shoEraId()] || g.sh.modern)) || gyoName(g); }
+  /* 中抜き：畳んだ商いのぶんだけ、その段のその素材が細る。畳んでいなければ gyoCutTbl は null＝流量に一切触らない。 */
+  function gyoRebuildCut(){
+    gyoCutTbl = null;
+    if (!gyoAnyKill) return;
+    var bs = gyoByStage(), tbl = {}, si, k, mi, g, ev, id, any = false;
+    for (si = 0; si < 8; si++) {
+      var tot = {}, kil = {};
+      for (k = 0; k < bs[si].length; k++) {
+        g = bs[si][k]; ev = gyoEraV(g); if (ev < 0.02) continue;
+        for (mi = 0; mi < g.mats.length; mi++) {
+          id = g.mats[mi];
+          tot[id] = (tot[id] || 0) + ev;
+          if (gyoKill[g.id]) kil[id] = (kil[id] || 0) + ev;
+        }
+      }
+      for (id in kil) { if (tot[id] > 0) { tbl[id + "@" + si] = Math.min(1, kil[id] / tot[id]); any = true; } }
+    }
+    if (any) gyoCutTbl = tbl;
+  }
+  /* 柱の寿命は手打ちしない。既存の T[段]（その段が止まる日）と hold[段]（その段の在庫日数）から導く。
+       止まる日 base = その商いが扱う素材のうち、いちばん最後まで届いている段の T
+       折れる日 dday = max( T[段] + 所有Float × hold[段] )
+     ＝「段が止まってから、自分が持っているぶんだけ余分に立っていられる」。
+     所有Float=0 の商売は base と dday が重なる＝在庫を食う時間そのものが無い。 */
+  function gyoSpan(g){
+    if (!shoFrame) return null;
+    var base = null, dday = null, k;
+    for (k = 0; k < SHO_MAT.length; k++) {
+      var m = SHO_MAT[k]; if (g.mats.indexOf(m.id) < 0) continue;
+      if (shoFrame.wvs[k][g.stg] < 0.025) continue;
+      var t = shoFrame.Ts[k][g.stg];
+      if (t >= 40000) continue;          /* 人の手を離れて回っている段は、商いの寿命ではない */
+      var e = t + g.own * (m.hold[g.stg] || 0);
+      if (base == null || t > base) base = t;
+      if (dday == null || e > dday) dday = e;
+    }
+    if (dday == null) return null;
+    return { base: base, dday: dday };
+  }
+  function gyoDay(g){ var s = gyoSpan(g); return s ? s.dday : null; }
+  function gyoUpDay(g){ var s = gyoSpan(g); return s ? s.base : null; }
+  /* 0=立っている 1=在庫を食っている 2=折れた 3=畳んだ（中抜き） */
+  function gyoState(g, d, hm){
+    if (gyoKill[g.id]) return 3;
+    if (shoKill[SHO_ST[g.stg].id]) return 2;
+    if (!hm) return 0;
+    var sp = gyoSpan(g); if (!sp) return 0;
+    if (d >= sp.dday) return 2;
+    if (d >= sp.base) return 1;
+    return 0;
+  }
+  function gyoTally(d, hm){
+    var bs = gyoByStage(), si, k, live = 0, tot = 0;
+    for (si = 0; si < 8; si++) for (k = 0; k < bs[si].length; k++) {
+      var g = bs[si][k]; if (gyoEraV(g) < 0.02) continue;
+      tot++; if (gyoState(g, d, hm) <= 1) live++;
+    }
+    return { live: live, tot: tot };
+  }
+
   var shoKill = {};                 /* 段を消してみる（stage id -> 1） */
   var shoHit  = { cells: [], stages: [], legend: [] };
   var shoHover = null;              /* {mi, si} or {legend:mi} or {stage:si} */
@@ -442,6 +621,7 @@
   function shoWv(m){
     var a = m.w[curBr.A.id] || Z8, b = m.w[curBr.B.id] || Z8, o = [], i;
     for (i = 0; i < 8; i++) o.push(a[i] + ((b[i]||0) - (a[i]||0)) * curBr.t);
+    if (gyoCutTbl) { for (i = 0; i < 8; i++) { var r = gyoCutTbl[m.id + "@" + i]; if (r) o[i] = o[i] * (1 - r); } }
     return o;
   }
   /* 段の高さ（幅0.42の帯を挟んで欠落段は完全に切る＝「流通が存在しない」を細さでなく途切れで描く） */
@@ -861,13 +1041,130 @@
     if (d < 3000)   return "<b>Day 2</b> 最後まで流れていたのは<b>石の建材問屋</b>だった。近いものは、最後まで近い";
     return "<b>Year 8+</b> 手元の木が腐り落ちる。石とコンクリとプラは、まだそこに在る——時代スライダー右端『大葉 2126』と同じ絵";
   }
+
+  /* ---------- 業態の柱：ガラスの管が段の中に立っている ----------
+     液面＝在庫（own）／上の金帯＝粗利（mar）／縦書き＝屋号／折れた下＝死因 */
+  /* pass 0 = 器と在庫（帯の下に敷く。柱で川を隠さないため）／ pass 1 = 屋号・金帯・折れ（帯の上に載せる） */
+  function drawGyoutai(pass, now, d, x0, colW, ly0, lyH, narrow, hm){
+    var bs = gyoByStage(), si, k;
+    var top = ly0 + 3, hgt = Math.max(30, lyH - 6);
+    for (si = 0; si < 8; si++) {
+      var cx = x0 + (si + 0.5) * colW, nSlot = bs[si].length, list = [];
+      for (k = 0; k < nSlot; k++) { var ev = gyoEraV(bs[si][k]); if (ev >= 0.02) list.push({ g: bs[si][k], e: ev }); }
+      if (!list.length) {
+        if (pass === 1 && !narrow && GYO_NONE[si]) {
+          gyoTate(GYO_NONE[si], cx, top + hgt * 0.20, top + hgt, rgba(IVORY, 0.26), 9.5);
+        }
+        continue;
+      }
+      var inner = colW * 0.84, gap = Math.min(7, inner * 0.07);
+      var unit = Math.min((inner - gap * (nSlot - 1)) / nSlot, colW * 0.20);
+      var tot = -gap; for (k = 0; k < list.length; k++) tot += Math.max(3, unit * list[k].e) + gap;
+      var px = cx - tot / 2;
+      for (k = 0; k < list.length; k++) {
+        var w = Math.max(3, unit * list[k].e);
+        gyoPillar(pass, list[k].g, px, w, top, hgt, now, d, narrow, hm);
+        px += w + gap;
+      }
+    }
+    ctx.textAlign = "left"; ctx.textBaseline = "top";
+  }
+  function gyoTate(txt, cxx, y0t, yMax, col, sz){
+    var ch = sz + 2.0, i;
+    ctx.textAlign = "center"; ctx.textBaseline = "top"; ctx.font = "600 " + sz + "px sans-serif";
+    for (i = 0; i < txt.length; i++) {
+      var yy = y0t + i * ch; if (yy + ch > yMax) break;
+      ctx.fillStyle = "rgba(11,12,20,.80)"; ctx.fillRect(cxx - sz * 0.62, yy - 1, sz * 1.24, ch);
+      ctx.fillStyle = col; ctx.fillText(txt.charAt(i), cxx, yy);
+    }
+  }
+  function gyoPillar(pass, g, px, w, top, hgt, now, d, narrow, hm){
+    var rgbg = g.rgb || (g.rgb = hex2rgb(g.c));
+    var st = gyoState(g, d, hm), dd = gyoDay(g), up = gyoUpDay(g), bot = top + hgt;
+    var breakY = (st === 2) ? top + hgt * 0.40 : bot;
+    var lv = g.own;
+    if (st >= 2) lv = 0;
+    else if (st === 1 && up != null && dd != null && dd > up) lv = g.own * Math.max(0, 1 - (d - up) / (dd - up));
+
+    if (pass === 0) {
+      /* 器（帯の下） */
+      ctx.beginPath(); ctx.rect(px, top, w, breakY - top);
+      ctx.fillStyle = rgba(rgbg, st >= 2 ? 0.05 : 0.10); ctx.fill();
+      /* 在庫の液面 */
+      if (lv > 0.005) {
+        var lh = (breakY - top) * 0.86 * lv;
+        ctx.fillStyle = rgba(rgbg, 0.22); ctx.fillRect(px + 1, breakY - lh, w - 2, lh);
+      }
+      return;
+    }
+
+    /* --- pass 1: 帯の上 --- */
+    ctx.beginPath(); ctx.rect(px, top, w, breakY - top);
+    var floating = (gyoSpan(g) == null);
+    ctx.setLineDash(st === 1 ? [3, 4] : (floating ? [2, 3] : []));
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = st >= 2 ? rgba(GREY, 0.38) : rgba(rgbg, floating ? 0.42 : 0.62);
+    ctx.stroke(); ctx.setLineDash([]);
+    /* 在庫の水面線 */
+    if (lv > 0.005) {
+      var lh2 = (breakY - top) * 0.86 * lv;
+      ctx.strokeStyle = rgba(rgbg, 0.9); ctx.lineWidth = 1.3;
+      ctx.beginPath(); ctx.moveTo(px + 0.5, breakY - lh2); ctx.lineTo(px + w - 0.5, breakY - lh2); ctx.stroke();
+    }
+    /* 粗利の金帯 */
+    if (st < 2) {
+      var mh = 2.5 + g.mar * 20, my2 = top + 7;
+      ctx.fillStyle = rgba(GOLD, 0.55); ctx.fillRect(px + 1, my2, w - 2, mh);
+      if (w > 6) { ctx.strokeStyle = rgba(GOLD, 0.85); ctx.lineWidth = 0.8; ctx.strokeRect(px + 1.5, my2 + 0.5, w - 3, mh - 1); }
+    }
+    /* 屋号（縦書き） */
+    var nmy = top + 7 + (st < 2 ? (2.5 + g.mar * 20) : 0) + 6;
+    if (!narrow && w >= 13) {
+      gyoTate(gyoShort(g), px + w / 2, nmy, breakY - 3,
+              st >= 2 ? rgba(GREY, 0.72) : rgba(IVORY, 0.92), 10);
+    }
+    /* 折れた */
+    if (st === 2) {
+      ctx.strokeStyle = "rgba(214,116,116,.88)"; ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      var seg = Math.max(2, Math.round(w / 4)), jx;
+      for (jx = 0; jx <= seg; jx++) {
+        var jxx = px + (w * jx) / seg, jyy = breakY + ((jx % 2) ? -3.5 : 3.5);
+        if (jx === 0) ctx.moveTo(jxx, jyy); else ctx.lineTo(jxx, jyy);
+      }
+      ctx.stroke();
+      if (!narrow && w >= 13) gyoTate(g.die, px + w / 2, breakY + 10, bot - 2, "rgba(226,150,150,.95)", 9.5);
+      ctx.fillStyle = rgba(GREY, 0.18);
+      for (var dq = 0; dq < 3; dq++) {
+        var dy2 = bot - 8 - dq * 9, dw = w * (0.85 - dq * 0.18);
+        if (dy2 < breakY + 14) break;
+        ctx.fillRect(px + (w - dw) / 2 + (dq % 2 ? 3 : -3), dy2, dw, 2.5);
+      }
+    }
+    /* 畳んだ（中抜き） */
+    if (st === 3) {
+      ctx.strokeStyle = "rgba(200,110,110,.9)"; ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(px, top); ctx.lineTo(px + w, bot); ctx.moveTo(px + w, top); ctx.lineTo(px, bot);
+      ctx.stroke();
+      if (!narrow && w >= 13) gyoTate("畳んだ", px + w / 2, top + hgt * 0.5, bot - 2, "rgba(226,150,150,.95)", 9.5);
+    }
+    var hw = Math.min(9, Math.max(4, w / 2 + 2));
+    gyoHit.push({ g: g, st: st, dd: dd, up: up, x0: px + w / 2 - hw, x1: px + w / 2 + hw, y0: top, y1: bot });
+  }
   function drawShoryu(now, dnow, actMul){
     if (!shoParts) shoInitParts();
+    if (gyoAnyKill) gyoRebuildCut(); else gyoCutTbl = null;
     var narrow = W < 560;
     var x0 = PAD.l, x1 = W - PAD.r, iw = Math.max(80, x1 - x0), colW = iw / 8;
     var HB = narrow ? 30 : 38, LB = 20;
     var ly0 = PAD.t + HB + 4, lyH = Math.max(40, (H - PAD.b - LB) - ly0), laneH = lyH / SHO_MAT.length;
     var wvs = SHO_MAT.map(shoWv);
+    var _Ts = [], _cf = [], _z;
+    for (_z = 0; _z < SHO_MAT.length; _z++) { _Ts.push(shoDeath(SHO_MAT[_z], wvs[_z])); _cf.push(shoCutFrom(SHO_MAT[_z])); }
+    shoFrame = { wvs: wvs, Ts: _Ts, cfs: _cf };
+    var gyoOn = state.gyoutai && W > 600;
+    gyoHit = [];
     var hm = state.honmaru, d = hm ? dnow : 0;
     shoIntro = state.anim ? Math.min(1, shoIntro + 0.020) : 1;
     shoHit = { cells: [], stages: [], legend: [] }; shoLanes = [];
@@ -905,6 +1202,7 @@
     var revX = x0 + shoIntro * (iw + colW * 0.6);
     ctx.save();
     if (shoIntro < 1) { ctx.beginPath(); ctx.rect(0, ly0 - 6, revX, lyH + 12); ctx.clip(); }
+    if (gyoOn && shoIntro >= 0.98) drawGyoutai(0, now, d, x0, colW, ly0, lyH, narrow, hm);
     for (var mi = 0; mi < SHO_MAT.length; mi++) {
       var m = SHO_MAT[mi], wv = wvs[mi], rgbm = m.rgb || (m.rgb = hex2rgb(m.c));
       var yc = ly0 + (mi + 0.5) * laneH;
@@ -1072,6 +1370,8 @@
       ctx.beginPath(); ctx.moveTo(revX, ly0 - 6); ctx.lineTo(revX, ly0 + lyH + 6); ctx.stroke();
     }
 
+    if (gyoOn && shoIntro >= 0.98) drawGyoutai(1, now, d, x0, colW, ly0, lyH, narrow, hm);
+
     /* ================= 感動レイヤ ================= */
     if (shoIntro >= 0.98) {
     /* ① 灰が舞う */
@@ -1199,7 +1499,8 @@
       lx += tw2;
     }
     ctx.font = "9.5px sans-serif"; ctx.fillStyle = rgba(IVORY, 0.32);
-    if (!narrow) ctx.fillText("段の見出しをクリック＝その段を消してみる／素材名をクリック＝単独表示", Math.min(lx + 14, W - 300), ly + 1);
+    if (!narrow) ctx.fillText(gyoOn ? "🏮 柱＝商い／液面＝在庫／金帯＝粗利／柱をクリック＝その商いを畳む（中抜き）"
+                                    : "段の見出しをクリック＝その段を消してみる／素材名をクリック＝単独表示", Math.min(lx + 14, W - 300), ly + 1);
 
     /* --- 幻👁 は商流の上にも重なる --- */
     if (state.phantom) {
@@ -1218,15 +1519,20 @@
 
     /* --- ヘッダーの帯 --- */
     var nStage = shoLiveStages(), killN = 0; for (var kk in shoKill) if (shoKill[kk]) killN++;
+    var gKillN = 0; for (var gk in gyoKill) if (gyoKill[gk]) gKillN++;
+    var gty = gyoOn ? gyoTally(d, hm) : null;
     if (hm) {
       var ty = shoTally(d);
-      eraEl.textContent = "🌊 商流 ☠ ／ " + dayLabel(dnow) + " ／ まだ届いている 素材×段 " + ty.live + "/" + ty.t;
+      eraEl.textContent = "🌊 商流 ☠ ／ " + dayLabel(dnow) + " ／ まだ届いている 素材×段 " + ty.live + "/" + ty.t
+        + (gty ? " ／ 立っている柱 " + gty.live + "/" + gty.tot : "");
       simClock.textContent = dayLabel(dnow);
       simCap.innerHTML = shoPhase(dnow);
-      simStat.innerHTML = shoStat(d, ty);
+      simStat.innerHTML = shoStat(d, ty) + (gyoOn ? gyoStatHTML(d, hm) : "");
     } else {
       eraEl.textContent = "🌊 商流 ／ " + (availEras().length >= 2 ? eraBadgeText() : "現代") + " ／ " + nStage + "段"
-        + (killN ? " ／ ✕" + killN + "段を消している" : "");
+        + (gty ? " ／ 商い" + gty.tot + "本" : "")
+        + (killN ? " ／ ✕" + killN + "段を消している" : "")
+        + (gKillN ? " ／ ✕" + gKillN + "種を畳んでいる" : "");
     }
   }
   /* 0=本流 1=在庫でもっている 2=止まった 3=灰。0と1は「まだ下流へ届いている」 */
@@ -1255,24 +1561,64 @@
       + '　｜　' + out.join("　") + "　｜　再起Float 🪨.90 🪵.75 🧱.35 🧴.25 💎.05";
   }
 
+  function gyoStatHTML(d, hm){
+    var bs = gyoByStage(), out = [], si, k;
+    for (si = 0; si < 8; si++) for (k = 0; k < bs[si].length; k++) {
+      var g = bs[si][k]; if (gyoEraV(g) < 0.02) continue;
+      var st = gyoState(g, d, hm);
+      out.push('<span class="' + (st <= 1 ? "alive" : "dead") + '">' + gyoName(g) + (st === 2 ? "†" : (st === 3 ? "✕" : "")) + '</span>');
+    }
+    if (!out.length) return '　｜　🏮 この時代、商いは一本も立っていない';
+    return '　｜　🏮 ' + out.join(" ");
+  }
+
   /* ---------- 商流モードの当たり判定とツールチップ ---------- */
   function shoPick(mx, my){
     var i;
     for (i = 0; i < shoHit.legend.length; i++) { var g = shoHit.legend[i]; if (mx >= g.x0 && mx <= g.x1 && my >= g.y0 && my <= g.y1) return { legend: g.mi }; }
     for (i = 0; i < shoHit.stages.length; i++) { var s = shoHit.stages[i]; if (mx >= s.x0 && mx <= s.x1 && my >= s.y0 && my <= s.y1) return { stage: s.i }; }
+    for (i = 0; i < gyoHit.length; i++) { var gh = gyoHit[i]; if (mx >= gh.x0 && mx <= gh.x1 && my >= gh.y0 && my <= gh.y1) return { gyo: gh }; }
     for (i = 0; i < shoHit.cells.length; i++) { var c = shoHit.cells[i]; if (mx >= c.x0 && mx <= c.x1 && my >= c.y0 && my <= c.y1) return { mi: c.mi, si: c.si, st: c.st }; }
     return null;
   }
   function shoDayTxt(v){ return v >= 40000 ? "止まらない" : (v <= 0 ? "そもそも無い" : dayLabel(v)); }
   function shoTipHTML(h){
     var i, m, st, wv, T, cf;
+    if (h.gyo) {
+      var g = h.gyo.g, gst = h.gyo.st, ks2 = SHO_KOSHO[SHO_ST[g.stg].id];
+      var lab2 = ["立っている", "在庫を食っている（上流は切れた）", "折れた", "畳んだ（中抜き）"][gst];
+      var o = '<div class="t">' + gyoName(g) + ' ／ ' + shoStName(SHO_ST[g.stg]) + 'の段</div>'
+        + '<div class="l" style="color:' + g.c + '">何を持つか（所有Float） ' + g.own.toFixed(2) + '</div>'
+        + '<div class="bar"><i style="width:' + Math.round(g.own * 100) + '%;background:' + g.c + '"></i></div>'
+        + '<div class="d">' + g.ownd + '</div>'
+        + '<div class="l" style="color:var(--gold);margin-top:5px">どう儲けるか（粗利Float） ' + g.mar.toFixed(2) + '</div>'
+        + '<div class="bar"><i style="width:' + Math.round(g.mar * 100) + '%;background:#d4a853"></i></div>'
+        + '<div class="d">' + g.mard + '</div>'
+        + '<div class="l" style="color:#d68a8a;margin-top:5px">何で死ぬか　' + g.die + '　' + g.dief.toFixed(2) + '</div>'
+        + '<div class="bar"><i style="width:' + Math.round(g.dief * 100) + '%;background:#c06868"></i></div>'
+        + '<div class="d">' + g.died + '</div>'
+        + '<div class="d" style="margin-top:4px">' + g.d + '</div>';
+      if (gyoSpan(g) == null) o += '<div class="st" style="color:var(--dim)">この時代、この段にはモノが流れていない。それでもこの商いは立っている——先に流れているのは、モノではないもの。</div>';
+      if (state.honmaru) {
+        o += '<div class="st">本丸: <span class="' + (gst <= 1 ? "alive" : "dead") + '">' + lab2 + '</span></div>'
+          + '<div class="l" style="color:var(--dim);margin-top:3px">段が止まる ' + (h.gyo.up == null ? "—" : shoDayTxt(h.gyo.up))
+          + '　／　この柱が折れる ' + (h.gyo.dd == null ? "—" : shoDayTxt(h.gyo.dd)) + '</div>'
+          + '<div class="d">折れる日＝段が止まる日 ＋ 所有Float × その段の在庫日数。'
+          + (g.own < 0.05 ? "何も持っていないので、段が止まった日がそのまま最後の日になる。" : "持っているぶんだけ、止まったあとも立っていられる。") + '</div>';
+      } else {
+        o += '<div class="st">' + (gst === 3 ? '<span class="dead">✕ いま畳んでいる</span>　クリックで戻す' : 'クリック＝この商いを畳む（中抜きしてみる）') + '</div>';
+      }
+      if (ks2) o += '<div class="l" style="color:var(--dim);margin-top:4px">出典はこの段のもの（📖クリックで開く）　確度 ' + ks2.c.toFixed(2) + '</div>';
+      return o;
+    }
     if (h.legend != null) {
       m = SHO_MAT[h.legend];
       return '<div class="t">' + m.emo + " " + m.n + '（' + m.en + '）</div>'
         + '<div class="l" style="color:' + m.c + '">ズレ＝' + m.gap + '　／　再起Float ' + m.reboot.toFixed(2) + '</div>'
         + '<div class="bar"><i style="width:' + Math.round(m.reboot * 100) + '%;background:' + m.c + '"></i></div>'
         + '<div class="d">' + m.gapd + '</div>'
-        + '<div class="d" style="margin-top:4px">再起＝人が戻ってきたとき、この流れを自力で立て直せるか。' + m.rb + '</div>';
+        + '<div class="d" style="margin-top:4px">再起＝人が戻ってきたとき、この流れを自力で立て直せるか。' + m.rb + '</div>'
+        + '<div class="st" style="color:var(--gold)">📖考証ONで素材名クリック＝素材ライン目次へ</div>';
     }
     if (h.stage != null) {
       st = SHO_ST[h.stage];
@@ -1345,13 +1691,27 @@
     if (state.shoryu) {
       var rs2 = cv.getBoundingClientRect(), sx2 = ev.clientX - rs2.left, sy2 = ev.clientY - rs2.top;
       var pk = shoPick(sx2, sy2); if (!pk) return;
-      if (pk.legend != null) { var lm = SHO_MAT[pk.legend]; state.shoSolo = (state.shoSolo === lm.id) ? null : lm.id; return; }
+      if (pk.gyo) {
+        if (state.kosho) { var k8 = SHO_KOSHO[SHO_ST[pk.gyo.g.stg].id]; if (k8 && k8.u) window.open(k8.u, "_blank", "noopener"); return; }
+        var gid = pk.gyo.g.id;
+        gyoKill[gid] = gyoKill[gid] ? 0 : 1;
+        gyoAnyKill = false; for (var gz in gyoKill) if (gyoKill[gz]) gyoAnyKill = true;
+        return;
+      }
+      if (pk.legend != null) {
+        var lm = SHO_MAT[pk.legend];
+        if (state.kosho) { window.open(MOKUJI_URL, "_blank", "noopener"); return; }
+        state.shoSolo = (state.shoSolo === lm.id) ? null : lm.id; return;
+      }
       if (pk.stage != null) {
         var sid = SHO_ST[pk.stage].id;
         if (state.kosho) { var k9 = SHO_KOSHO[sid]; if (k9 && k9.u) window.open(k9.u, "_blank", "noopener"); return; }
         shoKill[sid] = shoKill[sid] ? 0 : 1; return;
       }
-      if (pk.mi != null) { var cm9 = SHO_MAT[pk.mi]; state.shoSolo = (state.shoSolo === cm9.id) ? null : cm9.id; }
+      if (pk.mi != null) {
+        if (state.kosho) { window.open(MOKUJI_URL, "_blank", "noopener"); return; }
+        var cm9 = SHO_MAT[pk.mi]; state.shoSolo = (state.shoSolo === cm9.id) ? null : cm9.id;
+      }
       return;
     }
     if (!state.fault && !state.kosho) return;
@@ -1394,6 +1754,7 @@
   var bDiurnal = document.getElementById("bDiurnal");
   var bKosho = document.getElementById("bKosho");
   var bShoryu = document.getElementById("bShoryu");
+  var bGyotai = document.getElementById("bGyotai");
   var bPng = document.getElementById("bPng");
   var sim = document.getElementById("sim"), simRange = document.getElementById("simRange");
   var simPlayBtn = document.getElementById("simPlay"), simClock = document.getElementById("simClock");
@@ -1416,13 +1777,14 @@
     bDiurnal.classList.toggle("act", state.diurnal);
     bKosho.classList.toggle("act", state.kosho);
     bShoryu.classList.toggle("act", state.shoryu);
+    bGyotai.classList.toggle("act", state.gyoutai);
     simPlayBtn.classList.toggle("act", state.simPlay); simPlayBtn.textContent = state.simPlay ? "⏱ 停止" : "⏱ 自動";
     if (state.honmaru) simRange.value = Math.round(state.clock * 1000);
     Array.prototype.forEach.call(chipsEl.children, function(b){ var id = b.dataset.layer; b.classList.toggle("solo", state.solo === id); b.classList.toggle("on", state.solo ? state.solo === id : state.on[id]); b.classList.toggle("off", state.solo ? state.solo !== id : !state.on[id]); });
   }
   vTop.addEventListener("click", function(){ state.view = "top"; syncUI(); save(); });
   vSide.addEventListener("click", function(){ state.view = "side"; syncUI(); save(); });
-  bAll.addEventListener("click", function(){ state.solo = null; state.shoSolo = null; shoKill = {}; unionLayers.forEach(function(L){ state.on[L.id] = true; }); syncUI(); save(); });
+  bAll.addEventListener("click", function(){ state.solo = null; state.shoSolo = null; shoKill = {}; gyoKill = {}; gyoAnyKill = false; gyoCutTbl = null; unionLayers.forEach(function(L){ state.on[L.id] = true; }); syncUI(); save(); });
   bAnim.addEventListener("click", function(){ state.anim = !state.anim; syncUI(); save(); });
   bHonmaru.addEventListener("click", function(){ state.honmaru = !state.honmaru; if (!state.honmaru) { state.simPlay = false; if (availEras().length < 2) eraEl.textContent = (eraData.modern.meta && eraData.modern.meta.era) || ""; } syncUI(); });
   bTenote.addEventListener("click", function(){ state.tenote = !state.tenote; syncUI(); });
@@ -1430,6 +1792,12 @@
   bPhantom.addEventListener("click", function(){ state.phantom = !state.phantom; syncUI(); });
   bDiurnal.addEventListener("click", function(){ state.diurnal = !state.diurnal; syncUI(); });
   bKosho.addEventListener("click", function(){ state.kosho = !state.kosho; cv.style.cursor = state.kosho ? "pointer" : "default"; syncUI(); });
+  bGyotai.addEventListener("click", function(){
+    state.gyoutai = !state.gyoutai;
+    if (!state.gyoutai) { gyoKill = {}; gyoAnyKill = false; gyoCutTbl = null; }
+    if (state.gyoutai && !state.shoryu) { state.shoryu = true; shoIntro = 0; shoAsh.length = 0; shoTr = null; shoPrev = {}; shoFlash = {}; }
+    shoHover = null; hover = null; tip.style.display = "none"; syncUI();
+  });
   bShoryu.addEventListener("click", function(){ state.shoryu = !state.shoryu; if (state.shoryu) { shoIntro = 0; shoAsh.length = 0; shoTr = null; shoPrev = {}; shoFlash = {}; } shoHover = null; hover = null; tip.style.display = "none"; cv.style.cursor = "default"; syncUI(); });
   bPng.addEventListener("click", function(){ try { var a = document.createElement("a"); a.download = "shakai-vis-" + Date.now() + ".png"; a.href = cv.toDataURL("image/png"); document.body.appendChild(a); a.click(); document.body.removeChild(a); } catch(e){} });
   simRange.addEventListener("input", function(){ state.clock = (+simRange.value) / 1000; state.simPlay = false; syncUI(); });
