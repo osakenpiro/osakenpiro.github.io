@@ -1,0 +1,135 @@
+{
+  "_": "cosmos(軌道) と dungeon(21辺) が共有する『行き先』の正本 (SoT)。配置は各様式が持つ。",
+  "schema": "osakenpiro/destinations-v1",
+  "fields": "id / icon / title / desc / url — この5つだけが真値。orbit・speed・type(質感) は cosmos、x・y・type(分類)・EDGES は dungeon が各自持つ。",
+  "updated": "2026-08-02",
+  "count": 18,
+  "destinations": [
+    {
+      "id": "note",
+      "icon": "📝",
+      "title": "note",
+      "desc": "エッセイ・連載・地面の言葉",
+      "url": "https://note.com/osakenpiro"
+    },
+    {
+      "id": "panda",
+      "icon": "📕",
+      "title": "パンダと哲学とAI",
+      "desc": "Kindle ¥980 / KU無料 / ペーパーバック ¥1,480",
+      "url": "#"
+    },
+    {
+      "id": "kakuyomu",
+      "icon": "📖",
+      "title": "星は知らない",
+      "desc": "カクヨム — 8編構成SF長編",
+      "url": "https://kakuyomu.jp/users/osakenpiro"
+    },
+    {
+      "id": "jikoshoukai",
+      "icon": "🧬",
+      "title": "じこしょうかい",
+      "desc": "全17巻85キャラ完結 — 絵本シリーズ",
+      "url": "https://osakenpiro.github.io/jikoshoukai/"
+    },
+    {
+      "id": "negai",
+      "icon": "⭐",
+      "title": "願い片道きっぷ",
+      "desc": "届かないかもしれない想いを、夜空に。",
+      "url": "https://osakenpiro.github.io/negai-kippu/"
+    },
+    {
+      "id": "materials",
+      "icon": "📘",
+      "title": "人類の素材図鑑",
+      "desc": "11章の物語 + 15セクションの図鑑 — Boolean→Float",
+      "url": "https://osakenpiro.github.io/materials-of-civilization/"
+    },
+    {
+      "id": "ningen",
+      "icon": "🃏",
+      "title": "人間図鑑",
+      "desc": "人間観察カードゲーム — 4編37枚",
+      "url": "https://osakenpiro.github.io/ningen-zukan/"
+    },
+    {
+      "id": "zenodo",
+      "icon": "🔬",
+      "title": "論文 8本",
+      "desc": "Zenodo プレプリント・DOI付き",
+      "url": "https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Osada%2C%20Kenshiro%22"
+    },
+    {
+      "id": "moon",
+      "icon": "🌙",
+      "title": "月",
+      "desc": "全ツール一覧 — 可視化・哲学・ユーティリティ",
+      "url": "https://osakenpiro.github.io/moon/"
+    },
+    {
+      "id": "mission",
+      "icon": "🛰",
+      "title": "Mission Control",
+      "desc": "全チャット共有タスクボード",
+      "url": "https://www.notion.so/Mission-Control-Claude-3282b7e543e0815db7c0d5afdae9ae76"
+    },
+    {
+      "id": "orcid",
+      "icon": "🆔",
+      "title": "ORCID",
+      "desc": "0009-0004-9167-3186",
+      "url": "https://orcid.org/0009-0004-9167-3186"
+    },
+    {
+      "id": "x",
+      "icon": "𝕏",
+      "title": "X",
+      "desc": "日常哲学 / 論文告知",
+      "url": "https://twitter.com/kenpiro7"
+    },
+    {
+      "id": "tiktok",
+      "icon": "▶",
+      "title": "TikTok",
+      "desc": "30秒哲学 / PEACE PIECE",
+      "url": "https://www.tiktok.com/@panio54"
+    },
+    {
+      "id": "ig",
+      "icon": "◻",
+      "title": "Instagram",
+      "desc": "Reels / カルーセル",
+      "url": "https://www.instagram.com/osakenpiro/"
+    },
+    {
+      "id": "yt",
+      "icon": "△",
+      "title": "YouTube",
+      "desc": "SATORI / 総集編",
+      "url": "https://www.youtube.com/channel/UCdvMT7OAZQuWBln8D3GrFBQ"
+    },
+    {
+      "id": "pixiv",
+      "icon": "✦",
+      "title": "pixiv",
+      "desc": "PEACE PIECE まとめ読み",
+      "url": "https://www.pixiv.net/users/11085694"
+    },
+    {
+      "id": "spotify",
+      "icon": "♪",
+      "title": "Spotify",
+      "desc": "オリジナル作詞",
+      "url": "https://open.spotify.com/intl-ja/artist/6QtgEcJeDSxhatNDzxGm8v"
+    },
+    {
+      "id": "booth",
+      "icon": "🏪",
+      "title": "BOOTH",
+      "desc": "アイコン・素材",
+      "url": "https://osakenpiro.booth.pm/"
+    }
+  ]
+}
