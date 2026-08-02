@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,follow">
+<title>404 — 見つからなかった / osakenpiro</title>
+<style>
+  :root{ --bg:#0a0a12; --fg:#c8c8d8; --gold:#d4a853; --blue:#8fb8d4; --dim:#8a8aa0; }
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
+       margin:0;min-height:100vh;display:grid;place-items:center;line-height:1.9;padding:2rem 1rem}
+  main{max-width:38rem;width:100%}
+  h1{font-size:1.35rem;font-weight:600;margin:0 0 .4rem;letter-spacing:.02em}
+  .sub{color:var(--dim);font-size:.9rem;margin:0 0 2rem}
+  .path{color:var(--gold);word-break:break-all;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9rem}
+  .card{border:1px solid #23233a;border-radius:10px;padding:1rem 1.15rem;margin:0 0 1.6rem;background:#101020}
+  .card p{margin:.2rem 0}
+  a{color:var(--blue);text-decoration:none}
+  a:hover{text-decoration:underline}
+  h2{font-size:.78rem;color:var(--dim);font-weight:600;letter-spacing:.12em;margin:1.9rem 0 .5rem}
+  ul{list-style:none;padding:0;margin:0}
+  li{padding:.28rem 0}
+  li .kind{color:var(--dim);font-size:.82rem;margin-left:.5rem}
+  .foot{margin-top:2.4rem;color:var(--dim);font-size:.82rem;border-top:1px solid #1c1c2e;padding-top:1.2rem}
+</style>
+</head>
+<body>
+<main>
+  <h1>404 — そのページは見つからなかった</h1>
+  <p class="sub">さがしたURL: <span class="path" id="asked">—</span></p>
+
+  <div class="card" id="hint" hidden>
+    <p>もしかして、これのことかもしれない：</p>
+    <p><a id="torisetsu" href="/works/"></a></p>
+    <p style="color:var(--dim);font-size:.84rem">— 「とりせつ」＝そのページが何だったかが読める1枚</p>
+  </div>
+
+  <h2>入口</h2>
+  <ul>
+    <li><a href="/">玄関</a><span class="kind">精選・柱べつの名刺</span></li>
+    <li><a href="/works/">works</a><span class="kind">全部の台帳。ここに無いものは無い</span></li>
+  </ul>
+
+  <h2>束ね</h2>
+  <ul>
+    <li><a href="/dd/">dd</a><span class="kind">デザイン視点の横断棚</span></li>
+    <li><a href="/papers/">papers</a><span class="kind">論文</span></li>
+    <li><a href="/jikoshoukai/">じこしょうかい</a><span class="kind">絵本シリーズ</span></li>
+    <li><a href="/sozai-zukan-mokuji/">人類の素材図鑑 — 目次</a><span class="kind">素材ライン5系統</span></li>
+  </ul>
+
+  <h2>外の窓</h2>
+  <ul>
+    <li><a href="/cosmos/">cosmos</a><span class="kind">軌道でめぐる</span></li>
+    <li><a href="/dungeon/">dungeon</a><span class="kind">同じ行き先を、踏破でめぐる</span></li>
+  </ul>
+
+  <p class="foot">URLは消していません。ここに来たということは、綴りが違うか、まだ生まれていないかのどちらかです。</p>
+</main>
+<script>
+(function(){
+  var p = location.pathname || "/";
+  document.getElementById('asked').textContent = p;
+  // 先頭パスセグメントから「とりせつ」を推測して1本だけ出す（存在確認してから表示）
+  var seg = p.replace(/^\/+/, '').split('/')[0].replace(/\.html?$/i, '');
+  if(!seg || seg === 'works') return;
+  var url = '/works/' + seg + '.html';
+  fetch(url, {method:'HEAD'}).then(function(r){
+    if(!r.ok) return;
+    var a = document.getElementById('torisetsu');
+    a.href = url; a.textContent = '\uD83D\uDCD6 /works/' + seg + '.html';
+    document.getElementById('hint').hidden = false;
+  }).catch(function(){});
+})();
+</script>
+</body>
+</html>
