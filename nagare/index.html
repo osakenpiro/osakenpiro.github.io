@@ -1,0 +1,589 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>社会のながれ — よこから見るか、たてから見るか</title>
+<meta name="description" content="同じ社会を2方向から。よこ＝5つの素材が地面から手元へ流れる川。たて＝目の前のものの背後に何人いるかと、払ったお金がどこまで追えるか（7件）。追跡率は自販機20%／電気13%／おにぎり0%／宅配便9%／スマホ9%／家賃100%／病院100%。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="社会のながれ — よこから見るか、たてから見るか">
+<meta property="og:description" content="同じ社会を2方向から。よこ＝5つの素材が地面から手元へ流れる川。たて＝目の前のものの背後に何人いるかと、払ったお金がどこまで追えるか（7件）。追跡率は自販機20%／電気13%／おにぎり0%／宅配便9%／スマホ9%／家賃100%／病院100%。">
+<meta property="og:url" content="https://osakenpiro.github.io/nagare/">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+:root{--void:#070910;--gold:#d4a853;--bone:#e7e1d4;--bone2:#a49b8a;--bone3:#6a6355;--line0:rgba(231,225,212,.13)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--void);color:var(--bone);font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;line-height:1.7}
+.page{max-width:1180px;margin:0 auto;padding:38px 20px 90px}
+.kick{font-size:.68rem;letter-spacing:.32em;color:var(--bone3)}
+.h0{margin:.3em 0 .1em;font-size:2.05rem;font-weight:600;letter-spacing:.03em}
+.h0 b{color:var(--gold);font-weight:600}
+.lede0{color:var(--bone2);font-size:.88rem;max-width:76ch}
+.hr0{height:1px;background:linear-gradient(90deg,rgba(212,168,83,.4),transparent 70%);margin:20px 0 18px}
+.tabs{display:flex;gap:10px;margin:0 0 6px;flex-wrap:wrap}
+.tab{border:1px solid var(--line0);border-radius:12px;padding:11px 20px;cursor:pointer;transition:.16s;background:rgba(0,0,0,.26);user-select:none;min-width:210px}
+.tab:hover{border-color:rgba(212,168,83,.42)}
+.tab.on{border-color:var(--gold);background:rgba(212,168,83,.09)}
+.tab .t1{font-size:.95rem;font-weight:600}
+.tab.on .t1{color:var(--gold)}
+.tab .t2{font-size:.7rem;color:var(--bone3);margin-top:1px}
+.view{display:none;margin-top:16px}
+.view.on{display:block}
+.brs{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:11px;margin-top:14px}
+.br{border:1px solid rgba(212,168,83,.28);border-radius:11px;padding:12px 15px;background:linear-gradient(150deg,rgba(212,168,83,.06),rgba(0,0,0,.3) 60%)}
+.brn{font-size:.9rem;font-weight:600;color:var(--gold)}
+.brt{font-size:.76rem;color:var(--bone2);margin-top:3px}
+.h2b{font-size:.74rem;letter-spacing:.28em;color:var(--gold);margin:40px 0 12px;font-weight:600}
+.foot0{margin-top:44px;font-size:.72rem;color:var(--bone3);border-top:1px solid var(--line0);padding-top:14px}
+.foot0 a{color:var(--gold)}
+.srcs{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:9px 18px;margin:14px 0 4px}
+.src{border-top:1px solid var(--line0);padding-top:7px;line-height:1.85}
+.src b{color:var(--bone2);display:block;font-size:.7rem;letter-spacing:.06em;margin-bottom:1px}
+.src a{margin-right:.85em;white-space:nowrap}
+.src .n2{color:var(--bone3)}
+
+#yoko{
+ --earth:#1b1510; --mid:#12151b; --sky:#0d1420; --lamp:#f0c98a;
+ --bone:#ddd6c8; --bone2:#a49c8c; --bone3:#6f695d; --line:rgba(221,214,200,.13);
+ --ishi:#8d8377; --kino:#a5764f; --pura:#e0507e; --conc:#5e7686; --siri:#3d93c9;
+}
+*{box-sizing:border-box}
+#yoko .shell{margin:0;color:var(--bone);font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+ line-height:1.7;background:linear-gradient(100deg,var(--earth) 0%,var(--mid) 42%,var(--sky) 100%);min-height:100vh}
+#yoko .lamp{position:fixed;right:-140px;top:38%;width:520px;height:520px;border-radius:50%;pointer-events:none;z-index:0;
+ background:radial-gradient(circle,rgba(240,201,138,.13),transparent 62%);filter:blur(12px)}
+#yoko .wrap{padding:0}
+#yoko .kick{font-size:.68rem;letter-spacing:.32em;color:var(--bone3)}
+#yoko h1{margin:.3em 0 .12em;font-size:2rem;font-weight:600;letter-spacing:.03em}
+#yoko h1 b{color:var(--lamp);font-weight:600}
+#yoko .lede{color:var(--bone2);font-size:.88rem;max-width:74ch}
+#yoko .hr{height:1px;background:linear-gradient(90deg,rgba(221,214,200,.3),transparent 70%);margin:20px 0 22px}
+
+/* --- 川 --- */
+#yoko .river{position:relative;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:rgba(0,0,0,.24)}
+#yoko canvas{display:block;width:100%;height:430px}
+#yoko .stagelabels{display:grid;grid-template-columns:repeat(8,1fr);border-top:1px solid var(--line)}
+#yoko .st{padding:9px 6px 11px;text-align:center;cursor:pointer;border-right:1px solid var(--line);transition:.15s;position:relative}
+#yoko .st:last-child{border-right:0}
+#yoko .st:hover,.st.on{background:rgba(240,201,138,.07)}
+#yoko .st .no{font-size:.6rem;color:var(--bone3);letter-spacing:.14em}
+#yoko .st .nm{font-size:.83rem;margin-top:1px}
+#yoko .st .sb{font-size:.62rem;color:var(--bone3);margin-top:1px;line-height:1.35}
+#yoko .st.gate:after{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:var(--lamp);opacity:.55}
+
+/* --- 操作 --- */
+#yoko .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 6px}
+#yoko .mat{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;padding:6px 14px 6px 9px;
+ font-size:.8rem;cursor:pointer;transition:.16s;background:rgba(0,0,0,.2);user-select:none}
+#yoko .mat:hover{border-color:currentColor}
+#yoko .mat.off{opacity:.32}
+#yoko .mat .dot{width:10px;height:10px;border-radius:50%;box-shadow:0 0 10px currentColor}
+#yoko .kill{margin-left:auto;border:1px solid rgba(224,80,126,.5);color:#e0507e;background:rgba(224,80,126,.08);
+ border-radius:999px;padding:7px 17px;font-size:.8rem;cursor:pointer;transition:.16s}
+#yoko .kill:hover{background:rgba(224,80,126,.16)}
+#yoko .kill.on{background:#e0507e;color:#12151b;font-weight:700}
+#yoko .readout{font-size:.74rem;color:var(--bone2);min-height:1.6em;margin-top:2px}
+#yoko .readout b{color:var(--lamp)}
+
+#yoko h2{font-size:.74rem;letter-spacing:.28em;color:var(--lamp);margin:40px 0 12px;font-weight:600}
+#yoko .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:12px}
+#yoko .card{border:1px solid var(--line);border-left:3px solid var(--bone3);border-radius:11px;padding:14px 16px;
+ background:rgba(0,0,0,.26);transition:.18s}
+#yoko .card:hover{transform:translateY(-2px);border-color:rgba(221,214,200,.28);background:rgba(0,0,0,.4)}
+#yoko .card h3{margin:0 0 3px;font-size:.98rem;font-weight:600}
+#yoko .card .tag{font-size:.62rem;letter-spacing:.14em;color:var(--bone3)}
+#yoko .kv{font-size:.76rem;color:var(--bone2);margin-top:8px;line-height:1.65}
+#yoko .kv b{color:var(--bone)}
+#yoko .kv span.k{display:inline-block;min-width:5.4em;color:var(--bone3);font-size:.68rem;letter-spacing:.08em}
+#yoko .gapchip{display:inline-block;font-size:.64rem;padding:2px 9px;border-radius:5px;letter-spacing:.1em;
+ background:rgba(240,201,138,.14);color:var(--lamp);margin-left:6px}
+#yoko .chain{margin-top:10px;font-size:.72rem;color:var(--bone2);border-top:1px dashed var(--line);padding-top:9px}
+#yoko .chain ol{margin:0;padding-left:1.15em}
+#yoko .chain li{margin:2px 0}
+#yoko .chain li.na{color:var(--bone3);font-style:italic}
+#yoko .note{font-size:.75rem;color:var(--bone2);border-left:2px solid rgba(240,201,138,.35);padding-left:12px;margin:12px 0}
+#yoko .note b{color:var(--bone)}
+#yoko .lesson{font-size:.74rem;color:var(--bone3);margin-top:9px;font-style:italic}
+#yoko .big{font-size:.9rem;color:var(--bone2);max-width:76ch}
+#yoko .big b{color:var(--lamp)}
+#yoko footer{margin-top:44px;font-size:.72rem;color:var(--bone3);border-top:1px solid var(--line);padding-top:14px}
+
+
+#tate{
+ --tnear:#f2ece0; --tfar:#0a0d13; --tink:#e7e1d4; --tink2:#a49b8a; --tink3:#6a6355;
+ --tmono:#d9cfae; --tcoin:#f2c24a; --tthing:#7fb0d6; --tinfo:#9d87b8;
+ --line:rgba(231,225,212,.12);
+}
+*{box-sizing:border-box}
+#tate .shell{margin:0;color:var(--tink);font-family:-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+ line-height:1.7;background:linear-gradient(0deg,#141821 0%,#0d1119 46%,#070910 100%);min-height:100vh}
+#tate .wrap{padding:0}
+#tate .kick{font-size:.68rem;letter-spacing:.32em;color:var(--tink3)}
+#tate h1{margin:.3em 0 .1em;font-size:2rem;font-weight:600;letter-spacing:.03em}
+#tate h1 b{color:var(--tmono);font-weight:600}
+#tate .lede{color:var(--tink2);font-size:.88rem;max-width:74ch}
+#tate .hr{height:1px;background:linear-gradient(90deg,rgba(217,207,174,.32),transparent 70%);margin:20px 0 20px}
+#tate .cases{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:16px}
+#tate .case{border:1px solid var(--line);border-radius:11px;padding:9px 16px;font-size:.85rem;cursor:pointer;
+ background:rgba(0,0,0,.24);transition:.16s;user-select:none}
+#tate .case:hover{border-color:rgba(217,207,174,.42)}
+#tate .case.on{border-color:var(--tmono);color:var(--tmono);background:rgba(217,207,174,.09)}
+#tate .q{font-size:.95rem;color:var(--tink2);margin:2px 0 14px}
+#tate .q b{color:var(--tmono)}
+
+#tate .stage{position:relative;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:rgba(0,0,0,.3)}
+#tate canvas{display:block;width:100%;height:600px}
+#tate .hint{position:absolute;left:16px;top:13px;font-size:.68rem;color:var(--tink3);letter-spacing:.1em;pointer-events:none}
+#tate .legend{position:absolute;right:16px;top:12px;display:flex;gap:12px;font-size:.66rem;pointer-events:none}
+#tate .legend i{font-style:normal;display:inline-flex;align-items:center;gap:5px;color:var(--tink2)}
+#tate .legend b{width:9px;height:9px;border-radius:50%;display:inline-block}
+#tate .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 4px}
+#tate .btn{border:1px solid var(--line);border-radius:999px;padding:7px 16px;font-size:.8rem;cursor:pointer;
+ background:rgba(0,0,0,.24);color:var(--tink2);transition:.16s}
+#tate .btn:hover{border-color:rgba(217,207,174,.4);color:var(--tink)}
+#tate .btn.on{border-color:var(--tcoin);color:var(--tcoin);background:rgba(242,194,74,.1)}
+#tate .pay{margin-left:auto;border:1px solid var(--tcoin);color:#1a1408;background:var(--tcoin);font-weight:700;
+ border-radius:999px;padding:8px 20px;font-size:.82rem;cursor:pointer}
+#tate .pay:active{transform:scale(.97)}
+#tate .ro{font-size:.76rem;color:var(--tink2);margin-top:4px;min-height:1.6em}
+#tate .ro b{color:var(--tmono)}
+
+#tate h2{font-size:.74rem;letter-spacing:.28em;color:var(--tmono);margin:38px 0 12px;font-weight:600}
+#tate .rows{display:flex;flex-direction:column;gap:9px}
+#tate .row{border:1px solid var(--line);border-radius:11px;padding:13px 16px;background:rgba(0,0,0,.26);
+ display:grid;grid-template-columns:1.15fr 2fr;gap:16px;transition:.16s}
+@media(max-width:760px){.row{grid-template-columns:1fr}}
+#tate .row:hover{border-color:rgba(231,225,212,.28);background:rgba(0,0,0,.4)}
+#tate .row .lv{font-size:.62rem;letter-spacing:.14em;color:var(--tink3)}
+#tate .row h3{margin:1px 0 2px;font-size:1rem;font-weight:600}
+#tate .row .who{font-size:.72rem;color:var(--tink3)}
+#tate .row .job{font-size:.82rem;color:var(--tink2)}
+#tate .row .take{font-size:.78rem;color:var(--tcoin);margin-top:5px}
+#tate .row .die{font-size:.72rem;color:var(--tink3);margin-top:3px}
+#tate .row .note{font-size:.74rem;color:var(--tink2);border-left:2px solid var(--line);padding-left:11px;margin-top:8px}
+#tate .vis{display:inline-block;height:4px;border-radius:2px;background:var(--tmono);vertical-align:middle;margin-left:8px}
+#tate .visw{display:inline-block;width:56px;height:4px;border-radius:2px;background:rgba(231,225,212,.13);vertical-align:middle;margin-left:6px;position:relative}
+#tate .side{border:1px dashed var(--line);border-radius:11px;padding:12px 16px;background:rgba(0,0,0,.18);margin-top:10px}
+#tate .side h4{margin:0 0 3px;font-size:.84rem;color:var(--tmono);font-weight:600}
+#tate .side p{margin:0;font-size:.78rem;color:var(--tink2)}
+#tate footer{margin-top:42px;font-size:.72rem;color:var(--tink3);border-top:1px solid var(--line);padding-top:14px}
+#tate footer a{color:var(--tmono)}
+#tate .big{font-size:.86rem;color:var(--tink2);max-width:80ch;margin:0 0 14px}
+#tate .big b{color:var(--tmono)}
+#tate .rank{display:grid;grid-template-columns:13.5em 1fr 3.6em;gap:11px;align-items:center;
+ padding:7px 9px;font-size:.8rem;cursor:pointer;border-radius:8px;transition:.14s}
+#tate .rank:hover{background:rgba(231,225,212,.05)}
+#tate .rank.cur{background:rgba(217,207,174,.09)}
+#tate .rank .rn{color:var(--tink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tate .rank.cur .rn{color:var(--tmono)}
+#tate .rank .rb{height:9px;border-radius:5px;background:rgba(231,225,212,.07);position:relative;overflow:hidden}
+#tate .rank .rb i{position:absolute;left:0;top:0;bottom:0;background:var(--tcoin);border-radius:5px;
+ box-shadow:0 0 12px rgba(242,194,74,.45);transition:width .5s cubic-bezier(.3,1,.4,1)}
+#tate .rank .rp{text-align:right;color:var(--tcoin);font-variant-numeric:tabular-nums}
+#tate .rank.zero .rp{color:var(--tink3)}
+#tate .rank.zero .rb i{box-shadow:none}
+@media(max-width:640px){#tate .rank{grid-template-columns:1fr 3.6em}#tate .rank .rb{grid-column:1/-1}}
+
+</style></head><body>
+<div class="page">
+  <div class="kick">SHAKAI NO NAGARE — TWO AXES OF ONE WORLD</div>
+  <div class="h0">社会のながれ <b>— よこから見るか、たてから見るか</b></div>
+  <div class="lede0">同じ社会を2方向から見る。<b>よこ</b>は素材の側から——石・木・プラ・コンクリ・シリコンが地面から手元へ流れる川。<b>たて</b>はあなたの側から——目の前のものの背後に、誰が何人並んでいるか。そして<b>払ったお金は、どこまで追えるか</b>。<b>2つの図には同じ場所が出てくる</b>。それが下の「接続点」。</div>
+  <div class="hr0"></div>
+  <div class="tabs">
+    <div class="tab on" data-v="yoko"><div class="t1">🌊 よこ ／ 商流のかわ</div><div class="t2">素材が地面から手元へ流れる・8段</div></div>
+    <div class="tab" data-v="tate"><div class="t1">🔭 たて ／ うしろがわ</div><div class="t2">目の前のものの背後に何人いるか・7件</div></div>
+  </div>
+  <div class="view on" id="yoko"><div class="wrap"><div class="river">
+  <canvas id="cv"></canvas>
+  <div class="stagelabels" id="stl"></div>
+</div>
+
+<div class="bar" id="mats"></div>
+<div class="bar" style="margin-top:2px">
+  <div class="readout" id="ro">素材の札を押すと、その素材だけが流れる。段を押すと、そこで何が起きているか出る。</div>
+  <button class="kill" id="kill">商社を消してみる</button>
+</div>
+
+<h2>素材ごとに、埋めているズレが違う</h2>
+<div class="big" style="margin-bottom:14px">これが「商社って何をしてるの？」の答え。<b>素材ごとに、川のどこに、どんなズレがあるかが違う</b>。商社はそのズレを埋める係で、ズレが無い素材（石）では出番がほとんど無い。</div>
+<div class="grid" id="matcards"></div>
+
+<h2>業態は、川の位置で決まる</h2>
+<div class="grid" id="actorcards"></div>
+
+</div></div>
+  <div class="view" id="tate"><div class="wrap"><div class="cases" id="cases"></div>
+<div class="q" id="q"></div>
+
+<div class="stage">
+  <canvas id="cv2"></canvas>
+  <div class="hint">↑ 奥（原料・産地）　／　↓ 手前（あなた）</div>
+  <div class="legend">
+    <i><b style="background:var(--tthing)"></b>モノ↓</i>
+    <i><b style="background:var(--tcoin)"></b>カネ↑</i>
+    <i><b style="background:var(--tmono)"></b>明るさ＝分かる度</i>
+  </div>
+</div>
+
+<div class="bar">
+  <span class="btn on" data-l="both">モノとカネ</span>
+  <span class="btn" data-l="thing">モノだけ</span>
+  <span class="btn" data-l="money">カネだけ</span>
+  <button class="pay" id="pay">払ってみる</button>
+</div>
+<div class="ro" id="ro2">層をクリックすると、その人が何をしているかが下に出る。「払ってみる」で、あなたのお金が奥へ流れる。</div>
+
+<h2>手前から奥へ</h2>
+<div class="rows" id="rows"></div>
+<div id="sides"></div>
+
+<h2>追えた割合 ── ぜんぶ並べる</h2>
+<div class="big" id="ranknote">追えるかどうかを決めているのは、<b>遠さでも段数でもない</b>。値段と負担の割合が法律に書いてあるもの（病院）と、上場していて開示の義務があるもの（REITが持つ部屋）は、いちばん奥までほぼ全部追える。それ以外は民間どうしの契約なので、<b>結局たどれるのは税金のぶんだけ</b>になる。押すとそのケースに切り替わる。</div>
+<div id="ranks"></div>
+
+</div></div>
+  <div class="h2b">2つの図がつながる場所</div>
+  <div class="brs"><div class="br"><div class="brn">石化コンビナート</div><div class="brt">🧴プラ太が生まれる場所。よこ＝素材の流れの02一次加工／たて＝自販機の09層目。<b>同じ工場を、素材の側と、あなたの側から見ている。</b></div></div><div class="br"><div class="brn">原油</div><div class="brt">よこの01地面／たての最奥。<b>どちらの図でも「ここだけは誰も作れない」で終わる。</b></div></div><div class="br"><div class="brn">総合商社</div><div class="brt">よこ＝価格のズレを引き受ける係／たて＝LNGを船で運んで価格変動を飲む係。<b>同じ商社が両方に立っている。</b></div></div></div>
+  <div class="foot0">
+  よこ＝素材の名前と色は『そざいたちのじこしょうかい』の正典。たて＝各層の明るさは、実際に調べてどれだけ公開情報が出てきたかの実測で、演出ではない。<br>
+  <b>この図の決まりごと。</b>金の粒が止まる割合（取り分）は、<b>そのケースそのものについて公表されている数字にだけ</b>入れている。ほかの対象の平均を当てはめて作った数字は、どれだけもっともらしく見えても入れていない —— たとえば Apple の全製品・全世界平均の粗利率を日本の1台に当てはめたものや、宅配会社の連結の費目を1個に割り戻したもの。<b>それをやった瞬間に、この道具は「追えないこと」を測れなくなる。</b><br>
+  <b>非公開</b>は、調べても出てこなかったという意味。家賃の内訳は上場REIT1社（アドバンス・レジデンス投資法人 第31期）の実額で、<b>同じ建物を個人の大家が持っていたら、同じ数字は公開されていない</b>。
+  <div class="srcs">
+    <div class="src"><b>🥤 自販機</b><a href="https://jihanki.club/articles/vending-placement-fee-revenue-share-guide" target="_blank" rel="noopener">設置手数料の相場</a><span class="n2">業界メディア＝二次</span></div>
+    <div class="src"><b>💡 電気</b><a href="https://minden.co.jp/news/2026/03/30/10407" target="_blank" rel="noopener">再エネ賦課金 4.18円/kWh</a><span class="n2">2026年度</span></div>
+    <div class="src"><b>📦 宅配便</b><a href="https://www.mlit.go.jp/report/press/tokatsu01_hh_001025.html" target="_blank" rel="noopener">国交省 再配達率</a><a href="https://www.mlit.go.jp/report/press/jidosha04_hh_000341.html" target="_blank" rel="noopener">宅配便取扱実績</a><a href="https://www.mlit.go.jp/jidosha/content/001865381.pdf" target="_blank" rel="noopener">実運送体制管理簿</a><a href="https://www.mlit.go.jp/report/press/tokatsu01_hh_000998.html" target="_blank" rel="noopener">総合物流施策大綱</a><a href="https://www.yamato-hd.co.jp/important/pdf/info_250501_1.pdf" target="_blank" rel="noopener">ヤマト運賃表</a><a href="https://www.yamato-hd.co.jp/investors/library/briefing/pdf/4q_setsumei_2026_03.pdf" target="_blank" rel="noopener">ヤマトHD 決算説明</a><a href="https://www.mhlw.go.jp/toukei/itiran/roudou/chingin/kouzou/z2025/index.html" target="_blank" rel="noopener">賃金構造基本統計調査</a></div>
+    <div class="src"><b>📱 スマホ</b><a href="https://www.apple.com/jp/shop/buy-iphone/iphone-17" target="_blank" rel="noopener">Apple公式ストア</a><a href="https://www.sec.gov/Archives/edgar/data/320193/000032019325000079/aapl-20250927.htm" target="_blank" rel="noopener">Apple 10-K</a><a href="https://www.customs.go.jp/tariff/2026_01_01/data/j_85.htm" target="_blank" rel="noopener">実行関税率表 第85類</a><a href="https://www.sec.gov/Archives/edgar/data/1046179/000162828026025362/tsm-20251231.htm" target="_blank" rel="noopener">TSMC 20-F</a><a href="https://www.honhai.com/en-us/press-center/press-releases/latest-news/1978" target="_blank" rel="noopener">鴻海 FY2025</a><a href="https://pubs.usgs.gov/periodicals/mcs2026/mcs2026-silicon.pdf" target="_blank" rel="noopener">USGS シリコン</a><a href="https://laws.e-gov.go.jp/law/360M50001000025" target="_blank" rel="noopener">電気通信事業法施行規則</a></div>
+    <div class="src"><b>🏠 家賃</b><a href="https://www.stat.go.jp/data/jyutaku/2023/pdf/kihon_gaiyou.pdf" target="_blank" rel="noopener">住宅・土地統計調査</a><a href="https://www.adr-reit.com/files/optionallink/00003367_file.pdf" target="_blank" rel="noopener">ADR 第31期 決算短信</a><a href="https://laws.e-gov.go.jp/law/325AC0000000226" target="_blank" rel="noopener">地方税法</a><a href="https://laws.e-gov.go.jp/law/363AC0000000108" target="_blank" rel="noopener">消費税法</a><a href="https://www.mlit.go.jp/common/001320849.pdf" target="_blank" rel="noopener">国交省 家主アンケート</a><a href="https://www.nta.go.jp/publication/statistics/kokuzeicho/shinkokuhyohon2024/pdf/R06.pdf" target="_blank" rel="noopener">申告所得税標本調査</a></div>
+    <div class="src"><b>🏥 病院</b><a href="https://laws.e-gov.go.jp/law/211AC0000000070" target="_blank" rel="noopener">健康保険法</a><a href="https://www.mhlw.go.jp/toukei/saikin/hw/k-iryohi/23/dl/R05kekka.pdf" target="_blank" rel="noopener">国民医療費の概況</a><a href="https://www.mhlw.go.jp/bunya/iryouhoken/database/zenpan/jittaityousa/dl/25_houkoku_iryoukikan.pdf" target="_blank" rel="noopener">医療経済実態調査</a><a href="https://www.mhlw.go.jp/stf/newpage_67729.html" target="_blank" rel="noopener">令和8年度診療報酬改定</a><a href="https://www.kyoukaikenpo.or.jp/lp/2026hokenryou/" target="_blank" rel="noopener">協会けんぽ 保険料率</a><a href="https://www.ssk.or.jp/smph/seikyushiharai/tesuryo/seikyushiharai_02.html" target="_blank" rel="noopener">支払基金 手数料</a><a href="https://www.mhlw.go.jp/content/12400000/001696834.pdf" target="_blank" rel="noopener">薬価制度改革</a></div>
+    <div class="src"><b>🧾 共通</b><a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shohi/6303.htm" target="_blank" rel="noopener">国税庁 消費税率</a></div>
+  </div>
+  「消してみる」「払ってみる」は『社会考証ビジュアライザ（ひとRe:）』の消失カスケードと同じ考え方 —— <b>無くしてみると、何をしていたのかが分かる</b>。
+  </div>
+</div>
+<script>
+(function(){ 
+const DATA={"stages": [{"id": "ground", "n": "地面", "sub": "採掘・採取", "d": "自然から取り出す。ここだけは誰も作れない。"}, {"id": "first", "n": "一次加工", "sub": "製錬・製材・重合・焼成", "d": "素材を「使える形」に変える。ここで巨大な設備とエネルギーが要る。"}, {"id": "trade", "n": "商社", "sub": "トレード・与信・物流", "d": "モノを持たない。ズレ（距離・時間・価格・規制）を埋めて通す。"}, {"id": "make", "n": "製造", "sub": "成形・加工・組立", "d": "素材が製品になる。ここで初めて「用途」が決まる。"}, {"id": "whole", "n": "卸・問屋", "sub": "束ねる", "d": "多対多を少数の結節点に畳む。1万×1万を、10で繋ぐ。"}, {"id": "retail", "n": "小売・EC", "sub": "届ける", "d": "最後の1キロ。ここだけが客の顔を見ている。"}, {"id": "hand", "n": "手元", "sub": "使う", "d": "あなたの家、机、ポケット。流れの終点。"}, {"id": "loop", "n": "循環", "sub": "再生・廃棄", "d": "地面へ戻すか、戻らないか。素材の性格が一番出る場所。"}], "mats": [{"id": "ishi", "n": "イシちゃん", "en": "Stone", "emo": "🪨", "c": "#8d8377", "lesson": "はじまりは、いつも シンプル", "gap": "距離", "gapd": "重くて安い。だから運べない。", "why": "石は 1トン いくらの世界で、輸送費が値段を食う。<b>商圏はせいぜい半径50km</b>。国境を越えないから、総合商社の出番がほとんど無い。", "chain": ["採石場（骨材・石灰石）", "砕石・分級", "（専門商社・小規模）", "生コン／建材メーカー", "建材問屋", "工務店・ホームセンター", "建物・道路", "再生砕石として路盤へ"], "note": "250万年前のオルドワン石器から、今のビルの骨材まで、やっていることは「割る」と「積む」。", "w": [1, 0.9, 0.22, 0.8, 0.6, 0.5, 0.9, 0.5], "gapnote": {"i": 2, "t": "商社の出番が細い（近いから）"}}, {"id": "kino", "n": "キノさん", "en": "Wood", "emo": "🪵", "c": "#a5764f", "lesson": "いちばん ながい つきあいは、いちばん やさしい そざい", "gap": "時間", "gapd": "育つのに40年。植えた人は伐らない。", "why": "木は再生可能だが<b>再生に数十年</b>かかる。伐採と需要のあいだに何十年ものズレがあり、そのあいだ誰かが在庫と金を持つ必要がある。<b>商社は「時間を持つ」ことで儲けている</b>。", "chain": ["伐採（林業・海外含む）", "製材・合板・パルプ", "総合商社／専門商社（船と与信）", "住宅メーカー・製紙", "建材問屋・紙代理店", "工務店・文具・書店", "家・紙・家具", "再生紙・バイオマス燃焼"], "note": "家、船、橋、紙、薪、家具、楽器、箸。これほど何にでもなった素材は他にない。", "w": [0.9, 0.85, 0.8, 0.85, 0.7, 0.6, 0.9, 0.45]}, {"id": "pura", "n": "プラ太", "en": "Plastic", "emo": "🧴", "c": "#e0507e", "lesson": "べんりは、つけを のこす", "gap": "価格", "gapd": "原油とドルで毎日値段が動く。", "why": "原料は原油。<b>価格が毎日動き、ドル建てで、船で来る</b>。メーカーは値動きのリスクを取りたくない。総合商社はそのリスクを引き受けて価格を固定して渡す——これが本来の口銭の正体。", "chain": ["原油・天然ガス（産油国）", "精製→ナフサ→エチレン→重合", "総合商社（原料トレード・為替・船）", "成形メーカー（射出・押出・ブロー）", "商社・問屋", "小売・EC", "容器・袋・部品・医療機器", "マテリアル／ケミカルリサイクル・焼却"], "note": "1907年のベークライトから約120年。分解までは数百年〜数千年かかる。", "w": [1, 0.95, 0.95, 0.9, 0.75, 0.8, 1, 0.32]}, {"id": "conc", "n": "コンクリ", "en": "Concrete", "emo": "🧱", "c": "#5e7686", "lesson": "ぼくたちは、なにの うえに たっているか", "gap": "消滅", "gapd": "90分で固まる。流通が成立しない。", "why": "生コンは<b>練ってから約90分で使えなくなる</b>。在庫が持てない＝卸が存在できない。この5つのなかで、<b>流通の段が丸ごと消える</b>のはコンクリだけ。だから工場は現場の隣に建つ。", "chain": ["石灰石採掘（国内自給ほぼ100%）", "セメント焼成（キルン1450℃）", "セメント商社", "生コン工場（現場の隣）", "— 卸が存在しない —", "建設会社が直接", "ビル・橋・ダム・道路", "解体→再生骨材"], "note": "年間およそ300億トン。ひとりあたり約4トン。製造は世界のCO₂の約8%。", "w": [1, 0.95, 0.5, 1, 0, 0.85, 1, 0.4], "gapnote": {"i": 4, "t": "卸が存在しない（90分で固まる）"}}, {"id": "siri", "n": "シリコ先輩", "en": "Silicon", "emo": "💎", "c": "#3d93c9", "lesson": "すなが かんがえる じだいが きた", "gap": "国境", "gapd": "1枚のウェハが世界を何周もする。", "why": "珪石→ポリシリコン→ウェハ→前工程→後工程→実装。<b>工程ごとに得意な国が違う</b>ので、素材が何度も国境を越える。関税・規制・輸出管理・保険・与信を全部束ねて通す係が要る。それが商社。", "chain": ["珪石採掘", "金属Si→ポリシリコン→インゴット→ウェハ", "商社（装置・材料・規制・物流）", "ファウンドリ（前工程）→OSAT（後工程）", "ディストリビュータ", "セットメーカー・小売", "スマホ・PC・AI・ネット", "都市鉱山（回収率は低い）"], "note": "地殻で2番目に多い元素。砂を超高純度に精製すると、考えはじめる。", "w": [0.7, 0.95, 0.95, 1, 0.8, 0.8, 1, 0.1], "gapnote": {"i": 7, "t": "戻る量がほとんど無い"}}], "actors": [{"id": "sogo", "n": "総合商社", "stage": "trade", "have": "持たない（在庫は通過するだけ）", "job": "距離・時間・価格・規制の<b>4つのズレ</b>をまとめて引き受ける", "money": "昔＝口銭（手数料）／いま＝<b>事業投資の持分利益</b>が主。上流の権益に出資して配当で取る", "die": "与信（銀行）と情報。どちらか欠けると即死", "ex": "プラ太・シリコ先輩・キノさん"}, {"id": "senmon", "n": "専門商社", "stage": "trade", "have": "少し持つ（在庫）", "job": "特定素材の<b>目利きと小口化</b>。1トン単位を100kg単位に割って渡す", "money": "仕入と売りの差＋在庫リスクの対価", "die": "目利きができる人。属人性が高い", "ex": "イシちゃん・コンクリ"}, {"id": "tonya", "n": "問屋（卸）", "stage": "whole", "have": "持つ（在庫の本体）", "job": "<b>多対多を畳む</b>。1万メーカー×1万小売＝1億本の線を、問屋10社で2万本にする", "money": "物流費と在庫リスクの肩代わり分", "die": "メーカーが直販を始めた瞬間（中抜き）", "ex": "キノさん・プラ太"}, {"id": "fin", "n": "商社金融", "stage": "trade", "have": "金だけ", "job": "<b>支払いのタイミングのズレ</b>を埋める。売る側は早く欲しい、買う側は遅く払いたい", "money": "金利差と手数料", "die": "取りっぱぐれ（与信事故）1発", "ex": "プラ太・シリコ先輩"}, {"id": "logi", "n": "物流・倉庫", "stage": "trade", "have": "場所と車と船", "job": "<b>場所と時間のズレ</b>を物理で吸収する", "money": "運賃・保管料", "die": "燃料費と人手", "ex": "全員"}, {"id": "insp", "n": "検査・認証", "stage": "trade", "have": "何も持たない（信用だけ）", "job": "<b>情報のズレ</b>を埋める。中身が本当にそれか、買う側には分からない", "money": "検査料", "die": "一度の見逃しで信用が消える", "ex": "シリコ先輩・プラ太"}, {"id": "dist", "n": "ディストリビュータ", "stage": "whole", "have": "在庫＋技術サポート", "job": "半導体特有。<b>売った後に技術で支える</b>。データシートの読み方から一緒に見る", "money": "仕切差＋設計支援の見返り", "die": "メーカー直販とEC", "ex": "シリコ先輩"}, {"id": "retail", "n": "小売・EC", "stage": "retail", "have": "客の顔", "job": "最後の1キロ。<b>ここだけが需要を見ている</b>", "money": "粗利", "die": "客が来なくなること", "ex": "全員"}, {"id": "recy", "n": "リサイクラー", "stage": "loop", "have": "戻す技術", "job": "⑧から①へ戻す。<b>ここが繋がって初めて「流れ」は輪になる</b>", "money": "再生材の売値と処理費", "die": "再生材が新品より高くなること", "ex": "プラ太・シリコ先輩"}]};
+const CM={ishi:'#8d8377',kino:'#a5764f',pura:'#e0507e',conc:'#5e7686',siri:'#3d93c9'};
+const NS=DATA.stages.length;
+let active=new Set(DATA.mats.map(m=>m.id));
+let killed=false, curStage=null;
+
+// --- 札 ---
+document.getElementById('mats').innerHTML=DATA.mats.map(m=>
+  `<span class="mat" data-m="${m.id}" style="color:${m.c}"><span class="dot" style="background:${m.c}"></span>${m.emo} ${m.n}</span>`).join('');
+document.getElementById('stl').innerHTML=DATA.stages.map((s,i)=>
+  `<div class="st${s.id==='trade'?' gate':''}" data-s="${i}"><div class="no">${String(i+1).padStart(2,'0')}</div><div class="nm">${s.n}</div><div class="sb">${s.sub}</div></div>`).join('');
+
+const ro=document.getElementById('ro');
+document.getElementById('mats').addEventListener('click',e=>{
+  const el=e.target.closest('.mat'); if(!el)return;
+  const id=el.dataset.m;
+  if(active.has(id)&&active.size>1){active.delete(id);el.classList.add('off');}
+  else {active.add(id);el.classList.remove('off');}
+  const m=DATA.mats.find(x=>x.id===id);
+  ro.innerHTML=`${m.emo} <b>${m.n}</b>（${m.en}）が埋めているズレ＝<b>${m.gap}</b>。${m.gapd}`;
+});
+document.getElementById('stl').addEventListener('click',e=>{
+  const el=e.target.closest('.st'); if(!el)return;
+  document.querySelectorAll('.st').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on'); curStage=+el.dataset.s;
+  const s=DATA.stages[curStage];
+  ro.innerHTML=`<b>${String(curStage+1).padStart(2,'0')} ${s.n}</b>（${s.sub}）— ${s.d}`;
+});
+const kb=document.getElementById('kill');
+kb.addEventListener('click',()=>{
+  killed=!killed; kb.classList.toggle('on',killed);
+  kb.textContent=killed?'商社を戻す':'商社を消してみる';
+  ro.innerHTML=killed
+    ?'商社を抜いた。<b>石は平気</b>（近いから）。<b>コンクリもほぼ平気</b>（現場の隣で作るから）。だが<b>プラ太とシリコ先輩は止まる</b> — 価格変動と国境を、誰も引き受けられない。'
+    :'戻した。溜まっていたぶんが一気に流れる。';
+});
+
+// --- 川 ---
+const cv=document.getElementById('cv'),cx=cv.getContext('2d');
+let W=0,H=0,DPR=Math.min(devicePixelRatio||1,2);
+function fit(){W=cv.clientWidth;H=cv.clientHeight;cv.width=W*DPR;cv.height=H*DPR;cx.setTransform(DPR,0,0,DPR,0,0);}
+addEventListener('resize',fit);fit();
+const laneY=i=>H*(0.155+i*0.172);
+const stageX=i=>W*(0.075+i*(0.87/(NS-1)));
+const GATE=2;
+function wAt(m,t){const s=Math.max(0,Math.min(NS-2,Math.floor(t))),f=t-s;
+  return m.w[s]*(1-f)+m.w[Math.min(s+1,NS-1)]*f;}
+const P=[];
+for(const m of DATA.mats){for(let k=0;k<34;k++)P.push({m:m.id,c:m.c,t:Math.random()*(NS-1),v:0.0042+Math.random()*0.0030,o:(Math.random()-.5)*9,held:0});}
+const needsTrade=id=>(id==='pura'||id==='siri'||id==='kino');
+let stuck=0;
+function draw(){
+  cx.clearRect(0,0,W,H);
+  for(let i=0;i<NS;i++){
+    const x=stageX(i);
+    cx.strokeStyle=(i===GATE)?'rgba(240,201,138,.34)':'rgba(221,214,200,.075)';
+    cx.lineWidth=(i===GATE)?1.6:1;
+    cx.beginPath();cx.moveTo(x,H*0.04);cx.lineTo(x,H*0.97);cx.stroke();
+  }
+  // 水門
+  const gx=stageX(GATE);
+  cx.fillStyle='rgba(240,201,138,'+(killed?0.16:0.05)+')';
+  cx.fillRect(gx-10,H*0.04,20,H*0.93);
+  if(killed){cx.strokeStyle='rgba(224,80,126,.85)';cx.lineWidth=2.4;
+    cx.beginPath();cx.moveTo(gx-13,H*0.04);cx.lineTo(gx-13,H*0.97);cx.stroke();}
+  // 帯（太さ＝流量）
+  DATA.mats.forEach((m,i)=>{
+    if(!active.has(m.id))return;
+    const y=laneY(i);
+    for(let s=0;s<NS-1;s++){
+      const a=m.w[s],bb=m.w[s+1];
+      if(a<=0.001&&bb<=0.001)continue;
+      const x0=stageX(s),x1=stageX(s+1);
+      if(a<=0.001||bb<=0.001){ // 途切れ＝直送
+        cx.setLineDash([4,7]);cx.strokeStyle=m.c;cx.globalAlpha=.30;cx.lineWidth=1.4;
+        cx.beginPath();cx.moveTo(x0,y);cx.lineTo(x1,y);cx.stroke();
+        cx.setLineDash([]);cx.globalAlpha=1;continue;
+      }
+      cx.beginPath();
+      cx.moveTo(x0,y-a*11);cx.lineTo(x1,y-bb*11);cx.lineTo(x1,y+bb*11);cx.lineTo(x0,y+a*11);cx.closePath();
+      const g=cx.createLinearGradient(x0,0,x1,0);
+      g.addColorStop(0,m.c);g.addColorStop(1,m.c);
+      cx.fillStyle=g;cx.globalAlpha=.20;cx.fill();cx.globalAlpha=1;
+    }
+    cx.fillStyle=m.c;cx.font='600 12px system-ui';cx.globalAlpha=.9;
+    cx.fillText(m.emo+' '+m.n,stageX(0)-14,y-18);cx.globalAlpha=1;
+    if(m.gapnote){const x=stageX(m.gapnote.i);
+      cx.fillStyle=m.c;cx.globalAlpha=.7;cx.font='10px system-ui';
+      const tw=cx.measureText(m.gapnote.t).width;
+      let tx=x-tw/2; if(tx+tw>W-10)tx=W-10-tw; if(tx<8)tx=8;
+      cx.fillText(m.gapnote.t,tx,y+27);cx.globalAlpha=1;}
+  });
+  // 粒
+  let st=0;
+  for(const p of P){
+    if(!active.has(p.m))continue;
+    const i=DATA.mats.findIndex(m=>m.id===p.m), m=DATA.mats[i];
+    const wall=(killed&&needsTrade(p.m))?GATE-0.05:-1;
+    if(wall>=0&&p.t>=wall-0.001){p.t=wall;p.held=Math.min(p.held+1,90);st++;}
+    else{p.t+=p.v*(0.55+wAt(m,p.t));p.held=Math.max(0,p.held-3);if(p.t>NS-1)p.t=0;}
+    const s=Math.floor(p.t),f=p.t-s;
+    const x=stageX(Math.min(s,NS-2))+(stageX(Math.min(s+1,NS-1))-stageX(Math.min(s,NS-2)))*f;
+    const spread=p.held>4?(p.held*0.30):0;
+    const y=laneY(i)+p.o*wAt(m,p.t)+(spread?(Math.random()-.5)*spread:0);
+    const xx=x-(spread?Math.random()*spread*1.6:0);
+    cx.beginPath();cx.arc(xx,y,p.held>10?3.3:2.4,0,7);
+    cx.fillStyle=p.c;cx.globalAlpha=p.held>10?.95:.82;cx.fill();cx.globalAlpha=1;
+  }
+  stuck=st;
+  if(killed){
+    cx.fillStyle='rgba(224,80,126,.95)';cx.font='600 13px system-ui';
+    cx.fillText('止まっている粒 '+stuck,gx-118,H*0.045+13);
+  }
+  const g=cx.createRadialGradient(stageX(NS-1),H/2,4,stageX(NS-1),H/2,130);
+  g.addColorStop(0,'rgba(240,201,138,.16)');g.addColorStop(1,'rgba(240,201,138,0)');
+  cx.fillStyle=g;cx.fillRect(stageX(NS-1)-140,0,280,H);
+  requestAnimationFrame(draw);
+}
+draw();
+
+// --- カード ---
+document.getElementById('matcards').innerHTML=DATA.mats.map(m=>`
+ <div class="card" style="border-left-color:${m.c}">
+   <div class="tag">${m.en}</div>
+   <h3>${m.emo} ${m.n}<span class="gapchip">ズレ＝${m.gap}</span></h3>
+   <div class="kv">${m.why}</div>
+   <div class="chain"><ol>${m.chain.map(c=>`<li class="${c.startsWith('—')?'na':''}">${c}</li>`).join('')}</ol></div>
+   <div class="note" style="border-left-color:${m.c}">${m.note}</div>
+   <div class="lesson">「${m.lesson}」</div>
+ </div>`).join('');
+document.getElementById('actorcards').innerHTML=DATA.actors.map(a=>{
+ const st=DATA.stages.find(s=>s.id===a.stage);
+ return `<div class="card">
+   <div class="tag">${st?st.n:''}の段</div>
+   <h3>${a.n}</h3>
+   <div class="kv">
+     <span class="k">持つもの</span>${a.have}<br>
+     <span class="k">やること</span>${a.job}<br>
+     <span class="k">儲け方</span>${a.money}<br>
+     <span class="k">死ぬ条件</span>${a.die}<br>
+     <span class="k">効く素材</span>${a.ex}
+   </div></div>`;}).join('');
+ })();
+(function(){ 
+const D={"cases": [{"id": "jihanki", "emo": "🥤", "name": "自販機のペットボトル", "price": 180, "unit": "円", "q": "ボタンを押すと落ちてくる。あの1本のうしろに、何人いる？", "layers": [{"n": "あなた", "who": "買う人", "job": "180円を入れてボタンを押す", "take": "−180円", "vis": 1.0, "die": "—", "note": "硬貨も電子マネーも使える。日本は硬貨が信用されている国なので自販機が成立した", "share": null}, {"n": "自販機そのもの", "who": "機械", "job": "冷やす・温める・在庫を持つ・売上を記録する", "take": "本体 20〜40万円／電気 月3,000〜8,000円", "vis": 0.85, "die": "停電すると中身が売り物でなくなる", "note": "24時間つけっぱなしの冷蔵庫が街に何十万台も立っている", "share": null}, {"n": "場所を貸す人", "who": "ロケーションオーナー", "job": "土地や壁の1㎡を貸す。電気代を負担することが多い", "take": "売上の 0〜30%（立地で激変）", "vis": 0.8, "die": "人通りが変われば売上ごと消える", "note": "超優良立地(月商30万超)で20〜30% / 標準(月商8〜15万)で5〜10% / 弱い立地は0〜5%", "share": 0.2}, {"n": "自販機オペレーター", "who": "ベンダー", "job": "機械を所有し、補充・集金・保守・ルート設計をする", "take": "残りから人件費・車両・償却", "vis": 0.5, "die": "1台あたりの日販が落ちると、回るほど赤字になる", "note": "「持っている」のはオペレーター。場所も中身も自分のものではない", "share": null}, {"n": "ルート便", "who": "補充の物流", "job": "何十台を1日で回る順番を組む。積む本数を売れ方から決める", "take": "運賃（非公開）", "vis": 0.35, "die": "燃料と人手", "note": "売れ筋データが無いと、積みすぎか積み足りないかのどちらかになる", "share": null}, {"n": "飲料メーカー", "who": "ブランド", "job": "レシピ・容器デザイン・広告・価格を決める", "take": "出荷額（非公開）", "vis": 0.4, "die": "棚（＝自販機の列）を取れなくなること", "note": "自販機はメーカーにとって「自社商品しか並ばない棚」", "share": null}, {"n": "充填工場", "who": "コパッカー含む", "job": "プリフォームをその場で膨らませて中身を詰める（インライン成形）", "take": "受託加工料（非公開）", "vis": 0.25, "die": "ラインが止まること", "note": "ボトルは工場に運ばれてこない。運ぶと空気を運ぶことになるから、その場で作る", "share": null}, {"n": "PET樹脂・プリフォーム", "who": "樹脂メーカー", "job": "試験管みたいな形の「素」を作る", "take": "樹脂価格（原油連動）", "vis": 0.3, "die": "原油とドル", "note": "運ぶのは膨らむ前。体積が数十分の一で済む", "share": null}, {"n": "石化コンビナート", "who": "化学", "job": "ナフサ→PET原料→重合", "take": "市況（公開されるが読みにくい）", "vis": 0.3, "die": "装置が一度止まると再稼働に日数と費用", "note": "🧴プラ太が生まれる場所。『商流のかわ』とここで繋がる", "share": null}, {"n": "原油", "who": "産油国", "job": "掘る", "take": "原油価格（毎日動く）", "vis": 0.55, "die": "地政学", "note": "ここだけは誰も作れない", "share": null}], "side": [{"n": "空容器", "t": "リサイクルボックスは自販機の付属品。回収して選別し、再生樹脂かトレイか繊維になる。ボトルからボトルへ戻る割合はまだ一部"}, {"n": "見えない情報", "t": "どの機械で何がいつ売れたか。これが無いとルートも積載も組めない。実は情報が一番効いている層"}]}, {"id": "onigiri", "emo": "🍙", "name": "コンビニのおにぎり", "price": 150, "unit": "円", "q": "24時間、いつ行っても棚にある。誰がそれを支えている？", "layers": [{"n": "あなた", "who": "買う人", "job": "150円払う", "take": "−150円", "vis": 1.0, "die": "—", "note": "", "share": null}, {"n": "お店", "who": "FC加盟店（多くは個人）", "job": "24時間開ける・人を雇う・発注する・売れ残りを捨てる", "take": "粗利からロイヤリティを引いた残り", "vis": 0.6, "die": "人が採れないこと／廃棄が積み上がること", "note": "売上ではなく<b>粗利</b>を本部と分ける方式。だから廃棄は加盟店側に重くのしかかる", "share": null}, {"n": "本部", "who": "チェーン", "job": "看板・システム・物流網・商品開発", "take": "粗利の一定割合（契約で幅が大きい）", "vis": 0.5, "die": "加盟店が減ること", "note": "ロイヤリティ率は契約類型で大きく違う。数字は契約ごと", "share": null}, {"n": "専用工場", "who": "ベンダー", "job": "そのチェーン専用に作る。1日数回、時間指定で出す", "take": "受託価格（非公開）", "vis": 0.25, "die": "チェーンとの契約が切れること", "note": "「そのチェーンのためだけの工場」が全国に点在している", "share": null}, {"n": "定温物流", "who": "1日複数便", "job": "米飯はチルド。時間と温度を外すと商品でなくなる", "take": "運賃（非公開）", "vis": 0.3, "die": "温度と時間", "note": "おにぎりは、物流が止まった瞬間に「ただの米」になる", "share": null}, {"n": "米・海苔・具材", "who": "産地と卸", "job": "作る・集める・等級を分ける", "take": "相場", "vis": 0.45, "die": "天候", "note": "米は年1回しか穫れない。棚は毎日埋まる。そのズレを在庫が吸収している", "share": null}], "side": [{"n": "捨てられる分", "t": "売れ残りの原価が、多くの契約で加盟店の負担になる。「棚が常に埋まっている」ことのコストは、いちばん手前の人が払っている"}]}, {"id": "denki", "emo": "💡", "name": "家のコンセントの電気", "price": 31, "unit": "円/kWh", "q": "スイッチを押すと点く。誰も「電気を持っていない」のに。", "layers": [{"n": "あなた", "who": "使う人", "job": "スイッチを押す", "take": "−31円/kWh前後", "vis": 1.0, "die": "—", "note": "家庭向けの目安。契約と時間帯で大きく動く", "share": null}, {"n": "小売電気事業者", "who": "売る会社", "job": "契約と請求をする。発電所は持たないことが多い", "take": "小売マージン", "vis": 0.6, "die": "仕入れ（市場価格）が売値を超えること", "note": "2016年の自由化以降、「電気を売る会社」と「作る会社」と「運ぶ会社」が分かれた", "share": null}, {"n": "送配電", "who": "電線を持つ会社", "job": "電線と鉄塔を維持し、周波数を一致させ続ける", "take": "託送料金（公開・認可制）", "vis": 0.9, "die": "設備更新が止まること", "note": "<b>ここは競争していない</b>。1地域1社。誰の電気も同じ線を通る", "share": null}, {"n": "再エネ賦課金", "who": "制度", "job": "再生可能エネルギーの買取原資を全員で割る", "take": "<b>4.18円/kWh</b>（2026年度）", "vis": 1.0, "die": "—", "note": "使った量に比例して全員が払う。値段の1割強がこれ", "share": 0.1348}, {"n": "卸電力市場", "who": "JEPX", "job": "30分ごとに値段が決まる", "take": "市場価格（公開・激しく動く）", "vis": 0.85, "die": "燃料価格と天候", "note": "晴れて風が吹くと値段が下がる。誰かの得は誰かの損ではなく、物理", "share": null}, {"n": "発電事業者", "who": "作る会社", "job": "燃やす・回す・光を受ける", "take": "売電収入", "vis": 0.5, "die": "燃料と設備", "note": "LNG・石炭・原子力・水力・太陽光・風力が、同じ線に混ざって流れる", "share": null}, {"n": "燃料の商社と船", "who": "トレード", "job": "LNGを買い、船で運び、価格変動を引き受ける", "take": "口銭・持分利益", "vis": 0.25, "die": "為替と地政学", "note": "『商流のかわ』の総合商社が、ここにも立っている", "share": null}, {"n": "産出国", "who": "掘る", "job": "掘る", "take": "—", "vis": 0.4, "die": "地政学", "note": "ここだけは誰も作れない（また同じ）", "share": null}], "side": [{"n": "周波数", "t": "東日本50Hz / 西日本60Hz。融通できる量には上限がある。国の中で電気が自由に行き来できるわけではない"}]}, {"id": "takuhai", "emo": "📦", "name": "宅配便のひと箱", "price": 940, "unit": "円", "q": "個数は<b>千個単位</b>で、再配達は<b>1個単位</b>で国が数えている。なのに、お金の行き先は？", "layers": [{"n": "あなた", "who": "出す人・受け取る人", "job": "940円を払って荷物を預ける。家にいなければ、もう一度来てもらう", "take": "−940円（60サイズ・関東→関東・現金）／再配達は何回頼んでも0円", "vis": 1.0, "die": "—", "note": "2026年4月の再配達率は7.6%で過去最低。ただしその手間ぶんのお金は、誰にも請求されない。最初から運賃に入っている", "share": null}, {"n": "消費税", "who": "国と都道府県", "job": "運ぶという仕事に10%の税をかける", "take": "85円", "vis": 1.0, "die": "消費税法。運送は軽減税率の対象外", "note": "<b>940円のうち「この1個でいくら」と一次で確定できるのは、この85円だけ。</b>", "share": 0.0909}, {"n": "運ぶ会社", "who": "ヤマト運輸などの宅配事業者", "job": "集めて、仕分けて、届ける。値段を決めて、国に届け出る", "take": "非公開（出てくるのは全国の宅急便の平均単価726円と、宅配事業の営業利益率0.1%だけ）", "vis": 0.6, "die": "個数が減っても単価を上げられること", "note": "宅急便の平均単価は726円。あなたが払った940円との差は、サイズ・区間・法人契約の違いで埋まっているはずだが、その割れ方は出てこない", "share": null}, {"n": "現場で働く人", "who": "集配ドライバー・仕分けの人・電話を受ける人", "job": "集める、仕分ける、届ける", "take": "非公開（連結の人件費は営業収益の43.3%）", "vis": 0.5, "die": "その地区の道と家を覚えている人がいること", "note": "厚労省の職種分類に「宅配ドライバー」は無い。いちばん近い「営業用貨物自動車運転者（大型を除く）」で年およそ449万円。国交省によると、大手のドライバー1人あたりの月間配達個数は令和元年度から5年度で約29%増え、人数は約7%減った", "share": null}, {"n": "頼まれて運ぶ会社", "who": "協力運送会社・傭車先・集配委託先", "job": "元請けの代わりに幹線を走り、地域を配る", "take": "非公開（連結の下払経費は営業収益の41.4%）", "vis": 0.25, "die": "繁忙期に車と人を出してくれる会社が近くにあること", "note": "総額は開示される。その先が誰にいくら渡ったかは、<b>国交省の検討会自身が「多重取引構造の全体像を誰も把握できていない」と書いている</b>", "share": null}, {"n": "さらに下", "who": "軽貨物の個人事業主、二次・三次の下請け", "job": "玄関まで運ぶ、最後の一人", "take": "非公開", "vis": 0.15, "die": "自分の軽バンとガソリン代を自分で負担できる人がいること", "note": "多重下請けを追えるようにした法律（実運送体制管理簿・2025年4月施行）は、<b>1回の運送依頼あたり1.5トン以上の貨物が対象</b>。60サイズは2kgまで。<b>基準の750分の1で、この箱は最初から対象の外にいる。</b>", "share": null}, {"n": "トラックと燃料", "who": "車両と軽油", "job": "実際に物理で動かす", "take": "非公開（連結の燃料油脂費は営業収益の1.4%）", "vis": 0.5, "die": "軽油が買えること", "note": "2026年4月1日、軽油引取税の暫定税率が半世紀ぶりに廃止された（32.1円/L→15.0円/L）。だが940円のうち何円が税だったかは、分けられない", "share": null}, {"n": "運賃のかたちを決める国", "who": "国土交通省（貨物自動車運送事業法）", "job": "運賃の目安を告示し、下請けの記録を義務づける", "take": "0円（お金は止まらない。上の層が見えるかどうかだけを決めている）", "vis": 0.95, "die": "法律が実際に当てはまること", "note": "国が告示する「標準的な運賃」は距離制・時間制の車建てで、宅配便1個には当てはまらない。宅急便は各社が自分で決めて届け出る運賃", "share": null}], "side": [{"n": "再配達はタダではない。無料なだけ", "t": "2026年4月の再配達率は7.6%（3,322,699個のうち253,128個）で過去最低。それでも国交省の試算では、再配達に年間およそ6万人分のドライバーの労働力が消えている。あなたは1円も払っていない。"}, {"n": "玄関の前に置くことが、国の目標になった", "t": "令和8年3月31日に閣議決定された総合物流施策大綱は、多様な受取方法の利用率を大手宅配3社ベースで25.6%（2025年2月）から2030年度に50%程度へ、と書いている。※この25.6%と、上の再配達率調査に出てくる31.0%は測り方が違うので、そのまま並べて比べられない。"}]}, {"id": "sumaho", "emo": "📱", "name": "手元のスマホ1台", "price": 142800, "unit": "円", "q": "<b>50を超える国と地域</b>にまたがって作られている。どこの誰に、いくら行った？", "layers": [{"n": "あなた", "who": "買う人", "job": "142,800円を払って、箱を持って帰る", "take": "−142,800円（iPhone 17 256GB・税込・Apple公式ストア・2026年8月）", "vis": 1.0, "die": "—", "note": "この機種は2025年9月の発売時は129,800円だった。2026年7月に142,800円になっている。Appleは値上げのお知らせを出さないので、<b>いつ、いくら、なぜ上がったかは公式には書かれていない</b>", "share": null}, {"n": "消費税", "who": "国と都道府県", "job": "値札の11分の1を持っていく", "take": "12,982円", "vis": 1.0, "die": "これが無いと日本で正規に売れない", "note": "<b>142,800円のうち、誰にいくら行くかが法律で一意に決まっているのは、ここだけ。</b>", "share": 0.0909}, {"n": "売る人", "who": "Apple直営店・通信キャリア・家電量販店", "job": "在庫を持って、その日にあなたに手渡す", "take": "非公開", "vis": 0.2, "die": "誰かが在庫を抱えないと、その日に持って帰れない", "note": "回線とセットで付けられる「値引き」の上限だけは法律に書いてある（原則4万円、ミリ波対応機は当分の間5万5千円）。<b>値引きの天井は決まっているのに、儲けは分からない</b>", "share": null}, {"n": "設計する人", "who": "Apple Inc.（カリフォルニア）", "job": "設計し、OSを書き、名前を付け、値段を決める", "take": "非公開（出てくるのは Products 全体の粗利率 36.8% だけ）", "vis": 0.45, "die": "誰かが「この形にする」と決めないと、部品は部品のまま", "note": "Appleが公表するのは Mac も iPad も含めた<b>全製品・全世界の平均</b>の粗利率。iPhone単体も、日本市場も、この1台も、一度も出したことがない", "share": null}, {"n": "税関", "who": "日本の税関", "job": "国境で中身を確認して、税率表どおりに税をかける", "take": "0円（スマートフォンは無税）", "vis": 0.95, "die": "通関しないと国内で売れない", "note": "実行関税率表の8517.13「スマートフォン」は、基本もWTO協定も全部のEPAも、欄が漏れなく「無税」。<b>追えたのに、金額が0だった層。</b>", "share": null}, {"n": "運ぶ人", "who": "航空貨物・フォワーダー・倉庫", "job": "組立工場から日本の倉庫まで、箱を運ぶ", "take": "非公開", "vis": 0.15, "die": "運ばれてこないと、地球の裏側にあるのと同じ", "note": "新型はほぼ空輸される。1台あたりの運賃も保険料も、荷主と相対で決まるので出てこない", "share": null}, {"n": "組み立てる人", "who": "鴻海などのEMS（中国・インド・ベトナムほか）", "job": "何百個の部品を、人と機械で1台に組み上げる", "take": "非公開（鴻海の全社の営業利益率は3.20%）", "vis": 0.4, "die": "ここが止まると、部品は箱に入らない", "note": "鴻海の粗利率は6.15%。同じ時期にTSMCは67.7%。<b>同じ「作る人」でも10倍ちがう。</b>しかも鴻海は決算で顧客の名前を一度も出さない", "share": null}, {"n": "基板に載せる人", "who": "台湾のOSAT（後工程の受託会社）", "job": "焼き上がったチップを切り、封じ、動くか全部テストする", "take": "非公開（ASEの後工程部門の粗利率は27.3%）", "vis": 0.5, "die": "封じてテストしないと、チップはただのシリコン片", "note": "前工程と後工程は、別の大陸でやることがある。経産省の資料には「前工程：英・独、後工程：中国・マレーシア・フィリピン」という実例が載っている", "share": null}, {"n": "記憶をつくる人", "who": "Samsung・SK hynix（韓国）ほか", "job": "写真も動画もアプリも入れておく「記憶」を作る", "take": "非公開（SK hynixの直近の営業利益率は76%）", "vis": 0.55, "die": "これが無いと、電源は入るが何も覚えていられない", "note": "サムスンは同じ四半期に、半導体をつくる部門が営業利益率およそ70%で、<b>スマホを作って売る部門が営業赤字</b>だった。同じ会社の中で、部品を売る側と完成品を売る側の立場が入れ替わっている", "share": null}, {"n": "チップを焼く人", "who": "TSMC（台湾・新竹）", "job": "ウェハに回路を何百層も焼き付けて、頭脳を作る", "take": "非公開（全社の粗利率は67.7%）", "vis": 0.55, "die": "ここが1週間止まると、世界中の新型スマホが止まる", "note": "TSMCが米国の証券当局に出す書類には、最大の顧客が「<b>Customer B</b>」としか書かれていない。売上の17%を占める相手の名前が、公式書類のどこにも無い", "share": null}, {"n": "ウェハをつくる人", "who": "SUMCO・信越半導体（日本）ほか", "job": "高純度のシリコンから、鏡のような円盤を切り出して磨く", "take": "非公開", "vis": 0.5, "die": "この円盤が無いと、そもそも回路を焼く場所が無い", "note": "TSMCが粗利率67.7%を出していた同じ時期、その土台の円盤を作るSUMCOは営業赤字だった（2026年1〜3月期）", "share": null}, {"n": "石を掘る人", "who": "珪石の鉱山とシリコンの精錬所", "job": "地面から石英を掘って、電炉で溶かして塊にする", "take": "非公開（相場は公開。2025年のシリコンメタルは1ポンドおよそ130セント）", "vis": 0.45, "die": "この石が無ければ、上の全部が存在しない", "note": "世界のシリコン材料の生産のおよそ80%が中国（米国地質調査所）。142,800円のスマホの一番奥にあるのは、キロ数百円の石", "share": null}], "side": [{"n": "もっともらしい数字ほど、当てはめたくなる", "t": "Appleが公表している Products の粗利率 36.8% を142,800円に当てはめると、およそ4万8千円になる。だがそれは Mac も iPad も含んだ全世界の平均であって、<b>日本で売られたこの1台の数字ではない</b>。しかも直近の四半期では39.9%に上がっていて、どの期を取るかで3ポイント動く。<b>だからこの図では、その4万8千円を止めていない。</b>分解記事に出てくる「製造原価◯ドル」も同じで、あれは外から部品を見て相場を当てはめた推計であって、誰かが公表した数字ではない。"}, {"n": "50か国以上にまたがっている、とだけ分かる", "t": "Appleのサプライチェーン報告書は「我々のサプライチェーンは50を超える国と地域にまたがる」と書き、取引先の一覧も公開している。<b>載っているのは会社名と所在地だけで、金額は1つも無い。</b>"}]}, {"id": "yachin", "emo": "🏠", "name": "家賃（REITが持つ部屋）", "price": 99618, "unit": "円/月", "q": "同じ部屋でも、<b>持ち主が誰かで見える量が変わる</b>。これは上場REITが持っている賃貸マンションの場合。", "layers": [{"n": "あなた", "who": "借りて住む人", "job": "毎月、家賃を振り込む", "take": "−99,618円/月（東京都区部の民営借家の平均・令和5年住宅・土地統計調査）", "vis": 1.0, "die": "—", "note": "住むための家賃に消費税はかからない。大家の好意ではなく、消費税法の別表に「住宅の貸付け」と書いてあるから", "share": null}, {"n": "へやを紹介した会社", "who": "募集・仲介の不動産会社", "job": "空いた部屋に住む人を見つけてくる", "take": "非公開（このREITは「その他賃貸事業費用」に合算していて、単独では出さない）", "vis": 0.4, "die": "空室が埋まらないと、この下の全部がゼロになる", "note": "同じ住宅REITでもコンフォリアは「募集関連費」として単独で出していて、賃貸事業収益の1.49%。<b>何をいくつに分けて見せるかは、会社ごとにバラバラ</b>", "share": null}, {"n": "建物を管理する会社", "who": "管理会社", "job": "掃除し、点検し、苦情を受け、家賃を集める", "take": "家賃の7.39%（この家賃なら約7,400円）", "vis": 0.85, "die": "これが止まると、ゴミも出せず電球も替わらない", "note": "国交省が家主414人に聞いた調査では、管理料は「家賃の5〜10%未満」が38.8%で最多。<b>ただし11.4%の家主は、自分がいくら払っているか分からないと答えている</b>", "share": 0.0739}, {"n": "直す人", "who": "修繕の工事会社・職人", "job": "壊れたところを直し、出ていったあとの部屋を元に戻す", "take": "家賃の5.21%（約5,200円）", "vis": 0.8, "die": "直さないと、次の人が入らない", "note": "期によってブレる費目。別の住宅REIT（コンフォリア）では4.30%だった", "share": 0.0521}, {"n": "こまごました先", "who": "電力・水道・損害保険・信託銀行、そして名前の出ない相手", "job": "共用部の電気と水、火災保険、建物を預かる信託の手数料", "take": "家賃の6.33%（約6,300円）", "vis": 0.55, "die": "共用灯が消え、保険が切れると、建物は貸せなくなる", "note": "内訳は 水道光熱費1.42%／損害保険料0.13%／信託報酬0.35%／<b>その他4.43%</b>。いちばん大きいところが「その他」としか書かれていない。<b>金額は1円単位で分かるのに、宛先が分からない。</b>", "share": 0.0633}, {"n": "役所", "who": "市町村（東京23区は都）", "job": "土地と建物に固定資産税と都市計画税をかける", "take": "家賃の5.19%（約5,200円）", "vis": 0.95, "die": "払わないと差し押さえられる。逃げられない", "note": "税率は法律に書いてある（固定資産税1.4%、都市計画税0.3%まで）。しかも住宅の敷地は200㎡まで課税標準が6分の1になる。<b>この6分の1が無ければ、家賃はもっと高い</b>", "share": 0.0519}, {"n": "建物の目減り", "who": "受け取る人がいない", "job": "古くなったぶんを、毎月の費用として引く。お金は誰の手にも渡らない", "take": "家賃の19.58%（約19,500円）", "vis": 0.9, "die": "これを引かないと、建て替えのお金が残らない", "note": "<b>家賃のおよそ5分の1が、誰の懐にも入らずに消える。</b>実際には昔ゼネコンに払った建設費を、今の家賃で少しずつ埋め合わせているだけ", "share": 0.1958}, {"n": "運用する会社と事務方", "who": "資産運用会社・資産保管銀行・投資法人の役員", "job": "どの物件を買うか決め、帳簿をつけ、法人としての税を払う", "take": "家賃の11.07%（約11,000円）", "vis": 0.75, "die": "運用会社がいないと、投資法人は自分では何もできない", "note": "内訳は 資産運用報酬7.49%／租税公課2.16%ほか。金額は出るが、報酬の計算式は投資法人の規約の中にあって、今回は取れなかった", "share": 0.1107}, {"n": "銀行と社債を持つ人", "who": "融資している銀行、投資法人債の保有者", "job": "建物を買うお金を貸して、利息を取る", "take": "家賃の5.81%（約5,800円）", "vis": 0.85, "die": "借り換えができなくなると、物件を売るしかなくなる", "note": "個人の大家のアパートローンの金利は非公開。REITは、払った利息の総額が半年ごとに出る", "share": 0.0581}, {"n": "投資家", "who": "投資口を持っている人", "job": "お金を出して、残ったぶんを分配金として受け取る", "take": "家賃の39.4%（約39,300円）", "vis": 0.95, "die": "分配しないと、法人としての税の優遇が外れる", "note": "1口あたり3,220円×2,852,302口。<b>あなたが払った家賃の4割弱は、あなたも証券口座で1口から買えるものの分配金になっている。</b>（この39.4%は、家賃から上の費目を全部引いた残り。短信に出ている分配金の総額は家賃の48.4%だが、そこには物件を売った利益も混ざっているので、家賃から来た分だけを取るとこの値になる）", "share": 0.3942}], "side": [{"n": "見えるかどうかは、登記簿の名前で決まる", "t": "上の内訳は、アドバンス・レジデンス投資法人という上場REITが持つ物件の、2026年1月期の実額。<b>同じ建物を個人の大家が持っていたら、公開されるものは一つも無い。</b>管理料も、ローンの金利も、手取りも出てこない。はっきり分かるのは「役所に5円ちょっと行く」ことだけ。追えるかどうかは、部屋の造りではなく、持ち主が誰かで決まる。"}, {"n": "家賃に消費税がかからない理由", "t": "消費税法6条と別表第二第13号が「住宅の貸付け」を非課税と書いているから。ただし条文には「契約において人の居住の用に供することが明らかにされている場合に限る」とある。<b>同じ部屋でも、1か月未満で借りると課税に変わる。</b>ウィークリーマンションに消費税が乗るのはこのため。"}, {"n": "日本に大家は80万人いるのに、1人も追えない", "t": "国税庁の調べでは、不動産所得を申告した人は804,398人、その所得の合計は5兆3,545億円（令和6年分）。割ればひとりあたりおよそ666万円。<b>ここまでは分かる。だが、あなたの大家がその80万人のどこにいるかは、永久に分からない。</b>"}], "payNote": "上場REITが持っている部屋だから追えるのであって、部屋の造りのおかげではない。<b>しかも、追えた分のなかにも霧がある</b> —— 5.4ポイントは、金額は1円単位で分かるのに、宛先が「その他」としか書かれていない。"}, {"id": "byouin", "emo": "🏥", "name": "病院でかかった1万円", "price": 10000, "unit": "円", "flow": "in", "q": "窓口で払ったのは3,000円。<b>残りの7,000円は、誰が出している？</b>", "payNote": "<b>この題材だけ、矢印が逆を向いていて、しかも1円残らず追える。</b>値段が公定価格で、負担の割合が法律に書いてあるから。", "layers": [{"n": "窓口のあなた", "who": "保険証を出して払う人", "job": "かかった医療費の3割を、その場で払う", "take": "3,000円（法律に「百分の三十」と書いてある）", "vis": 1.0, "die": "保険の資格が確認できること。切れていれば10割", "note": "法律では3割。<b>だが日本全体で見ると、患者が実際に出しているのは医療費の11.8%しかない。</b>高額療養費と、高齢者の低い負担割合があるから、ならすとここまで下がる", "share": 0.118}, {"n": "病院・診療所", "who": "厚生労働大臣から指定を受けた病院・診療所", "job": "診療して、その中身を点数に翻訳して、10割ぶんを受け取る", "take": "10,000円（1点＝10円。初診料は291点＝2,910円と告示に書いてある）", "vis": 0.85, "die": "保険医療機関の指定。これが無いと保険診療そのものができない", "note": "値段は1円単位で公開されている。それでも<b>一般病院の平均は赤字</b>で、費用が収益の107.3%（医療経済実態調査）", "share": null}, {"n": "レセプトを見る人", "who": "社会保険診療報酬支払基金・国保連合会", "job": "届いた請求書が点数表どおりか審査して、通ったぶんを流す", "take": "1件あたり平均45.50円（令和8年度）", "vis": 0.9, "die": "レセプトが電子で期限内に届くこと", "note": "この手数料は医療費の外側にある。10割を全部足しても、ここは出てこない", "share": null}, {"n": "保険者", "who": "協会けんぽ・健保組合・市町村国保・後期高齢者医療広域連合", "job": "集めた保険料と税金を混ぜて、病院に7,000円を振り込む", "take": "7,000円（法定の給付割合7割）", "vis": 0.95, "die": "保険料が集まること", "note": "ここは通り道で、お金はここで止まらない。<b>原資は、この下の4層。</b>協会けんぽの令和8年度の保険料率は全国平均9.90%", "share": null}, {"n": "あなたの給料から引かれる保険料", "who": "働いている本人", "job": "毎月の給料と賞与から、保険料の半分を天引きされる", "take": "医療費全体の28.2%（令和5年度）", "vis": 0.95, "die": "給料があること。産休・育休中は免除される", "note": "労使折半は健康保険法161条に「それぞれ保険料額の二分の一を負担する」と書いてある。<b>会社を辞めて任意継続にすると、同じ条文のただし書きで「その全額を負担する」に変わる</b>", "share": 0.282}, {"n": "あなたの会社が出す保険料", "who": "勤め先", "job": "従業員と同額を出して、まとめて納める", "take": "医療費全体の22.0%（令和5年度）", "vis": 0.95, "die": "会社が続いていて、賃金を払っていること", "note": "<b>この22.0%は給与明細に出てこない。</b>あなたの労働に対して払われている金額のうち、この分は最初から医療に流れていて、目に見えない", "share": 0.22}, {"n": "国", "who": "国庫（税金）", "job": "保険料だけでは足りない分を、税金で埋める", "take": "医療費全体の24.8%（令和5年度）", "vis": 0.9, "die": "毎年度の予算がつくこと。法定の割合があっても、予算が無ければ動かない", "note": "割合はそのまま条文の文字列になっている。協会けんぽへの補助は16.4%、国保の定率国庫負担は「百分の三十二」、後期高齢者医療は12分の3", "share": 0.248}, {"n": "都道府県と市町村", "who": "地方自治体", "job": "国と決められた割合で分け合って出す", "take": "医療費全体の12.7%（令和5年度）", "vis": 0.9, "die": "地方の財政が持つこと", "note": "後期高齢者医療は 国：都道府県：市町村＝4：1：1。法律に「十二分の一」と書いてある", "share": 0.127}], "side": [{"n": "病院に入った1万円は、どこへ出ていくか", "t": "給与費 56.2%／医薬品費 13.8%／診療材料費 10.1%／委託費 7.6%／減価償却費 6.1%／経費 6.0%／設備関係費 4.0%／給食用材料費 0.8%／その他 2.7%。<b>足すと107.3%になる。100を超えるのは、一般病院の平均が赤字だから。</b>医師の平均年収1,484万円、看護職員540万円まで、国が2年に1度調べて公表している。"}, {"n": "公定価格の国でも、最後の一段は見えない", "t": "薬の値段は国が1円単位で決めている（薬価基準）。だが病院や薬局が卸から実際にいくらで買ったかは非公開で、<b>分かるのは「全国平均で薬価より4.8%安い」ということだけ</b>。あなたを診た病院が、あなたに使った薬をいくらで仕入れたかは、どこにも書いていない。"}]}]};
+let ci=0, layer='both', payT=-1;
+const fmt=n=>n.toLocaleString('ja-JP');
+const cv=document.getElementById('cv2'),cx=cv.getContext('2d');
+let W=0,H=0,DPR=Math.min(devicePixelRatio||1,2);
+function fit(){W=cv.clientWidth;H=cv.clientHeight;cv.width=W*DPR;cv.height=H*DPR;cx.setTransform(DPR,0,0,DPR,0,0);}
+addEventListener('resize',fit);fit();
+
+document.getElementById('cases').innerHTML=D.cases.map((c,i)=>
+ `<span class="case${i===0?' on':''}" data-i="${i}">${c.emo} ${c.name} <span style="color:var(--tink3)">${fmt(c.price)}${c.unit}</span></span>`).join('');
+const ro=document.getElementById('ro2');
+function C(){return D.cases[ci];}
+function geom(){
+  const c=C(),N=c.layers.length,pad=26;
+  return {N,rowH:(H-pad*2)/N,pad,
+    y:i=>H-pad-((H-pad*2)/N)*(i+0.5),
+    w:i=>W*(0.86-0.052*i)};
+}
+function drawStage(){
+  const c=C(),g=geom();
+  cx.clearRect(0,0,W,H);
+  for(let i=g.N-1;i>=0;i--){
+    const L=c.layers[i],y=g.y(i),w=Math.max(120,g.w(i)),x=(W-w)/2;
+    const h=g.rowH*0.74;
+    const a=0.06+L.vis*0.20;
+    cx.fillStyle='rgba(231,225,212,'+a+')';
+    cx.beginPath();cx.roundRect(x,y-h/2,w,h,7);cx.fill();
+    cx.strokeStyle='rgba(231,225,212,'+(0.06+L.vis*0.26)+')';cx.lineWidth=1;cx.stroke();
+    cx.fillStyle='rgba(231,225,212,'+(0.30+L.vis*0.68)+')';
+    cx.font='600 '+Math.max(10,13-i*0.28)+'px system-ui';
+    cx.fillText(L.n,x+13,y+4);
+    const nameW=cx.measureText(L.n).width;
+    cx.fillStyle='rgba(231,225,212,'+(0.16+L.vis*0.34)+')';
+    cx.font=Math.max(9,10.5-i*0.2)+'px system-ui';
+    // 取り分は帯に収まる分だけ。溢れるなら省略（全文は下の一覧にある）
+    const avail=w-nameW-38;
+    let tk=L.take;
+    if(cx.measureText(tk).width>avail){
+      while(tk.length>3&&cx.measureText(tk+'…').width>avail)tk=tk.slice(0,-1);
+      tk=(tk.length>3&&avail>26)?tk+'…':'';
+    }
+    if(tk)cx.fillText(tk,x+w-cx.measureText(tk).width-13,y+4);
+  }
+  // モノ（奥→手前）
+  if(layer!=='money'){
+    for(const p of things){
+      const i=Math.floor(p.t),f=p.t-i,i2=Math.max(0,i-1);
+      const y=g.y(i)+(g.y(i2)-g.y(i))*f;
+      const x=W/2+p.o*W*(0.4+0.6*(1-i/g.N));
+      cx.beginPath();cx.arc(x,y,2.4,0,7);cx.fillStyle='#7fb0d6';cx.globalAlpha=.55;cx.fill();cx.globalAlpha=1;
+    }
+  }
+  // カネ（手前→奥）
+  if(layer!=='thing'){
+    for(const m of coins){
+      if(m.dead)continue;
+      const i=Math.floor(m.t),f=m.t-i,i2=Math.min(g.N-1,i+1);
+      const y=g.y(i)+(g.y(i2)-g.y(i))*f;
+      const x=W/2+m.o*W;
+      cx.beginPath();cx.arc(x,y,m.r,0,7);
+      cx.fillStyle=m.known?'#f2c24a':'#c9a86b';
+      cx.globalAlpha=m.known?.95:Math.max(0,.85-(m.fade||0)*.85);cx.fill();cx.globalAlpha=1;
+      if(m.known&&m.rest>4){cx.beginPath();cx.arc(x,y,m.r+5,0,7);
+        cx.strokeStyle='#f2c24a';cx.globalAlpha=.22;cx.stroke();cx.globalAlpha=1;}
+    }
+  }
+  requestAnimationFrame(drawStage);
+}
+let things=[],coins=[];
+function reset(){
+  const g=geom();
+  things=[];for(let k=0;k<40;k++)things.push({t:Math.random()*(g.N-1),o:(Math.random()-.5)*0.5,v:0.004+Math.random()*0.004});
+  coins=[];
+}
+function tick(){
+  const g=geom();
+  for(const p of things){p.t-=p.v;if(p.t<0){p.t=g.N-1;p.o=(Math.random()-.5)*0.5;}}
+  for(const m of coins){
+    if(m.dead)continue;
+    m.t+=0.016;
+    if(m.known){ if(m.t>=m.stop){m.t=m.stop;m.rest=(m.rest||0)+1; if(m.rest>140)m.dead=true;} }
+    else{ m.fade=Math.min(1,Math.max(0,(m.t-1.2)/3.2)); if(m.fade>=1)m.dead=true; }
+  }
+  if(coins.length&&coins.every(m=>m.dead)){}
+  setTimeout(tick,16);
+}
+reset();tick();drawStage();
+
+document.getElementById('pay').addEventListener('click',()=>{
+  const c=C(),g=geom(),N=g.N;
+  coins=[];
+  const K=40; let left=K, tracked=0;
+  const known=c.layers.map((L,i)=>({i,s:L.share})).filter(x=>x.s);
+  for(const kk of known){
+    const n=Math.round(K*kk.s); tracked+=n;
+    for(let k=0;k<n&&left>0;k++,left--)
+      coins.push({t:0,stop:kk.i,o:(Math.random()-.5)*0.30,r:2.2+Math.random()*2,dead:false,fade:0,known:true});
+  }
+  for(let k=0;k<left;k++)
+    coins.push({t:0,stop:N-1+2,o:(Math.random()-.5)*0.30,r:2+Math.random()*2,dead:false,fade:0,known:false});
+  const pct=Math.min(100,Math.round(known.reduce((a,k)=>a+k.s,0)*100));
+  const nm=known.map(k=>c.layers[k.i].n).join('・');
+  ro.innerHTML=!known.length
+   ? `<b>${fmt(c.price)}${c.unit}</b> の行き先は、公開情報では<b>1円も特定できない</b>。契約ごとに決まっていて、外からは見えない。粒は全部、追えないまま奥へ消える。`
+   : (pct>=100
+     ? `<b>${fmt(c.price)}${c.unit}</b> は、${c.flow==='in'?'出どころが':'行き先が'}<b>1円残らず言える</b>（${nm}）。${c.payNote||''}`
+     : c.flow==='in'
+       ? `<b>${fmt(c.price)}${c.unit}</b> のうち、<b>出どころが公開情報で言えるのは ${pct}%</b>（${nm}）。${c.payNote||''}`
+       : `<b>${fmt(c.price)}${c.unit}</b> のうち、公開情報で行き先が言えるのは <b>${pct}%</b> だけ（${nm}）。<b>残りの ${100-pct}% は、奥へ行く途中で追えなくなって消える。</b>`);
+});
+document.querySelectorAll('.btn[data-l]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.btn[data-l]').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');layer=b.dataset.l;
+}));
+function go(i,scroll){
+  ci=i;
+  document.querySelectorAll('#tate .case').forEach(x=>x.classList.toggle('on',+x.dataset.i===i));
+  reset();render();ranks();
+  if(scroll){const s=document.querySelector('#tate .stage');if(s)s.scrollIntoView({block:'center',behavior:'smooth'});}
+}
+document.getElementById('cases').addEventListener('click',e=>{
+  const el=e.target.closest('.case');if(!el)return;
+  go(+el.dataset.i,false);
+});
+cv.addEventListener('click',ev=>{
+  const r=cv.getBoundingClientRect(),y=ev.clientY-r.top,g=geom();
+  let best=0,bd=1e9;
+  for(let i=0;i<g.N;i++){const d=Math.abs(g.y(i)-y);if(d<bd){bd=d;best=i;}}
+  const L=C().layers[best];
+  ro.innerHTML=`<b>${L.n}</b>（${L.who}）— ${L.job}。取り分＝${L.take}。分かる度 ${Math.round(L.vis*100)}%`;
+  const el=document.getElementById('row'+best);
+  if(el)el.scrollIntoView({block:'center'});
+});
+function render(){
+  const c=C();
+  document.getElementById('q').innerHTML=c.q;
+  document.getElementById('pay').textContent=(c.flow==='in')?'出どころをたどる':'払ってみる';
+  document.getElementById('rows').innerHTML=c.layers.map((L,i)=>`
+   <div class="row" id="row${i}">
+     <div>
+       <div class="lv">${String(i+1).padStart(2,'0')} ／ ${i===0?'いちばん手前':(i===c.layers.length-1?'いちばん奥':'')}</div>
+       <h3>${L.n}</h3>
+       <div class="who">${L.who}<span class="visw"><span class="vis" style="width:${Math.round(L.vis*56)}px;position:absolute;left:0;top:0;opacity:${0.25+L.vis*0.75}"></span></span> 分かる度 ${Math.round(L.vis*100)}%</div>
+     </div>
+     <div>
+       <div class="job">${L.job}</div>
+       <div class="take">取り分 ${L.take}</div>
+       <div class="die">これが無いと ─ ${L.die}</div>
+       ${L.note?`<div class="note">${L.note}</div>`:''}
+     </div>
+   </div>`).join('');
+  document.getElementById('sides').innerHTML=(c.side||[]).map(s=>
+    `<div class="side"><h4>${s.n}</h4><p>${s.t}</p></div>`).join('');
+}
+function trackedPct(c){
+  const s=c.layers.reduce((a,L)=>a+(L.share||0),0);
+  return Math.min(100,Math.round(s*100));
+}
+function ranks(){
+  const rows=D.cases.map((c,i)=>({i,c,p:trackedPct(c)})).sort((a,b)=>b.p-a.p);
+  document.getElementById('ranks').innerHTML=rows.map(r=>
+   `<div class="rank${r.p?'':' zero'}${r.i===ci?' cur':''}" data-i="${r.i}">
+      <span class="rn">${r.c.emo} ${r.c.name}</span>
+      <span class="rb"><i style="width:${r.p}%"></i></span>
+      <span class="rp">${r.p}%</span>
+    </div>`).join('');
+}
+document.getElementById('ranks').addEventListener('click',e=>{
+  const el=e.target.closest('.rank');if(!el)return;
+  go(+el.dataset.i,true);
+});
+render();ranks();
+ })();
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on');});
+    t.classList.add('on');
+    document.querySelectorAll('.view').forEach(function(v){v.classList.remove('on');});
+    document.getElementById(t.dataset.v).classList.add('on');
+    window.dispatchEvent(new Event('resize'));
+  });
+});
+</script></body></html>
