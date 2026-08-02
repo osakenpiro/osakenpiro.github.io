@@ -15,11 +15,12 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23fbf7ee'/%3E%3Cellipse cx='32' cy='34' rx='22' ry='18' fill='none' stroke='%23b07d22' stroke-width='4'/%3E%3Ccircle cx='32' cy='16' r='5' fill='%23b07d22'/%3E%3C/svg%3E">
 <style>
   :root{
-    --sumi:#efe7d6; --sumi-2:#f7f1e4; --washi:#2c2733; --washi-dim:#6f6779;
+    --sumi:#efe7d6; --sumi-2:#f7f1e4; --washi:#2c2733; --washi-dim:#655d70;
     --thread:#b07d22; --thread-soft:#b89a55; --line:#c4b79d; --line-faint:#ddd3bf;
-    --haru:#5f9e3e; --natsu:#2f8fb8; --aki:#bd6526; --fuyu:#6f7e95;
-    --past:#9c8550; --future:#3a86b0; --sun:#bf514e; --sat:#41699f;
-    --bg1:#fbf7ee; --bg2:#efe7d6; --bg3:#e3d9c5; --glow0:#ffffff;
+    --haru:#7da58f; --natsu:#6f9f9b; --aki:#c08a6a; --fuyu:#8c9cab;
+    --haru-ink:#3f6250; --natsu-ink:#365856; --aki-ink:#7d4e37; --fuyu-ink:#47545f;
+    --past:#9c8550; --future:#8689b8; --future-ink:#5a5d8a; --sun:#9a6347; --sat:#5b6b7a;
+    --bg1:#fbf7ee; --bg2:#efe7d6; --bg3:#e3d9c5; --glow0:#fff4dd; --glow-a:.30; --glow-a2:.10;
     --surface:rgba(250,245,235,.97); --panel-bg:linear-gradient(180deg,#fbf7ee,#f0e7d6);
     --track:rgba(0,0,0,.08); --btn-hover:#efe5d1; --card-ink:#2c2733; --ncard:rgba(255,255,255,.5);
     --mincho:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
@@ -29,9 +30,10 @@
   body.dark{
     --sumi:#14131a; --sumi-2:#1b1a23; --washi:#ede8dd; --washi-dim:#9a93a8;
     --thread:#c9a24b; --thread-soft:#8a7a4e; --line:#4a4658; --line-faint:#2a2833;
-    --haru:#8fbf6b; --natsu:#4fa8c9; --aki:#cc7a3d; --fuyu:#9aa6be;
-    --past:#cdbf9a; --future:#6fb6d6; --sun:#d98a8a; --sat:#8aa6d9;
-    --bg1:#1d1b26; --bg2:#14131a; --bg3:#0f0e14; --glow0:#2a2740;
+    --haru:#7da58f; --natsu:#6f9f9b; --aki:#c08a6a; --fuyu:#8c9cab;
+    --haru-ink:#8fb8a3; --natsu-ink:#83b2ae; --aki-ink:#d09b7c; --fuyu-ink:#a0aec0;
+    --past:#cdbf9a; --future:#8689b8; --future-ink:#9d97c4; --sun:#b98a76; --sat:#8b9cb0;
+    --bg1:#1d1b26; --bg2:#14131a; --bg3:#0f0e14; --glow0:#2f2b48; --glow-a:.62; --glow-a2:.22;
     --surface:rgba(20,19,26,.96); --panel-bg:linear-gradient(180deg,#1c1a24,#161520);
     --track:rgba(255,255,255,.08); --btn-hover:#222029; --card-ink:#ffffff; --ncard:rgba(16,15,21,.55);
   }
@@ -73,12 +75,18 @@
   .yr-today{ font-family:var(--mono); fill:var(--washi-dim); }
 
   .node-g{ cursor:pointer; }
-  .node-g .thread{ transition:stroke .15s,stroke-width .15s,opacity .15s; }
-  .node-g:hover .thread{ stroke:var(--thread); stroke-width:2; opacity:1; }
-  .node-g:hover .dot{ r:7.5; }
+  .node-g .thread,.node-g .thread-halo{ transition:stroke-width .18s,opacity .18s; }
+  .node-g:hover .thread{ opacity:1; }
+  .node-g:hover .thread-halo{ opacity:.32; }
+  .node-g:hover .dot{ r:8; }
   .node-g:focus-visible .ring2{ opacity:1; }
-  .almanac-g .glyph{ transition:font-size .15s; }
-  .almanac-g:hover .glyph{ font-size:18px; }
+  .node-g .emoji{ filter:saturate(.5) contrast(.94); opacity:.9; transition:filter .2s,opacity .2s; }
+  .node-g:hover .emoji{ filter:none; opacity:1; }
+  .almanac-g .glyph{ transition:font-size .15s,filter .2s,opacity .2s;
+    filter:saturate(.3) contrast(.9); opacity:.6; }
+  .almanac-g:hover .glyph{ font-size:18px; filter:none; opacity:1; }
+  .foci circle{ transition:opacity .25s; }
+  .foci:hover circle{ opacity:.75; }
   .daycell.has{ cursor:pointer; }
   .daycell.has:hover .hl{ opacity:.34; }
   .mhead{ cursor:pointer; }
@@ -110,13 +118,22 @@
   .p-note{ font-size:13.5px; line-height:1.7; color:var(--washi); white-space:pre-wrap; }
 
   .legend{ position:fixed; left:0; right:0; bottom:0; z-index:5; pointer-events:none; display:flex; gap:16px;
-    flex-wrap:wrap; justify-content:center; padding:12px 18px 14px; font-size:11.5px; color:var(--washi-dim); }
+    flex-wrap:wrap; justify-content:center; padding:8px 18px 7px; font-size:10.5px; color:var(--washi-dim); }
   .legend span{ display:inline-flex; align-items:center; gap:6px; }
   .sw{ width:11px; height:11px; border-radius:3px; display:inline-block; }
   .dotleg{ width:9px; height:9px; border-radius:50%; display:inline-block; }
-  .banner{ position:fixed; left:50%; top:64px; transform:translateX(-50%); z-index:5; font-size:11.5px;
-    color:var(--washi-dim); background:var(--surface); border:1px solid var(--line-faint);
-    border-radius:999px; padding:5px 14px; pointer-events:auto; }
+  /* 装飾が情報を運ぶ＝その読み方を凡例そのものの形で示す */
+  .swl{ width:40px; height:9px; border-radius:2px; display:inline-block;
+    background:linear-gradient(90deg,rgba(140,156,171,.20),rgba(192,138,106,.55)); }
+  /* 季節は連続した環。四色に割らないので凡例も割らない */
+  .swseason{ width:104px; height:10px; border-radius:2px; display:inline-block;
+    background:linear-gradient(90deg,#84a09d 0%,var(--haru) 12.5%,var(--natsu) 37.5%,
+      var(--aki) 62.5%,var(--fuyu) 87.5%,#84a09d 100%); }
+  .swt{ width:24px; height:9px; display:inline-block; background:var(--thread); opacity:.85;
+    clip-path:polygon(0 44%,100% 8%,100% 92%,0 56%); }
+  .banner{ position:fixed; left:18px; bottom:96px; top:auto; transform:none; z-index:5; font-size:10.5px;
+    color:var(--washi-dim); background:none; border:none; max-width:min(300px,44vw); text-align:left;
+    line-height:1.9; letter-spacing:.02em; opacity:1; padding:0; pointer-events:auto; transition:opacity .25s; }
   .banner b{ color:var(--thread); font-weight:600; }
   .banner button{ background:none; border:none; color:var(--washi-dim); cursor:pointer; text-decoration:underline; font-size:11.5px; margin-left:6px; }
 
@@ -128,7 +145,7 @@
   .zbtns button{ font-family:var(--gothic); color:var(--washi); background:var(--sumi-2);
     border:1px solid var(--line); border-radius:9px; cursor:pointer; padding:8px 0; width:44px; font-size:16px; }
   .zoom button:hover{ border-color:var(--thread); }
-  .hint{ font-size:10.5px; color:var(--washi-dim); text-align:center; opacity:.7; }
+  .hint{ font-size:10.5px; color:var(--washi-dim); text-align:center; }
   .util{ position:fixed; left:18px; bottom:52px; z-index:5; }
   .util button{ font-size:12px; color:var(--washi-dim); background:var(--sumi-2);
     border:1px solid var(--line-faint); border-radius:8px; padding:6px 11px; cursor:pointer; }
@@ -178,8 +195,13 @@
   .phthumb{ pointer-events:none; }
   .ph-ring{ transition:stroke-width .15s; pointer-events:none; }
   .node-g:hover .ph-ring{ stroke-width:2.6; }
-  @media (max-width:560px){ .legend{ font-size:10.5px; gap:10px; padding-bottom:8px; }
-    #panel{ width:100vw; } .banner{ top:auto; bottom:118px; } .zoom{ bottom:96px; } .util{ bottom:96px; } }
+  /* 3px級では字は情報にならない。畳んだぶんを輪の大きさに回す（全文はタップで出る） */
+  @media (max-width:560px){ .node-label,.boundary-label{ display:none; }
+    .legend{ font-size:10.5px; gap:10px; padding-bottom:8px; }
+    #panel{ width:100vw; } .zoom{ bottom:96px; } .util{ bottom:96px; }
+    .banner{ top:104px; bottom:auto; left:0; right:0; max-width:none; padding:0 16px;
+      text-align:center; line-height:1.85; font-size:10.5px; opacity:.6; }
+    .zbtns{ flex-direction:row; justify-content:flex-end; } .zoom .hint{ display:none; } }
   @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
 </style>
 </head>
@@ -187,7 +209,7 @@
 
 <div class="hud">
   <div>
-    <div class="appttl">楕円の暦<small>KAN-REKI v0.10</small></div>
+    <div class="appttl">楕円の暦<small>KAN-REKI v0.11</small></div>
     <div class="age" id="ageBadge">満 <b>—</b> 歳</div>
   </div>
   <div class="nav">
@@ -198,14 +220,16 @@
   </div>
 </div>
 
-<div class="banner"><b>v0.10</b>・輪をドラッグ=回す（地球儀）／中央・外=移動・ズーム=スクロール/ピンチ・中央の穴=今日・写真は端末内保存・カレンダー取込・🖼写真一覧
+<div class="banner">輪をドラッグ＝回す（地球儀）／中央・外＝移動<br>スクロール・ピンチ＝ズーム／中央の穴＝今日<br>🖼＝写真一覧　⚙＝カレンダー取込・書き出し
   <button id="bannerHide">隠す</button></div>
 
-<svg id="stage" viewBox="0 0 1140 920" preserveAspectRatio="xMidYMid meet" aria-label="楕円の年カレンダー">
+<svg id="stage" viewBox="0 0 1500 1000" preserveAspectRatio="xMidYMid meet" aria-label="楕円の年カレンダー">
   <defs>
-    <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" style="stop-color:var(--glow0)" stop-opacity="0.55"/>
-      <stop offset="72%" stop-color="#1a1925" stop-opacity="0"/>
+    <!-- 光は楕円の「焦点」から来る（中心ではない）。座標はJSで焦点に置く -->
+    <radialGradient id="centerGlow" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" style="stop-color:var(--glow0);stop-opacity:var(--glow-a)"/>
+      <stop offset="46%" style="stop-color:var(--glow0);stop-opacity:var(--glow-a2)"/>
+      <stop offset="100%" style="stop-color:var(--glow0);stop-opacity:0"/>
     </radialGradient>
     <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
@@ -223,13 +247,11 @@
 </svg>
 
 <div class="legend">
-  <span><span class="sw" style="background:var(--haru)"></span>春</span>
-  <span><span class="sw" style="background:var(--natsu)"></span>夏</span>
-  <span><span class="sw" style="background:var(--aki)"></span>秋</span>
-  <span><span class="sw" style="background:var(--fuyu)"></span>冬</span>
+  <span><span class="swseason"></span>春→夏→秋→冬（4月始まり）</span>
+  <span><span class="swl"></span>帯の濃さ＝昼の長さ</span>
   <span><span class="dotleg" style="background:var(--past)"></span>記録</span>
   <span><span class="dotleg" style="background:transparent;border:1.5px dashed var(--future)"></span>予定</span>
-  <span><span style="color:var(--thread)">━</span> 糸＝節目・写真・予定</span>
+  <span><span class="swt"></span>糸の太さ＝書き残した量</span>
   <span>🔒 データは端末内のみ</span>
 </div>
 
@@ -285,7 +307,7 @@
 
 <script>
 /* ============================================================================
-   楕円の暦 v0.10 — 季節リング帯＋カーブ日付＋中央に年（v0.10=写真リングサムネ＋ギャラリー・v0.9=Googleカレンダーics取込・v0.8=写真をIndexedDBへ・v0.7=JSON堅牢化/a11y/OGP）
+   楕円の暦 v0.11 — 楕円と糸・季節の光・節目の重み（v0.11=デザイン特化・v0.10=写真リングサムネ＋ギャラリー・v0.9=カレンダー(ics)取込・v0.8=写真をIndexedDBへ・v0.7=JSON堅牢化/a11y/OGP）
    編集は DATA だけ。type: memory|photo|event|future。年度キー=4月始まり。
    ========================================================================== */
 const SAMPLE = {
@@ -341,10 +363,12 @@ let DATA = loadData();
 if(!DATA){ DATA = { birthday:null, anniversaries:Object.assign({},SAMPLE.anniversaries), events:JSON.parse(JSON.stringify(SAMPLE.events)) }; saveData(); }
 
 /* ---- 幾何 ---- */
-const CX=570, CY=460, RX=384, RY=340, TAU=Math.PI/180;
-const VBW=1140, VBH=920;
+const CX=750, CY=500, RX=470, RY=366, TAU=Math.PI/180;  // 長短比 .779＝円に見せない
+let VBX=0, VBY=0, VBW=1500, VBH=1000;   // 画面幅で切り替えるので const にしない
 const BAND_IN=0.66, BAND_OUT=1.14;     // リング帯の内・外半径（倍率）
-const RIM_LABEL=1.205, ALM_R=1.165, THREAD_R=1.33;
+const RIM_LABEL=1.205, ALM_R=1.165, THREAD_R=1.28;
+// 焦点距離。この2点があることが「楕円である」ことの正体で、光もここから来る
+const FOCUS_C=Math.sqrt(RX*RX-RY*RY);
 function daysInMonth(y,m){ return new Date(y,m,0).getDate(); }
 function dateToT(y,m,d){ const fm=(m-4+12)%12; return fm+(d-1)/daysInMonth(y,m); }
 function tToDeg(t){ return (t<=8)? 225-(t/8)*180 : 45-((t-8)/4)*180; }
@@ -362,7 +386,57 @@ function clear(g){ while(g.firstChild) g.removeChild(g.firstChild); }
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)); const pad2=n=>String(n).padStart(2,'0');
 const smooth=(lo,hi,v)=>{ let p=clamp((v-lo)/(hi-lo),0,1); return p*p*(3-2*p); };
 
-const SEASONS=[{char:'春',color:'var(--haru)'},{char:'夏',color:'var(--natsu)'},{char:'秋',color:'var(--aki)'},{char:'冬',color:'var(--fuyu)'}];
+const SEASONS=[{char:'春',color:'var(--haru)',ink:'var(--haru-ink)'},{char:'夏',color:'var(--natsu)',ink:'var(--natsu-ink)'},
+  {char:'秋',color:'var(--aki)',ink:'var(--aki-ink)'},{char:'冬',color:'var(--fuyu)',ink:'var(--fuyu-ink)'}];
+
+/* ---- 季節の光＝その日の昼の長さ（東京 35.68°N・端末内で計算・外部通信なし） ----
+   帯の濃さが「明るさ」そのものになる。四色の板に割らずに、光で季節を出す。 */
+const LAT=35.6812*TAU, H0=-0.833*TAU, DL_LO=9.7, DL_HI=14.6;
+function daylightH(y,m,d){
+  const n=Math.round((new Date(y,m-1,d)-new Date(y,0,0))/864e5);
+  const dec=-23.44*TAU*Math.cos(2*Math.PI*(n+10)/365.25);
+  // 大気差と太陽の視半径ぶん（-0.833°）を入れる＝日の出・日の入りの定義に合わせる
+  const c=(Math.sin(H0)-Math.sin(LAT)*Math.sin(dec))/(Math.cos(LAT)*Math.cos(dec));
+  return 24/Math.PI*Math.acos(clamp(c,-1,1));
+}
+const dlNorm=(y,m,d)=>clamp((daylightH(y,m,d)-DL_LO)/(DL_HI-DL_LO),0,1);
+
+/* ---- 季節色は12ヶ月を一周する連続補間（虹にしない・鉱物色は正典から） ---- */
+let SEA_RGB=[];
+function readSeasonRGB(){
+  const cs=getComputedStyle(document.body);
+  SEA_RGB=['--haru','--natsu','--aki','--fuyu'].map(v=>{
+    const t=((cs.getPropertyValue(v)||'')+'').trim()||'#8c9cab';
+    return [parseInt(t.substr(1,2),16)||140,parseInt(t.substr(3,2),16)||156,parseInt(t.substr(5,2),16)||171];
+  });
+}
+/* スライスの見た目は rot に依らない＝回すたびに三角関数と Date を回し直す必要がない */
+let _slcKey='', _slc=null;
+function sliceStyles(fy,n){
+  const key=fy+'/'+n+'/'+(document.body.classList.contains('dark')?'d':'l');
+  if(_slcKey===key && _slc) return _slc;
+  const sw=12/n, a=[];
+  for(let i=0;i<n;i++){
+    const t0=i*sw, tm=t0+sw/2, fm=Math.floor(tm);
+    const rm=((fm+3)%12)+1, ry=rm>=4?fy:fy+1, dim=daysInMonth(ry,rm);
+    const dd=clamp(Math.round((tm-fm)*dim)+1,1,dim);
+    const L=Math.pow(dlNorm(ry,rm,dd),0.86);   // 夏をしっかり濃く、冬は紙に還す
+    a.push({t0:t0,t1:t0+sw*1.04,fill:seasonAt(tm),op:(0.055+L*0.32).toFixed(3)});
+  }
+  _slcKey=key; _slc=a; return a;
+}
+function seasonAt(t){
+  if(!SEA_RGB.length) readSeasonRGB();
+  const u=((((t-1.5)/3)%4)+4)%4, i=Math.floor(u), f=u-i, e=f*f*(3-2*f);
+  const a=SEA_RGB[i%4], b=SEA_RGB[(i+1)%4];
+  return 'rgb('+Math.round(a[0]+(b[0]-a[0])*e)+','+Math.round(a[1]+(b[1]-a[1])*e)+','+Math.round(a[2]+(b[2]-a[2])*e)+')';
+}
+/* ---- 節目の重み＝その日にどれだけ書き残したか（型・本文の長さ・写真の有無）
+   糸の太さ・光の強さ・玉の大きさが、この値をそのまま運ぶ。 ---- */
+function nodeWeight(e){
+  const base=e.type==='memory'?0.34:e.type==='photo'?0.24:e.type==='future'?0.06:0.14;
+  return clamp(0.22+base+Math.min(0.26,((e.note||'').length/240)*0.26)+(e.img?0.18:0),0,1);
+}
 const KIND_JA={memory:'節目',photo:'写真',event:'出来事',future:'予定',sekku:'節句',astro:'天文',shun:'旬'};
 const TYPE_COLOR={memory:'var(--thread)',photo:'var(--natsu)',event:'var(--past)',future:'var(--future)'};
 const WD=['日','月','火','水','木','金','土'];
@@ -381,40 +455,70 @@ function evMapFor(fy){ const m={}; (DATA.events[fy]||[]).forEach(e=>{ (m[e.date]
 /* ====================== 帯（季節リング・常時表示） ====================== */
 let monthCenters=[];
 function drawBand(){
-  const g=$('gBand'); clear(g); monthCenters=[];
-  $('glowEl').setAttribute('cx',CX); $('glowEl').setAttribute('cy',CY);
-  $('glowEl').setAttribute('rx',RX*BAND_IN*1.04); $('glowEl').setAttribute('ry',RY*BAND_IN*1.04);
-  // 季節の塗り（12ヶ月＝12セクター）
-  for(let fm=0;fm<12;fm++){ const s=SEASONS[Math.floor(fm/3)];
-    el('path',{d:sectorByT(fm,fm+1,BAND_IN,BAND_OUT),fill:s.color,opacity:0.2,stroke:'none'},g);
-  }
-  // 内外リム
-  el('path',{d:arcByT(0,12,BAND_OUT,120)+' Z',fill:'none',stroke:'var(--line)','stroke-width':1.4,opacity:.95},g);
-  el('path',{d:arcByT(0,12,BAND_IN,120)+' Z',fill:'none',stroke:'var(--line)','stroke-width':1.1,opacity:.82},g);
+  const g=$('gBand'); clear(g); monthCenters=[]; if(!SEA_RGB.length) readSeasonRGB();
+  // 光源は「中心」ではなく「焦点」に置く。だから左右で明るさが違い、円ではなく楕円に見える
+  const fx=CX-FOCUS_C, gl=$('glowEl'), grad=$('centerGlow');
+  gl.setAttribute('cx',fx); gl.setAttribute('cy',CY);
+  gl.setAttribute('rx',RX*0.95); gl.setAttribute('ry',RX*0.95);   // グラデが消える所まで＝塗る面積を1/3に
+  grad.setAttribute('cx',fx); grad.setAttribute('cy',CY); grad.setAttribute('r',RX*0.92);
+  // 季節の光：静止は5日きざみ72枚。回転中は15日きざみ24枚
+  // （3°/フレームで動く輪に5日の階調は写らない。見えないものは描かない）
+  const rim=spinning?84:140;
+  for(const sl of sliceStyles(curFY, spinning?24:72))
+    el('path',{d:sectorByT(sl.t0,sl.t1,BAND_IN,BAND_OUT,2),fill:sl.fill,opacity:sl.op,stroke:'none'},g);
+  // 内外リム（帯の光を殺さないよう細く・薄く）
+  el('path',{d:arcByT(0,12,BAND_OUT,rim)+' Z',fill:'none',stroke:'var(--line)','stroke-width':1.1,opacity:.55},g);
+  el('path',{d:arcByT(0,12,BAND_IN,rim)+' Z',fill:'none',stroke:'var(--line)','stroke-width':0.9,opacity:.42},g);
   // 月の境界線
   for(let fm=0;fm<12;fm++){ const [x1,y1]=polar(tToDeg(fm),BAND_IN),[x2,y2]=polar(tToDeg(fm),BAND_OUT);
-    el('line',{x1,y1,x2,y2,stroke:'var(--line)','stroke-width':1,opacity:.45},g); }
+    el('line',{x1,y1,x2,y2,stroke:'var(--line)','stroke-width':1,opacity:.20},g); }
   // 週・曜日グリッド（カーブ並びのとき帯に表示）
   if(layout==='curve' && !spinning) for(let fm=0;fm<12;fm++){ const rm=((fm+3)%12)+1, ry=rm>=4?curFY:curFY+1;
     const fst=new Date(ry,rm-1,1).getDay(), dm=daysInMonth(ry,rm), wk=Math.ceil((fst+dm)/7), rt=(BAND_OUT-BAND_IN)/wk;
-    for(let w=1;w<wk;w++) el('path',{d:arcByT(fm,fm+1,BAND_OUT-w*rt,6),fill:'none',stroke:'var(--line)','stroke-width':0.6,opacity:.12},g);
+    for(let w=1;w<wk;w++) el('path',{d:arcByT(fm,fm+1,BAND_OUT-w*rt,6),fill:'none',stroke:'var(--line)','stroke-width':0.6,opacity:.065},g);
     for(let c=1;c<7;c++){ const [a1,b1]=polar(tToDeg(fm+c/7),BAND_IN),[a2,b2]=polar(tToDeg(fm+c/7),BAND_OUT);
-      el('line',{x1:a1,y1:b1,x2:a2,y2:b2,stroke:'var(--line)','stroke-width':0.5,opacity:.10},g); } }
+      el('line',{x1:a1,y1:b1,x2:a2,y2:b2,stroke:'var(--line)','stroke-width':0.5,opacity:.05},g); } }
   // 月ラベル（外リム外側・常時）
   for(let fm=0;fm<12;fm++){ const realMonth=((fm+3)%12)+1; const s=SEASONS[Math.floor(fm/3)];
     const [x,y]=polar(tToDeg(fm+0.5),RIM_LABEL); monthCenters.push({fm});
     const head=el('g',{class:'mhead'},g);
     el('rect',{x:x-15,y:y-12,width:30,height:24,fill:'transparent'},head);
     const t=el('text',{x,y,'text-anchor':'middle','dominant-baseline':'middle',class:'mlabel',
-      'font-size':16,fill:s.color},head); t.textContent=realMonth+'月';
+      'font-size':16,fill:s.ink},head); t.textContent=realMonth+'月';
     head.addEventListener('click',e=>{ if(didPan)return; e.stopPropagation();
       const [ccx,ccy]=polar(tToDeg(fm+0.5),(BAND_IN+BAND_OUT)/2); animateTo(2.9,ccx,ccy); });
   }
+  drawYearArc(g);   // 年の歩みは rot に依存するのでここ。焦点は固定なので drawCenter 側へ
+}
+
+/* 焦点：長軸の上の2点。これがあるから円ではなく楕円で、光は左の焦点から来ている */
+function drawFoci(g){
+  const fg=el('g',{class:'foci'},g);
+  el('line',{x1:CX-RX*BAND_IN*0.98,y1:CY,x2:CX+RX*BAND_IN*0.98,y2:CY,
+    stroke:'var(--line)','stroke-width':0.7,opacity:.14},fg);
+  [[CX-FOCUS_C,3.6,.46,'楕円の焦点 — 光はここから'],[CX+FOCUS_C,2.4,.22,'もう一方の焦点']]
+    .forEach(function(f){
+      const c=el('circle',{cx:f[0],cy:CY,r:f[1],fill:'var(--thread)',opacity:f[2]},fg);
+      el('title',{},c).textContent=f[3];
+    });
+}
+/* 年の歩み：年度のはじめから今日まで。中央の空白に、もう一本の楕円を通す */
+function drawYearArc(g){
+  if(curFY!==fyOf(TODAY)) return;
+  const tNow=dateToT(TODAY.getFullYear(),TODAY.getMonth()+1,TODAY.getDate());
+  const R=0.575;
+  el('path',{d:arcByT(0,12,R,132)+' Z',fill:'none',stroke:'var(--line)','stroke-width':1,opacity:.5},g);
+  el('path',{d:arcByT(0,tNow,R,Math.max(8,Math.round(tNow*10))),fill:'none',
+    stroke:'var(--thread)','stroke-width':1.8,opacity:.62,'stroke-linecap':'round'},g);
+  const [hx,hy]=polar(tToDeg(tNow),R), [sx,sy]=polar(tToDeg(0),R);
+  el('circle',{cx:sx,cy:sy,r:2,fill:'var(--line)',opacity:.7},g);   // 年度のはじめ
+  el('circle',{cx:hx,cy:hy,r:3.4,fill:'var(--thread)',opacity:.85},g); // 先端＝今日
 }
 
 /* ====================== 中央の年（デッドスペース埋め） ================= */
 function drawCenter(){
   const g=$('gCenter'); clear(g);
+  drawFoci(g);   // 焦点は CX±FOCUS_C 固定＝回しても動かない。毎フレーム描き直す意味がない
   const rWa=curFY-2018; const era= rWa>=1?`令和${rWa===1?'元':rWa}年度`:`${curFY}年度`;
   let t=el('text',{x:CX,y:CY-70,'text-anchor':'middle',class:'yr-era','font-size':15},g); t.textContent=era;
   let big=el('text',{x:CX,y:CY-14,'text-anchor':'middle',class:'yr-big','font-size':74},g); big.textContent=curFY;
@@ -454,7 +558,8 @@ function drawCurved(){
       if(evs){ const c0=TYPE_COLOR[evs[0].type]||'var(--past)';
         el('path',{class:'hl',d:sectorByT(tC0,tC1,rIn+0.004,rOut-0.004,3),fill:c0,opacity:.20},cellG); }
       const num=el('text',{x:nx,y:ny,'text-anchor':'middle','dominant-baseline':'middle',class:'daynum',
-        'font-size':7.6,fill:isToday?'var(--thread)':dow===0?'var(--sun)':dow===6?'var(--sat)':'var(--washi)'},cellG);
+        'font-size':7.4,opacity:isToday?1:.8,
+        fill:isToday?'var(--thread)':dow===0?'var(--sun)':dow===6?'var(--sat)':'var(--washi)'},cellG);
       num.textContent=d;
       if(isToday) el('path',{d:sectorByT(tC0,tC1,rIn+0.004,rOut-0.004,3),fill:'none',stroke:'var(--thread)','stroke-width':1,opacity:.8},cellG);
       if(evs){
@@ -481,7 +586,7 @@ function drawNormal(){
     const [ccx,ccy]=polar(tToDeg(fm+0.5),0.93); const ox=ccx-cardW/2, oy=ccy-cardH/2;
     const s=SEASONS[Math.floor(fm/3)];
     el('rect',{x:ox-3,y:oy-2,width:cardW+6,height:cardH+5,rx:6,fill:'var(--ncard)',stroke:s.color,'stroke-width':0.8,'stroke-opacity':.4},g);
-    const mn=el('text',{x:ox+cardW/2,y:oy+12,'text-anchor':'middle',class:'mlabel',fill:s.color,'font-size':12,'font-weight':600},g); mn.textContent=rm+'月';
+    const mn=el('text',{x:ox+cardW/2,y:oy+12,'text-anchor':'middle',class:'mlabel',fill:s.ink,'font-size':12,'font-weight':600},g); mn.textContent=rm+'月';
     for(let c=0;c<7;c++){ const w=el('text',{x:ox+c*colW+colW/2,y:oy+headH-2.5,'text-anchor':'middle',class:'daynum','font-size':6.4,
       fill:c===0?'var(--sun)':c===6?'var(--sat)':'var(--washi-dim)'},g); w.textContent=WD[c]; }
     for(let d=1;d<=dim;d++){
@@ -511,32 +616,51 @@ function drawThreads(){
     .filter(e=>e.p.fy===curFY && (e.type==='memory'||e.type==='photo'||e.type==='future'))
     .sort((a,b)=>a.p.t-b.p.t);
   let prevDeg=999,level=0;
-  notable.forEach(e=>{ if(Math.abs(e.p.deg-prevDeg)<10) level++; else level=0; prevDeg=e.p.deg; e._r=THREAD_R+level*0.12; });
+  notable.forEach(e=>{ if(Math.abs(e.p.deg-prevDeg)<10) level++; else level=0; prevDeg=e.p.deg;
+    e._w=nodeWeight(e); e._r=THREAD_R+level*0.13+e._w*0.045; });
   notable.forEach(e=>{
+    const w=e._w;
     const [ax,ay]=polar(e.p.deg,BAND_OUT);          // 帯の外リムから
     const [nx,ny]=polar(e.p.deg,e._r);
     const isFuture=e.type==='future'||e.p.dt>TODAY;
     const grp=el('g',{class:'node-g',tabindex:0,'aria-label':`${e.p.m}月${e.p.d}日 ${e.title}`},g);
-    const [tx,ty]=polar(e.p.deg+(isFuture?3:-3),(BAND_OUT+e._r)/2);
-    el('path',{class:'thread',d:`M ${ax.toFixed(1)} ${ay.toFixed(1)} Q ${tx.toFixed(1)} ${ty.toFixed(1)} ${nx.toFixed(1)} ${ny.toFixed(1)}`,
-      fill:'none',stroke:'var(--thread-soft)','stroke-width':1,opacity:.55},grp);
+    // 糸はたるむ。重い記録ほど大きく孕んで、帯から離れていく
+    const sag=(isFuture?4.6:-4.6)*(0.68+w*0.95);
+    const [tx,ty]=polar(e.p.deg+sag,BAND_OUT+(e._r-BAND_OUT)*0.46);
+    const dPath=`M ${ax.toFixed(1)} ${ay.toFixed(1)} Q ${tx.toFixed(1)} ${ty.toFixed(1)} ${nx.toFixed(1)} ${ny.toFixed(1)}`;
+    const col=isFuture?'var(--future)':e.type==='photo'?'var(--natsu)':'var(--thread)';
+    // 太さと光の強さが、そのまま「どれだけ書き残したか」を運ぶ
+    el('path',{class:'thread-halo',d:dPath,fill:'none',stroke:col,'stroke-linecap':'round',
+      'stroke-width':(1.8+w*9.0).toFixed(2),opacity:(0.04+w*0.135).toFixed(3)},grp);
+    const core={class:'thread',d:dPath,fill:'none',stroke:col,'stroke-linecap':'round',
+      'stroke-width':(0.5+w*3.2).toFixed(2),opacity:(0.38+w*0.5).toFixed(3)};
+    if(isFuture) core['stroke-dasharray']='4 3.2';
+    el('path',core,grp);
     el('circle',{class:'ring2',cx:nx,cy:ny,r:11,fill:'none',stroke:'var(--thread)','stroke-width':1,opacity:0},grp);
+    // 重い節目は、糸の先に結び目の暈をひとつ持つ
+    if(w>0.66) el('circle',{cx:nx,cy:ny,r:(9.6+w*5).toFixed(1),fill:'none',stroke:col,
+      'stroke-width':0.8,opacity:(w-0.62).toFixed(3),'pointer-events':'none'},grp);
     const hasThumb = e.img && !spinning;
     if(hasThumb){
-      const R=9, cid='phc'+(_phSeq++);
+      const R=(8+w*3.4), cid='phc'+(_phSeq++);
       const cp=el('clipPath',{id:cid,clipPathUnits:'userSpaceOnUse'},grp); el('circle',{cx:nx,cy:ny,r:R},cp);
       const im=el('image',{x:(nx-R).toFixed(1),y:(ny-R).toFixed(1),width:2*R,height:2*R,'clip-path':'url(#'+cid+')',preserveAspectRatio:'xMidYMid slice',class:'phthumb'},grp);
-      el('circle',{class:'ph-ring',cx:nx,cy:ny,r:R,fill:'none',stroke:e.type==='photo'?'var(--natsu)':'var(--thread)','stroke-width':1.6},grp);
+      el('circle',{class:'ph-ring',cx:nx,cy:ny,r:R,fill:'none',stroke:col,'stroke-width':(1.1+w*1.4).toFixed(2)},grp);
       loadThumb(im,e.img);
     } else {
-      if(isFuture) el('circle',{class:'dot',cx:nx,cy:ny,r:5,fill:'var(--sumi)',stroke:'var(--future)','stroke-width':1.6,'stroke-dasharray':'2.4 2',style:'transition:r .15s'},grp);
-      else el('circle',{class:'dot',cx:nx,cy:ny,r:5,fill:e.type==='photo'?'var(--natsu)':'var(--thread)',style:'transition:r .15s'},grp);
-      const em=el('text',{x:nx,y:ny-11,'text-anchor':'middle','dominant-baseline':'middle','font-size':12.5},grp); em.textContent=e.emoji||'•';
+      const dr=(2.6+w*4.6).toFixed(2);
+      if(isFuture) el('circle',{class:'dot',cx:nx,cy:ny,r:dr,fill:'var(--sumi)',stroke:'var(--future)','stroke-width':1.5,'stroke-dasharray':'2.4 2',style:'transition:r .15s'},grp);
+      else el('circle',{class:'dot',cx:nx,cy:ny,r:dr,fill:col,style:'transition:r .15s'},grp);
+      const em=el('text',{x:nx,y:ny-(10+w*4.2),'text-anchor':'middle','dominant-baseline':'middle',class:'emoji',
+        'font-size':(10.6+w*4.2).toFixed(1)},grp); em.textContent=e.emoji||'•';
     }
     const onRight=nx>=CX;
-    const lx=clamp(nx+(onRight?11:-11),58,VBW-58);
+    const lx=clamp(nx+(onRight?12:-12),VBX+58,VBX+VBW-58);
+    const room=onRight?(VBX+VBW-10-lx):(lx-VBX-10);   // 端で文字が切れないところまでで畳む
     const lbl=el('text',{x:lx,y:ny+4,'text-anchor':onRight?'start':'end',class:'node-label','font-size':12,
-      fill:isFuture?'var(--future)':'var(--washi)'},grp); lbl.textContent=clip(e.title,11);
+      opacity:(0.78+w*0.22).toFixed(2),   // 重みは運ぶが、軽い記録も読める下限を張る
+      fill:isFuture?'var(--future-ink)':'var(--washi)'},grp);
+    lbl.textContent=clipFit(e.title,Math.max(40,room),13);
     grp.addEventListener('mouseenter',ev=>showTip(ev,fmtDate(e.p),e.title));
     grp.addEventListener('mousemove',moveTip); grp.addEventListener('mouseleave',hideTip);
     grp.addEventListener('click',()=>{ if(didPan)return; openPanel(e); });
@@ -559,19 +683,26 @@ function drawTodayRim(){
   const g=$('gTodayRim'); clear(g); if(fyOf(TODAY)!==curFY) return;
   const deg=tToDeg(dateToT(TODAY.getFullYear(),TODAY.getMonth()+1,TODAY.getDate()));
   const [ix,iy]=polar(deg,BAND_OUT),[ox,oy]=polar(deg,1.245);
-  el('line',{x1:ix,y1:iy,x2:ox,y2:oy,stroke:'var(--washi)','stroke-width':1.4,opacity:.8},g);
-  el('circle',{cx:ox,cy:oy,r:4.5,fill:'var(--washi)',filter:'url(#glow)'},g);
+  el('circle',{cx:ox,cy:oy,r:15,fill:'var(--thread)',opacity:.09},g);
+  el('circle',{cx:ox,cy:oy,r:9.5,fill:'var(--thread)',opacity:.17},g);   // ぼかしの代わりに二重の暈
+  el('line',{x1:ix,y1:iy,x2:ox,y2:oy,stroke:'var(--thread)','stroke-width':1.6,opacity:.85},g);
+  el('circle',{cx:ox,cy:oy,r:5,fill:'var(--thread)'},g);
+  el('circle',{cx:ox,cy:oy,r:5,fill:'none',stroke:'var(--washi)','stroke-width':0.9,opacity:.45},g);
   const t=el('text',{x:ox,y:oy-8,'text-anchor':'middle',class:'node-label','font-size':11.5,fill:'var(--washi)'},g);
   t.textContent='今日';
 }
 function drawBoundary(){
   const g=$('gBoundary'); clear(g);
-  let d=tToDeg(8.5),[x,y]=polar(d,1.29);
-  let t=el('text',{x,y,'text-anchor':'middle','dominant-baseline':'middle',class:'boundary-label','font-size':12},g);
-  t.textContent=curFY+' ｜ '+(curFY+1);
-  d=tToDeg(11.5);[x,y]=polar(d,1.29);
-  let t2=el('text',{x,y,'text-anchor':'middle','dominant-baseline':'middle',class:'boundary-label','font-size':12},g);
-  t2.textContent='年度替わり';
+  // 暦年の境目＝1/1（t=9.0）／年度の境目＝4/1（t=0）。札を実際の境目そのものに置く
+  [[9.0,curFY+' ｜ '+(curFY+1)],[0,'年度替わり']].forEach(function(b){
+    const d=tToDeg(b[0]);
+    // 境目そのもの＝帯を貫く一本。札は内側の空白へ（外は糸の伸びる場所なのでぶつかる）
+    const [ix,iy]=polar(d,BAND_IN*0.94), [ox,oy]=polar(d,BAND_OUT+0.02);
+    el('line',{x1:ix,y1:iy,x2:ox,y2:oy,stroke:'var(--thread)','stroke-width':0.9,opacity:.34},g);
+    const [x,y]=polar(d,0.455);
+    const t=el('text',{x,y,'text-anchor':'middle','dominant-baseline':'middle',class:'boundary-label','font-size':11.5},g);
+    t.textContent=b[1];
+  });
 }
 
 /* ====================== HUD / カード / tip ============================== */
@@ -604,6 +735,15 @@ function openPanel(e,sameDay){
 }
 $('pClose').addEventListener('click',()=>$('panel').classList.remove('open'));
 const clip=(s,n)=>[...s].length>n?[...s].slice(0,n).join('')+'…':s;
+/* 全角/半角を数え分けて、入るところまで入れる（端で切れすぎるのを直す） */
+const HALF=/[\x00-\xff\uff61-\uff9f]/;
+function clipFit(s,px,maxCh){
+  const a=[...s]; let out='',w=0;
+  for(let i=0;i<a.length;i++){ const cw=HALF.test(a[i])?0.56:1;
+    if(i>=maxCh||(w+cw)*12.4>px) return out+'…';
+    out+=a[i]; w+=cw; }
+  return out;
+}
 const fmtDate=p=>`${p.m}/${p.d}（${WD[p.dt.getDay()]}）`;
 const fmtDateLong=p=>`${p.y}年 ${p.m}月 ${p.d}日（${WD[p.dt.getDay()]}）`;
 function relDays(dt){ const ms=new Date(dt).setHours(0,0,0,0)-new Date().setHours(0,0,0,0);
@@ -614,14 +754,36 @@ const svg=$('stage'), vp=$('vp'); const KMIN=0.7, KMAX=6;
 let k=1, tx=0, ty=0; const reduceMotion=matchMedia('(prefers-reduced-motion:reduce)').matches;
 function applyT(){ vp.setAttribute('transform',`translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${k.toFixed(4)})`); updateLOD(); }
 function updateLOD(){
-  const s=smooth(1.05,1.45,k); const gIn=spinning?0:Math.max(0.3,s), gOut=1-s; const set=(id,o)=>$(id).setAttribute('opacity',o.toFixed(3));
+  // カーブ並びの365個は「地」＝俯瞰では囁き。月暦カードは「図」＝俯瞰でも読ませる
+  const s=smooth(1.12,1.62,k), floor=(layout==='normal')?0.46:0.15;
+  const gIn=spinning?0:Math.max(floor,s), gOut=1-s; const set=(id,o)=>$(id).setAttribute('opacity',o.toFixed(3));
   set('gDays',gIn); set('gEvents',gOut);
   $('gDays').style.pointerEvents=(gIn>0.6&&!spinning)?'auto':'none'; $('gEvents').style.pointerEvents=gOut>0.5?'auto':'none';
   $('segAll').classList.toggle('on',k<1.25); $('segMonth').classList.toggle('on',k>=1.25);
 }
-function clientToVB(cx,cy){ const r=svg.getBoundingClientRect(); return [(cx-r.left)/r.width*VBW,(cy-r.top)/r.height*VBH]; }
+/* xMidYMid meet の実際の写像。viewBox と画面のアスペクトが違うと
+   上下（または左右）に余白が入る＝画面矩形いっぱいに viewBox が乗っていない。
+   ここを線形に見なしていたので、縦長の画面ほど掴んだ場所がずれていた。 */
+function vbFit(){
+  const r=svg.getBoundingClientRect();
+  const sc=Math.min(r.width/VBW, r.height/VBH);
+  return {r:r, s:sc, ox:(r.width-VBW*sc)/2, oy:(r.height-VBH*sc)/2};
+}
+function clientToVB(cx,cy){ const f=vbFit();
+  return [VBX+(cx-f.r.left-f.ox)/f.s, VBY+(cy-f.r.top-f.oy)/f.s]; }
+const vbCX=()=>CX, vbCY=()=>CY;   // 寄せ先＝器の中心ではなく、輪のいる場所
+/* 画面幅に応じた器。狭いときは読めない見出しを畳む前提で余白を削り、輪を大きく取る */
+function applyViewBox(){
+  // 縦画面は下側がボタンで埋まる。器の下に余白を足すと meet の中央寄せで輪が持ち上がる
+  // 器の下余白＝縦画面で輪を持ち上げる量。操作列を横に寝かせたぶん詰め直した実測値
+  const n = (window.innerWidth<560) ? [136,12,1228,1160] : [0,0,1500,1000];
+  if(n[0]===VBX&&n[1]===VBY&&n[2]===VBW&&n[3]===VBH) return false;
+  VBX=n[0]; VBY=n[1]; VBW=n[2]; VBH=n[3];
+  svg.setAttribute('viewBox',VBX+' '+VBY+' '+VBW+' '+VBH);
+  return true;
+}
 function zoomAt(vx,vy,f){ let nk=clamp(k*f,KMIN,KMAX); f=nk/k; tx=vx-(vx-tx)*f; ty=vy-(vy-ty)*f; k=nk; applyT(); }
-function animateTo(nk,wx,wy){ const tk=clamp(nk,KMIN,KMAX); const ttx=VBW/2-wx*tk, tty=VBH/2-wy*tk;
+function animateTo(nk,wx,wy){ const tk=clamp(nk,KMIN,KMAX); const ttx=vbCX()-wx*tk, tty=vbCY()-wy*tk;
   if(reduceMotion){ k=tk;tx=ttx;ty=tty;applyT();return; }
   const k0=k,tx0=tx,ty0=ty,t0=performance.now(),dur=340;
   (function step(t){ let p=Math.min((t-t0)/dur,1); p=1-Math.pow(1-p,3);
@@ -654,13 +816,13 @@ svg.addEventListener('pointermove',e=>{ if(!pointers.has(e.pointerId))return;
   if(pointers.size===2){ const d=twoDist(); if(pinchDist){ const m=twoMid(); const [vx,vy]=clientToVB(m.x,m.y); zoomAt(vx,vy,d/pinchDist); } pinchDist=d; didPan=true; }
   else if(dragMode==='rotate'){ rot=rotStart+(ptrAngle(e.clientX,e.clientY)-angStart); didPan=true; scheduleSpin(); }
   else if(pointers.size===1){ const dx=e.clientX-prev.x,dy=e.clientY-prev.y,r=svg.getBoundingClientRect();
-    tx+=dx/r.width*VBW; ty+=dy/r.height*VBH; if(Math.hypot(e.clientX-dragStart.x,e.clientY-dragStart.y)>4) didPan=true; applyT(); } });
+    const f=vbFit(); tx+=dx/f.s; ty+=dy/f.s; if(Math.hypot(e.clientX-dragStart.x,e.clientY-dragStart.y)>4) didPan=true; applyT(); } });
 function endPtr(e){ pointers.delete(e.pointerId); if(pointers.size<2) pinchDist=null;
   if(dragMode==='rotate' && pointers.size===0){ spinning=false; if(didPan) render(); else applyT(); }
   if(pointers.size===0){ dragMode=null; svg.style.cursor=''; } }
 svg.addEventListener('pointerup',endPtr); svg.addEventListener('pointercancel',endPtr);
 svg.addEventListener('pointermove',e=>{ if(pointers.size) return; svg.style.cursor=onRing(e.clientX,e.clientY)?'grab':'move'; });
-$('zin').addEventListener('click',()=>zoomAt(VBW/2,VBH/2,1.3)); $('zout').addEventListener('click',()=>zoomAt(VBW/2,VBH/2,1/1.3));
+$('zin').addEventListener('click',()=>zoomAt(vbCX(),vbCY(),1.3)); $('zout').addEventListener('click',()=>zoomAt(vbCX(),vbCY(),1/1.3));
 $('segAll').addEventListener('click',()=>animateTo(1.0,CX,CY)); $('segMonth').addEventListener('click',()=>animateTo(1.5,CX,CY));
 $('layNormal').addEventListener('click',()=>{ layout='normal'; $('layNormal').classList.add('on'); $('layCurve').classList.remove('on'); render(); });
 $('layCurve').addEventListener('click',()=>{ layout='curve'; $('layCurve').classList.add('on'); $('layNormal').classList.remove('on'); render(); });
@@ -671,7 +833,7 @@ document.addEventListener('keydown',e=>{ const tg=e.target;
   if(tg&&(tg.tagName==='INPUT'||tg.tagName==='TEXTAREA'||tg.tagName==='SELECT'))return;
   if(e.key==='ArrowLeft')goFY(curFY-1); if(e.key==='ArrowRight')goFY(curFY+1);
   if(e.key==='Home'){ goFY(fyOf(TODAY)); animateTo(1.0,CX,CY); if(layout==='curve') animateRot(rotToTop((TODAY.getMonth()+1-4+12)%12)); }
-  if(e.key==='+'||e.key==='=')zoomAt(VBW/2,VBH/2,1.3); if(e.key==='-')zoomAt(VBW/2,VBH/2,1/1.3); if(e.key==='Escape'){ $('panel').classList.remove('open'); closeTodayCard(); } });
+  if(e.key==='+'||e.key==='=')zoomAt(vbCX(),vbCY(),1.3); if(e.key==='-')zoomAt(vbCX(),vbCY(),1/1.3); if(e.key==='Escape'){ $('panel').classList.remove('open'); closeTodayCard(); } });
 
 /* ====================== ナビ ============================================ */
 /* ====================== ③ 今日の情報（純関数・段階開示） ============== */
@@ -713,7 +875,7 @@ $('prev').addEventListener('click',()=>goFY(curFY-1)); $('next').addEventListene
 $('todayBtn').addEventListener('click',()=>{ goFY(fyOf(TODAY)); animateTo(1.0,CX,CY); if(layout==='curve') animateRot(rotToTop((TODAY.getMonth()+1-4+12)%12)); });
 $('bannerHide').addEventListener('click',()=>document.querySelector('.banner').style.display='none');
 $('todayCard').addEventListener('click',()=>closeTodayCard());
-$('themeBtn').addEventListener('click',()=>{ const d=document.body.classList.toggle('dark'); $('themeBtn').textContent=d?'☾':'☀'; try{ localStorage.setItem('kanreki.theme',d?'dark':'light'); }catch(e){} });
+$('themeBtn').addEventListener('click',()=>{ const d=document.body.classList.toggle('dark'); $('themeBtn').textContent=d?'☾':'☀'; try{ localStorage.setItem('kanreki.theme',d?'dark':'light'); }catch(e){} SEA_RGB=[]; _slcKey=''; render(); });
 async function exportJSON(){ showToast('書き出し中…');
   const events=await photoInlineEvents(DATA.events);
   const nph=Object.keys(events).reduce((s,fy)=>s+events[fy].filter(e=>typeof e.img==='string'&&e.img.slice(0,11)==='data:image/').length,0);
@@ -821,7 +983,8 @@ function openGallery(){ const grid=$('galGrid'); grid.innerHTML=''; const items=
 function closeGallery(){ $('gallery').classList.remove('open'); }
 /*PHOTO-THUMB+GALLERY-END*/
 
-/* ============ 商用化③: Googleカレンダー ics 取込（Worori中継→パース→マージ） ============ */
+/* ============ 商用化③: カレンダー ics 取込（Worori中継→パース→マージ） ============
+   パーサは汎用の RFC5545。中継も任意の URL を取りに行くので、特定サービス専用ではない。 */
 /*ICS-START*/
 // ics-parse.js — 環暦(KAN-REKI) 用の軽量 iCalendar パーサ
 // node(require)でもブラウザ(window.KanrekiICS)でも動く UMD 形式。
@@ -964,7 +1127,7 @@ function closeGallery(){ $('gallery').classList.remove('open'); }
 })(typeof self !== 'undefined' ? self : this);
 async function importFromICS(){
   if(!ICS_WORKER_URL){ alert('ics取込は未設定です'); return; }
-  const url=prompt('Googleカレンダーの「iCal形式の限定公開URL」を貼り付け:');
+  const url=prompt('カレンダーの「iCal形式の限定公開URL」（.ics）を貼り付け:');
   if(!url) return;
   showToast('カレンダー取得中…');
   let text;
@@ -1050,7 +1213,11 @@ $('setClose').addEventListener('click',closeSettings);
 (function(){ try{ if(localStorage.getItem('kanreki.theme')==='dark'){ document.body.classList.add('dark'); $('themeBtn').textContent='☾'; } }catch(e){} })();
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeEditForm(); closeSettings(); closeGallery(); } });
 
+applyViewBox();
 render();
+/* 画面幅が跨いだときだけ器を組み替える（見出しの折り返し基準が変わるので描き直す） */
+addEventListener('resize',()=>{ clearTimeout(window._vbT);
+  window._vbT=setTimeout(()=>{ if(applyViewBox()) render(); },140); });
 /* 旧バージョンでlocalStorageにdata:画像を抱えている場合、IDBへ移して軽量化（初回のみ実質発火） */
 (async function migratePhotos(){ try{ const n=await photoInternEvents(DATA.events); if(n) saveData(); await gcPhotos(); }catch(_){ } })();
 </script>
