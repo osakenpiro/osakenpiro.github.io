@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人類の素材図鑑 — 目次</title>
+<meta name="description" content="素材を扱う出荷物5系統を、標本と番号で1本の軸に束ねた目次。素材をひとつ選ぶと「3Dで見る／絵本で読む／どう流れるか／地球のどこにあるか」が横に並ぶ。#全人類UX改善計画">
+<style>
+:root{
+  --void:#06060a; --void-deep:#020203; --surface:#131119; --surface-hi:#1a1722;
+  --gold:#d4a853; --gold-soft:rgba(212,168,83,.12); --gold-glow:rgba(212,168,83,.28); --gold-edge:rgba(212,168,83,.45);
+  --fg-1:#e8e0d0; --fg-2:#b8b0a0; --fg-3:#807868; --dim:#5a5448;
+  --border:rgba(200,184,160,.08); --border-hover:rgba(212,168,83,.22);
+  --serif:"Cormorant Garamond","游明朝体","Yu Mincho",YuMincho,"Hiragino Mincho ProN",serif;
+  --mono:"JetBrains Mono","SF Mono",Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;
+  /* 収蔵庫と同じ鉱物標本系（案D）から、この道具で使う分だけ */
+  --m-steel:#8c9cab; --m-verdigris:#7da58f; --m-copper:#c08a6a; --m-amethyst:#9d87b8; --m-malachite:#6f9f9b; --m-null:#4a4a52;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  background:var(--void); color:var(--fg-2); font-family:var(--sans);
+  font-size:15px; line-height:1.9; letter-spacing:.02em;
+  min-height:100%; padding:0 0 80px;
+  background-image:
+    radial-gradient(ellipse 900px 500px at 50% -8%, rgba(212,168,83,.07), transparent 62%),
+    radial-gradient(ellipse 700px 400px at 82% 108%, rgba(140,156,171,.05), transparent 60%);
+  background-attachment:fixed;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+
+/* ── 看板（3D教科書と同じ意匠） ───────────────── */
+header{padding:56px 0 14px}
+.kanban{position:relative;text-align:center;margin:0 auto;max-width:660px}
+.plate{position:relative;display:inline-block;background:var(--surface);border:1px solid var(--gold-edge);
+  border-radius:10px;padding:30px 44px 26px;box-shadow:0 14px 44px rgba(0,0,0,.55)}
+.rivet{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--gold);opacity:.75;box-shadow:0 0 6px var(--gold-glow)}
+.rivet.tl{top:9px;left:9px}.rivet.tr{top:9px;right:9px}.rivet.bl{bottom:9px;left:9px}.rivet.br{bottom:9px;right:9px}
+.eyebrow{font-size:.7rem;letter-spacing:.35em;color:var(--fg-3);margin-bottom:12px;font-family:var(--mono)}
+h1{font-family:var(--serif);font-size:2.5rem;font-weight:500;color:var(--fg-1);letter-spacing:.06em;line-height:1.3}
+h1 small{display:block;font-size:.32em;letter-spacing:.2em;color:var(--fg-3);margin-top:12px;font-family:var(--sans);font-weight:400;line-height:1.9}
+.namenote{margin-top:16px;font-size:.72rem;color:var(--dim);letter-spacing:.06em;line-height:1.9;
+  border-top:1px solid var(--border);padding-top:13px}
+.namenote b{color:var(--fg-3);font-weight:500}
+
+/* ── 節見出し ───────────────── */
+.sec{margin-top:58px}
+.sec-h{display:flex;align-items:baseline;gap:14px;margin-bottom:6px;flex-wrap:wrap}
+.sec-h .num{font-family:var(--mono);font-size:.68rem;letter-spacing:.28em;color:var(--gold);opacity:.8}
+.sec-h h2{font-family:var(--serif);font-size:1.5rem;font-weight:500;color:var(--fg-1);letter-spacing:.09em}
+.sec-sub{font-size:.83rem;color:var(--fg-3);line-height:1.95;margin-bottom:22px;max-width:74ch}
+
+/* ── 番号台帳 ───────────────── */
+.ledger{background:linear-gradient(180deg,var(--surface-hi),var(--surface));border:1px solid var(--border);
+  border-radius:12px;padding:24px 22px 20px}
+.ser{margin-bottom:22px}
+.ser:last-child{margin-bottom:0}
+.ser-name{font-family:var(--mono);font-size:.7rem;letter-spacing:.24em;color:var(--fg-3);margin-bottom:12px;
+  display:flex;align-items:center;gap:10px}
+.ser-name::after{content:"";flex:1;height:1px;background:var(--border)}
+.plates{display:flex;gap:12px;flex-wrap:wrap}
+.np{position:relative;background:var(--void-deep);border:1px solid var(--gold-edge);border-radius:7px;
+  padding:13px 17px 12px;min-width:158px;cursor:pointer;transition:.18s;text-align:left;
+  font-family:inherit;color:inherit;display:block}
+.np:hover{border-color:var(--gold);background:var(--surface);transform:translateY(-2px)}
+.np .n{font-family:var(--mono);font-size:.86rem;color:var(--gold);letter-spacing:.13em;display:block}
+.np .t{font-family:var(--serif);font-size:1.22rem;color:var(--fg-1);letter-spacing:.1em;margin-top:5px;display:block}
+.np .k{font-size:.64rem;color:var(--dim);letter-spacing:.18em;margin-top:3px;display:block}
+.np.vacant{border-style:dashed;border-color:rgba(200,184,160,.16);cursor:default}
+.np.vacant:hover{transform:none;border-color:rgba(200,184,160,.16);background:var(--void-deep)}
+.np.vacant .n{color:var(--dim)}
+.np.vacant .t{color:var(--m-null);font-size:1rem}
+.np.unnum .n{color:var(--m-verdigris)}
+.ledger-note{margin-top:20px;padding-top:16px;border-top:1px solid var(--border);
+  font-size:.75rem;color:var(--dim);line-height:2}
+.ledger-note b{color:var(--fg-3);font-weight:500}
+
+/* ── 標本棚 ───────────────── */
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:13px}
+.spec{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:9px;
+  padding:17px 16px 15px;cursor:pointer;transition:.18s;text-align:left;font-family:inherit;color:inherit;
+  display:flex;flex-direction:column;gap:7px;overflow:hidden}
+.spec::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--sc,var(--dim))}
+.spec:hover{border-color:var(--border-hover);transform:translateY(-2px);background:var(--surface-hi)}
+.spec[aria-pressed="true"]{border-color:var(--gold);background:var(--surface-hi);box-shadow:0 0 0 1px var(--gold-soft)}
+.spec .tag{font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;color:var(--gold);opacity:.9;min-height:1em}
+.spec .tag.none{color:var(--m-null)}
+.spec .jp{font-family:var(--serif);font-size:1.36rem;color:var(--fg-1);letter-spacing:.1em;line-height:1.35;
+  display:flex;align-items:center;gap:9px}
+.spec .jp .emo{font-size:1rem}
+.spec .cn{font-size:.74rem;color:var(--fg-3);letter-spacing:.06em}
+.spec .en{font-family:var(--mono);font-size:.6rem;color:var(--dim);letter-spacing:.2em}
+.spec .win{display:flex;gap:5px;margin-top:5px}
+.spec .win i{width:100%;height:3px;border-radius:2px;background:rgba(200,184,160,.055);font-style:normal}
+.spec .win i.on{background:var(--sc,var(--gold));opacity:1;box-shadow:0 0 5px color-mix(in srgb,var(--sc,var(--gold)) 45%,transparent)}
+
+/* ── 詳細（4窓が横に並ぶ） ───────────────── */
+.detail{margin-top:16px;border:1px solid var(--gold-edge);border-radius:11px;background:var(--void-deep);
+  overflow:hidden;display:none}
+.detail.open{display:block;animation:fade .22s ease}
+@keyframes fade{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+.dhead{padding:22px 24px 18px;border-bottom:1px solid var(--border);position:relative;
+  background:linear-gradient(180deg,var(--surface),transparent)}
+.dhead .tag{font-family:var(--mono);font-size:.66rem;letter-spacing:.2em;color:var(--gold)}
+.dhead .tag.none{color:var(--m-null)}
+.dhead h3{font-family:var(--serif);font-size:2rem;color:var(--fg-1);letter-spacing:.09em;margin-top:7px;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.dhead h3 .sub{font-family:var(--sans);font-size:.42em;color:var(--fg-3);letter-spacing:.14em}
+.dclose{position:absolute;top:18px;right:18px;background:none;border:1px solid var(--border);color:var(--fg-3);
+  border-radius:6px;width:30px;height:30px;cursor:pointer;font-size:1rem;line-height:1;transition:.16s}
+.dclose:hover{border-color:var(--gold-edge);color:var(--gold)}
+.triname{margin-top:15px;font-size:.75rem;color:var(--fg-3);letter-spacing:.05em;line-height:2.1;
+  padding:12px 14px;background:rgba(212,168,83,.045);border-left:2px solid var(--gold-edge);border-radius:0 6px 6px 0}
+.triname .lb{font-family:var(--mono);font-size:.62rem;letter-spacing:.18em;color:var(--gold);opacity:.85;margin-right:7px}
+.triname b{color:var(--fg-2);font-weight:500}
+.triname .src{display:block;margin-top:7px;font-size:.66rem;color:var(--dim);letter-spacing:.04em}
+
+/* 背骨＝素材図鑑の章 */
+.spine{padding:15px 24px;background:rgba(212,168,83,.04);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:13px;flex-wrap:wrap;font-size:.79rem}
+.spine .lb{font-family:var(--mono);font-size:.62rem;letter-spacing:.2em;color:var(--fg-3);white-space:nowrap}
+.spine a{color:var(--fg-1);text-decoration:none;border-bottom:1px solid var(--border-hover);padding-bottom:1px;transition:.16s}
+.spine a:hover{color:var(--gold);border-color:var(--gold)}
+.spine .no{color:var(--m-null);font-size:.76rem}
+
+/* 4窓 */
+.mado{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.w{padding:20px 20px 22px;border-right:1px solid var(--border);min-height:190px;display:flex;flex-direction:column;gap:10px}
+.w:last-child{border-right:none}
+.w-h{font-family:var(--mono);font-size:.63rem;letter-spacing:.19em;color:var(--fg-3);
+  display:flex;align-items:center;gap:8px}
+.w-h .dot{width:5px;height:5px;border-radius:50%;background:var(--sc,var(--gold));flex:none}
+.w-h .dot.off{background:var(--m-null)}
+.w a.item{display:block;color:var(--fg-1);text-decoration:none;font-size:.87rem;line-height:1.7;
+  border:1px solid var(--border);border-radius:7px;padding:10px 12px;transition:.16s;background:var(--surface)}
+.w a.item:hover{border-color:var(--gold-edge);background:var(--surface-hi);color:var(--gold)}
+.w a.item .sm{display:block;font-size:.7rem;color:var(--fg-3);letter-spacing:.04em;margin-top:3px}
+.w a.item:hover .sm{color:var(--fg-2)}
+.w .item.flat{display:block;font-size:.87rem;line-height:1.7;border:1px solid var(--border);border-radius:7px;
+  padding:10px 12px;background:var(--surface);color:var(--fg-1)}
+.w .item.flat .sm{display:block;font-size:.7rem;color:var(--fg-3);margin-top:3px;letter-spacing:.04em}
+.w .none{font-size:.78rem;color:var(--m-null);line-height:1.85;border:1px dashed rgba(200,184,160,.11);
+  border-radius:7px;padding:11px 12px}
+.w .none b{display:block;color:var(--dim);font-weight:500;letter-spacing:.1em;font-size:.72rem;margin-bottom:3px;font-family:var(--mono)}
+.chain{list-style:none;font-size:.72rem;line-height:1.5;color:var(--fg-2);counter-reset:cs}
+.chain li{position:relative;padding:2px 0 2px 22px;counter-increment:cs}
+.chain li::before{content:counter(cs);position:absolute;left:0;top:4px;font-family:var(--mono);font-size:.55rem;
+  color:var(--dim);border:1px solid var(--border);border-radius:3px;width:14px;height:14px;
+  display:flex;align-items:center;justify-content:center}
+.chain li.gap{color:var(--m-copper)}
+.chain li.gap::before{border-color:rgba(192,138,106,.4);color:var(--m-copper)}
+.chain .st{color:var(--dim);font-size:.62rem;font-family:var(--mono);letter-spacing:.06em;margin-right:6px}
+.gapline{font-size:.72rem;color:var(--m-copper);letter-spacing:.05em;line-height:1.75;
+  border-left:2px solid rgba(192,138,106,.35);padding-left:9px}
+
+/* ── 橋・在庫 ───────────────── */
+.rows{display:flex;flex-direction:column;gap:9px}
+.row{display:flex;align-items:center;gap:15px;padding:13px 17px;background:var(--surface);
+  border:1px solid var(--border);border-radius:8px;flex-wrap:wrap;font-size:.82rem}
+.row .k{font-family:var(--mono);font-size:.63rem;letter-spacing:.16em;color:var(--fg-3);min-width:80px}
+.row a{color:var(--fg-1);text-decoration:none;border-bottom:1px solid var(--border-hover);transition:.16s}
+.row a:hover{color:var(--gold);border-color:var(--gold)}
+.row .why{color:var(--fg-3);font-size:.76rem;flex:1;min-width:230px;line-height:1.8}
+.row .badge{font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;padding:3px 8px;border-radius:4px;
+  border:1px solid var(--border);color:var(--dim)}
+.row .badge.live{color:var(--m-verdigris);border-color:rgba(125,165,143,.3)}
+.row .badge.art{color:var(--m-amethyst);border-color:rgba(157,135,184,.3)}
+.row .badge.gap{color:var(--m-copper);border-color:rgba(192,138,106,.3)}
+
+footer{margin-top:64px;padding-top:26px;border-top:1px solid var(--border);text-align:center;
+  font-family:var(--mono);font-size:.66rem;letter-spacing:.16em;color:var(--dim);line-height:2.4}
+footer .fl{color:var(--fg-3)}
+
+@media(max-width:860px){
+  .mado{grid-template-columns:repeat(2,1fr)}
+  .w{border-right:none;border-bottom:1px solid var(--border);min-height:0}
+  .w:nth-child(odd){border-right:1px solid var(--border)}
+}
+@media(max-width:560px){
+  h1{font-size:1.85rem}
+  .plate{padding:24px 22px 20px}
+  .mado{grid-template-columns:1fr}
+  .w:nth-child(odd){border-right:none}
+  .shelf{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .dhead h3{font-size:1.5rem}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kanban">
+    <div class="plate">
+      <span class="rivet tl"></span><span class="rivet tr"></span><span class="rivet bl"></span><span class="rivet br"></span>
+      <div class="eyebrow">人類の素材図鑑 · 目次</div>
+      <h1>目次<small>素材をひとつ選ぶと、4つの窓が横に並ぶ</small></h1>
+      <div class="namenote">
+        この目次には<b>三重がけの名前がまだ無い</b>。命名は本人のものなので、機能名のまま置いてある。<br>
+        ここに出てくる名前・番号・三重がけは、すべて<b>既存の7本から実測して引いたもの</b>。新しく付けたものは一つも無い。
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ 1. 番号台帳 ═══ -->
+<section class="sec" id="ledger">
+  <div class="sec-h"><span class="num">Ⅰ</span><h2>番号台帳</h2></div>
+  <p class="sec-sub">
+    3D教科書には<b>2つの系列</b>が走っている。No.001／No.002 の連番と、番号を持たない「生物編」。
+    これは取りこぼしではなく、扱う対象が違うから枠が違う。目次はこの2系列をそのまま保つ。
+  </p>
+  <div class="ledger">
+    <div class="ser">
+      <div class="ser-name">物質編 — 連番</div>
+      <div class="plates">
+        <button class="np" data-go="ishi"><span class="n">No.001</span><span class="t">黒曜片</span><span class="k">クロヨウヘン</span></button>
+        <button class="np" data-go="kinzoku"><span class="n">No.002</span><span class="t">護錆</span><span class="k">ゴセイ</span></button>
+        <div class="np vacant"><span class="n">No.003</span><span class="t">未発行</span><span class="k">つぎの標本</span></div>
+      </div>
+    </div>
+    <div class="ser">
+      <div class="ser-name">生物編 — 無番号</div>
+      <div class="plates">
+        <button class="np unnum" data-go="kemono"><span class="n">生物編</span><span class="t">還蹄</span><span class="k">カンテイ</span></button>
+      </div>
+    </div>
+    <div class="ledger-note">
+      <b>還蹄に番号が無いのは、いまの実装そのまま。</b>
+      黒曜片・護錆の看板は <span style="font-family:var(--mono)">人類の素材図鑑 3D教科書 · No.00X</span>、還蹄だけ <span style="font-family:var(--mono)">· 生物編</span> と出る。目次側で番号を補ったりはしない。<br>
+      <b>実測メモ：</b>黒曜片のフッターのシリーズ行は No.001·No.002 の2本だけで、還蹄を知らない（作られた時点で存在しなかったため）。既存は書き換えない約束なので、その穴はこの目次が受けている。
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 2. 標本棚 ═══ -->
+<section class="sec" id="shelf">
+  <div class="sec-h"><span class="num">Ⅱ</span><h2>標本棚</h2></div>
+  <p class="sec-sub">
+    カードの下の4本の線が、その素材で<b>いま何本の窓が開いているか</b>。埋まっていない窓も隠さずに出す。
+  </p>
+  <div class="shelf" id="shelfGrid"></div>
+  <div class="detail" id="detail"></div>
+</section>
+
+<!-- ═══ 3. 系統の地図 ═══ -->
+<section class="sec" id="map">
+  <div class="sec-h"><span class="num">Ⅲ</span><h2>系統の地図</h2></div>
+  <p class="sec-sub">
+    素材を扱う出荷物は<b>5系統</b>。この目次からは全部に辿れる。ただし
+    <b>逆向きのリンクはまだ張っていない</b>（既存7本の中身を書き換えない約束のため）。
+    戻り道は成果物DB／収蔵庫という入口から引く。
+  </p>
+  <div class="rows" id="mapRows"></div>
+</section>
+
+<!-- ═══ 4. まだ横に並んでいないもの ═══ -->
+<section class="sec" id="gaps">
+  <div class="sec-h"><span class="num">Ⅳ</span><h2>まだ横に並んでいないもの</h2></div>
+  <p class="sec-sub">
+    素材図鑑の章として文章はあるのに、標本になっていない分。<b>穴を埋めた顔をしないための欄</b>。
+  </p>
+  <div class="rows" id="gapRows"></div>
+</section>
+
+<footer>
+  <div class="fl">人類の素材図鑑 — 目次 / osakenpiro · Visionium</div>
+  <div>2026-08-02 実測 · 7系統を実際に開いて測った</div>
+  <div>#全人類UX改善計画</div>
+</footer>
+
+</div>
+
+<script>
+"use strict";
+const P = "https://osakenpiro.github.io/";
+const MOC = P + "materials-of-civilization/";
+
+/* 3D教科書の三重がけ = 既存HTMLからの逐語引用のみ */
+const TRI = {
+  kokuyouhen:{音韻:"くろ×よう(輝く)の同居",意味:"「石」でありながら「石」でないもの",構造:"結晶になり損ねた液体が固体のふりをしている",src:"黒曜片 No.001 の看板より逐語"},
+  gosei:{音韻:"悟性・互生・五声と同音、みな“層”の語",意味:"守る錆＝不動態皮膜",構造:"護(＋)と錆(−)が反対を向いたまま釣り合う一語",src:"護錆 No.002 の看板より逐語"},
+  kantei:{音韻:"艦艇と同音、陸の獣が海の乗り物になる",意味:"蹄をもつ祖先が海へ還った",構造:"徴の保存×陸→海の運動の二層",src:"還蹄 生物編 の看板より逐語"}
+};
+
+/* 社会のながれ（Cowork artifact）の実データから、素材ごとの8段 */
+const ST = ["地面","一次加工","商社","製造","卸・問屋","小売・EC","手元","循環"];
+const FLOW = {
+  ishi:{gap:"距離",gapd:"重くて安い。だから運べない。",chain:["採石場（骨材・石灰石）","砕石・分級","（専門商社・小規模）","生コン／建材メーカー","建材問屋","工務店・ホームセンター","建物・道路","再生砕石として路盤へ"],hi:2,hit:"商社の出番が細い（近いから）"},
+  kino:{gap:"時間",gapd:"育つのに40年。植えた人は伐らない。",chain:["伐採（林業・海外含む）","製材・合板・パルプ","総合商社／専門商社（船と与信）","住宅メーカー・製紙","建材問屋・紙代理店","工務店・文具・書店","家・紙・家具","再生紙・バイオマス燃焼"],hi:-1,hit:""},
+  pura:{gap:"価格",gapd:"原油とドルで毎日値段が動く。",chain:["原油・天然ガス（産油国）","精製→ナフサ→エチレン→重合","総合商社（原料トレード・為替・船）","成形メーカー（射出・押出・ブロー）","商社・問屋","小売・EC","容器・袋・部品・医療機器","マテリアル／ケミカルリサイクル・焼却"],hi:-1,hit:""},
+  conc:{gap:"消滅",gapd:"90分で固まる。流通が成立しない。",chain:["石灰石採掘（国内自給ほぼ100%）","セメント焼成（キルン1450℃）","セメント商社","生コン工場（現場の隣）","— 卸が存在しない —","建設会社が直接","ビル・橋・ダム・道路","解体→再生骨材"],hi:4,hit:"卸が存在しない（90分で固まる）"},
+  siri:{gap:"国境",gapd:"1枚のウェハが世界を何周もする。",chain:["珪石採掘","金属Si→ポリシリコン→インゴット→ウェハ","商社（装置・材料・規制・物流）","ファウンドリ（前工程）→OSAT（後工程）","ディストリビュータ","セットメーカー・小売","スマホ・PC・AI・ネット","都市鉱山（回収率は低い）"],hi:7,hit:"戻る量がほとんど無い"}
+};
+
+/* ── 標本 ── すべて実測に基づく。無い窓は none で明示 ── */
+const SPECS = [
+  {
+    id:"ishi", jp:"石", cn:"イシちゃん", en:"STONE", emo:"🪨", c:"#a99b86",
+    tag:"No.001 黒曜片",
+    d3:{href:P+"kokuyouhen/", t:"黒曜片 — 融けた闇の刃", sm:"結晶化拒否度 Amorphousness Float / No.001", tri:"kokuyouhen"},
+    ehon:[
+      {href:P+"sozai-no-ehon/", t:"そざいたち 第1章 イシちゃん", sm:"250万年前のオルドワン石器。ぜんぶの はじまり"},
+      {href:P+"daichi-no-ehon/", t:"だいちたち 第2章 ヤマちゃん", sm:"火山 — 黒曜石を生んだ側"}
+    ],
+    flow:"ishi",
+    chikyu:[{layer:"mining", t:"日本・鉱区（1984）"},{layer:"plate_conv", t:"世界・プレート境界：沈み込み"}],
+    spine:[{href:MOC+"ch1/", t:"第1章 砂 ── 最強にして最も過小評価された王者"}]
+  },
+  {
+    id:"kino", jp:"木", cn:"キノさん", en:"WOOD", emo:"🪵", c:"#a5764f",
+    tag:"",
+    d3:null,
+    ehon:[{href:P+"sozai-no-ehon/", t:"そざいたち 第2章 キノさん", sm:"家・船・紙・薪。再生可能だが、森は1万年で半分になった"}],
+    flow:"kino",
+    chikyu:[{layer:"forest", t:"日本・森林率（明るさ＝率）"}],
+    spine:[]
+  },
+  {
+    id:"pura", jp:"プラスチック", cn:"プラ太", en:"PLASTIC", emo:"🧴", c:"#e0507e",
+    tag:"",
+    d3:null,
+    ehon:[{href:P+"sozai-no-ehon/", t:"そざいたち 第3章 プラ太", sm:"べんりは、つけを のこす"}],
+    flow:"pura",
+    chikyu:[],
+    spine:[{href:MOC+"ch3/", t:"第3章 プラスチック ── 化石燃料はプラスチックの夢を見るか"},
+           {href:MOC+"ch4/", t:"第4章 石油 ── 動かない血液"}]
+  },
+  {
+    id:"conc", jp:"コンクリート", cn:"コンクリ", en:"CONCRETE", emo:"🧱", c:"#5e7686",
+    tag:"",
+    d3:null,
+    ehon:[{href:P+"sozai-no-ehon/", t:"そざいたち 第4章 コンクリ", sm:"水の次に多い人工物。CO₂排出の約8%"}],
+    flow:"conc",
+    chikyu:[{layer:"mining", t:"日本・鉱区（1984）", note:"石灰石は国内自給ほぼ100%。ただしレイヤは鉱区全体で、素材別には分かれていない"}],
+    spine:[{href:MOC+"ch1/", t:"第1章 砂 ── 骨材とセメントの側から"}]
+  },
+  {
+    id:"siri", jp:"シリコン", cn:"シリコ先輩", en:"SILICON", emo:"💎", c:"#3d93c9",
+    tag:"",
+    d3:null,
+    ehon:[{href:P+"sozai-no-ehon/", t:"そざいたち 第5章 シリコ先輩", sm:"すなが かんがえる じだいが きた"}],
+    flow:"siri",
+    chikyu:[],
+    spine:[{href:MOC+"ch1/", t:"第1章 砂 ── 同じSiO₂で純度が9桁ちがう"},
+           {href:MOC+"ch9/", t:"第9章 掘れない資源 ── ものすごく新しくてありえないほど古い"}]
+  },
+  {
+    id:"kinzoku", jp:"金属", cn:"鉄・アルミ（錆びる側）", en:"METAL", emo:"🔩", c:"#8c9cab",
+    tag:"No.002 護錆",
+    d3:{href:P+"gosei/", t:"護錆 — 錆びない金属ほど、よく錆びる", sm:"皮膜の緻密さ Compactness Float / No.002", tri:"gosei"},
+    ehon:[
+      {href:P+"genshi-no-ehon/", t:"げんしたち 第5章 テツ先輩", sm:"ほしが しんだとき、おれが うまれた"},
+      {href:P+"genshi-no-ehon/", t:"げんしたち 第2章 オーツさん", sm:"酸素 — 錆をつくる相手側"}
+    ],
+    flow:null,
+    chikyu:[{layer:"mining", t:"日本・鉱区（1984）"}],
+    spine:[{href:MOC+"ch2/", t:"第2章 鉄 ── 熱いうちに"}]
+  },
+  {
+    id:"kemono", jp:"けもの", cn:"生きものという素材", en:"BEAST", emo:"🐄", c:"#7da58f",
+    tag:"生物編 還蹄",
+    d3:{href:P+"kantei/", t:"還蹄 — 見た目を捨てても、踝の骨が血をおぼえている", sm:"見た目の距離 × 血縁の距離 — 二軸の乖離 / 生物編", tri:"kantei"},
+    ehon:[{href:P+"kemono-no-ehon/", t:"けものたち 第2章 モーさん", sm:"牛＝偶蹄類。還蹄が扱う鯨偶蹄目の側"}],
+    flow:null,
+    chikyu:[],
+    spine:[]
+  },
+  {
+    id:"tanso", jp:"炭素", cn:"カーボン", en:"CARBON", emo:"🖤", c:"#6f9f9b",
+    tag:"",
+    d3:null,
+    ehon:[{href:P+"genshi-no-ehon/", t:"げんしたち 第4章 カーボン", sm:"いのちの ほねぐみ"}],
+    flow:null,
+    chikyu:[],
+    spine:[{href:MOC+"ch5/", t:"第5章 炭素 ── 鉛筆と指輪のあいだ"}]
+  }
+];
+
+/* ── 標本棚を描く ── */
+const grid = document.getElementById("shelfGrid");
+const detail = document.getElementById("detail");
+let openId = null;
+
+function winCount(s){
+  return [ s.d3?1:0, s.ehon.length?1:0, s.flow?1:0, s.chikyu.length?1:0 ];
+}
+SPECS.forEach(s=>{
+  const b=document.createElement("button");
+  b.className="spec"; b.style.setProperty("--sc",s.c);
+  b.setAttribute("aria-pressed","false"); b.dataset.id=s.id;
+  const w=winCount(s);
+  b.innerHTML =
+    `<span class="tag${s.tag?"":" none"}">${s.tag||"番号なし"}</span>`+
+    `<span class="jp"><span class="emo">${s.emo}</span>${s.jp}</span>`+
+    `<span class="cn">${s.cn}</span>`+
+    `<span class="en">${s.en}</span>`+
+    `<span class="win">${w.map(x=>`<i class="${x?"on":""}"></i>`).join("")}</span>`;
+  b.addEventListener("click",()=>toggle(s.id));
+  grid.appendChild(b);
+});
+
+function esc(t){const d=document.createElement("div");d.textContent=t;return d.innerHTML;}
+
+function windowHTML(title,items,color,emptyLabel,emptyText){
+  const on = items && items.length;
+  let body;
+  if(on){ body = items.join(""); }
+  else { body = `<div class="none"><b>${emptyLabel}</b>${emptyText}</div>`; }
+  return `<div class="w"><div class="w-h"><span class="dot ${on?"":"off"}"></span>${title}</div>${body}</div>`;
+}
+
+function render(s){
+  const tri = s.d3 && s.d3.tri ? TRI[s.d3.tri] : null;
+
+  /* 窓1: 3Dで見る */
+  const w1items = s.d3 ? [`<a class="item" href="${s.d3.href}" target="_blank" rel="noopener">${esc(s.d3.t)}<span class="sm">${esc(s.d3.sm)}</span></a>`] : [];
+
+  /* 窓2: 絵本で読む */
+  const w2items = s.ehon.map(e=>`<a class="item" href="${e.href}" target="_blank" rel="noopener">${esc(e.t)}<span class="sm">${esc(e.sm)}</span></a>`);
+
+  /* 窓3: どう流れるか */
+  let w3items=[];
+  if(s.flow){
+    const f=FLOW[s.flow];
+    w3items.push(`<div class="gapline">ズレ＝<b>${esc(f.gap)}</b> — ${esc(f.gapd)}</div>`);
+    w3items.push(`<ol class="chain">`+f.chain.map((c,i)=>
+      `<li class="${i===f.hi?"gap":""}"><span class="st">${ST[i]}</span>${esc(c)}</li>`).join("")+`</ol>`);
+    w3items.push(`<div class="item flat">社会のながれ<span class="sm">Cowork artifact「shakai-no-nagare」— 収蔵庫と同じ棚。上の8段はその実データ</span></div>`);
+  }
+
+  /* 窓4: 地球のどこにあるか */
+  const w4items = s.chikyu.map(l=>
+    `<a class="item" href="${P}chikyu-de-eta/" target="_blank" rel="noopener">${esc(l.t)}<span class="sm">レイヤ <code>${esc(l.layer)}</code>${l.note?" — "+esc(l.note):""}</span></a>`);
+
+  const spineHTML = s.spine.length
+    ? s.spine.map(x=>`<a href="${x.href}" target="_blank" rel="noopener">${esc(x.t)}</a>`).join(" ／ ")
+    : `<span class="no">この素材の章はまだ無い</span>`;
+
+  detail.innerHTML =
+    `<div class="dhead" style="--sc:${s.c}">
+       <button class="dclose" id="dclose" aria-label="閉じる">×</button>
+       <div class="tag${s.tag?"":" none"}">${s.tag||"番号なし"}</div>
+       <h3><span>${s.emo}</span>${esc(s.jp)}<span class="sub">${esc(s.cn)} · ${esc(s.en)}</span></h3>
+       ${tri?`<div class="triname">
+          <span class="lb">音韻</span>${tri.音韻}<br>
+          <span class="lb">意味</span>${tri.意味}<br>
+          <span class="lb">構造</span>${tri.構造}
+          <span class="src">↑ ${tri.src}。この目次では引くだけで、足しも直しもしない</span>
+        </div>`:""}
+     </div>
+     <div class="spine"><span class="lb">本文 · 素材図鑑の章</span>${spineHTML}</div>
+     <div class="mado" style="--sc:${s.c}">
+       ${windowHTML("3D で見る",w1items,s.c,"3D教科書 未","この素材の3D教科書はまだ立っていない。番号台帳の No.003 が空いている")}
+       ${windowHTML("絵本で読む",w2items,s.c,"絵本 未","じこしょうかいシリーズにこの素材の章はまだ無い")}
+       ${windowHTML("どう流れるか",w3items,s.c,"ながれ 未","社会のながれの5素材（石・木・プラ・コンクリ・シリコン）に入っていない")}
+       ${windowHTML("地球のどこにあるか",w4items,s.c,"座標 未","地球でえたの15レイヤに、この素材を指すものがまだ無い")}
+     </div>`;
+  detail.classList.add("open");
+  document.getElementById("dclose").addEventListener("click",()=>toggle(s.id));
+}
+
+function toggle(id){
+  const btns=[...document.querySelectorAll(".spec")];
+  if(openId===id){
+    openId=null; detail.classList.remove("open"); detail.innerHTML="";
+    btns.forEach(b=>b.setAttribute("aria-pressed","false"));
+    return;
+  }
+  openId=id;
+  btns.forEach(b=>b.setAttribute("aria-pressed", b.dataset.id===id ? "true":"false"));
+  render(SPECS.find(s=>s.id===id));
+  const el=document.querySelector(`.spec[data-id="${id}"]`);
+  if(el) setTimeout(()=>detail.scrollIntoView({behavior:"smooth",block:"nearest"}),60);
+}
+
+/* 番号台帳から標本へ */
+document.querySelectorAll(".np[data-go]").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.getElementById("shelf").scrollIntoView({behavior:"smooth",block:"start"});
+    setTimeout(()=>toggle(b.dataset.go),320);
+  });
+});
+
+/* ── 系統の地図 ── */
+const MAP=[
+  {k:"3D教科書",badge:"live",n:3,links:[[P+"kokuyouhen/","黒曜片 No.001"],[P+"gosei/","護錆 No.002"],[P+"kantei/","還蹄 生物編"]],
+   why:"1本1本が独立サイト。番号と三重がけを持つのはこの系統だけ。互いにはリンク済み（黒曜片→還蹄だけ欠けている）"},
+  {k:"素材図鑑",badge:"live",n:11,links:[[MOC,"人類の素材図鑑（インタラクティブ）"],[MOC+"prologue/","序章"],[MOC+"ch1/","第1〜9章"],[MOC+"epilogue/","終章"]],
+   why:"11章すべてLIVE（序章＋ch1〜9＋終章）を今日実測。標本棚の「本文」はここを指している"},
+  {k:"絵本",badge:"live",n:17,links:[[P+"jikoshoukai/","じこしょうかいシリーズ 全17冊"],[P+"sozai-no-ehon/","そざいたち（第9巻・最終巻）"],[P+"genshi-no-ehon/","げんしたち"],[P+"kemono-no-ehon/","けものたち"],[P+"daichi-no-ehon/","だいちたち"]],
+   why:"素材に効くのは そざい／げんし／けもの／だいち の4冊。「きんたち」は金属ではなく菌なので繋がない"},
+  {k:"社会のながれ",badge:"art",n:3,links:[],
+   why:"Pagesに無く Cowork artifact のみ（shakai-no-nagare ／ 分家 shoryu-no-kawa・ushirogawa）。公開URLが無いので、8段の実データを目次側に持ってきて窓を埋めている"},
+  {k:"地球でえた",badge:"live",n:15,links:[[P+"chikyu-de-eta/","地球でえた — データで見る地球儀"]],
+   why:"レイヤ15枚。素材に効くのは mining（鉱区1984）／forest（森林率）／plate_conv（沈み込み帯）／crafts／energy"}
+];
+document.getElementById("mapRows").innerHTML = MAP.map(m=>
+  `<div class="row"><span class="k">${m.k}</span>
+   <span class="badge ${m.badge}">${m.badge==="art"?"ARTIFACT":"LIVE"} ${m.n}</span>
+   <span class="why">${m.why}</span>
+   <span style="flex-basis:100%;font-size:.78rem;line-height:2">${m.links.map(l=>`<a href="${l[0]}" target="_blank" rel="noopener">${l[1]}</a>`).join(" · ")||"<span style='color:var(--m-null)'>リンクできる公開URLが無い</span>"}</span>
+  </div>`).join("");
+
+/* ── まだ横に並んでいないもの ── */
+const GAPS=[
+  {t:"序章 あなたの部屋は何でできているか",href:MOC+"prologue/",why:"入口の章。どの素材にも属さないので標本にしていない"},
+  {t:"第6章 レアアース ── 17兄弟、分けられない",href:MOC+"ch6/",why:"3D・絵本・ながれ・地球のどれにも相手がいない。標本にするなら No.003 の第一候補"},
+  {t:"第7章 日本 ── 拾い上げる",href:MOC+"ch7/",why:"地球でえた（日本の素材・資源を座標で）と主題が同じ。系統をまたぐ橋になり得るが、素材1つに落ちないので標本にしていない"},
+  {t:"第8章 加工 ── 火の温度の文明史",href:MOC+"ch8/",why:"素材ではなく「温度」で全章を横断する章。軸が違う"},
+  {t:"終章 次の素材革命",href:MOC+"epilogue/",why:"総括。同上"},
+  {t:"黒曜片フッターの還蹄リンク",href:"",why:"黒曜片のシリーズ行だけ還蹄を知らない。既存を書き換えない約束なので今回は触っていない【本人】"},
+  {t:"逆向きリンク（既存7本 → この目次）",href:"",why:"write-domain の外。戻り道は成果物DB／収蔵庫という入口から引く設計にしてある【本人】"}
+];
+document.getElementById("gapRows").innerHTML = GAPS.map(g=>
+  `<div class="row"><span class="badge gap">未</span>
+   ${g.href?`<a href="${g.href}" target="_blank" rel="noopener">${g.t}</a>`:`<span style="color:var(--fg-2)">${g.t}</span>`}
+   <span class="why">${g.why}</span></div>`).join("");
+</script>
+</body>
+</html>
