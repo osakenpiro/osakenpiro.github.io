@@ -428,7 +428,7 @@ function render(s){
     w3items.push(`<div class="gapline">ズレ＝<b>${esc(f.gap)}</b> — ${esc(f.gapd)}</div>`);
     w3items.push(`<ol class="chain">`+f.chain.map((c,i)=>
       `<li class="${i===f.hi?"gap":""}"><span class="st">${ST[i]}</span>${esc(c)}</li>`).join("")+`</ol>`);
-    w3items.push(`<div class="item flat">社会のながれ<span class="sm">Cowork artifact「shakai-no-nagare」— 収蔵庫と同じ棚。上の8段はその実データ</span></div>`);
+    w3items.push(`<div class="item flat"><a href="https://osakenpiro.github.io/nagare/" target="_blank" rel="noopener">社会のながれ</a><span class="sm">上の8段はその実データ。たて（うしろがわ）では、払ったお金がどこまで追えるかを7件で測っている</span></div>`);
   }
 
   /* 窓4: 地球のどこにあるか */
@@ -492,8 +492,8 @@ const MAP=[
    why:"11章すべてLIVE（序章＋ch1〜9＋終章）を今日実測。標本棚の「本文」はここを指している"},
   {k:"絵本",badge:"live",n:17,links:[[P+"jikoshoukai/","じこしょうかいシリーズ 全17冊"],[P+"sozai-no-ehon/","そざいたち（第9巻・最終巻）"],[P+"genshi-no-ehon/","げんしたち"],[P+"kemono-no-ehon/","けものたち"],[P+"daichi-no-ehon/","だいちたち"]],
    why:"素材に効くのは そざい／げんし／けもの／だいち の4冊。「きんたち」は金属ではなく菌なので繋がない"},
-  {k:"社会のながれ",badge:"art",n:3,links:[],
-   why:"Pagesに無く Cowork artifact のみ（shakai-no-nagare ／ 分家 shoryu-no-kawa・ushirogawa）。公開URLが無いので、8段の実データを目次側に持ってきて窓を埋めている"},
+  {k:"社会のながれ",badge:"live",n:3,links:[["https://osakenpiro.github.io/nagare/","社会のながれ"]],
+   why:"2026-08-02 に /nagare/ で公開（分家 shoryu-no-kawa・ushirogawa は Cowork artifact のまま）。目次側の8段は本体の実データの写しなので、並べて読める"},
   {k:"地球でえた",badge:"live",n:15,links:[[P+"chikyu-de-eta/","地球でえた — データで見る地球儀"]],
    why:"レイヤ15枚。素材に効くのは mining（鉱区1984）／forest（森林率）／plate_conv（沈み込み帯）／crafts／energy"}
 ];
