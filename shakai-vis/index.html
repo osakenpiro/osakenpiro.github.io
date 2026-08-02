@@ -830,7 +830,17 @@
 
   /* ---------- 商流モードの描画 ---------- */
   var ASH = [126,119,110];
-  var shoParts = null;
+  var shoParts = null, shoTr = null, shoAsh = [], shoLanes = [], shoRnd = mulberry32(9182);
+  var shoIntro = 1, shoPrev = {}, shoFlash = {};
+  /* 旅の速さ＝その素材の「ズレ」。近いものは速く、国境を越えるものは遅い。 */
+  var SHO_SPD = { ishi:0.0205, kino:0.0100, pura:0.0150, conc:0.0260, siri:0.0072 };
+  function shoInitTr(){
+    shoTr = [];
+    for (var i = 0; i < SHO_MAT.length; i++) {
+      var r = mulberry32(310 + i * 91);
+      shoTr.push({ p: r() * 5.2, mode: 0, u: 0, a: 1, hold: 0, trail: [] });
+    }
+  }
   function shoInitParts(){
     shoParts = [];
     for (var m = 0; m < SHO_MAT.length; m++) {
@@ -859,8 +869,10 @@
     var ly0 = PAD.t + HB + 4, lyH = Math.max(40, (H - PAD.b - LB) - ly0), laneH = lyH / SHO_MAT.length;
     var wvs = SHO_MAT.map(shoWv);
     var hm = state.honmaru, d = hm ? dnow : 0;
-    shoHit = { cells: [], stages: [], legend: [] };
+    shoIntro = state.anim ? Math.min(1, shoIntro + 0.020) : 1;
+    shoHit = { cells: [], stages: [], legend: [] }; shoLanes = [];
     var fs = narrow ? 9 : 10.5;
+    var pvClear = !hm;
 
     /* --- 段の柱と見出し --- */
     for (var i = 0; i < 8; i++) {
@@ -889,13 +901,17 @@
       }
     }
 
-    /* --- 素材ごとのレーン --- */
+    /* --- 素材ごとのレーン（開いた直後は左から水が来る） --- */
+    var revX = x0 + shoIntro * (iw + colW * 0.6);
+    ctx.save();
+    if (shoIntro < 1) { ctx.beginPath(); ctx.rect(0, ly0 - 6, revX, lyH + 12); ctx.clip(); }
     for (var mi = 0; mi < SHO_MAT.length; mi++) {
       var m = SHO_MAT[mi], wv = wvs[mi], rgbm = m.rgb || (m.rgb = hex2rgb(m.c));
       var yc = ly0 + (mi + 0.5) * laneH;
       var solo = state.shoSolo, dim = solo && solo !== m.id ? 0.12 : 1;
       var T = shoDeath(m, wv), cutFrom = shoCutFrom(m);
       var exists = false; for (var e0 = 0; e0 < 8; e0++) if (wv[e0] >= 0.025) exists = true;
+      shoLanes[mi] = { yc: yc, wv: wv, T: T, cf: cutFrom, ex: exists, dim: dim, rgb: rgbm, laneH: laneH };
       if (mi > 0) { ctx.strokeStyle = rgba(GOLD, 0.055); ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(x0, yc - laneH / 2); ctx.lineTo(x1, yc - laneH / 2); ctx.stroke(); }
 
@@ -945,6 +961,25 @@
                         : (stt === 1 ? rgba(rgbm, 0.62 * dim)
                         : (stt === 2 ? rgba(GREY, 0.5 * dim) : rgba(ASH, 0.6 * dim))));
         ctx.stroke(); ctx.setLineDash([]);
+        if (hm) {   /* いま止まった／いま灰になった段は、一瞬だけ光る */
+          var fk = mi + "_" + si, pv = shoPrev[fk];
+          if (pv != null && pv !== stt && stt >= 2) shoFlash[fk] = 1;
+          shoPrev[fk] = stt;
+          if (shoFlash[fk] > 0) {
+            ctx.fillStyle = stt === 3 ? rgba(IVORY, shoFlash[fk] * 0.30) : rgba(IVORY, shoFlash[fk] * 0.22);
+            ctx.fill();
+            ctx.strokeStyle = rgba(IVORY, shoFlash[fk] * 0.8); ctx.lineWidth = 1 + shoFlash[fk] * 1.6; ctx.stroke();
+            shoFlash[fk] -= 0.028;
+          }
+        } else if (pvClear) { shoPrev = {}; shoFlash = {}; pvClear = false; }
+        if (stt === 0 && state.anim && dim > 0.5) {  /* 川面のゆらぎ＝流れている段だけが光る */
+          ctx.save(); ctx.clip();
+          var swx = x0 + si * colW + (((now / 3400) + si * 0.13 + mi * 0.21) % 1) * (colW + 90) - 45;
+          var gg = ctx.createLinearGradient(swx - 45, 0, swx + 45, 0);
+          gg.addColorStop(0, rgba(rgbm, 0)); gg.addColorStop(0.5, rgba(IVORY, 0.10 + 0.06 * wv[si])); gg.addColorStop(1, rgba(rgbm, 0));
+          ctx.fillStyle = gg; ctx.fillRect(swx - 45, yc - laneH / 2, 90, laneH);
+          ctx.restore();
+        }
         if (stt === 3) {   /* 中身が死んだ＝灰。斜線を入れる */
           ctx.save(); ctx.clip();
           ctx.strokeStyle = rgba(ASH, 0.55 * dim); ctx.lineWidth = 1;
@@ -953,6 +988,10 @@
             ctx.lineTo(x0 + si * colW + hx + laneH, yc + laneH / 2); ctx.stroke();
           }
           ctx.restore();
+          if (state.anim && shoAsh.length < 70 && shoRnd() < 0.10) {
+            shoAsh.push({ x: x0 + (si + shoRnd()) * colW, y: yc - laneH * 0.2 + shoRnd() * laneH * 0.4,
+                          v: 0.18 + shoRnd() * 0.35, a: 0.55 + shoRnd() * 0.3, r: 0.7 + shoRnd() * 0.9 });
+          }
         }
         shoHit.cells.push({ mi: mi, si: si, x0: x0 + si * colW, x1: x0 + (si + 1) * colW, y0: yc - laneH * 0.45, y1: yc + laneH * 0.45, st: stt });
       }
@@ -1021,6 +1060,131 @@
           ctx.beginPath(); ctx.arc(xp, yc + Math.sin(now / 900 + pi2 * 2.1) * hp * 0.35, 1.2 + hp * 0.09, 0, 6.2832); ctx.fill();
         }
       }
+    }
+
+
+    ctx.restore();
+    if (shoIntro < 1) {
+      var eg = ctx.createLinearGradient(revX - 90, 0, revX, 0);
+      eg.addColorStop(0, rgba(GOLD, 0)); eg.addColorStop(1, rgba(GOLD, 0.22));
+      ctx.fillStyle = eg; ctx.fillRect(revX - 90, ly0 - 6, 90, lyH + 12);
+      ctx.strokeStyle = rgba(GOLD, 0.55); ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(revX, ly0 - 6); ctx.lineTo(revX, ly0 + lyH + 6); ctx.stroke();
+    }
+
+    /* ================= 感動レイヤ ================= */
+    if (shoIntro >= 0.98) {
+    /* ① 灰が舞う */
+    if (state.anim) {
+      for (var ai = shoAsh.length - 1; ai >= 0; ai--) {
+        var A = shoAsh[ai]; A.y += A.v; A.x += Math.sin(A.y / 22) * 0.25; A.a -= 0.0045;
+        if (A.a <= 0 || A.y > ly0 + lyH) { shoAsh.splice(ai, 1); continue; }
+        ctx.fillStyle = rgba(ASH, A.a * 0.8);
+        ctx.beginPath(); ctx.arc(A.x, A.y, A.r, 0, 6.2832); ctx.fill();
+      }
+    } else if (shoAsh.length) { shoAsh.length = 0; }
+
+    /* ② 旅する一粒 —— 地面から手元まで。輪が閉じている素材だけ、帰ってくる。 */
+    if (!shoTr) shoInitTr();
+    var lastGold = [];
+    for (var ti = 0; ti < SHO_MAT.length; ti++) {
+      var tm = SHO_MAT[ti], LN = shoLanes[ti];
+      if (!LN || !LN.ex || LN.dim < 0.5) continue;
+      var tr = shoTr[ti], spd = (SHO_SPD[tm.id] || 0.014) * (state.anim ? actMul : 0);
+      var tsi = Math.max(0, Math.min(7, Math.round(tr.p)));
+      var tst = shoState(tm, tsi, d, LN.T, LN.cf);
+      if (shoKill[SHO_ST[tsi].id] && tm.dep[tsi] >= 0.5) tst = 2;
+      var blocked = (LN.wv[tsi] >= 0.025) && (tst >= 2);   /* 段が無いのは通せんぼではない＝飛ばして進む */
+      var tx2, ty2;
+      if (tr.mode === 0) {                      /* 流れ下る */
+        if (!blocked) tr.p += spd; 
+        if (tr.p >= 6) { tr.p = 6; tr.mode = 1; tr.hold = 0; }
+        tx2 = x0 + (tr.p + 0.5) * colW; ty2 = LN.yc + Math.sin(now / 780 + ti) * LN.laneH * 0.10;
+      } else if (tr.mode === 1) {               /* 手元に着いた */
+        tr.hold += state.anim ? 1 : 0;
+        tx2 = x0 + 6.5 * colW; ty2 = LN.yc;
+        if (tr.hold > 46) { tr.mode = (shoRnd() < LN.wv[7] && shoState(tm, 7, d, LN.T, LN.cf) === 0) ? 2 : 3; tr.u = 0; tr.a = 1; }
+      } else if (tr.mode === 2) {               /* 循環で地面へ帰る＝輪が閉じている */
+        tr.u += 0.010 * (state.anim ? actMul : 0);
+        var xa2 = x0 + 7.5 * colW, xb3 = x0 + 0.5 * colW, yb3 = LN.yc + LN.laneH * 0.45, uu = Math.min(1, tr.u), vv = 1 - uu;
+        tx2 = vv*vv*vv*xa2 + 3*vv*vv*uu*(xa2 + colW*0.5) + 3*vv*uu*uu*(xb3 - colW*0.5) + uu*uu*uu*xb3;
+        ty2 = vv*vv*vv*(LN.yc + LN.laneH*0.10) + 3*vv*vv*uu*yb3 + 3*vv*uu*uu*yb3 + uu*uu*uu*(LN.yc + LN.laneH*0.10);
+        if (tr.u >= 1) { tr.mode = 0; tr.p = 0; tr.trail.length = 0; }
+      } else {                                  /* 戻らない＝手元で静かに消える */
+        tx2 = x0 + 6.5 * colW; ty2 = LN.yc; tr.a -= state.anim ? 0.013 : 0;
+        if (tr.a <= 0) { tr.mode = 0; tr.p = 0; tr.a = 1; tr.trail.length = 0; }
+      }
+      if (state.anim) { tr.trail.push([tx2, ty2]); if (tr.trail.length > 16) tr.trail.shift(); }
+      for (var qi = 0; qi < tr.trail.length; qi++) {
+        var qa = (qi / tr.trail.length) * 0.30 * tr.a;
+        ctx.fillStyle = rgba(LN.rgb, qa);
+        ctx.beginPath(); ctx.arc(tr.trail[qi][0], tr.trail[qi][1], 0.8 + qi * 0.10, 0, 6.2832); ctx.fill();
+      }
+      var glow = 2.4 + (blocked && tr.mode === 0 ? Math.sin(now / 220) * 0.8 : 0);
+      ctx.fillStyle = rgba(IVORY, 0.20 * tr.a);
+      ctx.beginPath(); ctx.arc(tx2, ty2, glow + 3.2, 0, 6.2832); ctx.fill();
+      ctx.fillStyle = "rgba(255,252,244," + (0.95 * tr.a) + ")";
+      ctx.beginPath(); ctx.arc(tx2, ty2, glow, 0, 6.2832); ctx.fill();
+      ctx.strokeStyle = rgba(LN.rgb, 0.95 * tr.a); ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.arc(tx2, ty2, glow + 1.4, 0, 6.2832); ctx.stroke();
+      if (tr.mode === 2 && !narrow) {
+        ctx.textAlign = "center"; ctx.font = "9px sans-serif"; ctx.fillStyle = rgba(LN.rgb, 0.85);
+        ctx.fillText("帰る", tx2, ty2 + 8);
+      }
+    }
+
+    /* ③ 本丸の終盤、最後まで流れている段に金を灯す */
+    if (hm) {
+      for (var gi = 0; gi < SHO_MAT.length; gi++) {
+        var gm = SHO_MAT[gi], GL = shoLanes[gi]; if (!GL || !GL.ex) continue;
+        for (var gs = 0; gs <= 5; gs++) {
+          if (GL.wv[gs] < 0.025) continue;
+          var gst = shoState(gm, gs, d, GL.T, GL.cf);
+          if (shoKill[SHO_ST[gs].id] && gm.dep[gs] >= 0.5) gst = 2;
+          if (gst <= 1) lastGold.push({ mi: gi, si: gs, y: GL.yc, h: GL.laneH });
+        }
+      }
+      if (lastGold.length && lastGold.length <= 3) {
+        for (var li2 = 0; li2 < lastGold.length; li2++) {
+          var G = lastGold[li2], gcx = x0 + (G.si + 0.5) * colW, pulse = 0.5 + 0.5 * Math.sin(now / 620);
+          ctx.strokeStyle = rgba(GOLD, 0.30 + 0.45 * pulse); ctx.lineWidth = 1.4;
+          ctx.beginPath(); ctx.rect(gcx - colW * 0.44, G.y - G.h * 0.36, colW * 0.88, G.h * 0.72); ctx.stroke();
+          if (!narrow) {
+            ctx.textAlign = "center"; ctx.font = "600 9.5px sans-serif";
+            var gt = "最後に流れている", gw = ctx.measureText(gt).width + 8;
+            ctx.fillStyle = "rgba(11,12,20,.85)"; ctx.fillRect(gcx - gw / 2, G.y - G.h * 0.36 - 13, gw, 12);
+            ctx.fillStyle = rgba(GOLD, 0.55 + 0.4 * pulse); ctx.fillText(gt, gcx, G.y - G.h * 0.36 - 12);
+          }
+        }
+      }
+    }
+
+    /* ④ 全部が集まる一点 —— 手元にいるのは、あなた */
+    var youX = x0 + 6.5 * colW, youY = ly0 + laneH * 3;
+    var eid = shoEraId(), youN = eid === "ooba" ? "不郎" : "あなた";
+    var br2 = 0.5 + 0.5 * Math.sin(now / 1500);
+    for (var yi = 0; yi < shoLanes.length; yi++) {
+      var YL = shoLanes[yi]; if (!YL || !YL.ex || YL.wv[6] < 0.025) continue;
+      var yst = shoState(SHO_MAT[yi], 6, d, YL.T, YL.cf);
+      var tg = ctx.createLinearGradient(youX, YL.yc, youX, youY);
+      var tcol = yst === 0 ? GOLD : GREY, tmax = yst === 0 ? (0.16 + 0.26 * br2) : 0.10;
+      tg.addColorStop(0, rgba(tcol, 0)); tg.addColorStop(0.55, rgba(tcol, tmax * 0.25)); tg.addColorStop(1, rgba(tcol, tmax));
+      ctx.strokeStyle = tg; ctx.lineWidth = 0.9;
+      ctx.beginPath(); ctx.moveTo(youX, YL.yc); ctx.lineTo(youX, youY); ctx.stroke();
+    }
+    ctx.fillStyle = rgba(GOLD, 0.10 + 0.10 * br2);
+    ctx.beginPath(); ctx.arc(youX, youY, 11 + br2 * 2.5, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = rgba(GOLD, 0.85 + 0.15 * br2);
+    ctx.beginPath(); ctx.arc(youX, youY, 3.4, 0, 6.2832); ctx.fill();
+    if (!narrow) {
+      ctx.textAlign = "left"; ctx.textBaseline = "middle";
+      ctx.font = "600 10px sans-serif";
+      ctx.fillStyle = rgba(GOLD, 0.92); ctx.fillText(youN, youX + 9, youY);
+      ctx.font = "9px sans-serif"; ctx.fillStyle = rgba(IVORY, 0.34);
+      ctx.fillText("5本ぜんぶ、ここへ来ている", youX + 9, youY + 12);
+      ctx.textBaseline = "top";
+    }
+    ctx.textAlign = "left"; ctx.textBaseline = "top";
     }
 
     /* --- 下段：素材チップ（クリックで単独表示） --- */
@@ -1266,7 +1430,7 @@
   bPhantom.addEventListener("click", function(){ state.phantom = !state.phantom; syncUI(); });
   bDiurnal.addEventListener("click", function(){ state.diurnal = !state.diurnal; syncUI(); });
   bKosho.addEventListener("click", function(){ state.kosho = !state.kosho; cv.style.cursor = state.kosho ? "pointer" : "default"; syncUI(); });
-  bShoryu.addEventListener("click", function(){ state.shoryu = !state.shoryu; shoHover = null; hover = null; tip.style.display = "none"; cv.style.cursor = "default"; syncUI(); });
+  bShoryu.addEventListener("click", function(){ state.shoryu = !state.shoryu; if (state.shoryu) { shoIntro = 0; shoAsh.length = 0; shoTr = null; shoPrev = {}; shoFlash = {}; } shoHover = null; hover = null; tip.style.display = "none"; cv.style.cursor = "default"; syncUI(); });
   bPng.addEventListener("click", function(){ try { var a = document.createElement("a"); a.download = "shakai-vis-" + Date.now() + ".png"; a.href = cv.toDataURL("image/png"); document.body.appendChild(a); a.click(); document.body.removeChild(a); } catch(e){} });
   simRange.addEventListener("input", function(){ state.clock = (+simRange.value) / 1000; state.simPlay = false; syncUI(); });
   simPlayBtn.addEventListener("click", function(){ if (state.clock >= 1) state.clock = 0; state.simPlay = !state.simPlay; syncUI(); });
