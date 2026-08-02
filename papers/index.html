@@ -22,6 +22,13 @@ h1 .bf{color:var(--gold)}
 .read{color:var(--gold)}
 .doi{color:var(--mut);text-decoration:none;border:1px solid var(--line);border-radius:6px;padding:1px 8px}
 .doi:hover{color:var(--ink);border-color:var(--gold)}
+.keifu{display:flex;gap:14px;align-items:center;text-decoration:none;color:inherit;margin:20px 0 4px;padding:14px 16px;border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:8px;background:var(--panel);transition:border-color .15s,background .15s}
+.keifu:hover{border-color:var(--gold);background:#1b1f29}
+.keifu .kb{flex:none;font-size:12px;letter-spacing:.14em;color:var(--gold);border:1px solid var(--gold);border-radius:100px;padding:3px 11px}
+.keifu .kt{display:flex;flex-direction:column;gap:3px;font-size:15px;font-weight:600}
+.keifu .ks{font-size:13px;font-weight:400;color:var(--mut);line-height:1.55}
+.keifu .ka{margin-left:auto;color:var(--gold);font-size:18px}
+@media(max-width:560px){.keifu .ka{display:none}}
 footer{color:var(--mut);font-size:13px;margin-top:34px;text-align:center}
 footer a{color:var(--gold);text-decoration:none}
 </style></head><body><div class="wrap">
@@ -29,6 +36,11 @@ footer a{color:var(--gold);text-decoration:none}
 <h1><span class="bf">Boolean→Float</span> — 9 Papers</h1>
 <p class="lead">権利も、心も、著作権も、プライバシーも。0か1ではなく、0.0〜1.0 で。<br>9本の論文を、ブラウザでそのまま読めるHTMLにしました。— <strong>#全人類UX改善</strong></p>
 </header>
+<a class="keifu" href="/papers/keifu/">
+<span class="kb">系譜</span>
+<span class="kt">9本がどこで繋がっているか、1枚に
+<span class="ks">線1本ごとに本文からの逐語引用と出典。論文が自分で言っていることと、この図が読んだことは分けてある。</span></span>
+<span class="ka">→</span></a>
 <div class="cards">
 <a class="card" href="/paper-a/"><span class="badge">A</span><span class="ct"><span class="title">The Morphology of Desire</span><span class="desc">欲望は「欠如」への反応ではなく、内なる空洞の“かたち”。仏教唯識×情動神経科学×AI。その先に Homo I。</span><span class="links"><span class="read">読む →</span><a class="doi" href="https://doi.org/10.5281/zenodo.19106655" target="_blank" rel="noopener">DOI</a></span></span></a>
 <a class="card" href="/paper-b/"><span class="badge">B</span><span class="ct"><span class="title">The Circulation of Alignment</span><span class="desc">アラインメントは制御ではなく循環。マタギの倫理と宮沢賢治から、AIを“共有された原野”として設計する。</span><span class="links"><span class="read">読む →</span><a class="doi" href="https://doi.org/10.5281/zenodo.19106657" target="_blank" rel="noopener">DOI</a></span></span></a>
@@ -40,5 +52,5 @@ footer a{color:var(--gold);text-decoration:none}
 <a class="card" href="/paper8/"><span class="badge">8</span><span class="ct"><span class="title">The Ground State of Three</span><span class="desc">知覚・記憶・言語・数——人間の認知はなぜ「三」に落ちるのか。三＝認知の基底状態。</span><span class="links"><span class="read">読む →</span><a class="doi" href="https://doi.org/10.5281/zenodo.19106680" target="_blank" rel="noopener">DOI</a></span></span></a>
 <a class="card" href="/paper9/"><span class="badge">9</span><span class="ct"><span class="title">The Decryption Key</span><span class="desc">プライバシーは保護/露出の Boolean ではない。鍵は decodability（復号可能性）の Float。</span><span class="links"><span class="read">読む →</span><a class="doi" href="https://doi.org/10.5281/zenodo.19199471" target="_blank" rel="noopener">DOI</a></span></span></a>
 </div>
-<footer>長田謙志郎 / Kenshiro Osada — Independent Philosopher &amp; Web Developer · <a href="https://orcid.org/0009-0004-9167-3186" target="_blank" rel="noopener">ORCID</a> · <a href="https://osakenpiro.github.io/">osakenpiro</a></footer>
+<footer>長田謙志郎 / Kenshiro Osada — Independent Philosopher &amp; Web Developer · <a href="https://orcid.org/0009-0004-9167-3186" target="_blank" rel="noopener">ORCID</a> · <a href="/satori/">SATORI</a> · <a href="https://osakenpiro.github.io/">osakenpiro</a></footer>
 </div></body></html>
