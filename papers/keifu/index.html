@@ -1,0 +1,919 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>背骨と系譜 — Boolean→Float 9 Papers Genealogy · osakenpiro</title>
+<meta name="description" content="Boolean→Float 9本の論文を1枚に。32本の線それぞれに、本文からの逐語引用と出典箇所。論文が自分で言っていることと、この図が読んだことを分けてある。#全人類UX改善">
+<meta property="og:title" content="背骨と系譜 — Boolean→Float 9 Papers">
+<meta property="og:description" content="9本がどこで繋がっているか。線1本ごとに逐語の根拠と出典。引かなかった線と、この図が間違えた5箇所も残してある。">
+<meta property="og:type" content="website">
+<style>
+:root{
+  --gold:#d4a853;--gold-dim:#8a7235;--gold-soft:rgba(212,168,83,.13);
+  --bg:#0f1115;--panel:#161922;--panel-hi:#1c2029;--ink:#e8e6e0;--mut:#9aa0ab;--dim:#6b727e;--line:#262b36;
+  --k-bone:#d4a853;      /* 構造的依存 */
+  --k-cite:#7f8794;      /* 明示引用 */
+  --k-pre:#5f9ea0;       /* 予告 */
+  --k-self:#b06ec4;      /* 自己適用 */
+  --k-back:#d4783f;      /* 逆供給 */
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+ font:16px/1.75 -apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Noto Sans JP",sans-serif;
+ -webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:48px 24px 96px}
+a{color:var(--gold)}
+.crumb{font-size:13px;color:var(--dim);letter-spacing:.08em;margin-bottom:22px}
+.crumb a{text-decoration:none;color:var(--dim)}
+.crumb a:hover{color:var(--gold)}
+header.top{border-bottom:2px solid var(--gold);padding-bottom:24px;margin-bottom:32px}
+h1{font-size:30px;margin:0 0 10px;letter-spacing:.01em;line-height:1.35}
+h1 .bf{color:var(--gold)}
+.lead{color:var(--mut);margin:0;font-size:15px;max-width:74ch}
+h2{font-size:20px;margin:56px 0 6px;letter-spacing:.02em;border-left:3px solid var(--gold);padding-left:12px}
+h2 .n{color:var(--gold-dim);font-size:13px;letter-spacing:.14em;display:block;font-weight:400;margin-bottom:2px}
+h3{font-size:15px;margin:26px 0 8px;color:var(--ink)}
+p{margin:10px 0}
+.sub{color:var(--mut);font-size:14px;max-width:78ch}
+.tight{margin-top:4px}
+
+/* ---- 3行まとめ ---- */
+.tldr{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);
+  border-radius:6px;padding:16px 20px;margin:26px 0 8px}
+.tldr ol{margin:0;padding-left:20px}
+.tldr li{margin:6px 0;font-size:15px}
+.tldr b{color:var(--gold)}
+
+/* ---- 背骨 5層 ---- */
+.layers{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:20px 0 0}
+.layers.l4{grid-template-columns:repeat(4,1fr)}
+.layer{background:var(--panel);border:1px solid var(--line);border-top:2px solid var(--gold-dim);
+  border-radius:6px;padding:13px 14px}
+.layer .lb{font-size:11px;letter-spacing:.16em;color:var(--gold);margin-bottom:6px}
+.layer .lp{font-size:19px;font-weight:600;letter-spacing:.05em;margin-bottom:6px}
+.layer .ld{font-size:12.5px;color:var(--mut);line-height:1.6}
+@media(max-width:880px){.layers,.layers.l4{grid-template-columns:repeat(2,1fr)}}
+
+/* ---- map ---- */
+.mapscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tblhint{margin:0;padding:10px 16px;border-top:1px solid var(--line);font-size:12.5px;color:var(--mut);background:#12151c}
+.tblhint a{color:var(--gold)}
+@media(max-width:760px){.mapscroll svg{min-width:900px}}
+.mapbox{margin-top:18px;background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);
+  background:#12151c}
+.btn{background:transparent;border:1px solid var(--line);color:var(--mut);border-radius:5px;
+  padding:5px 12px;font-size:12.5px;cursor:pointer;font-family:inherit;letter-spacing:.04em;transition:.14s}
+.btn:hover{border-color:var(--gold-dim);color:var(--ink)}
+.btn.on{background:var(--gold-soft);border-color:var(--gold);color:var(--gold)}
+.ctrl .hint{font-size:12px;color:var(--dim);margin-left:auto}
+svg#map{display:block;width:100%;height:auto;background:
+  radial-gradient(ellipse 70% 50% at 50% 0%, rgba(212,168,83,.045) 0%, transparent 70%)}
+.node rect{fill:var(--panel-hi);stroke:var(--line);stroke-width:1.2;transition:.15s}
+.node:hover rect{stroke:var(--gold);fill:#232833}
+.node text{pointer-events:none}
+.node .badge{font-size:15px;font-weight:700;fill:var(--gold)}
+.node .tt{font-size:12px;fill:var(--ink)}
+.node .jj{font-size:10.5px;fill:var(--mut)}
+.node.axis rect{stroke:var(--gold);stroke-width:1.8;fill:#1e2029}
+.node.orphan rect{stroke-dasharray:4 3;stroke:#5d4b40}
+.node.dim{opacity:.22}
+.node:focus{outline:none}
+.node:focus rect{stroke:var(--gold);stroke-width:2.4}
+.edge{fill:none;cursor:pointer;transition:.14s}
+.edge.dim{opacity:.07}
+.edge:hover{stroke-width:4}
+.edge.sel{stroke-width:4.5}
+.spine{stroke:var(--gold-dim);stroke-width:1.4}
+.spinelab{font-size:11.5px;fill:var(--gold);letter-spacing:.18em}
+.spinesub{font-size:10px;fill:var(--dim);letter-spacing:.06em}
+.note-txt{font-size:11px;fill:var(--dim)}
+
+/* ---- evidence panel ---- */
+.ev{border-top:1px solid var(--line);padding:16px 18px;min-height:132px;background:#12151c}
+.ev .eh{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:8px}
+.ev .arrow{font-size:15px;font-weight:600;color:var(--ink);letter-spacing:.03em}
+.ev .kind{font-size:11px;padding:2px 9px;border-radius:100px;border:1px solid currentColor;letter-spacing:.08em}
+.ev .loc{font-size:11.5px;color:var(--dim);margin-left:auto}
+.ev .what{font-size:13.5px;color:var(--gold);margin:2px 0 8px}
+.ev blockquote{margin:0;padding:10px 14px;background:#0d1014;border-left:2px solid var(--line);
+  border-radius:0 4px 4px 0;font-size:13px;line-height:1.7;color:#cfd3da}
+.ev .nt{font-size:12.5px;color:var(--mut);margin-top:9px;line-height:1.7}
+.ev .idle{color:var(--dim);font-size:13.5px}
+
+/* ---- legend ---- */
+.legend{display:flex;flex-wrap:wrap;gap:14px;padding:12px 16px;border-top:1px solid var(--line);font-size:12px;color:var(--mut)}
+.legend .li{display:flex;align-items:center;gap:7px}
+.legend .sw{width:26px;height:0;border-top-width:3px;border-top-style:solid;display:inline-block}
+
+/* ---- tables ---- */
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:0 0 6px 6px}
+.tscroll table{min-width:700px}
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px}
+th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--gold);font-weight:600;font-size:12px;letter-spacing:.1em;border-bottom:1px solid var(--gold-dim)}
+td.q{color:#cfd3da;font-size:12.5px;line-height:1.65}
+td.mono{color:var(--dim);font-size:11.5px;white-space:nowrap}
+tr:hover td{background:#14171e}
+.pill{display:inline-block;font-size:10.5px;padding:1px 8px;border-radius:100px;border:1px solid currentColor;letter-spacing:.06em}
+
+/* ---- paper cards ---- */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-top:16px}
+.pc{background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:15px 16px}
+.pc.axis{border-color:var(--gold)}
+.pc.orphan{border-style:dashed;border-color:#5d4b40}
+.pc .ph{display:flex;align-items:baseline;gap:9px;margin-bottom:3px}
+.pc .bg{width:26px;height:26px;flex:none;border-radius:50%;border:1px solid var(--gold);color:var(--gold);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.pc .pt{font-size:15px;font-weight:600}
+.pc .pj{font-size:12px;color:var(--mut);margin:2px 0 9px}
+.pc dl{margin:0;font-size:12.5px}
+.pc dt{color:var(--gold-dim);font-size:10.5px;letter-spacing:.12em;margin-top:9px}
+.pc dd{margin:2px 0 0;color:#c8ccd4;line-height:1.65}
+.pc dd q{color:#cfd3da;font-style:normal}
+.pc .lk{margin-top:11px;font-size:12px;display:flex;gap:12px}
+.pc .lk a{text-decoration:none}
+.pc .lk a:hover{text-decoration:underline}
+
+/* ---- two-col ---- */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+@media(max-width:820px){.two{grid-template-columns:1fr}}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:15px 17px}
+.box.pro{border-top:2px solid #4ec47e}
+.box.con{border-top:2px solid #c44e4e}
+.box h4{margin:0 0 8px;font-size:13.5px;letter-spacing:.06em}
+.box ul{margin:0;padding-left:19px;font-size:13px;color:#c8ccd4;line-height:1.75}
+.box li{margin:7px 0}
+.box li b{color:var(--ink)}
+.shape{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold-dim);border-radius:6px;
+  padding:13px 16px;margin-top:10px}
+.shape .st{font-size:14px;font-weight:600;margin-bottom:4px}
+.shape .sd{font-size:12.5px;color:var(--mut);line-height:1.7}
+.shape .sc{font-size:12px;color:var(--dim);margin-top:6px}
+
+.warn{background:#1a1512;border:1px solid #4a3a2a;border-radius:6px;padding:13px 16px;margin-top:14px;font-size:13px;color:#d8cdbe}
+.warn b{color:var(--gold)}
+.nodraw{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:4px 18px;margin-top:12px}
+.nodraw li{font-size:13px;color:#c8ccd4;margin:10px 0;line-height:1.7}
+.nodraw li b{color:var(--ink)}
+footer{color:var(--dim);font-size:12.5px;margin-top:64px;padding-top:20px;border-top:1px solid var(--line);text-align:center;line-height:2}
+footer a{text-decoration:none}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;color:var(--gold);
+  background:rgba(212,168,83,.08);padding:1px 5px;border-radius:3px}
+@media print{
+  body{background:#fff;color:#111}
+  .wrap{max-width:none;padding:0}
+  .mapbox,.tldr,.layer,.box,.pc,.shape,.warn,.nodraw{background:#fff!important;border-color:#bbb!important}
+  .ev,.ctrl,.legend,.tblhint{background:#fff!important}
+  .ctrl button{display:none}
+  h1,h2,h3,td,th,p,li,dd,.lead,.sub,.ld,.sd,.nt,.q{color:#111!important}
+  .lead,.sub,.mut,td.mono{color:#444!important}
+  a{color:#111!important;text-decoration:underline}
+  h2{border-left-color:#111}
+  table{page-break-inside:auto}tr{page-break-inside:avoid}
+  #ev{display:none}
+  .mapscroll svg{max-width:100%}
+}
+@media(max-width:640px){
+  .wrap{padding:32px 16px 72px}
+  h1{font-size:24px}
+  h2{font-size:17px}
+  .layers,.layers.l4{grid-template-columns:1fr 1fr}
+  .cards{grid-template-columns:1fr}
+  .ctrl .hint{margin-left:0;width:100%}
+  .ev .loc{margin-left:0;width:100%}
+  .legend{gap:9px}
+  .legend .li{width:100%}
+}
+</style></head><body><div class="wrap">
+
+<div class="crumb"><a href="/">osakenpiro</a> / <a href="/papers/">Papers</a> / 背骨と系譜</div>
+
+<header class="top">
+  <h1><span class="bf">Boolean→Float</span> — 背骨と系譜<br><span style="font-size:19px;color:var(--mut);font-weight:400">9 Papers Genealogy</span></h1>
+  <p class="lead">9本を1枚に。1本の背骨に対して各論文がどこを担当しているか、論文どうしがどこで繋がっているか。
+  <strong style="color:var(--ink)">引いた32本は全部、本文か参考文献リストからの逐語引用で裏を取ってある。</strong>
+  「なんとなく近い」で引いた線は1本もない。引かなかった線も、<b>この図が読み込んだだけで論文は言っていないこと</b>も、最後に書いた。</p>
+  <p class="lead" style="margin-top:10px;font-size:14px;color:var(--dim)">v2 — 2026-08-02。v1 は敵対的レビュー（skeptic）で5箇所が壊れたので作り直した。何を間違えたかは §09 の訂正履歴に残してある。</p>
+</header>
+
+<div class="tldr"><ol>
+  <li><b>背骨は論文の自己記述、層はこの図の読み</b>。Boolean→Float の再定式化は 5・6・7・9 が自分で明示している（9 §2.1 の節題は "Against the Boolean Model of Privacy"）。<b>だが「土台／軸／応用」の階層は論文が否定している</b>——7 abstract は 5・6・7 を <q>unit vectors of a three-dimensional coordinate system</q> ＝同位と宣言する。この図は論文自身のまとまり（四部作／3G／9／8）で描き直した。</li>
+  <li><b>系譜は単調累積。例外は8だけ</b>。<b>引用した先行論文の数</b>は A=0 / B=1 / C=2 / D=3 / 5=4 / 6=5 / 7=6 / 9=8 と1本ずつ増える。<b>8だけ 0</b>（引かれるのは9からの1本のみ）。参考文献28件に2026年のエントリが無く、系列内自己引用が構造的に不可能。8は系譜の外で書かれ、9に1本だけ回収された。<br><span style="color:var(--dim);font-size:13.5px">※ 図の線が32本なのは、5→D が2本（引用＋自己適用）、予告が2本（5→6・6→7）別に立っているため。線の本数と引用先の数は一致しない。</span></li>
+  <li><b>反証は思ったところに無い</b>。反証条件を明示したのは8だけだが、8の予測は Boolean→Float の真偽と<b>独立</b>（全部当たっても外れてもFloatは無傷）。逆に系列が本当に荷重を掛けている 5・6・7 の限界章は非反証的な語で書かれている。<b>いちばん外しやすい論文に反証条件があり、外せない論文には無い。</b></li>
+</ol></div>
+
+<!-- ================= 背骨 ================= -->
+<h2><span class="n">SECTION 01</span>背骨 — 一本の主張と、論文自身のまとまり</h2>
+<p class="sub">背骨＝<b>二値判断（Boolean）を連続値（Float, 0.0–1.0）に置き換える</b>。これは外から押し付けた読みではない。
+5 abstract <q>operate on Boolean logic</q>／6 の title <q>Why AI Rights Require a Float Framework</q>／7 §6.1 <q>Boolean democracy (one person, one vote regardless of proximity)</q>／9 §2.1 節題 <q>Against the Boolean Model of Privacy</q>——少なくともこの4本は自分で名乗っている。</p>
+<p class="sub tight"><b>ただし「土台→軸→応用」という階層は、論文のほうが否定している。</b>だから層ではなく、<b>論文が自分で宣言したまとまり</b>で描いた。</p>
+
+<div class="layers l4">
+  <div class="layer"><div class="lb">SELF-DECLARED</div><div class="lp">四部作</div><div class="ld">D 冒頭 <q>this paper completes the tetralogy</q>。閉じた単位。4つの別々の二値を解く。<br><b>A・B・C・D</b></div></div>
+  <div class="layer"><div class="lb">SELF-DECLARED</div><div class="lp">3G</div><div class="ld">7 abstract <q>unit vectors of a three-dimensional coordinate system</q>。<b>同位</b>を宣言。i=5 / j=7 / k=6。<br><b>5・6・7</b></div></div>
+  <div class="layer"><div class="lb">SELF-DECLARED</div><div class="lp">統合</div><div class="ld">8本すべてを引き、8本すべてに役割を付ける。自称 <q>Paper 9 of 10</q>。同時に §2.1 で土台の動きもする。<br><b>9</b></div></div>
+  <div class="layer orphan" style="border-top-color:#5d4b40"><div class="lb" style="color:#8a5a4a">OBSERVED</div><div class="lp">系譜外</div><div class="ld">自己申告なし。出る線0本・入る線1本。系列語ゼロ。<br><b>8</b></div></div>
+</div>
+
+<div class="warn"><b>3G の内側で、自己記述と引用構造が食い違う。</b>7 abstract は 5・6・7 を同位の単位ベクトルと宣言するが、実際の引用は <b>6→5・7→5・7→6 の一方向だけ</b>。5 は 6 も 7 も引かない（執筆時点で未完のため予告のみ）。
+6 §6.4 は 5 の「原理5」を <q>the evidential basis for kokoro assessment</q> と呼び、7 §6.2–6.3 は 5 の Ideas Ocean と符号理論の議論を自分の測定と弁護に使う。<b>宣言は同位、依存は非対称。</b>図では 5 を一段上に置いたが、それは引用構造の反映であって論文の主張ではない。</div>
+
+<div class="warn" style="margin-top:12px"><b>層の順序 ≠ 発表順。</b>Zenodo DOI の連番は <code>…655(A) …657(B) …661(C) …671(D) …673(5) …676(6) <b>…680(8)</b> …695(7)</code> の順。
+番号上は7の次の8が、登録上は6と7のあいだにある（DOI連番＝登録順であって執筆順の証明ではない、という留保つき）。</div>
+
+<!-- ================= 地図 ================= -->
+<h2><span class="n">SECTION 02</span>系譜図 — 32本の線</h2>
+<p class="sub">線にカーソルを乗せると根拠が下に出る。ノードを押すとその論文の線だけ残る。矢印は「引いている側 → 引かれている側」。</p>
+
+<div class="mapbox">
+  <div class="ctrl">
+    <button class="btn on" id="b-bone">骨組み 19本（明示引用13本を隠す）</button>
+    <button class="btn" id="b-all">ぜんぶ 32本</button>
+    <button class="btn" id="b-reset">選択解除</button>
+    <span class="hint">クリックで固定 / もう一度で解除</span>
+  </div>
+  <div class="mapscroll"><svg id="map" viewBox="0 0 1060 838" role="img" aria-label="Boolean→Float 9論文の系譜図。同じ内容は下の「根拠一覧」の表に32行すべて入っている。"></svg></div>
+  <p class="tblhint">図が読みにくい環境（スマホ・印刷・スクリーンリーダー）では、<a href="#etab">下の根拠一覧の表</a>に同じ32本が種類・逐語引用・出典つきで入っている。図は表の索引であって、表の代わりではない。</p>
+  <div class="legend" id="legend"></div>
+  <div class="ev" id="ev"><div class="idle">線かノードを選ぶと、ここに根拠（本文からの逐語引用と出典箇所）が出る。</div></div>
+</div>
+
+<!-- ================= エッジ表 ================= -->
+<h2><span class="n">SECTION 03</span>根拠一覧 — 引いた線、全部</h2>
+<p class="sub">図をなぞらなくても読めるように、同じ内容を表にした。<b>根拠が空の行は無い</b>。</p>
+<div class="ctrl" style="border:1px solid var(--line);border-radius:6px 6px 0 0;margin-top:14px">
+  <button class="btn on" data-f="all">全部</button>
+  <button class="btn" data-f="骨">構造的依存 12</button>
+  <button class="btn" data-f="逆供給">逆供給 4</button>
+  <button class="btn" data-f="引用">明示引用 13</button>
+  <button class="btn" data-f="予告">予告 2</button>
+  <button class="btn" data-f="自己適用">自己適用 1</button>
+  <span class="hint" id="fcount"></span>
+</div>
+<div class="tscroll"><table id="etab"><thead><tr>
+  <th style="width:78px">線</th><th style="width:92px">種類</th><th style="width:180px">何が繋がっているか</th>
+  <th>根拠（逐語）</th><th style="width:120px">出典</th>
+</tr></thead><tbody></tbody></table></div>
+
+<!-- ================= 論文カード ================= -->
+<h2><span class="n">SECTION 04</span>9本 — 各論文が解体した二値</h2>
+<p class="sub">背骨に対する担当区画と、その根拠。「解体した二値」は各論文の本文から取った。</p>
+<div class="cards" id="pcards"></div>
+
+<!-- ================= 反証負担 ================= -->
+<h2><span class="n">SECTION 05</span>反証はどこにあるか — 思ったところには無い</h2>
+<p class="sub">v1 では「8が系列の反証を引き受けている」と書いた。<b>取り下げる。</b>8 §3.5 の反証条件は「三が認知の既定値か」を問うもので、
+<b>Boolean→Float の真偽と真理関数的に独立</b>している。4件の予測（自由分類の最頻カテゴリ数／諺の数詞頻度／EEG-fMRI署名／人称代名詞の獲得順）が全部当たってもFloatは無傷、全部外れてもFloatは無傷。
+結果が命題と独立な検定は、その命題の検定ではない。</p>
+
+<div class="warn" style="margin-top:14px"><b>本当の非対称はここにある。</b>8は系列から取り外せる——8を消しても、土台の連続性主張も、5の貢献ベクトルも、6の kokoro 勾配も、7の重み関数も、9の decodability も無傷（9は三段構造の事後的な支持を1つ失うだけ）。
+一方、系列が実際に荷重を掛けているのは 5 の符号理論転用・6 の6次元・7 の三軸だが、その失敗モードは非反証的な語で書かれている——7 §8 <q>The three-axis model is a hypothesis</q>／6 §8 <q>difficult to measure with precision</q>。
+<b>明示的な反証条件を持つ論文が最も外しやすく、外せない論文には反証条件が無い。</b></div>
+
+<h3>章の有無は文書構造の事実であって、反証負担の指標ではない</h3>
+<p class="sub">v1 は「限界章が無い＝反証を負っていない」と書いた。これも誤り。符号が逆で、章の不在が示すのは負っていないことではなく<b>果たしていない</b>ことだ。実例を2つ挙げる。</p>
+<div class="tscroll"><table id="reftab"><thead><tr>
+  <th style="width:52px">論文</th><th style="width:150px">限界／反論の章</th><th style="width:120px">明示的な反証条件</th><th>実際に負っているもの（逐語）</th>
+</tr></thead><tbody></tbody></table></div>
+
+<!-- ================= 8 ================= -->
+<h2><span class="n">SECTION 06</span>8はどこにいるか — 支持として引かれ、支持を掘り崩す</h2>
+<p class="sub">paper8「The Ground State of Three」は系譜のなかで異例な位置にいる。ただし v1 が書いた位置とは違う。<b>観測できる事実</b>と、<b>そこから読めること</b>を分けて書く。</p>
+
+<h3>観測（複数回の独立採取で一致）</h3>
+<ul class="nodraw">
+  <li><b>出る線 0 本。</b>参考文献28件に Osada も [Author] も無い。「companion」「forthcoming」「previous work」も全滅。決め手は年号——<b>2025年・2026年の文献が1件も無い</b>。系列内自己引用は必ず2026年になるので、枠が存在しない時点で構造的に不可能。</li>
+  <li><b>入る線 1 本。</b>paper9 §7 のみ。9は他の7本と同じ「--- the X for Y」形式で8にも役割を与えている ——<q>providing theoretical support for the triadic structure of the decodability model (D1, D2, D3) and the three-layer infrastructure (blockchain, NFT, AI)</q>。<b>向きは「支持」。</b>8が正しければ9のアーキテクチャは補強される。</li>
+  <li><b>登録順が番号順とずれる。</b>DOI 連番で 8（…680）は 7（…695）より前、6（…676）の直後。</li>
+  <li><b>Float の語彙がゼロ。</b>Float / continuous value / 0.0 は0件。Boolean は出るが <q>The Boolean satisfiability problem (SAT)</q>（§4.3, 3-SAT）の意味のみ。「Morphology」も出るが <q>Propp, V. (1928/1968). Morphology of the Folktale</q>。<b>語が出ることと系列を引いていることは別。</b></li>
+  <li><b>系列で唯一、明示的な反証条件を持つ。</b>§3.5 Falsifiability に4件。他の8本はゼロ。</li>
+</ul>
+
+<h3>読める向き（1）—— 支持が支持を掘り崩す</h3>
+<div class="warn"><b>9は8を「三段構造の理論的支持」として引く。ところが8は、三分類を真理追跡的な応答ではなく認知の都合として説明する。</b><br>
+8 §6.1: <q>The three states of matter (solid, liquid, gas) are not a physical law but a cognitive convenience. The underlying reality is a continuous spectrum of molecular configurations; humans <b>impose</b> a triadic classification because three is the ground-state resolution of categorization.</q><br><br>
+つまり8を支持として引くと、8はこう言うことになる——<b>「9が三を選んだのは対象が三だからではなく、著者が人間だから」</b>。warrant が調達先によって掘り崩される。
+同じ刃は 7 の三軸（空間感覚・時間経験・所有親密）にも 9 の三層（blockchain・NFT・AI）にも向く。8が系列にとって危険なのは事実だが、<b>危険の所在は「Float の限界」ではなく「系列に遍在する三分割の恣意性」</b>。</div>
+
+<h3>読める向き（2）—— 8は制約を主張していない</h3>
+<p class="sub">v1 は8を「Float の使用限界」と読んだ。その読みには<b>記述（人間の既定解像度は3）から規範（設計はその解像度に従うべき）への橋</b>が要る。8はその橋を架けていない。むしろ逆で、
+§6.2 <q>The choice between three and four is <b>a design decision</b> expressing whether closure or openness is desired.</q> ——バンド数は制約ではなく設計者が選ぶ量として書かれている。
+8を「Float の限界」と読むこと自体は可能だが、<b>それは読者の追加命題であって8の主張ではない</b>。この図はその橋を架けない。</p>
+
+<!-- ================= satori ================= -->
+<h2><span class="n">SECTION 07</span>satori の4人 — 5〜9 に人格は要るのか（材料のみ）</h2>
+<p class="sub">satori は炎=欲望(A) / 環=循環(B) / 鏡=多元(C) / 芽=資本(D) の4賢人。
+ソースで確認したところ、各 system prompt の1行目に英語の論文タイトルが直書きされており、<code>.sage-domain</code> が literal に「Paper A」〜「Paper D」。対応は仕様として確定している。
+5〜9 は<b>1文字も出てこない</b>。ただし paper5 だけは別扱いで、subtitle が <q>開眼系AI賢人 — The Genetics of Ideas 実証実験</q>。<b>5は賢人ではなく、舞台のほうに実装されている。</b></p>
+
+<div class="two">
+  <div class="box pro"><h4>4人で足りる、と読める材料</h4><ul>
+    <li><b>A–Dは自己申告で閉じている。</b>paper D 冒頭 <q>this paper completes the tetralogy</q>、§7 <q>四部作は完結する。</q> satori の meta description も <q>四部作の思想を語る四人の賢人</q>。4は恣意的な数ではなく、閉じた単位を写している。</li>
+    <li><b>A–Dは「姿勢」の論文、5〜9は「装置」の論文。</b>D §6.1 が4本を問いの形で並べる ——「何を望むか(A) / 系はどう続くか(B) / 多真理をどう渡るか(C) / なぜ作るのか(D)」。人格が背負えるのは姿勢のほう。5の貢献ベクトル、6のkokoro vector、7の V(r)、9の E=D1×D2×D3×I は測定器で、対話相手に憑依させにくい。</li>
+    <li><b>背骨はすでに鏡が喋っている。</b>多元の賢人の system prompt に <q>boolean判定（善/悪、正/誤）をfloat判定（グラデーション）に置き換える</q> がそのまま入っている。paper C 本文には Boolean / Float の語が1度も無いのに、である。＝著者は C を Boolean→Float 論文として運用している。</li>
+    <li><b>設計が「週1問」の希少性で出来ている。</b>トークン回復は 604,800,000ms（7日）、賢人1人300字以内。4人で1200字。9人なら2700字で、「考え抜いたたったひとつの問い」に対する返しとしては過積載になる。</li>
+    <li><b>paper8 が増員に反対する。</b>§6.2 <q>Three closes: it provides sufficiency, pattern, and structural stability. Four opens: it introduces the possibility of 'beyond.'</q> ＋ §3.1 人は3超を3へ圧縮する。4は「開く数」としてすでに限界的で、9は圧縮対象になる。</li>
+  </ul></div>
+
+  <div class="box con"><h4>4人では足りない、と読める材料</h4><ul>
+    <li><b>5〜9が解体した二値には、担当する顔がいない。</b>帰属(5)・道徳的地位(6)・注意の重み(7)・認知解像度(8)・復号可能性(9)。「このAIに心はあるか」と訊かれても、心の賢人がいない。「このアイデアは誰のものか」は芽（資本）が近いが、芽が持っているのは思想資本であって台帳ではない。</li>
+    <li><b>5・6・7は三点セットとして設計されている。</b>paper7 abstract <q>The Genetics of Ideas (i), The Gravity of Jizai (j), and The Gradient of Kokoro (k)—form unit vectors of a three-dimensional coordinate system</q>。5だけを舞台に上げると、6と7は座標系から片方だけ抜かれた状態になる。</li>
+    <li><b>9だけが8本すべてに線を持つ。</b>統治・プライバシーの問いに答えられるのは9の位置にいる人格だけで、いまの4人は誰も鍵の話ができない。ただしこれは9が最後発であることの時間的帰結でもあり、「統合」という地位の独立した証拠にはならない。</li>
+    <li><b>7が「重み」を持っている。</b>satori は4人が等しく答える＝重み一定。paper7 §6.1 <q>This contrasts sharply with both Boolean democracy (one person, one vote regardless of proximity)</q>。4人等重の返答は、7の主張とだけは正面から食い違う。</li>
+    <li><b>8のためのパラドクス。</b>8に賢人を立てると、その賢人の主張が「賢人を増やすな」になる。8を人格にできないこと自体が、8が系譜の外にいることの別証明になっている。</li>
+  </ul></div>
+</div>
+
+<h3>取りうる形（決めない・材料として3つ）</h3>
+<div class="shape"><div class="st">形1 — 4人のまま、舞台だけ差し替える</div>
+<div class="sd">人格は増やさず、いまの「The Genetics of Ideas 実証実験」というフレームを別の論文に読み替える。5は舞台に居続けるか、9（統合／鍵）に譲る。</div>
+<div class="sc">効くところ: 週1問の希少性設計を壊さない。paper8 の3圧縮則とも衝突しない。／ 弱いところ: 6・7・8・9 は依然として顔なし。</div></div>
+
+<div class="shape"><div class="st">形2 — 4+1。統合の賢人（鍵 = paper9）を司会に置く</div>
+<div class="sd">9は系譜上、8本すべてに線を持つ。「まずどの賢人に訊くべきか」を割り振る役としての足場はある。答えるのは4人のまま。</div>
+<div class="sc">効くところ: 出力量を増やさずに5〜9側の入口が開く。／ 弱いところ: 5人＝3圧縮則からさらに遠い。「開眼系＝答えをくれない」設計に司会という権威が1人増える。</div></div>
+
+<div class="shape"><div class="st">形3 — 3G（5・6・7）を別の器に出す</div>
+<div class="sd">5・6・7 は i / j / k の座標系として自己宣言されている。人格ではなく<b>3軸の計測器</b>として satori とは別のツールにする。8はそのツールの設計則（band=3）として裏側に置く。</div>
+<div class="sc">効くところ: 測定器を対話に混ぜずに済む。8が「使われる」場所ができる。／ 弱いところ: 器が2つに増える。satori 側は永久に四部作専用になる。</div></div>
+
+<!-- ================= 引かなかった線 ================= -->
+<h2><span class="n">SECTION 08</span>引かなかった線</h2>
+<p class="sub">「引ける気がするが根拠が無い」ものを、根拠が無いこととして残す。ここが空だと系譜は嘘になる。</p>
+<ul class="nodraw">
+  <li><b>A → どこにも無し。</b>参考文献14件すべて外部。系列内自己引用ゼロ。唯一の自己言及は <q>The author's philosophical framework was developed over a series of essays published on the Japanese platform Note</q> で、指しているのは note.com の随筆であって論文ではない。<b>Aは根であって、根から出る線は無い。</b></li>
+  <li><b>8 → どこにも無し。</b>参考文献28件に系列内引用ゼロ、2026年の文献ゼロ。8→5, 8→6 は内容的には引けそうに見えるが（3値カテゴリ vs Float、認知容量 vs kokoro 6次元）、<b>テキスト上の根拠が1文字も無いので引かない。</b>紛らわしい空振り2件（Propp の Morphology / Boolean satisfiability）も線にしない。</li>
+  <li><b>7 → 8、および 5/6 → 7以降。</b>いずれも当該論文の執筆時点で相手が未完。5→6 と 6→7 は「本文で名指し・参考文献 entry 無し」という半端な形で残っており、これは<b>予告</b>として別の線種にした。実線にすると引用実績を偽装することになる。</li>
+  <li><b>B → C以降。</b>Bは唯一 A のみを引く。Bを系列のハブに描きたくなるが、根拠が無い。
+<br>ただし<b>B自身がここで矛盾している</b>のは記録しておく価値がある。脚注03は <q>The argument here is independent of the wider Boolean-to-Float series in which it sits.</q> と系列からの独立を宣言しながら、
+同じページの Abstract と §1.2 でコンパニオン論文（＝A）を2回引いており、脚注の後半では <q>referred to a forthcoming volume</q> と系列の巻物にまで言及している。
+<b>依存を否認しながら依存している。</b>図では B→A を実線で引き、独立宣言は注記として残した——どちらか一方を消すと嘘になる。</li>
+  <li><b>satori 4賢人 → 論文ページへのリンク。</b>satori のソースには <code>/paper-a/</code> 等へのリンクが1本も無く、<code>/papers/</code> へのリンクも無い。逆に <code>/papers/</code> から <code>/satori/</code> へのリンクも無い。<b>2ページは現状どちらの向きにも繋がっていない。</b>「対応している」のは system prompt のタイトル文字列だけ。</li>
+</ul>
+
+<h2><span class="n">SECTION 09</span>読むときの注意（採取上の留保）</h2>
+<ul class="nodraw">
+  <li><b>逐語引用は公開HTMLからの機械採取。</b>複数パスで交差確認したが、単一パスでしか取れなかった文はごく僅かに転記ぶれの可能性がある。図の線の存否と種類は複数パスで一致した箇所のみ採用している。</li>
+<li><b>「無い」の証明だけは強度が一段落ちる。</b>「Aは系列内引用ゼロ」「8は系列内引用ゼロ」という2つの否定命題は、変換済みテキストに対する複数回の独立検索が一致した結果であって、生HTMLへの文字列 grep ではない。
+各3回の別プロンプトによる敵対的再検証で覆らず、さらに「参考文献に2026年のエントリが存在しない」という構造的裏づけも取れているが、<b>厳密な確定には生HTMLの grep が要る</b>。ここは断定していない。</li>
+  <li><b>A・B・C・D・5・6・9 は盲検のため著者名が <code>[Author]</code> に置換されている。</b>「Osada」名義で引いているのは7だけ。B は参考文献側でタイトルも <code>[Companion paper title redacted for blind review]</code> と伏せられており、B→A の同定は本文 <q>a companion paper ([Author] 2026) argued that desire has an internal morphology</q> がAのタイトルの言い換えであることによる。<b>この1本だけ、同定に一段の推論が入っている</b>ので、線種を分けずに注記した。</li>
+  <li><b>paper7 §4 に引用番号の食い違いがある。</b><q>In the companion paper (Osada, 2026f), curiosity was defined as the white light of the mind</q> ——「curiosity＝白色光」は 2026d（Thought-Capital）の概念で、2026f（Gradient of Kokoro）ではない。2回の独立採取でどちらも 2026f と読めた。<b>原文側の誤植の可能性。人の目で要確認。</b>系譜図では 7→D の線として扱っている。</li>
+  <li><b>paper8 のタイトルはコロンで終わっている。</b>H1・&lt;title&gt; ともに <q>The Ground State of Three:</q> でサブタイトルが欠落。<code>spec-to-html v0.2</code> のビルド不具合と思われる。</li>
+  <li><b>paper9 は自分を <q>Paper 9 of 10</q> と書いている。</b>10本目は本図に無い（未公開）。9が終点に見えるのは現時点の話。</li>
+</ul>
+
+<h3>訂正履歴 — v1 (2026-08-02) で壊れていた5箇所</h3>
+<p class="sub">消さずに残す。どこで間違えたかが、この図の線の信用の一部だから。v1はすべて「1回の機械採取を裏取りせずに構造化した」ことが原因。</p>
+<div class="tscroll"><table><thead><tr><th style="width:150px">v1の主張</th><th style="width:88px">判定</th><th>何が起きていたか</th></tr></thead><tbody>
+<tr><td style="font-weight:600">9 §7 は8にだけ役割記述を付けない（＝名目的言及）</td><td><span class="pill" style="color:#c44e4e">誤り</span></td>
+<td class="q">採取が文の途中で切れていた。実際には <q>--- providing theoretical support for the triadic structure of the decodability model (D1, D2, D3) and the three-layer infrastructure (blockchain, NFT, AI).</q> が続く。8本すべてに役割がある。<b>これを土台に「8は系譜の外＝反証担当」まで積み上げていたので、崩れた範囲が最も広い。</b></td></tr>
+<tr><td style="font-weight:600">8がFloatの使用限界を担当している</td><td><span class="pill" style="color:#c08a6a">読みすぎ</span></td>
+<td class="q">8はFloatに1度も触れず、§6.2 で3か4かを <q>a design decision</q> と書く。§3.5 の反証条件も Boolean→Float と独立。記述→規範の橋は読者側の追加命題だった。</td></tr>
+<tr><td style="font-weight:600">7→A は系譜で唯一の逆供給。Aは機構を書いていない</td><td><span class="pill" style="color:#c44e4e">二重に誤り</span></td>
+<td class="q">7 §7 は<b>四本すべて</b>に供給する（A=mechanical explanation / B=force / C=topology / D=economics）。そしてAは自前の機構を持つ ——§2.4 <q>The void does not fill; it recalibrates.</q>。7自身も §3 で <q>neither to rediscover the emptiness nor to re-describe the circulation</q> と認めている。正しくは<b>機構の並立（過剰決定）</b>。</td></tr>
+<tr><td style="font-weight:600">土台(A–D) → 軸(5) → 応用(6・7) の階層</td><td><span class="pill" style="color:#c44e4e">論文が否定</span></td>
+<td class="q">7 abstract <q>unit vectors of a three-dimensional coordinate system</q>＝5・6・7は同位。しかも v1 は satori の節でこの引用を自分で使っておきながら図では階層に置いており、<b>ページ内で矛盾していた</b>。9 §2.1 <q>Against the Boolean Model of Privacy</q> も土台の動きなので、層は排他でもない。</td></tr>
+<tr><td style="font-weight:600">DはBooleanな著者性を宣言。5がそれを測り直した／AとBは限界を負っていない</td><td><span class="pill" style="color:#c08a6a">読みすぎ</span></td>
+<td class="q">Dの当該文は <q>Use of AI Assistance:</q> 配下でAIの仕事を4項目に分解済み、しかも <q>The collaboration between author and AI … is itself evidence for the framework it describes</q> と既に反照的。5 §9 も <q>an informed judgment, not a measurement</q> と「測る」を拒否。Bも §4.4 に <q>a structural analogy, not a complete account</q> がある。<b>章の不在＝負担の不在、ではなかった。</b></td></tr>
+</tbody></table></div>
+
+<div class="warn" style="margin-top:16px"><b>この図の作り方（v2）。</b>①9本を各4〜9パスで逐語採取 → ②主要8命題を独立の懐疑エージェントで反証試行（全件CONFIRMED）→ ③論理観点の懐疑エージェントで<b>推論そのもの</b>を反証試行（ここで上記5件が崩れた）→ ④崩れた箇所を一次ページに戻って再確認 → ⑤書き直し。
+機械ゲート（publish-gate v0.3.1）は EXIT 2 / WARN のみで通ったが、そのWARNが叩いた語は「唯一」15箇所で、skeptic が偽と示した箇所と重なっていた。<b>機械ゲートは正しく鳴っていた。</b></div>
+
+<footer>
+  長田謙志郎 / Kenshiro Osada — Independent Philosopher &amp; Web Developer ·
+  <a href="https://orcid.org/0009-0004-9167-3186" target="_blank" rel="noopener">ORCID</a> ·
+  <a href="/papers/">Papers</a> ·
+  <a href="/satori/">SATORI</a> ·
+  <a href="https://osakenpiro.github.io/">osakenpiro</a><br>
+  <span style="color:#4a505b">このページが描くのは、論文どうしの関係と、その根拠の強さ。論文9本の本文は1文字も書き換えていない。 #全人類UX改善</span>
+</footer>
+</div>
+
+<script>
+/* ============================ DATA ============================ */
+const KINDS={
+ '骨'      :{c:'var(--k-bone)', w:3.2, d:null,     label:'構造的依存', desc:'後続が先行の部品を実際に使っている（約束の履行・器と中身・支持の調達）'},
+ '逆供給'  :{c:'var(--k-back)', w:2.6, d:null,     label:'逆供給',     desc:'後続が先行に機構を供給している。ふつう説明は先行→後続へ流れるが、これは逆流。矢印の向きは引用と同じ'},
+ '引用'    :{c:'var(--k-cite)', w:1.5, d:null,     label:'明示引用',   desc:'参考文献リストに entry があり、本文で要約されている'},
+ '予告'    :{c:'var(--k-pre)',  w:1.8, d:'7 5',    label:'予告',       desc:'本文で名指しされているが参考文献 entry が無い（執筆時点で相手が未完）'},
+ '自己適用':{c:'var(--k-self)', w:2.2, d:'2 4',    label:'自己適用',   desc:'後続が先行を含む自シリーズを、自分の道具の適用対象にしている'}
+};
+
+const NODES=[
+ {id:'A',badge:'A',t:'The Morphology of Desire',j:'欲望の形態論',layer:'四部作',x:250,y:110,
+  url:'/paper-a/',doi:'10.5281/zenodo.19106655',
+  binary:'実在／シミュレーション、意識／非意識',
+  bq:'If simulation fidelity is a continuous variable, then the boundary between "simulation" and "reality" is not a boundary at all but a gradual transition. … If consciousness is a gradient, then the ethical obligations we hold toward conscious systems should also be gradient—not all-or-nothing, but proportional.',
+  bqj:'シミュレーションの忠実度が連続量なら、「シミュレーション」と「現実」の境界は境界ではなく緩やかな移行になる。……意識が勾配なら、意識ある系に対して我々が負う倫理的義務もまた勾配であるべきだ——全か無かではなく、比例的に。',
+  bl:'A §4.3',
+  role:'背骨の根。ただし Boolean / Float の語は1度も使わない。「gradient / continuous variable / not all-or-nothing」だけで同じ動きをしている。',
+  give:'gentle gene（明晰さを継がせる）／ satiation transparency ／ simulation gradient',
+  ref:'系列内引用ゼロ（参考文献14件すべて外部）。限界・反証・スコープの章なし（§5.3 は外向きの批判）'},
+
+ {id:'B',badge:'B',t:'The Circulation of Alignment',j:'制御ではなく循環',layer:'四部作',x:460,y:110,
+  url:'/paper-b/',doi:'10.5281/zenodo.19106657',
+  binary:'脱出速度の閾値（届く／落ちる）',
+  bq:'A watershed has no critical-velocity threshold; it has a gradient topology. … Where a projectile either falls or orbits, a watershed always flows; the question is which path it takes.',
+  bqj:'流域には臨界速度の閾値が無い。あるのは勾配の地形だ。……射出体は落ちるか周回するかのどちらかだが、流域は常に流れている。問いはどの経路を取るかだ。',
+  bl:'B §4.1',
+  role:'閾値を地形に置き換える。「A taboo looks like a rule but functions like a gene. It shapes tendency, not outcome.」＝規則(0/1)を傾向(連続)へ。',
+  give:'循環＝複雑系の必要十分条件／ soft governance（禁止でなく傾向）／ 好奇心＝循環の駆動力',
+  ref:'A のみ（匿名化1件）。脚注03で系列からの独立を宣言しつつ、Abstract と §1.2 でそのAを2回引く'},
+
+ {id:'C',badge:'C',t:'The Jianghu Principle',j:'江湖・道徳的多元主義',layer:'四部作',x:670,y:110,
+  url:'/paper-c/',doi:'10.5281/zenodo.19106661',
+  binary:'道徳一元論／道徳相対主義',
+  bq:'A morally monistic AI is an AI at absolute zero. Its value function is frozen. … The moral wanderer AI — the jianghu ke — engages authentically with multiple frameworks without collapsing them into one.',
+  bqj:'道徳的に一元的なAIとは絶対零度のAIである。その価値関数は凍っている。……道徳の遊侠——江湖客——は、複数の枠組みをひとつに畳まずに、それぞれと本気で付き合う。',
+  bl:'C §5.2 / §5.1',
+  role:'「唯一の正解に合わせる」を否定して、Float が必要になる政治的地盤を作る。本文に Boolean/Float の語は無いが、satori の多元の賢人の prompt には入っている。',
+  give:'複数正義の共存／ 遊侠＝渡り歩く姿勢／ 退出オプション',
+  ref:'A・B（[Paper A][Paper B] と明記）'},
+
+ {id:'D',badge:'D',t:'Thought-Capital',j:'思想資本・戦術的実体化',layer:'四部作',x:880,y:110,
+  url:'/paper-d/',doi:'10.5281/zenodo.19106671',
+  binary:'枠組みの真／偽（対応説の真理）',
+  bq:'The value of each framework lies not in its correspondence to some framework-independent reality but in what it enables. … it is, precisely, a choice of framework. A reification … whether it will be permanent … or tactical.',
+  bqj:'各枠組みの価値は、枠組みから独立した実在との対応にではなく、それが何を可能にするかにある。……それはまさしく枠組みの選択だ。その実体化を恒久的なものにするのか、戦術的なものに留めるのか。',
+  bl:'D §3.4 / §5.2',
+  role:'四部作の締め。何が希少資源かを決める（＝Float を回す燃料）。一方で著者性については Boolean を宣言していて、それを5が測り直す。',
+  give:'thought-capital（思想資本）／ 戦術的実体化／ パンダ原理／ Tier 1-2-3',
+  ref:'A・B・C（tetralogy 完結宣言）'},
+
+ {id:'5',badge:'5',t:'The Genetics of Ideas',j:'貢献の帰属をトークンへ',layer:'3G',x:565,y:300,axis:1,
+  url:'/paper5/',doi:'10.5281/zenodo.19106673',
+  binary:'著者／非著者（原著性・引用の有無・投票の可否）',
+  bq:'None of these sources is "the author" in the Boolean sense. All of them are contributors in the float sense. … Contributions are represented as continuous values in [0, 1] that sum to 1.0 for any given artifact.',
+  bqj:'これらの源のどれひとつとして、Booleanの意味での「著者」ではない。すべてがfloatの意味での寄与者である。……寄与は [0,1] の連続値で表され、任意の成果物について総和は 1.0 になる。',
+  bl:'5 §3.3 / §5.1 原理2',
+  role:'背骨に外部の数学を持ち込む唯一の論文。ただし<b>保証ではなく類推</b>。5 §4.1 の 2–3 dB は「For a binary symmetric channel」——既知のチャネル・既知の雑音・送信符号語という基底真理・定義されたSNRの上での定理。帰属や権利の判断には復号すべき送信符号語もSNRも無い。にもかかわらず 5 §1 は「This is not a matter of opinion. It is a theorem.」、§4.1 は「provides a rigorous mathematical framework」と無限定に書き、§9 の限界4件（measurement / surveillance / gaming / power）はすべて実装リスクで、<b>転用そのものの妥当性を問う項目が1件も無い</b>。',
+  give:'貢献ベクトル／ Visionium トークン／ Ideas Ocean（埋め込み距離）／ soft-decision の保証',
+  ref:'A・B・C・D（+ 6 を本文予告）'},
+
+ {id:'6',badge:'6',t:'The Gradient of Kokoro',j:'AIの権利はFloatで',layer:'3G',x:360,y:470,
+  url:'/paper6/',doi:'10.5281/zenodo.19106676',
+  binary:'人格／非人格（権利あり／なし）',
+  bq:'Anthropic was offering something like 0.85 … The system could not encode 0.85. It could only encode 0 or 1. … So 0.85 was rounded down to 0.',
+  bqj:'Anthropicが差し出していたのは 0.85 のような値だった。……その仕組みは 0.85 を書けなかった。0 か 1 しか書けなかった。……だから 0.85 は 0 に切り捨てられた。',
+  bl:'6 §1',
+  role:'Float を「誰が参加してよいか」に通す。心を6次元ベクトル K=(k₁…k₆), kᵢ∈[0,1] に置き換え、主観的経験を問わず観測可能な過程だけで測る。',
+  give:'kokoro vector（6次元）／ 参加ベクトル P／ gradient community',
+  ref:'A・B・C・D・5（+ 7 を本文予告）'},
+
+ {id:'7',badge:'7',t:'The Gravity of Jizai',j:'認知的重力と存在の重さ',layer:'3G',x:775,y:470,
+  url:'/paper7/',doi:'10.5281/zenodo.19106695',
+  binary:'一人一票（重み固定）／ 近さに関わらず等価',
+  bq:'This contrasts sharply with both Boolean democracy (one person, one vote regardless of proximity) and plutocratic models … not "how much money do you have?" but "how close is this issue to your existential center?"',
+  bqj:'これはBooleanな民主主義（近さに関わらず一人一票）とも金権モデルとも鋭く対立する。……問うのは「いくら持っているか」ではなく「その問題はあなたの存在の中心にどれだけ近いか」だ。',
+  bl:'7 §6.1',
+  role:'6が空欄にした重み関数を埋める。三軸（空間感覚・時間経験・所有親密）の原点からの距離の逆数が存在の重さ。F ∝ W×d、V(r)=4ε[(σ/r)¹²−(σ/r)⁶]。加えて §7 が<b>四部作4本すべてに機構を配る</b>——Aに mechanical explanation、Bに force、Cに topology、Dに economics。系列で最も「先行に与えている」論文。',
+  give:'認知的重力／ Emptyfall（空の特異点）／ ドーナツ人格論／ 近接=重み',
+  ref:'A・B・C・D・5・6（系列で唯一「Osada」名義で引く。8は引かない）'},
+
+ {id:'9',badge:'9',t:'The Decryption Key',j:'プライバシーは復号可能性',layer:'統合',x:470,y:620,
+  url:'/paper9/',doi:'10.5281/zenodo.19199471',
+  binary:'保護／露出（同意の有無）',
+  bq:'The problem is not that data flows. The problem is who holds the key to decode it. … E = D1 × D2 × D3 × I',
+  bqj:'問題はデータが流れることではない。問題は、それを復号する鍵を誰が持っているかだ。……期待被害 E = D1 × D2 × D3 × I。',
+  bl:'9 §1 / §2.2',
+  role:'統合ノード。8本すべてを引き、8本すべてに「--- the X for Y」形式で役割を割り当てる。ページ自体が「Boolean→Float #9 / Paper 9 of 10」と系列名を掲げる。ただし §2.1 の節題は「Against the Boolean Model of Privacy」で、<b>四部作と同じ土台の動きもしている</b>——統合であると同時に第5の土台。層は排他的でない。',
+  give:'decodability／ お天道様アーキテクチャ／ 積分民主主義（Σ→∫）／ data genome',
+  ref:'A・B・C・D・5・6・7・8（＝全部）'},
+
+ {id:'8',badge:'8',t:'The Ground State of Three',j:'認知の基底状態は三',layer:'系譜外',x:875,y:745,orphan:1,
+  url:'/paper8/',doi:'10.5281/zenodo.19106680',
+  binary:'（二値を解体していない。Float / continuous value / 0.0 は本文に0件。Boolean も SAT の意味のみ）',
+  bq:'The three states of matter (solid, liquid, gas) are not a physical law but a cognitive convenience. The underlying reality is a continuous spectrum of molecular configurations; humans impose a triadic classification because three is the ground-state resolution of categorization.',
+  bqj:'物質の三態（固体・液体・気体）は物理法則ではなく認知の都合である。その下にある実在は分子配置の連続スペクトルだ。人間が三分類を課すのは、三が分類の基底状態の解像度だから。',
+  bl:'8 §6.1',
+  role:'系譜の外。出る線0本・入る線1本、その1本は9からの「支持」。<b>8はFloatについて何も言っていない</b>——Float / continuous value / 0.0 は0件、Boolean は SAT の意味のみ。8 §6.2 は3か4かを「a design decision expressing whether closure or openness is desired」＝設計者が選ぶ量と書いており、制約とは書いていない。系列で唯一の反証条件（§3.5）を持つ論文ではあるが、その条件は「三が既定か」を問うもので Boolean→Float の真偽とは独立している。「8はどこにいるか」の節を参照。',
+  give:'Ground State Hypothesis／ 下方圧縮 n&gt;3→3・上方展開 n&lt;3→3／ 観測者＝第三項／ 反証条件4件',
+  ref:'系列内引用ゼロ（参考文献28件すべて外部）'}
+];
+
+const EDGES=[
+/* --- 四部作 --- */
+{f:'B',t:'A',k:'骨',w:'gentle gene を受け取り、その駆動力を curiosity と特定',
+ q:'The companion paper proposed the "gentle gene" — a design principle for AI grounded in clarity rather than obedience. This paper identifies the driving force of that gene: curiosity.',
+ loc:'B §4.4',
+ n:'Bの参考文献は「[Author] (2026). [Companion paper title redacted for blind review]. Submitted.」1件のみ＝盲検で伏せられている。Aと同定できるのは本文「a companion paper ([Author] 2026) argued that desire has an internal morphology」がAのタイトルの言い換えだから。32本のうちこの1本だけ、同定に一段の推論が入る。'},
+
+{f:'C',t:'A',k:'引用',w:'欲望＝対象でなく形、を土台として受ける',
+ q:'Paper A established that desire has shape, not object — that the internal morphology of wanting determines experience more than external conditions do.',
+ loc:'C §1.5 / 参考文献26「[Author] (2026a) … [Paper A]」',
+ n:'Cは参考文献側に「[Paper A]」「[Paper B]」と角括弧で系列記号を明記している。系列であることを最初に紙面に出したのはC。'},
+
+{f:'C',t:'B',k:'引用',w:'循環＝持続の条件、を土台として受ける',
+ q:'Paper B argued that sustainable systems require circulation, not control — that the attempt to fix outcomes produces fragility, while dynamic circulation produces resilience.',
+ loc:'C §1.5 / 参考文献27',
+ n:'C §1.5 は「A が形、B が循環、C が認識」と自分を三段目に置き、§6 で四本目に前振りする。四部作は C の時点で設計されている。'},
+
+{f:'D',t:'A',k:'引用',w:'gradient / binary の語をAの主張として引き渡す',
+ q:'Paper A used this to argue that desire operates as a gradient, not a binary.',
+ loc:'D §3.3',
+ n:'Dの本文で採取できた「binary」はこの1箇所だけ（全文 grep ではないので断定はしない）。しかもDは自分の主張としてではなくAの主張として書いている。ただしA本文にも Boolean / Float の語は無く、Aが使うのは gradient / continuous variable / not all-or-nothing。'},
+
+{f:'D',t:'B',k:'骨',w:'Dの自己反論（Tier 3 Objection）への回答をBから借りる',
+ q:'Paper B has already answered: through feedback, fluctuation, and freedom.',
+ loc:'D §5.1',
+ n:'Dは「AIがTier 3（枠組み生成）に到達したら思想資本＝人間固有という中心主張は崩れるか」を自分で立て、その防衛の最後の一手をBから取る。Dの自己防衛はBに構造的に依存している。'},
+
+{f:'D',t:'C',k:'引用',w:'還元不能な道徳的多元性を前提条件として組み込む',
+ q:'And only if the system accommodates irreducible moral plurality (C).',
+ loc:'D §6.2',
+ n:'D §6.1「The Complete Framework」が四本を問いの形で並べる ——A=何を望むか / B=系はどう続くか / C=多真理をどう渡るか / D=なぜ作るのか。satori 4賢人はこの整理をそのまま人格にしたもの。'},
+
+/* --- 5 --- */
+{f:'5',t:'A',k:'引用',w:'欲望＝循環するパターン（欠如でなく）',
+ q:'The Morphology of Desire ([Author], 2026a) examined the structure of human wanting, arguing that AI-mediated satiation reveals desire as a circulating pattern rather than a deficit to be filled.',
+ loc:'5 §7 / 参考文献16',
+ n:'5 §7「Connection to the Tetralogy」は以後 6・7・9 にも同名の章として現れ、系列の接続作業が定型化する。'},
+
+{f:'5',t:'B',k:'引用',w:'制御から循環へ',
+ q:'The Circulation of Alignment ([Author], 2026b) argued for a shift from control-based to circulation-based AI alignment, drawing on Matagi hunter ethics and Miyazawa Kenji.',
+ loc:'5 §7 / 参考文献17', n:'—'},
+
+{f:'5',t:'C',k:'引用',w:'道徳枠組み自体が思想資本である',
+ q:'The Jianghu Principle ([Author], 2026c) demonstrated that moral frameworks are themselves thought-capital: inherited, mutated, and differentially selected across cultures.',
+ loc:'5 §7 / 参考文献18',
+ n:'この一文は 6 §7 にもほぼ同文で現れる。連結章がテンプレート化している証拠で、5→C と 6→C は独立に書かれた評価ではない。'},
+
+{f:'5',t:'D',k:'骨',w:'Dが名付けた希少資源を、5が数える台帳にする',
+ q:'Thought-Capital ([Author], 2026d) introduced the foundational concept: in an era of near-zero execution cost, the scarce resource is the generation of genuinely novel frameworks.',
+ loc:'5 §7 / 参考文献19',
+ n:'5の副題が「A Token-Based Attribution System for Thought-Capital Circulation」。Dの中心概念がそのまま5の対象語になっている。5はDが無いと数える対象を失う。'},
+
+{f:'5',t:'D',k:'自己適用',w:'5が四部作そのものを貢献ベクトルに分解する',
+ q:'Consider a concrete example. The author’s tetralogy of papers ([Author], 2026a–d) might carry an approximate contribution vector of: Buddhist philosophy 0.25 / information theory 0.10 / Yogacāra phenomenology 0.10 / Miyazawa 1927 0.05 / wuxia literary tradition 0.05 / personal experience as an ADHD developer 0.15 / prior academic literature 0.15 / AI collaboration 0.10 / miscellaneous 0.05',
+ loc:'5 §3.3',
+ n:'⚠ v1ではこれを「DのBoolean的な著者性宣言を5が測り直した」と書いた。取り下げる。Dの当該文は「Use of AI Assistance:」という見出しの配下にあり、AIの仕事を4項目（下書き・再構成・論証の穴の指摘・四本間の整合確認）に分解したうえで original concepts だけを留保する二層構造になっている。しかも同じノートに「The collaboration between author and AI that produced this paper series is itself evidence for the framework it describes」がある。Dはすでに反照的。5 §3.3 は訂正ではなく続き。さらに5 §9 は「this is an informed judgment, not a measurement」と明言しており、「測る」という語も5自身が拒否している。線は残す（5が四部作を自分の道具の対象にしたのは事実）が、対立という読みは消す。'},
+
+{f:'5',t:'6',k:'予告',w:'「何が循環するか」の次に「誰が参加してよいか」を置く',
+ q:'The Genetics of Ideas provides the "what" (what circulates, how it is tracked); The Gradient of Kokoro provides the "who" (who may participate, with what standing).',
+ loc:'5 §7（本文のみ・参考文献 entry 無し）',
+ n:'5の執筆時点で6は未完。参考文献に載っていないので実線にしない。'},
+
+/* --- 6 --- */
+{f:'6',t:'A',k:'骨',w:'6の冒頭思考実験は A §4.3 シミュレーション勾配の変奏',
+ q:'This thought experiment, a variation of which was introduced in the author’s earlier work on simulation gradients ([Author], 2026a, Section 4.3), is not science fiction.',
+ loc:'6 §2 / 参考文献 2026a',
+ n:'節番号まで指定されている系列内で最も精度の高い引用のひとつ。6の入口（The Digitized Man）がAの一節から出ている＝装置ではなく素材レベルの継承。'},
+
+{f:'6',t:'B',k:'引用',w:'制御から循環へ（マタギ）',
+ q:'argued for a shift from control-based to circulation-based AI alignment, drawing on the ethics of Japanese Matagi hunters',
+ loc:'6 §7 / 参考文献 2026b', n:'—'},
+
+{f:'6',t:'C',k:'引用',w:'道徳枠組み自体が思想資本である',
+ q:'demonstrated that moral frameworks are themselves thought-capital: inherited, mutated, and differentially selected across cultures',
+ loc:'6 §7 / 参考文献 2026c', n:'5 §7 の C 要約と一字一句ほぼ同文。'},
+
+{f:'6',t:'D',k:'引用',w:'好奇心＝心の白色光',
+ q:'As argued in the author’s prior work ([Author], 2026d), curiosity is the white light of mind.',
+ loc:'6 / 参考文献 2026d', n:'D §4.3「感情は好奇心がプリズムを通って屈折したもの」を短縮して受けている。'},
+
+{f:'6',t:'5',k:'骨',w:'5の台帳（Visionium 原理5）が6の測定根拠になる',
+ q:'When an AI system contributes to an intellectual artifact, its contribution is recorded as a float value in the Visionium attribution vector (Principle 5 of [Author], 2026e). This attribution provides the evidential basis for kokoro assessment.',
+ loc:'6 §6.4 / 参考文献 2026e',
+ n:'「原理5」まで名指し。6は kokoro を観測可能な過程からしか測らない方針を取るので、AIの寄与を記録する台帳が要る。6は5なしでは測れない。'},
+
+{f:'6',t:'7',k:'予告',w:'重み関数を後続に委ねる',
+ q:'The specific weight function, which requires a model of cognitive proximity and relevance, is developed in a companion work (The Gravity of Jizai).',
+ loc:'6 §6.3（本文のみ・参考文献 entry 無し）',
+ n:'6は §6.3 で参加の重み付けを出しながら重み関数だけを空欄にする。この空欄が 7→6 と対になる。'},
+
+/* --- 7：§7 は四本すべてに供給する --- */
+{f:'7',t:'A',k:'逆供給',w:'Aが持っていなかった幾何学的機構を7が足す（Aは別の機構を既に持つ）',
+ q:'The Morphology of Desire (Osada, 2026a): as discussed in Section 3, the Emptyfall provides the mechanical explanation for why desire circulates rather than terminates.',
+ loc:'7 §7 / 参考文献 2026a',
+ n:'⚠ v1では「Aは機構を書いていない／これが唯一の逆供給」と書いた。両方まちがい。Aは自前の機構を持つ ——§2.2「Baseline recalibration ensures that desire’s void is never permanently filled; it is a feature, not a bug.」§2.4「The void does not fill; it recalibrates.」（ドーパミン予測誤差＋基準点再較正）。7自身も §3 で「The present paper’s contribution is neither to rediscover the emptiness nor to re-describe the circulation, but to provide the dynamics.」と、循環が既述であることを認めている。正しい読みは「欠落の補填」ではなく、同じ被説明項に対する神経的機構（A）と幾何学的機構（7）の並立＝過剰決定。どちらが効いているかは系列のどこにも書かれていない。'},
+
+{f:'7',t:'B',k:'逆供給',w:'循環に「力」を供給する',
+ q:'Cognitive gravity provides the force: the phenomena that generate alignment pressure—human values, social norms, ethical principles—are themselves distributed across the gravitational field, each exerting a pull proportional to its existential weight.',
+ loc:'7 §7 / 参考文献 2026b',
+ n:'7 §7 は四本すべてに対して「本論文が供給する」構文で書かれている。Bには force、Cには topology、Dには economics。7は四部作に寄りかかるのではなく、四部作へ機構を配っている。'},
+
+{f:'7',t:'C',k:'逆供給',w:'複数の道徳的引力源が潰し合わない位相を供給する',
+ q:'Each moral framework—utilitarian, deontological, virtue-based, care-based—functions as a gravitational attractor in cognitive space, with its own well of existential weight. [§7 見出し: provides the topology for this coexistence] / §9: The Jianghu (rivers and lakes)—the chaotic, multi-centered social space where competing moral authorities coexist—is the cognitive gravitational field',
+ loc:'7 §7 / §9 / 参考文献 2026c',
+ n:'要約でなく再解釈。Cの社会空間を7の場の理論に翻訳している。'},
+
+{f:'7',t:'D',k:'逆供給',w:'思想資本に経済的な地盤を供給する',
+ q:'The "interest" that a piece of thought-capital generates is proportional to its existential weight—its capacity to attract cognitive attention. [§7 見出し: provides the economics]',
+ loc:'7 §7 / 参考文献 2026d',
+ n:'注意: 7 §4 に「In the companion paper (Osada, 2026f), curiosity was defined as the white light of the mind」という記述があるが、白色光の比喩は 2026d（D）の概念であって 2026f（6）ではない。2回の独立採取ともに 2026f と読めた。原文側の誤植の可能性があり、人の目で要確認。本図では 7→D として扱う。'},
+
+{f:'7',t:'5',k:'骨',w:'5の Ideas Ocean のベクトル距離を、7の重力の距離に読み替える',
+ q:'In The Genetics of Ideas (Osada, 2026e, Section 5.3), the Ideas Ocean was proposed as a vector space in which intellectual artifacts are embedded using transformer-based models… / …just as soft-decision decoding with noisy estimates outperforms hard-decision decoding with clean but information-destroying thresholds (Osada, 2026e, Section 4).',
+ loc:'7 §6.2 / §6.3',
+ n:'7は5の埋め込み距離を自分の測定量に使い、5の符号理論の議論を「粗い推定でもBoolean既定よりマシ」という自己弁護にも流用する。5→7 方向の供給は無いので、この依存は一方向。'},
+
+{f:'7',t:'6',k:'骨',w:'6が空欄にした重み関数を、7が埋める（約束→履行）',
+ q:'In The Gradient of Kokoro (Osada, 2026f, Section 6.3), a framework for float-valued stakeholder participation was proposed, with the caveat that the weight function determining each participant’s influence would be developed in the present paper. Here we deliver that promise.',
+ loc:'7 §6.1 / 参考文献 2026f',
+ n:'系列で唯一、両側から節番号で名指しされた「約束→履行」対（6 §6.3 ⇄ 7 §6.1）。ただし v1 の「この2本は独立に読めない」は言い過ぎだった。6 §8 は自らの射程を「design principles, not engineering blueprints」と定めており、重み関数が空でも6の論証は立つ。7も Emptyfall・三軸・Lennard-Jones・ドーナツ人格を自前で建てており、重み関数はその成果物のひとつ。正しくは「6 §6.3 のその提案は 7 §6.1 なしには未完」。'},
+
+/* --- 9 --- */
+{f:'9',t:'A',k:'引用',w:'透明な統治の哲学的基礎として',
+ q:'[Author] (2026a) established that desire is the morphology of an internal void and proposed that AI should render desire structurally visible --- the philosophical foundation for transparent governance.',
+ loc:'9 §7 / 参考文献 2026a',
+ n:'9 §7 は8本すべてに「--- the X for Y」形式で役割を割り当てる。例外は無い（v1 は8だけ役割が無いと書いたが誤り。§8 の訂正履歴を参照）。'},
+
+{f:'9',t:'B',k:'引用',w:'データ・コモンズ提案の設計原理として',
+ q:'[Author] (2026b) argued that alignment is a circulation problem, not a control problem --- the design principle underlying the data-as-commons proposal.',
+ loc:'9 §7 / 参考文献 2026b', n:'—'},
+
+{f:'9',t:'C',k:'骨',w:'江湖を比喩でなく統治機構（退出オプション）として実装する',
+ q:'[Author] (2026c) introduced the jianghu model of moral pluralism --- the governance metaphor for multi-community, exit-option-based democracy. / An individual who finds one community’s norms oppressive can exit to another — and this exit option is itself a governance mechanism.',
+ loc:'9 §7 / §4.3「Community Visibility and the Jianghu Model」',
+ n:'9はCに節をひとつ丸ごと割いている。要約で済ませず実装まで持っていった先行論文はCだけ。'},
+
+{f:'9',t:'D',k:'引用',w:'ポスト実行経済の希少資源として',
+ q:'[Author] (2026d) identified thought-capital as the scarce resource in the post-execution economy and argued that curiosity is the structural precondition for creation.',
+ loc:'9 §7 / 参考文献 2026d',
+ n:'9 §7 の末尾は「This ecosystem design --- the MEGURU (巡る) framework for thought-capital circulation --- is the subject of future work.」で、Dの資源を回す生態系設計を系列の外（今後）へ送っている。'},
+
+{f:'9',t:'5',k:'骨',w:'5のトークン系が9の data genome の基盤になる',
+ q:'[Author] (2026e) proposed the token-based attribution system that provides the data-genome infrastructure.',
+ loc:'9 §7 / §5.2',
+ n:'9の「data genome」は5の Visionium トークンを、思想の帰属からデータ主権へ転用したもの。名前（genome / genetics）も引き継いでいる。'},
+
+{f:'9',t:'6',k:'骨',w:'6の kokoro vector が、お天道様の信頼を検証する指標になる',
+ q:'[Author] (2026f) developed the float-valued kokoro vector for assessing AI inner states --- the trust metric for Otentosama verification.',
+ loc:'9 §7',
+ n:'9は「全知だが善意の観測者（お天道様）」をAIで作る。その善意が本物かを外から検証する指標が6のkokoro vector。9 §8 も「AI trust bootstrap problem」を最初の失敗モードに挙げており、6なしでは中心装置を検証できない。'},
+
+{f:'9',t:'7',k:'骨',w:'7の認知的重力が「どのデータが誰にとって重いか」を決める',
+ q:'[Author] (2026g) defined cognitive gravity --- the weight function that determines which data points matter to which individuals.',
+ loc:'9 §7',
+ n:'9の期待被害 E = D1×D2×D3×I の I（影響の大きさ）は誰にとって重いかで変わる。その重さを7が供給する。'},
+
+{f:'9',t:'8',k:'骨',w:'9が自分の三段構造の「理論的支持」として8を調達する',
+ q:'[Author] (2026h) hypothesized that three is the cognitive ground state of human information processing --- providing theoretical support for the triadic structure of the decodability model (D1, D2, D3) and the three-layer infrastructure (blockchain, NFT, AI).',
+ loc:'9 §7 / 参考文献 2026h',
+ n:'⚠ v1 はこの文の「---」以降を落として採取し、「8だけ役割記述が無い＝名目的言及」と判定していた。誤り。8にも他7本と同じ形式で役割が付いている。しかも役割は「支持」——8が正しければ9のD1・D2・D3と三層基盤が補強される、という向き。ところが8 §6.1 は三分類を「not a physical law but a cognitive convenience … humans impose a triadic classification」＝人間が課す認知の都合と説明する。支持として引かれた論文が、支持の warrant を掘り崩す。同じ刃は7の三軸にも向く。「8はどこにいるか」の節を参照。'}
+];
+
+const NOREF=[];
+
+/* ============================ RENDER: MAP ============================ */
+const NW=198,NH=60;
+const byId=Object.fromEntries(NODES.map(n=>[n.id,n]));
+const svg=document.getElementById('map');
+const NS='http://www.w3.org/2000/svg';
+function el(t,a={}){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+
+/* spine */
+const SPINE=[
+ {lab:'四部作',sub:'TETRALOGY',y0:64,y1:158},
+ {lab:'3G',sub:'i / j / k',y0:250,y1:522},
+ {lab:'統合',sub:'SYNTHESIS',y0:582,y1:660},
+ {lab:'系譜外',sub:'OUTSIDE',y0:712,y1:782}
+];
+const gSpine=el('g');
+gSpine.appendChild(el('line',{x1:58,y1:56,x2:58,y2:795,class:'spine','stroke-dasharray':'1 6','stroke-opacity':'.5'}));
+SPINE.forEach(s=>{
+  gSpine.appendChild(el('line',{x1:58,y1:s.y0,x2:58,y2:s.y1,class:'spine','stroke-width':4,'stroke-linecap':'round'}));
+  const t1=el('text',{x:58,y:(s.y0+s.y1)/2-4,class:'spinelab','text-anchor':'middle'});
+  t1.setAttribute('transform',`rotate(-90 58 ${(s.y0+s.y1)/2-4})`);t1.textContent=s.lab;
+  const t2=el('text',{x:74,y:(s.y0+s.y1)/2+34,class:'spinesub','text-anchor':'middle'});
+  t2.setAttribute('transform',`rotate(-90 74 ${(s.y0+s.y1)/2+34})`);t2.textContent=s.sub;
+  gSpine.appendChild(t1);gSpine.appendChild(t2);
+});
+svg.appendChild(gSpine);
+
+/* defs: arrowheads per kind */
+const defs=el('defs');
+Object.entries(KINDS).forEach(([k,v])=>{
+  const m=el('marker',{id:'ah-'+encodeURIComponent(k),viewBox:'0 0 10 10',refX:'8',refY:'5',
+    markerWidth:'5.5',markerHeight:'5.5',orient:'auto-start-reverse'});
+  m.appendChild(el('path',{d:'M0,1 L9,5 L0,9 z',fill:v.c}));
+  defs.appendChild(m);
+});
+svg.appendChild(defs);
+
+/* fan-out anchor computation */
+const outMap={},inMap={};
+EDGES.forEach((e,i)=>{(outMap[e.f]=outMap[e.f]||[]).push(i);(inMap[e.t]=inMap[e.t]||[]).push(i);});
+Object.values(outMap).forEach(a=>a.sort((x,y)=>byId[EDGES[x].t].x-byId[EDGES[y].t].x));
+Object.values(inMap).forEach(a=>a.sort((x,y)=>byId[EDGES[x].f].x-byId[EDGES[y].f].x));
+const outPos={},inPos={};
+Object.entries(outMap).forEach(([id,a])=>a.forEach((ei,i)=>outPos[ei]=(i+1)/(a.length+1)));
+Object.entries(inMap).forEach(([id,a])=>a.forEach((ei,i)=>inPos[ei]=(i+1)/(a.length+1)));
+
+const gEdge=el('g');svg.appendChild(gEdge);
+const gNode=el('g');svg.appendChild(gNode);
+
+const paths=[];
+EDGES.forEach((e,i)=>{
+  const s=byId[e.f],t=byId[e.t];
+  const down = s.y < t.y;
+  let d;
+  if(down){ /* 9 -> 8 : goes right & down */
+    const sx=s.x+NW/2, sy=s.y+6, tx=t.x-NW/2-4, ty=t.y-6;
+    d=`M${sx},${sy} C${sx+120},${sy} ${tx-120},${ty} ${tx},${ty}`;
+  }else{
+    const sx=s.x-NW/2+NW*outPos[i], sy=s.y-NH/2;
+    const tx=t.x-NW/2+NW*inPos[i],  ty=t.y+NH/2+4;
+    const dy=sy-ty;
+    d=`M${sx},${sy} C${sx},${sy-dy*0.42} ${tx},${ty+dy*0.42} ${tx},${ty}`;
+  }
+  const K=KINDS[e.k];
+  const hit=el('path',{d,fill:'none',stroke:'transparent','stroke-width':16,
+    'pointer-events':'stroke',style:'cursor:pointer'});
+  gEdge.appendChild(hit);
+  hit.addEventListener('mouseenter',()=>{if(!locked)showEdge(i)});
+  hit.addEventListener('click',ev=>{ev.stopPropagation();locked=(lockedI===i)?false:true;lockedI=locked?i:null;showEdge(i);applyFilter();});
+  const p=el('path',{d,class:'edge','data-i':i,stroke:K.c,'stroke-width':K.w,
+    'marker-end':'url(#ah-'+encodeURIComponent(e.k)+')','stroke-linecap':'round','pointer-events':'none'});
+  if(K.d)p.setAttribute('stroke-dasharray',K.d);
+  p.setAttribute('opacity', e.k==='骨'?'.95':'.72');
+  gEdge.appendChild(p);paths.push(p);
+  p.addEventListener('mouseenter',()=>{if(!locked)showEdge(i)});
+  p.addEventListener('click',ev=>{ev.stopPropagation();locked=(lockedI===i)?false:true;lockedI=locked?i:null;showEdge(i);applyFilter();});
+});
+
+NODES.forEach(n=>{
+  const g=el('g',{class:'node'+(n.axis?' axis':'')+(n.orphan?' orphan':''),'data-id':n.id,
+    tabindex:'0',role:'button','aria-label':n.badge+' '+n.t+' — '+n.j});
+  g.appendChild(el('rect',{x:n.x-NW/2,y:n.y-NH/2,width:NW,height:NH,rx:7}));
+  const b=el('text',{x:n.x-NW/2+14,y:n.y+3,class:'badge'});b.textContent=n.badge;g.appendChild(b);
+  const short=n.t.replace(/^The /,'');
+  const t=el('text',{x:n.x-NW/2+32,y:n.y-6,class:'tt'});t.textContent=short;g.appendChild(t);
+  const j=el('text',{x:n.x-NW/2+32,y:n.y+12,class:'jj'});j.textContent=n.j;g.appendChild(j);
+  gNode.appendChild(g);
+  g.addEventListener('click',ev=>{ev.stopPropagation();
+    focus=(focus===n.id)?null:n.id;locked=false;lockedI=null;applyFilter();showNode(n);});
+  g.addEventListener('mouseenter',()=>{if(!locked&&!focus)showNode(n)});
+  g.addEventListener('focus',()=>{if(!locked)showNode(n)});
+  g.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();
+    focus=(focus===n.id)?null:n.id;locked=false;lockedI=null;applyFilter();showNode(n);}});
+});
+
+/* annotations */
+const gAn2=el('g');svg.appendChild(gAn2);
+gAn2.appendChild(el('rect',{x:712,y:668,width:326,height:36,rx:5,fill:'#12151c',
+  stroke:'#262b36','stroke-width':1,opacity:'.94'}));
+const an1=el('text',{x:875,y:683,class:'note-txt','text-anchor':'middle'});
+an1.textContent='入る線1本 / 出る線0本 — その1本は「支持」';gAn2.appendChild(an1);
+const an2=el('text',{x:875,y:699,class:'note-txt','text-anchor':'middle','fill':'#8a6a50'});
+an2.textContent='参考文献28件に系列内引用ゼロ・2026年の文献ゼロ';gAn2.appendChild(an2);
+const an3=el('text',{x:250,y:62,class:'note-txt','text-anchor':'middle'});
+an3.textContent='↓ 根 — 系列内引用ゼロ / 出る線なし';svg.appendChild(an3);
+const gAn=el('g');svg.appendChild(gAn);
+gAn.appendChild(el('rect',{x:250,y:206,width:630,height:40,rx:5,fill:'#12151c',
+  stroke:'#262b36','stroke-width':1,opacity:'.94'}));
+const an5=el('text',{x:565,y:222,class:'note-txt','text-anchor':'middle',fill:'#c69a4a'});
+an5.textContent='3G — 論文の自己記述では 5(i) / 7(j) / 6(k) は同位（"unit vectors of a 3D coordinate system"）。';
+gAn.appendChild(an5);
+const an6=el('text',{x:565,y:238,class:'note-txt','text-anchor':'middle',fill:'#8f96a2'});
+an6.textContent='が、引用は 6→5・7→5・7→6 の一方向だけ。5 は 6 も 7 も引かない。宣言は同位、依存は非対称。';
+gAn.appendChild(an6);
+const an4=el('text',{x:470,y:684,class:'note-txt','text-anchor':'middle'});
+an4.textContent='↑ 8本すべてを引き、8本すべてに役割を割り当てる / 自称 "Paper 9 of 10"';svg.appendChild(an4);
+
+/* legend */
+const lg=document.getElementById('legend');
+Object.entries(KINDS).forEach(([k,v])=>{
+  const d=document.createElement('span');d.className='li';
+  d.innerHTML=`<span class="sw" style="border-top-color:${v.c};border-top-style:${v.d?'dashed':'solid'}"></span><b style="color:${v.c}">${v.label}</b><span style="color:var(--dim)">${v.desc}</span>`;
+  lg.appendChild(d);
+});
+
+/* ============================ INTERACTION ============================ */
+let mode='bone', focus=null, locked=false, lockedI=null;
+const ev=document.getElementById('ev');
+
+function showEdge(i){
+  const e=EDGES[i],K=KINDS[e.k];
+  ev.innerHTML=`<div class="eh">
+    <span class="arrow">${e.f} <span style="color:${K.c}">→</span> ${e.t}</span>
+    <span class="kind" style="color:${K.c}">${K.label}</span>
+    <span class="loc">${e.loc}</span></div>
+    <div class="what">${e.w}</div>
+    <blockquote>${e.q}</blockquote>
+    ${e.n && e.n!=='—' ? `<div class="nt">${e.n}</div>`:''}`;
+  paths.forEach((p,j)=>p.classList.toggle('sel',j===i));
+}
+function showNode(n){
+  const out=EDGES.filter(e=>e.f===n.id).map(e=>e.t);
+  const inn=EDGES.filter(e=>e.t===n.id).map(e=>e.f);
+  ev.innerHTML=`<div class="eh">
+    <span class="arrow">${n.badge} — ${n.t}</span>
+    <span class="kind" style="color:var(--gold)">${n.layer}</span>
+    <span class="loc">${n.bl}</span></div>
+    <div class="what">解体した二値: ${n.binary}</div>
+    <blockquote>${n.bq}</blockquote>
+    <div class="nt" style="color:var(--mut)">訳: ${n.bqj}</div>
+    <div class="nt">${n.role}<br>
+    <span style="color:var(--dim)">引いている → ${out.length?out.join(' / '):'なし'} ／ 引かれている ← ${inn.length?inn.join(' / '):'なし'}</span></div>`;
+}
+function applyFilter(){
+  paths.forEach((p,i)=>{
+    const e=EDGES[i];
+    let show = (mode==='all') || e.k!=='引用';
+    if(focus) show = show && (e.f===focus||e.t===focus);
+    p.classList.toggle('dim',!show);
+  });
+  document.querySelectorAll('.node').forEach(g=>{
+    g.classList.toggle('dim', !!focus && g.dataset.id!==focus &&
+      !EDGES.some(e=>(e.f===focus&&e.t===g.dataset.id)||(e.t===focus&&e.f===g.dataset.id)));
+  });
+}
+document.getElementById('b-bone').onclick=e=>{mode='bone';setBtn(e.target);applyFilter();};
+document.getElementById('b-all').onclick =e=>{mode='all'; setBtn(e.target);applyFilter();};
+document.getElementById('b-reset').onclick=()=>{focus=null;locked=false;lockedI=null;
+  paths.forEach(p=>p.classList.remove('sel'));applyFilter();
+  ev.innerHTML='<div class="idle">線かノードを選ぶと、ここに根拠（本文からの逐語引用と出典箇所）が出る。</div>';};
+function setBtn(b){document.getElementById('b-bone').classList.remove('on');
+  document.getElementById('b-all').classList.remove('on');b.classList.add('on');}
+applyFilter();
+
+/* ============================ TABLE ============================ */
+const tb=document.querySelector('#etab tbody');
+function drawTable(f){
+  tb.innerHTML='';
+  const rows=EDGES.filter(e=>f==='all'||e.k===f);
+  rows.forEach(e=>{
+    const K=KINDS[e.k];
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="white-space:nowrap;font-weight:600">${e.f} <span style="color:${K.c}">→</span> ${e.t}</td>
+      <td><span class="pill" style="color:${K.c}">${K.label}</span></td>
+      <td style="font-size:12.5px;color:#c8ccd4">${e.w}</td>
+      <td class="q">${e.q}${e.n&&e.n!=='—'?`<div style="margin-top:6px;color:var(--mut);font-size:12px">${e.n}</div>`:''}</td>
+      <td class="mono" style="white-space:normal">${e.loc}</td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById('fcount').textContent=`${rows.length} / ${EDGES.length} 本`;
+}
+document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('[data-f]').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');drawTable(b.dataset.f);});
+drawTable('all');
+
+/* ============================ CARDS ============================ */
+const pc=document.getElementById('pcards');
+['A','B','C','D','5','6','7','9','8'].forEach(id=>{
+  const n=byId[id];
+  const d=document.createElement('div');
+  d.className='pc'+(n.axis?' axis':'')+(n.orphan?' orphan':'');
+  d.innerHTML=`<div class="ph"><div class="bg">${n.badge}</div><div class="pt">${n.t}</div></div>
+   <div class="pj">${n.j} ・ <span style="color:var(--gold-dim)">${n.layer}</span></div>
+   <dl>
+    <dt>解体した二値</dt><dd>${n.binary}</dd>
+    <dt>根拠（${n.bl}）</dt><dd><q>${n.bq}</q><div style="margin-top:6px;color:var(--mut);font-size:12px;line-height:1.7">訳: ${n.bqj}</div></dd>
+    <dt>背骨上の担当</dt><dd>${n.role}</dd>
+    <dt>系列に渡したもの</dt><dd>${n.give}</dd>
+    <dt>引いている系列内論文</dt><dd>${n.ref}</dd>
+   </dl>
+   <div class="lk"><a href="${n.url}">読む →</a><a href="https://doi.org/${n.doi}" target="_blank" rel="noopener">DOI</a></div>`;
+  pc.appendChild(d);
+});
+
+/* ============================ REFUTATION TABLE ============================ */
+const REF=[
+ {id:'8',sec:'§3.5 Falsifiability<br>§6.3 Counterarguments（4件）<br>§6.4 Scope and Limitations',
+  f:'<b style="color:var(--gold)">あり（4件）</b>',
+  q:'(a) free categorization reliably produces four or five groups rather than three; (b) a major language tradition shows four, not three, as the privileged small numeral; or (c) neural signatures for three-item sets are quantitatively but not qualitatively different. ／ <b>ただしこの3条件はいずれも Boolean→Float に触れない。</b>8は Float / continuous value / 0.0 を1度も使わず、Boolean は SAT の意味のみ。'},
+ {id:'9',sec:'§8 Limitations and Failure Modes（6件）',f:'なし',
+  q:'If this inheritance fails, the Otentosama Architecture becomes the most efficient surveillance system ever built. …The margin for error is small and the stakes are existential. ／ 前提が外れたときの被害を書いた点では系列で最も重い。'},
+ {id:'7',sec:'§8（4件）＋ §2.4 三軸は仮説と明言 ＋ §6.1 recusal を自分から提起',f:'なし',
+  q:'The three-axis model is a hypothesis. …the specific axes proposed here may not be the optimal decomposition. ／ This is not a proof that cognitive space is three-dimensional; it is a suggestive convergence. ／ <b>「仮説である」は反証条件ではない。何が起きたら捨てるかが書かれていない。</b>'},
+ {id:'6',sec:'§8 Limitations and Failure Modes（5件）',f:'なし',
+  q:'The claim is not that the float framework solves the problem of AI rights, but that it poses the problem more accurately than the Boolean framework. ／ 6次元の妥当性は difficult to measure with precision で止まる。'},
+ {id:'5',sec:'§9 Limitations and Failure Modes（4件: measurement / surveillance / gaming / power）',f:'なし',
+  q:'the float-valued framework does not solve the problem of power; it relocates it. ／ <b>4件すべて実装リスク。符号理論から道徳・帰属判断への転用が妥当かを問う項目は1件も無い。</b>その一方 §1 は This is not a matter of opinion. It is a theorem. と書く。'},
+ {id:'D',sec:'§5.1 The Tier 3 Objection（自分の中心主張が崩れる条件を自分で提示）',f:'なし',
+  q:'If AI reaches Tier 3, does this paper’s central claim — that thought-capital is a uniquely human resource — collapse? The answer is no, and the reason is structural. ／ 反論を立てるが、退けて終わる。'},
+ {id:'C',sec:'§5.5 Objections and Responses（3件）',f:'なし',
+  q:'“This is just moral relativism with extra steps.” ／ 3件とも応答して退ける。限界章・スコープ節は無い。'},
+ {id:'B',sec:'<span style="color:#8a5a4a">章は無い</span>。ただし §4.4 に射程限定あり',f:'なし',
+  q:'It should be acknowledged that this is a simplification; conservation motivation is complex and multifaceted. The Panda Principle functions as <b>a structural analogy, not a complete account</b> of conservation psychology. ／ <b>v1 は「Bは限界を負っていない」と書いたが誤り。章立てが無いだけで scope 限定は本文にある。</b>'},
+ {id:'A',sec:'<span style="color:#8a5a4a">章は無い</span>（§5.3 は外向きの批判）',f:'なし',
+  q:'§2.2 のドーパミン予測誤差、快楽適応による基準点再較正、§3.1 のシッダールタの満腹条件——<b>Aは経験的に反証可能な命題に重く依存している</b>。章が無いことは負担が無いことを意味しない。果たしていないだけ。'}
+];
+const rt=document.querySelector('#reftab tbody');
+REF.forEach(r=>{const n=byId[r.id];const tr=document.createElement('tr');
+ tr.innerHTML=`<td style="font-weight:700;color:var(--gold)">${r.id}</td>
+  <td style="font-size:12.5px;color:#c8ccd4">${r.sec}</td>
+  <td style="font-size:12.5px">${r.f}</td><td class="q">${r.q}</td>`;
+ rt.appendChild(tr);});
+
+/* ============================ SELF-CHECK (console) ============================ */
+(function(){
+  const ids=NODES.map(n=>n.id);
+  const errs=[];
+  if(NODES.length!==9)errs.push('ノード数が9でない: '+NODES.length);
+  EDGES.forEach((e,i)=>{
+    if(!ids.includes(e.f)||!ids.includes(e.t))errs.push(`E${i}: 未知ノード ${e.f}->${e.t}`);
+    if(!e.q||!e.q.trim())errs.push(`E${i}: 根拠が空 ${e.f}->${e.t}`);
+    if(!e.loc||!e.loc.trim())errs.push(`E${i}: 出典が空 ${e.f}->${e.t}`);
+    if(!KINDS[e.k])errs.push(`E${i}: 未知の線種 ${e.k}`);
+  });
+  ids.forEach(id=>{if(!EDGES.some(e=>e.f===id||e.t===id))errs.push(`孤立ノード: ${id}`)});
+  console.log(errs.length?'⚠ SELF-CHECK FAILED\n'+errs.join('\n')
+    :`✅ SELF-CHECK OK — ノード${NODES.length} / エッジ${EDGES.length} / 根拠の空欄0 / 孤立ノード0`);
+})();
+document.body.addEventListener('click',()=>{if(locked){locked=false;lockedI=null;
+  paths.forEach(p=>p.classList.remove('sel'));}});
+</script>
+</body></html>
