@@ -248,9 +248,9 @@ footer .fl{color:var(--fg-3)}
 <section class="sec" id="map">
   <div class="sec-h"><span class="num">Ⅲ</span><h2>系統の地図</h2></div>
   <p class="sec-sub">
-    素材を扱う出荷物は<b>5系統</b>。この目次からは全部に辿れる。ただし
-    <b>逆向きのリンクはまだ張っていない</b>（既存7本の中身を書き換えない約束のため）。
-    戻り道は成果物DB／収蔵庫という入口から引く。
+    素材を扱う出荷物は<b>5系統</b>。この目次からは全部に辿れる。
+    戻り道は<b>成果物DB に <code>OUT-182</code> として登録済み</b>＝収蔵庫・棚卸しから、この目次を引ける。
+    既存7本の本文に目次へのリンクは張っていない（中身を書き換えない約束のため）。
   </p>
   <div class="rows" id="mapRows"></div>
 </section>
@@ -266,6 +266,7 @@ footer .fl{color:var(--fg-3)}
 
 <footer>
   <div class="fl">人類の素材図鑑 — 目次 / osakenpiro · Visionium</div>
+  <div>osakenpiro.github.io/sozai-zukan-mokuji/ · 成果物DB OUT-182</div>
   <div>2026-08-02 実測 · 7系統を実際に開いて測った</div>
   <div>#全人類UX改善計画</div>
 </footer>
@@ -511,7 +512,8 @@ const GAPS=[
   {t:"第8章 加工 ── 火の温度の文明史",href:MOC+"ch8/",why:"素材ではなく「温度」で全章を横断する章。軸が違う"},
   {t:"終章 次の素材革命",href:MOC+"epilogue/",why:"総括。同上"},
   {t:"黒曜片フッターの還蹄リンク",href:"",why:"黒曜片のシリーズ行だけ還蹄を知らない。既存を書き換えない約束なので今回は触っていない【本人】"},
-  {t:"逆向きリンク（既存7本 → この目次）",href:"",why:"write-domain の外。戻り道は成果物DB／収蔵庫という入口から引く設計にしてある【本人】"}
+  {t:"既存7本の本文 → この目次 の直リンク",href:"",why:"入口側（成果物DB OUT-182）からは辿れるようになった。各ページのフッターに1行足すかは既存書き換えなので【本人】"},
+  {t:"玄関への掲載",href:"",why:"成果物DBには入れたが 玄関掲載=NO のまま。玄関に出すかは【本人】"}
 ];
 document.getElementById("gapRows").innerHTML = GAPS.map(g=>
   `<div class="row"><span class="badge gap">未</span>
