@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -339,6 +339,33 @@ function showPanel(id){
 }
 
 render();
+
+/* ───────── 行き先の正本 = /cosmos/destinations.json ─────────
+   cosmos と dungeon は同じ1本の destinations.json を読む。
+   このページが持つのは「配置」だけ（x / y / type = 分類、EDGES = 通路21辺）。
+   id / emoji / name / blurb / link の真値は destinations.json 側。
+   入り口の部屋 me はこのページ固有なので対象外（destinations.json に無い＝素通し）。
+   取得できない・壊れている場合は上のインライン値のまま動く（フォールバック＝現行動作）。 */
+fetch('/cosmos/destinations.json', {cache:'no-cache'})
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(data => {
+    const by = {};
+    (data.destinations || []).forEach(d => { if(d && d.id) by[d.id] = d; });
+    ROOMS.forEach(r => {
+      const d = by[r.id]; if(!d) return;
+      if(d.icon)  r.emoji = d.icon;
+      if(d.title) r.name  = d.title;
+      if(d.desc)  r.blurb = d.desc;
+      if(d.url)   r.link  = d.url;
+      const el = stage.querySelector('.room[data-id="' + r.id + '"]'); if(!el) return;
+      const em = el.querySelector('.emoji'); if(em && d.icon)  em.textContent = d.icon;
+      const nm = el.querySelector('.name');  if(nm && d.title) nm.textContent = d.title;
+    });
+    /* パネルが既に開いているときだけ描き直す（初期の空パネルは空のまま＝現行動作） */
+    const pnl = document.getElementById('panel');
+    if(pnl && !pnl.classList.contains('empty') && byId[current]) showPanel(current);
+  })
+  .catch(() => { /* destinations.json 不在/破損 → インライン値で継続 */ });
 </script>
 </body>
 </html>
