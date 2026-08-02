@@ -1154,7 +1154,9 @@
   }
   function drawShoryu(now, dnow, actMul){
     if (!shoParts) shoInitParts();
-    if (gyoAnyKill) gyoRebuildCut(); else gyoCutTbl = null;
+    /* 業態が使えない幅／業態OFF では、畳んだ商いの影響も出さない。
+       ＝この門の外では、商流の描画は v9.1 とバイト単位で同じ経路を通る。 */
+    if (state.gyoutai && W > 600 && gyoAnyKill) gyoRebuildCut(); else gyoCutTbl = null;
     var narrow = W < 560;
     var x0 = PAD.l, x1 = W - PAD.r, iw = Math.max(80, x1 - x0), colW = iw / 8;
     var HB = narrow ? 30 : 38, LB = 20;
@@ -1532,7 +1534,7 @@
       eraEl.textContent = "🌊 商流 ／ " + (availEras().length >= 2 ? eraBadgeText() : "現代") + " ／ " + nStage + "段"
         + (gty ? " ／ 商い" + gty.tot + "本" : "")
         + (killN ? " ／ ✕" + killN + "段を消している" : "")
-        + (gKillN ? " ／ ✕" + gKillN + "種を畳んでいる" : "");
+        + (gyoOn && gKillN ? " ／ ✕" + gKillN + "種を畳んでいる" : "");
     }
   }
   /* 0=本流 1=在庫でもっている 2=止まった 3=灰。0と1は「まだ下流へ届いている」 */
