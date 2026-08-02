@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -706,6 +706,32 @@ window.addEventListener('resize', () => {
   initStars();
 });
 requestAnimationFrame(animate);
+
+/* ───────── 行き先の正本 = destinations.json ─────────
+   cosmos と dungeon は同じ1本の destinations.json を読む。
+   このページが持つのは「配置」だけ（orbit / speed / type = 軌道と質感）。
+   id / icon / title / desc / url の真値は destinations.json 側。
+   取得できない・壊れている場合は上のインライン値のまま動く（フォールバック＝現行動作）。 */
+fetch('destinations.json', {cache:'no-cache'})
+  .then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(data => {
+    const by = {};
+    (data.destinations || []).forEach(d => { if(d && d.id) by[d.id] = d; });
+    SATELLITES.forEach((sat, i) => {
+      const d = by[sat.id]; if(!d) return;
+      if(d.icon)  sat.icon  = d.icon;
+      if(d.title) sat.title = d.title;
+      if(d.desc)  sat.desc  = d.desc;
+      if(d.url)   sat.url   = d.url;
+      const el = satEls[i]; if(!el) return;
+      const ic = el.querySelector('.sat-body span');
+      if(ic && d.icon) ic.textContent = d.icon;
+      const lb = el.querySelector('.sat-label');
+      if(lb && d.title && lb.firstChild && lb.firstChild.nodeType === 3)
+        lb.firstChild.nodeValue = '\n      ' + d.title + '\n      ';
+    });
+  })
+  .catch(() => { /* destinations.json 不在/破損 → インライン値で継続 */ });
 </script>
 <!-- osakenpiro support button v1 -->
 <style>
