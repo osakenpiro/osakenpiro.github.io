@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>黒曜片 — 融けた闇の刃 | 人類の素材図鑑 3D教科書</title>
+<meta name="description" content="黒曜石は石ではなくガラス。そして「急いで冷えた証拠」ではなかった。結晶の有無を結晶化度のFloatで触り、ひとつの観察から原因を決めつける推論が覆る瞬間を見る3D教科書。#全人類UX改善計画">
+<meta property="og:title" content="黒曜片（クロヨウヘン）— 融けた闇の刃">
+<meta property="og:description" content="結晶が無いのは、急いだ証拠ではなかった。石英→玄武岩→黒曜石を結晶化度のFloatで並べ、通説が覆る瞬間に触れる3D教科書。">
+<meta property="og:url" content="https://osakenpiro.github.io/kokuyouhen/">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://osakenpiro.github.io/kokuyouhen/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="黒曜片（クロヨウヘン）— 融けた闇の刃">
+<meta name="twitter:description" content="石ではなく、ガラス。そして急冷でも、なかった。人類の素材図鑑 3D教科書 No.001">
+<meta name="twitter:image" content="https://osakenpiro.github.io/kokuyouhen/og.png">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body { height:100%; background:#06060a; font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic Medium",system-ui,sans-serif; overflow-x:hidden; }
@@ -17,7 +27,6 @@
   }
   a{color:var(--gold);text-decoration:none}
 
-  /* ===== 星空背景 ===== */
   #sky{position:fixed;inset:0;z-index:0;pointer-events:none}
   .star{position:absolute;border-radius:50%;background:#e8e0d0;animation:tw 4s ease-in-out infinite}
   .star.g{background:var(--gold)}
@@ -25,7 +34,7 @@
 
   main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:44px 20px 90px}
 
-  /* ===== ①表題プレート ===== */
+  /* ①表題プレート */
   .kanban{position:relative;text-align:center;margin:10px auto 0;max-width:640px}
   .plate{position:relative;display:inline-block;background:var(--surface);border:1px solid var(--gold-edge);
     border-radius:10px;padding:30px 42px 24px;box-shadow:0 14px 44px rgba(0,0,0,.55)}
@@ -38,23 +47,49 @@
   .triname{margin-top:16px;font-size:.78rem;color:var(--fg-3);letter-spacing:.08em;line-height:2}
   .triname b{color:var(--gold);font-weight:500}
 
-  /* ===== ②3Dステージ ===== */
-  .stage-wrap{position:relative;max-width:640px;margin:34px auto 0;border:1px solid var(--border);border-radius:16px;
-    background:radial-gradient(circle at 50% 38%,rgba(212,168,83,.05),transparent 60%),var(--void-deep);
-    overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  /* ②3Dステージ */
+  .stage-wrap{position:relative;max-width:640px;margin:34px auto 0;border:1px solid var(--border);border-radius:16px 16px 0 0;
+    background:radial-gradient(circle at 50% 40%,rgba(212,168,83,.06),transparent 62%),var(--void-deep);
+    overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5);border-bottom:none}
   #stage{width:100%;height:min(58vw,420px);display:block;touch-action:none;cursor:grab}
   #stage:active{cursor:grabbing}
   .stage-hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);font-size:.72rem;letter-spacing:.1em;
     color:var(--fg-3);pointer-events:none;transition:opacity .6s;background:rgba(6,6,10,.5);padding:4px 12px;border-radius:999px}
   .stage-badge{position:absolute;top:14px;right:14px;font-size:.66rem;letter-spacing:.15em;color:var(--gold);
     border:1px solid var(--gold-edge);border-radius:999px;padding:3px 11px;background:rgba(6,6,10,.55)}
+  .stage-verdict{position:absolute;top:14px;left:14px;font-size:.72rem;letter-spacing:.06em;color:var(--fg-1);
+    background:rgba(6,6,10,.62);border:1px solid var(--border-hover);border-radius:8px;padding:6px 12px;max-width:60%;line-height:1.6}
+  .stage-verdict b{color:var(--gold);font-weight:600}
 
-  /* ===== けじめ線 ===== */
+  /* 操作盤 */
+  .console{max-width:640px;margin:0 auto;background:var(--surface);border:1px solid var(--border);border-top:1px solid var(--border-hover);
+    border-radius:0 0 16px 16px;padding:22px 26px 24px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .ctl{margin-bottom:16px}
+  .ctl-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:10px}
+  .ctl-head .lab{font-size:.78rem;color:var(--fg-2);letter-spacing:.08em}
+  .ctl-head .lab small{color:var(--fg-3);font-size:.86em;letter-spacing:.02em}
+  .ctl-head .val{font-family:var(--mono);font-size:.9rem;color:var(--gold)}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:999px;
+    background:linear-gradient(90deg,rgba(212,168,83,.5),rgba(212,168,83,.14));outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;
+    background:var(--gold);cursor:pointer;box-shadow:0 0 10px var(--gold-glow);border:none}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--gold);cursor:pointer;border:none}
+  .ticks{position:relative;height:14px;margin-top:6px;font-size:.62rem;color:var(--dim);letter-spacing:.04em}
+  .ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+  .presets{display:flex;flex-wrap:wrap;gap:8px;border-top:1px dashed var(--border);padding-top:15px}
+  .presets .pl{font-size:.68rem;color:var(--fg-3);letter-spacing:.15em;width:100%;margin-bottom:2px}
+  .preset{background:transparent;border:1px solid var(--border-hover);color:var(--fg-2);border-radius:999px;
+    padding:5px 13px;font-size:.76rem;cursor:pointer;font-family:inherit;transition:.18s;letter-spacing:.03em}
+  .preset:hover{border-color:var(--gold-edge);color:var(--fg-1);background:var(--gold-soft)}
+  .preset.on{border-color:var(--gold);color:var(--gold);background:var(--gold-soft)}
+  .preset .r{font-family:var(--mono);font-size:.86em;color:var(--fg-3);margin-left:6px}
+  .preset.on .r{color:var(--gold)}
+
   .kejime{display:flex;align-items:center;gap:14px;margin:56px 0 28px}
   .kejime::before,.kejime::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-edge),transparent)}
   .kejime span{color:var(--gold);font-size:.76rem;letter-spacing:.32em;white-space:nowrap}
 
-  /* ===== ③教科書本文 ===== */
+  /* ③本文 */
   .lesson{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px 30px;margin-bottom:18px}
   .lesson h2{font-family:var(--serif);font-size:1.15rem;color:var(--gold);font-weight:600;letter-spacing:.03em;margin-bottom:14px;
     display:flex;align-items:baseline;gap:10px}
@@ -63,15 +98,21 @@
   .lesson p:last-child{margin-bottom:0}
   .lesson b{color:var(--fg-1);font-weight:600}
   .lesson .gold-word{color:var(--gold);font-weight:500}
+  .lesson .ruled{border-left:2px solid var(--gold-edge);padding-left:16px;margin:16px 0;color:var(--fg-2);font-size:.9rem;line-height:1.9}
+  .twocol{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+  .twocol .box{border:1px solid var(--border);border-radius:10px;padding:16px 18px;background:var(--void-deep)}
+  .twocol .box .cap{font-size:.66rem;letter-spacing:.14em;color:var(--fg-3);margin-bottom:8px}
+  .twocol .box.old .cap{color:var(--dim)}
+  .twocol .box.new .cap{color:var(--gold)}
+  .twocol .box p{font-size:.84rem;line-height:1.85;margin:0}
+  @media(max-width:560px){.twocol{grid-template-columns:1fr}}
 
-  /* クイズ導入 */
   .quiz{border:1px dashed var(--gold-edge);border-radius:12px;background:var(--gold-soft);padding:20px 24px;margin:0 auto 30px;max-width:640px}
   .quiz .qlabel{font-size:.68rem;letter-spacing:.3em;color:var(--gold);margin-bottom:8px}
   .quiz p{font-size:.94rem;color:var(--fg-1);line-height:1.85}
   .quiz .ans{margin-top:10px;font-size:.84rem;color:var(--fg-3)}
   .quiz .ans b{color:var(--gold)}
 
-  /* データ値札(froshiki風) */
   .froshiki{position:relative;max-width:640px;margin:0 auto 30px;background:rgba(200,184,160,.045);
     border:1px solid rgba(200,184,160,.16);border-radius:6px;padding:24px 28px 20px 94px}
   .stamp{position:absolute;left:20px;top:24px;width:50px;height:50px;border:2px solid var(--gold-edge);border-radius:50%;
@@ -79,23 +120,32 @@
     transform:rotate(-8deg);opacity:.9}
   .froshiki dl{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-size:.84rem}
   .froshiki dt{color:var(--fg-3);letter-spacing:.13em}
-  .froshiki dd{color:var(--fg-1);font-family:var(--mono);font-size:.82rem}
+  .froshiki dd{color:var(--fg-1);font-family:var(--mono);font-size:.82rem;line-height:1.7}
+  .froshiki .src{margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);font-size:.72rem;color:var(--dim);line-height:1.8}
 
-  /* ===== ④Floatゲージ ===== */
-  .gauge-block{max-width:640px;margin:0 auto 10px;background:var(--surface);border:1px solid var(--border);
-    border-radius:14px;padding:26px 30px}
+  /* Float数直線 */
+  .gauge-block{max-width:640px;margin:0 auto 10px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:26px 30px}
   .gauge-block h2{font-family:var(--serif);font-size:1.1rem;color:var(--gold);font-weight:600;margin-bottom:10px}
-  .gauge-block .lede{font-size:.88rem;color:var(--fg-2);line-height:1.85;margin-bottom:18px}
-  .gauge-row{display:flex;align-items:center;gap:16px;margin-bottom:6px}
-  .gauge-row .tag{font-size:.72rem;color:var(--fg-3);width:78px;flex-shrink:0;letter-spacing:.06em}
-  .gauge{flex:1;height:12px;border:1px solid var(--border-hover);border-radius:999px;overflow:hidden;background:var(--void-deep)}
-  .gfill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,rgba(212,168,83,.35),var(--gold));transition:width 1.4s cubic-bezier(.22,1,.36,1)}
-  .gauge-num{font-family:var(--mono);color:var(--gold);font-size:.86rem;width:52px;text-align:right;flex-shrink:0}
-  .gauge-caps{display:flex;justify-content:space-between;font-size:.68rem;color:var(--dim);margin-top:6px;letter-spacing:.05em}
+  .gauge-block .lede{font-size:.88rem;color:var(--fg-2);line-height:1.85;margin-bottom:22px}
+  .gauge-block .lede b{color:var(--fg-1)}
+  .axis{position:relative;height:96px;margin:0 6px 4px}
+  .axis .rail{position:absolute;top:30px;left:0;right:0;height:12px;border-radius:999px;
+    background:linear-gradient(90deg,rgba(200,184,160,.16),rgba(13,12,18,.9))}
+  .pin{position:absolute;top:0;height:96px;width:0;cursor:pointer}
+  .pin .dot{position:absolute;top:29px;left:-5px;width:10px;height:10px;border-radius:50%;background:var(--fg-3);
+    box-shadow:0 0 0 3px var(--void-deep);z-index:2}
+  .pin.hi .dot{background:var(--gold);box-shadow:0 0 0 3px var(--void-deep),0 0 10px var(--gold-glow)}
+  .pin .stem{position:absolute;left:0;width:1px;background:rgba(200,184,160,.18)}
+  .pin.hi .stem{background:var(--gold-edge)}
+  .pin .nm{position:absolute;left:0;transform:translateX(-50%);font-size:.64rem;color:var(--fg-3);white-space:nowrap;letter-spacing:.02em;font-family:var(--mono)}
+  .pin.hi .nm{color:var(--gold)}
+  .pin.up .nm{top:2px}   .pin.up .stem{top:16px;height:14px}
+  .pin.dn .nm{top:56px}  .pin.dn .stem{top:42px;height:14px}
+  .axis .scale{position:absolute;top:78px;left:0;right:0;height:12px}
+  .axis .scale span{position:absolute;transform:translateX(-50%);font-size:.6rem;color:var(--dim);font-family:var(--mono)}
   .gauge-note{margin-top:16px;font-size:.82rem;color:var(--fg-3);line-height:1.85;border-top:1px dashed var(--border);padding-top:14px}
   .gauge-note b{color:var(--gold);font-weight:500}
 
-  /* ===== 開き戸(補足) ===== */
   .hirakido{max-width:640px;margin:0 auto 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface);overflow:hidden}
   .hirakido summary{cursor:pointer;padding:13px 18px;font-size:.88rem;color:var(--fg-2);list-style:none}
   .hirakido summary::-webkit-details-marker{display:none}
@@ -103,6 +153,12 @@
   .dia{color:var(--gold);margin-right:10px}
   .hirakido .hd-body{padding:4px 20px 18px;font-size:.85rem;color:var(--fg-2);line-height:1.9;border-top:1px dashed var(--border)}
   .hirakido .hd-body b{color:var(--fg-1)}
+  .hirakido .hd-body ul{margin:10px 0 0 18px}
+  .hirakido .hd-body li{margin-bottom:8px}
+
+  .shime{max-width:640px;margin:44px auto 0;text-align:center;font-family:var(--serif);font-size:clamp(1.1rem,3.4vw,1.5rem);
+    color:var(--fg-1);letter-spacing:.08em;line-height:1.9}
+  .shime .em{color:var(--gold)}
 
   footer{position:relative;z-index:1;text-align:center;padding:40px 20px 60px;font-size:.72rem;color:var(--dim);letter-spacing:.1em}
   footer .foot-line{margin-top:9px;font-size:.94em;letter-spacing:.04em;line-height:1.8;color:var(--dim)}
@@ -115,8 +171,11 @@
   @media(max-width:560px){
     .plate{padding:24px 22px 20px}
     .lesson{padding:22px 20px}
-    .froshiki{padding:22px 20px 18px 84px}
-    .gauge-row .tag{width:60px;font-size:.66rem}
+    .console{padding:20px 18px}
+    .froshiki{padding:22px 18px 18px 78px}
+    .gauge-block{padding:22px 18px}
+    .stamp{left:14px;width:46px;height:46px}
+    .stage-verdict{max-width:66%;font-size:.66rem}
   }
 </style>
 </head>
@@ -141,88 +200,125 @@
   <div class="stage-wrap">
     <canvas id="stage"></canvas>
     <div class="stage-badge">drag to rotate</div>
-    <div class="stage-hint" id="hint">指かマウスでドラッグ — 光は金、闇は黒曜</div>
+    <div class="stage-verdict" id="verdict">—</div>
+    <div class="stage-hint" id="hint">下のつまみを動かす — 整列した結晶か、凍った液体か</div>
+  </div>
+
+  <!-- 操作盤 -->
+  <div class="console">
+    <div class="ctl">
+      <div class="ctl-head">
+        <span class="lab">結晶化度 <small>原子がどれだけ規則正しく並んでいるか（結果）</small></span>
+        <span class="val" id="amVal">0.94</span>
+      </div>
+      <input type="range" id="am" min="0" max="1" step="0.01" value="0.94">
+      <div class="ticks">
+        <span style="left:0%">0.0 完全結晶</span>
+        <span style="left:100%">1.0 非晶質</span>
+      </div>
+    </div>
+    <div class="presets">
+      <span class="pl">実在の岩を置いてみる（結晶化度＝非晶質の度合い）</span>
+      <button class="preset" data-am="0.06">石英<span class="r">0.06</span></button>
+      <button class="preset" data-am="0.30">玄武岩<span class="r">0.30</span></button>
+      <button class="preset on" data-am="0.94">黒曜石<span class="r">0.94</span></button>
+    </div>
   </div>
 
   <div class="kejime"><span>読み物として、黒曜石を読む</span></div>
 
   <!-- クイズ -->
   <div class="quiz">
-    <div class="qlabel">Q. まず、常識を裏切る一問</div>
-    <p>黒曜石は、鉱物図鑑のどこに置いても居心地が悪い。理由は――<b>そもそも「鉱物」の定義を満たしていない</b>から。では黒曜石は何なのか？</p>
+    <div class="qlabel">Q. まず、常識を裏切る二問</div>
+    <p>①黒曜石は、鉱物図鑑のどこに置いても居心地が悪い。<b>そもそも「鉱物」の定義を満たしていない</b>から。では何なのか？<br>②黒曜石に大きな結晶が無いのは「急いで冷えたから」——と長く教わってきた。<b>だが、それも近年くつがえされた。</b>なぜ？</p>
     <div class="ans">答えはこの下。<b>先に自分の予想を決めてから</b>読み進めてほしい。</div>
   </div>
 
-  <!-- ③教科書本文 -->
+  <!-- ③本文 -->
   <div class="lesson">
     <h2><span class="no">§1</span>名称と正体 — 石ではなく、ガラスである</h2>
-    <p><b>黒曜石(こくようせき/obsidian)</b>は、鉱物学的には「鉱物」に分類されない珍しい岩石だ。鉱物の定義には通常「原子が規則正しく並んだ結晶構造を持つこと」が含まれるが、黒曜石の中身は原子がバラバラに固まっただけの<span class="gold-word">非晶質(アモルファス)</span>——つまり構造だけ見れば、窓ガラスやコップと同じ「ガラス」の一種にすぎない。</p>
-    <p>正体は火山が噴き出した<b>流紋岩質(りゅうもんがんしつ)のマグマ</b>が、地表や水中で急激に冷やされてできた「火山ガラス」。ゆっくり冷えれば原子は整列して花崗岩のような結晶質の岩石になるが、黒曜石は冷える速度が速すぎて、原子が並ぶ<b>暇を与えられなかった</b>。液体だった頃の乱雑な原子配置を、そのまま凍結したような状態で固体になっている。</p>
+    <p><b>黒曜石(こくようせき/obsidian)</b>は、鉱物学的には「鉱物」に分類されない珍しい岩石だ。鉱物の定義には通常「原子が規則正しく並んだ結晶構造を持つこと」が含まれるが、黒曜石の中身は原子がバラバラに固まっただけの<span class="gold-word">非晶質(アモルファス)</span>——構造だけ見れば、窓ガラスやコップと同じ「ガラス」の一種にすぎない。</p>
+    <p>正体は火山が噴き出した<b>流紋岩質(りゅうもんがんしつ)のマグマ</b>が冷え固まってできた「火山ガラス」。化学組成は花崗岩とほぼ同じ<b>SiO₂に富む珪長質</b>で、この組成のマグマは<b>粘性が非常に高い</b>。</p>
   </div>
 
   <div class="lesson">
-    <h2><span class="no">§2</span>性質 — 割れば割るほど鋭くなる</h2>
-    <p>結晶構造を持たないという性質は、割れ方にそのまま表れる。黒曜石は特定の面に沿ってではなく、<span class="gold-word">貝殻状断口(conchoidal fracture)</span>と呼ばれる、まるで貝殻の内側のような滑らかな曲面で割れる。この割れ方は、割れた縁を分子1個分の薄さにまで研ぎ澄ませることができ、鋼鉄の刃よりも鋭い切っ先を生む。</p>
-    <p>この鋭さは伝説ではない。黒曜石の刃は実験的に<b>外科用メス</b>としても使われてきた記録があり、極めて滑らかな切開面をつくれることが報告されている。ただし鋼鉄より<b>脆い</b>という欠点があり、量産・汎用の医療器具としては広まっていない——「鋭さ」と「頑丈さ」がトレードオフの関係にある、素材の典型例でもある。</p>
+    <h2><span class="no">§2</span>急いだ証拠では、なかった — ひとつの観察から、原因を決めつける罠</h2>
+    <p>「大きな結晶が無い」。この一点から、長いあいだ<b>「だから急いで冷えたのだ」</b>と説明されてきた。結晶が育つ暇もなく一瞬で固まった——直感的で、教科書の定番だった。</p>
+    <div class="twocol">
+      <div class="box old">
+        <div class="cap">通説（〜これまで）</div>
+        <p>結晶が無い ＝ <b>急冷</b>。溶岩が一気に冷やされ、原子が並ぶ暇を与えられなかった。</p>
+      </div>
+      <div class="box new">
+        <div class="cap">2026年の研究（Nat Commun）</div>
+        <p>黒曜石には<b>気泡も無い</b>。気泡が抜け切って緻密になるには、逆に<b>数週間〜数十年の徐冷</b>（10⁻⁴〜10⁻⁸ ℃/秒）が要る、とする。</p>
+      </div>
+    </div>
+    <p>2026年、E. W. Llewellin らは、黒曜石に<b>気泡が無い</b>ことに注目した。マグマ温度でのX線CTで気泡が縮んでいく様子を実測し、気泡が再び融体に溶け込んで消えるには、むしろ<b>ゆっくり冷える</b>必要があると論じた。急冷では気泡は抜け切らない。彼らは「黒曜石は急冷でできる」という通説を覆した、とする。</p>
+    <p class="ruled">同じひとつの塊に、二つの観察がある。<b>「結晶が無い」</b>と<b>「気泡が無い」</b>。通説は前者だけを見て「急冷」と決めつけた。だが後者は、逆に徐冷を指していた。<b>ひとつの結果に、原因はひとつとは限らない。</b></p>
+    <p>では結晶が無いのは、なぜか。有力なのは<span class="gold-word">粘性</span>だ。珪長質マグマは水を含むと流れやすいが、噴出して水が抜けると<b>粘性が跳ね上がる</b>。ねばくなった融体の中では、原子がうまく動いて整列できず、結晶が育たない。<b>「速さ」ではなく「ねばさ」</b>が、結晶を止めていた——冷却史・脱ガス・粘性が混ざって効く話で、単一の原因に還元しきれない。</p>
+    <p style="font-size:.82rem;color:var(--fg-3)">⚠️ 2026年の徐冷モデルは新しい研究で、今後の検証で更新されうる。ここでは「急冷で確定」とも「徐冷で確定」とも断定せず、<b>通説が揺らいだこと自体</b>を教材にしている。</p>
   </div>
 
   <div class="lesson">
-    <h2><span class="no">§3</span>由来 — 火山とともにあった文明</h2>
-    <p>黒曜石は世界中の火山地帯——南米、北米、地中海、そして<b>日本</b>——で見つかる。日本列島も火山国であるため、北海道の十勝や長野の和田峠など、各地に黒曜石の産地があった。旧石器・縄文時代の日本列島でも、黒曜石は矢じりやナイフの素材として広く使われ、産地の異なる黒曜石が離れた集落間で交換されていた痕跡が、考古学的な交易ネットワークの証拠として読み解かれている。</p>
-    <p>つまり黒曜石は、<b>人類が最初に手にした「切れる素材」</b>のひとつであり、同時に「遠くの誰かと物をやり取りする」という行為そのものの、最古の記録媒体でもある。石器時代の最先端素材が、現代でも外科の現場で試され続けているという事実は、「原始的」と「先端的」という区分自体が、案外あてにならないことを教えてくれる。</p>
+    <h2><span class="no">§3</span>性質 — 割れば割るほど鋭くなる</h2>
+    <p>結晶構造を持たないという性質は、割れ方にそのまま表れる。黒曜石は特定の面に沿ってではなく、<span class="gold-word">貝殻状断口(conchoidal fracture)</span>と呼ばれる、貝殻の内側のような滑らかな曲面で割れる。この割れ方は、割れた縁を分子1個分の薄さにまで研ぎ澄ませることができ、鋼鉄の刃よりも鋭い切っ先を生む。</p>
+    <p>この鋭さは伝説ではない。黒曜石の刃は実験的に<b>外科用メス</b>としても使われた記録があり、極めて滑らかな切開面をつくれることが報告されている。ただし鋼鉄より<b>脆い</b>という欠点があり、量産・汎用の器具としては広まっていない——「鋭さ」と「頑丈さ」がトレードオフの関係にある、素材の典型例でもある。</p>
+  </div>
+
+  <div class="lesson">
+    <h2><span class="no">§4</span>由来 — 火山とともにあった文明</h2>
+    <p>黒曜石は世界中の火山地帯——南米、北米、地中海、そして<b>日本</b>——で見つかる。日本列島も火山国であるため、北海道の十勝や長野の和田峠など各地に産地があった。旧石器・縄文時代の日本列島でも、黒曜石は矢じりやナイフの素材として広く使われ、産地の異なる黒曜石が離れた集落間で交換されていた痕跡が、考古学的な交易ネットワークの証拠として読み解かれている。</p>
+    <p>つまり黒曜石は、<b>人類が最初に手にした「切れる素材」</b>のひとつであり、同時に「遠くの誰かと物をやり取りする」という行為そのものの、最古の記録媒体でもある。石器時代の最先端素材が現代でも外科の現場で試され続け、その成り立ちが2026年になお書き換えられている——「原始的」と「先端的」の区分は、案外あてにならない。</p>
   </div>
 
   <!-- データ値札 -->
   <div class="froshiki">
     <div class="stamp">黒曜</div>
     <dl>
-      <dt>主成分</dt><dd>SiO₂(シリカ)質ガラス — 花崗岩とほぼ同じ化学組成</dd>
+      <dt>主成分</dt><dd>SiO₂に富む珪長質ガラス — 花崗岩とほぼ同じ化学組成</dd>
       <dt>硬度</dt><dd>モース硬度 5–6</dd>
       <dt>割れ方</dt><dd>貝殻状断口(conchoidal fracture)</dd>
-      <dt>色</dt><dd>黒が主。不純物により緑・褐・稀に虹色の光沢(シーン/ゴールドシーン)</dd>
-      <dt>形成</dt><dd>流紋岩質マグマの急冷 — 結晶化する時間を持てなかった液体</dd>
+      <dt>色</dt><dd>黒が主。不純物により緑・褐・稀に虹色の光沢</dd>
+      <dt>成り立ち</dt><dd>流紋岩質マグマの火山ガラス。結晶が育たない主因は高粘性。緻密さ(無気泡)は徐冷を要すとする研究(2026)</dd>
       <dt>代表利用</dt><dd>石器(旧石器〜縄文)/実験的外科メス/宝飾・装飾</dd>
     </dl>
+    <div class="src">
+      形成過程について: Llewellin, Wadsworth, Allgood ほか "Obsidian forms by slow cooling", Nature Communications 17:3266 (2026), doi:10.1038/s41467-026-70110-1。<b>本ページの3Dと結晶化度Floatは、比の意味を手で触るための模式図・目安であり、鉱物学的な実測値でも数値シミュレーションでもない。</b>
+    </div>
   </div>
 
   <div class="kejime"><span>Boolean → Float</span></div>
 
-  <!-- ④Floatゲージ -->
+  <!-- Float数直線 -->
   <div class="gauge-block">
-    <h2>結晶化拒否度 <span style="font-size:.6em;color:var(--fg-3);font-weight:400;letter-spacing:.05em">Amorphousness Float</span></h2>
-    <p class="lede">自然界の固体は本来「結晶か、そうでないか」という二値(Boolean)で語られがちだ。だが実際には、<b>冷える速さ</b>という連続量が、結晶化の「する/しない」を決めている。黒曜石はこの連続量の、ほぼ端に位置するサンプルとして読める。</p>
+    <h2>結晶化度 <span style="font-size:.6em;color:var(--fg-3);font-weight:400;letter-spacing:.05em">Amorphousness Float</span></h2>
+    <p class="lede">「結晶か、ガラスか」——この二分法(Boolean)は、黒曜石を前にすると崩れる。実際には<b>原子がどれだけ整列できたか</b>という連続量があり、岩はその目盛りの上に並ぶ。<b>大事なのは、この軸が測るのは「結果」だということ</b>。「なぜそうなったか（速さか・ねばさか）」という原因は、§2で見たとおり、まだ揺れている。</p>
 
-    <div class="gauge-row">
-      <span class="tag">石英</span>
-      <div class="gauge"><div class="gfill" data-w="6"></div></div>
-      <span class="gauge-num">0.06</span>
-    </div>
-    <div class="gauge-row">
-      <span class="tag">玄武岩</span>
-      <div class="gauge"><div class="gfill" data-w="30"></div></div>
-      <span class="gauge-num">0.30</span>
-    </div>
-    <div class="gauge-row">
-      <span class="tag">黒曜石</span>
-      <div class="gauge"><div class="gfill" data-w="94"></div></div>
-      <span class="gauge-num">0.94</span>
-    </div>
-    <div class="gauge-caps">
-      <span>0.0 = 完全結晶(ゆっくり冷えた)</span>
-      <span>1.0 = 理想ガラス(一瞬で固まった)</span>
+    <div class="axis" id="axis">
+      <div class="rail"></div>
+      <!-- ピン・目盛はJSで配置 -->
     </div>
 
     <div class="gauge-note">
-      黒曜石の値を<b>0.94</b>としたのは、「結晶を一切含まない」という意味での満点(1.0)ではなく、<b>ごくわずかに微結晶(球顆組織)を含みうる</b>という留保を残すため。天然物である以上、冷却速度も組成も産地ごとに揺れがあり、Floatは「その産地・その一片の推定値」であって、黒曜石という素材全体の物理定数ではない——この一片ごとの揺れ自体も、Boolean→Floatの実例として読んでほしい。
+      石英は完全に整列した結晶(0付近)、黒曜石はほぼ完全な非晶質(1付近)、玄武岩はその間——ただし玄武岩は本来<b>結晶質の岩</b>で、急冷部にガラス質の基質を含みうるという含みでこの位置に置いた。値はすべて公開された定性的記述から著者が読み下した<b>目安</b>であり、実測値ではない。この一片ごとの揺れ自体も、Boolean→Floatの実例として読んでほしい。
     </div>
   </div>
 
   <details class="hirakido">
-    <summary><span class="dia">◆</span>この指標をどう読むか(設計メモ)</summary>
+    <summary><span class="dia">◆</span>この教材の留保（設計メモ）</summary>
     <div class="hd-body">
-      「鉱物か、ガラスか」という教科書的な二分法は、黒曜石を前にすると成立しない。<b>結晶化拒否度</b>は、その二分法を「冷却速度が生んだ連続的な結果」として読み替えるための指標だ。石英のような完全結晶(0付近)と、理論上の完全非晶質ガラス(1付近)の間に、玄武岩や黒曜石を含むあらゆる火成岩を並べ直すと、「鉱物 / 非鉱物」という境界線そのものが、単なる<b>目盛りの一点</b>にすぎないことが見えてくる。数値は公開されている定性的記述(非晶質・貝殻状断口・急冷形成)から著者が読み下した目安であり、鉱物学的な実測値ではない。
+      黒曜石を「結晶か非晶質か」で切ると、境界の一点にしかならない。<b>結晶化度</b>は、その二分法を「原子がどれだけ整列できたかの連続量」として読み替える軸だ。以下は断定を避けるべき点。
+      <ul>
+        <li><b>軸が測るのは結果</b>：結晶化度は「どれだけ非晶質か」という<b>状態</b>の目盛り。旧版はこの軸に「冷却速度(ゆっくり⇔一瞬)」を重ねていたが、それは§2で見た通り<b>通説の急冷説を軸に埋め込んでしまっていた</b>。v1で原因を軸から外した。</li>
+        <li><b>形成過程は諸説</b>：結晶が育たない主因は高粘性とされる。無気泡＝緻密さは徐冷(数週間〜数十年)を要すという2026年の研究がある。本ページは「急冷/徐冷」を確定させず、通説が更新されうることを主題にした。</li>
+        <li><b>玄武岩の位置</b>：玄武岩は結晶質の岩で、厳密には非晶質軸の住人ではない。急冷部のガラス質基質を含む含みで中間に置いた模式的配置。</li>
+        <li><b>数値の出所</b>：0.06/0.30/0.94 は公開された定性的記述からの読み下しで、鉱物学的な実測値ではない。天然物ゆえ産地・組成・冷却史で揺れる。</li>
+      </ul>
     </div>
   </details>
+
+  <div class="shime">結晶が無いことは、<span class="em">急いだ証拠ではなかった。</span></div>
 
 </main>
 
@@ -232,7 +328,7 @@
     <span class="here">No.001 黒曜片</span><span class="sep">·</span><a href="https://osakenpiro.github.io/gosei/">No.002 護錆</a><span class="sep">·</span><a href="https://osakenpiro.github.io/kantei/">還蹄</a>
   </div>
   <div class="foot-line">
-    Floatの数値は公開された定性的記述から著者が読み下した目安であり、鉱物学的な実測値ではない。
+    形成過程は Llewellin et al., Nat. Commun. 17:3266 (2026) を参照。3D・Float値は模式であり実測値ではない。
   </div>
   <div class="foot-line">#全人類UX改善計画</div>
 </footer>
@@ -242,203 +338,171 @@
 (function(){
   "use strict";
 
-  /* ===== 星空生成(CSS要素・軽量) ===== */
+  /* 星空 */
   var sky = document.getElementById("sky");
-  var STAR_N = 70;
-  for (var i = 0; i < STAR_N; i++) {
+  for (var i = 0; i < 70; i++) {
     var s = document.createElement("div");
-    var isGold = Math.random() < 0.16;
-    s.className = "star" + (isGold ? " g" : "");
-    var size = (Math.random() * 1.8 + 0.6).toFixed(2);
-    s.style.width = size + "px";
-    s.style.height = size + "px";
+    s.className = "star" + (Math.random() < 0.16 ? " g" : "");
+    var sz = (Math.random() * 1.8 + 0.6).toFixed(2);
+    s.style.width = sz + "px"; s.style.height = sz + "px";
     s.style.left = (Math.random() * 100).toFixed(2) + "%";
     s.style.top = (Math.random() * 100).toFixed(2) + "%";
     s.style.animationDelay = (Math.random() * 4).toFixed(2) + "s";
     sky.appendChild(s);
   }
 
-  /* ===== Three.js セットアップ (r128) ===== */
+  /* Three.js */
   var canvas = document.getElementById("stage");
   var wrap = canvas.parentElement;
-
   var scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x020203, 0.12);
-
+  scene.fog = new THREE.FogExp2(0x020203, 0.10);
   var camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
   camera.position.set(0, 0.35, 5.2);
   camera.lookAt(0, 0, 0);
-
   var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
 
   function resize() {
     var w = wrap.clientWidth;
-    var h = canvas.clientHeight || Math.min(w * 0.58, 420);
-    // canvasのCSS高さ(min(58vw,420px))に実サイズを合わせる
-    var cssH = parseFloat(getComputedStyle(canvas).height) || h;
+    var cssH = parseFloat(getComputedStyle(canvas).height) || Math.min(w * 0.58, 420);
     renderer.setSize(w, cssH, false);
-    camera.aspect = w / cssH;
-    camera.updateProjectionMatrix();
+    camera.aspect = w / cssH; camera.updateProjectionMatrix();
   }
 
-  /* ===== ライティング: 金の光源が黒曜石の闇を撫でる ===== */
-  scene.add(new THREE.AmbientLight(0x1a1830, 0.55));
-  var goldKey = new THREE.PointLight(0xd4a853, 1.35, 20, 2);
-  goldKey.position.set(2.6, 2.2, 3.2);
-  scene.add(goldKey);
-  var coolFill = new THREE.PointLight(0x4a5a8a, 0.5, 20, 2);
-  coolFill.position.set(-3.0, -1.5, -2.0);
-  scene.add(coolFill);
-  var rim = new THREE.PointLight(0xffffff, 0.4, 20, 2);
-  rim.position.set(-1.5, 3.0, -3.5);
-  scene.add(rim);
+  /* ライティング: 金の主光源＋中性フィル＋金リムで「見える闇」を作る。
+     色相は金と無彩色のみ(設計正典)。旧版は闇on闇で形が消えていた→ambient/リムを起こす。 */
+  scene.add(new THREE.AmbientLight(0x2a2a33, 0.7));
+  var goldKey = new THREE.PointLight(0xd4a853, 1.5, 22, 2);
+  goldKey.position.set(2.8, 2.4, 3.4); scene.add(goldKey);
+  var neutralFill = new THREE.PointLight(0xc8ccd4, 0.55, 22, 2);
+  neutralFill.position.set(-3.2, -0.8, 2.2); scene.add(neutralFill);
+  var goldRim = new THREE.PointLight(0xd4a853, 1.05, 20, 2);
+  goldRim.position.set(-2.2, 1.8, -3.4); scene.add(goldRim);
 
-  /* ===== 回転させる親グループ ===== */
-  var rig = new THREE.Group();
-  scene.add(rig);
+  var rig = new THREE.Group(); scene.add(rig);
 
-  /* ===== 黒曜片ジオメトリ: Icosahedronを不規則に歪ませ「割れた剥片」を表現 =====
-     CapsuleGeometryは使わない。primitiveのIcosahedronGeometry(BufferGeometry)を
-     頂点レベルでランダム変形し、貝殻状断口(conchoidal fracture)らしい
-     不揃いな面構成を作る。r128のBufferGeometry APIのみ使用。 */
-  var shardGeo = new THREE.IcosahedronGeometry(1.35, 1);
-  (function distortShard(geo) {
-    var pos = geo.attributes.position;
-    var v = new THREE.Vector3();
-    // 頂点ごとの疑似ランダム(決定論): インデックスからシード
-    for (var idx = 0; idx < pos.count; idx++) {
-      v.fromBufferAttribute(pos, idx);
-      var n = Math.sin(idx * 12.9898) * 43758.5453;
-      var r1 = n - Math.floor(n);
-      var n2 = Math.sin(idx * 78.233 + 4.1) * 12543.231;
-      var r2 = n2 - Math.floor(n2);
-      var n3 = Math.sin(idx * 39.346 + 8.9) * 25698.123;
-      var r3 = n3 - Math.floor(n3);
-      var jitter = 0.16;
-      v.x += (r1 - 0.5) * jitter;
-      v.y += (r2 - 0.5) * jitter;
-      v.z += (r3 - 0.5) * jitter;
-      pos.setXYZ(idx, v.x, v.y, v.z);
+  /* 黒曜片ジオメトリ: Icosahedron。頂点の基準位置(整列)を保持し、
+     結晶化度amで「整列(結晶)⇔乱雑(非晶質)」を補間する。CapsuleGeometryは使わない。 */
+  var DETAIL = 2;
+  var shardGeo = new THREE.IcosahedronGeometry(1.4, DETAIL);
+  var basePos = shardGeo.attributes.position.array.slice(0); // 整列基準
+  var jitter = new Float32Array(basePos.length);
+  (function seedJitter(){
+    for (var k = 0; k < basePos.length; k += 3) {
+      var n1 = Math.sin(k * 12.9898) * 43758.5453; n1 -= Math.floor(n1);
+      var n2 = Math.sin(k * 78.233 + 4.1) * 12543.231; n2 -= Math.floor(n2);
+      var n3 = Math.sin(k * 39.346 + 8.9) * 25698.123; n3 -= Math.floor(n3);
+      jitter[k]   = (n1 - 0.5);
+      jitter[k+1] = (n2 - 0.5);
+      jitter[k+2] = (n3 - 0.5);
     }
-    geo.computeVertexNormals();
-  })(shardGeo);
+  })();
 
+  /* envMap無し環境では高metalnessは黒く沈む(護錆で実証)。低metalness＋中roughnessで
+     拡散反射を確保し、不透明を保って背景の黒が透けないようにする。
+     結晶感は「色の明るさ＋金の稜線」で出す＝透明感には頼らない。 */
   var shardMat = new THREE.MeshStandardMaterial({
-    color: 0x0d0c12,
-    metalness: 0.15,
-    roughness: 0.22,
-    envMapIntensity: 1.0,
-    flatShading: true
+    color: 0x1b1926, metalness: 0.10, roughness: 0.42, flatShading: true
   });
   var shard = new THREE.Mesh(shardGeo, shardMat);
   rig.add(shard);
 
-  /* 内側からわずかに滲む金の光(結晶化拒否=溶けた光を閉じ込めた、の比喩) */
-  var glowGeo = new THREE.IcosahedronGeometry(1.0, 1);
-  var glowMat = new THREE.MeshBasicMaterial({ color: 0xd4a853, transparent: true, opacity: 0.06 });
-  var glow = new THREE.Mesh(glowGeo, glowMat);
-  rig.add(glow);
+  /* エッジ線: 整列時ほど結晶の稜線がくっきり出る */
+  var edgeGeo = new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(1.4, DETAIL), 18);
+  var edgeMat = new THREE.LineBasicMaterial({ color: 0xd4a853, transparent: true, opacity: 0.0 });
+  var edges = new THREE.LineSegments(edgeGeo, edgeMat);
+  rig.add(edges);
 
-  /* 剥片(細かい破片)を周囲に散らす — 剥離した石器づくりの痕跡 */
-  var flakes = [];
-  var FLAKE_N = 5;
-  for (var f = 0; f < FLAKE_N; f++) {
-    var fg = new THREE.IcosahedronGeometry(0.12 + Math.random() * 0.1, 0);
-    var fm = new THREE.MeshStandardMaterial({ color: 0x121016, metalness: 0.1, roughness: 0.3, flatShading: true });
-    var fmesh = new THREE.Mesh(fg, fm);
-    var ang = (f / FLAKE_N) * Math.PI * 2;
-    var rad = 2.0 + Math.random() * 0.4;
-    fmesh.position.set(Math.cos(ang) * rad, (Math.random() - 0.5) * 0.8, Math.sin(ang) * rad);
-    fmesh.userData = { ang: ang, rad: rad, ySeed: Math.random() * Math.PI * 2 };
-    rig.add(fmesh);
-    flakes.push(fmesh);
-  }
+  var state = { am: 0.94 };
 
-  /* ===== ドラッグ回転(慣性つき・自前実装。OrbitControls不使用) ===== */
-  var rotY = 0.4, rotX = -0.05, velY = 0, velX = 0;
-  var dragging = false, lastX = 0, lastY = 0, autoSpin = true;
-  var hintEl = document.getElementById("hint");
-
-  function pointerDown(x, y) {
-    dragging = true; lastX = x; lastY = y; autoSpin = false; velY = 0; velX = 0;
-    if (hintEl) hintEl.style.opacity = "0";
-  }
-  function pointerMove(x, y) {
-    if (!dragging) return;
-    var dx = x - lastX, dy = y - lastY;
-    velY = dx * 0.006;
-    velX = dy * 0.004;
-    rotY += velY;
-    rotX = Math.max(-0.9, Math.min(0.9, rotX + velX));
-    lastX = x; lastY = y;
-  }
-  function pointerUp() { dragging = false; }
-
-  canvas.addEventListener("mousedown", function (e) { pointerDown(e.clientX, e.clientY); });
-  window.addEventListener("mousemove", function (e) { pointerMove(e.clientX, e.clientY); });
-  window.addEventListener("mouseup", pointerUp);
-  canvas.addEventListener("touchstart", function (e) {
-    var t = e.touches[0]; pointerDown(t.clientX, t.clientY);
-  }, { passive: true });
-  canvas.addEventListener("touchmove", function (e) {
-    var t = e.touches[0]; pointerMove(t.clientX, t.clientY);
-  }, { passive: true });
-  canvas.addEventListener("touchend", pointerUp);
-
-  /* ===== ループ ===== */
-  var clock = new THREE.Clock();
-  function animate() {
-    requestAnimationFrame(animate);
-    var dt = clock.getDelta();
-
-    if (autoSpin) rotY += 0.0032;
-    if (!dragging) {
-      rotY += velY; velY *= 0.94; if (Math.abs(velY) < 0.0001) velY = 0;
-      rotX += velX; velX *= 0.94; if (Math.abs(velX) < 0.0001) velX = 0;
+  function applyAm() {
+    var am = state.am;                 // 0=結晶 / 1=非晶質
+    var pos = shardGeo.attributes.position.array;
+    var amp = 0.42 * am;               // 乱雑さの振幅
+    for (var k = 0; k < pos.length; k++) {
+      pos[k] = basePos[k] + jitter[k] * amp;
     }
-    rig.rotation.y = rotY;
-    rig.rotation.x = rotX;
+    shardGeo.attributes.position.needsUpdate = true;
+    shardGeo.computeVertexNormals();
 
-    // 金の光をゆっくり周回させ、断面のきらめきを演出
+    /* 色: 結晶(明るい青白)⇔非晶質(黒曜の闇)。不透明のまま明度だけを動かす＝背景の黒に沈めない。 */
+    var lum = 1 - am;                  // 1(結晶)〜0(非晶質)
+    shardMat.color.setRGB(0.10 + lum * 0.48, 0.11 + lum * 0.52, 0.16 + lum * 0.60);
+    edges.material.opacity = 0.62 * (1 - am);  // 結晶ほど金の稜線がくっきり
+
+    var v;
+    if (am < 0.2) v = { k: "結晶（整列）", d: "原子が規則正しく並ぶ。石英のような結晶質。" };
+    else if (am < 0.6) v = { k: "半ば結晶", d: "微結晶とガラス質が混じる。玄武岩のような中間。" };
+    else v = { k: "凍った液体（非晶質）", d: "乱雑なまま固まったガラス。＝黒曜石。" };
+    document.getElementById("verdict").innerHTML = "<b>" + v.k + "</b><br>" + v.d;
+  }
+
+  /* UI */
+  var amEl = document.getElementById("am");
+  var amVal = document.getElementById("amVal");
+  var hintEl = document.getElementById("hint");
+  var presets = Array.prototype.slice.call(document.querySelectorAll(".preset"));
+
+  function syncPresets(){ presets.forEach(function(b){ b.classList.toggle("on", Math.abs(parseFloat(b.getAttribute("data-am")) - state.am) < 0.005); }); }
+  function syncPins(){ Array.prototype.slice.call(document.querySelectorAll(".pin")).forEach(function(p){ p.classList.toggle("hi", Math.abs(parseFloat(p.getAttribute("data-am")) - state.am) < 0.03); }); }
+
+  amEl.addEventListener("input", function(){
+    state.am = parseFloat(amEl.value); amVal.textContent = state.am.toFixed(2);
+    syncPresets(); syncPins(); applyAm(); if (hintEl) hintEl.style.opacity = "0";
+  });
+  function setAm(v){
+    state.am = v; amEl.value = String(v); amVal.textContent = v.toFixed(2);
+    syncPresets(); syncPins(); applyAm(); if (hintEl) hintEl.style.opacity = "0";
+  }
+  presets.forEach(function(b){ b.addEventListener("click", function(){ setAm(parseFloat(b.getAttribute("data-am"))); }); });
+
+  /* Float数直線 */
+  var ROCKS = [
+    { n: "石英 0.06", v: 0.06, up: true },
+    { n: "玄武岩 0.30", v: 0.30, up: false },
+    { n: "黒曜石 0.94", v: 0.94, up: true }
+  ];
+  var axis = document.getElementById("axis");
+  ROCKS.forEach(function(m){
+    var el = document.createElement("div");
+    el.className = "pin " + (m.up ? "up" : "dn");
+    el.style.left = (m.v * 100) + "%";
+    el.setAttribute("data-am", String(m.v));
+    el.innerHTML = '<span class="nm">' + m.n + '</span><div class="stem"></div><div class="dot"></div>';
+    el.addEventListener("click", function(){ setAm(m.v); document.querySelector(".stage-wrap").scrollIntoView({behavior:"smooth",block:"center"}); });
+    axis.appendChild(el);
+  });
+  var scale = document.createElement("div"); scale.className = "scale";
+  [[0,"0.0"],[0.5,"0.5"],[1,"1.0"]].forEach(function(s){
+    var sp = document.createElement("span"); sp.style.left = (s[0]*100)+"%"; sp.textContent = s[1]; scale.appendChild(sp);
+  });
+  axis.appendChild(scale);
+
+  /* ドラッグ回転(慣性・OrbitControls不使用) */
+  var rotY = 0.4, rotX = -0.05, velY = 0, velX = 0, dragging = false, lastX = 0, lastY = 0, autoSpin = true;
+  function down(x,y){ dragging=true; lastX=x; lastY=y; autoSpin=false; velY=0; velX=0; if(hintEl) hintEl.style.opacity="0"; }
+  function move(x,y){ if(!dragging) return; var dx=x-lastX, dy=y-lastY; velY=dx*0.006; velX=dy*0.004; rotY+=velY; rotX=Math.max(-0.9,Math.min(0.9,rotX+velX)); lastX=x; lastY=y; }
+  function up(){ dragging=false; }
+  canvas.addEventListener("mousedown", function(e){ down(e.clientX,e.clientY); });
+  window.addEventListener("mousemove", function(e){ move(e.clientX,e.clientY); });
+  window.addEventListener("mouseup", up);
+  canvas.addEventListener("touchstart", function(e){ var t=e.touches[0]; down(t.clientX,t.clientY); }, {passive:true});
+  canvas.addEventListener("touchmove", function(e){ var t=e.touches[0]; move(t.clientX,t.clientY); }, {passive:true});
+  canvas.addEventListener("touchend", up);
+
+  var clock = new THREE.Clock();
+  function animate(){
+    requestAnimationFrame(animate);
+    if (autoSpin) rotY += 0.0034;
+    if (!dragging) { rotY += velY; velY *= 0.94; if (Math.abs(velY)<0.0001) velY=0; rotX += velX; velX *= 0.94; if (Math.abs(velX)<0.0001) velX=0; }
+    rig.rotation.y = rotY; rig.rotation.x = rotX;
     var t = clock.elapsedTime;
-    goldKey.position.set(Math.cos(t * 0.3) * 3.0, 2.0 + Math.sin(t * 0.22) * 0.6, Math.sin(t * 0.3) * 3.0);
-    glowMat.opacity = 0.05 + Math.sin(t * 0.8) * 0.02;
-
-    // 剥片を静かに公転
-    flakes.forEach(function (fl, i) {
-      var ud = fl.userData;
-      var a = ud.ang + t * 0.12 + i * 0.001;
-      fl.position.set(Math.cos(a) * ud.rad, Math.sin(t * 0.4 + ud.ySeed) * 0.4, Math.sin(a) * ud.rad);
-      fl.rotation.x += 0.003;
-      fl.rotation.y += 0.004;
-    });
-
+    goldKey.position.set(Math.cos(t*0.3)*3.0, 2.2 + Math.sin(t*0.22)*0.5, Math.sin(t*0.3)*3.0);
     renderer.render(scene, camera);
   }
 
   window.addEventListener("resize", resize);
-  resize();
-  animate();
-
-  /* ===== Floatゲージ アニメーション(スクロール到達時に0→目標値) ===== */
-  var gauges = document.querySelectorAll(".gfill");
-  var gaugeAnimated = false;
-  function tryAnimateGauges() {
-    if (gaugeAnimated) return;
-    var block = document.querySelector(".gauge-block");
-    if (!block) return;
-    var rect = block.getBoundingClientRect();
-    if (rect.top < window.innerHeight * 0.85) {
-      gaugeAnimated = true;
-      gauges.forEach(function (g) {
-        var w = g.getAttribute("data-w");
-        requestAnimationFrame(function () { g.style.width = w + "%"; });
-      });
-    }
-  }
-  window.addEventListener("scroll", tryAnimateGauges, { passive: true });
-  tryAnimateGauges();
+  resize(); setAm(0.94); applyAm(); animate();
 })();
 </script>
 </body>
