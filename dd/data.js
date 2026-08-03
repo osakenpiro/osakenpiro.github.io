@@ -51,7 +51,7 @@ window.OSK_DATA = {
   // GEN:TOOLS:START — gen_dd.py (成果物DB=正本 / 手書き編集はDB側メモ・名前へ)
   tools: [
     { icon: "🎮", ja: "はざま / HAZAMA", en: "hazama", sub: "ファジー論理パズル＋【工房＝自由配線サンドボックス】 · 0.95", stack: "single html · game", url: "https://osakenpiro.github.io/hazama/", pillar: "G", hero: true },
-    { icon: "🛠", ja: "社会考証ビジュアライザ（ひとRe:）", en: "shakai-vis", sub: "ひとRe:(人類消失SF)の社会全体考証ツール · 0.92", stack: "single html", url: "https://osakenpiro.github.io/shakai-vis/", pillar: "B", hero: true },
+    { icon: "🛠", ja: "社会考証ビジュアライザ（ひとRe:）", en: "shakai-vis", sub: "ひとRe:(人類消失SF)の社会全体考証ツール · 0.94", stack: "single html", url: "https://osakenpiro.github.io/shakai-vis/", pillar: "B", hero: true },
     { icon: "🎲", ja: "バク運スカウター — 運力計測器", en: "bakuun-scouter", sub: "運の計測と運の貯金 — 遊ばない日が運になる運力計測器 · 0.90", stack: "single html · game", url: "https://osakenpiro.github.io/bakuun-scouter/", pillar: "G", comic: "/works/images/motif/bakuun-scouter_sq.jpg", hero: true },
     { icon: "⚖", ja: "フリコ / FURIKO — 決断の振り子", en: "furiko", sub: "二択の迷いを0.0〜1.0の連続値にする決断の振り子 · 0.90", stack: "single html", url: "https://osakenpiro.github.io/furiko/", pillar: "T", hero: true },
     { icon: "🛠", ja: "三つ編み / Mitsuami", en: "mitsuami", sub: "名前を音韻×意味×構造の三層Floatで編む三重がけ命名ツール · 0.90", stack: "single html", url: "https://osakenpiro.github.io/mitsuami/", pillar: "T", hero: true },
