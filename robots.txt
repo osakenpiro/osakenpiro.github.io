@@ -1,0 +1,10 @@
+# osakenpiro.github.io
+# 何も塞がない。「格」は sitemap.xml の priority 側で表明している。
+#   1.0 玄関 / 0.9 works(台帳) / 0.8-0.7 束ね / 0.6 外窓 / 0.5 作品 / 0.4 とりせつ
+#   0.1 計器・本人用（galaxy・status・disco-map・tanaoroshi）＝「入口」と呼ぶのをやめただけ
+# 計器を Disallow しないのは、それが「格下げ(0.25)」ではなく「検索から消す」になるから。
+
+User-agent: *
+Allow: /
+
+Sitemap: https://osakenpiro.github.io/sitemap.xml
