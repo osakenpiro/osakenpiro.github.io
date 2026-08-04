@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "generated_at": "2026-08-04T07:15:50.730224+09:00",
+    "generated_at": "2026-08-05T07:17:50.031412+09:00",
     "generator": "galaxy_push.py v1.1 (native daily, post-snapshot)",
     "spec": "node id -> ISO date (YYYY-MM-DD). 銀河系が fetch し化石化判定に使う。",
     "node_count": 82,
@@ -14,7 +14,7 @@
   "Banet": "2026-04-22",
   "BeeF": "2026-04-27",
   "BoolFloat": "2026-04-27",
-  "CShared": "2026-08-03",
+  "CShared": "2026-08-04",
   "ChakkaKeiryu": "2026-04-21",
   "ClONEPiece": "2026-07-04",
   "Cokogaku": "2026-04-26",
