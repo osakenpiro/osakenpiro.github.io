@@ -321,6 +321,7 @@
   function mix(c1, c2, t){ return "rgb(" + Math.round(c1[0]+(c2[0]-c1[0])*t) + "," + Math.round(c1[1]+(c2[1]-c1[1])*t) + "," + Math.round(c1[2]+(c2[2]-c1[2])*t) + ")"; }
   function rgba(c, a){ return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")"; }
   function mulberry32(s){ return function(){ s |= 0; s = s + 0x6D2B79F5 | 0; var t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function hash32(s){ var h = 2166136261 >>> 0; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0) || 1; }
 
 
   /* ================= 商流レイヤ v9（よこ＝8段 × 5素材） =================
@@ -541,6 +542,10 @@
   var GYO_NONE = ["掘る人しかいない", "作り変える人しかいない", null, null, null, null, "使う人しかいない", null];
 
   var gyoKill = {}, gyoAnyKill = false, gyoCutTbl = null, gyoHit = [], gyoHov = null;
+  /* v9.3 時代アニメ: 柱の出生・消滅（450msで定常へ。定常描画は従来と同一） */
+  var gyoVis = {}, gyoBorn = {}, gyoGhost = {}, gyoGeomLast = {};
+  var GYO_ANIM = 450;
+  function gyoEase(p){ return 1 - Math.pow(1 - p, 3); }
   var GYO_BY_ST = null, shoFrame = null;
   function gyoByStage(){
     if (GYO_BY_ST) return GYO_BY_ST;
@@ -745,15 +750,13 @@
       var u = emap[k];
       u.a = nodesById[u.from]; u.b = nodesById[u.to];
       u.bend = (i % 2 === 0 ? 1 : -1) * (u.cross ? 0.14 : 0.09);
-      var o = oldE[k];
-      if (o && o.parts) { u.parts = o.parts; }
-      else {
-        var mf = 0; for (var ek in u.eras) { if ((u.eras[ek].f || 0) > mf) mf = u.eras[ek].f; }
-        mf = mf || 0.5;
-        var count = 1 + Math.round(mf * 3); u.parts = [];
-        var rnd = mulberry32(1000 + i);
-        for (var pk = 0; pk < count; pk++) { u.parts.push({ t: rnd(), v: (0.0018 + mf * 0.0035) * (0.6 + 0.5 * rnd()) }); }
-      }
+      /* v9.3: 粒子seedを到着順から独立させる。seed=key(from|to)のハッシュ固定、
+         era到着のたびに現在のmfで作り直す＝最終状態は「揃った集合」だけの関数になる（到着順非決定性の根治） */
+      var mf = 0; for (var ek in u.eras) { if ((u.eras[ek].f || 0) > mf) mf = u.eras[ek].f; }
+      mf = mf || 0.5;
+      var count = 1 + Math.round(mf * 3); u.parts = [];
+      var rnd = mulberry32(hash32(k));
+      for (var pk = 0; pk < count; pk++) { u.parts.push({ t: rnd(), v: (0.0018 + mf * 0.0035) * (0.6 + 0.5 * rnd()) }); }
       return u;
     }).filter(function(e){ return e.a && e.b; });
     buildChips();
@@ -1051,6 +1054,15 @@
     for (si = 0; si < 8; si++) {
       var cx = x0 + (si + 0.5) * colW, nSlot = bs[si].length, list = [];
       for (k = 0; k < nSlot; k++) { var ev = gyoEraV(bs[si][k]); if (ev >= 0.02) list.push({ g: bs[si][k], e: ev }); }
+      if (pass === 0) for (k = 0; k < nSlot; k++) {
+        var gg = bs[si][k], vNow = gyoEraV(gg) >= 0.02, vPrev = gyoVis[gg.id];
+        if (vPrev === undefined) { gyoVis[gg.id] = vNow; if (vNow) gyoBorn[gg.id] = now; }
+        else if (vNow !== vPrev) {
+          gyoVis[gg.id] = vNow;
+          if (vNow) { gyoBorn[gg.id] = now; delete gyoGhost[gg.id]; }
+          else if (gyoGeomLast[gg.id]) { gyoGhost[gg.id] = { t: now, px: gyoGeomLast[gg.id].px, w: gyoGeomLast[gg.id].w }; }
+        }
+      }
       if (!list.length) {
         if (pass === 1 && !narrow && GYO_NONE[si]) {
           gyoTate(GYO_NONE[si], cx, top + hgt * 0.20, top + hgt, rgba(IVORY, 0.26), 9.5);
@@ -1063,9 +1075,22 @@
       var px = cx - tot / 2;
       for (k = 0; k < list.length; k++) {
         var w = Math.max(3, unit * list[k].e);
-        gyoPillar(pass, list[k].g, px, w, top, hgt, now, d, narrow, hm);
+        var bAt = gyoBorn[list[k].g.id], rs = 1;
+        if (bAt != null) { var bp = (now - bAt) / GYO_ANIM; if (bp >= 1) { delete gyoBorn[list[k].g.id]; } else { rs = gyoEase(Math.max(0.02, bp)); } }
+        if (pass === 0) gyoGeomLast[list[k].g.id] = { px: px, w: w };
+        if (rs >= 1) gyoPillar(pass, list[k].g, px, w, top, hgt, now, d, narrow, hm);
+        else gyoPillar(pass, list[k].g, px, w, top + hgt * (1 - rs), hgt * rs, now, d, narrow, hm);
         px += w + gap;
       }
+    }
+    if (pass === 1) for (var gid in gyoGhost) {
+      var gh2 = gyoGhost[gid], gp = (now - gh2.t) / GYO_ANIM;
+      if (gp >= 1) { delete gyoGhost[gid]; continue; }
+      var rem = 1 - gyoEase(gp), gTop = top + hgt * (1 - rem);
+      ctx.setLineDash([2, 3]); ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(196,200,214," + (0.34 * rem).toFixed(3) + ")";
+      ctx.strokeRect(gh2.px, gTop, gh2.w, (top + hgt) - gTop);
+      ctx.setLineDash([]);
     }
     ctx.textAlign = "left"; ctx.textBaseline = "top";
   }
@@ -1579,7 +1604,11 @@
     var i;
     for (i = 0; i < shoHit.legend.length; i++) { var g = shoHit.legend[i]; if (mx >= g.x0 && mx <= g.x1 && my >= g.y0 && my <= g.y1) return { legend: g.mi }; }
     for (i = 0; i < shoHit.stages.length; i++) { var s = shoHit.stages[i]; if (mx >= s.x0 && mx <= s.x1 && my >= s.y0 && my <= s.y1) return { stage: s.i }; }
-    for (i = 0; i < gyoHit.length; i++) { var gh = gyoHit[i]; if (mx >= gh.x0 && mx <= gh.x1 && my >= gh.y0 && my <= gh.y1) return { gyo: gh }; }
+    for (i = 0; i < gyoHit.length; i++) { var gh = gyoHit[i]; if (mx >= gh.x0 && mx <= gh.x1 && my >= gh.y0 && my <= gh.y1) {
+      var xm = null, j2;
+      for (j2 = 0; j2 < shoHit.cells.length; j2++) { var c2 = shoHit.cells[j2]; if (my >= c2.y0 && my <= c2.y1 && mx >= c2.x0 && mx <= c2.x1) { xm = c2; break; } }
+      return xm ? { gyo: gh, mi: xm.mi, si: xm.si } : { gyo: gh };
+    } }
     for (i = 0; i < shoHit.cells.length; i++) { var c = shoHit.cells[i]; if (mx >= c.x0 && mx <= c.x1 && my >= c.y0 && my <= c.y1) return { mi: c.mi, si: c.si, st: c.st }; }
     return null;
   }
@@ -1600,6 +1629,17 @@
         + '<div class="bar"><i style="width:' + Math.round(g.dief * 100) + '%;background:#c06868"></i></div>'
         + '<div class="d">' + g.died + '</div>'
         + '<div class="d" style="margin-top:4px">' + g.d + '</div>';
+      if (h.mi != null) {
+        var xm2 = SHO_MAT[h.mi], wvx = shoWv(xm2), fx = wvx[g.stg] || 0;
+        var bs2 = gyoByStage()[g.stg], tot2 = 0, evg = 0, q2;
+        for (q2 = 0; q2 < bs2.length; q2++) { var g3 = bs2[q2], e3 = gyoEraV(g3); if (e3 < 0.02) continue; if (g3.mats.indexOf(xm2.id) >= 0) { tot2 += e3; if (g3 === g) evg = e3; } }
+        var sh2 = tot2 > 0 ? evg / tot2 : 0;
+        o += '<div class="l" style="color:' + xm2.c + ';margin-top:6px">交点　' + xm2.emo + ' ' + xm2.n + ' × ' + gyoName(g) + '</div>'
+          + '<div class="bar"><i style="width:' + Math.round(sh2 * 100) + '%;background:' + xm2.c + '"></i></div>'
+          + '<div class="d">この段の' + xm2.n + '（流量 ' + fx.toFixed(2) + '）のうち、この商い経由 ' + Math.round(sh2 * 100) + '%'
+          + (gyoCutTbl && gyoCutTbl[xm2.id + "@" + g.stg] ? '。畳みで ' + Math.round(gyoCutTbl[xm2.id + "@" + g.stg] * 100) + '% 細り中' : '')
+          + (g.mats.indexOf(xm2.id) < 0 ? '。この商いは' + xm2.n + 'を扱わない——柱の横を素通りしていく' : '') + '</div>';
+      }
       if (gyoSpan(g) == null) o += '<div class="st" style="color:var(--dim)">この時代、この段にはモノが流れていない。それでもこの商いは立っている——先に流れているのは、モノではないもの。</div>';
       if (state.honmaru) {
         o += '<div class="st">本丸: <span class="' + (gst <= 1 ? "alive" : "dead") + '">' + lab2 + '</span></div>'
@@ -1797,6 +1837,7 @@
   bGyotai.addEventListener("click", function(){
     state.gyoutai = !state.gyoutai;
     if (!state.gyoutai) { gyoKill = {}; gyoAnyKill = false; gyoCutTbl = null; }
+    gyoVis = {}; gyoBorn = {}; gyoGhost = {}; gyoGeomLast = {};
     if (state.gyoutai && !state.shoryu) { state.shoryu = true; shoIntro = 0; shoAsh.length = 0; shoTr = null; shoPrev = {}; shoFlash = {}; }
     shoHover = null; hover = null; tip.style.display = "none"; syncUI();
   });
