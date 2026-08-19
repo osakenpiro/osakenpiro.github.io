@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>メの島 建築ボード</title>
+<style>
+:root{
+  --bg:#e9e5dd; --panel:#f7f5f0; --panel2:#dedad0; --ink:#2f3438; --soft:#6e747b;
+  --line:#c6c0b4; --amber:#c8862f; --teal:#437b7e; --rust:#a8543c; --ok:#5c7f4e;
+  --i-kouya:#8a9c5b; --i-unabara:#4f7f9c; --i-kazan:#b4664a;
+  --i-sora:#7b74a8; --i-iwayama:#8d8577; --i-umizoko:#3d6b78;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:linear-gradient(180deg,rgba(67,123,126,.10),transparent 240px),var(--bg);
+  color:var(--ink);font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;
+  padding:16px 10px 80px;line-height:1.6;-webkit-text-size-adjust:100%;}
+.wrap{max-width:760px;margin:0 auto;}
+.eyebrow{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.26em;color:var(--teal);}
+h1{font-size:22px;}
+.lede{font-size:12px;color:var(--soft);margin-top:3px;}
+.note{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--amber);
+  border-radius:7px;padding:9px 12px;margin:12px 0;font-size:11.5px;color:var(--soft);}
+h2.sec{font-size:11.5px;letter-spacing:.14em;color:var(--teal);margin:20px 0 8px;
+  font-family:ui-monospace,monospace;display:flex;align-items:center;gap:8px;}
+h2.sec::after{content:"";flex:1;height:1px;background:var(--line);}
+
+.tabs{display:flex;margin:14px 0 6px;border:1px solid var(--line);border-radius:9px;
+  overflow:hidden;background:var(--panel);}
+.tabs button{flex:1;border:none;background:transparent;padding:11px 3px;cursor:pointer;
+  font-family:inherit;font-size:12.5px;color:var(--soft);border-right:1px solid var(--line);}
+.tabs button:last-child{border-right:none;}
+.tabs button.on{background:var(--teal);color:#fff;font-weight:700;}
+.page{display:none;} .page.on{display:block;}
+
+.roster{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px;}
+.who{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--panel);
+  border:1px solid var(--line);color:var(--soft);}
+.who.me{background:#dfe8e5;color:#3c6360;font-weight:700;}
+
+/* recipes */
+.grp-h{font-size:12px;color:var(--soft);margin:15px 0 6px;font-weight:700;}
+.rec{background:var(--panel);border:1px solid var(--line);border-radius:9px;
+  padding:9px 11px;margin-bottom:6px;display:flex;align-items:center;gap:9px;}
+.rec.sel{border-color:var(--amber);background:#fdf8ef;}
+.rec-i{flex:1;min-width:0;}
+.rec-n{font-size:13.5px;font-weight:700;}
+.rec-m{font-size:11px;color:var(--soft);font-family:ui-monospace,monospace;margin-top:1px;}
+.qwrap{flex:none;display:flex;flex-direction:column;gap:3px;align-items:flex-end;}
+.qbox{display:flex;align-items:center;gap:3px;}
+.qbox button{border:1px solid var(--line);background:#fff;border-radius:5px;padding:5px 7px;
+  height:28px;font-size:11px;cursor:pointer;color:var(--soft);font-family:ui-monospace,monospace;}
+.qbox input{width:60px;padding:5px;font-size:13px;text-align:right;border:1px solid var(--line);
+  border-radius:5px;font-family:ui-monospace,monospace;background:#fff;color:var(--ink);}
+.qbox2{display:flex;gap:3px;}
+.qbox2 button{border:1px solid var(--line);background:#fff;border-radius:4px;padding:3px 5px;
+  font-size:10px;cursor:pointer;color:var(--soft);font-family:ui-monospace,monospace;}
+
+/* materials */
+.mat{background:var(--panel);border:1px solid var(--line);border-radius:11px;
+  margin-bottom:9px;overflow:hidden;}
+.mat.active{border-color:var(--amber);box-shadow:0 0 0 2px rgba(200,134,47,.16);}
+.mat-top{display:flex;gap:11px;padding:11px 12px;cursor:pointer;align-items:center;}
+.bowl{flex:none;width:62px;height:62px;}
+.mat-info{flex:1;min-width:0;}
+.mat-name{font-size:15.5px;font-weight:700;}
+.mat-nums{font-family:ui-monospace,monospace;font-size:12px;color:var(--soft);margin-top:2px;}
+.mat-nums b{font-size:16px;color:var(--ink);}
+.mat-nums .short{color:var(--rust);} .mat-nums .done{color:var(--ok);}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;}
+.chip{font-size:10px;padding:1px 7px;border-radius:20px;background:var(--panel2);
+  color:var(--soft);white-space:nowrap;}
+.chip.loc{background:#dfe8e5;color:#3c6360;}
+.chip.rec{background:#f2e3cd;color:#7a5518;}
+.caret{flex:none;color:var(--soft);font-size:12px;}
+.body{display:none;padding:0 12px 12px;border-top:1px dashed var(--line);}
+.mat.open .body{display:block;}
+.sub{font-size:10.5px;letter-spacing:.1em;color:var(--soft);margin:12px 0 5px;font-family:ui-monospace,monospace;}
+.line{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--panel2);}
+.line .lab{flex:1;font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.line .lab small{color:var(--soft);font-size:10px;}
+.line .q{font-family:ui-monospace,monospace;font-size:14px;font-weight:700;min-width:56px;text-align:right;}
+.mini{border:1px solid var(--line);background:#fff;border-radius:5px;padding:4px 7px;
+  font-size:11px;cursor:pointer;font-family:inherit;color:var(--soft);flex:none;}
+.mini.del{color:var(--rust);border-color:#dcbfb6;}
+.mini.add{color:var(--teal);border-color:#a9c4c3;}
+.mini.plus{color:var(--ok);border-color:#bfd0b6;font-family:ui-monospace,monospace;}
+.mini.minus{color:var(--rust);border-color:#dcbfb6;font-family:ui-monospace,monospace;}
+.btnrow{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;width:100%;}
+.addrow{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;}
+.bld{background:var(--panel);border:1px solid var(--line);border-radius:11px;margin-bottom:9px;overflow:hidden;}
+.bld-h{padding:11px 13px;cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+.bld-n{font-size:15.5px;font-weight:700;}
+.bld-s{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--soft);}
+.bld-b{display:none;padding:0 13px 13px;border-top:1px dashed var(--line);}
+.bld.open .bld-b{display:block;}
+.pick{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:6px;}
+.pick button{border:1px solid var(--line);background:#fff;border-radius:6px;padding:6px 4px;
+  font-family:inherit;font-size:10.5px;line-height:1.3;cursor:pointer;color:var(--ink);
+  text-align:center;overflow:hidden;}
+.pick button small{display:block;color:var(--soft);font-size:9px;font-family:ui-monospace,monospace;}
+.pick button.on{background:var(--amber);color:#fff;border-color:var(--amber);}
+.pick button.on small{color:#fdf1df;}
+@media(max-width:380px){.pick{grid-template-columns:repeat(2,1fr);}}
+select,input[type=number],input[type=text]{padding:6px 7px;font-size:12.5px;border:1px solid var(--line);
+  border-radius:6px;background:#fff;color:var(--ink);font-family:inherit;}
+input[type=number]{width:76px;font-family:ui-monospace,monospace;}
+input[type=text]{flex:1;min-width:90px;}
+select{flex:1;min-width:100px;}
+
+/* island */
+.isl{background:var(--panel);border:1px solid var(--line);border-radius:11px;
+  padding:12px 13px;margin-bottom:8px;border-left:5px solid var(--line);}
+.isl.kouya{border-left-color:var(--i-kouya);} .isl.unabara{border-left-color:var(--i-unabara);}
+.isl.kazan{border-left-color:var(--i-kazan);} .isl.sora{border-left-color:var(--i-sora);}
+.isl.iwayama{border-left-color:var(--i-iwayama);} .isl.umizoko{border-left-color:var(--i-umizoko);}
+.isl.top{box-shadow:0 0 0 2px rgba(200,134,47,.2);border-color:var(--amber);}
+.isl-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+.isl-n{font-size:15px;font-weight:700;}
+.isl-d{font-family:ui-monospace,monospace;font-size:13px;color:var(--rust);white-space:nowrap;}
+.isl-d b{font-size:20px;}
+.isl-p{font-size:11.5px;color:var(--soft);margin-top:3px;}
+.isl-mats{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;}
+.tag{font-size:10.5px;padding:2px 8px;border-radius:20px;background:var(--panel2);color:var(--soft);}
+.tag.hot{background:#f2dfc2;color:#7a5518;font-weight:700;}
+.crown{font-size:11px;color:var(--amber);font-weight:700;margin-top:6px;}
+.rate{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-top:12px;}
+.rate .r{display:flex;align-items:center;gap:9px;padding:4px 0;font-size:12.5px;}
+.rate .r span{flex:1;}
+.rate input{width:70px;padding:5px;font-size:13px;text-align:right;border:1px solid var(--line);
+  border-radius:5px;font-family:ui-monospace,monospace;background:#fff;color:var(--ink);}
+
+.total{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:13px 15px;margin:16px 0 6px;}
+.total .r{display:flex;justify-content:space-between;font-size:12.5px;padding:3px 0;}
+.total .r b{font-family:ui-monospace,monospace;font-size:15px;}
+.tools{margin-top:20px;display:flex;gap:6px;flex-wrap:wrap;}
+.tools button{flex:1;min-width:120px;padding:11px;border-radius:8px;font-family:inherit;font-size:12.5px;
+  font-weight:700;cursor:pointer;border:1px solid var(--teal);background:var(--teal);color:#fff;}
+.tools button.ghost{background:transparent;color:var(--teal);}
+textarea{width:100%;margin-top:8px;min-height:130px;padding:10px;font-family:ui-monospace,monospace;
+  font-size:11px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);display:none;}
+footer{margin-top:22px;font-size:10.5px;color:var(--soft);text-align:center;line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Meno-shima · Cloud Island</div>
+  <h1>メの島 建築ボード</h1>
+  <p class="lede">レシピを選ぶ → 素材が積み上がる → 今日どのゆめしまに行くか決まる</p>
+</header>
+
+<div class="tabs">
+  <button data-p="mat" class="on">素材</button>
+  <button data-p="rec">レシピ図鑑</button>
+  <button data-p="bld">建物</button>
+  <button data-p="isl">今日どこ行く？</button>
+</div>
+
+<!-- ===== 素材 ===== -->
+<div class="page on" id="p-mat">
+  <h2 class="sec">メの島の住人</h2>
+  <div class="roster" id="roster"></div>
+  <h2 class="sec">メの島の建物</h2>
+  <div class="roster" id="rosterB"></div>
+  <div class="note">
+    メの島はクラウド島。本編の街からアイテムは持ち込めません。素材は<b>島内の採掘・島内のゆめしま（1日1種類）・島内ショップ・ポケセンの3Dプリンター</b>で調達します。<br>
+    初期値には<b>ケンシロウの建てる7棟ぶん（標準スケール）</b>が入っています。レシピ図鑑で選んだ分もここに加算されます。
+  </div>
+  <h2 class="sec">ゆめしまの目じるし</h2>
+  <div class="roster">
+    <span class="who">🦊 こうや（イーブイ）</span>
+    <span class="who">⚡ うなばら（ピカチュウ）</span>
+    <span class="who">🔥 かざん（ウインディ）</span>
+    <span class="who">🐉 そら（カイリュー）</span>
+    <span class="who">🌙 いわやま（ピッピ）</span>
+    <span class="who">⭐ うみぞこ（スターミー）</span>
+  </div>
+  <h2 class="sec">いま集めてるよ</h2>
+  <div id="activeBox"></div>
+  <h2 class="sec">ぜんぶの素材</h2>
+  <div id="allBox"></div>
+  <div class="total">
+    <div class="r"><span>ほしい合計</span><b id="tNeed">0</b></div>
+    <div class="r"><span>持ってる合計</span><b id="tHave">0</b></div>
+    <div class="r"><span>のこり</span><b id="tLeft">0</b></div>
+  </div>
+</div>
+
+<!-- ===== レシピ ===== -->
+<div class="page" id="p-rec">
+  <div class="note">どの建物のぶんか選んで、作る数を入れてください。<b>建物のざっくり見積もりを、レシピで確定した分だけ置き換えます</b>（二重に数えません）。建物が決まっていないものは「（建物なし）」を選ぶと、そのまま上乗せされます。</div>
+  <div id="recBox"></div>
+</div>
+
+<!-- ===== 建物 ===== -->
+<div class="page" id="p-bld">
+  <div class="note">建物を選んで、その建物に使うレシピを登録します。登録した分だけ「ざっくり見積もり」が具体化され、二重には数えません。</div>
+  <div id="bldBox"></div>
+</div>
+
+<!-- ===== 島 ===== -->
+<div class="page" id="p-isl">
+  <h2 class="sec">今日おすすめのゆめしま</h2>
+  <div class="note">ゆめしまは1日1種類だけ。<b>まだ足りない分（ほしい数−持ってる数）</b>で計算しています。</div>
+  <div id="islBox"></div>
+  <h2 class="sec">1日にどれくらい採れる？（調整用）</h2>
+  <div class="note">はじめは仮の数字です。実際に行って採れた数に直すと日数が正確になります。</div>
+  <div class="rate" id="rateBox"></div>
+</div>
+
+<div class="tools">
+  <button id="exp">今日の指令をコピー</button>
+  <button id="save" class="ghost">保存用データ</button>
+  <button id="load" class="ghost">読み込む</button>
+</div>
+<textarea id="out"></textarea>
+
+<footer>
+  数字はページを閉じると消えます。「保存用データ」でコピーして残しておいてください。<br>
+  MENO-SHIMA CITY PLAN
+</footer>
+
+</div>
+
+<script>
+/* ============ 住人・場所 ============ */
+const MEMBERS = ["ケンシロウ","ゆうじろう","みき","ほのか","じろう"];
+const PLACES  = ["メタモン城","チャンピオンステップ","ポケレジデンス","海底ぴがんじょう",
+                 "ゆーじろー灯台","ホラアナ大金庫","雲の上の城下町"];
+const WHO  = [...MEMBERS, ...PLACES];
+const LOCS = ["倉庫","溶鉱炉前","ポケセン前", ...MEMBERS.map(m => m + "作業所")];
+
+/* ============ ゆめしま ============ */
+const ISL = {
+  kouya:  {n:"こうやのゆめしま",  d:"イーブイにんぎょう",  i:"🦊"},
+  unabara:{n:"うなばらのゆめしま",d:"ピカチュウにんぎょう",i:"⚡"},
+  kazan:  {n:"かざんのゆめしま",  d:"ウインディにんぎょう",i:"🔥"},
+  sora:   {n:"そらのゆめしま",    d:"カイリューにんぎょう",i:"🐉"},
+  iwayama:{n:"いわやまのゆめしま",d:"ピッピにんぎょう",    i:"🌙"},
+  umizoko:{n:"うみぞこのゆめしま",d:"スターミーにんぎょう（DLC）",i:"⭐"}
+};
+
+/* ============ 素材 ============ */
+const MATS = [
+  {n:"ざいもく",         c:"#a9814e", s:"rect",  isl:"kouya",   rate:120},
+  {n:"つたひも",         c:"#8fa06a", s:"round", isl:"kouya",   rate:60},
+  {n:"わた",             c:"#e2ddd2", s:"round", isl:"kouya",   rate:50},
+  {n:"ちいさなまるた",   c:"#96774d", s:"rect",  isl:"kouya",   rate:60},
+  {n:"いとくず",         c:"#c2b8a4", s:"round", isl:"unabara", rate:60},
+  {n:"ぐにゃぐにゃねんど",c:"#b0895f", s:"round", isl:"unabara", rate:100, note:"ほぼ無限"},
+  {n:"レンガ",           c:"#a85a45", s:"rect",  isl:"unabara", rate:50,  note:"ねんど→溶鉱炉"},
+  {n:"シーグラスのかけら",c:"#8bb5b0", s:"round", isl:"unabara", rate:50},
+  {n:"てつ",             c:"#6f7c85", s:"round", isl:"kazan",   rate:80},
+  {n:"てつののべぼう",   c:"#5b6a75", s:"rect",  isl:"kazan",   rate:40,  note:"てつ→加工炉"},
+  {n:"きんののべぼう",   c:"#c9a039", s:"rect",  isl:"kazan",   rate:25,  note:"きん→加工炉"},
+  {n:"ヒカリいし",       c:"#d8b64a", s:"round", isl:"kazan",   rate:20},
+  {n:"ガラス",           c:"#79aeb0", s:"round", isl:"kazan",   rate:70,  note:"かざんばい→溶鉱炉"},
+  {n:"ポケメタル",       c:"#7f8fa6", s:"round", isl:"sora",    rate:35,  note:"いわくだき強化が必要"},
+  {n:"レアポケメタル",   c:"#9b7fb0", s:"round", isl:"sora",    rate:8,   note:"ブロックから確率"},
+  {n:"かみ",             c:"#ded7c4", s:"rect",  isl:"sora",    rate:40,  note:"かみのゴミ→加工"},
+  {n:"いし",             c:"#8d9095", s:"round", isl:"iwayama", rate:100},
+  {n:"どうののべぼう",   c:"#a8703c", s:"rect",  isl:"iwayama", rate:40,  note:"どう→加工炉"},
+  {n:"せっかいせき",     c:"#c3bda9", s:"round", isl:"iwayama", rate:60},
+  {n:"コンクリート",     c:"#9c9c96", s:"rect",  isl:"iwayama", rate:50,  note:"溶鉱炉"},
+  {n:"ほしツブいわ",     c:"#6b7f95", s:"rect",  isl:"umizoko", rate:50,  note:"DLC"},
+  {n:"キラキラしんじゅ", c:"#dcd3e0", s:"round", isl:"umizoko", rate:25,  note:"よごれたしんじゅを磨く"},
+  {n:"かいがら",         c:"#d9c2ad", s:"round", isl:"umizoko", rate:60,  note:"DLC"}
+];
+const M = {}; MATS.forEach(m => M[m.n] = m);
+
+/* ============ レシピ図鑑 ============ */
+const REC = [
+  {g:"むき出しインフラ（灯台・海底・地下）", items:[
+    {n:"てつパイプ 各種（全11種）", m:{"てつ":2}},
+    {n:"てつのあしば",             m:{"てつののべぼう":2}},
+    {n:"てつのあしば・いた",       m:{"てつののべぼう":1}},
+    {n:"かっしゃ",                 m:{"てつののべぼう":1}},
+    {n:"くさり",                   m:{"てつののべぼう":2}},
+    {n:"ワイヤー",                 m:{"てつののべぼう":2}},
+    {n:"デコボコいた",             m:{"どうののべぼう":2}},
+    {n:"ヨコ／タテてっこつ",       m:{"てつ":2}},
+    {n:"てつのはしら",             m:{"てつののべぼう":2}},
+    {n:"かなあみのカベ／ゆか",     m:{"てつ":2}}
+  ]},
+  {g:"光と窓", items:[
+    {n:"ステンドグラス 上/中/下",  m:{"ガラス":1,"てつののべぼう":1,"ヒカリいし":1}},
+    {n:"フレームガラス",           m:{"ガラス":2,"てつののべぼう":2}},
+    {n:"ガラスまど",               m:{"ガラス":2,"ざいもく":2}},
+    {n:"てんまど",                 m:{"いし":1,"ガラス":1}},
+    {n:"アクアなはしら・1/4",      m:{"ポケメタル":1,"ガラス":1}},
+    {n:"あげさげまど",             m:{"ポケメタル":1,"ガラス":1}}
+  ]},
+  {g:"城・格式", items:[
+    {n:"まるいはしら 上/中/下",    m:{"せっかいせき":4}},
+    {n:"ごうかなはしら 上/中/下",  m:{"いし":2}},
+    {n:"カベつけてすり",           m:{"ざいもく":2,"きんののべぼう":2}},
+    {n:"おうぎやね",               m:{"ポケメタル":4}},
+    {n:"コイキングのやねがわら",   m:{"きんののべぼう":1,"ぐにゃぐにゃねんど":1}}
+  ]},
+  {g:"階段・動線", items:[
+    {n:"レンガのかいだん",         m:{"レンガ":6}},
+    {n:"いしのかいだん",           m:{"いし":2}},
+    {n:"コンクリートのかいだん",   m:{"コンクリート":2}},
+    {n:"てつのかいだん",           m:{"てつののべぼう":2}},
+    {n:"てつのハシゴ",             m:{"てつののべぼう":2}},
+    {n:"おしゃれかいだん",         m:{"ざいもく":1,"いとくず":1}},
+    {n:"木のかいだん",             m:{"ざいもく":2}},
+    {n:"アーチのはし",             m:{"いし":2}},
+    {n:"ふみいし",                 m:{"いし":1}}
+  ]},
+  {g:"屋根", items:[
+    {n:"やねがわら 各種",          m:{"ぐにゃぐにゃねんど":2}},
+    {n:"やねレンガ 各種",          m:{"レンガ":2}},
+    {n:"いしやね 各種",            m:{"いし":2}},
+    {n:"テントやね 各種",          m:{"いとくず":2}},
+    {n:"やねのささえ",             m:{"ざいもく":2}}
+  ]},
+  {g:"ドア・さく・しきり", items:[
+    {n:"シンプルなドア",           m:{"ガラス":1,"てつののべぼう":2}},
+    {n:"スタイリッシュなドア",     m:{"ガラス":2,"てつののべぼう":1}},
+    {n:"てつのドア",               m:{"てつののべぼう":4}},
+    {n:"じどう／スマートなドア",   m:{"ガラス":1,"ポケメタル":2}},
+    {n:"メタルなさく",             m:{"てつののべぼう":2}},
+    {n:"木のさく",                 m:{"ざいもく":2}},
+    {n:"いしのさく",               m:{"いし":2}},
+    {n:"木のてすり",               m:{"ざいもく":2}},
+    {n:"ロープ",                   m:{"つたひも":2}}
+  ]},
+  {g:"◆DLC 海底施設", items:[
+    {n:"せんすいていのドア",       m:{"てつののべぼう":2}},
+    {n:"せんすいていのまど",       m:{"てつののべぼう":2,"ガラス":1}},
+    {n:"ハッチ",                   m:{"てつののべぼう":2}},
+    {n:"てつのフレーム",           m:{"てつののべぼう":2}},
+    {n:"メタルなカベ",             m:{"てつののべぼう":2}},
+    {n:"ふちライト 3種",           m:{"ポケメタル":1,"シーグラスのかけら":1}},
+    {n:"ツートーンのカベ",         m:{"ポケメタル":1,"シーグラスのかけら":1}},
+    {n:"ブロックうき",             m:{"ほしツブいわ":1,"ポケメタル":1}},
+    {n:"ネット",                   m:{"つたひも":1,"いとくず":1}},
+    {n:"プカプカまるた",           m:{"ちいさなまるた":2,"つたひも":1}},
+    {n:"かいがらのさく",           m:{"ほしツブいわ":1,"キラキラしんじゅ":1}},
+    {n:"うなばらのドア",           m:{"ほしツブいわ":1}}
+  ]},
+  {g:"◆DLC ウロコ屋根・海底外装", items:[
+    {n:"ウロコやね 6種",           m:{"いし":1,"レンガ":1}},
+    {n:"デコボコやね 6種",         m:{"いし":1,"レンガ":1}},
+    {n:"カラフルうろこタイル",     m:{"ぐにゃぐにゃねんど":2}},
+    {n:"サンゴ／なみもよう 各種",  m:{"いとくず":2}}
+  ]},
+  {g:"◆DLC 神殿・格式（メタモン城）", items:[
+    {n:"おごそかなカベ 上下/中",   m:{"ほしツブいわ":2,"きんののべぼう":1}},
+    {n:"おごそかなゆか",           m:{"ほしツブいわ":2,"きんののべぼう":1}},
+    {n:"ねじれはしら 上/下",       m:{"ほしツブいわ":2,"きんののべぼう":1}},
+    {n:"ねじれはしら まんなか",    m:{"ほしツブいわ":1}},
+    {n:"オリエンタルなドア／まど", m:{"ざいもく":1,"きんののべぼう":1,"ガラス":1}},
+    {n:"オリエンタルなしきり",     m:{"ざいもく":1,"きんののべぼう":1}},
+    {n:"うるしぬり／オリエンタルなカベ", m:{"ざいもく":2}},
+    {n:"グラデのカベ／ツルツルタイル",   m:{"いし":2}}
+  ]},
+  {g:"◆DLC メタモン柄（城の内装ドット）", items:[
+    {n:"メタモンだらけもよう",     m:{"いとくず":2}},
+    {n:"おうぎメタモンもよう",     m:{"いとくず":2}},
+    {n:"かべがみ 各種",            m:{"かみ":6}},
+    {n:"よこながしかくタイル",     m:{"ぐにゃぐにゃねんど":2}}
+  ]},
+  {g:"◆DLC 電気・照明", items:[
+    {n:"むせんそうでんぼう",       m:{"ガラス":2,"ポケメタル":2}},
+    {n:"きりかえむせんそうでんぼう",m:{"ガラス":2,"ポケメタル":2}},
+    {n:"デジタルなカベ",           m:{"ポケメタル":1,"ヒカリいし":1}},
+    {n:"しんじゅのがいとう",       m:{"キラキラしんじゅ":1,"てつ":1}},
+    {n:"ちょうちん",               m:{"キラキラしんじゅ":1,"ざいもく":1}},
+    {n:"ぶらさがりがいとう",       m:{"てつ":1,"シーグラスのかけら":1}},
+    {n:"チェーンランプ",           m:{"てつ":1,"ガラス":1}}
+  ]},
+  {g:"◆DLC 動線・看板", items:[
+    {n:"スリムなかいだん",         m:{"ざいもく":1,"てつ":1}},
+    {n:"アーチのさく",             m:{"てつ":2}},
+    {n:"とんがり木のさく",         m:{"ざいもく":2}},
+    {n:"やじるしいた 左/右",       m:{"てつ":1}},
+    {n:"いしのかんばん",           m:{"いし":1,"てつ":1}},
+    {n:"つりさげかんばん",         m:{"ざいもく":2,"てつ":1}}
+  ]},
+  {g:"みち・ふち・床", items:[
+    {n:"木のみち",                 m:{"ざいもく":2}},
+    {n:"さんばし",                 m:{"ざいもく":2}},
+    {n:"コンクリートのふた",       m:{"コンクリート":2}},
+    {n:"レンガのふち 各種",        m:{"レンガ":2}},
+    {n:"コンクリのふち 各種",      m:{"コンクリート":2}},
+    {n:"木のふち 各種",            m:{"ざいもく":2}}
+  ]}
+];
+
+/* ============ state ============ */
+const S = {};
+MATS.forEach(m => { S[m.n] = {needs:[], stock:{}, active:false, open:false};
+  LOCS.forEach(l => S[m.n].stock[l] = 0); });
+
+/* 建物ごとの「ざっくり見積もり」（標準スケール）。
+   レシピを建物に紐づけると、その分だけこの見積もりを食っていく＝二重計上しない */
+const EST = {
+  "ホラアナ大金庫":      {"レンガ":2400,"いし":800,"てつののべぼう":800,"コンクリート":500,"どうののべぼう":300},
+  "ポケレジデンス":      {"ざいもく":2400,"レンガ":2000,"ガラス":1200,"てつ":400,"てつののべぼう":400},
+  "チャンピオンステップ":{"レンガ":3000,"コンクリート":1200,"せっかいせき":400,"ガラス":500,"きんののべぼう":300},
+  "雲の上の城下町":      {"ざいもく":3000,"レンガ":6000,"ぐにゃぐにゃねんど":1500,"いし":800,"ガラス":2000,"きんののべぼう":700},
+  "メタモン城":          {"レンガ":4500,"ほしツブいわ":600,"きんののべぼう":1200,"ガラス":1000,"てつののべぼう":970,"いとくず":400,"かみ":300,"ポケメタル":250,"レアポケメタル":80},
+  "ゆーじろー灯台":      {"ざいもく":500,"てつ":300,"てつののべぼう":400,"どうののべぼう":250,"ガラス":150,"ポケメタル":60},
+  "海底ぴがんじょう":    {"ガラス":2600,"てつののべぼう":1000,"コンクリート":600,"いし":500,"レンガ":500,"ほしツブいわ":400,"シーグラスのかけら":200,"キラキラしんじゅ":150,"かいがら":150,"どうののべぼう":250,"レアポケメタル":50}
+};
+
+/* レシピの発注：{r:レシピ名, qty:作る数, b:建物名（""＝どの建物でもない）} */
+let ORDERS = [];
+const PICK = {};   // 素材名 → 選んでいる相手
+const BPICK = {};  // 建物 → 選んでいるレシピ
+const BOPEN = {};  // 建物 → 開閉
+const UNASSIGNED = "（建物なし）";
+
+S["ガラス"].active = true;
+
+/* ============ calc ============ */
+function recipesUsing(mat){
+  const out = [];
+  REC.forEach(g => g.items.forEach(r => { if(r.m[mat]) out.push(r); }));
+  return out;
+}
+function recipeOf(name){
+  let f = null;
+  REC.forEach(g => g.items.forEach(r => { if(r.n === name) f = r; }));
+  return f;
+}
+/* 建物ごと・素材ごとに、レシピで確定した量 */
+function covered(building, mat){
+  let t = 0;
+  ORDERS.forEach(o => {
+    if(o.b !== building) return;
+    const r = recipeOf(o.r);
+    if(r && r.m[mat]) t += r.m[mat] * o.qty;
+  });
+  return t;
+}
+/* 建物ごとの必要数＝ 見積もり と レシピ確定分 の大きいほう（＝二重計上しない） */
+function buildingNeed(building, mat){
+  const est = (EST[building] && EST[building][mat]) || 0;
+  return Math.max(est, covered(building, mat));
+}
+const manualNeed = n => S[n].needs.reduce((s,x) => s + x.qty, 0);
+function need(mat){
+  let t = manualNeed(mat);
+  PLACES.forEach(b => t += buildingNeed(b, mat));
+  t += covered(UNASSIGNED, mat);
+  return t;
+}
+const have = n => LOCS.reduce((s,l) => s + (S[n].stock[l]||0), 0);
+const left = n => Math.max(0, need(n) - have(n));
+
+function islandDays(){
+  const d = {}; Object.keys(ISL).forEach(k => d[k] = 0);
+  MATS.forEach(m => { const l = left(m.n); if(!l) return;
+    d[m.isl] = Math.max(d[m.isl], l / m.rate); });
+  return d;
+}
+
+/* ============ render ============ */
+function bowl(m){
+  const nd = need(m.n), hv = have(m.n);
+  const p = nd ? Math.min(1, hv/nd) : (hv > 0 ? 1 : 0);
+  const cx = 31, cy = 33, r = 22, top = cy + r - (2*r)*p;
+  const id = "b" + m.c.slice(1) + m.n.length;
+  let bits = "";
+  const cnt = Math.min(26, Math.round(p*26));
+  for(let i = 0; i < cnt; i++){
+    const row = Math.floor(i/5), col = i%5;
+    const bx = cx - 16 + col*7 + (row%2 ? 3 : 0), by = cy + r - 6 - row*6;
+    bits += m.s === "rect"
+      ? `<rect x="${bx}" y="${by}" width="5" height="4.4" rx="1" fill="${m.c}" opacity=".92"/>`
+      : `<circle cx="${bx+2.5}" cy="${by+2.2}" r="2.5" fill="${m.c}" opacity=".92"/>`;
+  }
+  return `<svg class="bowl" viewBox="0 0 62 62">
+    <defs><clipPath id="${id}"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath></defs>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="#eef3f3" stroke="#b9c6c5" stroke-width="1.6"/>
+    <g clip-path="url(#${id})"><rect x="0" y="${top}" width="62" height="62" fill="${m.c}" opacity=".18"/>${bits}</g>
+    <ellipse cx="${cx}" cy="10" rx="15" ry="3.6" fill="none" stroke="#b9c6c5" stroke-width="1.6"/>
+    <text x="${cx}" y="60" text-anchor="middle" font-size="9" fill="#6e747b"
+      font-family="ui-monospace,monospace">${Math.round(p*100)}%</text></svg>`;
+}
+
+function card(m){
+  const st = S[m.n], nd = need(m.n), hv = have(m.n), lf = nd - hv;
+
+  /* --- チップ --- */
+  let chips = "";
+  PLACES.forEach(b => {
+    const v = buildingNeed(b, m.n); if(v) chips += `<span class="chip">${b} ${v.toLocaleString()}</span>`;
+  });
+  const un = covered(UNASSIGNED, m.n);
+  if(un) chips += `<span class="chip rec">🔧 単発 ${un.toLocaleString()}</span>`;
+  st.needs.forEach(x => chips += `<span class="chip">${x.who} ${x.qty.toLocaleString()}</span>`);
+  const locChips = LOCS.filter(l => st.stock[l] > 0)
+    .map(l => `<span class="chip loc">${l} ${st.stock[l].toLocaleString()}</span>`).join("");
+
+  /* --- 建物ごとの行（見積もり vs レシピ確定） --- */
+  let lines = "";
+  PLACES.forEach(b => {
+    const est = (EST[b] && EST[b][m.n]) || 0;
+    const cov = covered(b, m.n);
+    if(!est && !cov) return;
+    const v = Math.max(est, cov);
+    const orders = ORDERS.filter(o => o.b === b && recipeOf(o.r) && recipeOf(o.r).m[m.n]);
+    let sub;
+    if(cov === 0)      sub = `見積もり ${est.toLocaleString()}（レシピ未指定）`;
+    else if(cov < est) sub = `見積もり ${est.toLocaleString()} のうち レシピ確定 ${cov.toLocaleString()} ／ 残り見積もり ${(est-cov).toLocaleString()}`;
+    else               sub = `レシピ確定 ${cov.toLocaleString()}（見積もり ${est.toLocaleString()} を上回ったのでこちらを採用）`;
+    lines += `<div class="line" style="flex-wrap:wrap">
+      <span class="lab">🏛 ${b}<br><small>${sub}</small></span>
+      <span class="q">${v.toLocaleString()}</span>
+      ${est ? `<button class="mini del" data-a="delest" data-m="${m.n}" data-b="${b}">見積もりを消す</button>` : ""}
+    </div>`;
+    orders.forEach(o => {
+      const r = recipeOf(o.r);
+      lines += `<div class="line" style="padding-left:14px">
+        <span class="lab">🔧 ${o.r}<small>（${r.m[m.n]}×${o.qty.toLocaleString()}コ）</small></span>
+        <span class="q">${(r.m[m.n]*o.qty).toLocaleString()}</span>
+        <button class="mini del" data-a="delorder" data-id="${o.id}">消す</button></div>`;
+    });
+  });
+  /* 建物なしのレシピ */
+  ORDERS.filter(o => o.b === UNASSIGNED && recipeOf(o.r) && recipeOf(o.r).m[m.n]).forEach(o => {
+    const r = recipeOf(o.r);
+    lines += `<div class="line"><span class="lab">🔧 ${o.r}
+      <small>（${r.m[m.n]}×${o.qty.toLocaleString()}コ・建物なし）</small></span>
+      <span class="q">${(r.m[m.n]*o.qty).toLocaleString()}</span>
+      <button class="mini del" data-a="delorder" data-id="${o.id}">消す</button></div>`;
+  });
+  /* 人・自由入力 */
+  st.needs.forEach((x,i) => {
+    lines += `<div class="line"><span class="lab">👤 ${x.who}</span>
+      <span class="q">${x.qty.toLocaleString()}</span>
+      <button class="mini del" data-a="delneed" data-m="${m.n}" data-i="${i}">消す</button></div>`;
+  });
+  if(!lines) lines = `<div class="line"><span class="lab" style="color:var(--soft)">まだ何も登録してない</span></div>`;
+
+  /* --- 在庫 --- */
+  const stocked = LOCS.filter(l => st.stock[l] > 0);
+  const stockLines = stocked.length ? stocked.map(l => `
+    <div class="line" style="flex-wrap:wrap"><span class="lab">${l}</span>
+      <span class="q">${st.stock[l].toLocaleString()}</span>
+      <div class="btnrow">
+        <button class="mini plus"  data-a="st" data-m="${m.n}" data-l="${l}" data-d="10">+10</button>
+        <button class="mini plus"  data-a="st" data-m="${m.n}" data-l="${l}" data-d="100">+100</button>
+        <button class="mini plus"  data-a="st" data-m="${m.n}" data-l="${l}" data-d="1000">+1000</button>
+        <button class="mini minus" data-a="st" data-m="${m.n}" data-l="${l}" data-d="-10">−10</button>
+        <button class="mini minus" data-a="st" data-m="${m.n}" data-l="${l}" data-d="-100">−100</button>
+        <button class="mini minus" data-a="st" data-m="${m.n}" data-l="${l}" data-d="-1000">−1000</button>
+      </div></div>`).join("")
+    : `<div class="line"><span class="lab" style="color:var(--soft)">まだどこにも置いてない</span></div>`;
+
+  return `<div class="mat ${st.active?"active":""} ${st.open?"open":""}">
+    <div class="mat-top" data-a="toggle" data-m="${m.n}">
+      ${bowl(m)}
+      <div class="mat-info">
+        <div class="mat-name">${st.active ? "🔥 " : ""}${m.n}</div>
+        <div class="mat-nums"><b>${hv.toLocaleString()}</b> / ${nd.toLocaleString()}
+          ${nd === 0 ? "" : lf > 0
+            ? `<span class="short">（あと ${lf.toLocaleString()}）</span>`
+            : `<span class="done">✓ そろった</span>`}
+          <span style="color:var(--soft)"> · ${ISL[m.isl].i} ${ISL[m.isl].n.replace("のゆめしま","")}</span></div>
+        <div class="chips">${chips}${locChips}</div>
+      </div>
+      <span class="caret">${st.open ? "▲" : "▼"}</span>
+    </div>
+    <div class="body">
+      <div class="sub">なんのために要るのか</div>
+      ${lines}
+      <div class="sub" style="margin-top:14px">なにに使う？</div>
+      <div class="addrow">
+        <select data-a="s-mem"><option value="">👤 住人 …</option>
+          ${MEMBERS.map(w => `<option>${w}</option>`).join("")}
+          <option value="__free">✏️ その他（自由入力）</option></select>
+        <select data-a="s-rec"><option value="">🔧 レシピ …</option>
+          ${recipesUsing(m.n).map(r => `<option>${r.n}（${r.m[m.n]}コ使う）</option>`).join("")}</select>
+        <select data-a="s-bld"><option value="">🏛 建物 …</option>
+          ${PLACES.map(b => `<option>${b}</option>`).join("")}</select>
+      </div>
+      <div class="addrow">
+        <input type="text" placeholder="名前を入力" data-a="free" style="display:none">
+        <input type="number" min="0" placeholder="いくつ" data-a="qty">
+        <button class="mini add" data-a="addneed" data-m="${m.n}">追加</button>
+      </div>
+      <div style="font-size:10px;color:var(--soft);margin-top:4px">
+        レシピ＋建物＝その建物の見積もりを食う／住人だけ＝その人の希望／建物だけ＝見積もりに足す</div>
+
+      <div class="sub">どこに置いてある？</div>
+      ${stockLines}
+      <div class="addrow">
+        <select data-a="locsel">${LOCS.map(l => `<option>${l}</option>`).join("")}</select>
+        <input type="number" min="0" placeholder="いくつ" data-a="locqty">
+        <button class="mini add" data-a="addstock" data-m="${m.n}">置く</button>
+      </div>
+      <div class="btnrow" style="margin-top:10px">
+        <button class="mini" data-a="active" data-m="${m.n}">
+          ${st.active ? "「いま集めてる」を外す" : "🔥 いま集めてるに入れる"}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderMat(){
+  document.getElementById("roster").innerHTML =
+    MEMBERS.map(m => `<span class="who me">${m}</span>`).join("");
+  document.getElementById("rosterB").innerHTML =
+    PLACES.map(p => `<span class="who">🏛 ${p}</span>`).join("");
+  const act = MATS.filter(m => S[m.n].active);
+  document.getElementById("activeBox").innerHTML = act.length ? act.map(card).join("")
+    : `<div class="note" style="border-left-color:var(--line)">
+        まだありません。素材を開いて「🔥 いま集めてるに入れる」を押すと、ここに出ます。</div>`;
+  document.getElementById("allBox").innerHTML = MATS.filter(m => !S[m.n].active).map(card).join("");
+  let tn = 0, th = 0;
+  MATS.forEach(m => { tn += need(m.n); th += Math.min(have(m.n), need(m.n)); });
+  document.getElementById("tNeed").textContent = tn.toLocaleString();
+  document.getElementById("tHave").textContent = MATS.reduce((s,m) => s + have(m.n), 0).toLocaleString();
+  document.getElementById("tLeft").textContent = Math.max(0, tn - th).toLocaleString();
+}
+
+function renderRec(){
+  document.getElementById("recBox").innerHTML = REC.map(g => `
+    <div class="grp"><div class="grp-h">${g.g}</div>
+    ${g.items.map(r => {
+      const os = ORDERS.filter(o => o.r === r.n);
+      const made = os.reduce((a,o) => a + o.qty, 0);
+      return `<div class="rec ${made ? "sel" : ""}">
+        <div class="rec-i">
+          <div class="rec-n">${r.n}${made ? ` <span style="color:var(--amber)">×${made.toLocaleString()}</span>` : ""}</div>
+          <div class="rec-m">${Object.entries(r.m).map(([k,v]) => `${k}×${v}`).join("　")}</div>
+          ${os.length ? `<div class="chips">${os.map(o =>
+            `<span class="chip rec">${o.b} ${o.qty.toLocaleString()}コ
+              <b data-a="delorder" data-id="${o.id}" style="cursor:pointer;color:var(--rust)">×</b></span>`).join("")}</div>` : ""}
+        </div>
+        <div class="qwrap">
+          <select data-a="rbsel" style="font-size:11px;padding:4px 5px;min-width:0;width:130px">
+            ${PLACES.map(b => `<option>${b}</option>`).join("")}
+            <option>${UNASSIGNED}</option>
+          </select>
+          <div class="qbox">
+            <input type="number" min="0" placeholder="作る数" data-a="rqty" style="width:70px">
+            <button class="mini add" data-a="addorder" data-r="${r.n}">追加</button>
+          </div>
+        </div>
+      </div>`;
+    }).join("")}</div>`).join("");
+}
+
+function renderBld(){
+  document.getElementById("bldBox").innerHTML = PLACES.map(b => {
+    const open = BOPEN[b];
+    const os = ORDERS.filter(o => o.b === b);
+    /* 素材ごとの状況 */
+    const mats = MATS.filter(m => ((EST[b]||{})[m.n]) || covered(b, m.n));
+    const rows = mats.map(m => {
+      const est = (EST[b]||{})[m.n] || 0, cov = covered(b, m.n), v = Math.max(est, cov);
+      const st = cov === 0 ? "見積もりのみ"
+        : cov < est ? `レシピ確定 ${cov.toLocaleString()} ／ 残り見積もり ${(est-cov).toLocaleString()}`
+        : "レシピで確定";
+      return `<div class="line"><span class="lab">${m.n}<br><small style="color:var(--soft)">${st}</small></span>
+        <span class="q">${v.toLocaleString()}</span></div>`;
+    }).join("") || `<div class="line"><span class="lab" style="color:var(--soft)">素材の登録なし</span></div>`;
+
+    const olist = os.length ? os.map(o => {
+      const r = recipeOf(o.r);
+      return `<div class="line"><span class="lab">🔧 ${o.r}
+        <small style="color:var(--soft)">（${r ? Object.entries(r.m).map(([k,v]) => k+"×"+(v*o.qty)).join("　") : ""}）</small></span>
+        <span class="q">${o.qty.toLocaleString()}コ</span>
+        <button class="mini del" data-a="delorder" data-id="${o.id}">消す</button></div>`;
+    }).join("") : `<div class="line"><span class="lab" style="color:var(--soft)">まだレシピを入れてない</span></div>`;
+
+    const allRec = [];
+    REC.forEach(g => g.items.forEach(r => allRec.push(r)));
+    const picker = `<div class="pick">${allRec.map(r =>
+      `<button data-a="bpick" data-b="${b}" data-v="${r.n}" class="${BPICK[b] === r.n ? "on" : ""}">
+        🔧 ${r.n}<small>${Object.keys(r.m).join("・")}</small></button>`).join("")}</div>
+      ${BPICK[b] ? `<div class="addrow">
+        <input type="number" min="0" placeholder="作る数" data-a="bqty">
+        <button class="mini add" data-a="baddorder" data-b="${b}">この建物に追加</button></div>` : ""}`;
+
+    const totalLeft = mats.reduce((a,m) => a + Math.max((EST[b]||{})[m.n]||0, covered(b,m.n)), 0);
+    return `<div class="bld ${open ? "open" : ""}">
+      <div class="bld-h" data-a="btoggle" data-b="${b}">
+        <span class="bld-n">🏛 ${b}</span>
+        <span class="bld-s">素材 ${totalLeft.toLocaleString()} ／ レシピ ${os.length}件 ${open ? "▲" : "▼"}</span>
+      </div>
+      <div class="bld-b">
+        <div class="sub">必要な素材</div>${rows}
+        <div class="sub">入れるレシピ</div>${olist}
+        <div class="sub">レシピを足す</div>${picker}
+      </div></div>`;
+  }).join("");
+}
+
+function renderIsl(){
+  const d = islandDays();
+  const order = Object.keys(ISL).sort((a,b) => d[b] - d[a]);
+  const max = d[order[0]] || 0;
+  document.getElementById("islBox").innerHTML = order.map((k,idx) => {
+    const s = ISL[k], days = Math.ceil(d[k]);
+    const mats = MATS.filter(m => m.isl === k).map(m => {
+      const l = left(m.n);
+      return `<span class="tag ${l > 0 ? "hot" : ""}">${m.n}${l ? " " + l.toLocaleString() : ""}</span>`;
+    }).join("");
+    return `<div class="isl ${k} ${idx === 0 && max > 0 ? "top" : ""}">
+      <div class="isl-h"><span class="isl-n">${s.i} ${s.n}</span>
+        <span class="isl-d">${days > 0 ? `<b>${days}</b> 日` : "―"}</span></div>
+      <div class="isl-p">${s.d}</div><div class="isl-mats">${mats}</div>
+      ${idx === 0 && max > 0 ? `<div class="crown">▲ いちばん足りない。今日はここ</div>` : ""}</div>`;
+  }).join("");
+  document.getElementById("rateBox").innerHTML = MATS.map(m =>
+    `<div class="r"><span>${ISL[m.isl].i} ${m.n}</span>
+      <input type="number" min="1" value="${m.rate}" data-a="rate" data-m="${m.n}">
+      <span style="flex:none;color:var(--soft);font-size:11px">個/日</span></div>`).join("");
+}
+
+function render(){ renderMat(); renderRec(); renderBld(); renderIsl(); }
+
+/* ============ events ============ */
+let ORDER_ID = 1;
+
+document.addEventListener("click", e => {
+  const tab = e.target.closest(".tabs button");
+  if(tab){
+    document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b === tab));
+    document.querySelectorAll(".page").forEach(p => p.classList.toggle("on", p.id === "p-" + tab.dataset.p));
+    return;
+  }
+  const t = e.target.closest("[data-a]"); if(!t) return;
+  const a = t.dataset.a, m = t.dataset.m;
+
+  if(a === "toggle"){ S[m].open = !S[m].open; renderMat(); }
+  if(a === "active"){ S[m].active = !S[m].active; S[m].open = true; renderMat(); }
+  if(a === "st"){ const l = t.dataset.l;
+    S[m].stock[l] = Math.max(0, S[m].stock[l] + parseInt(t.dataset.d)); renderMat(); renderIsl(); }
+  if(a === "delneed"){ S[m].needs.splice(parseInt(t.dataset.i),1); renderMat(); renderIsl(); }
+  if(a === "delest"){
+    const b = t.dataset.b;
+    if(EST[b]) delete EST[b][m];
+    render();
+  }
+  if(a === "delorder"){
+    ORDERS = ORDERS.filter(o => o.id != t.dataset.id);
+    render();
+  }
+  /* レシピ図鑑から発注 */
+  if(a === "addorder"){
+    const box = t.closest(".rec");
+    const b = box.querySelector('[data-a="rbsel"]').value;
+    const q = parseInt(box.querySelector('[data-a="rqty"]').value);
+    if(q > 0){ ORDERS.push({id:ORDER_ID++, r:t.dataset.r, qty:q, b}); render(); }
+  }
+  /* 素材カードから追加 */
+  if(a === "btoggle"){ BOPEN[t.dataset.b] = !BOPEN[t.dataset.b]; renderBld(); return; }
+  if(a === "bpick"){
+    const b = t.dataset.b;
+    BPICK[b] = (BPICK[b] === t.dataset.v) ? null : t.dataset.v;
+    renderBld(); return;
+  }
+  if(a === "baddorder"){
+    const b = t.dataset.b, box = t.closest(".bld-b");
+    const q = parseInt(box.querySelector('[data-a="bqty"]').value);
+    if(q > 0 && BPICK[b]){ ORDERS.push({id:ORDER_ID++, r:BPICK[b], qty:q, b}); BPICK[b] = null; render(); }
+    return;
+  }
+  if(a === "addneed"){
+    const b = t.closest(".body");
+    const mem = b.querySelector('[data-a="s-mem"]').value;
+    let rec = b.querySelector('[data-a="s-rec"]').value;
+    const bld = b.querySelector('[data-a="s-bld"]').value;
+    const q = parseInt(b.querySelector('[data-a="qty"]').value);
+    if(!(q > 0)) return;
+    if(rec){
+      rec = rec.replace(/（.*$/, "");                    // 「（2コ使う）」を落とす
+      ORDERS.push({id:ORDER_ID++, r:rec, qty:q, b: bld || UNASSIGNED});
+      render();
+    } else if(mem){
+      const fi = b.querySelector('[data-a="free"]');
+      S[m].needs.push({who: mem === "__free" ? (fi.value || "その他") : mem, qty:q});
+      renderMat(); renderIsl();
+    } else if(bld){
+      if(!EST[bld]) EST[bld] = {};
+      EST[bld][m] = (EST[bld][m] || 0) + q;
+      render();
+    }
+  }
+  if(a === "addstock"){
+    const b = t.closest(".body");
+    const l = b.querySelector('[data-a="locsel"]').value;
+    const q = parseInt(b.querySelector('[data-a="locqty"]').value);
+    if(q > 0){ S[m].stock[l] = (S[m].stock[l]||0) + q; renderMat(); renderIsl(); }
+  }
+});
+
+document.addEventListener("change", e => {
+  if(e.target.dataset.a === "s-mem"){
+    e.target.closest(".body").querySelector('[data-a="free"]').style.display =
+      e.target.value === "__free" ? "block" : "none";
+  }
+});
+document.addEventListener("input", e => {
+  if(e.target.dataset.a === "rate"){
+    M[e.target.dataset.m].rate = Math.max(1, parseInt(e.target.value)||1); renderIsl();
+  }
+});
+
+document.getElementById("exp").addEventListener("click", () => {
+  const d = islandDays();
+  const order = Object.keys(ISL).sort((a,b) => d[b] - d[a]);
+  let s = "【メの島 今日の指令】\n";
+  if(d[order[0]] > 0){
+    s += `\n▶ 今日は ${ISL[order[0]].i} ${ISL[order[0]].n}（${ISL[order[0]].d}）\n`;
+    MATS.filter(m => m.isl === order[0] && left(m.n) > 0)
+      .forEach(m => s += `　${m.n}：あと ${left(m.n).toLocaleString()}\n`);
+    s += "\n【ゆめしま別 のこり日数】\n";
+    order.forEach(k => { if(d[k] > 0) s += `　${ISL[k].n}：${Math.ceil(d[k])}日\n`; });
+  }
+  const act = MATS.filter(m => S[m.n].active);
+  if(act.length){
+    s += "\n🔥 いま集めてる\n";
+    act.forEach(m => s += `　${m.n}：${have(m.n).toLocaleString()} / ${need(m.n).toLocaleString()}\n`);
+  }
+  const o = document.getElementById("out"); o.value = s; o.style.display = "block"; o.select();
+});
+document.getElementById("save").addEventListener("click", () => {
+  const o = document.getElementById("out");
+  o.value = JSON.stringify({S, ORDERS, EST, rates:Object.fromEntries(MATS.map(m => [m.n, m.rate]))});
+  o.style.display = "block"; o.select();
+});
+document.getElementById("load").addEventListener("click", () => {
+  const o = document.getElementById("out");
+  if(o.style.display !== "block"){
+    o.value = ""; o.placeholder = "保存データを貼って、もう一度押す";
+    o.style.display = "block"; o.focus(); return;
+  }
+  try{
+    const d = JSON.parse(o.value);
+    if(d.S) MATS.forEach(m => { if(d.S[m.n]) S[m.n] = d.S[m.n]; });
+    if(d.ORDERS){ ORDERS = d.ORDERS; ORDER_ID = ORDERS.reduce((a,o) => Math.max(a, o.id), 0) + 1; }
+    if(d.EST) PLACES.forEach(b => { EST[b] = d.EST[b] || {}; });
+    if(d.rates) MATS.forEach(m => { if(d.rates[m.n]) m.rate = d.rates[m.n]; });
+    o.style.display = "none"; render();
+  }catch(err){ alert("読み込めませんでした"); }
+});
+
+render();
+</script>
+</body>
+</html>
