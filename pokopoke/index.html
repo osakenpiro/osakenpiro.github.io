@@ -89,9 +89,11 @@ h2.sec::after{content:"";flex:1;height:1px;background:var(--line);}
 .btnrow{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;width:100%;}
 .addrow{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;}
 .bld{background:var(--panel);border:1px solid var(--line);border-radius:11px;margin-bottom:9px;overflow:hidden;}
+.bar{height:7px;background:var(--panel2);border-radius:4px;overflow:hidden;}
+.bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--amber),var(--ok));width:0;transition:width .3s;}
 .bld-h{padding:11px 13px;cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
 .bld-n{font-size:15.5px;font-weight:700;}
-.bld-s{font-family:ui-monospace,monospace;font-size:11.5px;color:var(--soft);}
+.bld-s{font-family:ui-monospace,monospace;font-size:10.5px;color:var(--soft);text-align:right;flex:none;}
 .bld-b{display:none;padding:0 13px 13px;border-top:1px dashed var(--line);}
 .bld.open .bld-b{display:block;}
 .pick{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:6px;}
@@ -381,6 +383,46 @@ const REC = [
     {n:"いしのかんばん",           m:{"いし":1,"てつ":1}},
     {n:"つりさげかんばん",         m:{"ざいもく":2,"てつ":1}}
   ]},
+  {g:"■ブロック：カベ", items:[
+    {n:"いしこしカベ",             m:{"いし":2}},
+    {n:"でっぱりカベ",             m:{"いし":2}},
+    {n:"うるしぬりのカベ",         m:{"ざいもく":2}},
+    {n:"オリエンタルなかべ",       m:{"ざいもく":2}},
+    {n:"メタルなカベ",             m:{"てつののべぼう":2}},
+    {n:"デジタルなカベ",           m:{"ポケメタル":1,"ヒカリいし":1}},
+    {n:"グラデのカベ 上/下",       m:{"いし":2}},
+    {n:"おごそかなカベ 上下/中",   m:{"ほしツブいわ":2,"きんののべぼう":1}},
+    {n:"ツートーンのカベ",         m:{"ポケメタル":1,"シーグラスのかけら":1}},
+    {n:"かなあみのカベ",           m:{"てつ":2}}
+  ]},
+  {g:"■ブロック：ゆか・タイル", items:[
+    {n:"ツルツルタイル",           m:{"いし":2}},
+    {n:"いろどりツルツルタイル",   m:{"いし":2}},
+    {n:"よこながしかくタイル",     m:{"ぐにゃぐにゃねんど":2}},
+    {n:"カラフルうろこタイル",     m:{"ぐにゃぐにゃねんど":2}},
+    {n:"おごそかなゆか",           m:{"ほしツブいわ":2,"きんののべぼう":1}},
+    {n:"かなあみのゆか",           m:{"てつ":2}},
+    {n:"コンクリートのふた",       m:{"コンクリート":2}},
+    {n:"ふみいし",                 m:{"いし":1}}
+  ]},
+  {g:"■ブロック：もよう（内装）", items:[
+    {n:"メタモンだらけもよう",     m:{"いとくず":2}},
+    {n:"おうぎメタモンもよう",     m:{"いとくず":2}},
+    {n:"かさなり／シマシマなみもよう", m:{"いとくず":2}},
+    {n:"シック／カラフルいかりもよう", m:{"いとくず":2}},
+    {n:"サンゴのもり／カラフルサンゴもよう", m:{"いとくず":2}},
+    {n:"かべがみ 各種",            m:{"かみ":6}}
+  ]},
+  {g:"■ブロック：はしら", items:[
+    {n:"まるいはしら 上/中/下",    m:{"せっかいせき":4}},
+    {n:"ごうかなはしら 上/中/下",  m:{"いし":2}},
+    {n:"ねじれはしら 上/下",       m:{"ほしツブいわ":2,"きんののべぼう":1}},
+    {n:"ねじれはしら まんなか",    m:{"ほしツブいわ":1}},
+    {n:"てつのはしら",             m:{"てつののべぼう":2}},
+    {n:"ヨコ／タテてっこつ",       m:{"てつ":2}},
+    {n:"シンプルなはしら・1/4",    m:{"いとくず":1}},
+    {n:"アクアなはしら・1/4",      m:{"ポケメタル":1,"ガラス":1}}
+  ]},
   {g:"みち・ふち・床", items:[
     {n:"木のみち",                 m:{"ざいもく":2}},
     {n:"さんばし",                 m:{"ざいもく":2}},
@@ -653,16 +695,45 @@ function renderBld(){
   document.getElementById("bldBox").innerHTML = PLACES.map(b => {
     const open = BOPEN[b];
     const os = ORDERS.filter(o => o.b === b);
-    /* 素材ごとの状況 */
     const mats = MATS.filter(m => ((EST[b]||{})[m.n]) || covered(b, m.n));
+
+    /* ③ 進捗：この建物の必要量に対し、在庫がどれだけ充当できるか */
+    let bn = 0, bh = 0;
+    mats.forEach(m => {
+      const v = Math.max((EST[b]||{})[m.n]||0, covered(b, m.n));
+      bn += v;
+      const share = need(m.n) ? v / need(m.n) : 0;   /* 全体に占めるこの建物の割合 */
+      bh += Math.min(v, Math.round(have(m.n) * share));
+    });
+    const pct = bn ? Math.round(bh/bn*100) : 0;
+
+    /* ① 素材行を編集可能に */
     const rows = mats.map(m => {
       const est = (EST[b]||{})[m.n] || 0, cov = covered(b, m.n), v = Math.max(est, cov);
       const st = cov === 0 ? "見積もりのみ"
         : cov < est ? `レシピ確定 ${cov.toLocaleString()} ／ 残り見積もり ${(est-cov).toLocaleString()}`
-        : "レシピで確定";
-      return `<div class="line"><span class="lab">${m.n}<br><small style="color:var(--soft)">${st}</small></span>
-        <span class="q">${v.toLocaleString()}</span></div>`;
+        : `レシピで確定（見積もり ${est.toLocaleString()}）`;
+      return `<div class="line" style="flex-wrap:wrap">
+        <span class="lab">${ISL[m.isl].i} ${m.n}<br><small style="color:var(--soft)">${st}</small></span>
+        <input type="number" min="0" value="${est}" data-a="estin" data-b="${b}" data-m="${m.n}"
+          style="width:82px;text-align:right"> 
+        <span class="q" style="min-width:60px">${v.toLocaleString()}</span>
+        <div class="btnrow">
+          <button class="mini plus"  data-a="est" data-b="${b}" data-m="${m.n}" data-d="10">+10</button>
+          <button class="mini plus"  data-a="est" data-b="${b}" data-m="${m.n}" data-d="100">+100</button>
+          <button class="mini plus"  data-a="est" data-b="${b}" data-m="${m.n}" data-d="1000">+1000</button>
+          <button class="mini minus" data-a="est" data-b="${b}" data-m="${m.n}" data-d="-10">−10</button>
+          <button class="mini minus" data-a="est" data-b="${b}" data-m="${m.n}" data-d="-100">−100</button>
+          <button class="mini minus" data-a="est" data-b="${b}" data-m="${m.n}" data-d="-1000">−1000</button>
+          <button class="mini del"   data-a="delest" data-b="${b}" data-m="${m.n}">見積もりを消す</button>
+        </div></div>`;
     }).join("") || `<div class="line"><span class="lab" style="color:var(--soft)">素材の登録なし</span></div>`;
+
+    /* 素材を新規に足す */
+    const addMat = `<div class="addrow">
+      <select data-a="emsel">${MATS.map(m => `<option>${m.n}</option>`).join("")}</select>
+      <input type="number" min="0" placeholder="いくつ" data-a="emqty">
+      <button class="mini add" data-a="addest" data-b="${b}">素材を足す</button></div>`;
 
     const olist = os.length ? os.map(o => {
       const r = recipeOf(o.r);
@@ -681,14 +752,17 @@ function renderBld(){
         <input type="number" min="0" placeholder="作る数" data-a="bqty">
         <button class="mini add" data-a="baddorder" data-b="${b}">この建物に追加</button></div>` : ""}`;
 
-    const totalLeft = mats.reduce((a,m) => a + Math.max((EST[b]||{})[m.n]||0, covered(b,m.n)), 0);
     return `<div class="bld ${open ? "open" : ""}">
       <div class="bld-h" data-a="btoggle" data-b="${b}">
-        <span class="bld-n">🏛 ${b}</span>
-        <span class="bld-s">素材 ${totalLeft.toLocaleString()} ／ レシピ ${os.length}件 ${open ? "▲" : "▼"}</span>
+        <div style="flex:1;min-width:0">
+          <div class="bld-n">🏛 ${b}</div>
+          <div class="bar" style="margin-top:5px"><i style="width:${pct}%"></i></div>
+        </div>
+        <span class="bld-s">${bh.toLocaleString()} / ${bn.toLocaleString()}<br>
+          <b style="font-size:14px;color:${pct>=100?"var(--ok)":"var(--ink)"}">${pct}%</b> ${open ? "▲" : "▼"}</span>
       </div>
       <div class="bld-b">
-        <div class="sub">必要な素材</div>${rows}
+        <div class="sub">必要な素材（直接なおせます）</div>${rows}${addMat}
         <div class="sub">入れるレシピ</div>${olist}
         <div class="sub">レシピを足す</div>${picker}
       </div></div>`;
@@ -738,8 +812,8 @@ document.addEventListener("click", e => {
     S[m].stock[l] = Math.max(0, S[m].stock[l] + parseInt(t.dataset.d)); renderMat(); renderIsl(); }
   if(a === "delneed"){ S[m].needs.splice(parseInt(t.dataset.i),1); renderMat(); renderIsl(); }
   if(a === "delest"){
-    const b = t.dataset.b;
-    if(EST[b]) delete EST[b][m];
+    const b = t.dataset.b, mm = t.dataset.m || m;
+    if(EST[b]) delete EST[b][mm];
     render();
   }
   if(a === "delorder"){
@@ -754,6 +828,19 @@ document.addEventListener("click", e => {
     if(q > 0){ ORDERS.push({id:ORDER_ID++, r:t.dataset.r, qty:q, b}); render(); }
   }
   /* 素材カードから追加 */
+  if(a === "est"){
+    const b = t.dataset.b, mm = t.dataset.m;
+    if(!EST[b]) EST[b] = {};
+    EST[b][mm] = Math.max(0, (EST[b][mm]||0) + parseInt(t.dataset.d));
+    render(); return;
+  }
+  if(a === "addest"){
+    const b = t.dataset.b, box = t.closest(".bld-b");
+    const mm = box.querySelector('[data-a="emsel"]').value;
+    const q = parseInt(box.querySelector('[data-a="emqty"]').value);
+    if(q > 0){ if(!EST[b]) EST[b] = {}; EST[b][mm] = (EST[b][mm]||0) + q; render(); }
+    return;
+  }
   if(a === "btoggle"){ BOPEN[t.dataset.b] = !BOPEN[t.dataset.b]; renderBld(); return; }
   if(a === "bpick"){
     const b = t.dataset.b;
@@ -802,6 +889,12 @@ document.addEventListener("change", e => {
   }
 });
 document.addEventListener("input", e => {
+  if(e.target.dataset.a === "estin"){
+    const b = e.target.dataset.b, mm = e.target.dataset.m;
+    if(!EST[b]) EST[b] = {};
+    EST[b][mm] = Math.max(0, parseInt(e.target.value)||0);
+    renderMat(); renderIsl(); return;
+  }
   if(e.target.dataset.a === "rate"){
     M[e.target.dataset.m].rate = Math.max(1, parseInt(e.target.value)||1); renderIsl();
   }
