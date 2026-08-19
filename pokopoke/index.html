@@ -194,6 +194,23 @@ header{border-bottom-width:3px;border-radius:0;}
   text-decoration:none;font-weight:700;transition:transform .08s,box-shadow .08s;}
 .links a:active{transform:translateY(2px);box-shadow:none;}
 .tools{margin:0 0 14px!important;}
+
+.big{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 6px;}
+.big button{padding:14px 6px;border-radius:16px;border:2px solid;font-family:inherit;
+  font-size:15px;font-weight:900;cursor:pointer;box-shadow:0 3px 0 var(--shadow);
+  transition:transform .08s,box-shadow .08s;line-height:1.3;}
+.big button small{display:block;font-size:10px;font-weight:700;opacity:.85;}
+.big button:active{transform:translateY(3px);box-shadow:none;}
+.big .get{background:var(--ok);border-color:var(--ok);color:#fff;}
+.big .use{background:var(--rust);border-color:var(--rust);color:#fff;}
+.big .ord{background:var(--amber);border-color:var(--amber);color:#fff;grid-column:1/-1;}
+.stepbar{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0;}
+.stepbar button{padding:12px 4px;border-radius:12px;border:2px solid var(--line);
+  background:#fff;font-family:ui-monospace,monospace;font-size:14px;font-weight:900;
+  cursor:pointer;box-shadow:0 2px 0 var(--shadow);color:var(--ink);}
+.stepbar button:active{transform:translateY(2px);box-shadow:none;}
+.panel-lite{background:var(--panel2);border-radius:14px;padding:10px;margin:6px 0;}
+.panel-lite .ttl{font-size:11.5px;font-weight:700;margin-bottom:6px;}
 </style>
 </head>
 <body>
@@ -527,6 +544,7 @@ const PICK = {};   // 素材名 → 選んでいる相手
 const BPICK = {};  // 建物 → 選んでいるレシピ
 const BOPEN = {};  // 建物 → 開閉
 const GOPEN = {};  // レシピ分類 → 開閉
+const MODE = {}, MLOC = {};  // 素材 → あつめた/つかった モードと場所
 let SORT = "left";   // left / pct / need / name / isl
 const F = {mem:new Set(), bld:new Set(), isl:new Set()};
 /* 建物 → 担当する住人（複数可） */
@@ -709,6 +727,23 @@ function card(m){
       <div style="font-size:10px;color:var(--soft);margin-top:4px">
         レシピ＋建物＝その建物の見積もりを食う／住人だけ＝その人の希望／建物だけ＝見積もりに足す</div>
 
+      <div class="big">
+        <button class="get" data-a="mode" data-m="${m.n}" data-v="get">＋ あつめた<small>倉庫にふやす</small></button>
+        <button class="use" data-a="mode" data-m="${m.n}" data-v="use">− つかった<small>建築でへらす</small></button>
+      </div>
+      ${MODE[m.n] ? `<div class="panel-lite">
+        <div class="ttl">${MODE[m.n] === "get" ? "どこに置く？" : "どこから出す？"}</div>
+        <select data-a="mloc" style="width:100%">${LOCS.map(l =>
+          `<option ${l === (MLOC[m.n]||"倉庫") ? "selected" : ""}>${l}</option>`).join("")}</select>
+        <div class="stepbar">
+          ${[10,50,100,1000].map(n => `<button data-a="mstep" data-m="${m.n}"
+            data-d="${MODE[m.n] === "get" ? n : -n}">${MODE[m.n] === "get" ? "+" : "−"}${n}</button>`).join("")}
+        </div>
+        <div class="addrow">
+          <input type="number" min="0" placeholder="すきな数" data-a="mqty">
+          <button class="mini add" data-a="mgo" data-m="${m.n}">これだけ${MODE[m.n] === "get" ? "ふやす" : "へらす"}</button>
+          <button class="mini" data-a="mode" data-m="${m.n}" data-v="">とじる</button>
+        </div></div>` : ""}
       <div class="sub">どこに置いてある？</div>
       ${stockLines}
       <div class="addrow">
@@ -810,7 +845,8 @@ function renderRec(){
           </select>
           <div class="qbox">
             <input type="number" min="0" placeholder="作る数" data-a="rqty" style="width:70px">
-            <button class="mini add" data-a="addorder" data-r="${r.n}">追加</button>
+            <button class="mini add" data-a="addorder" data-r="${r.n}"
+              style="font-size:13px;padding:9px 14px;font-weight:900">📦 発注</button>
           </div>
         </div>
       </div>`;
@@ -879,7 +915,8 @@ function renderBld(){
         🔧 ${r.n}<small>${Object.keys(r.m).join("・")}</small></button>`).join("")}</div>
       ${BPICK[b] ? `<div class="addrow">
         <input type="number" min="0" placeholder="作る数" data-a="bqty">
-        <button class="mini add" data-a="baddorder" data-b="${b}">この建物に追加</button></div>` : ""}`;
+        <button class="mini add" data-a="baddorder" data-b="${b}"
+          style="font-size:14px;padding:11px 16px;font-weight:900">📦 この建物に発注</button></div>` : ""}`;
 
     return `<div class="bld ${open ? "open" : ""}">
       <div class="bld-h" data-a="btoggle" data-b="${b}">
@@ -990,6 +1027,20 @@ document.addEventListener("click", e => {
     delete EST[b]; delete CREW[b];
     ORDERS = ORDERS.filter(o => o.b !== b);
     render(); return;
+  }
+  if(a === "mode"){ MODE[m] = t.dataset.v || null; renderMat(); return; }
+  if(a === "mstep"){
+    const l = MLOC[m] || "倉庫";
+    S[m].stock[l] = Math.max(0, (S[m].stock[l]||0) + parseInt(t.dataset.d));
+    renderMat(); renderIsl(); return;
+  }
+  if(a === "mgo"){
+    const box = t.closest(".panel-lite");
+    const q = parseInt(box.querySelector('[data-a="mqty"]').value);
+    if(!(q > 0)) return;
+    const l = MLOC[m] || "倉庫";
+    S[m].stock[l] = Math.max(0, (S[m].stock[l]||0) + (MODE[m] === "get" ? q : -q));
+    renderMat(); renderIsl(); return;
   }
   if(a === "crew"){
     const b = t.dataset.b, w = t.dataset.w;
