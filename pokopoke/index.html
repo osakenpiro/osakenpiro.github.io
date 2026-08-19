@@ -4,16 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>メの島 建築ボード</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#e9e5dd; --panel:#f7f5f0; --panel2:#dedad0; --ink:#2f3438; --soft:#6e747b;
-  --line:#c6c0b4; --amber:#c8862f; --teal:#437b7e; --rust:#a8543c; --ok:#5c7f4e;
+  --bg:#fdf6e6; --panel:#fffdf6; --panel2:#f3e8cf; --ink:#4a3f31; --soft:#8b7c66;
+  --line:#e3d4b4; --amber:#f0a23c; --teal:#3fae94; --rust:#ef7d63; --ok:#7cc05a;
+  --sky:#68b8dd; --shadow:#e0cfa8;
   --i-kouya:#8a9c5b; --i-unabara:#4f7f9c; --i-kazan:#b4664a;
   --i-sora:#7b74a8; --i-iwayama:#8d8577; --i-umizoko:#3d6b78;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
+body{--accent:var(--teal);}
+body.t-mat{--accent:#3fae94;} body.t-rec{--accent:#f0a23c;}
+body.t-bld{--accent:#c98bb8;} body.t-isl{--accent:#68b8dd;}
+h2.sec{color:var(--accent)!important;}
+.tabs button.on{background:var(--accent)!important;}
+.eyebrow{color:var(--accent)!important;}
+.note{border-left-color:var(--accent)!important;}
+.mini.add{color:var(--accent)!important;border-color:var(--accent)!important;}
+header{border-bottom:2px solid var(--accent);padding-bottom:9px;transition:border-color .25s;}
 body{background:linear-gradient(180deg,rgba(67,123,126,.10),transparent 240px),var(--bg);
-  color:var(--ink);font-family:"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;
+  color:var(--ink);font-family:"Hiragino Maru Gothic ProN","Zen Maru Gothic","Rounded Mplus 1c","Hiragino Sans","Noto Sans JP",sans-serif;
   padding:16px 10px 80px;line-height:1.6;-webkit-text-size-adjust:100%;}
 .wrap{max-width:760px;margin:0 auto;}
 .eyebrow{font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.26em;color:var(--teal);}
@@ -39,7 +52,13 @@ h2.sec::after{content:"";flex:1;height:1px;background:var(--line);}
 .who.me{background:#dfe8e5;color:#3c6360;font-weight:700;}
 
 /* recipes */
-.grp-h{font-size:12px;color:var(--soft);margin:15px 0 6px;font-weight:700;}
+.grp{margin-bottom:8px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel);}
+.grp-h{font-size:12.5px;color:var(--ink);padding:10px 12px;font-weight:700;cursor:pointer;
+  background:var(--panel2);display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.grp-h .cnt{font-family:ui-monospace,monospace;font-size:10.5px;color:var(--soft);font-weight:400;}
+.grp-in{display:none;padding:8px;}
+.grp.open .grp-in{display:block;}
+.rec{margin-bottom:5px;}
 .rec{background:var(--panel);border:1px solid var(--line);border-radius:9px;
   padding:9px 11px;margin-bottom:6px;display:flex;align-items:center;gap:9px;}
 .rec.sel{border-color:var(--amber);background:#fdf8ef;}
@@ -142,6 +161,32 @@ select{flex:1;min-width:100px;}
 textarea{width:100%;margin-top:8px;min-height:130px;padding:10px;font-family:ui-monospace,monospace;
   font-size:11px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink);display:none;}
 footer{margin-top:22px;font-size:10.5px;color:var(--soft);text-align:center;line-height:1.8;}
+
+/* ==== メの島ポップ v0 ==== */
+h1{font-weight:900;letter-spacing:.04em;}
+.mat,.bld,.grp,.isl,.total,.rate,.note{border-radius:18px;border-width:2px;
+  box-shadow:0 3px 0 var(--shadow);}
+.rec{border-radius:14px;border-width:2px;box-shadow:0 2px 0 var(--shadow);}
+.tabs{border-radius:16px;border-width:2px;box-shadow:0 3px 0 var(--shadow);}
+.tabs button{font-weight:700;}
+.who,.chip,.tag{border-radius:20px;font-weight:700;}
+.who{border-width:2px;box-shadow:0 2px 0 var(--shadow);}
+.mini,.qbox button,.qbox2 button,.pick button{border-width:2px;border-radius:10px;
+  box-shadow:0 2px 0 var(--shadow);transition:transform .08s,box-shadow .08s;}
+.mini:active,.qbox button:active,.qbox2 button:active,.pick button:active{
+  transform:translateY(2px);box-shadow:none;}
+.tools button{border-radius:16px;border-width:2px;box-shadow:0 3px 0 var(--shadow);
+  font-weight:900;letter-spacing:.04em;}
+.tools button:active{transform:translateY(3px);box-shadow:none;}
+select,input{border-radius:12px;border-width:2px;}
+.mat-name,.bld-n,.isl-n,.rec-n{font-weight:900;}
+.mat-nums b,.total .r b,.line .q{font-family:"Zen Maru Gothic",ui-monospace,monospace;font-weight:900;}
+.bar{height:10px;border-radius:6px;}
+.bar > i{background:linear-gradient(90deg,var(--amber),var(--ok));}
+h2.sec{font-family:"Zen Maru Gothic",sans-serif;font-weight:700;letter-spacing:.1em;font-size:12.5px;}
+h2.sec::after{height:2px;border-radius:2px;background:var(--line);}
+header{border-bottom-width:3px;border-radius:0;}
+.mat.active{box-shadow:0 3px 0 var(--shadow),0 0 0 3px rgba(240,162,60,.3);}
 </style>
 </head>
 <body>
@@ -162,25 +207,19 @@ footer{margin-top:22px;font-size:10.5px;color:var(--soft);text-align:center;line
 
 <!-- ===== 素材 ===== -->
 <div class="page on" id="p-mat">
-  <h2 class="sec">メの島の住人</h2>
+  <h2 class="sec">住人（押してえらぶ・いくつでも）</h2>
   <div class="roster" id="roster"></div>
-  <h2 class="sec">メの島の建物</h2>
+  <h2 class="sec">建物（押してえらぶ・いくつでも）</h2>
   <div class="roster" id="rosterB"></div>
   <div class="note">
     メの島はクラウド島。本編の街からアイテムは持ち込めません。素材は<b>島内の採掘・島内のゆめしま（1日1種類）・島内ショップ・ポケセンの3Dプリンター</b>で調達します。<br>
     初期値には<b>ケンシロウの建てる7棟ぶん（標準スケール）</b>が入っています。レシピ図鑑で選んだ分もここに加算されます。
   </div>
-  <h2 class="sec">ゆめしまの目じるし</h2>
-  <div class="roster">
-    <span class="who">🦊 こうや（イーブイ）</span>
-    <span class="who">⚡ うなばら（ピカチュウ）</span>
-    <span class="who">🔥 かざん（ウインディ）</span>
-    <span class="who">🐉 そら（カイリュー）</span>
-    <span class="who">🌙 いわやま（ピッピ）</span>
-    <span class="who">⭐ うみぞこ（スターミー）</span>
-  </div>
+  <h2 class="sec">ゆめしま（押してえらぶ・いくつでも）</h2>
+  <div class="roster" id="rosterI"></div>
   <h2 class="sec">いま集めてるよ</h2>
   <div id="activeBox"></div>
+
   <h2 class="sec">ぜんぶの素材</h2>
   <div id="allBox"></div>
   <div class="total">
@@ -193,6 +232,9 @@ footer{margin-top:22px;font-size:10.5px;color:var(--soft);text-align:center;line
 <!-- ===== レシピ ===== -->
 <div class="page" id="p-rec">
   <div class="note">どの建物のぶんか選んで、作る数を入れてください。<b>建物のざっくり見積もりを、レシピで確定した分だけ置き換えます</b>（二重に数えません）。建物が決まっていないものは「（建物なし）」を選ぶと、そのまま上乗せされます。</div>
+  <input type="text" id="recFind" placeholder="🔍 レシピ名・素材名でしぼりこむ"
+    style="width:100%;padding:9px 11px;margin-bottom:10px;font-size:13px;
+    border:1px solid var(--line);border-radius:8px;background:#fff">
   <div id="recBox"></div>
 </div>
 
@@ -455,6 +497,10 @@ let ORDERS = [];
 const PICK = {};   // 素材名 → 選んでいる相手
 const BPICK = {};  // 建物 → 選んでいるレシピ
 const BOPEN = {};  // 建物 → 開閉
+const GOPEN = {};  // レシピ分類 → 開閉
+let SORT = "left";   // left / pct / need / name / isl
+const F = {mem:new Set(), bld:new Set(), isl:new Set()};   // 絞り込み（複数選択）
+
 const UNASSIGNED = "（建物なし）";
 
 S["ガラス"].active = true;
@@ -646,16 +692,42 @@ function card(m){
   </div>`;
 }
 
+function sortedMats(){
+  let a = MATS.slice();
+  if(F.isl.size) a = a.filter(m => F.isl.has(m.isl));
+  if(F.bld.size) a = a.filter(m => [...F.bld].some(b => ((EST[b]||{})[m.n]) || covered(b, m.n)));
+  if(F.mem.size) a = a.filter(m => S[m.n].needs.some(x => F.mem.has(x.who)));
+  const pct = m => need(m.n) ? have(m.n)/need(m.n) : 2;
+  const cmp = {
+    left: (x,y) => (need(y.n)-have(y.n)) - (need(x.n)-have(x.n)),
+    pct:  (x,y) => pct(x) - pct(y),
+    need: (x,y) => need(y.n) - need(x.n),
+    name: (x,y) => x.n.localeCompare(y.n, "ja"),
+    isl:  (x,y) => Object.keys(ISL).indexOf(x.isl) - Object.keys(ISL).indexOf(y.isl)
+  }[SORT];
+  return a.sort(cmp);
+}
 function renderMat(){
+  const on = (t,v) => F[t].has(v) ? "me" : "";
+  const any = F.mem.size + F.bld.size + F.isl.size;
   document.getElementById("roster").innerHTML =
-    MEMBERS.map(m => `<span class="who me">${m}</span>`).join("");
+    MEMBERS.map(m => `<span class="who ${on("mem",m)}" data-a="filt" data-t="mem" data-v="${m}"
+      style="cursor:pointer">${m}</span>`).join("")
+    + (any ? `<span class="who" data-a="filt" data-t="clear" data-v=""
+      style="cursor:pointer;color:var(--rust)">✕ ぜんぶ見る（${any}件えらび中）</span>` : "");
   document.getElementById("rosterB").innerHTML =
-    PLACES.map(p => `<span class="who">🏛 ${p}</span>`).join("");
-  const act = MATS.filter(m => S[m.n].active);
+    PLACES.map(p => `<span class="who ${on("bld",p)}" data-a="filt" data-t="bld" data-v="${p}"
+      style="cursor:pointer">🏛 ${p}</span>`).join("");
+  document.getElementById("rosterI").innerHTML =
+    Object.keys(ISL).map(k => `<span class="who ${on("isl",k)}" data-a="filt" data-t="isl" data-v="${k}"
+      style="cursor:pointer">${ISL[k].i} ${ISL[k].n.replace("のゆめしま","")}</span>`).join("");
+  const act = sortedMats().filter(m => S[m.n].active);
   document.getElementById("activeBox").innerHTML = act.length ? act.map(card).join("")
     : `<div class="note" style="border-left-color:var(--line)">
         まだありません。素材を開いて「🔥 いま集めてるに入れる」を押すと、ここに出ます。</div>`;
-  document.getElementById("allBox").innerHTML = MATS.filter(m => !S[m.n].active).map(card).join("");
+  const rest = sortedMats().filter(m => !S[m.n].active);
+  document.getElementById("allBox").innerHTML = rest.length ? rest.map(card).join("")
+    : `<div class="note">この条件に合う素材はありません</div>`;
   let tn = 0, th = 0;
   MATS.forEach(m => { tn += need(m.n); th += Math.min(have(m.n), need(m.n)); });
   document.getElementById("tNeed").textContent = tn.toLocaleString();
@@ -664,9 +736,19 @@ function renderMat(){
 }
 
 function renderRec(){
-  document.getElementById("recBox").innerHTML = REC.map(g => `
-    <div class="grp"><div class="grp-h">${g.g}</div>
-    ${g.items.map(r => {
+  const kw = (document.getElementById("recFind")||{}).value || "";
+  document.getElementById("recBox").innerHTML = REC.map((g,gi) => {
+   const items = g.items.filter(r => !kw || r.n.includes(kw) || Object.keys(r.m).some(k => k.includes(kw)));
+   if(!items.length) return "";
+   const picked = items.filter(r => ORDERS.some(o => o.r === r.n)).length;
+   const open = kw || GOPEN[gi];
+   return `
+    <div class="grp ${open ? "open" : ""}">
+      <div class="grp-h" data-a="gtoggle" data-g="${gi}">
+        <span>${g.g}</span>
+        <span class="cnt">${items.length}件${picked ? ` ・登録${picked}` : ""} ${open ? "▲" : "▼"}</span></div>
+    <div class="grp-in">
+    ${items.map(r => {
       const os = ORDERS.filter(o => o.r === r.n);
       const made = os.reduce((a,o) => a + o.qty, 0);
       return `<div class="rec ${made ? "sel" : ""}">
@@ -688,7 +770,8 @@ function renderRec(){
           </div>
         </div>
       </div>`;
-    }).join("")}</div>`).join("");
+    }).join("")}</div></div>`;
+  }).join("") || `<div class="note">みつかりませんでした</div>`;
 }
 
 function renderBld(){
@@ -801,6 +884,7 @@ document.addEventListener("click", e => {
   if(tab){
     document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b === tab));
     document.querySelectorAll(".page").forEach(p => p.classList.toggle("on", p.id === "p-" + tab.dataset.p));
+    document.body.className = "t-" + tab.dataset.p;
     return;
   }
   const t = e.target.closest("[data-a]"); if(!t) return;
@@ -828,6 +912,14 @@ document.addEventListener("click", e => {
     if(q > 0){ ORDERS.push({id:ORDER_ID++, r:t.dataset.r, qty:q, b}); render(); }
   }
   /* 素材カードから追加 */
+  if(a === "sort"){ SORT = t.dataset.v; renderMat(); return; }
+  if(a === "filt"){
+    const ty = t.dataset.t;
+    if(ty === "clear"){ F.mem.clear(); F.bld.clear(); F.isl.clear(); }
+    else { const v = t.dataset.v; F[ty].has(v) ? F[ty].delete(v) : F[ty].add(v); }
+    renderMat(); return;
+  }
+  if(a === "gtoggle"){ GOPEN[t.dataset.g] = !GOPEN[t.dataset.g]; renderRec(); return; }
   if(a === "est"){
     const b = t.dataset.b, mm = t.dataset.m;
     if(!EST[b]) EST[b] = {};
@@ -889,6 +981,7 @@ document.addEventListener("change", e => {
   }
 });
 document.addEventListener("input", e => {
+  if(e.target.id === "recFind"){ renderRec(); return; }
   if(e.target.dataset.a === "estin"){
     const b = e.target.dataset.b, mm = e.target.dataset.m;
     if(!EST[b]) EST[b] = {};
@@ -911,7 +1004,7 @@ document.getElementById("exp").addEventListener("click", () => {
     s += "\n【ゆめしま別 のこり日数】\n";
     order.forEach(k => { if(d[k] > 0) s += `　${ISL[k].n}：${Math.ceil(d[k])}日\n`; });
   }
-  const act = MATS.filter(m => S[m.n].active);
+  const act = sortedMats().filter(m => S[m.n].active);
   if(act.length){
     s += "\n🔥 いま集めてる\n";
     act.forEach(m => s += `　${m.n}：${have(m.n).toLocaleString()} / ${need(m.n).toLocaleString()}\n`);
@@ -939,6 +1032,7 @@ document.getElementById("load").addEventListener("click", () => {
   }catch(err){ alert("読み込めませんでした"); }
 });
 
+document.body.className = "t-mat";
 render();
 </script>
 </body>
