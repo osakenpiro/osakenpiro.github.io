@@ -187,6 +187,13 @@ h2.sec{font-family:"Zen Maru Gothic",sans-serif;font-weight:700;letter-spacing:.
 h2.sec::after{height:2px;border-radius:2px;background:var(--line);}
 header{border-bottom-width:3px;border-radius:0;}
 .mat.active{box-shadow:0 3px 0 var(--shadow),0 0 0 3px rgba(240,162,60,.3);}
+
+.links{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
+.links a{font-size:11.5px;padding:7px 13px;border-radius:20px;background:var(--panel);
+  border:2px solid var(--line);box-shadow:0 2px 0 var(--shadow);color:var(--ink);
+  text-decoration:none;font-weight:700;transition:transform .08s,box-shadow .08s;}
+.links a:active{transform:translateY(2px);box-shadow:none;}
+.tools{margin:0 0 14px!important;}
 </style>
 </head>
 <body>
@@ -204,6 +211,13 @@ header{border-bottom-width:3px;border-radius:0;}
   <button data-p="bld">建物</button>
   <button data-p="isl">今日どこ行く？</button>
 </div>
+
+<div class="tools">
+  <button id="exp">今日どこ行く？をコピー</button>
+  <button id="save" class="ghost">💾 保存用データ（閉じる前に必ず）</button>
+  <button id="load" class="ghost">読み込む</button>
+</div>
+<textarea id="out"></textarea>
 
 <!-- ===== 素材 ===== -->
 <div class="page on" id="p-mat">
@@ -254,16 +268,19 @@ header{border-bottom-width:3px;border-radius:0;}
   <div class="rate" id="rateBox"></div>
 </div>
 
-<div class="tools">
-  <button id="exp">今日の指令をコピー</button>
-  <button id="save" class="ghost">保存用データ</button>
-  <button id="load" class="ghost">読み込む</button>
-</div>
-<textarea id="out"></textarea>
+
 
 <footer>
-  数字はページを閉じると消えます。「保存用データ」でコピーして残しておいてください。<br>
-  MENO-SHIMA CITY PLAN
+  <div class="links">
+    <a href="https://toolz.gamepedia.jp/pocoapokemon/tools/material-calc" target="_blank" rel="noopener">🔧 クラフト図鑑（攻略大百科）</a>
+    <a href="https://gamepedia.jp/pocoapokemon/archives/1253" target="_blank" rel="noopener">🌙 ゆめしま一覧</a>
+    <a href="https://gamepedia.jp/pocoapokemon/archives/642" target="_blank" rel="noopener">⛏ よく使う素材の集め方</a>
+    <a href="https://gamepedia.jp/pocoapokemon/archives/3085" target="_blank" rel="noopener">🖨 3Dプリンター</a>
+    <a href="https://gamepedia.jp/pocoapokemon/archives/2588" target="_blank" rel="noopener">☁ クラウド島</a>
+    <a href="https://gamepedia.jp/pocoapokemon/archives/6613" target="_blank" rel="noopener">🌊 DLCの新レシピ</a>
+  </div>
+  <p style="margin-top:12px">数字はページを閉じると消えます。「保存用データ」でコピーして残してください。<br>
+  MENO-SHIMA CITY PLAN</p>
 </footer>
 
 </div>
@@ -710,17 +727,21 @@ function sortedMats(){
 function renderMat(){
   const on = (t,v) => F[t].has(v) ? "me" : "";
   const any = F.mem.size + F.bld.size + F.isl.size;
+  const cMem = w => MATS.filter(m => S[m.n].needs.some(x => x.who === w)).length;
+  const cBld = b => MATS.filter(m => ((EST[b]||{})[m.n]) || covered(b, m.n)).length;
+  const cIsl = k => MATS.filter(m => m.isl === k && need(m.n) > 0).length;
+  const z = n => n ? "" : "opacity:.35;";
   document.getElementById("roster").innerHTML =
-    MEMBERS.map(m => `<span class="who ${on("mem",m)}" data-a="filt" data-t="mem" data-v="${m}"
-      style="cursor:pointer">${m}</span>`).join("")
+    MEMBERS.map(m => { const c = cMem(m); return `<span class="who ${on("mem",m)}" data-a="filt"
+      data-t="mem" data-v="${m}" style="cursor:pointer;${z(c)}">${m}<b style="color:var(--soft)"> ${c}</b></span>`; }).join("")
     + (any ? `<span class="who" data-a="filt" data-t="clear" data-v=""
       style="cursor:pointer;color:var(--rust)">✕ ぜんぶ見る（${any}件えらび中）</span>` : "");
   document.getElementById("rosterB").innerHTML =
-    PLACES.map(p => `<span class="who ${on("bld",p)}" data-a="filt" data-t="bld" data-v="${p}"
-      style="cursor:pointer">🏛 ${p}</span>`).join("");
+    PLACES.map(p => { const c = cBld(p); return `<span class="who ${on("bld",p)}" data-a="filt"
+      data-t="bld" data-v="${p}" style="cursor:pointer;${z(c)}">🏛 ${p}<b style="color:var(--soft)"> ${c}</b></span>`; }).join("");
   document.getElementById("rosterI").innerHTML =
-    Object.keys(ISL).map(k => `<span class="who ${on("isl",k)}" data-a="filt" data-t="isl" data-v="${k}"
-      style="cursor:pointer">${ISL[k].i} ${ISL[k].n.replace("のゆめしま","")}</span>`).join("");
+    Object.keys(ISL).map(k => { const c = cIsl(k); return `<span class="who ${on("isl",k)}" data-a="filt"
+      data-t="isl" data-v="${k}" style="cursor:pointer;${z(c)}">${ISL[k].i} ${ISL[k].n.replace("のゆめしま","")}<b style="color:var(--soft)"> ${c}</b></span>`; }).join("");
   const act = sortedMats().filter(m => S[m.n].active);
   document.getElementById("activeBox").innerHTML = act.length ? act.map(card).join("")
     : `<div class="note" style="border-left-color:var(--line)">
