@@ -256,6 +256,18 @@ header{border-bottom-width:3px;border-radius:0;}
 <div class="page" id="p-bld">
   <div class="note">建物を選んで、その建物に使うレシピを登録します。登録した分だけ「ざっくり見積もり」が具体化され、二重には数えません。</div>
   <div id="bldBox"></div>
+  <div class="note" style="border-left-color:var(--accent)">
+    <div style="font-weight:700;color:var(--ink);margin-bottom:6px">🏗 新しい建物をていあん</div>
+    <div class="addrow">
+      <input type="text" id="nbName" placeholder="建てたいものの名前" style="flex:2">
+      <select id="nbWho">${""}</select>
+    </div>
+    <div class="addrow">
+      <button class="mini add" id="nbAdd" style="width:100%;padding:9px">この建物をついかする</button>
+    </div>
+    <div style="font-size:10.5px;margin-top:6px">
+      追加したら、その中で必要な素材やレシピを入れていってください。</div>
+  </div>
 </div>
 
 <!-- ===== 島 ===== -->
@@ -288,7 +300,7 @@ header{border-bottom-width:3px;border-radius:0;}
 <script>
 /* ============ 住人・場所 ============ */
 const MEMBERS = ["ケンシロウ","ゆうじろう","みき","ほのか","じろう"];
-const PLACES  = ["メタモン城","チャンピオンステップ","ポケレジデンス","海底ぴがんじょう",
+let PLACES  = ["メタモン城","チャンピオンステップ","ポケレジデンス","海底ぴがんじょう",
                  "ゆーじろー灯台","ホラアナ大金庫","雲の上の城下町"];
 const WHO  = [...MEMBERS, ...PLACES];
 const LOCS = ["倉庫","溶鉱炉前","ポケセン前", ...MEMBERS.map(m => m + "作業所")];
@@ -516,7 +528,10 @@ const BPICK = {};  // 建物 → 選んでいるレシピ
 const BOPEN = {};  // 建物 → 開閉
 const GOPEN = {};  // レシピ分類 → 開閉
 let SORT = "left";   // left / pct / need / name / isl
-const F = {mem:new Set(), bld:new Set(), isl:new Set()};   // 絞り込み（複数選択）
+const F = {mem:new Set(), bld:new Set(), isl:new Set()};
+/* 建物 → 担当する住人（複数可） */
+const CREW = {};
+PLACES.forEach(b => CREW[b] = ["ケンシロウ"]);   /* いまは全部ケンシロウの建物 */   // 絞り込み（複数選択）
 
 const UNASSIGNED = "（建物なし）";
 
@@ -713,7 +728,11 @@ function sortedMats(){
   let a = MATS.slice();
   if(F.isl.size) a = a.filter(m => F.isl.has(m.isl));
   if(F.bld.size) a = a.filter(m => [...F.bld].some(b => ((EST[b]||{})[m.n]) || covered(b, m.n)));
-  if(F.mem.size) a = a.filter(m => S[m.n].needs.some(x => F.mem.has(x.who)));
+  if(F.mem.size){
+    const bs = PLACES.filter(b => (CREW[b]||[]).some(w => F.mem.has(w)));
+    a = a.filter(m => S[m.n].needs.some(x => F.mem.has(x.who))
+      || bs.some(b => ((EST[b]||{})[m.n]) || covered(b, m.n)));
+  }
   const pct = m => need(m.n) ? have(m.n)/need(m.n) : 2;
   const cmp = {
     left: (x,y) => (need(y.n)-have(y.n)) - (need(x.n)-have(x.n)),
@@ -727,7 +746,11 @@ function sortedMats(){
 function renderMat(){
   const on = (t,v) => F[t].has(v) ? "me" : "";
   const any = F.mem.size + F.bld.size + F.isl.size;
-  const cMem = w => MATS.filter(m => S[m.n].needs.some(x => x.who === w)).length;
+  const cMem = w => {
+    const bs = PLACES.filter(b => (CREW[b]||[]).includes(w));
+    return MATS.filter(m => S[m.n].needs.some(x => x.who === w)
+      || bs.some(b => ((EST[b]||{})[m.n]) || covered(b, m.n))).length;
+  };
   const cBld = b => MATS.filter(m => ((EST[b]||{})[m.n]) || covered(b, m.n)).length;
   const cIsl = k => MATS.filter(m => m.isl === k && need(m.n) > 0).length;
   const z = n => n ? "" : "opacity:.35;";
@@ -796,6 +819,8 @@ function renderRec(){
 }
 
 function renderBld(){
+  const nw = document.getElementById("nbWho");
+  if(nw && !nw.options.length) nw.innerHTML = MEMBERS.map(w => `<option>${w}</option>`).join("");
   document.getElementById("bldBox").innerHTML = PLACES.map(b => {
     const open = BOPEN[b];
     const os = ORDERS.filter(o => o.b === b);
@@ -860,15 +885,22 @@ function renderBld(){
       <div class="bld-h" data-a="btoggle" data-b="${b}">
         <div style="flex:1;min-width:0">
           <div class="bld-n">🏛 ${b}</div>
+          <div style="font-size:10.5px;color:var(--soft)">${(CREW[b]||[]).join("・") || "担当みてい"}</div>
           <div class="bar" style="margin-top:5px"><i style="width:${pct}%"></i></div>
         </div>
         <span class="bld-s">${bh.toLocaleString()} / ${bn.toLocaleString()}<br>
           <b style="font-size:14px;color:${pct>=100?"var(--ok)":"var(--ink)"}">${pct}%</b> ${open ? "▲" : "▼"}</span>
       </div>
       <div class="bld-b">
+        <div class="sub">担当（押してえらぶ・いくつでも）</div>
+        <div class="roster">${MEMBERS.map(w =>
+          `<span class="who ${(CREW[b]||[]).includes(w) ? "me" : ""}" data-a="crew" data-b="${b}" data-w="${w}"
+            style="cursor:pointer">${w}</span>`).join("")}</div>
         <div class="sub">必要な素材（直接なおせます）</div>${rows}${addMat}
         <div class="sub">入れるレシピ</div>${olist}
         <div class="sub">レシピを足す</div>${picker}
+        <div class="btnrow" style="margin-top:12px">
+          <button class="mini del" data-a="delbld" data-b="${b}">この建物を消す</button></div>
       </div></div>`;
   }).join("");
 }
@@ -941,6 +973,31 @@ document.addEventListener("click", e => {
     renderMat(); return;
   }
   if(a === "gtoggle"){ GOPEN[t.dataset.g] = !GOPEN[t.dataset.g]; renderRec(); return; }
+  if(e.target.id === "nbAdd"){
+    const n = document.getElementById("nbName").value.trim();
+    const w = document.getElementById("nbWho").value;
+    if(!n){ alert("名前を入れてください"); return; }
+    if(PLACES.includes(n)){ alert("その名前はもうあります"); return; }
+    PLACES.push(n); EST[n] = {}; CREW[n] = [w];
+    document.getElementById("nbName").value = "";
+    BOPEN[n] = true;
+    render(); return;
+  }
+  if(a === "delbld"){
+    const b = t.dataset.b;
+    if(!confirm(b + " を消します。よろしいですか？")) return;
+    PLACES = PLACES.filter(x => x !== b);
+    delete EST[b]; delete CREW[b];
+    ORDERS = ORDERS.filter(o => o.b !== b);
+    render(); return;
+  }
+  if(a === "crew"){
+    const b = t.dataset.b, w = t.dataset.w;
+    if(!CREW[b]) CREW[b] = [];
+    const i = CREW[b].indexOf(w);
+    i >= 0 ? CREW[b].splice(i,1) : CREW[b].push(w);
+    render(); return;
+  }
   if(a === "est"){
     const b = t.dataset.b, mm = t.dataset.m;
     if(!EST[b]) EST[b] = {};
@@ -1034,7 +1091,7 @@ document.getElementById("exp").addEventListener("click", () => {
 });
 document.getElementById("save").addEventListener("click", () => {
   const o = document.getElementById("out");
-  o.value = JSON.stringify({S, ORDERS, EST, rates:Object.fromEntries(MATS.map(m => [m.n, m.rate]))});
+  o.value = JSON.stringify({S, ORDERS, EST, CREW, PLACES, rates:Object.fromEntries(MATS.map(m => [m.n, m.rate]))});
   o.style.display = "block"; o.select();
 });
 document.getElementById("load").addEventListener("click", () => {
@@ -1047,7 +1104,9 @@ document.getElementById("load").addEventListener("click", () => {
     const d = JSON.parse(o.value);
     if(d.S) MATS.forEach(m => { if(d.S[m.n]) S[m.n] = d.S[m.n]; });
     if(d.ORDERS){ ORDERS = d.ORDERS; ORDER_ID = ORDERS.reduce((a,o) => Math.max(a, o.id), 0) + 1; }
+    if(d.PLACES) PLACES = d.PLACES;
     if(d.EST) PLACES.forEach(b => { EST[b] = d.EST[b] || {}; });
+    if(d.CREW) PLACES.forEach(b => { CREW[b] = d.CREW[b] || []; });
     if(d.rates) MATS.forEach(m => { if(d.rates[m.n]) m.rate = d.rates[m.n]; });
     o.style.display = "none"; render();
   }catch(err){ alert("読み込めませんでした"); }
