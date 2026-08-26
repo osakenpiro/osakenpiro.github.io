@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>行けない場所の地図 — Micro Web Game</title>
+  <!-- OGP（tool-deploy チェックリスト。公開前に og.png を置く） -->
+  <meta property="og:title" content="行けない場所の地図">
+  <meta property="og:description" content="地図を一周する、小さな散歩。（osakenpiro Micro Web Game）">
+  <meta property="og:url" content="https://osakenpiro.github.io/ikenai-chizu/">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Crect width=%2716%27 height=%2716%27 fill=%27%23f3eee2%27/%3E%3Ccircle cx=%2711%27 cy=%2710%27 r=%273%27 fill=%27%23c9a24a%27/%3E%3Cpath d=%27M1 12 Q4 9 7 12 T13 12%27 stroke=%27%233c5a78%27 fill=%27none%27/%3E%3C/svg%3E">
+  <style>
+    :root { --bg:#0b0b0f; --fg:#e8e2d0; --gold:#c9a24a; --dim:#8a8474; --paper:#f3eee2; }
+    html,body { margin:0; height:100%; background:var(--bg); color:var(--fg); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+    #app { --cw:min(480px, 96vw, 105vh); display:grid; grid-template-columns:1fr; justify-items:center; align-items:center; gap:10px; padding:12px 0 0; box-sizing:border-box; }
+    h1 { font-weight:400; letter-spacing:.2em; font-size:20px; margin:0; }
+    #lead { margin:4px 0; }
+    canvas { background:var(--paper); border:1px solid #2a2a33; width:var(--cw); height:auto; touch-action:none; image-rendering:auto; }
+    #mini { background:transparent; border:none; width:calc(var(--cw) / 5); margin-top:-4px; }   /* 地図の余白: 訪れた画面の紙片（地図片の大きさぴったり）。盤面には重ねない */
+    .hud { font-size:14px; color:var(--dim); min-height:1.2em; text-align:center; max-width:min(480px, 96vw); }
+    button { background:transparent; color:var(--gold); border:1px solid var(--gold); padding:8px 16px; font-size:16px; cursor:pointer; }
+    button:hover { background:#1a1810; }
+    footer { margin:14px 0 8px; width:100%; text-align:center; font-size:12px; color:var(--dim); }
+    footer a { color:var(--dim); }
+    footer details { margin-top:6px; } footer summary { cursor:pointer; } footer details p { max-width:min(480px, 96vw); margin:6px auto 0; line-height:1.6; }
+    .hidden { display:none; }
+    @media (max-height:480px) and (orientation:landscape) {            /* スマホ横向き: 地図を左、言葉を右（ボタンが画面内に収まる） */
+      #app { --cw:min(480px, 60vw, 82vh); grid-template-columns:auto minmax(150px, 1fr); grid-template-areas:"canvas title" "canvas lead" "canvas hud" "canvas btn" "mini ."; column-gap:16px; row-gap:6px; padding:6px 8px 0; }
+      #c { grid-area:canvas; } #mini { grid-area:mini; } h1 { grid-area:title; } #lead { grid-area:lead; } #hud { grid-area:hud; } #btnStart, #btnRetry { grid-area:btn; }
+    }
+    @media (max-height:520px) and (orientation:portrait) { #app { --cw:min(480px, 96vw, 66vh); } }   /* 縦の短い窓（400×400 等）: 「はじめる」まで画面内に */
+  </style>
+</head>
+<body>
+<div id="app">
+  <h1 id="title">行けない場所の地図</h1>
+  <p id="lead" class="hud">地図を、一周する。</p>
+  <canvas id="c" width="480" height="320" aria-label="行けない場所の地図 — 盤面"></canvas>
+  <canvas id="mini" width="96" height="64" aria-hidden="true"></canvas>
+  <div class="hud" id="hud"></div>
+  <button id="btnStart">はじめる</button>
+  <button id="btnRetry" class="hidden">もういちど</button>
+</div>
+<footer>© osakenpiro
+  <details id="credits"><summary>credits / licenses</summary>
+    <p>index.html — 自作コード（MIT）。外部素材・外部ライブラリ・外部通信なし。保存はこの端末の localStorage だけ（周回数・最接近・見た灯り）。</p>
+  </details>
+</footer>
+
+<script>
+/* =====================================================================
+   行けない場所の地図（mg-ikenai-chizu）— single-file（オフライン起動・backend なし・CDN なし）
+   One Weird Rule: 地図は、行けない場所だけを描く。立てる場所は白い（紙のまま）。
+   契約: threejs-game-qa の debug hook（window.state / __g / __set / __tp / __key / __start / __rwErr / __world）
+   保存: write → read-back verify → 一致したときだけ SAVED
+   ===================================================================== */
+
+// ゼロ実行時エラーのフック。何より先に置く。
+window.__rwErr = false;
+window.addEventListener('error', () => { window.__rwErr = true; });
+
+const STORAGE_KEY = 'mg-ikenai-chizu-save';
+const TICK = 1 / 60;                 // 固定タイムステップ
+const MAX_STEPS_PER_FRAME = 30;      // 上限に達しても時間を捨てない
+const SEED = 20260826;               // 世界は固定（同じ地図を歩く）
+const TILE = 16;
+
+/*GEN-START*/
+// ---- 世界生成（DOM 非依存。verification/mapcheck.js が同じコードを VM で実行する） ----
+function makeWorld(seed) {
+  const SW = 30, SH = 20, NX = 3, NY = 3, W = SW * NX, H = SH * NY;
+  let s = (seed >>> 0) || 1;
+  const rnd = () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; };
+  const idx = (x, y) => y * W + x;
+  const inb = (x, y) => x >= 0 && y >= 0 && x < W && y < H;
+
+  // 値ノイズ（地形の種類に使う）
+  const G = 12, gw = Math.ceil(W / G) + 2, gh = Math.ceil(H / G) + 2;
+  const lat = new Float32Array(gw * gh); for (let i = 0; i < lat.length; i++) lat[i] = rnd();
+  const smooth = (t) => t * t * (3 - 2 * t);
+  const noise = (x, y) => {
+    const fx = x / G, fy = y / G, x0 = Math.floor(fx), y0 = Math.floor(fy), tx = smooth(fx - x0), ty = smooth(fy - y0);
+    const v = (a, b) => lat[b * gw + a];
+    const top = v(x0, y0) * (1 - tx) + v(x0 + 1, y0) * tx, bot = v(x0, y0 + 1) * (1 - tx) + v(x0 + 1, y0 + 1) * tx;
+    return top * (1 - ty) + bot * ty;
+  };
+
+  // 地形: 1 水（海・湖） 2 岩 3 森 4 廃墟
+  const ter = new Uint8Array(W * H);
+  const LAKE = { x: 45, y: 30, rx: 8, ry: 5.5 };
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const border = Math.min(x, y, W - 1 - x, H - 1 - y);
+    const n = noise(x, y);
+    let t = 2;
+    if (border < 4 + Math.floor(n * 3)) t = 1;
+    else if (n > 0.64) t = 3;
+    else if (n < 0.30) t = 4;
+    const lx = (x + 0.5 - LAKE.x) / LAKE.rx, ly = (y + 0.5 - LAKE.y) / LAKE.ry;
+    if (lx * lx + ly * ly < 1) t = 1;
+    ter[idx(x, y)] = t;
+  }
+
+  // 歩ける場所を彫る（全部塞がった紙に、道と広場を彫る）
+  const walk = new Uint8Array(W * H);
+  const carve = (cx, cy, r) => { for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+    const x = cx + dx, y = cy + dy; if (!inb(x, y)) continue; if (dx * dx + dy * dy > r * r + 0.5) continue; walk[idx(x, y)] = 1; } };
+  const start = { x: 45, y: 52 };
+  const ring = [[45, 52], [22, 51], [10, 42], [12, 22], [22, 9], [45, 7], [68, 9], [78, 22], [80, 42], [68, 51], [45, 52]];
+  const spurs = [[45, 52, 45, 39], [12, 22, 33, 28], [78, 22, 58, 27], [22, 9, 40, 20], [68, 9, 52, 20], [22, 51, 36, 44], [68, 51, 56, 46]];
+  const walkPath = (x0, y0, x1, y1, rooms) => {
+    let x = x0, y = y0, guard = 0;
+    carve(x, y, 1);
+    while ((x !== x1 || y !== y1) && guard++ < 400) {
+      const dx = Math.sign(x1 - x), dy = Math.sign(y1 - y);
+      const r = rnd();
+      if (r < 0.22 && dx && dy) { if (rnd() < 0.5) x += dx; else y += dy; }
+      else if (r < 0.34) { x += (rnd() < 0.5 ? -1 : 1) * (dy ? 1 : 0); y += (rnd() < 0.5 ? -1 : 1) * (dx ? 1 : 0); }  // 横揺れ
+      else if (Math.abs(x1 - x) > Math.abs(y1 - y)) x += dx; else y += dy;
+      x = Math.max(2, Math.min(W - 3, x)); y = Math.max(2, Math.min(H - 3, y));
+      carve(x, y, rnd() < 0.18 ? 2 : 1);
+      if (rooms && rnd() < 0.05) carve(x, y, 3 + Math.floor(rnd() * 2));   // 広場
+      if (rnd() < 0.06) {                                                   // 行き止まりの岬
+        const len = 3 + Math.floor(rnd() * 6), ddx = [1, -1, 0, 0][Math.floor(rnd() * 4)], ddy = ddx ? 0 : (rnd() < 0.5 ? 1 : -1);
+        for (let k = 1; k <= len; k++) carve(x + ddx * k, y + ddy * k, 1);
+      }
+    }
+    carve(x1, y1, 2);
+  };
+  for (let i = 0; i < ring.length - 1; i++) walkPath(ring[i][0], ring[i][1], ring[i + 1][0], ring[i + 1][1], true);
+  for (const sp of spurs) walkPath(sp[0], sp[1], sp[2], sp[3], false);
+
+  // 海と湖の芯は行けない場所として固定する
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const border = Math.min(x, y, W - 1 - x, H - 1 - y);
+    const lx = (x + 0.5 - LAKE.x) / LAKE.rx, ly = (y + 0.5 - LAKE.y) / LAKE.ry;
+    if (border < 3 || lx * lx + ly * ly < 0.62) walk[idx(x, y)] = 0;
+  }
+  walk[idx(start.x, start.y)] = 1; walk[idx(start.x + 1, start.y)] = 1; walk[idx(start.x, start.y + 1)] = 1; walk[idx(start.x + 1, start.y + 1)] = 1;
+
+  // 出発点から届かない歩き場は塞ぐ（＝行けない場所として描かれる）
+  const seen = new Uint8Array(W * H); const q = [idx(start.x, start.y)]; seen[q[0]] = 1;
+  for (let h = 0; h < q.length; h++) { const i = q[h], x = i % W, y = (i / W) | 0;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (!inb(nx, ny)) continue; const j = idx(nx, ny); if (walk[j] && !seen[j]) { seen[j] = 1; q.push(j); } } }
+  for (let i = 0; i < W * H; i++) if (walk[i] && !seen[i]) walk[i] = 0;
+
+  // 到達不能セルの深さ（歩ける場所からの距離）。1＝岸・壁ぎわ、深いほど濃く描く
+  const depth = new Uint8Array(W * H); const q2 = [];
+  for (let i = 0; i < W * H; i++) if (walk[i]) { depth[i] = 0; q2.push(i); } else depth[i] = 255;
+  for (let h = 0; h < q2.length; h++) { const i = q2[h], x = i % W, y = (i / W) | 0;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const nx = x + dx, ny = y + dy; if (!inb(nx, ny)) continue; const j = idx(nx, ny); if (depth[j] === 255) { depth[j] = Math.min(250, depth[i] + 1); q2.push(j); } } }
+
+  // 灯り: 全部、行けない場所に置く（深さ 2〜7・画面ごとに 1〜2・湖の芯に1・地図の端に3）
+  const lights = [];
+  const far = (x, y, d) => lights.every((l) => Math.abs(l.x - x) + Math.abs(l.y - y) >= d);
+  const tryLight = (x, y, kind, dmin, dmax) => { if (!inb(x, y)) return false; const i = idx(x, y); if (walk[i] || depth[i] < dmin || depth[i] > dmax || !far(x, y, 7)) return false; lights.push({ x, y, kind }); return true; };
+  tryLight(LAKE.x, LAKE.y, 'lake', 3, 250);
+  for (let sy = 0; sy < NY; sy++) for (let sx = 0; sx < NX; sx++) {
+    let placed = 0, tries = 0;
+    while (placed < 2 && tries++ < 400) {
+      const x = sx * SW + 2 + Math.floor(rnd() * (SW - 4)), y = sy * SH + 2 + Math.floor(rnd() * (SH - 4));
+      if (tryLight(x, y, ['lantern', 'window', 'boat'][ter[idx(x, y)] === 1 ? 2 : (ter[idx(x, y)] === 4 ? 1 : 0)], 2, 7)) placed++;
+      if (placed === 1 && rnd() < 0.5) break;
+    }
+  }
+  for (const [x, y] of [[1, 30], [88, 31], [45, 1]]) { let d = 0; while (d < 4 && !tryLight(x + (x < 45 ? d : x > 45 ? -d : 0), y + (y < 30 ? d : y > 30 ? -d : 0), 'far', 2, 250)) d++; }
+  // 出発点の近くにひとつ（最初の30秒で「向こうに何かある」が見える）
+  let best = null;
+  for (let y = start.y - 7; y <= start.y + 7; y++) for (let x = start.x - 9; x <= start.x + 9; x++) {
+    if (!inb(x, y)) continue; const i = idx(x, y); if (walk[i] || depth[i] < 2 || depth[i] > 5) continue;
+    const dd = Math.abs(x - start.x) + Math.abs(y - start.y); if (dd < 4 || dd > 9) continue; if (!far(x, y, 6)) continue;
+    if (!best || dd < best.dd) best = { x, y, dd };
+  }
+  if (best) lights.push({ x: best.x, y: best.y, kind: 'near' });
+
+  const walkable = walk.reduce((a, b) => a + b, 0);
+  return { W, H, SW, SH, NX, NY, walk, ter, depth, lights, start, walkable, drawn: W * H - walkable };
+}
+/*GEN-END*/
+
+// ---- 状態 ----
+const cv = document.getElementById('c');
+const cx = cv.getContext('2d');
+const mv = document.getElementById('mini');
+const mcx = mv.getContext('2d');
+const hud = document.getElementById('hud');
+const btnStart = document.getElementById('btnStart');
+const btnRetry = document.getElementById('btnRetry');
+
+const world = makeWorld(SEED);
+const SCREEN_W = world.SW * TILE, SCREEN_H = world.SH * TILE;
+let state = 'title';                              // FSM: title | play | results
+let p = null, keys = {}, acc = 0, last = null, simDebt = 0, frames = 0;
+let visited = new Set(), startScreen = 0, bump = null, pulse = null, nearest = 99, seenLights = new Set();
+const screenCache = new Map();
+
+function newPlayer() { return { x: (world.start.x + 1) * TILE, y: (world.start.y + 1) * TILE, speed: 1.6, steps: 0, dir: 0, bob: 0, moving: false }; }
+const tileOf = (px, py) => ({ x: Math.floor(px / TILE), y: Math.floor(py / TILE) });
+const blockedAt = (px, py) => { const t = tileOf(px, py); if (t.x < 0 || t.y < 0 || t.x >= world.W || t.y >= world.H) return true; return !world.walk[t.y * world.W + t.x]; };
+const screenOf = (px, py) => Math.floor(py / SCREEN_H) * world.NX + Math.floor(px / SCREEN_W);
+
+// ---- debug hook contract（threejs-game-qa/scripts/debug_hooks_template.js 準拠） ----
+Object.defineProperty(window, 'state', { get: () => state });
+window.__g = () => ({ p: p ? { ...p } : null, world: { W: world.W, H: world.H, SW: world.SW, SH: world.SH, NX: world.NX, NY: world.NY, start: world.start, lights: world.lights, walkable: world.walkable, drawn: world.drawn, screen: p ? screenOf(p.x, p.y) : null, startScreen, visited: [...visited], nearest, seenLights: seenLights.size }, simDebt, keys: { ...keys } });
+window.__world = () => ({ W: world.W, H: world.H, SW: world.SW, SH: world.SH, NX: world.NX, NY: world.NY, walk: Array.from(world.walk), depth: Array.from(world.depth), ter: Array.from(world.ter), lights: world.lights, start: world.start, walkable: world.walkable, drawn: world.drawn });
+window.__set = (fn) => fn({ p, world, keys, visited });
+window.__tp = (x, y) => { if (state === 'play' && p) { p.x = x; p.y = y; } };
+window.__key = (k, down) => { keys[k] = !!down; };
+window.__start = () => start();
+window.__finish = () => { if (state === 'play' && p) finish(); };   // テスト用: 保存・results 文の境界検査（1周を歩かずに finish を呼ぶ）
+
+// ---- 入力 ----
+const KEYMAP = { w: 'ArrowUp', a: 'ArrowLeft', s: 'ArrowDown', d: 'ArrowRight', W: 'ArrowUp', A: 'ArrowLeft', S: 'ArrowDown', D: 'ArrowRight' };
+const held = { ArrowUp: new Set(), ArrowDown: new Set(), ArrowLeft: new Set(), ArrowRight: new Set() };   // 方向ごとの物理キー集合（WASD と矢印が消し合わない）
+const syncDir = (d) => { keys[d] = held[d].size > 0 || touchDir === d; };
+const physKey = (e) => (e.code && /^Key[A-Z]$/.test(e.code)) ? e.code : (e.key.length === 1 ? e.key.toLowerCase() : e.key);   // Shift で大小が変わっても同じ鍵
+window.addEventListener('keydown', (e) => { const k = KEYMAP[e.key] || e.key; if (!held[k]) return; e.preventDefault(); held[k].add(physKey(e)); syncDir(k); });
+window.addEventListener('keyup',   (e) => { const k = KEYMAP[e.key] || e.key; if (!held[k]) return; held[k].delete(physKey(e)); syncDir(k); });
+window.addEventListener('blur', () => { for (const d in held) { held[d].clear(); keys[d] = false; } touchDir = null; touchId = null; });   // フォーカス喪失で押しっぱなしを解放
+let touchDir = null, touchId = null;
+const setTouch = (e) => {
+  if (!p) return;
+  const r = cv.getBoundingClientRect();
+  const mx = (e.clientX - r.left) * cv.width / r.width, my = (e.clientY - r.top) * cv.height / r.height;
+  const sx = p.x - Math.floor(p.x / SCREEN_W) * SCREEN_W, sy = p.y - Math.floor(p.y / SCREEN_H) * SCREEN_H;
+  const dx = mx - sx, dy = my - sy;
+  const prev = touchDir;
+  touchDir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 'ArrowLeft' : 'ArrowRight') : (dy < 0 ? 'ArrowUp' : 'ArrowDown');
+  if (prev && prev !== touchDir) syncDir(prev);
+  syncDir(touchDir);
+};
+cv.addEventListener('pointerdown', (e) => { if (touchId !== null && e.pointerId !== touchId) return; touchId = e.pointerId; setTouch(e); try { cv.setPointerCapture(e.pointerId); } catch (_) {} });   // 最初の指だけが動かす
+cv.addEventListener('pointermove', (e) => { if (touchId === e.pointerId && touchDir) setTouch(e); });
+const endTouch = (e) => { if (e && touchId !== null && e.pointerId !== touchId) return; const d = touchDir; touchDir = null; touchId = null; if (d) syncDir(d); };
+cv.addEventListener('pointerup', endTouch); cv.addEventListener('pointercancel', endTouch);
+
+// ---- 保存（read-back verify） ----
+function save(obj) {
+  try {
+    const s = JSON.stringify(obj);
+    for (let i = 0; i < 2; i++) { localStorage.setItem(STORAGE_KEY, s); if (localStorage.getItem(STORAGE_KEY) === s) return { ok: true }; }   // 他タブ競合は1回だけやり直す
+    throw new Error('read-back mismatch');
+  } catch (e) { try { console.warn('save failed:', e); } catch (_) {} return { ok: false, reason: 'この端末では記録を残せません' }; }   // 理由の生文字列は画面に出さない
+}
+function load() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch { return null; } }
+
+// ---- ゲーム本体 ----
+function start() {
+  p = newPlayer(); keys = {}; acc = 0; last = null; simDebt = 0; frames = 0;
+  visited = new Set(); startScreen = screenOf(p.x, p.y); visited.add(startScreen);
+  bump = null; pulse = null; nearest = 99; seenLights = new Set();
+  state = 'play';
+  btnStart.classList.add('hidden'); btnRetry.classList.add('hidden');
+  hud.textContent = '← ↑ ↓ →  ／  画面をタッチしたまま';
+}
+function finish() {
+  state = 'results'; bump = null; pulse = null;
+  const prev = load() || {};
+  const num = (v) => (typeof v === 'number' && isFinite(v)) ? v : null;   // 欠損・型不一致の旧保存に耐える（edge）
+  const rec = { v: 1, laps: Math.min(9999, Math.max(0, Math.floor(num(prev.laps) || 0)) + 1), screens: visited.size, near: Math.min(num(prev.near) ?? 99, nearest), seen: Math.max(num(prev.seen) || 0, seenLights.size), at: Date.now() };
+  const r = save(rec);
+  const near = nearest >= 99 ? '' : `いちばん近づいた灯りまで、あと ${nearest} 歩。`;                 // 数字はこれひとつ
+  const line1 = `地図を一周した。行けなかった場所のほうが、多かった。${near}`;
+  hud.textContent = r.ok ? `${line1} 記録した（${rec.laps}周目）` : `${line1} 保存できていません（${r.reason}）`;
+  btnRetry.classList.remove('hidden');
+}
+function tryMove(dx, dy) {
+  const hw = 4;                                   // 当たり判定 8×8
+  const nx = p.x + dx, ny = p.y + dy;
+  const hit = blockedAt(nx - hw, ny - hw) || blockedAt(nx + hw, ny - hw) || blockedAt(nx - hw, ny + hw) || blockedAt(nx + hw, ny + hw);
+  if (!hit) { p.x = nx; p.y = ny; return true; }
+  if (!bump || frames - bump.t > 14) {            // ぶつかった: 紙が少し震える（説明はしない）
+    bump = { x: p.x + Math.sign(dx) * 6, y: p.y + Math.sign(dy) * 6, t: frames };
+    let bl = null, bd = 99;
+    for (const l of world.lights) { const d = Math.abs((l.x + 0.5) * TILE - p.x) + Math.abs((l.y + 0.5) * TILE - p.y); if (d < bd) { bd = d; bl = l; } }
+    if (bl && bd < 7 * TILE) pulse = { l: bl, t: frames };
+  }
+  return false;
+}
+function step() {                                 // 1/60 s の純粋な状態更新
+  frames++;
+  if (typeof window.__onTick === 'function') window.__onTick();   // テスト用: ティック同期のオートパイロット（QA 契約の拡張）
+  const dx = (keys['ArrowRight'] ? 1 : 0) - (keys['ArrowLeft'] ? 1 : 0);
+  const dy = (keys['ArrowDown'] ? 1 : 0) - (keys['ArrowUp'] ? 1 : 0);
+  const t0 = tileOf(p.x, p.y);
+  let moved = false;
+  if (dx) { moved = tryMove(dx * p.speed, 0) || moved; p.dir = dx > 0 ? 0 : 2; }
+  if (dy) { moved = tryMove(0, dy * p.speed) || moved; p.dir = dy > 0 ? 1 : 3; }
+  p.moving = moved;
+  if (moved) p.bob += 0.25;
+  // 灯りとの距離（歩＝タイル）・見た灯り。歩数も同じ単位＝タイルをまたいだ回数
+  const t = tileOf(p.x, p.y);
+  if (t.x !== t0.x || t.y !== t0.y) p.steps += 1;
+  const scNow = screenOf(p.x, p.y);
+  for (let i = 0; i < world.lights.length; i++) { const l = world.lights[i]; if (Math.floor(l.y / world.SH) * world.NX + Math.floor(l.x / world.SW) !== scNow) continue;   // 描かれている灯りだけ
+    const d = Math.max(Math.abs(l.x - t.x), Math.abs(l.y - t.y)); if (d < nearest) nearest = d; if (d <= 8) seenLights.add(i); }
+  // 画面の遷移と一周判定
+  const sc = screenOf(p.x, p.y);
+  if (!visited.has(sc)) visited.add(sc);
+  if (visited.size === world.NX * world.NY && sc === startScreen && p.steps > 60) finish();
+}
+
+// ---- 描画: 行けない場所だけを描く ----
+const hash = (x, y) => { let h = (x * 73856093) ^ (y * 19349663); h = (h ^ (h >>> 13)) * 1274126177; return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+const INK = '#2b2a28', WATER = '#3c5a78', LEAF = '#3e5a3a', GOLD = '#c9a24a';
+function renderScreen(sx, sy) {
+  const oc = document.createElement('canvas'); oc.width = SCREEN_W; oc.height = SCREEN_H;
+  const g = oc.getContext('2d');
+  g.fillStyle = '#f3eee2'; g.fillRect(0, 0, SCREEN_W, SCREEN_H);
+  g.lineCap = 'round';
+  for (let ty = 0; ty < world.SH; ty++) for (let tx = 0; tx < world.SW; tx++) {
+    const x = sx * world.SW + tx, y = sy * world.SH + ty, i = y * world.W + x;
+    if (world.walk[i]) continue;                    // 立てる場所は描かない
+    const d = world.depth[i], t = world.ter[i], px = tx * TILE, py = ty * TILE, r = hash(x, y);
+    const dens = Math.min(4, d);                    // 深いほど多く描く
+    if (t === 1) {                                  // 水: 波
+      g.strokeStyle = WATER; g.lineWidth = 1;
+      for (let k = 0; k < dens; k++) { const yy = py + 3 + ((k * 4 + r * 4) % 12); const xx = px + ((r * 7 + k * 5) % 6); g.beginPath(); g.moveTo(xx, yy); g.quadraticCurveTo(xx + 3, yy - 2, xx + 6, yy); g.quadraticCurveTo(xx + 9, yy + 2, xx + 11, yy); g.stroke(); }
+      if (d >= 3 && r < 0.018) { g.strokeStyle = INK; g.beginPath(); g.moveTo(px + 3, py + 10); g.lineTo(px + 13, py + 10); g.lineTo(px + 11, py + 13); g.lineTo(px + 5, py + 13); g.closePath(); g.stroke(); g.beginPath(); g.moveTo(px + 8, py + 10); g.lineTo(px + 8, py + 4); g.stroke(); } // 舟
+      if (d >= 2 && r > 0.965) { g.strokeStyle = INK; g.beginPath(); g.moveTo(px + 3, py + 8); g.quadraticCurveTo(px + 6, py + 4, px + 8, py + 7); g.quadraticCurveTo(px + 10, py + 4, px + 13, py + 8); g.stroke(); } // 鳥
+    } else if (t === 3) {                           // 森: 小さな樹
+      g.strokeStyle = LEAF; g.lineWidth = 1.2;
+      for (let k = 0; k < dens; k++) { const xx = px + 2 + ((r * 13 + k * 5) % 11), yy = py + 4 + ((r * 5 + k * 7) % 9); g.beginPath(); g.moveTo(xx, yy + 3); g.lineTo(xx + 2, yy - 2); g.lineTo(xx + 4, yy + 3); g.stroke(); }
+      if (d >= 2 && r > 0.93) { g.fillStyle = INK; g.beginPath(); g.arc(px + 5, py + 12, 1, 0, 7); g.arc(px + 9, py + 9, 1, 0, 7); g.arc(px + 13, py + 12, 1, 0, 7); g.fill(); } // 足跡
+    } else if (t === 4) {                           // 廃墟: 壁と文字
+      g.strokeStyle = INK; g.lineWidth = 1;
+      g.strokeRect(px + 2.5, py + 2.5, 11, 11);
+      for (let k = 0; k < dens - 1; k++) { const yy = py + 5 + k * 3; g.beginPath(); g.moveTo(px + 4, yy); g.lineTo(px + 4 + 3 + Math.floor(r * 6 + k * 2) % 6, yy); g.stroke(); }  // 読めない文字
+      if (d >= 2 && r > 0.9) { g.fillStyle = INK; g.fillRect(px + 6, py + 6, 3, 4); }
+    } else {                                        // 岩: ハッチング
+      g.strokeStyle = INK; g.lineWidth = 0.9;
+      for (let k = 0; k < dens; k++) { const o = 2 + ((r * 9 + k * 4) % 10); g.beginPath(); g.moveTo(px + o, py + 1); g.lineTo(px + 1, py + o); g.stroke(); }
+      if (d >= 2 && r > 0.94) { g.fillStyle = INK; g.beginPath(); g.arc(px + 5, py + 11, 1, 0, 7); g.arc(px + 9, py + 7, 1, 0, 7); g.arc(px + 13, py + 11, 1, 0, 7); g.fill(); } // 足跡
+    }
+    // 岸・壁ぎわの線（歩ける側との境だけ）
+    g.strokeStyle = INK; g.lineWidth = 1.5;
+    const wk = (ax, ay) => ax >= 0 && ay >= 0 && ax < world.W && ay < world.H && world.walk[ay * world.W + ax];
+    g.beginPath();
+    if (wk(x - 1, y)) { g.moveTo(px + 0.5, py); g.lineTo(px + 0.5, py + TILE); }
+    if (wk(x + 1, y)) { g.moveTo(px + TILE - 0.5, py); g.lineTo(px + TILE - 0.5, py + TILE); }
+    if (wk(x, y - 1)) { g.moveTo(px, py + 0.5); g.lineTo(px + TILE, py + 0.5); }
+    if (wk(x, y + 1)) { g.moveTo(px, py + TILE - 0.5); g.lineTo(px + TILE, py + TILE - 0.5); }
+    g.stroke();
+  }
+  return oc;
+}
+function screenLayer(sx, sy) { const k = sy * world.NX + sx; if (!screenCache.has(k)) screenCache.set(k, renderScreen(sx, sy)); return screenCache.get(k); }
+
+function drawLights(sx, sy) {
+  const ox = sx * SCREEN_W, oy = sy * SCREEN_H;
+  for (const l of world.lights) {
+    const lx = (l.x + 0.5) * TILE - ox, ly = (l.y + 0.5) * TILE - oy;
+    if (lx < -20 || ly < -20 || lx > SCREEN_W + 20 || ly > SCREEN_H + 20) continue;
+    const fl = 0.85 + 0.15 * Math.sin(frames * 0.11 + l.x * 1.7 + l.y);
+    let sc = 1; if (pulse && pulse.l === l) { const t = frames - pulse.t; if (t < 40) sc = 1 + 0.7 * Math.sin(Math.PI * t / 40); }
+    const R = (l.kind === 'lake' ? 20 : l.kind === 'far' ? 16 : 11) * fl * sc;
+    const grd = cx.createRadialGradient(lx, ly, 1, lx, ly, R);
+    grd.addColorStop(0, 'rgba(232,190,90,0.85)'); grd.addColorStop(1, 'rgba(232,190,90,0)');
+    cx.fillStyle = grd; cx.beginPath(); cx.arc(lx, ly, R, 0, Math.PI * 2); cx.fill();
+    cx.fillStyle = GOLD; cx.beginPath();
+    if (l.kind === 'window') cx.rect(lx - 2 * sc, ly - 2.4 * sc, 4 * sc, 4.8 * sc);
+    else if (l.kind === 'boat') { cx.arc(lx, ly - 1.5, 1.8 * sc, 0, Math.PI * 2); cx.moveTo(lx - 4, ly + 2); cx.lineTo(lx + 4, ly + 2); cx.lineTo(lx + 2.5, ly + 4); cx.lineTo(lx - 2.5, ly + 4); cx.closePath(); }
+    else cx.arc(lx, ly, 2.2 * sc, 0, Math.PI * 2);
+    cx.fill();
+  }
+}
+function drawPlayer(ox, oy) {
+  const x = p.x - ox, y = p.y - oy, b = p.moving ? Math.sin(p.bob) * 1.2 : 0;
+  cx.fillStyle = 'rgba(43,42,40,0.15)'; cx.beginPath(); cx.ellipse(x, y + 5, 5, 2, 0, 0, Math.PI * 2); cx.fill();
+  cx.strokeStyle = INK; cx.lineWidth = 1.6; cx.lineCap = 'round';
+  cx.beginPath(); cx.moveTo(x, y - 1 + b); cx.lineTo(x, y + 4 + b); cx.stroke();                  // 胴
+  cx.beginPath(); cx.moveTo(x - 3, y + 1 + b); cx.lineTo(x + 3, y + 1 + b); cx.stroke();          // 腕
+  cx.fillStyle = INK; cx.beginPath(); cx.arc(x, y - 4 + b, 2.6, 0, Math.PI * 2); cx.fill();       // 頭
+}
+function drawBump(ox, oy) {
+  if (!bump) return; const t = frames - bump.t; if (t > 22) { bump = null; return; }
+  cx.strokeStyle = `rgba(43,42,40,${0.5 * (1 - t / 22)})`; cx.lineWidth = 1;
+  cx.beginPath(); cx.arc(bump.x - ox, bump.y - oy, 3 + t * 0.8, 0, Math.PI * 2); cx.stroke();
+}
+function drawMinimap() {                                                                     // 盤面の外（#mini）に描く: プレイヤーと重ならない（構造で保証）
+  mcx.clearRect(0, 0, mv.width, mv.height);
+  if (!p) return;
+  const s = 1, mw = world.W * s, mh = world.H * s, mx = Math.floor((mv.width - mw) / 2), my = Math.floor((mv.height - mh) / 2);   // 地図: 行けない場所だけが写る
+  mcx.fillStyle = 'rgba(243,238,226,0.9)';                                                   // 紙は訪れた画面の分だけ敷く（世界の大きさは先に見せない）
+  for (const k of visited) mcx.fillRect(mx + (k % world.NX) * world.SW * s - 1, my + Math.floor(k / world.NX) * world.SH * s - 1, world.SW * s + 2, world.SH * s + 2);
+  mcx.fillStyle = 'rgba(43,42,40,0.55)';
+  for (const k of visited) {
+    const sx = k % world.NX, sy = Math.floor(k / world.NX);
+    for (let ty = 0; ty < world.SH; ty++) for (let tx = 0; tx < world.SW; tx++) {
+      const x = sx * world.SW + tx, y = sy * world.SH + ty; if (world.walk[y * world.W + x]) continue;
+      if (world.depth[y * world.W + x] >= 2 && hash(x, y) < 0.5) continue;                 // 薄く
+      mcx.fillRect(mx + x * s, my + y * s, s, s);
+    }
+  }
+  mcx.fillStyle = GOLD; for (const l of world.lights) { const k = Math.floor(l.y / world.SH) * world.NX + Math.floor(l.x / world.SW); if (visited.has(k)) mcx.fillRect(mx + l.x * s - 0.5, my + l.y * s - 0.5, 2, 2); }
+  const cs = screenOf(p.x, p.y), csx = cs % world.NX, csy = Math.floor(cs / world.NX), all = visited.size === world.NX * world.NY;
+  mcx.strokeStyle = all ? GOLD : INK; mcx.lineWidth = 1;
+  mcx.strokeRect(mx + csx * world.SW * s + 0.5, my + csy * world.SH * s + 0.5, world.SW * s - 1, world.SH * s - 1);
+  const ssx = startScreen % world.NX, ssy = Math.floor(startScreen / world.NX);                               // 出発点の印（言葉で言わない）
+  const pr = all ? 2.6 + 1.4 * Math.sin(frames * 0.15) : 2;
+  mcx.strokeStyle = all ? GOLD : 'rgba(43,42,40,0.7)'; mcx.beginPath(); mcx.arc(mx + (ssx + 0.5) * world.SW * s, my + (ssy + 0.5) * world.SH * s, pr, 0, Math.PI * 2); mcx.stroke();
+}
+function draw() {
+  const sx = p ? Math.floor(p.x / SCREEN_W) : Math.floor(world.start.x / world.SW), sy = p ? Math.floor(p.y / SCREEN_H) : Math.floor(world.start.y / world.SH);
+  cx.clearRect(0, 0, cv.width, cv.height);
+  cx.drawImage(screenLayer(sx, sy), 0, 0);
+  drawLights(sx, sy);
+  if (p) { const ox = sx * SCREEN_W, oy = sy * SCREEN_H; drawBump(ox, oy); drawPlayer(ox, oy); }
+  drawMinimap();
+  if (state === 'play' && p.steps > 30) hud.textContent = `${p.steps} 歩`;              // 最初の30歩は操作の記号を残す。画面数は言わない（minimap が持つ）
+}
+function frame(t) {
+  if (last == null) last = t;
+  let dt = (t - last) / 1000; last = t;
+  if (dt > 0.25) dt = 0.25;                         // タブ復帰の巨大 dt だけは丸める
+  if (state === 'play') {
+    acc += dt; let n = 0;
+    while (acc >= TICK && n < MAX_STEPS_PER_FRAME) { step(); acc -= TICK; n++; if (state !== 'play') break; }
+    simDebt = acc;
+  }
+  draw();
+  requestAnimationFrame(frame);
+}
+btnStart.addEventListener('click', start);
+btnRetry.addEventListener('click', start);
+draw();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
