@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>行脚Map Prototype 001</title>
+<style>
+  body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:760px;margin:0 auto;padding:24px;line-height:1.55;background:#fafafa;color:#111}
+  h1{margin:0 0 4px;font-size:28px}
+  .sub{color:#666;margin-bottom:24px}
+  .card{background:#fff;border:1px solid #ddd;border-radius:16px;padding:18px;margin:14px 0}
+  .grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+  button,.btn{border:1px solid #bbb;background:#fff;padding:12px 10px;border-radius:12px;cursor:pointer;font-weight:700;text-align:center}
+  button.active{outline:3px solid #222}
+  label{display:block;font-weight:700;margin:10px 0 6px}
+  input,textarea,select{width:100%;box-sizing:border-box;padding:10px;border:1px solid #bbb;border-radius:10px;font:inherit}
+  textarea{min-height:96px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .primary{background:#111;color:#fff;border-color:#111}
+  .muted{font-size:13px;color:#666}
+  .route{white-space:pre-wrap;background:#f4f4f4;padding:12px;border-radius:10px}
+  a.btn{display:inline-block;text-decoration:none;margin-top:10px}
+  @media(max-width:600px){.grid{grid-template-columns:repeat(3,1fr)}.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<h1>行脚Map</h1>
+<div class="sub">三鷹を原点に、現実世界を少しずつ開拓する。</div>
+<noscript><div class="card">このページはJavaScriptが必要です。Safariなど通常のブラウザで開いてください。</div></noscript>
+
+<div class="card">
+  <label>今日の方向</label>
+  <div class="grid" id="dirs">
+    <button data-dir="東">🌅 東</button>
+    <button data-dir="西">🌄 西</button>
+    <button data-dir="南">🌊 南</button>
+    <button data-dir="北">🌲 北</button>
+    <button data-dir="三鷹">🏠 三鷹</button>
+  </div>
+
+  <div class="row">
+    <div>
+      <label>強度</label>
+      <select id="intensity">
+        <option>軽め（1.5〜2時間）</option>
+        <option selected>普通（2.5〜3.5時間）</option>
+        <option>行脚（4時間前後）</option>
+      </select>
+    </div>
+    <div>
+      <label>移動</label>
+      <select id="mode">
+        <option value="walking" selected>徒歩</option>
+        <option value="bicycling">自転車</option>
+        <option value="transit">公共交通</option>
+      </select>
+    </div>
+  </div>
+
+  <label>出発地点</label>
+  <input id="origin" placeholder="例: 三鷹市役所">
+
+  <label>終点</label>
+  <input id="destination" placeholder="例: 西荻窪駅">
+
+  <label>経由地（1行1地点・スマホ向け最大3推奨）</label>
+  <textarea id="waypoints" placeholder="例:
+武蔵野市立吉祥寺美術館
+井の頭恩賜公園
+西荻窪の気になる場所"></textarea>
+
+  <label>今日のテーマ</label>
+  <input id="theme" value="文化施設・史跡・面白い店・寄り道歓迎">
+
+  <div style="margin-top:14px">
+    <button type="button" class="primary" id="build">Google Mapsルートを作る</button>
+  </div>
+</div>
+
+<div class="card" id="output" hidden>
+  <strong>今日の行脚</strong>
+  <div class="route" id="routeText"></div>
+  <a class="btn primary" id="mapsLink" target="_blank" rel="noopener">Google Mapsで開く</a>
+  <button type="button" id="saveLog">この行脚を記録</button>
+  <div class="muted" id="savedMsg"></div>
+</div>
+
+<div class="card">
+  <strong>探索ログ</strong>
+  <div id="history" class="muted">まだ記録なし。</div>
+</div>
+
+<script>
+let selectedDir = "";
+document.querySelectorAll("#dirs button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll("#dirs button").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    selectedDir = btn.dataset.dir;
+  });
+});
+
+function lines(v){return v.split(/\n+/).map(s=>s.trim()).filter(Boolean).slice(0,3)}
+
+function buildMapsUrl(){
+  const origin = document.getElementById("origin").value.trim();
+  const destination = document.getElementById("destination").value.trim();
+  const wps = lines(document.getElementById("waypoints").value);
+  const mode = document.getElementById("mode").value;
+  if(!destination){
+    const msg = document.getElementById("savedMsg");
+    msg.textContent = "終点を入れてね。";
+    document.getElementById("output").hidden = false;
+    document.getElementById("output").scrollIntoView({behavior:"smooth", block:"start"});
+    return null;
+  }
+  const p = new URLSearchParams();
+  p.set("api","1");
+  if(origin) p.set("origin",origin);
+  p.set("destination",destination);
+  p.set("travelmode",mode);
+  if(wps.length) p.set("waypoints",wps.join("|"));
+  return "https://www.google.com/maps/dir/?" + p.toString();
+}
+
+function renderHistory(){
+  const data = JSON.parse(localStorage.getItem("gyakumap_history") || "[]");
+  const el = document.getElementById("history");
+  if(!data.length){ el.textContent = "まだ記録なし。"; return; }
+  el.innerHTML = data.slice().reverse().map(x =>
+    `<div style="margin:8px 0"><b>${x.date}</b>｜${x.dir || "未指定"}｜${x.destination}<br>${x.intensity}</div>`
+  ).join("");
+}
+
+document.getElementById("build").addEventListener("click", ()=>{
+  const url = buildMapsUrl();
+  if(!url) return;
+  const origin = document.getElementById("origin").value.trim() || "現在地";
+  const destination = document.getElementById("destination").value.trim();
+  const wps = lines(document.getElementById("waypoints").value);
+  const intensity = document.getElementById("intensity").value;
+  const theme = document.getElementById("theme").value.trim();
+  const route = [origin,...wps,destination].join("\n↓\n");
+  document.getElementById("routeText").textContent =
+    `${selectedDir ? "方向: "+selectedDir+"\n" : ""}${intensity}\nテーマ: ${theme}\n\n${route}`;
+  const a = document.getElementById("mapsLink");
+  a.href = url;
+  document.getElementById("savedMsg").textContent = "ルートを作った。下のボタンからGoogle Mapsで開ける。";
+  const output = document.getElementById("output");
+  output.hidden = false;
+  output.scrollIntoView({behavior:"smooth", block:"start"});
+});
+
+document.getElementById("saveLog").addEventListener("click", ()=>{
+  const destination = document.getElementById("destination").value.trim();
+  if(!destination) return;
+  const data = JSON.parse(localStorage.getItem("gyakumap_history") || "[]");
+  data.push({
+    date:new Date().toLocaleDateString("ja-JP"),
+    dir:selectedDir,
+    destination,
+    intensity:document.getElementById("intensity").value
+  });
+  localStorage.setItem("gyakumap_history", JSON.stringify(data));
+  document.getElementById("savedMsg").textContent = "記録した。";
+  renderHistory();
+});
+
+renderHistory();
+</script>
+</body>
+</html>
