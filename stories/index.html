@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>STORIES / ものがたり — osakenpiro</title>
+<meta name="description" content="osakenpiroの小説案内。今の気分から、ひとつ。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;500;700;900&family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f6f2;--paper:#fffefa;--ink:#20262d;--sub:#68727d;--rule:#d8dce0;--navy:#10263d;--blue:#315f86;--green:#477964;--amber:#9a6a35;--rose:#815c68;--mincho:"Zen Old Mincho",serif;--sans:"Noto Sans JP",sans-serif;--mono:"DM Sans",sans-serif}
+@media(prefers-color-scheme:dark){:root{--bg:#13191f;--paper:#192128;--ink:#edf1f3;--sub:#a9b2b9;--rule:#34414b;--navy:#0d2032;--blue:#7aa6c7;--green:#83b59f;--amber:#d0a16b;--rose:#bb91a0}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.75}a{color:inherit;text-decoration:none}button{font:inherit}.wrap{max-width:1180px;margin:auto;padding:0 22px}
+.hero{min-height:72vh;color:#f7fbff;position:relative;display:flex;align-items:flex-end;overflow:hidden;background:radial-gradient(circle at 72% 18%,rgba(143,196,235,.18),transparent 30%),radial-gradient(circle at 25% 22%,rgba(255,255,255,.07) 0 1px,transparent 2px),linear-gradient(145deg,#071729 0%,#113452 55%,#26465e 100%);background-size:auto,34px 34px,auto}
+.hero:after{content:"";position:absolute;left:-5%;right:-5%;bottom:-18%;height:44%;background:linear-gradient(174deg,transparent 0 30%,rgba(255,255,255,.10) 31% 32%,transparent 33%),linear-gradient(8deg,rgba(255,255,255,.05),transparent);transform:skewY(-3deg)}
+.hero-inner{position:relative;z-index:2;padding:80px 22px 58px;width:min(1180px,100%);margin:auto}.brand{font:500 12px var(--mono);letter-spacing:.24em;opacity:.7}.hero h1{font:500 clamp(54px,9vw,110px)/.95 var(--mincho);letter-spacing:.04em;margin:48px 0 18px}.hero h1 small{font-size:.36em;font-weight:400;letter-spacing:.12em}.hero .lead{font:500 clamp(20px,3vw,32px) var(--mincho);margin:0 0 20px}.hero p{max-width:660px;margin:0;color:#d5e1e8}.back{position:absolute;right:22px;top:28px;border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:8px 15px;font:500 11px var(--mono);letter-spacing:.12em}
+.routes{padding:52px 0 30px}.section-kicker{font:500 12px var(--mono);letter-spacing:.18em;color:var(--sub);text-transform:uppercase}.section-title{font:500 clamp(31px,5vw,54px) var(--mincho);margin:4px 0 26px}.route-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.route{border:1px solid var(--rule);background:var(--paper);min-height:206px;padding:24px;border-radius:16px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;transition:.2s transform,.2s border-color,.2s box-shadow;text-align:left;color:inherit}.route:hover,.route.active{transform:translateY(-3px);border-color:currentColor;box-shadow:0 10px 26px rgba(0,0,0,.08)}.route .mark{font:700 24px var(--mincho)}.route h3{font:700 23px var(--mincho);margin:22px 0 6px}.route p{margin:0;color:var(--sub);font-size:14px}.r-first{color:var(--green)}.r-world{color:var(--blue)}.r-time{color:var(--amber)}.r-rule{color:var(--rose)}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 26px}.chip{background:transparent;color:var(--sub);border:1px solid var(--rule);border-radius:999px;padding:7px 13px;cursor:pointer}.chip.active{color:var(--ink);border-color:var(--ink);background:var(--paper)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding-bottom:84px}.card{display:flex;flex-direction:column;min-height:300px;background:var(--paper);border:1px solid var(--rule);border-radius:16px;padding:20px;transition:.18s transform,.18s box-shadow}.card:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,.07)}.card[hidden]{display:none}.badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}.badge{font-size:10px;border:1px solid var(--rule);border-radius:999px;padding:3px 8px;color:var(--sub)}.card h3{font:700 24px/1.35 var(--mincho);margin:0 0 12px}.hook{font:500 16px/1.65 var(--mincho);margin:0 0 16px}.tags{font-size:12px;color:var(--sub);margin-top:auto;padding-top:18px}.read{margin-top:12px;font:700 12px var(--mono);letter-spacing:.1em;align-self:flex-end}.quote{margin:0 0 84px;padding:52px 24px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);text-align:center;font:500 clamp(21px,3vw,34px)/1.8 var(--mincho)}footer{padding:0 0 48px;color:var(--sub);font:500 11px var(--mono);letter-spacing:.1em}.empty{display:none;padding:40px 0;color:var(--sub)}
+@media(max-width:880px){.route-grid{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:repeat(2,1fr)}.hero{min-height:66vh}.hero h1{margin-top:70px}}
+@media(max-width:560px){.route-grid{grid-template-columns:1fr 1fr;gap:8px}.route{min-height:172px;padding:17px}.route h3{font-size:18px}.route p{font-size:12px}.grid{grid-template-columns:1fr}.hero-inner{padding-bottom:42px}.hero h1{font-size:50px}.hero h1 small{display:block;margin-top:14px}.back{right:14px;top:14px}.wrap{padding:0 14px}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <a class="back" href="/">← ENTRANCE</a>
+  <div class="hero-inner">
+    <div class="brand">OSAKENPIRO · VISIONIUM · STORIES</div>
+    <h1>STORIES <small>/ ものがたり</small></h1>
+    <div class="lead">別の世界を歩くことは、この世界をもう一度見つめること。</div>
+    <p>SF、現代、歴史、異世界。長さも温度も違う物語を、タイトルではなく「いま何を読みたいか」から選べるように並べました。</p>
+  </div>
+</header>
+<main class="wrap">
+<section class="routes">
+  <div class="section-kicker">4 entrances</div>
+  <h2 class="section-title">今の気分から選ぶ、4つの入口</h2>
+  <div class="route-grid">
+    <button class="route r-first" data-route="first"><span class="mark">一</span><div><h3>まず一篇、ここから。</h3><p>短く読めて、この物語群の癖が見える入口。</p></div></button>
+    <button class="route r-world" data-route="world"><span class="mark">遠</span><div><h3>まだ見たことのない世界へ。</h3><p>宇宙、終末、仮想世界。少し遠くまで潜る。</p></div></button>
+    <button class="route r-time" data-route="time"><span class="mark">時</span><div><h3>時間を歩く。</h3><p>五万年前から昭和まで。別の時間を自分の足で。</p></div></button>
+    <button class="route r-rule" data-route="rule"><span class="mark">則</span><div><h3>ルールが一つ違う世界。</h3><p>世界の決まりを一つ変えると、人間はどう見える？</p></div></button>
+  </div>
+</section>
+<section id="works">
+  <div class="section-kicker">all stories</div>
+  <h2 class="section-title">すべての物語</h2>
+  <div class="controls"><button class="chip active" data-filter="all">すべて</button><button class="chip" data-filter="short">短く読む</button><button class="chip" data-filter="complete">完結</button><button class="chip" data-filter="serial">連載中</button></div>
+  <div class="grid" id="story-grid">
+    <a class="card" data-routes="world rule" data-flags="complete long" href="https://kakuyomu.jp/works/2912051600308576811"><div class="badges"><span class="badge">完結</span><span class="badge">長編</span></div><h3>僕のIMASICA</h3><p class="hook">ぜんぶ叶う世界で、ただひとつだけ叶わないもの。</p><div class="tags">#SF #AI #仮想世界</div><span class="read">読む →</span></a>
+    <a class="card" data-routes="first rule" data-flags="complete short" href="https://kakuyomu.jp/works/2912051605830851179"><div class="badges"><span class="badge">完結</span><span class="badge">短編</span><span class="badge">まず一篇</span></div><h3>0.5の魔女</h3><p class="hook">「わからない」と書き残した少女が、五百年後、機械に読まれる。</p><div class="tags">#AI #評価社会 #魔女裁判</div><span class="read">読む →</span></a>
+    <a class="card" data-routes="first" data-flags="complete short" href="https://kakuyomu.jp/works/2912051601256382667"><div class="badges"><span class="badge">完結</span><span class="badge">短編</span></div><h3>A\mI/DA\</h3><p class="hook">線を一本、たどりまちがえただけの、もうひとりのぼく。</p><div class="tags">#現代ドラマ #恋愛 #分岐</div><span class="read">読む →</span></a>
+    <a class="card" data-routes="world" data-flags="serial long" href="https://kakuyomu.jp/works/16817330664193948573"><div class="badges"><span class="badge">連載中</span><span class="badge">作者の原点</span></div><h3>星は知らない</h3><p class="hook">星は知らない、この物語を。</p><div class="tags">#SF #巨大構造物 #友情</div><span class="read">読む →</span></a>
+    <a class="card" data-routes="world rule" data-flags="serial" href="https://kakuyomu.jp/works/2912051602520137961"><div class="badges"><span class="badge">連載中</span></div><h3>ひとRe:</h3><p class="hook">ここに、ひとり。</p><div class="tags">#終末世界 #サバイバル #文明</div><span class="read">読む →</span></a>
+    <a class="card" data-routes="world" data-flags="serial" href="https://kakuyomu.jp/works/2912051602519321608"><div class="badges"><span class="badge">連載中</span></div><h3>軌道街</h3><p class="hook">ほんものの青を、この目で見に行く。</p><div class="tags">#宇宙 #猫 #記憶</div><span class="read">読む →</span></a>
+    <a class="card" data-routes="time" data-flags="serial" href="https://kakuyomu.jp/works/2912051606453322970"><div class="badges"><span class="badge">連載中</span></div><h3>GENXHI（げんし）</h3><p class="hook">便利は、二の次だった。まず、いのち。</p><div class="tags">#旧石器 #タイムスリップ #地質</div><span class="read">読む →</span></a>
+    <a class="card" data-routes="world rule" data-flags="serial" href="https://kakuyomu.jp/works/2912051606465818174"><div class="badges"><span class="badge">連載中</span></div><h3>オモイビト</h3><p class="hook">一九九九年、七の月。予言は的中した。ヒトは、星になった。</p><div class="tags">#SF #社会 #群像劇</div><span class="read">読む →</span></a>
+    <a class="card" data-routes="world rule" data-flags="serial long" href="https://kakuyomu.jp/works/2912051607345822633"><div class="badges"><span class="badge">連載中</span></div><h3>神之園</h3><p class="hook">帰還した人類は、地球で「人間を名乗る宇宙人」になった。</p><div class="tags">#SF #ファーストコンタクト #人間</div><span class="read">読む →</span></a>
+    <a class="card" data-routes="time" data-flags="serial" href="https://kakuyomu.jp/works/2912051607152709832"><div class="badges"><span class="badge">連載中</span></div><h3>HUMANY TALE</h3><p class="hook">吸血鬼はいなかった。噂だけが、村を三つ食った。</p><div class="tags">#伝承 #吸血鬼 #歴史</div><span class="read">読む →</span></a>
+    <a class="card" data-routes="rule" data-flags="serial long" href="https://kakuyomu.jp/works/2912051607153453268"><div class="badges"><span class="badge">連載中</span></div><h3>異世界転生して手に入れたのは選択肢が見える世界だった</h3><p class="hook">三つのうちどれかが正解だとは、誰も言っていない。</p><div class="tags">#異世界 #選択 #ファンタジー</div><span class="read">読む →</span></a>
+    <a class="card" data-routes="time" data-flags="serial" href="https://kakuyomu.jp/works/2912051605106133680"><div class="badges"><span class="badge">連載中</span></div><h3>昭和六十三年のはる</h3><p class="hook">平成生まれのぼくは、昭和を知らない。その昭和に、落ちた。</p><div class="tags">#昭和 #タイムスリップ #ヒューマンドラマ</div><span class="read">読む →</span></a>
+    <a class="card" data-routes="first" data-flags="complete short" href="https://kakuyomu.jp/works/16817330664795688692"><div class="badges"><span class="badge">完結</span><span class="badge">数分で</span></div><h3>校庭プール</h3><p class="hook">カメ山の上からは、海が見える。</p><div class="tags">#現代 #青春 #短編</div><span class="read">読む →</span></a>
+  </div>
+  <div class="empty" id="empty">この条件の作品はまだありません。</div>
+</section>
+<div class="quote">どの世界を読んでも、<br>きっとどこかでつながっている。</div>
+<footer>© osakenpiro · Visionium · STORIES / ものがたり</footer>
+</main>
+<script>
+const cards=[...document.querySelectorAll('.card')],routes=[...document.querySelectorAll('.route')],chips=[...document.querySelectorAll('.chip')];let route='all',flag='all';
+function render(){let n=0;cards.forEach(c=>{const okR=route==='all'||c.dataset.routes.split(' ').includes(route);const fs=c.dataset.flags.split(' ');const okF=flag==='all'||(flag==='serial'?fs.includes('serial'):flag==='complete'?fs.includes('complete'):flag==='short'?fs.includes('short'):true);c.hidden=!(okR&&okF);if(!c.hidden)n++});document.getElementById('empty').style.display=n?'none':'block'}
+routes.forEach(b=>b.addEventListener('click',()=>{const next=b.dataset.route;route=route===next?'all':next;routes.forEach(x=>x.classList.toggle('active',x.dataset.route===route));document.getElementById('works').scrollIntoView({behavior:'smooth',block:'start'});render()}));
+chips.forEach(b=>b.addEventListener('click',()=>{flag=b.dataset.filter;chips.forEach(x=>x.classList.toggle('active',x===b));render()}));
+</script>
+</body>
+</html>
