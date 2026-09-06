@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Web試作スプリント — 曖昧を、触れる1枚に。</title>
+  <meta name="description" content="曖昧なアイデアを、1回のヒアリングと最短1〜3営業日で触れる単一HTML試作にします。固定30,000円。">
+  <style>
+    :root {
+      color-scheme: dark;
+      --void: #090908;
+      --paper: #11110f;
+      --paper-2: #171612;
+      --gold: #d4a853;
+      --gold-soft: #ead29b;
+      --ink: #f4efe4;
+      --muted: #aaa393;
+      --line: rgba(212, 168, 83, .25);
+      --max: 1080px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(212,168,83,.08), transparent 27rem),
+        radial-gradient(circle at 90% 32%, rgba(212,168,83,.055), transparent 24rem),
+        radial-gradient(circle, rgba(244,239,228,.28) 0 1px, transparent 1.3px) 0 0 / 73px 73px,
+        var(--void);
+      font-family: "Yu Gothic UI", "Hiragino Sans", system-ui, sans-serif;
+      line-height: 1.8;
+    }
+    a { color: inherit; }
+    .wrap { width: min(calc(100% - 40px), var(--max)); margin-inline: auto; }
+    .hero { min-height: 88vh; display: grid; align-items: center; padding: 76px 0 56px; }
+    .eyebrow { color: var(--gold); letter-spacing: .18em; font-size: .8rem; font-weight: 700; }
+    h1, h2, h3 { line-height: 1.25; letter-spacing: .02em; }
+    h1 { max-width: 850px; margin: .6rem 0 1.25rem; font-size: clamp(2.5rem, 8vw, 6.8rem); font-weight: 800; }
+    h1 .line { display: block; }
+    h1 .accent { color: var(--gold); }
+    .lead { max-width: 700px; color: #d8d1c1; font-size: clamp(1.05rem, 2.4vw, 1.35rem); }
+    .price { display: flex; gap: 18px; align-items: baseline; margin: 28px 0; }
+    .price strong { color: var(--gold-soft); font-size: clamp(2rem, 5vw, 3.4rem); }
+    .price small { color: var(--muted); }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .button { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; padding: 10px 20px; border: 1px solid var(--gold); border-radius: 999px; text-decoration: none; font-weight: 700; }
+    .button.primary { color: #12100b; background: var(--gold); }
+    .button[aria-disabled="true"] { cursor: not-allowed; filter: grayscale(.7); opacity: .55; }
+    .gate-note { margin-top: 12px; color: var(--muted); font-size: .85rem; }
+    section { padding: 78px 0; border-top: 1px solid var(--line); }
+    h2 { margin: 0 0 30px; font-size: clamp(1.8rem, 4vw, 3.2rem); }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .card { padding: 24px; border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(145deg, rgba(23,22,18,.92), rgba(10,10,9,.92)); }
+    .card b { color: var(--gold-soft); }
+    .card p { color: var(--muted); }
+    .step { display: grid; grid-template-columns: 42px 1fr; gap: 16px; margin-bottom: 22px; }
+    .step i { display: grid; width: 42px; height: 42px; place-items: center; color: #17130b; background: var(--gold); border-radius: 50%; font-style: normal; font-weight: 900; }
+    .step h3, .step p { margin: 0; }
+    .step p, li { color: var(--muted); }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+    .demo { text-decoration: none; transition: transform .2s ease, border-color .2s ease; }
+    .demo:hover, .demo:focus-visible { transform: translateY(-3px); border-color: var(--gold); }
+    details { margin: 12px 0; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: rgba(17,17,15,.78); }
+    summary { cursor: pointer; font-weight: 700; }
+    .final { text-align: center; }
+    footer { padding: 34px 0 54px; color: var(--muted); text-align: center; }
+    :focus-visible { outline: 3px solid var(--gold-soft); outline-offset: 4px; }
+    @media (max-width: 760px) {
+      .grid, .split { grid-template-columns: 1fr; }
+      .hero { min-height: auto; padding-top: 60px; }
+      section { padding: 58px 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .demo { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <div class="wrap">
+        <div class="eyebrow">WEB PROTOTYPE SPRINT · FIXED SCOPE</div>
+        <h1><span class="line">曖昧を、</span><span class="line accent">触れる1枚に。</span></h1>
+        <p class="lead">仕様書を書くほど固まっていないアイデアを、一度のヒアリングで整理。最短1〜3営業日で、ブラウザ上で触って判断できる単一HTML試作を作ります。</p>
+        <div class="price"><strong>30,000円</strong><small>支払総額／1試作・買い切り・修正1回</small></div>
+        <div class="actions">
+          <a class="button primary" href="https://buy.stripe.com/8x2bJ26wSccU6KX0Fy2Ry00" data-payment-gate>購入する</a>
+          <a class="button" href="https://osakenpiro.github.io/hearing-sheet/">依頼内容を整理する</a>
+        </div>
+        <p class="gate-note">30,000円・買い切りのStripe決済へ進みます。ご購入後、ヒアリングシートへご案内します。</p>
+      </div>
+    </header>
+
+    <section aria-labelledby="fit-title">
+      <div class="wrap">
+        <h2 id="fit-title">こんな「まだ途中」に向いています</h2>
+        <div class="grid">
+          <article class="card"><b>商品・サービス</b><p>売る前に、説明の順番と申込み導線を実物で確かめたい。</p></article>
+          <article class="card"><b>研究・作品</b><p>文章だけでは伝わりにくい内容を、触れる入口に変えたい。</p></article>
+          <article class="card"><b>個人プロジェクト</b><p>月額サービスを増やさず、小さく動くWebページがほしい。</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="deliver-title">
+      <div class="wrap split">
+        <div>
+          <h2 id="deliver-title">買い切り料金に含むもの</h2>
+          <ul>
+            <li>ヒアリングによる要件整理1回</li>
+            <li>レスポンシブ単一HTML 1点</li>
+            <li>最大5セクション</li>
+            <li>基本的なtitle・description・OGP</li>
+            <li>初稿後の修正1回</li>
+            <li>完成HTML一式の納品</li>
+          </ul>
+        </div>
+        <div>
+          <h2>含まないもの</h2>
+          <ul>
+            <li>CMS・ログイン・DB・予約・EC・独自決済</li>
+            <li>継続保守、無制限修正</li>
+            <li>独自ドメインや有料サービスの料金</li>
+            <li>ロゴ・写真・イラストの新規制作</li>
+            <li>本番公開作業</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="process-title">
+      <div class="wrap">
+        <h2 id="process-title">迷わせない、3段階</h2>
+        <div class="step"><i>1</i><div><h3>聞く</h3><p>専用シートへ、目的・相手・雰囲気をわかる範囲で記入します。</p></div></div>
+        <div class="step"><i>2</i><div><h3>触る</h3><p>必要情報の受領から最短1〜3営業日で、ブラウザ確認用の初稿を提出します。</p></div></div>
+        <div class="step"><i>3</i><div><h3>決める</h3><p>修正希望を1回分まとめて反映。完成HTMLを受け取り、次の判断へ進めます。</p></div></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="examples-title">
+      <div class="wrap">
+        <h2 id="examples-title">制作の基準点</h2>
+        <div class="grid">
+          <a class="card demo" href="https://osakenpiro.github.io/portfolio-demos/"><b>制作デモ一覧</b><p>店舗向けLPとSaaS向けLP。いずれも単一HTML・月額0円運用を想定。</p></a>
+          <a class="card demo" href="https://osakenpiro.github.io/hearing-sheet/"><b>ヒアリングシート</b><p>依頼前の曖昧さを、目的・対象・内容・デザインへ分けて整理。</p></a>
+          <a class="card demo" href="https://osakenpiro.github.io/contact/"><b>制作者について</b><p>長田謙志郎。哲学寄りのWebツール、情報設計、単一HTMLを得意とします。</p></a>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="faq-title">
+      <div class="wrap">
+        <h2 id="faq-title">よくある確認</h2>
+        <details><summary>月額料金はありますか？</summary><p>月額料金はありません。30,000円は1試作の買い切り料金です。独自ドメイン、有料サーバー、追加作業が必要な場合は、実施前に別途提示します。</p></details>
+        <details><summary>完成したWebサイトが手に入りますか？</summary><p>この商品は意思決定用の試作です。単一HTML一式は納品しますが、本番公開、継続運用、バックエンド機能は含みません。</p></details>
+        <details><summary>文章や画像が揃っていません。</summary><p>軽微な文章整理とフリー素材の選定補助は含みます。ロゴ・写真・イラストの新規制作は対象外です。</p></details>
+        <details><summary>修正は何回できますか？</summary><p>初稿後に1回、まとめて反映します。追加修正や範囲変更は、実施前に別見積もりを提示します。</p></details>
+        <details><summary>納品後の不具合には対応しますか？</summary><p>仕様内の不具合は、納品後7日以内の連絡に対して修正します。</p></details>
+        <details><summary>キャンセルできますか？</summary><p>制作開始前は全額返金します。開始後の購入者都合による返金は原則受け付けません。提供者都合で納品できない場合は全額返金します。</p></details>
+      </div>
+    </section>
+
+    <section class="final" aria-labelledby="final-title">
+      <div class="wrap">
+        <div class="eyebrow">ONE HEARING · ONE HTML · ONE DECISION</div>
+        <h2 id="final-title">まず、触れるところまで。</h2>
+        <p>大きく作る前に、小さく確かめるためのWeb試作です。</p>
+        <div class="actions" style="justify-content:center">
+          <a class="button primary" href="https://buy.stripe.com/8x2bJ26wSccU6KX0Fy2Ry00" data-payment-gate>購入する</a>
+          <a class="button" href="https://osakenpiro.github.io/contact/">購入前に相談する</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">© 2026 Kenshiro Osada · <a href="https://osakenpiro.github.io/tokushoho/">特定商取引法に基づく表記</a></div>
+  </footer>
+
+  <script>
+    document.querySelectorAll('[data-payment-gate]').forEach((link) => {
+      if (link.getAttribute('aria-disabled') === 'true') {
+        link.addEventListener('click', (event) => event.preventDefault());
+      }
+    });
+  </script>
+</body>
+</html>
