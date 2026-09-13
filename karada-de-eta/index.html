@@ -433,6 +433,7 @@ controls.addEventListener('start',()=>{controls.autoRotate=false;btnSpin.classLi
 <script>
 /* 型レイヤー — 本体のロジックには触らず setExercise をラップして乗る */
 (function () {
+if (new URLSearchParams(location.search).get('atlas') === '1') return;
 'use strict';
 if (typeof THREE === 'undefined') { return; }
 
