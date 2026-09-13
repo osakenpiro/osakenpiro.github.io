@@ -1,0 +1,33 @@
+{
+  "kind": "derived-exhibit-selection",
+  "source_url": "https://osakenpiro.github.io/moon/",
+  "source_blob_sha": "948160f2913afba6dc15fa3ca0421246f6faac8f",
+  "source_sha256": "6fc9459694c7f479a17a8e274a3574402006b4bf27d2be7f98a869958c27da78",
+  "observed": "2026-09-08",
+  "items": [
+    {
+      "id": "moon-nandometer",
+      "url": "https://osakenpiro.github.io/nandometer/",
+      "icon": "🎚",
+      "title": "何度メーター",
+      "desc": "「やる/やらない」を0か1かでやめる。迷いを0〜100%の確信度で測る",
+      "place": "workshop"
+    },
+    {
+      "id": "moon-wakkazukan",
+      "url": "https://osakenpiro.github.io/wakkazukan/",
+      "icon": "🪐",
+      "title": "わっかずかん",
+      "desc": "リングベースの分類UI。顕微鏡のように対象を眺める",
+      "place": "workshop"
+    },
+    {
+      "id": "moon-breathe",
+      "url": "https://osakenpiro.github.io/breathe/",
+      "icon": "🫁",
+      "title": "Breathe",
+      "desc": "4-7-8 / Box / Calm 呼吸法ガイド",
+      "place": "workshop"
+    }
+  ]
+}

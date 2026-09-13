@@ -1,0 +1,128 @@
+{
+  "checked_at": "2026-09-08T13:27:57.254542+00:00",
+  "method": "HEAD; no content or credentials; HTTP reachability is not app-use verification",
+  "checks": [
+    {
+      "id": "note",
+      "url": "https://note.com/osakenpiro",
+      "status": 200,
+      "meaning": "http_reachable",
+      "final_url": "https://note.com/osakenpiro"
+    },
+    {
+      "id": "panda",
+      "url": "#",
+      "status": null,
+      "meaning": "unregistered"
+    },
+    {
+      "id": "kakuyomu",
+      "url": "https://kakuyomu.jp/users/osakenpiro",
+      "status": 200,
+      "meaning": "http_reachable",
+      "final_url": "https://kakuyomu.jp/users/osakenpiro"
+    },
+    {
+      "id": "jikoshoukai",
+      "url": "https://osakenpiro.github.io/jikoshoukai/",
+      "status": 200,
+      "meaning": "http_reachable",
+      "final_url": "https://osakenpiro.github.io/jikoshoukai/"
+    },
+    {
+      "id": "negai",
+      "url": "https://osakenpiro.github.io/negai-kippu/",
+      "status": 200,
+      "meaning": "http_reachable",
+      "final_url": "https://osakenpiro.github.io/negai-kippu/"
+    },
+    {
+      "id": "materials",
+      "url": "https://osakenpiro.github.io/materials-of-civilization/",
+      "status": 200,
+      "meaning": "http_reachable",
+      "final_url": "https://osakenpiro.github.io/materials-of-civilization/"
+    },
+    {
+      "id": "ningen",
+      "url": "https://osakenpiro.github.io/ningen-zukan/",
+      "status": 200,
+      "meaning": "http_reachable",
+      "final_url": "https://osakenpiro.github.io/ningen-zukan/"
+    },
+    {
+      "id": "zenodo",
+      "url": "https://zenodo.org/search?q=metadata.creators.person_or_org.name%3A%22Osada%2C%20Kenshiro%22",
+      "status": 403,
+      "meaning": "http_check_inconclusive"
+    },
+    {
+      "id": "moon",
+      "url": "https://osakenpiro.github.io/moon/",
+      "status": 200,
+      "meaning": "http_reachable",
+      "final_url": "https://osakenpiro.github.io/moon/"
+    },
+    {
+      "id": "mission",
+      "url": "https://www.notion.so/Mission-Control-Claude-3282b7e543e0815db7c0d5afdae9ae76",
+      "status": null,
+      "meaning": "authentication_not_tested"
+    },
+    {
+      "id": "orcid",
+      "url": "https://orcid.org/0009-0004-9167-3186",
+      "status": 200,
+      "meaning": "http_reachable",
+      "final_url": "https://orcid.org/0009-0004-9167-3186"
+    },
+    {
+      "id": "x",
+      "url": "https://twitter.com/kenpiro7",
+      "status": 200,
+      "meaning": "http_reachable",
+      "final_url": "https://twitter.com/kenpiro7"
+    },
+    {
+      "id": "tiktok",
+      "url": "https://www.tiktok.com/@panio54",
+      "status": 200,
+      "meaning": "http_reachable",
+      "final_url": "https://www.tiktok.com/@panio54"
+    },
+    {
+      "id": "ig",
+      "url": "https://www.instagram.com/osakenpiro/",
+      "status": 200,
+      "meaning": "http_reachable",
+      "final_url": "https://www.instagram.com/osakenpiro/"
+    },
+    {
+      "id": "yt",
+      "url": "https://www.youtube.com/channel/UCdvMT7OAZQuWBln8D3GrFBQ",
+      "status": 200,
+      "meaning": "http_reachable",
+      "final_url": "https://www.youtube.com/channel/UCdvMT7OAZQuWBln8D3GrFBQ"
+    },
+    {
+      "id": "pixiv",
+      "url": "https://www.pixiv.net/users/11085694",
+      "status": 200,
+      "meaning": "http_reachable",
+      "final_url": "https://www.pixiv.net/users/11085694"
+    },
+    {
+      "id": "spotify",
+      "url": "https://open.spotify.com/intl-ja/artist/6QtgEcJeDSxhatNDzxGm8v",
+      "status": 200,
+      "meaning": "http_reachable",
+      "final_url": "https://open.spotify.com/artist/6QtgEcJeDSxhatNDzxGm8v"
+    },
+    {
+      "id": "booth",
+      "url": "https://osakenpiro.booth.pm/",
+      "status": 403,
+      "meaning": "http_check_inconclusive"
+    }
+  ]
+}

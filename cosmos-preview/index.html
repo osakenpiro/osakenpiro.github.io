@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101917">
+  <meta name="description" content="道具、物語、研究が暮らす、小さな惑星。看板をたどって、実物に出会う。">
+  <title>僕の惑星 — 訪問する（確認版）</title>
+  <link rel="stylesheet" href="visit.css?v=20260913-runtime-1">
+</head>
+<body>
+  <a class="skip" href="#directory">索引へ進む</a>
+  <header class="masthead">
+    <a class="wordmark" href="https://osakenpiro.github.io/" aria-label="osakenpiroの玄関へ"><span class="orbit-mark">◌</span> OSAKENPIRO <span class="edition">／ 全部がぼく</span></a>
+    <button id="directory-toggle" class="quiet-button">目録から探す <span>↗</span></button>
+  </header>
+  <main>
+    <section id="arrival" class="arrival">
+      <p class="eyebrow">A PLANET FULL OF UNFINISHED STORIES</p>
+      <h1>僕の惑星</h1>
+      <p class="invitation">この星には、<br>つくりかけの街がある。</p>
+      <p class="intro-copy">古書店の屋根、工房の路地、考える天文台。<br>気になった場所へ、ぐっと近づいてみよう。</p>
+      <button id="arrive" class="primary" disabled>街へ降りる <span>↓</span></button>
+      <p class="small-note">確認版です。ドラッグで星を回す。看板から街へ入る。</p>
+    </section>
+    <section id="world" aria-label="球形の惑星に広がる街">
+      <div id="canvas-host"></div>
+      <nav id="landmarks" aria-label="街の看板"></nav>
+      <nav id="street-objects" aria-label="工房の台に並ぶ道具"></nav>
+      <p id="loading" role="status">街の灯りをともしています…</p>
+    </section>
+    <div id="world-tools" class="world-tools">
+      <button id="turn-left" aria-label="惑星を左へ回す">↶</button>
+      <button id="overview" aria-label="惑星の全景へ戻る">全景</button>
+      <button id="turn-right" aria-label="惑星を右へ回す">↷</button>
+      <button id="return-exhibits" hidden>展示に戻る</button>
+      <button id="wander" disabled>寄り道</button>
+      <button id="open-council">世界を考える</button>
+      <button id="motion-toggle" aria-pressed="false">動きを止める</button>
+    </div>
+    <aside id="place-panel" class="place-panel" aria-labelledby="place-title" hidden>
+      <div class="panel-heading"><span id="place-number" class="eyebrow"></span><button id="leave-place" aria-label="惑星へ戻る">×</button></div>
+      <h2 id="place-title" tabindex="-1"></h2>
+      <p id="place-description"></p>
+      <button id="street-view" class="street-entry">この建物の前へ降りる <span>↘</span></button>
+      <div id="shelf" class="shelf"></div>
+      <nav class="shelf-tools" aria-label="展示の棚をめくる"><button id="shelf-previous" aria-label="前の棚">←</button><span id="shelf-page" role="status"></span><button id="shelf-next" aria-label="次の棚">→</button></nav>
+      <button id="place-directory" class="place-directory">この場所の目録へ ↗</button>
+      <p class="return-note">作品へ出かけたら、ブラウザの「戻る」でこの場所へ帰れます。</p>
+    </aside>
+    <div id="street-caption" class="street-caption" hidden><span class="eyebrow">A LITTLE CLOSER</span><p id="street-name"></p><small id="street-hint">ドラッグで見回す。気になる物を、手にとろう。</small></div>
+    <section id="directory" class="directory" aria-labelledby="directory-title">
+      <div class="directory-heading"><div><p class="eyebrow">THE FIELD CATALOGUE</p><h2 id="directory-title" tabindex="-1">惑星の目録</h2></div><button id="close-directory">惑星へ戻る ↙</button></div>
+      <label class="search-label">名前・説明で探す<input id="search" type="search" placeholder="例：図鑑、物語、ツール" autocomplete="off" disabled></label>
+      <div id="filters" class="filters" aria-label="場所で絞り込む"></div>
+      <p id="result-count" role="status"></p>
+      <div id="catalogue-list" class="catalogue-list"><p>目録を読み込んでいます。</p></div>
+      <p class="catalogue-date" id="catalogue-date"></p>
+      <p class="catalogue-date">展示は既存の作品目録からつないでいます。<a href="https://osakenpiro.github.io/works/">元のWORKSを見る ↗</a></p>
+    </section>
+    <dialog id="specimen" aria-labelledby="specimen-title">
+      <div class="specimen-heading"><span id="specimen-label" class="eyebrow"></span><button id="close-specimen" aria-label="展示を閉じる">×</button></div>
+      <div class="specimen-object" aria-hidden="true"><span class="specimen-ring" id="specimen-icon"></span><span class="specimen-caption">一つを、よく見る。</span></div>
+      <h2 id="specimen-title"></h2><p id="specimen-description"></p>
+      <ol id="specimen-steps"></ol><div id="specimen-actions"></div>
+      <p id="specimen-provenance" class="catalogue-date"></p>
+      <p class="return-note">実物からは、ブラウザの「戻る」でこの展示へ帰れます。</p>
+    </dialog>
+    <dialog id="council" aria-labelledby="council-title">
+      <div class="specimen-heading"><span class="eyebrow">GAMINGWATCH · 配分の試作</span><button id="close-council" aria-label="作戦机を閉じる">×</button></div>
+      <h2 id="council-title">次は、どこを育てよう。</h2>
+      <p class="council-intro">街を眺めながら、研究と制作に使う余力を考える。ひとつに注ぐか、次の発見のために残すか。</p>
+      <form id="allocation-form">
+        <label class="budget-label">この計画に使うトークン<input id="planning-budget" type="number" min="1" max="100000000" step="1" placeholder="自分で決めた量を入力" required></label>
+        <div class="allocation-row"><label for="share-research">研究 <span>新しい発見を探す</span></label><input id="share-research" type="range" min="0" max="100" step="5" value="30"><output id="tokens-research">—</output></div>
+        <div class="allocation-row"><label for="share-development">開発 <span>触れるかたちをつくる</span></label><input id="share-development" type="range" min="0" max="100" step="5" value="45"><output id="tokens-development">—</output></div>
+        <div class="allocation-row"><label for="share-verification">検証 <span>実際に使って確かめる</span></label><input id="share-verification" type="range" min="0" max="100" step="5" value="15"><output id="tokens-verification">—</output></div>
+        <p id="allocation-rest" role="status">まず、この計画に使う量を決めてみよう。</p>
+        <button class="primary" type="submit">この配分を手元に残す</button>
+      </form>
+      <p class="planning-boundary">配分の試算です。保存先はこのブラウザ。実際の依頼やトークン消費は発生しません。</p>
+      <div class="world-notebook"><span class="eyebrow">この星のいま</span><p><b>街の絵づくり</b><span>資料を確認済み</span></p><p><b>球形の街と建物</b><span>形の試作</span></p><p><b>スマホの入口</b><span>公開の判断待ち</span></p></div>
+    </dialog>
+    <p id="announcement" class="sr-only" aria-live="polite"></p>
+  </main>
+  <footer class="world-footer"><span id="location-label">軌道上 <span class="dot">·</span> 訪問の入口</span><a href="https://osakenpiro.github.io/moon/">月の道具 ↗</a><a href="https://www.buymeacoffee.com/osakenpiro" target="_blank" rel="noopener noreferrer">☕ 応援</a></footer>
+  <noscript><p class="noscript">JavaScriptなしでも、<a href="https://osakenpiro.github.io/works/">WORKSの作品目録</a>と<a href="https://osakenpiro.github.io/">いつもの玄関</a>から作品を開けます。</p></noscript>
+  <script type="module" src="visit.js?v=20260913-runtime-1"></script>
+</body>
+</html>
