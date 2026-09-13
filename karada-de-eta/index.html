@@ -815,5 +815,35 @@ ksize(); updCam(); kframe();
 </script>
 <!-- ============================================================ KATA LAYER END -->
 
+<script>
+// The atlas receives only a muscle name; health records stay in the parent page.
+if (new URLSearchParams(location.search).get('atlas') === '1') {
+  const style = document.createElement('style');
+  style.textContent = '#title,#dock,#legend,#kata,#hint{display:none!important}#info{width:min(85vw,300px)}#attrib{font-size:8px}';
+  document.head.append(style);
+  let atlasGroups = [];
+  function showAtlasRegion() {
+    deselect();
+    for (const k of GROUP_KEYS) groupMat[k].uniforms.uAct.value = atlasGroups.length ? (atlasGroups.includes(k) ? 0.65 : 0.03) : 0.22;
+  }
+  addEventListener('message', event => {
+    if (event.origin !== location.origin || event.source !== parent || event.data?.type !== 'body-atlas-region') return;
+    if (!Array.isArray(event.data.groups) || event.data.groups.some(k => !GROUP_KEYS.includes(k))) return;
+    atlasGroups = event.data.groups;
+    showAtlasRegion();
+  });
+  const originalSelect = selectMuscle;
+  selectMuscle = function(mesh) { originalSelect(mesh); parent.postMessage({type:'body-atlas-picked',name:mesh.userData.disp}, location.origin); };
+  const atlasWait = setInterval(() => {
+    if (window.__READY__ > 0) { clearInterval(atlasWait); showAtlasRegion(); parent.postMessage({type:'body-atlas-ready'}, location.origin); }
+    else if (window.__READY__ === -1) clearInterval(atlasWait);
+  }, 300);
+} else {
+  const atlasLink = document.createElement('a');
+  atlasLink.href='./atlas.html'; atlasLink.textContent='体の地図 ↗';
+  atlasLink.style.cssText='position:fixed;top:72px;left:16px;z-index:7;color:#73dcdf;font-size:12px';
+  document.body.append(atlasLink);
+}
+</script>
 </body>
 </html>
