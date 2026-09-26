@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Creative Output Pack — 作品のあとに、何を残す？ | osakenpiro</title>
+<meta name="description" content="作品だけで終わらせない。作品・公開版・制作ログ・再利用できる知見を、ひとつの成果物パッケージとして残すための軽量な方法。">
+<meta property="og:title" content="Creative Output Pack — 作品のあとに、何を残す？">
+<meta property="og:description" content="作品・公開版・制作ログ・再利用できる知見。創作の成果を、あとから辿れる形で残す。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://osakenpiro.github.io/output-pack/">
+<style>
+:root{
+  --bg:#faf9f6;--paper:#f4f1e9;--ink:#2c2c2a;--sub:#6c6962;--rule:#d8d3c8;
+  --artifact:#3266ad;--public:#d85a30;--process:#1d9e75;--return:#6c58b8;--gold:#ba7517;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;line-height:1.75}
+a{color:inherit;text-underline-offset:.2em}
+.wrap{max-width:980px;margin:auto;padding:26px 18px 72px}
+.top{display:flex;justify-content:space-between;gap:16px;align-items:center;font-size:.82rem;color:var(--sub)}
+.top a{text-decoration:none;font-weight:800}
+.hero{padding:70px 0 48px}
+.kicker{font-size:.74rem;letter-spacing:.2em;font-weight:900;color:var(--sub);margin-bottom:10px}
+h1{font-family:Georgia,"Yu Mincho",serif;font-size:clamp(2.8rem,9vw,6.5rem);line-height:.98;letter-spacing:-.045em;margin:0 0 24px}
+.lead{font-size:clamp(1.05rem,2.5vw,1.35rem);max-width:740px;color:var(--sub)}
+.hero-note{display:inline-block;margin-top:20px;border-bottom:2px solid var(--gold);font-weight:800}
+.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:32px 0 52px}
+.flow a{text-decoration:none;border:1px solid var(--rule);background:var(--paper);border-radius:14px;padding:18px;min-height:148px;display:flex;flex-direction:column;justify-content:space-between}
+.flow strong{font-size:1.15rem}.flow small{color:var(--sub)}
+.n{font-family:ui-monospace,monospace;font-size:.78rem;font-weight:900}
+.c1 .n{color:var(--artifact)}.c2 .n{color:var(--public)}.c3 .n{color:var(--process)}.c4 .n{color:var(--return)}
+section{border-top:1px solid var(--rule);padding:48px 0}
+section h2{font-family:Georgia,"Yu Mincho",serif;font-size:clamp(2rem,5vw,3.3rem);margin:0 0 10px;line-height:1.1}
+section .sub{color:var(--sub);max-width:760px;margin-bottom:24px}
+.card{background:var(--paper);border:1px solid var(--rule);border-radius:18px;padding:22px;margin:14px 0}
+.card h3{margin:0 0 8px;font-size:1.15rem}
+.card p:last-child{margin-bottom:0}
+.rule{font-weight:900;font-size:1.05rem}
+.do-not{background:#fff2de}
+.behind{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.code{background:#242421;color:#f6f2e8;border-radius:16px;padding:18px;overflow:auto;font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre}
+.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.check{border:1px solid var(--rule);border-radius:12px;padding:14px;background:white}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.btn{display:inline-flex;align-items:center;min-height:48px;padding:11px 16px;border-radius:999px;border:1px solid var(--ink);font-weight:900;text-decoration:none}
+.btn.primary{background:var(--ink);color:var(--bg)}
+footer{border-top:1px solid var(--rule);padding-top:24px;color:var(--sub);font-size:.82rem}
+@media(max-width:720px){.flow{grid-template-columns:1fr 1fr}.behind,.checks{grid-template-columns:1fr}}
+@media(max-width:420px){.flow{grid-template-columns:1fr}.hero{padding-top:48px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="top"><a href="/">← osakenpiro</a><span>CREATIVE OUTPUT PACK · v0.2</span></nav>
+
+  <header class="hero">
+    <div class="kicker">作品は、完成品だけではない。</div>
+    <h1>作品のあとに、<br>何を残す？</h1>
+    <p class="lead">つくったものだけ残すと、なぜそうなったかが消える。制作ログだけ残すと、肝心の作品が見えなくなる。そこで、創作の成果を<strong>4つの面</strong>に分けて、ひとつのパッケージとして辿れるようにする。</p>
+    <span class="hero-note">全部を一つの文書に潰さない。</span>
+  </header>
+
+  <nav class="flow" aria-label="4つの成果">
+    <a class="c1" href="#artifact"><span class="n">01 / ARTIFACT</span><strong>作品</strong><small>実際につくったもの</small></a>
+    <a class="c2" href="#public"><span class="n">02 / PUBLIC</span><strong>公開版</strong><small>他の人へ渡す物語</small></a>
+    <a class="c3" href="#process"><span class="n">03 / PROCESS</span><strong>制作ログ</strong><small>選択・失敗・修正</small></a>
+    <a class="c4" href="#return"><span class="n">04 / RETURN</span><strong>再利用できる知見</strong><small>次の制作へ持ち帰る</small></a>
+  </nav>
+
+  <section id="artifact">
+    <h2>01. ARTIFACT — 作品</h2>
+    <p class="sub">ゲーム、絵、文章、映像、サイト、プロトタイプ。説明ではなく、触れる／読む／見ることができる「もの」そのもの。</p>
+    <div class="card"><p class="rule">ARTIFACT ≠ 説明書 ≠ 制作記録。</p><p>完成度はCONCEPTでもGRAYBOXでもVERTICAL SLICEでもよい。重要なのは、どの版の作品なのかを後から辿れること。</p></div>
+  </section>
+
+  <section id="public">
+    <h2>02. PUBLIC EDITION — 公開版</h2>
+    <p class="sub">note、紹介ページ、README、展示文など。「なぜ作ったのか」「どこが面白いのか」を、制作の外側にいる人へ渡すための文章。</p>
+    <div class="card"><p><strong>毎回は作らない。</strong> RELEASEや外部展示では基本的に用意する。途中段階では、制作途中そのものを見せたい時だけDEV EDITIONを作る。</p></div>
+    <div class="card do-not"><p class="rule">公開記事を、作品や知見の正本にしない。</p><p>読みやすくするための省略や物語化はしてよい。でも、公開記事だけを読まないと制作を再開できない状態にはしない。</p></div>
+  </section>
+
+  <section id="process">
+    <h2>03. PROCESS LOG — 制作ログ</h2>
+    <p class="sub">最終形だけでは消えてしまう「分かれ道」を残す。採用した案、捨てた案、A/B、失敗、修正、人間の好みでひっくり返った瞬間。</p>
+    <div class="card">
+      <h3>残したいもの</h3>
+      <p>INTENT / KEY DECISIONS / EXPERIMENTS / REJECTED & WHY / HUMAN FEEDBACK / FAILURES & REPAIRS / DELTAS FROM INITIAL CONCEPT</p>
+    </div>
+    <div class="card do-not"><p class="rule">これはAIの非公開な思考過程を公開する仕組みではない。</p><p>会話、Issue、比較結果、採否、テストなど、外から観測できる制作上の意思決定だけを残す。</p></div>
+  </section>
+
+  <section id="return">
+    <h2>04. ECOSYSTEM RETURN — 再利用できる知見</h2>
+    <p class="sub">その作品だけに閉じない発見があった時、次の制作へ持っていける形にする。デザイン原則、失敗パターン、テンプレート、チェックリストなど。</p>
+    <div class="card"><p><strong>何もなければ、NOT_NEEDEDでよい。</strong></p><p>「作品を作ったから学びも捏造する」ことはしない。再利用できる差分が本当にある時だけ返す。</p></div>
+  </section>
+
+  <section>
+    <h2>裏側にある2つ</h2>
+    <p class="sub">人に見せる4面とは別に、再開可能性を支える薄い裏方がある。</p>
+    <div class="behind">
+      <div class="card"><h3>RESULT</h3><p>今回やったこと、成果物、発見、残件、接続先、証拠を回収する運用上の封筒。作品の説明文の代わりにはしない。</p></div>
+      <div class="card"><h3>MANIFEST</h3><p>各面へのリンクだけを持つ目次。状態の正本にはならない。最後に作る。</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>最小MANIFEST</h2>
+    <p class="sub">これだけあれば、別の日・別の人・別のAIからでも「どこを開けばいい？」を復元できる。</p>
+    <pre class="code">work_id:
+version:
+maturity: CONCEPT | GRAYBOX | VERTICAL_SLICE | RELEASE
+
+artifact_ref:
+public_edition_ref:
+process_log_ref:
+result_ref:
+
+echo:
+  disposition: VERIFIED | GATED | DUPLICATE | NOT_NEEDED | PENDING
+  receipt_ref:
+
+human_gate:
+reentry_ref:</pre>
+    <div class="cta">
+      <a class="btn primary" href="template.yaml">template.yaml を開く →</a>
+    </div>
+  </section>
+
+  <section>
+    <h2>パックが通った、と言える条件</h2>
+    <div class="checks">
+      <div class="check">作品を直接開ける。</div>
+      <div class="check">公開版だけ読んでも何を作ったか分かる。</div>
+      <div class="check">主要な分岐・失敗・人間の評価を制作ログから辿れる。</div>
+      <div class="check">残件と再開先がRESULTから分かる。</div>
+      <div class="check">再利用知見は「採用済み」と「提案」を混同していない。</div>
+      <div class="check">重要なものがチャットの中だけに残っていない。</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>やらないこと</h2>
+    <div class="card do-not">
+      <p>・すべての途中版にnoteを書く。</p>
+      <p>・昔の作品を全部さかのぼってパッケージ化する。</p>
+      <p>・MANIFESTを新しいDBにする。</p>
+      <p>・制作ログを生の会話全文にする。</p>
+      <p>・「公開した」と「生態系に採用された」を同じ意味にする。</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>Creative Output Pack v0.2 — public profile. 2026-09-26.</p>
+    <p>作品・公開版・制作ログ・再利用知見を分離しながら、一つの入口から辿れるようにするための方法。</p>
+  </footer>
+</div>
+</body>
+</html>
