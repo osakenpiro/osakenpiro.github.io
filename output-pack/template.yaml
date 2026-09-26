@@ -1,0 +1,16 @@
+# Creative Output Pack — minimal manifest
+work_id:
+version:
+maturity: CONCEPT # CONCEPT | GRAYBOX | VERTICAL_SLICE | RELEASE
+
+artifact_ref:
+public_edition_ref:
+process_log_ref:
+result_ref:
+
+echo:
+  disposition: PENDING # VERIFIED | GATED | DUPLICATE | NOT_NEEDED | PENDING
+  receipt_ref:
+
+human_gate:
+reentry_ref:
