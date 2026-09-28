@@ -1,0 +1,24 @@
+{
+  "baseline_commit": "75f204ab6e746f5f14a72c5c7147770c2f9e422b",
+  "unchanged_git_normalized_sha256": {
+    "fineplay/engine.js": "359746738d32627cccdfab8d74265ea938ca547e3e80eb1df272c92145edc431",
+    "fineplay/play.css": "ac737e3e9c84116e681fe687ebdea0b8403d0c057db594da6e7f0816da042682",
+    "fineplay/turn-ui.css": "045f708d1d7335e2861e9a3b5f0efeb4e88c27f6b595b2179f186164bcd11ff8"
+  },
+  "mobile_viewports": [
+    [
+      375,
+      812
+    ],
+    [
+      390,
+      844
+    ],
+    [
+      414,
+      896
+    ]
+  ],
+  "device_scope": "Edge Chromium mobile emulation; not a physical phone",
+  "timing_scope": "interaction count/geometry, not human comprehension time"
+}

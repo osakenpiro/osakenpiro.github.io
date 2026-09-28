@@ -1,0 +1,36 @@
+{
+  "mj_known_score": {
+    "path": [
+      "点数",
+      "詳細",
+      "2翻",
+      "25符",
+      "役あり確認",
+      "支払点を見る"
+    ],
+    "button_activations": 6,
+    "result": "1600",
+    "no_yaku_rejected": true
+  },
+  "mj_yaku_search_and_glossary": true,
+  "fp_peer_two_contexts": {
+    "status": "PASS",
+    "transport": "real PeerJS",
+    "host_buttons": [
+      "部屋をつくる",
+      "招待URLをコピー",
+      "開始"
+    ],
+    "guest_buttons": [
+      "参加",
+      "この質問をする"
+    ],
+    "text_fields": [
+      "host nickname",
+      "guest nickname",
+      "optional question memo"
+    ],
+    "first_answer_synced": true,
+    "not_physical_devices": true
+  }
+}

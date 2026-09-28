@@ -1,0 +1,62 @@
+[
+  {
+    "width": 375,
+    "fp_entry_button": {
+      "x": 36,
+      "y": 700.921875,
+      "width": 303,
+      "height": 47.5
+    },
+    "fp_entry_overflow": false,
+    "mj_yaku_first": {
+      "x": 16,
+      "y": 594.5625,
+      "width": 343,
+      "height": 175.765625
+    },
+    "mj_fu_to_detail": false,
+    "mj_selected_fu": "25符",
+    "mj_overflow": false,
+    "page_errors": []
+  },
+  {
+    "width": 390,
+    "fp_entry_button": {
+      "x": 36,
+      "y": 700.921875,
+      "width": 318,
+      "height": 47.5
+    },
+    "fp_entry_overflow": false,
+    "mj_yaku_first": {
+      "x": 16,
+      "y": 594.5625,
+      "width": 358,
+      "height": 175.765625
+    },
+    "mj_fu_to_detail": false,
+    "mj_selected_fu": "25符",
+    "mj_overflow": false,
+    "page_errors": []
+  },
+  {
+    "width": 414,
+    "fp_entry_button": {
+      "x": 36,
+      "y": 700.921875,
+      "width": 342,
+      "height": 47.5
+    },
+    "fp_entry_overflow": false,
+    "mj_yaku_first": {
+      "x": 16,
+      "y": 543.5625,
+      "width": 382,
+      "height": 175.765625
+    },
+    "mj_fu_to_detail": false,
+    "mj_selected_fu": "25符",
+    "mj_overflow": false,
+    "page_errors": []
+  }
+]

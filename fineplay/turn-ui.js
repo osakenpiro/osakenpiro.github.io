@@ -65,7 +65,7 @@
 
  score=()=>'';
 
- members=()=>`<section class="panel members fp-members"><div class="section-head"><h2>メンバー <span>${state.players.length}人</span></h2>${!demo?button('invite','招待','quiet'):''}</div><div class="roster">${state.players.map(p=>{
+ members=()=>`<section class="panel members fp-members"><div class="section-head"><h2>メンバー <span>${state.players.length}人</span></h2>${!demo?button('invite','招待URLをコピー','quiet'):''}</div><div class="roster">${state.players.map(p=>{
   const turn=actors().includes(p.id);
   return `<div class="member${turn?' turn-active':''}${p.online?'':' offline'}"${turn?' aria-current="step"':''}>${faceEl(p.id,'md')}<b>${esc(who(p.id))}${p.id===me?'<small>あなた</small>':''}</b><small class="member-role">${p.id===state.presenter?'魔人（回答）':'質問'}</small><small class="member-verb">${verb(p)}</small></div>`;
  }).join('')}</div></section>`;

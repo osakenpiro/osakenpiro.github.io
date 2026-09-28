@@ -135,7 +135,7 @@ function bind(){
  on('feedback',feedback);on('feedback-bottom',feedback);
  if($('#entry-form'))$('#entry-form').onsubmit=e=>{e.preventDefault();try{name=R.clean($('#nickname').value,24,true);}catch(err){toast(err.message);return;}if(room){token=load('guest:'+room)?.token||uid();persist();connect(false);}else{room=uid();me=uid();owner=true;game=R.create(me,name);state=R.view(game,me);credentials={};history.replaceState(null,'','#r='+room);persist();connect(true);}};
  on('retry',()=>{attempts=0;connect(owner);});on('start',startRound);on('copylink',()=>copy(inviteURL()));
- on('invite',()=>{modal(`<h2>仲間を招待する</h2><p>このリンクを知る人が入室できます。仲間だけに送ろう。</p><input readonly aria-label="招待URL" value="${esc(inviteURL())}"><div class="row"><button id="copy-invite" class="primary">招待URLをコピー</button><button id="modal-close">閉じる</button></div>`);on('copy-invite',()=>copy(inviteURL()));});
+ on('invite',()=>copy(inviteURL(),'招待URLをコピー'));
  if($('#question'))$('#question').oninput=e=>draft=e.target.value;
  if($('#question-form'))$('#question-form').onsubmit=e=>{e.preventDefault();send('ask',{kind:'question',text:draft});};
  on('guess',e=>{e?.preventDefault();modal('<h2>答えを宣言する</h2><p>正解でも、不正解でも1問。出題者が判定します。</p><label for="guess-text">答え</label><input id="guess-text" maxlength="200" placeholder="これが答え！"><div class="row"><button id="guess-send" class="primary">この答えを宣言する</button><button id="modal-close">戻る</button></div>');on('guess-send',()=>{if(!$('#guess-text').value.trim())return toast('答えを入力してください。');send('ask',{kind:'guess',text:$('#guess-text').value});});});

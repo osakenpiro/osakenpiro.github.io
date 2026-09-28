@@ -1,0 +1,31 @@
+﻿PASS guest cannot start
+PASS start a table
+PASS presenter cannot ask
+PASS optional spoken question
+PASS concurrent question rejected
+PASS guest cannot answer
+PASS stale question id rejected
+PASS five choice response counts once
+PASS self vote rejected
+PASS same vote idempotent
+PASS sealed projections hide votes from others
+PASS vote removal
+PASS cancel is free
+PASS guess requires text
+PASS wrong guess also counts
+PASS question cannot receive guess answer
+PASS correct guess ends round
+PASS cannot ask after correct
+PASS sealed votes visible after round
+PASS undo gives a fresh pending id
+PASS guest cannot reveal
+PASS reveal does not add score
+PASS rotate presenter and reject old commands
+PASS former presenter is now questioner
+PASS offline players cannot operate
+PASS unknown and probablyNot both count
+PASS other guest cannot alter notes
+PASS questioner can annotate
+PASS no credentials in projection
+PASS duplicate and long names rejected
+RESULT 30/30

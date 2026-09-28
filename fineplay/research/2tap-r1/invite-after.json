@@ -1,0 +1,26 @@
+[
+  {
+    "width": 375,
+    "invite_taps": 1,
+    "intermediate_dialog": false,
+    "clipboard_matches": true,
+    "overflow": false,
+    "denied_clipboard_fallback": true
+  },
+  {
+    "width": 390,
+    "invite_taps": 1,
+    "intermediate_dialog": false,
+    "clipboard_matches": true,
+    "overflow": false,
+    "denied_clipboard_fallback": true
+  },
+  {
+    "width": 414,
+    "invite_taps": 1,
+    "intermediate_dialog": false,
+    "clipboard_matches": true,
+    "overflow": false,
+    "denied_clipboard_fallback": true
+  }
+]
