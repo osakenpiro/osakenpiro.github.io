@@ -14,3 +14,10 @@ echo:
 
 human_gate:
 reentry_ref:
+
+# For products being shared/re-introduced: the entry must work without a
+# sender's message or verbal briefing. Reuse only purpose-critical surfaces.
+# This does not require an LP/tutorial for every prototype or direct utility.
+# Optional pointers, not a new status registry:
+# entry_contract_ref: /output-pack/product-entry-check.md
+# entry_acceptance_ref: <work-local evidence for the exact tested version>
