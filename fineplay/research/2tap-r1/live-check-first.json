@@ -1,0 +1,12 @@
+{
+  "fineplay": {
+    "http": 200,
+    "status": "LIVE VERIFIED",
+    "direct_copy": true,
+    "test_mode": "UI fixture on deployed code"
+  },
+  "mahjong": {
+    "status": "NOT VERIFIED",
+    "error": ""
+  }
+}
