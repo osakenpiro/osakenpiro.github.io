@@ -1,4 +1,4 @@
-/* FINEPLAY 0.5 — deterministic, host-authoritative rules and private projections. */
+/* FINEPLAY 0.5.1 — deterministic, host-authoritative rules and private projections. */
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.FPRules=api;})(globalThis,()=>{
  'use strict';
  const labels={yes:'はい',no:'いいえ',partly:'部分的にそう',probably:'たぶんそう',probablyNot:'たぶん違う',unknown:'わからない',correct:'正解！',incorrect:'不正解'};
@@ -13,18 +13,21 @@
  const questionText=t=>!t||/[?？]$/.test(t.trim())?t:t+'？';
  const grade=e=>Math.max(0,...Object.values(e.ratings||{}));
  const applause=s=>Object.values(s.applause||{}).reduce((a,b)=>a+b,0);
- const defaults={preset:'casual',limit:'none',attempts:3,guessCost:1,initialPoints:3,correctPoints:3,finePoints:1,superPoints:2,comboPoints:1};
- function rules(a={}){const r={...defaults,...a};must(['casual','dead'].includes(r.preset)&&['none','count','points'].includes(r.limit),'ルールの設定が不正です。');for(const k of ['attempts','guessCost','initialPoints','correctPoints','finePoints','superPoints','comboPoints'])must(Number.isInteger(r[k])&&r[k]>=0&&r[k]<=100,'点数・回数は0〜100の整数です。');if(r.preset==='casual')r.limit='none';if(r.limit==='count')must(r.attempts>0,'解答権は1回以上にしてください。');if(r.limit==='points')must(r.guessCost>0&&r.initialPoints>=r.guessCost,'点数消費では、最初に1回は解答できる点数にしてください。');return r;}
+ const defaults={preset:'casual',limit:'none',attempts:3,costModel:'staged',guessCost:1,initialPoints:3,correctPoints:3,finePoints:1,superPoints:2,comboPoints:1};
+ function rules(a={}){const r={...defaults,...a};must(['flat','staged'].includes(r.costModel),'解答の減点方式を選んでください。');must(['casual','dead'].includes(r.preset)&&['none','count','points'].includes(r.limit),'ルールの設定が不正です。');for(const k of ['attempts','guessCost','initialPoints','correctPoints','finePoints','superPoints','comboPoints'])must(Number.isInteger(r[k])&&r[k]>=0&&r[k]<=100,'点数・回数は0〜100の整数です。');if(r.preset==='casual')r.limit='none';if(r.limit==='count')must(r.attempts>0,'解答権は1回以上にしてください。');if(r.limit==='points')must(r.guessCost>0&&(r.costModel==='staged'||r.initialPoints>=r.guessCost),'点数消費では基本消費を1以上にし、定額式では初回分の持ち点を用意してください。');return r;}
  const count=s=>({total:s.entries.length,questions:s.entries.filter(e=>e.kind==='question').length,guesses:s.entries.filter(e=>e.kind==='guess').length,fp:s.entries.filter(e=>grade(e)>0).length,votes:s.entries.reduce((a,e)=>a+Object.keys(e.ratings||{}).length,0),problemVotes:Object.keys(s.problemRatings||{}).length,applause:applause(s)});
+ // Missing costModel denotes an existing 0.5 round; keep its flat costs intact.
+ function guessCost(s,attempt){const r=s.rules||defaults;if(r.preset==='casual')return 0;return r.costModel==='staged'?(attempt<=3?0:attempt<=6?r.guessCost:2*r.guessCost):r.guessCost;}
+ function guessPenalty(s,used){const r=s.rules||defaults;if(r.preset==='casual')return 0;return r.costModel==='staged'?(Math.min(3,Math.max(0,used-3))+2*Math.max(0,used-6))*r.guessCost:used*r.guessCost;}
  function playerStats(s,p){
   const es=s.entries.filter(e=>e.asker===p.id),r=s.rules||defaults,questionVotes=es.filter(e=>e.kind==='question').reduce((a,e)=>a+Object.keys(e.ratings||{}).length,0),guessVotes=es.filter(e=>e.kind==='guess').reduce((a,e)=>a+Object.keys(e.ratings||{}).length,0),problemGrade=p.id===s.presenter?Math.max(0,...Object.values(s.problemRatings||{})):0;
   const fineplays=es.filter(e=>grade(e)===1).length+(problemGrade===1?1:0),superFineplays=es.filter(e=>grade(e)===2).length+(problemGrade===2?1:0),combos=(s.combos||[]).filter(c=>c.asker===p.id).length,used=s.guessUsed?.[p.id]||0,correct=es.filter(e=>e.answer==='correct').length;
-  const earned=fineplays*r.finePoints+superFineplays*r.superPoints+combos*r.comboPoints,dead=r.preset==='dead',applausePoints=p.id===s.presenter?applause(s)/100:0,score=earned+(dead?correct*r.correctPoints-used*r.guessCost:0)+applausePoints;
-  const balance=r.initialPoints+earned+correct*r.correctPoints-used*r.guessCost;
-  return {id:p.id,name:p.name,presenter:p.id===s.presenter,spectator:!(s.roundPlayers||[]).includes(p.id),questions:es.filter(e=>e.kind==='question').length,guesses:es.filter(e=>e.kind==='guess').length,total:es.length,questionVotes,guessVotes,problemVotes:p.id===s.presenter?Object.keys(s.problemRatings||{}).length:0,fineplays,superFineplays,combos,used,correct,score:Math.round(score*100)/100,balance,applause:p.id===s.presenter?applause(s):0,applausePoints};
+  const earned=fineplays*r.finePoints+superFineplays*r.superPoints+combos*r.comboPoints,dead=r.preset==='dead',penalty=guessPenalty(s,used),applausePoints=p.id===s.presenter?applause(s)/100:0,score=earned+(dead?correct*r.correctPoints-penalty:0)+applausePoints;
+  const balance=r.initialPoints+earned+correct*r.correctPoints-penalty;
+  return {id:p.id,name:p.name,presenter:p.id===s.presenter,spectator:!(s.roundPlayers||[]).includes(p.id),questions:es.filter(e=>e.kind==='question').length,guesses:es.filter(e=>e.kind==='guess').length,total:es.length,questionVotes,guessVotes,problemVotes:p.id===s.presenter?Object.keys(s.problemRatings||{}).length:0,fineplays,superFineplays,combos,used,correct,guessPenalty:penalty,score:Math.round(score*100)/100,balance,applause:p.id===s.presenter?applause(s):0,applausePoints};
  }
  function summary(s){return {counts:count(s),players:s.players.map(p=>playerStats(s,p))};}
- function allowance(s,id){const r=s.rules||defaults,p=person(s,id),v=playerStats(s,p||{id,name:''}),can=p&&!spectator(s,id)&&id!==s.presenter;return {used:v.used,left:r.limit==='count'?Math.max(0,r.attempts-v.used):null,balance:r.limit==='points'?v.balance:null,canGuess:!!can&&(r.limit==='count'?v.used<r.attempts:r.limit==='points'?v.balance>=r.guessCost:true)};}
+ function allowance(s,id){const r=s.rules||defaults,p=person(s,id),v=playerStats(s,p||{id,name:''}),nextCost=guessCost(s,v.used+1),can=p&&!spectator(s,id)&&id!==s.presenter;return {used:v.used,nextCost,freeLeft:r.preset==='dead'&&r.costModel==='staged'?Math.max(0,3-v.used):null,left:r.limit==='count'?Math.max(0,r.attempts-v.used):null,balance:r.limit==='points'?v.balance:null,canGuess:!!can&&(r.limit==='count'?v.used<r.attempts:r.limit==='points'?v.balance>=nextCost:true)};}
  function create(owner,name){return {version:3,owner,presenter:owner,players:[{id:owner,name:clean(name,24,true),online:true,role:'player'}],round:0,roundId:'lobby',roundPlayers:[],phase:'lobby',scope:'なんでも',mode:'live',playMode:'cooperative',rules:rules(),pending:null,entries:[],secretAnswer:'',attributes:[],hints:[],comments:[],combos:[],unlocked:[],guessUsed:{},problemRatings:{},applause:{},applauseId:'',reveal:'',history:[],rev:0};}
  function join(s,id,name,role='player'){name=clean(name,24,true);must(s.players.length<12,'この卓は12人までです。');must(!s.players.some(p=>p.id===id||p.name===name),'その名前は参加済みです。別の名前を使ってください。');must(['player','spectator'].includes(role),'参加方法を選んでください。');const n=cp(s);n.players.push({id,name,online:true,role:s.phase==='lobby'?role:'spectator'});n.rev++;return n;}
  function online(s,id,value){const n=cp(s),p=person(n,id);if(p)p.online=!!value;n.rev++;return n;}
@@ -83,5 +86,5 @@
   if(!hidden&&!locked)v.myStats=playerStats(s,person(s,viewer));
   return v;
  }
- return {labels,cp,clean,done,count,summary,create,join,online,apply,view,questionText,defaults,allowance};
+ return {labels,cp,clean,done,count,summary,create,join,online,apply,view,questionText,defaults,allowance,guessCost,guessPenalty};
 });

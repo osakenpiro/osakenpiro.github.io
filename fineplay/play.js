@@ -129,7 +129,7 @@ function historyPanel(){
 }
 function render(){
  const focused=document.activeElement?.id,selection=focused?document.activeElement.selectionStart:null,list=$('.history-list'),scroll=list?.scrollTop||0,nearEnd=!list||list.scrollHeight-scroll-list.clientHeight<35;
- const fields={};for(const id of ['presenter','scope','mode','play-mode','initial-answer','prepare-answer','prepare-labels','rule-preset','rule-limit','rule-attempts','rule-guessCost','rule-initialPoints','rule-correctPoints','rule-finePoints','rule-superPoints','rule-comboPoints','join-role'])if($('#'+id))fields[id]=$('#'+id).value;
+ const fields={};for(const id of ['presenter','scope','mode','play-mode','initial-answer','prepare-answer','prepare-labels','rule-preset','rule-limit','rule-costModel','rule-attempts','rule-guessCost','rule-initialPoints','rule-correctPoints','rule-finePoints','rule-superPoints','rule-comboPoints','join-role'])if($('#'+id))fields[id]=$('#'+id).value;
  const sameRound=state&&state.roundId===renderRound;
  if(state&&sameRound&&state.entries.length>renderCount&&!nearEnd)newHistory=true;
  if(state&&!sameRound){filter='all';search='';newHistory=false;}

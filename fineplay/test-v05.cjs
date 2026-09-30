@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict'),R=require('./engine.js');let serial=0,checks=0,s;
 const act=(who,type,extra={})=>s=R.apply(s,who,{id:'test-command-'+(++serial),roundId:s.roundId,applauseId:s.applauseId,type,...extra});
 const denied=(who,type,extra={})=>assert.throws(()=>R.apply(s,who,{id:'test-command-'+(++serial),roundId:s.roundId,applauseId:s.applauseId,type,...extra}));
-const setup=(extra={})=>{s=R.create('h','Host');s=R.join(s,'a','Alice');s=R.join(s,'b','Bob');act('h','start',{presenter:'h',mode:'live',scope:'test',...extra});if(s.phase==='preparing')act('h','begin',{text:'PRIVATE-ANSWER',attributes:['PRIVATE-ATTRIBUTE','公開属性']});};
+const setup=(extra={})=>{extra={...extra,rules:{costModel:'flat',...extra.rules}};s=R.create('h','Host');s=R.join(s,'a','Alice');s=R.join(s,'b','Bob');act('h','start',{presenter:'h',mode:'live',scope:'test',...extra});if(s.phase==='preparing')act('h','begin',{text:'PRIVATE-ANSWER',attributes:['PRIVATE-ATTRIBUTE','公開属性']});};
 const question=(who,text='Question',answer='partly')=>{act(who,'ask',{kind:'question',text});act('h','answer',{pendingId:s.pending.id,answer});return s.entries.at(-1).id;};
 const guess=(who,answer='incorrect')=>{act(who,'ask',{kind:'guess',text:'Guess'});act('h','answer',{pendingId:s.pending.id,answer});};
 const test=(name,f)=>{f();checks++;console.log('PASS',name);};
