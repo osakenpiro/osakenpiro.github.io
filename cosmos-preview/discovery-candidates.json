@@ -1,0 +1,18 @@
+{
+  "_": "Bounded Personal Surface pilot discovery candidates. NOT canonical Registry/SoT. Candidates must be reconciled against 成果物DB / ありか台帳 before promotion.",
+  "schema": "osakenpiro/url-discovery-candidates-v0.1",
+  "generated": "2026-09-26",
+  "authority": "derived_candidate_only",
+  "auto_canonicalize": false,
+  "items": [
+    {"id":"fineplay","title":"FINEPLAY","kind":"canonical_candidate","url":"https://osakenpiro.github.io/fineplay/","source":"repo_main","status":"UNREGISTERED_CANDIDATE","tags":["tool","communication"]},
+    {"id":"okinawa-mahjong","title":"沖縄麻雀部","kind":"portal","url":"https://osakenpiro.github.io/shuryo-techo/okinawa-mahjong/","source":"satellite_repo","status":"UNREGISTERED_CANDIDATE","tags":["game","mahjong","portal"]},
+    {"id":"okinawa-mahjong-learn","title":"まなぶ｜沖縄麻雀部","kind":"deep_link","url":"https://osakenpiro.github.io/shuryo-techo/okinawa-mahjong/learn/","source":"satellite_repo","status":"UNREGISTERED_CANDIDATE","tags":["learning","mahjong"]},
+    {"id":"okinawa-mahjong-helper","title":"対局中ヘルパー｜沖縄麻雀部","kind":"deep_link","url":"https://osakenpiro.github.io/shuryo-techo/okinawa-mahjong/helper/","source":"satellite_repo","status":"UNREGISTERED_CANDIDATE","tags":["tool","mahjong"]},
+    {"id":"mahjong-keikoba","title":"麻雀の稽古場","kind":"satellite_pages","url":"https://osakenpiro.github.io/mahjong-keikoba/","source":"separate_repo","status":"UNREGISTERED_CANDIDATE","tags":["learning","mahjong","game"]},
+    {"id":"fatalis-roadmap","title":"黒龍への道","kind":"deep_link","url":"https://osakenpiro.github.io/shuryo-techo/fatalis-roadmap/","source":"satellite_repo","status":"UNREGISTERED_CANDIDATE","tags":["game","monster-hunter","roadmap"]},
+    {"id":"hunting-dictionary","title":"狩猟辞書｜World / Iceborne","kind":"deep_link","url":"https://osakenpiro.github.io/shuryo-techo/hunting-dictionary/","source":"satellite_repo","status":"UNREGISTERED_CANDIDATE","tags":["game","monster-hunter","learning"]},
+    {"id":"equipment-wishlist","title":"装備づくりの依頼帳","kind":"deep_link","url":"https://osakenpiro.github.io/shuryo-techo/equipment-wishlist/","source":"satellite_repo","status":"UNREGISTERED_CANDIDATE","tags":["game","monster-hunter","tool"]},
+    {"id":"stories","title":"STORIES","kind":"known_surface_fixture","url":"https://osakenpiro.github.io/stories/","source":"repo_main","status":"KNOWN_SURFACE_FIXTURE","tags":["creative","stories"]}
+  ]
+}
