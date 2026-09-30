@@ -5,13 +5,13 @@ const act=(who,type,extra={})=>{s=R.apply(s,who,{id:id(),roundId:s.roundId,type,
 const denied=(who,type,extra={})=>assert.throws(()=>R.apply(s,who,{id:id(),roundId:s.roundId,type,...extra}));
 let checks=0;const test=(name,f)=>{f();checks++;console.log('PASS',name);};
 test('guest cannot start',()=>denied('a','start',{presenter:'h',mode:'live',scope:'Games'}));
-test('start a table',()=>{act('h','start',{presenter:'h',mode:'sealed',scope:'Games',secretAnswer:'Answer'});assert.equal(s.phase,'playing');});
+test('start a table',()=>{act('h','start',{presenter:'h',mode:'sealed',scope:'Games'});assert.equal(s.phase,'playing');});
 test('presenter cannot ask',()=>denied('h','ask',{kind:'question',text:''}));
 test('optional spoken question',()=>{act('a','ask',{kind:'question',text:''});assert.equal(R.count(s).total,0);});
 test('concurrent question rejected',()=>denied('b','ask',{kind:'question',text:'other'}));
 test('guest cannot answer',()=>denied('a','answer',{pendingId:s.pending.id,answer:'yes'}));
 test('stale question id rejected',()=>denied('h','answer',{pendingId:'stale',answer:'yes'}));
-test('six choice response counts once',()=>{let p=s.pending.id;act('h','answer',{pendingId:p,answer:'yes'});assert.equal(R.count(s).total,1);denied('h','answer',{pendingId:p,answer:'yes'});});
+test('five choice response counts once',()=>{let p=s.pending.id;act('h','answer',{pendingId:p,answer:'yes'});assert.equal(R.count(s).total,1);denied('h','answer',{pendingId:p,answer:'yes'});});
 test('self vote rejected',()=>denied('a','vote',{entryId:s.entries[0].id,value:true}));
 test('same vote idempotent',()=>{act('b','vote',{entryId:s.entries[0].id,value:true});act('b','vote',{entryId:s.entries[0].id,value:true});assert.equal(R.count(s).votes,1);});
 test('sealed projections hide votes from others',()=>{let v=R.view(s,'a');assert.equal(v.entries[0].votes,null);assert.equal(v.entries[0].myVote,false);assert.ok(!JSON.stringify(v).includes('voters'));assert.equal(R.view(s,'b').entries[0].myVote,true);});
@@ -26,7 +26,7 @@ test('sealed votes visible after round',()=>{act('b','vote',{entryId:s.entries[0
 test('undo gives a fresh pending id',()=>{let previous=s.entries.at(-1).id;act('h','undo');assert.equal(s.reveal,'');assert.equal(s.phase,'playing');assert.notEqual(s.pending.id,previous);assert.equal(R.count(s).total,3);denied('h','answer',{pendingId:previous,answer:'correct'});});
 test('guest cannot reveal',()=>denied('a','reveal',{text:'secret'}));
 test('reveal does not add score',()=>{act('h','reveal',{text:'Answer'});assert.equal(R.count(s).total,3);assert.equal(s.phase,'passed');});
-test('rotate presenter and reject old commands',()=>{let old=s.roundId;act('h','start',{presenter:'a',mode:'live',scope:''});act('a','begin',{text:''});assert.equal(s.presenter,'a');assert.equal(s.entries.length,0);assert.equal(s.history.length,1);assert.throws(()=>R.apply(s,'b',{id:id(),roundId:old,type:'ask',kind:'question',text:''}));});
+test('rotate presenter and reject old commands',()=>{let old=s.roundId;act('h','start',{presenter:'a',mode:'live',scope:''});assert.equal(s.presenter,'a');assert.equal(s.entries.length,0);assert.equal(s.history.length,1);assert.throws(()=>R.apply(s,'b',{id:id(),roundId:old,type:'ask',kind:'question',text:''}));});
 test('former presenter is now questioner',()=>{act('h','ask',{kind:'question',text:'Q'});denied('h','answer',{pendingId:s.pending.id,answer:'no'});act('a','answer',{pendingId:s.pending.id,answer:'no'});});
 test('offline players cannot operate',()=>{s=R.online(s,'b',false);denied('b','ask',{kind:'question',text:''});s=R.online(s,'b',true);});
 test('unknown and probablyNot both count',()=>{for(let answer of ['unknown','probablyNot']){act('b','ask',{kind:'question',text:answer});act('a','answer',{pendingId:s.pending.id,answer});}assert.equal(s.entries.length,3);});

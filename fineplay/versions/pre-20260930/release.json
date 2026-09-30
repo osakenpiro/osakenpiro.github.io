@@ -1,0 +1,28 @@
+{
+  "label": "Pre-update 2026-09-30",
+  "sourceCommit": "096e2e71f1031d6c74ffbeaa503bde5e43666db7",
+  "sourceTree": "5db3e0ce6af753b57d4f6eb0652840e55dc4b043",
+  "files": {
+    "README.md": "4be7303259f69b5fb381337ddae6d863bfbc2704",
+    "app.js": "a93079f421996d3397170f4385a6f1add4d3aa7c",
+    "assets/fineplay-hand.svg": "dd249ac3bcd443a7b851a3e9fa9ea210ff7b2c03",
+    "assets/genie-face.png": "5f69431b8980df37b87e598a1ff0623ad359e549",
+    "assets/genie-grove.png": "47717614a3b7abcf23586cddd9a78ebda9a7f116",
+    "assets/genie.svg": "bf188e75b674352d1a483ea70265cde16777e4ba",
+    "assets/grove.svg": "891dde95c46b3fe3d27be13fc7ae6f0941718211",
+    "assets/night-canopy.png": "0a63e9c52e982c22a9ecc1e62b1d19d0c7ca4a45",
+    "engine.js": "d4867578561808370ead2e04b0a07be8d95cebcc",
+    "guide/index.html": "7c4a1538c875281ed882ae05163be3ca601d4543",
+    "home/index.html": "2483640c6488d8f0c6483b19c3bfe3183f8cabfc",
+    "index.html": "21d16bfeede9f956799caee231d5c79d24c991dd",
+    "landing.css": "6a275cd1c9e811a6295de0c79af4b119c8130d63",
+    "play.css": "c93b7ff8b138630ad5528ae628abe7323654d5b0",
+    "play.js": "1e47d2c56199c4c89fa236a7c75520e9b7c46746",
+    "release.css": "e42c6d713e33d358cf5c6d4c9b453a599732e72f",
+    "test-engine.cjs": "34d03f609c07cb2b13c09edb55a917d7523f4ffd",
+    "turn-ui.css": "d3dfaebac2c3bd035f3097e2fe821637407f3d80",
+    "turn-ui.js": "63db58bdf9d3b8f88d0626beb18f269c4630e3de",
+    "tutorial.css": "4f54e47b3e8b25d86e49dffccbac9b17a20c8e77",
+    "tutorial.js": "c2e3dc11a0b9608d46026cba005405ac5bacf034"
+  }
+}

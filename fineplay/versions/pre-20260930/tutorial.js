@@ -25,11 +25,11 @@
   clearTimeout(timer);epoch++;waiting=false;closeModal();busy=false;ready=true;owner=true;
   me=role==='genie'?presenter:asker;name=role==='genie'?'まじん係':'はる';draft='';filter='all';search='';order='old';renderRound='';seen.clear();
   game=R.create(presenter,'まじん係（体験）');game=R.join(game,asker,'はる（体験）');game=R.join(game,friend,'あお（体験）');
-  demoApply(presenter,'start',{presenter,mode:'live',scope:'身近なものをあてよう',secretAnswer:'傘'});
+  demoApply(presenter,'start',{presenter,mode:'live',scope:'身近なものをあてよう'});
   if(role==='asker'){demoApply(friend,'ask',{kind:'question',text:'人が作ったもの？'});demoApply(presenter,'answer',{pendingId:game.pending.id,answer:'yes'});}else nextIncoming();
   broadcast();
  }
- const stage=()=>R.done(state)?'体験完了':role==='genie'?(state.pending?.kind==='guess'?'解答を判定する':'6択で答える'):(state.entries.some(e=>e.kind==='guess'&&e.answer==='incorrect')?'もう一度、答えを宣言':remaining().length?'質問して、絞る':'答えを宣言する');
+ const stage=()=>R.done(state)?'体験完了':role==='genie'?(state.pending?.kind==='guess'?'解答を判定する':'5択で答える'):(state.entries.some(e=>e.kind==='guess'&&e.answer==='incorrect')?'もう一度、答えを宣言':remaining().length?'質問して、絞る':'答えを宣言する');
  demoBar=()=>`<section class="demo-bar compact-demo tutorial-bar"><b>${role==='asker'?'質問役':'魔人役'}のチュートリアル</b><a href="home/">紹介に戻る</a><button id="demo-reset">最初から</button></section>`;
  function clap(){
   const e=state.entries.find(e=>e.kind==='question'&&e.asker!==me);if(!e)return '';
@@ -43,12 +43,12 @@
  scene=()=>{
   let action='';const pending=state.pending;
   if(waiting)action='<p class="callout" role="status">練習の相手が応答しています…</p>';
-  else if(role==='genie'&&pending)action=`<div class="answers ${pending.kind==='guess'?'two':'six'}">${(pending.kind==='guess'?['correct','incorrect']:['yes','no','partly','probably','probablyNot','unknown']).map(k=>button('answer-'+k,`<span class="answer-icon">${icon[k]}</span><b>${R.labels[k]}</b>`,k)).join('')}</div>`;
+  else if(role==='genie'&&pending)action=`<div class="answers ${pending.kind==='guess'?'two':''}">${(pending.kind==='guess'?['correct','incorrect']:['yes','no','probably','probablyNot','unknown']).map(k=>button('answer-'+k,`<span class="answer-icon">${icon[k]}</span><b>${R.labels[k]}</b>`,k)).join('')}</div>`;
   else if(role==='asker'){
    const left=remaining();action=`${left.length?`<form id="question-form"><label for="tutorial-question">練習用の質問を、選んで送る</label><select id="tutorial-question">${left.map(([q])=>`<option value="${esc(q)}">${esc(q)}</option>`).join('')}</select><button id="ask" class="primary wide" type="submit">この質問をする →</button></form>`:'<p class="callout">手がかりがそろいました。答えを宣言してみよう。</p>'}<button id="guess" type="button" class="dark wide">答えがわかった</button><details class="tutorial-hint"><summary>答えのヒント</summary><p>雨の日に開いて使う「傘」です。「傘」か「かさ」と入力して宣言できます。</p></details>`;
   }
   const incorrect=state.entries.at(-1)?.answer==='incorrect';
-  return `<section class="panel scene fp-scene tutorial-scene"><div class="fp-turn" role="status">${face}<div><strong>${stage()}</strong><span class="fp-note">${role==='genie'?'あなたは答える人。お題は「傘」。':'あなたは当てる人。まずは一問、聞いてみよう。'}</span></div></div><p class="tutorial-contract">練習の相手は台本で自動進行します。<b>本番では友達が答えます。</b></p>${card()}${incorrect?'<p class="callout">この練習のお題は「傘」。もう一度、解答を試せます。</p>':''}${action}${clap()}<p class="small tutorial-real">${role==='asker'?'本番は声で自由に質問。質問メモは任意です。':'本番も回答はこの6択。わかった人の解答を、最後に正誤判定します。'} 質問と回答は「履歴 ↓」で見返せます。</p></section>`;
+  return `<section class="panel scene fp-scene tutorial-scene"><div class="fp-turn" role="status">${face}<div><strong>${stage()}</strong><span class="fp-note">${role==='genie'?'あなたは答える人。お題は「傘」。':'あなたは当てる人。まずは一問、聞いてみよう。'}</span></div></div><p class="tutorial-contract">練習の相手は台本で自動進行します。<b>本番では友達が答えます。</b></p>${card()}${incorrect?'<p class="callout">この練習のお題は「傘」。もう一度、解答を試せます。</p>':''}${action}${clap()}<p class="small tutorial-real">${role==='asker'?'本番は声で自由に質問。質問メモは任意です。':'本番も回答はこの5択。わかった人の解答を、最後に正誤判定します。'} 質問と回答は「履歴 ↓」で見返せます。</p></section>`;
  };
  result=()=>`<section class="panel result tutorial-result"><div class="eyebrow">TUTORIAL COMPLETE</div><div class="result-magic"><span aria-hidden="true">✦</span><img src="assets/genie-face.png" alt="よろこぶまじん"><span aria-hidden="true">✧</span></div><h2>正解！</h2><div class="answer-reveal">${esc(state.reveal)}</div><p>${state.entries.length}問で答え合わせ。いい質問には、FinePlay。</p><div class="row"><a id="tutorial-play" class="btn primary" href="./">仲間と遊ぶ・部屋をつくる →</a><button id="share" class="quiet">練習の結果をコピー</button></div><p class="small">作成者が「招待URLをコピー」で仲間を誘い、全員そろったら開始。友達の卓には、その人の招待URLから入ります。作成者はPC推奨・タブを開いたままに。</p><div class="row"><a class="btn" href="?demo=1&amp;role=${role==='asker'?'genie':'asker'}">${role==='asker'?'答える側':'質問する側'}も試す →</a><a class="btn quiet" href="home/#play">集合のしかたを見る</a></div></section>`;
  function guess(){
