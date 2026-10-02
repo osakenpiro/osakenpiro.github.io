@@ -157,7 +157,7 @@
   });
  };
  function fitHistory(){
-  const list=document.querySelector('.history-list');if(!list)return;
+  const list=document.querySelector('.history-list');if(!list)return;if(window.FPPresentation){list.style.maxHeight='';return;}
   list.style.maxHeight=innerWidth>760?Math.max(150,innerHeight-list.getBoundingClientRect().top-22)+'px':'';
  }
  let resizeFrame=0;window.addEventListener('resize',()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(fitHistory);});

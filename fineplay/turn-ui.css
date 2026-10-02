@@ -12,7 +12,7 @@ body.turn-ui-040{font-size:15px}
 
 /* One icon carries person, role, current turn and connection. */
 .fp-face{position:relative;display:inline-grid;place-items:center;flex-shrink:0;border-radius:50%;background:#e7eedd;border:2px solid #dbe3cd}
-.fp-face>img{width:100%;height:100%;object-fit:cover;object-position:50% 26%;border-radius:50%}
+.fp-face>img{width:100%;height:100%;object-fit:cover;object-position:center top;border-radius:0;transform:scale(1.18);transform-origin:center top;clip-path:circle(42.3729% at 50% 42.3729%)}
 .fp-face>.fp-mark{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;font-family:Georgia,serif;background:#e4ecd9;color:#6f8a5c}
 .fp-face>.fp-mark.a1{background:#f0e9d8;color:#9c825a}
 .fp-face>.fp-mark.a2{background:#dbe8e1;color:#527565}
