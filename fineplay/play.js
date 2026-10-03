@@ -6,6 +6,7 @@ const demo=new URLSearchParams(location.search).get('demo')==='1';
 const validRoom=s=>/^[a-f0-9-]{36}$/.test(s||'');
 const V=3,P='fineplay:online:v3:',HAND='<img class="hand" src="assets/fineplay-hand.svg" alt="">';
 let room=demo?'':new URLSearchParams(location.hash.slice(1)).get('r')||'',owner=false,me='',name='',token='',peer=null,conn=null,state=null,game=null,credentials={},joinRole='player',channels=new Map(),seen=new Map();
+const stateSenders=new Map(),stateSync=new Map();let stateReceiver=null;
 let ready=false,busy=false,connecting=false,retryTimer=null,connectTimer=null,commandTimer=null,inflight=null,lastSeen=0,attempts=0,draft='',status='待機中',error='',filter='all',search='',order='old',renderRound='',renderCount=0,newHistory=false;
 function on(id,fn){const e=$('#'+id);if(e)e.onclick=fn;}
 function toast(t){$('#toast').textContent=t;$('#toast').hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').hidden=true,5000);}
@@ -13,18 +14,29 @@ function modal(html){$('#modal').innerHTML=html;$('#modal').showModal();on('moda
 function closeModal(){if($('#modal').open)$('#modal').close();}
 function load(k){try{return JSON.parse(sessionStorage.getItem(P+k)||'null');}catch{return null;}}
 function persist(){if(demo)return;try{if(owner&&game)sessionStorage.setItem(P+'owner:'+room,JSON.stringify({game,credentials,name,me}));else if(room&&token)sessionStorage.setItem(P+'guest:'+room,JSON.stringify({name,token,role:joinRole}));}catch{toast('このブラウザでは復帰用の保存ができません。タブを開いたまま遊んでください。');}}
-function sendData(c,m){try{if(c?.open)c.send(m);}catch{}}
+function sendRaw(c,m){try{if(!c?.open)return false;c.send(m);return true;}catch{return false;}}
+function sendData(c,m){if(m?.type==='state'){const sender=stateSenders.get(c);if(sender){sender.offer(m.state);return true;}return false;}return sendRaw(c,m);}
+function synchronizationBlocked(){return owner&&[...stateSync.values()].some(s=>s.status==='failed');}
+function paintSynchronization(){
+ for(const line of document.querySelectorAll('[data-state-sync]'))line.remove();
+ const stale=[...stateSync].filter(([c,s])=>c.open&&s.status!=='ok');
+ const old=$('#state-sync-notice');old?.remove();if(owner&&stale.length){const note=document.createElement('section');note.id='state-sync-notice';note.className='error';note.setAttribute('role','status');const failed=stale.some(([,s])=>s.status==='failed');note.textContent=failed?'接続はありますが、参加者の状態同期が止まっています。進行を止めて再送してください。':'参加者へ状態を同期中';if(failed){const button=document.createElement('button');button.id='state-sync-resend';button.textContent='状態を再送';button.onclick=()=>{for(const [c,s]of stale){const id=[...channels].find(([,channel])=>channel===c)?.[0];if(id)stateSenders.get(c)?.resync(R.view(game,id),true);}};note.append(' ',button);}$('.fp-top')?.after(note);if(!note.isConnected)$('.top')?.after(note);if(!note.isConnected)$('#main')?.prepend(note);}
+ if(owner&&state)for(const [i,p]of state.players.entries()){const channel=channels.get(p.id),sync=stateSync.get(channel);if(p.online&&sync&&sync.status!=='ok'){const member=document.querySelectorAll('.roster>.member')[i];if(member){const line=document.createElement('small');line.dataset.stateSync='1';line.textContent=sync.status==='failed'?'状態同期に失敗':'状態同期中';member.append(line);}}}
+ if(!demo&&!owner&&!ready&&stateReceiver&&stateReceiver.status!=='ok'){const dot=$('.online-dot');dot?.classList.remove('on');}
+}
+function guestSyncStatus(s){if(s.status==='ok')return;ready=false;busy=false;status=s.status==='failed'?'接続あり・状態同期に失敗':'状態を同期中';error=s.status==='failed'?'接続はありますが、状態がそろっていません。再送を待つか、再接続してください。':'';render();}
+function acceptSyncedState(next,fresh=true){clearTimeout(connectTimer);state=next;me=state.you;ready=fresh;connecting=false;attempts=0;error='';status=fresh?'オンライン':'状態を同期中';lastSeen=Date.now();persist();render();}
 function broadcast(){persist();state=R.view(game,me);render();if(!demo)for(const [id,c] of channels)sendData(c,{type:'state',state:R.view(game,id)});}
 function processCommand(actor,a,c){
  if(!a||typeof a.id!=='string'||a.id.length>80)return;
  const key=actor+':'+a.id;if(seen.has(key)){if(c){sendData(c,seen.get(key));sendData(c,{type:'state',state:R.view(game,actor)});}return;}
- let ack;try{game=R.apply(game,actor,a);ack={type:'ack',id:a.id,ok:true};}catch(e){ack={type:'ack',id:a.id,ok:false,error:e.message};}
+ let ack;try{if(synchronizationBlocked())throw new Error("状態同期が止まっています。作成者の再送を待ってください。");game=R.apply(game,actor,a);ack={type:'ack',id:a.id,ok:true};}catch(e){ack={type:'ack',id:a.id,ok:false,error:e.message};}
  seen.set(key,ack);if(seen.size>1500)seen.delete(seen.keys().next().value);
  if(c)sendData(c,ack);else{busy=false;if(ack.ok){if(a.type==='ask')draft='';closeModal();}else toast(ack.error);}
  if(ack.ok)broadcast();else if(!c)render();
 }
 function send(type,extra={}){
- if(!ready||busy||!state)return;const a={...extra,type,id:uid(),roundId:state.roundId};
+ if(!ready||busy||!state)return;if(synchronizationBlocked()){toast('状態同期が止まっています。進行を止めて状態を再送してください。');return;}const a={...extra,type,id:uid(),roundId:state.roundId};
  if(demo||owner){processCommand(me,a,null);return;}
  busy=true;inflight={id:a.id,type};sendData(conn,{type:'command',action:a});render();clearTimeout(commandTimer);
  commandTimer=setTimeout(()=>{busy=false;inflight=null;toast('操作の確認が届きません。履歴を確認してから再操作してください。');render();},9000);
@@ -32,7 +44,7 @@ function send(type,extra={}){
 function resetPeer(){
  clearTimeout(retryTimer);retryTimer=null;clearTimeout(connectTimer);clearTimeout(commandTimer);inflight=null;busy=false;
  const old=peer;peer=null;conn=null;if(old){old.removeAllListeners();old.destroy();}
- channels.clear();ready=false;connecting=false;
+ for(const sender of stateSenders.values())sender.close();stateSenders.clear();stateSync.clear();stateReceiver?.close();stateReceiver=null;channels.clear();ready=false;connecting=false;
  if(owner&&game)game.players.forEach(p=>p.online=p.id===me);
 }
 function retryLater(){if(demo||owner||retryTimer||attempts>=3)return;retryTimer=setTimeout(()=>{retryTimer=null;if(!ready){attempts++;connect(false);}},3500);}
@@ -58,15 +70,18 @@ async function connect(asOwner){
   if(peer!==current)return;
   if(owner){clearTimeout(connectTimer);connecting=false;ready=true;attempts=0;status='オンライン';error='';broadcast();return;}
   const c=current.connect('fineplay-v3-'+room,{serialization:'json',reliable:true});conn=c;
-  c.on('open',()=>sendData(c,{type:'hello',version:V,token,name,role:joinRole}));
+  stateReceiver=new FPStateWire.Receiver({send:m=>sendRaw(c,m),onState:acceptSyncedState,onStatus:guestSyncStatus,revision:state?.rev??-1});
+  c.on('open',()=>sendData(c,{type:'hello',version:V,wire:FPStateWire.VERSION,token,name,role:joinRole}));
   c.on('data',m=>{
    if(c!==conn||!m||typeof m!=='object')return;
-   if(m.type==='state'&&m.state?.version===V){clearTimeout(connectTimer);state=m.state;me=state.you;ready=true;connecting=false;attempts=0;error='';status='オンライン';lastSeen=Date.now();persist();render();}
-   else if(m.type==='pulse'){lastSeen=Date.now();sendData(c,{type:'pong'});}
+   if(stateReceiver.receive(m))return;
+   if(m.type==='state'){attempts=3;networkError('卓の通信版が異なります。プレイ終了後に全員で再読み込みしてください。');c.close();}
+   else if(m.type==='pulse'){lastSeen=Date.now();if(m.wire!==FPStateWire.VERSION){attempts=3;networkError('卓の通信版が異なります。全員で再読み込みしてください。');c.close();return;}stateReceiver.expect(m.rev);sendData(c,{type:'pong'});}
+   else if(m.type==='sync-error'){stateReceiver.fail(m.reason||'send');}
    else if(m.type==='ack'&&inflight?.id===m.id){const kind=inflight.type;inflight=null;clearTimeout(commandTimer);busy=false;if(m.ok){if(kind==='ask')draft='';closeModal();}else toast(m.error);render();}
    else if(m.type==='rejected'){attempts=3;networkError(String(m.error));c.close();}
   });
-  c.on('close',()=>{if(c===conn)networkError(error||'作成者との接続が切れました。元のタブで復帰を待っています。');});
+  c.on('close',()=>{if(c===conn)stateReceiver?.close();if(c===conn)networkError(error||'作成者との接続が切れました。元のタブで復帰を待っています。');});
   c.on('error',()=>{if(c===conn)networkError('参加者間の通信を確立できませんでした。');});
  });
  if(owner)current.on('connection',acceptConnection);
@@ -78,16 +93,16 @@ function acceptConnection(c){
   try{if(JSON.stringify(m).length>4000){c.close();return;}}catch{return;}
   const now=Date.now();if(now-last>1000){last=now;burst=0;}if(++burst>25){c.close();return;}
   if(!pid){if(m.type!=='hello'||!validRoom(m.token))return;
-   if(m.version!==V){sendData(c,{type:'rejected',error:'アプリの版が異なります。プレイ終了後に全員で再読み込みし、新しい卓に参加してください。'});setTimeout(()=>c.close(),300);return;}
+   if(m.version!==V||m.wire!==FPStateWire.VERSION){sendData(c,{type:'rejected',error:'アプリの版が異なります。プレイ終了後に全員で再読み込みし、新しい卓に参加してください。'});setTimeout(()=>c.close(),300);return;}
    try{if(credentials[m.token]){pid=credentials[m.token];game=R.online(game,pid,true);}else{pid=uid();game=R.join(game,pid,m.name,m.role||'player');credentials[m.token]=pid;}
-    clearTimeout(timer);const old=channels.get(pid);channels.set(pid,c);if(old&&old!==c)old.close();broadcast();
+    clearTimeout(timer);const old=channels.get(pid);channels.set(pid,c);stateSenders.set(c,new FPStateWire.Sender({send:m=>sendRaw(c,m),buffered:()=>c.dataChannel?.bufferedAmount||0,onStatus:s=>{stateSync.set(c,s);render();}}));if(old&&old!==c)old.close();broadcast();
    }catch(e){pid=null;sendData(c,{type:'rejected',error:e.message});setTimeout(()=>c.close(),300);}return;
   }
-  if(channels.get(pid)!==c)return;if(m.type==='command')processCommand(pid,m.action,c);
+  if(channels.get(pid)!==c)return;if(m.type==='state-ack')stateSenders.get(c)?.acknowledge(m);else if(m.type==='state-resync'&&m.wire===FPStateWire.VERSION)stateSenders.get(c)?.resync(R.view(game,pid));else if(m.type==='command')processCommand(pid,m.action,c);
  });
- c.on('close',()=>{clearTimeout(timer);if(pid&&channels.get(pid)===c){channels.delete(pid);game=R.online(game,pid,false);broadcast();}});c.on('error',()=>{});
+ c.on('close',()=>{clearTimeout(timer);stateSenders.get(c)?.close();stateSenders.delete(c);stateSync.delete(c);if(pid&&channels.get(pid)===c){channels.delete(pid);game=R.online(game,pid,false);broadcast();}});c.on('error',()=>{if(pid&&channels.get(pid)===c)stateSenders.get(c)?.fail('send',game.rev);});
 }
-setInterval(()=>{if(demo)return;if(owner&&ready){for(const c of channels.values())sendData(c,{type:'pulse'});}else if(ready&&lastSeen&&Date.now()-lastSeen>20000){networkError('作成者からの応答を待っています。');conn?.close();}},4000);
+setInterval(()=>{if(demo)return;if(owner&&ready){for(const c of channels.values())sendData(c,{type:'pulse',wire:FPStateWire.VERSION,rev:game.rev});}else if(conn?.open&&lastSeen&&Date.now()-lastSeen>20000){networkError('作成者からの応答を待っています。');conn?.close();}},4000);
 window.addEventListener('online',()=>{attempts=0;if(!demo&&!ready&&room&&name)connect(owner);});
 window.addEventListener('pagehide',persist);
 window.addEventListener('beforeunload',e=>{if(!demo&&owner&&ready&&channels.size){e.preventDefault();e.returnValue='';}});
@@ -139,7 +154,7 @@ function render(){
  bind();bindSettings();if($('#initial-answer-row')&&$('#presenter')){$('#initial-answer-row').hidden=$('#presenter').value!==me;$('#initial-answer').disabled=$('#presenter').value!==me;}
  const newList=$('.history-list');if(newList){if(!sameRound||nearEnd){newList.scrollTop=order==='old'?newList.scrollHeight:0;}else newList.scrollTop=scroll;}
  if(focused&&$('#'+focused)&&['INPUT','TEXTAREA'].includes($('#'+focused).tagName)){const el=$('#'+focused);el.focus({preventScroll:true});try{el.setSelectionRange(selection,selection);}catch{}}
- renderRound=state?.roundId||'';renderCount=state?.entries.length||0;
+ renderRound=state?.roundId||'';renderCount=state?.entries.length||0;queueMicrotask(paintSynchronization);
 }
 function inviteURL(){return location.origin+location.pathname+'#r='+room;}
 async function copy(text,title='コピーしてDiscordへ'){
