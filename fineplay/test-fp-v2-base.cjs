@@ -106,43 +106,22 @@ const Legacy=(()=>{
  const eligible=(s,id)=>participant(s,id)&&id!==s.presenter;
  const see=(s,id,e)=>unlocked(s,id)&&(done(s)||s.playMode!=='competitive'||id===s.presenter||person(s,id)?.role==='spectator'||e.asker===id);
  const cents=n=>Math.round(n*100)/100;
- const FP_RULE='distinct-donors/1',FP_CONTRACT='fineplay-fp/3';
+ const FP_RULE='distinct-donors/1',FP_CONTRACT='fineplay-fp/2';
  const automatic=s=>s.fpRuleVersion===FP_RULE;
- // Membership is independent of temporary connectivity. Old entries retain
- // their original topic roster; new questions freeze formal members at ask time.
- const fpRoster=(s,e=null)=>e?.fpRoster||s.fpRoster||s.roundPlayers||[];
  const fpPublic=s=>done(s)||(s.mode==='live'&&s.playMode==='cooperative');
  function fpTarget(s,e=null){return {scope:e?'question':'topic',roundId:s.roundId,rewardId:e?(e.rewardId||e.id):s.roundId,entryId:e?e.id:null,recipientId:e?e.asker:s.presenter};}
  function honors(s,e=null){
-  const target=fpTarget(s,e),roster=fpRoster(s,e),eligibleIds=roster.filter(id=>id!==target.recipientId),ratings=e?e.ratings:s.problemRatings;
+  const target=fpTarget(s,e),roster=s.fpRoster||s.roundPlayers||[],eligibleIds=roster.filter(id=>id!==target.recipientId),ratings=e?e.ratings:s.problemRatings;
   const ballots=Object.entries(ratings||{}).filter(([id,g])=>eligibleIds.includes(id)&&Number.isInteger(g)&&g>=1&&g<=3);
   const donorCount=ballots.length,eligibleDonorCount=eligibleIds.length,normalStars=ballots.reduce((n,[,g])=>n+g,0),superBonus=5*Math.max(0,donorCount-1),ultra=eligibleDonorCount>=2&&donorCount===eligibleDonorCount,ultraBonus=ultra?20:0;
   return {target,donorCount,eligibleDonorCount,normalStars,normalPoints:normalStars,superBonus,ultraBonus,bonusPoints:superBonus+ultraBonus,score:normalStars+superBonus+ultraBonus,super:donorCount>=2,ultra};
  }
  function fpEvents(s){
-  const targets=[],events=[];if(!automatic(s)||!fpPublic(s))return {targets,events};
-  for(const e of [null,...s.entries.filter(e=>e.kind==='question')]){const h=honors(s,e);if(!h.super)continue;const targetRef=targets.length;
-   targets.push({target:h.target,donorCount:h.donorCount,eligibleDonorCount:h.eligibleDonorCount,totalBonus:h.bonusPoints});
-   const add=(stage,threshold,amount)=>events.push({targetRef,stage,threshold,amount});
+  if(!automatic(s)||!fpPublic(s))return [];
+  const events=[];for(const e of [null,...s.entries.filter(e=>e.kind==='question')]){const h=honors(s,e),target=h.target;
+   const add=(stage,threshold,amount)=>events.push({id:'fp1:'+JSON.stringify([s.roundId,target.scope,target.rewardId,stage,threshold]),contractVersion:FP_CONTRACT,target,stage,donorCount:h.donorCount,eligibleDonorCount:h.eligibleDonorCount,threshold,amount,totalBonus:h.bonusPoints,reveal:'public'});
    for(let threshold=2;threshold<=h.donorCount;threshold++)add('super',threshold,5);if(h.ultra)add('ultra',h.eligibleDonorCount,20);
-  }return {targets,events};
- }
- function resolveFPEvents(v){
-  must(v&&Array.isArray(v.fpEvents),'FP event projection is unavailable.');
-  if(v.fpContractVersion!==FP_CONTRACT)return cp(v.fpEvents);
-  must(Array.isArray(v.fpEventTargets)&&v.fpEventTargets.length<=251,'FP target dictionary is unavailable.');
-  if(v.locked||!fpPublic(v)){must(v.fpEvents.length===0&&v.fpEventTargets.length===0,'Private FP events must be empty.');return [];}
-  const targets=v.fpEventTargets,keys=new Set();for(const h of targets){const t=h?.target;must(t&&t.roundId===v.roundId&&['question','topic'].includes(t.scope)&&typeof t.rewardId==='string','FP target reference is inconsistent.');
-   must(Number.isInteger(h.donorCount)&&Number.isInteger(h.eligibleDonorCount)&&h.donorCount>=2&&h.donorCount<=h.eligibleDonorCount&&h.eligibleDonorCount<=11,'FP donor counts are inconsistent.');
-   const key=JSON.stringify([t.roundId,t.scope,t.rewardId]);must(!keys.has(key),'Duplicate FP target identity.');keys.add(key);
-   const visible=t.scope==='topic'?v.problem?.honors:v.entries.find(e=>e.id===t.entryId&&e.asker===t.recipientId)?.honors;
-   must(visible&&canonical(visible.target)===canonical(t)&&visible.donorCount===h.donorCount&&visible.eligibleDonorCount===h.eligibleDonorCount&&visible.bonusPoints===h.totalBonus,'FP target reference is unavailable.');
-  }
-  const ids=new Set();return v.fpEvents.map(e=>{must(Number.isInteger(e.targetRef)&&e.targetRef>=0&&e.targetRef<targets.length,'FP event target reference is unavailable.');const h=targets[e.targetRef],target=h.target;
-   must((e.stage==='super'&&Number.isInteger(e.threshold)&&e.threshold>=2&&e.threshold<=h.donorCount&&e.amount===5)||(e.stage==='ultra'&&h.eligibleDonorCount>=2&&h.donorCount===h.eligibleDonorCount&&e.threshold===h.eligibleDonorCount&&e.amount===20),'FP stage is inconsistent.');
-   const id='fp1:'+JSON.stringify([target.roundId,target.scope,target.rewardId,e.stage,e.threshold]);must(!ids.has(id),'Duplicate FP event identity.');ids.add(id);
-   return {id,contractVersion:FP_CONTRACT,target:cp(target),stage:e.stage,donorCount:h.donorCount,eligibleDonorCount:h.eligibleDonorCount,threshold:e.threshold,amount:e.amount,totalBonus:h.totalBonus,reveal:'public'};
-  });
+  }return events;
  }
  function fpVoteInfo(s,e){const h=honors(s,e);return {count:h.donorCount,stars:h.normalStars,score:h.score,normalCount:h.donorCount,superCount:h.super?1:0,ultraCount:h.ultra?1:0,normalStars:h.normalStars,normalPoints:h.normalPoints,superBonus:h.superBonus,ultraBonus:h.ultraBonus,bonusPoints:h.bonusPoints};}
  const slots=[{id:'search',label:'検索',enabled:true,cost:1},{id:'aiHint',label:'AIヒント',enabled:true,cost:1},{id:'attribute',label:'属性のお願い',enabled:true,cost:1},{id:'custom',label:'お助け',enabled:false,cost:1}];
@@ -314,10 +293,10 @@ const Legacy=(()=>{
     }
    }
   }else if(isNew(s)&&(a.type==='vote'||a.type==='voteProblem')){
-   must(s.phase==='playing'||done(s),'開始後にFinePlayを贈れます。');must(automatic(s)?fpRoster(s).includes(actor):participant(s,actor),'このお題の参加者だけが評価できます。');
+   must(s.phase==='playing'||done(s),'開始後にFinePlayを贈れます。');must(automatic(s)?(s.fpRoster||[]).includes(actor):participant(s,actor),'このお題の参加者だけが評価できます。');
    const e=a.type==='vote'?n.entries.find(e=>e.id===a.entryId):null;must(e?e.kind==='question'&&e.asker!==actor&&see(s,actor,e):a.type==='voteProblem'&&actor!==s.presenter,'自分の投稿や未公開の質問には評価できません。');
    let value;if(automatic(s)){
-    must(fpRoster(s,e).includes(actor),'Only target roster participants can give FP.');
+    must((s.fpRoster||[]).includes(actor),'Only topic roster participants can give FP.');
     must(a.super===undefined||a.super===false,'Super is awarded automatically; send normal stars.');
     if(a.stars!==undefined){must(Number.isInteger(a.stars)&&a.stars>=0&&a.stars<=3,'FP stars must be 0 through 3.');value=a.stars;}
     else{const g=a.grade??(a.value?1:0);must(g===0||g===1,'Manual Super is unavailable; send normal stars.');value=g;}
@@ -328,14 +307,14 @@ if(a.stars!==undefined){must(Number.isInteger(a.stars)&&a.stars>=0&&a.stars<=3,'
   }else if(isNew(s)&&a.type==='ask'){
    must(s.phase==='playing'&&eligible(s,actor)&&!s.pending,'質問できる順番を確認してください。');must(s.entries.length<250,'250問に達しました。');must(['question','guess'].includes(a.kind),'質問の種類が不正です。');const text=Legacy.clean(a.text,200,a.kind==='guess');
    if(a.kind==='guess'){const allowed=allowance(n,actor);must(allowed.canGuess,'持ち点か解答回数が足りません。');spend(n,actor,allowed.nextCost);if(n.freeAnswers[actor]>0)n.freeAnswers[actor]--;else n.guessQuotaUsed[actor]=(n.guessQuotaUsed[actor]||0)+1;n.guessUsed[actor]=(n.guessUsed[actor]||0)+1;}
-   n.pending={id:a.id,asker:actor,kind:a.kind,text,n:s.entries.length+1,...(automatic(s)&&a.kind==='question'?{fpRoster:fpRoster(s).filter(id=>participant(s,id))}:{})};
+   n.pending={id:a.id,asker:actor,kind:a.kind,text,n:s.entries.length+1};
   }else if(isNew(s)&&a.type==='applaud'){
    must(done(s)&&a.applauseId===s.applauseId&&eligible(s,actor),'答え合わせの後に出題者へ拍手できます。');must(Number.isInteger(a.count)&&a.count>=0&&a.count<=100,'拍手は1人100回までです。');n.applause[actor]=Math.max(n.applause[actor]||0,a.count);
   }else{
    // Existing rules preserve legacy arithmetic; harmless content actions reuse
    // the existing authority checks. New extensions never bypass those checks.
    const next=Legacy.apply(n,actor,a);Object.assign(n,next);
-   if(a.type==='undo'&&n.pending){const e=s.entries.at(-1);n.pending.rewardId=e.rewardId||e.id;if(e.fpRoster)n.pending.fpRoster=cp(e.fpRoster);}
+   if(a.type==='undo'&&n.pending)n.pending.rewardId=s.entries.at(-1).rewardId||s.entries.at(-1).id;
    if(a.type==='answer'){const e=n.entries.at(-1);if(e){e.answerLabel=e.answer==='personal'?s.rules.customAnswerLabel||labels.personal:labels[e.answer];if(s.pending?.rewardId)e.rewardId=s.pending.rewardId;}}
   }
   syncWallet(n);if(n.finalizedRoundIds.includes(n.roundId)&&['comment','discussion','react'].includes(a.type))saveThread(n);n.actionReceipts[key]=fingerprint;n.rev=s.rev+1;return n;
@@ -345,24 +324,22 @@ if(a.stars!==undefined){must(Number.isInteger(a.stars)&&a.stars>=0&&a.stars<=3,'
  }
  // Archived rows retain aggregates; target identity is supplied by the row and
  // topic, rather than repeated once inside every historical honor object.
- function archivedHonors(s,e){const h=honors(s,e);return {normalStars:h.normalStars,bonusPoints:h.bonusPoints,...(h.eligibleDonorCount!==fpRoster(s).filter(id=>id!==e.asker).length?{eligibleDonorCount:h.eligibleDonorCount}:{})};}
+ function archivedHonors(s,e){const h=honors(s,e);return {normalStars:h.normalStars,bonusPoints:h.bonusPoints};}
  function threadReference(snapshot,source){if(!snapshot)return snapshot;const n={...snapshot};delete n.comments;delete n.discussion;delete n.reactions;n.threadRef={roundId:n.roundId,source};return n;}
  function entryReference(snapshot){if(!snapshot)return snapshot;const n={...snapshot};delete n.entries;n.entriesRef={roundId:n.roundId,source:'history'};return n;}
  // UI consumers can resolve compact public snapshots without another request.
  // This only uses the already privacy-filtered view, never authoritative state.
  function resolveSnapshot(v,snapshot){
   if(!snapshot)return null;const n=cp(snapshot),entryRef=n.entriesRef,threadRef=n.threadRef;
-  if(entryRef){const matches=v.history.filter(h=>h.roundId===entryRef.roundId);must(entryRef.source==='history'&&entryRef.roundId===n.roundId&&matches.length===1&&Array.isArray(matches[0].entries),'Snapshot entry reference is unavailable.');n.entries=cp(matches[0].entries);}
-  if(threadRef){must(threadRef.roundId===n.roundId&&['current','history'].includes(threadRef.source),'Snapshot thread reference is unavailable.');const matches=threadRef.source==='current'?(threadRef.roundId===v.roundId?[v]:[]):v.history.filter(h=>h.roundId===threadRef.roundId);must(matches.length===1,'Snapshot thread reference is unavailable.');const source=matches[0];n.comments=cp(source.comments||[]);n.discussion=cp(source.discussion||[]);n.reactions=cp(source.reactions||[]);}
-  if(automatic(n)&&Array.isArray(n.entries))n.entries=n.entries.map(e=>{if(!e.honors)return e;const h=e.honors,donorCount=e.votes,eligibleDonorCount=h.eligibleDonorCount??n.fpRoster.filter(id=>id!==e.asker).length,superBonus=5*Math.max(0,donorCount-1),ultraBonus=h.bonusPoints-superBonus;return {...e,honors:{target:fpTarget(n,e),donorCount,eligibleDonorCount,normalStars:h.normalStars,normalPoints:h.normalStars,superBonus,ultraBonus,bonusPoints:h.bonusPoints,score:h.normalStars+h.bonusPoints,super:donorCount>=2,ultra:eligibleDonorCount>=2&&donorCount===eligibleDonorCount}};});
-  if(Array.isArray(n.entries))n.entries=n.entries.map(e=>{let answerLabel=e.answerLabel||labels[e.answer];if(e.answerLabelRef!==undefined){must(Number.isInteger(e.answerLabelRef)&&Array.isArray(n.answerLabels)&&typeof n.answerLabels[e.answerLabelRef]==='string','Snapshot answer label reference is unavailable.');answerLabel=n.answerLabels[e.answerLabelRef];}const row={...e,answerLabel};delete row.answerLabelRef;return row;});delete n.answerLabels;delete n.entriesRef;delete n.threadRef;return n;
+  if(entryRef){const h=v.history.find(h=>h.roundId===entryRef.roundId);must(h&&Array.isArray(h.entries),'Snapshot entry reference is unavailable.');n.entries=cp(h.entries);}
+  if(threadRef){const source=threadRef.source==='current'&&threadRef.roundId===v.roundId?v:v.history.find(h=>h.roundId===threadRef.roundId);must(source,'Snapshot thread reference is unavailable.');n.comments=cp(source.comments||[]);n.discussion=cp(source.discussion||[]);n.reactions=cp(source.reactions||[]);}
+  if(automatic(n)&&Array.isArray(n.entries))n.entries=n.entries.map(e=>{if(!e.honors)return e;const h=e.honors,donorCount=e.votes,eligibleDonorCount=n.fpRoster.filter(id=>id!==e.asker).length,superBonus=5*Math.max(0,donorCount-1),ultraBonus=h.bonusPoints-superBonus;return {...e,honors:{target:fpTarget(n,e),donorCount,eligibleDonorCount,normalStars:h.normalStars,normalPoints:h.normalStars,superBonus,ultraBonus,bonusPoints:h.bonusPoints,score:h.normalStars+h.bonusPoints,super:donorCount>=2,ultra:eligibleDonorCount>=2&&donorCount===eligibleDonorCount}};});
+  if(Array.isArray(n.entries))n.entries=n.entries.map(e=>({...e,answerLabel:e.answerLabel||labels[e.answer]}));delete n.entriesRef;delete n.threadRef;return n;
  }
- function publicSnapshot(h){if(!h)return null;const n=cp(h);if(automatic(h))n.answerLabels=[];const labelRef=label=>{let index=n.answerLabels.indexOf(label);if(index<0){index=n.answerLabels.length;n.answerLabels.push(label);}return index;};n.players=n.players.map(p=>{const q={...p};delete q.balance;return q;});n.entries=n.entries?.map(e=>({id:e.id,...(e.rewardId?{rewardId:e.rewardId}:{}),n:e.n,asker:e.asker,kind:e.kind,text:e.text,answer:e.answer,...(automatic(h)?(e.answer==='personal'?{answerLabelRef:labelRef(e.answerLabel??labels.personal)}:{}):{answerLabel:e.answerLabel}),votes:Object.keys(e.ratings||{}).length,grade:automatic(h)?(e.kind==='question'?(honors(h,e).super?2:honors(h,e).donorCount?1:0):0):h.rulesSchema!==2?Math.max(0,...Object.values(e.ratings||{})):legacyGrade(e.ratings),...(automatic(h)?{honors:e.kind==='question'?archivedHonors(h,e):null}:{})}));return n;}
+ function publicSnapshot(h){if(!h)return null;const n=cp(h);n.players=n.players.map(p=>{const q={...p};delete q.balance;return q;});n.entries=n.entries?.map(e=>({id:e.id,...(e.rewardId?{rewardId:e.rewardId}:{}),n:e.n,asker:e.asker,kind:e.kind,text:e.text,answer:e.answer,...(automatic(h)&&e.answer!=='personal'?{}:{answerLabel:e.answerLabel}),votes:Object.keys(e.ratings||{}).length,grade:automatic(h)?(e.kind==='question'?(honors(h,e).super?2:honors(h,e).donorCount?1:0):0):h.rulesSchema!==2?Math.max(0,...Object.values(e.ratings||{})):legacyGrade(e.ratings),...(automatic(h)?{honors:e.kind==='question'?archivedHonors(h,e):null}:{})}));return n;}
  function reactionView(reactions,viewer,visible){const groups=new Map();for(const x of reactions){if(x.entryId!==null&&!visible.has(x.entryId))continue;const k=(x.entryId||'problem')+':'+x.reaction;if(!groups.has(k))groups.set(k,{entryId:x.entryId,reaction:x.reaction,count:0,mine:false});const g=groups.get(k);g.count++;if(x.actor===viewer)g.mine=true;}return [...groups.values()];}
  function view(input,viewer){
   const s=migrate(input),v=Legacy.view(s,viewer),locked=!unlocked(s,viewer),hidden=s.mode==='sealed'&&!done(s);v.rulesSchema=s.rulesSchema;v.finalized=s.finalizedRoundIds.includes(s.roundId);v.canFinalize=!v.finalized&&done(s)&&(viewer===s.owner||viewer===s.presenter);
-  // The question roster is host-only metadata, not a new public pending field.
-  if(v.pending&&!v.pending.private)delete v.pending.fpRoster;
   // Replace legacy derived fields; never spread authoritative state into view.
   if(!isNew(s)&&v.finalized&&v.scoreTotals?.scope==='confirmed')v.scoreTotals={scope:'confirmed',fromRound:s.completedScores.fromRound,players:s.players.filter(p=>p.role!=='spectator').map(p=>({id:p.id,total:s.completedScores.totals[p.id]||0}))};
   if(isNew(s)){
@@ -379,7 +356,7 @@ if(a.stars!==undefined){must(Number.isInteger(a.stars)&&a.stars>=0&&a.stars<=3,'
    const h=honors(s);v.problem={...v.problem,myStars:s.problemRatings[viewer]||0,mySuper:false,grade:publicFP?(h.super?2:h.donorCount?1:0):null,votes:publicFP?h.donorCount:null,stars:publicFP?h.normalStars:null,score:publicFP?h.score:null,honors:publicFP?h:null};
    if(!publicFP){delete v.myStats;v.combos=[];}
   }
-  v.fpContractVersion=FP_CONTRACT;v.fpRuleVersion=s.fpRuleVersion||null;const fp=locked?{targets:[],events:[]}:fpEvents(s);v.fpEventTargets=fp.targets;v.fpEvents=fp.events;
+  v.fpContractVersion=FP_CONTRACT;v.fpRuleVersion=s.fpRuleVersion||null;v.fpEvents=locked?[]:fpEvents(s);
   if(locked){v.allowance={used:0,nextCost:0,freeLeft:0,grantedFree:0,left:null,balance:null,canGuess:false};delete v.myStats;}
   // All player stats shared in result/history omit private wallet balances.
   if(v.result)v.result.players=v.result.players.map(p=>{const x={...p};delete x.balance;return x;});
@@ -409,6 +386,6 @@ if(a.stars!==undefined){must(Number.isInteger(a.stars)&&a.stars>=0&&a.stars<=3,'
  }
  function create(owner,name){const s=migrate(Legacy.create(owner,name));s.rulesSchema=2;s.rules=rules();s.awardCoverage={fromRound:1,partial:false};return s;}
  const join=(s,...args)=>migrate(Legacy.join(migrate(s),...args)),online=(s,...args)=>migrate(Legacy.online(migrate(s),...args));
- return {resolveFPEvents,resolveSnapshot,labels,cp,clean:Legacy.clean,done,count,summary,create,join,online,apply,view,questionText:Legacy.questionText,defaults,allowance,guessCost,guessPenalty:(s,used)=>isNew(s)?0:Legacy.guessPenalty(s,used),rules,migrate,contractVersion:'fineplay-whole-version/1.3.2',fpContractVersion:FP_CONTRACT};
+ return {resolveSnapshot,labels,cp,clean:Legacy.clean,done,count,summary,create,join,online,apply,view,questionText:Legacy.questionText,defaults,allowance,guessCost,guessPenalty:(s,used)=>isNew(s)?0:Legacy.guessPenalty(s,used),rules,migrate,contractVersion:'fineplay-whole-version/1.3.1',fpContractVersion:FP_CONTRACT};
 
 });

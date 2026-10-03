@@ -106,45 +106,6 @@ const Legacy=(()=>{
  const eligible=(s,id)=>participant(s,id)&&id!==s.presenter;
  const see=(s,id,e)=>unlocked(s,id)&&(done(s)||s.playMode!=='competitive'||id===s.presenter||person(s,id)?.role==='spectator'||e.asker===id);
  const cents=n=>Math.round(n*100)/100;
- const FP_RULE='distinct-donors/1',FP_CONTRACT='fineplay-fp/3';
- const automatic=s=>s.fpRuleVersion===FP_RULE;
- // Membership is independent of temporary connectivity. Old entries retain
- // their original topic roster; new questions freeze formal members at ask time.
- const fpRoster=(s,e=null)=>e?.fpRoster||s.fpRoster||s.roundPlayers||[];
- const fpPublic=s=>done(s)||(s.mode==='live'&&s.playMode==='cooperative');
- function fpTarget(s,e=null){return {scope:e?'question':'topic',roundId:s.roundId,rewardId:e?(e.rewardId||e.id):s.roundId,entryId:e?e.id:null,recipientId:e?e.asker:s.presenter};}
- function honors(s,e=null){
-  const target=fpTarget(s,e),roster=fpRoster(s,e),eligibleIds=roster.filter(id=>id!==target.recipientId),ratings=e?e.ratings:s.problemRatings;
-  const ballots=Object.entries(ratings||{}).filter(([id,g])=>eligibleIds.includes(id)&&Number.isInteger(g)&&g>=1&&g<=3);
-  const donorCount=ballots.length,eligibleDonorCount=eligibleIds.length,normalStars=ballots.reduce((n,[,g])=>n+g,0),superBonus=5*Math.max(0,donorCount-1),ultra=eligibleDonorCount>=2&&donorCount===eligibleDonorCount,ultraBonus=ultra?20:0;
-  return {target,donorCount,eligibleDonorCount,normalStars,normalPoints:normalStars,superBonus,ultraBonus,bonusPoints:superBonus+ultraBonus,score:normalStars+superBonus+ultraBonus,super:donorCount>=2,ultra};
- }
- function fpEvents(s){
-  const targets=[],events=[];if(!automatic(s)||!fpPublic(s))return {targets,events};
-  for(const e of [null,...s.entries.filter(e=>e.kind==='question')]){const h=honors(s,e);if(!h.super)continue;const targetRef=targets.length;
-   targets.push({target:h.target,donorCount:h.donorCount,eligibleDonorCount:h.eligibleDonorCount,totalBonus:h.bonusPoints});
-   const add=(stage,threshold,amount)=>events.push({targetRef,stage,threshold,amount});
-   for(let threshold=2;threshold<=h.donorCount;threshold++)add('super',threshold,5);if(h.ultra)add('ultra',h.eligibleDonorCount,20);
-  }return {targets,events};
- }
- function resolveFPEvents(v){
-  must(v&&Array.isArray(v.fpEvents),'FP event projection is unavailable.');
-  if(v.fpContractVersion!==FP_CONTRACT)return cp(v.fpEvents);
-  must(Array.isArray(v.fpEventTargets)&&v.fpEventTargets.length<=251,'FP target dictionary is unavailable.');
-  if(v.locked||!fpPublic(v)){must(v.fpEvents.length===0&&v.fpEventTargets.length===0,'Private FP events must be empty.');return [];}
-  const targets=v.fpEventTargets,keys=new Set();for(const h of targets){const t=h?.target;must(t&&t.roundId===v.roundId&&['question','topic'].includes(t.scope)&&typeof t.rewardId==='string','FP target reference is inconsistent.');
-   must(Number.isInteger(h.donorCount)&&Number.isInteger(h.eligibleDonorCount)&&h.donorCount>=2&&h.donorCount<=h.eligibleDonorCount&&h.eligibleDonorCount<=11,'FP donor counts are inconsistent.');
-   const key=JSON.stringify([t.roundId,t.scope,t.rewardId]);must(!keys.has(key),'Duplicate FP target identity.');keys.add(key);
-   const visible=t.scope==='topic'?v.problem?.honors:v.entries.find(e=>e.id===t.entryId&&e.asker===t.recipientId)?.honors;
-   must(visible&&canonical(visible.target)===canonical(t)&&visible.donorCount===h.donorCount&&visible.eligibleDonorCount===h.eligibleDonorCount&&visible.bonusPoints===h.totalBonus,'FP target reference is unavailable.');
-  }
-  const ids=new Set();return v.fpEvents.map(e=>{must(Number.isInteger(e.targetRef)&&e.targetRef>=0&&e.targetRef<targets.length,'FP event target reference is unavailable.');const h=targets[e.targetRef],target=h.target;
-   must((e.stage==='super'&&Number.isInteger(e.threshold)&&e.threshold>=2&&e.threshold<=h.donorCount&&e.amount===5)||(e.stage==='ultra'&&h.eligibleDonorCount>=2&&h.donorCount===h.eligibleDonorCount&&e.threshold===h.eligibleDonorCount&&e.amount===20),'FP stage is inconsistent.');
-   const id='fp1:'+JSON.stringify([target.roundId,target.scope,target.rewardId,e.stage,e.threshold]);must(!ids.has(id),'Duplicate FP event identity.');ids.add(id);
-   return {id,contractVersion:FP_CONTRACT,target:cp(target),stage:e.stage,donorCount:h.donorCount,eligibleDonorCount:h.eligibleDonorCount,threshold:e.threshold,amount:e.amount,totalBonus:h.totalBonus,reveal:'public'};
-  });
- }
- function fpVoteInfo(s,e){const h=honors(s,e);return {count:h.donorCount,stars:h.normalStars,score:h.score,normalCount:h.donorCount,superCount:h.super?1:0,ultraCount:h.ultra?1:0,normalStars:h.normalStars,normalPoints:h.normalPoints,superBonus:h.superBonus,ultraBonus:h.ultraBonus,bonusPoints:h.bonusPoints};}
  const slots=[{id:'search',label:'検索',enabled:true,cost:1},{id:'aiHint',label:'AIヒント',enabled:true,cost:1},{id:'attribute',label:'属性のお願い',enabled:true,cost:1},{id:'custom',label:'お助け',enabled:false,cost:1}];
  const defaults={...Legacy.defaults,correctPoints:15,superPoints:5,freeGuessQuota:3,applausePoints:1,customAnswerLabel:'おれのなかではそう',lifelines:cp(slots)};
  const labels={...Legacy.labels,personal:defaults.customAnswerLabel};
@@ -158,7 +119,7 @@ const Legacy=(()=>{
   r.lifelines=slots.map(def=>{const x=input.lifelines?.find(x=>x.id===def.id)||def;must(typeof x.enabled==='boolean'&&Number.isInteger(x.cost)&&x.cost>=0&&x.cost<=100,'お助けの費用は0〜100の整数です。');return {id:def.id,label:Legacy.clean(x.label,30,true),enabled:x.enabled,cost:x.cost};});
   return r;
  }
- const emptyCategories=()=>({fineplayReceived:{count:0,stars:0,score:0,normalCount:0,superCount:0,ultraCount:0,normalStars:0,normalPoints:0,superBonus:0,ultraBonus:0,bonusPoints:0},applauseReceived:{count:0,score:0},questions:0,guesses:0,correct:0,combos:0,score:0});
+ const emptyCategories=()=>({fineplayReceived:{count:0,stars:0,score:0,normalCount:0,superCount:0},applauseReceived:{count:0,score:0},questions:0,guesses:0,correct:0,combos:0,score:0});
  function addCategories(to,x){for(const k of ['questions','guesses','correct','combos','score'])to[k]=cents((to[k]||0)+(x[k]||0));for(const k of ['fineplayReceived','applauseReceived'])for(const [key,value]of Object.entries(x[k]||{}))to[k][key]=cents((to[k][key]||0)+value);return to;}
  function migrate(input){
   const s=cp(input);must(s&&s.version===3&&Array.isArray(s.players),'保存された部屋の形式を確認してください。');
@@ -180,37 +141,24 @@ const Legacy=(()=>{
  function playerStats(s,p){
   if(!isNew(s))return Legacy.summary(s).players.find(x=>x.id===p.id);
   const es=s.entries.filter(e=>e.asker===p.id),r=s.rules,qs=es.filter(e=>e.kind==='question'),gs=es.filter(e=>e.kind==='guess');
-  const fineplayReceived={count:0,stars:0,score:0,normalCount:0,superCount:0,...(automatic(s)?{ultraCount:0,normalStars:0,normalPoints:0,superBonus:0,ultraBonus:0,bonusPoints:0}:{})};
-  for(const e of qs){const v=automatic(s)?fpVoteInfo(s,e):voteInfo(r,e.ratings);for(const k of Object.keys(fineplayReceived))fineplayReceived[k]+=v[k];}
-  if(p.id===s.presenter){const v=automatic(s)?fpVoteInfo(s,null):voteInfo(r,s.problemRatings);for(const k of Object.keys(fineplayReceived))fineplayReceived[k]+=v[k];}
+  const fineplayReceived={count:0,stars:0,score:0,normalCount:0,superCount:0};
+  for(const e of qs){const v=voteInfo(r,e.ratings);for(const k of Object.keys(fineplayReceived))fineplayReceived[k]+=v[k];}
+  if(p.id===s.presenter){const v=voteInfo(r,s.problemRatings);for(const k of Object.keys(fineplayReceived))fineplayReceived[k]+=v[k];}
   const combos=s.combos.filter(c=>c.asker===p.id).length,correct=gs.filter(e=>e.answer==='correct').length,applause=p.id===s.presenter?Object.values(s.applause).reduce((a,b)=>a+b,0):0;
   const applausePoints=applause*r.applausePoints,score=fineplayReceived.score+combos*r.comboPoints+correct*r.correctPoints+applausePoints;
-  return {id:p.id,name:p.name,presenter:p.id===s.presenter,spectator:!s.roundPlayers.includes(p.id),questions:qs.length,guesses:gs.length,total:es.length,questionVotes:qs.reduce((a,e)=>a+Object.keys(e.ratings||{}).length,0),guessVotes:0,problemVotes:p.id===s.presenter?Object.keys(s.problemRatings).length:0,fineplays:qs.filter(e=>automatic(s)?honors(s,e).donorCount>0:legacyGrade(e.ratings)===1).length+(p.id===s.presenter&&(automatic(s)?honors(s).donorCount>0:legacyGrade(s.problemRatings)===1)?1:0),superFineplays:automatic(s)?fineplayReceived.superCount:qs.filter(e=>legacyGrade(e.ratings)===2).length+(p.id===s.presenter&&legacyGrade(s.problemRatings)===2?1:0),...(automatic(s)?{ultraFineplays:fineplayReceived.ultraCount}:{}),combos,used:s.guessUsed[p.id]||0,correct,guessPenalty:0,score,balance:s.wallets[p.id]?.balance||0,applause,applausePoints,fineplayReceived,applauseReceived:{count:applause,score:applausePoints}};
+  return {id:p.id,name:p.name,presenter:p.id===s.presenter,spectator:!s.roundPlayers.includes(p.id),questions:qs.length,guesses:gs.length,total:es.length,questionVotes:qs.reduce((a,e)=>a+Object.keys(e.ratings||{}).length,0),guessVotes:0,problemVotes:p.id===s.presenter?Object.keys(s.problemRatings).length:0,fineplays:qs.filter(e=>legacyGrade(e.ratings)===1).length+(p.id===s.presenter&&legacyGrade(s.problemRatings)===1?1:0),superFineplays:qs.filter(e=>legacyGrade(e.ratings)===2).length+(p.id===s.presenter&&legacyGrade(s.problemRatings)===2?1:0),combos,used:s.guessUsed[p.id]||0,correct,guessPenalty:0,score,balance:s.wallets[p.id]?.balance||0,applause,applausePoints,fineplayReceived,applauseReceived:{count:applause,score:applausePoints}};
  }
  function count(s){if(!isNew(s))return Legacy.count(s);return {...Legacy.count(s),fp:s.entries.filter(e=>e.kind==='question'&&Object.keys(e.ratings||{}).length>0).length};}
  function achievements(s){
   const awards=[];for(const p of s.players){const x=playerStats(s,p);if(!x||x.spectator)continue;const push=(code,value=1)=>awards.push({playerId:p.id,code,value});
-   if(x.questions)push('firstQuestion');if(x.fineplays)push('fineplay',x.fineplays);if(x.superFineplays)push('superFineplay',x.superFineplays);if(x.ultraFineplays)push('ultraFineplay',x.ultraFineplays);
+   if(x.questions)push('firstQuestion');if(x.fineplays)push('fineplay',x.fineplays);if(x.superFineplays)push('superFineplay',x.superFineplays);
    if(x.correct){push('correctGuess',x.correct);if(count(s).questions<=10)push('tenQuestionsOrFewer');}if(x.applause>=100)push('hundredApplause');
   }return awards;
  }
  function summary(s){return {...(isNew(s)?{counts:count(s),players:s.players.map(p=>playerStats(s,p))}:Legacy.summary(s)),round:s.round,roundId:s.roundId,phase:s.phase,finalized:false,achievements:achievements(s)};}
  function ensureWallet(s,id){if(!own(s.wallets,id))s.wallets[id]={balance:s.rules.initialPoints,spent:0};return s.wallets[id];}
  function credit(s,id,key,value){if(!s.roundPlayers.includes(id))return;const full=id+'|'+s.roundId+'|'+key,old=s.walletCredits[full]||0;if(value>old){ensureWallet(s,id).balance=cents(ensureWallet(s,id).balance+value-old);s.walletCredits[full]=value;}}
- function reconcileWallet(s){
-  const desired={};const want=(id,key,value)=>{if(s.roundPlayers.includes(id)&&value>0)desired[JSON.stringify([id,s.roundId,key])]=cents(value);};
-  if(fpPublic(s)){
-   for(const e of [null,...s.entries.filter(e=>e.kind==='question')]){const h=honors(s,e),key=JSON.stringify([h.target.scope,h.target.rewardId]);want(h.target.recipientId,'normal:'+key,h.normalPoints);want(h.target.recipientId,'bonus:'+key,h.bonusPoints);}
-   for(const c of s.combos){const key=c.entryIds.map(id=>{const e=s.entries.find(e=>e.id===id);return e?.rewardId||id;}).sort();want(c.asker,'combo:'+JSON.stringify(key),s.rules.comboPoints);}
-  }
-  for(const e of s.entries.filter(e=>e.answer==='correct'))want(e.asker,'correct',s.rules.correctPoints);
-  for(const [id,taps]of Object.entries(s.applause))want(s.presenter,'applause:'+JSON.stringify(id),taps*s.rules.applausePoints);
-  const deltas={};for(const key of new Set([...Object.keys(s.walletCredits),...Object.keys(desired)])){const [id]=JSON.parse(key);deltas[id]=cents((deltas[id]||0)+(desired[key]||0)-(s.walletCredits[key]||0));}
-  for(const [id,delta]of Object.entries(deltas)){const w=ensureWallet(s,id),net=cents(w.balance-(w.debt||0)+delta);w.balance=Math.max(0,net);w.debt=Math.max(0,-net);}
-  s.walletCredits=desired;
- }
  function syncWallet(s){if(!isNew(s))return;for(const id of s.roundPlayers)ensureWallet(s,id);
-  if(automatic(s)){reconcileWallet(s);return;}
   // Sealed/private ratings become spendable only after the topic is public.
   if((s.mode==='live'&&s.playMode==='cooperative')||done(s)){
    for(const e of s.entries.filter(e=>e.kind==='question'))for(const [v,g]of Object.entries(e.ratings||{}))credit(s,e.asker,'vote:'+(e.rewardId||e.id)+':'+v,g===5?s.rules.superPoints:g*s.rules.finePoints);
@@ -232,7 +180,7 @@ const Legacy=(()=>{
  }
  function finalize(s){
   if(!done(s)||s.finalizedRoundIds.includes(s.roundId))return;
-  syncWallet(s);const snap={...summary(s),rulesSchema:s.rulesSchema,...(automatic(s)?{fpRuleVersion:s.fpRuleVersion,fpRoster:cp(s.fpRoster),presenter:s.presenter,problemHonors:honors(s)}:{}),finalized:true,cutoffRev:s.rev,scope:s.scope,reveal:s.reveal,playMode:s.playMode,entries:cp(s.entries),comments:cp(s.comments),discussion:cp(s.discussion)};
+  syncWallet(s);const snap={...summary(s),rulesSchema:s.rulesSchema,finalized:true,cutoffRev:s.rev,scope:s.scope,reveal:s.reveal,playMode:s.playMode,entries:cp(s.entries),comments:cp(s.comments),discussion:cp(s.discussion)};
   for(const p of snap.players.filter(p=>!p.spectator)){
    s.completedScores.totals[p.id]=cents((s.completedScores.totals[p.id]||0)+p.score);
    if(isNew(s)){if(!own(s.awardTotals,p.id))s.awardTotals[p.id]=emptyCategories();addCategories(s.awardTotals[p.id],p);}
@@ -252,7 +200,6 @@ const Legacy=(()=>{
   must(a.type!=='deleteHypothesis'&&!(a.type==='hypothesis'&&a.hypothesisId!==undefined),'未提出の仮説は端末内で編集してください。選んだ仮説だけ提出できます。');
   must(!s.finalizedRoundIds.includes(s.roundId)||['start','finalize','role','joinNext','cycleSkip','unlock','comment','discussion','react'].includes(a.type),'このお題は得点確定済みです。拍手・評価の受付は終了しました。');
   must(Object.keys(s.actionReceipts).length<12000||['start','finalize'].includes(a.type),'操作数の上限です。次のお題へ進んでください。');
-  if(automatic(s)&&['ask','undo'].includes(a.type))must(!Object.values(s.actionReceipts).some(receipt=>{const prior=JSON.parse(receipt);return prior.id===a.id&&['ask','undo'].includes(prior.type);}),'Question action IDs must be unique across participants.');
   const presenter=actor===s.presenter,owner=actor===s.owner,n=cp(s);syncWallet(n);
   if(a.type==='finalize'){
    must((owner||presenter)&&done(s),'作成者か出題者が答え合わせ後に確定できます。');finalize(n);
@@ -264,7 +211,7 @@ const Legacy=(()=>{
    if(!n.cycle||n.cycle.status==='complete')n.cycle={id:'cycle:'+a.id,roster:players.map(p=>p.id),completed:[],skipped:[],pending:[],status:'active',roundIds:[],totals:{},order:players.map(p=>p.id)};
    const c=n.cycle;must(c.roster.includes(a.presenter)&&!c.completed.includes(a.presenter)&&!c.skipped.some(x=>x.playerId===a.presenter),'この一巡でまだ出題していない人を選んでください。');
    const r=rules(a.rules),secretAnswer=Legacy.clean(a.secretAnswer??'',200);must(!secretAnswer||actor===a.presenter,'答えを登録できるのは出題者だけです。');must(['live','sealed'].includes(a.mode),'FinePlayの発表を選んでください。');const playMode=a.playMode||'cooperative';must(['cooperative','competitive'].includes(playMode),'協力か対戦を選んでください。');
-   Object.assign(n,{rulesSchema:2,fpRuleVersion:FP_RULE,fpRoster:players.map(p=>p.id),rules:r,round:s.round+1,roundId:a.id,roundPlayers:players.map(p=>p.id),nextPlayers:n.nextPlayers.filter(id=>person(n,id)?.role==='spectator'),presenter:a.presenter,scope:Legacy.clean(a.scope??'',80)||'なんでも',mode:a.mode,playMode,phase:secretAnswer?'playing':'preparing',pending:null,entries:[],secretAnswer,attributes:[],hints:[],publicHelpHints:[],comments:[],combos:[],unlocked:[],guessUsed:{},guessQuotaUsed:{},problemRatings:{},applause:{},applauseId:'',reveal:'',hypotheses:[],freeAnswerRequests:[],lifelineRequests:[],discussion:[],reactions:[],freeAnswers:{},walletCredits:{}});
+   Object.assign(n,{rulesSchema:2,rules:r,round:s.round+1,roundId:a.id,roundPlayers:players.map(p=>p.id),nextPlayers:n.nextPlayers.filter(id=>person(n,id)?.role==='spectator'),presenter:a.presenter,scope:Legacy.clean(a.scope??'',80)||'なんでも',mode:a.mode,playMode,phase:secretAnswer?'playing':'preparing',pending:null,entries:[],secretAnswer,attributes:[],hints:[],publicHelpHints:[],comments:[],combos:[],unlocked:[],guessUsed:{},guessQuotaUsed:{},problemRatings:{},applause:{},applauseId:'',reveal:'',hypotheses:[],freeAnswerRequests:[],lifelineRequests:[],discussion:[],reactions:[],freeAnswers:{},walletCredits:{}});
    // Keep start receipts across one boundary; older commands fail roundId validation.
    n.actionReceipts={};for(const [k,v]of Object.entries(s.actionReceipts))if(JSON.parse(v).type==='start'&&JSON.parse(v).id===s.roundId)n.actionReceipts[k]=v;
    for(const p of players)ensureWallet(n,p.id);
@@ -314,28 +261,21 @@ const Legacy=(()=>{
     }
    }
   }else if(isNew(s)&&(a.type==='vote'||a.type==='voteProblem')){
-   must(s.phase==='playing'||done(s),'開始後にFinePlayを贈れます。');must(automatic(s)?fpRoster(s).includes(actor):participant(s,actor),'このお題の参加者だけが評価できます。');
+   must(s.phase==='playing'||done(s),'開始後にFinePlayを贈れます。');must(participant(s,actor),'このお題の参加者だけが評価できます。');
    const e=a.type==='vote'?n.entries.find(e=>e.id===a.entryId):null;must(e?e.kind==='question'&&e.asker!==actor&&see(s,actor,e):a.type==='voteProblem'&&actor!==s.presenter,'自分の投稿や未公開の質問には評価できません。');
-   let value;if(automatic(s)){
-    must(fpRoster(s,e).includes(actor),'Only target roster participants can give FP.');
-    must(a.super===undefined||a.super===false,'Super is awarded automatically; send normal stars.');
-    if(a.stars!==undefined){must(Number.isInteger(a.stars)&&a.stars>=0&&a.stars<=3,'FP stars must be 0 through 3.');value=a.stars;}
-    else{const g=a.grade??(a.value?1:0);must(g===0||g===1,'Manual Super is unavailable; send normal stars.');value=g;}
-   }else{
-if(a.stars!==undefined){must(Number.isInteger(a.stars)&&a.stars>=0&&a.stars<=3,'FinePlayは0〜3つです。');must(a.super===undefined||typeof a.super==='boolean','Superの設定が不正です。');value=a.super===true?5:a.stars;}else{const g=a.grade??(a.value?1:0);must([0,1,2,5].includes(g),'FinePlayの種類が不正です。');value=g===2||g===5?5:g;}
-   }
+   let value;if(a.stars!==undefined){must(Number.isInteger(a.stars)&&a.stars>=0&&a.stars<=3,'FinePlayは0〜3つです。');must(a.super===undefined||typeof a.super==='boolean','Superの設定が不正です。');value=a.super===true?5:a.stars;}else{const g=a.grade??(a.value?1:0);must([0,1,2,5].includes(g),'FinePlayの種類が不正です。');value=g===2||g===5?5:g;}
    const ratings=e?e.ratings:n.problemRatings;delete ratings[actor];if(value)ratings[actor]=value;
   }else if(isNew(s)&&a.type==='ask'){
    must(s.phase==='playing'&&eligible(s,actor)&&!s.pending,'質問できる順番を確認してください。');must(s.entries.length<250,'250問に達しました。');must(['question','guess'].includes(a.kind),'質問の種類が不正です。');const text=Legacy.clean(a.text,200,a.kind==='guess');
    if(a.kind==='guess'){const allowed=allowance(n,actor);must(allowed.canGuess,'持ち点か解答回数が足りません。');spend(n,actor,allowed.nextCost);if(n.freeAnswers[actor]>0)n.freeAnswers[actor]--;else n.guessQuotaUsed[actor]=(n.guessQuotaUsed[actor]||0)+1;n.guessUsed[actor]=(n.guessUsed[actor]||0)+1;}
-   n.pending={id:a.id,asker:actor,kind:a.kind,text,n:s.entries.length+1,...(automatic(s)&&a.kind==='question'?{fpRoster:fpRoster(s).filter(id=>participant(s,id))}:{})};
+   n.pending={id:a.id,asker:actor,kind:a.kind,text,n:s.entries.length+1};
   }else if(isNew(s)&&a.type==='applaud'){
    must(done(s)&&a.applauseId===s.applauseId&&eligible(s,actor),'答え合わせの後に出題者へ拍手できます。');must(Number.isInteger(a.count)&&a.count>=0&&a.count<=100,'拍手は1人100回までです。');n.applause[actor]=Math.max(n.applause[actor]||0,a.count);
   }else{
    // Existing rules preserve legacy arithmetic; harmless content actions reuse
    // the existing authority checks. New extensions never bypass those checks.
    const next=Legacy.apply(n,actor,a);Object.assign(n,next);
-   if(a.type==='undo'&&n.pending){const e=s.entries.at(-1);n.pending.rewardId=e.rewardId||e.id;if(e.fpRoster)n.pending.fpRoster=cp(e.fpRoster);}
+   if(a.type==='undo'&&n.pending)n.pending.rewardId=s.entries.at(-1).rewardId||s.entries.at(-1).id;
    if(a.type==='answer'){const e=n.entries.at(-1);if(e){e.answerLabel=e.answer==='personal'?s.rules.customAnswerLabel||labels.personal:labels[e.answer];if(s.pending?.rewardId)e.rewardId=s.pending.rewardId;}}
   }
   syncWallet(n);if(n.finalizedRoundIds.includes(n.roundId)&&['comment','discussion','react'].includes(a.type))saveThread(n);n.actionReceipts[key]=fingerprint;n.rev=s.rev+1;return n;
@@ -343,26 +283,10 @@ if(a.stars!==undefined){must(Number.isInteger(a.stars)&&a.stars>=0&&a.stars<=3,'
  function lifetimeScores(s,viewer){if(!unlocked(s,viewer))return null;const totals=cp(s.completedScores.totals),include=isNew(s)&&((s.playMode==='cooperative'&&s.mode==='live')||done(s));if(include&&!s.finalizedRoundIds.includes(s.roundId))for(const p of summary(s).players.filter(p=>!p.spectator))totals[p.id]=cents((totals[p.id]||0)+p.score);
   return {scope:include?'lifetime-live':'finalized',fromRound:s.completedScores.fromRound,players:s.players.map(p=>({id:p.id,total:totals[p.id]||0}))};
  }
- // Archived rows retain aggregates; target identity is supplied by the row and
- // topic, rather than repeated once inside every historical honor object.
- function archivedHonors(s,e){const h=honors(s,e);return {normalStars:h.normalStars,bonusPoints:h.bonusPoints,...(h.eligibleDonorCount!==fpRoster(s).filter(id=>id!==e.asker).length?{eligibleDonorCount:h.eligibleDonorCount}:{})};}
- function threadReference(snapshot,source){if(!snapshot)return snapshot;const n={...snapshot};delete n.comments;delete n.discussion;delete n.reactions;n.threadRef={roundId:n.roundId,source};return n;}
- function entryReference(snapshot){if(!snapshot)return snapshot;const n={...snapshot};delete n.entries;n.entriesRef={roundId:n.roundId,source:'history'};return n;}
- // UI consumers can resolve compact public snapshots without another request.
- // This only uses the already privacy-filtered view, never authoritative state.
- function resolveSnapshot(v,snapshot){
-  if(!snapshot)return null;const n=cp(snapshot),entryRef=n.entriesRef,threadRef=n.threadRef;
-  if(entryRef){const matches=v.history.filter(h=>h.roundId===entryRef.roundId);must(entryRef.source==='history'&&entryRef.roundId===n.roundId&&matches.length===1&&Array.isArray(matches[0].entries),'Snapshot entry reference is unavailable.');n.entries=cp(matches[0].entries);}
-  if(threadRef){must(threadRef.roundId===n.roundId&&['current','history'].includes(threadRef.source),'Snapshot thread reference is unavailable.');const matches=threadRef.source==='current'?(threadRef.roundId===v.roundId?[v]:[]):v.history.filter(h=>h.roundId===threadRef.roundId);must(matches.length===1,'Snapshot thread reference is unavailable.');const source=matches[0];n.comments=cp(source.comments||[]);n.discussion=cp(source.discussion||[]);n.reactions=cp(source.reactions||[]);}
-  if(automatic(n)&&Array.isArray(n.entries))n.entries=n.entries.map(e=>{if(!e.honors)return e;const h=e.honors,donorCount=e.votes,eligibleDonorCount=h.eligibleDonorCount??n.fpRoster.filter(id=>id!==e.asker).length,superBonus=5*Math.max(0,donorCount-1),ultraBonus=h.bonusPoints-superBonus;return {...e,honors:{target:fpTarget(n,e),donorCount,eligibleDonorCount,normalStars:h.normalStars,normalPoints:h.normalStars,superBonus,ultraBonus,bonusPoints:h.bonusPoints,score:h.normalStars+h.bonusPoints,super:donorCount>=2,ultra:eligibleDonorCount>=2&&donorCount===eligibleDonorCount}};});
-  if(Array.isArray(n.entries))n.entries=n.entries.map(e=>{let answerLabel=e.answerLabel||labels[e.answer];if(e.answerLabelRef!==undefined){must(Number.isInteger(e.answerLabelRef)&&Array.isArray(n.answerLabels)&&typeof n.answerLabels[e.answerLabelRef]==='string','Snapshot answer label reference is unavailable.');answerLabel=n.answerLabels[e.answerLabelRef];}const row={...e,answerLabel};delete row.answerLabelRef;return row;});delete n.answerLabels;delete n.entriesRef;delete n.threadRef;return n;
- }
- function publicSnapshot(h){if(!h)return null;const n=cp(h);if(automatic(h))n.answerLabels=[];const labelRef=label=>{let index=n.answerLabels.indexOf(label);if(index<0){index=n.answerLabels.length;n.answerLabels.push(label);}return index;};n.players=n.players.map(p=>{const q={...p};delete q.balance;return q;});n.entries=n.entries?.map(e=>({id:e.id,...(e.rewardId?{rewardId:e.rewardId}:{}),n:e.n,asker:e.asker,kind:e.kind,text:e.text,answer:e.answer,...(automatic(h)?(e.answer==='personal'?{answerLabelRef:labelRef(e.answerLabel??labels.personal)}:{}):{answerLabel:e.answerLabel}),votes:Object.keys(e.ratings||{}).length,grade:automatic(h)?(e.kind==='question'?(honors(h,e).super?2:honors(h,e).donorCount?1:0):0):h.rulesSchema!==2?Math.max(0,...Object.values(e.ratings||{})):legacyGrade(e.ratings),...(automatic(h)?{honors:e.kind==='question'?archivedHonors(h,e):null}:{})}));return n;}
+ function publicSnapshot(h){if(!h)return null;const n=cp(h);n.players=n.players.map(p=>{const q={...p};delete q.balance;return q;});n.entries=n.entries?.map(e=>({id:e.id,n:e.n,asker:e.asker,kind:e.kind,text:e.text,answer:e.answer,answerLabel:e.answerLabel,votes:Object.keys(e.ratings||{}).length,grade:h.rulesSchema!==2?Math.max(0,...Object.values(e.ratings||{})):legacyGrade(e.ratings)}));return n;}
  function reactionView(reactions,viewer,visible){const groups=new Map();for(const x of reactions){if(x.entryId!==null&&!visible.has(x.entryId))continue;const k=(x.entryId||'problem')+':'+x.reaction;if(!groups.has(k))groups.set(k,{entryId:x.entryId,reaction:x.reaction,count:0,mine:false});const g=groups.get(k);g.count++;if(x.actor===viewer)g.mine=true;}return [...groups.values()];}
  function view(input,viewer){
   const s=migrate(input),v=Legacy.view(s,viewer),locked=!unlocked(s,viewer),hidden=s.mode==='sealed'&&!done(s);v.rulesSchema=s.rulesSchema;v.finalized=s.finalizedRoundIds.includes(s.roundId);v.canFinalize=!v.finalized&&done(s)&&(viewer===s.owner||viewer===s.presenter);
-  // The question roster is host-only metadata, not a new public pending field.
-  if(v.pending&&!v.pending.private)delete v.pending.fpRoster;
   // Replace legacy derived fields; never spread authoritative state into view.
   if(!isNew(s)&&v.finalized&&v.scoreTotals?.scope==='confirmed')v.scoreTotals={scope:'confirmed',fromRound:s.completedScores.fromRound,players:s.players.filter(p=>p.role!=='spectator').map(p=>({id:p.id,total:s.completedScores.totals[p.id]||0}))};
   if(isNew(s)){
@@ -373,13 +297,6 @@ if(a.stars!==undefined){must(Number.isInteger(a.stars)&&a.stars>=0&&a.stars<=3,'
    if(!hidden&&!locked){const mine=playerStats(s,person(s,viewer));v.myStats=mine;}
    if(done(s)&&!locked)v.result=s.finalizedRoundIds.includes(s.roundId)&&s.lastFinalized?.roundId===s.roundId?publicSnapshot(s.lastFinalized):summary(s);
   }
-  if(automatic(s)){
-   const publicFP=fpPublic(s)&&!locked;v.fpRuleVersion=s.fpRuleVersion;
-   v.entries=v.entries.map(e=>{const raw=s.entries.find(x=>x.id===e.id);if(raw.kind!=='question')return {...e,mySuper:false,honors:null};const h=honors(s,raw);return {...e,myStars:raw.ratings?.[viewer]||0,mySuper:false,grade:publicFP?(h.super?2:h.donorCount?1:0):null,votes:publicFP?h.donorCount:null,stars:publicFP?h.normalStars:null,score:publicFP?h.score:null,honors:publicFP?h:null};});
-   const h=honors(s);v.problem={...v.problem,myStars:s.problemRatings[viewer]||0,mySuper:false,grade:publicFP?(h.super?2:h.donorCount?1:0):null,votes:publicFP?h.donorCount:null,stars:publicFP?h.normalStars:null,score:publicFP?h.score:null,honors:publicFP?h:null};
-   if(!publicFP){delete v.myStats;v.combos=[];}
-  }
-  v.fpContractVersion=FP_CONTRACT;v.fpRuleVersion=s.fpRuleVersion||null;const fp=locked?{targets:[],events:[]}:fpEvents(s);v.fpEventTargets=fp.targets;v.fpEvents=fp.events;
   if(locked){v.allowance={used:0,nextCost:0,freeLeft:0,grantedFree:0,left:null,balance:null,canGuess:false};delete v.myStats;}
   // All player stats shared in result/history omit private wallet balances.
   if(v.result)v.result.players=v.result.players.map(p=>{const x={...p};delete x.balance;return x;});
@@ -392,23 +309,14 @@ if(a.stars!==undefined){must(Number.isInteger(a.stars)&&a.stars>=0&&a.stars<=3,'
   if(viewer===s.presenter)v.hypothesisInbox=s.hypotheses.filter(h=>h.submitted).map(cp);
   v.freeAnswerRequests=locked?[]:s.freeAnswerRequests.filter(q=>q.actor===viewer||viewer===s.presenter).map(cp);
   v.lifelineRequests=locked?[]:s.lifelineRequests.filter(q=>q.actor===viewer||viewer===s.presenter).map(cp);
-  if(!locked&&isNew(s))v.wallet={balance:s.wallets[viewer]?.balance??s.rules.initialPoints,spent:s.wallets[viewer]?.spent||0,...(automatic(s)?{debt:s.wallets[viewer]?.debt||0}:{})};
+  if(!locked&&isNew(s))v.wallet={balance:s.wallets[viewer]?.balance??s.rules.initialPoints,spent:s.wallets[viewer]?.spent||0};
   v.lastFinalized=locked?null:publicSnapshot(s.lastFinalized);v.cycleResult=locked?null:cp(s.cycleResult);
   v.cycle=s.cycle?{id:s.cycle.id,roster:cp(s.cycle.roster),completed:cp(s.cycle.completed),skipped:cp(s.cycle.skipped),pending:s.cycle.roster.filter(id=>!s.cycle.completed.includes(id)&&!s.cycle.skipped.some(x=>x.playerId===id)),status:s.cycle.status}:null;
   v.awardTotals=locked?null:cp(s.awardTotals);v.achievementTotals=locked?null:cp(s.achievementTotals);v.awardCoverage=cp(s.awardCoverage);v.lifetimeScoreTotals=lifetimeScores(s,viewer);
-  if(automatic(s)){
-   // Keep all authored threads in one canonical projection. A finalized current
-   // topic's thread is already in v.comments/discussion/reactions. Other topics
-   // remain complete in history. Result/lastFinalized are score summaries with
-   // entries and an explicit thread reference, never extra copies of text.
-   v.history=v.history.map(h=>h.roundId===s.roundId?threadReference(h,'current'):h);
-   if(v.result?.finalized)v.result=entryReference(threadReference(v.result,v.result.roundId===s.roundId?'current':'history'));
-   if(v.lastFinalized)v.lastFinalized=entryReference(threadReference(v.lastFinalized,v.lastFinalized.roundId===s.roundId?'current':'history'));
-  }
   return v;
  }
  function create(owner,name){const s=migrate(Legacy.create(owner,name));s.rulesSchema=2;s.rules=rules();s.awardCoverage={fromRound:1,partial:false};return s;}
  const join=(s,...args)=>migrate(Legacy.join(migrate(s),...args)),online=(s,...args)=>migrate(Legacy.online(migrate(s),...args));
- return {resolveFPEvents,resolveSnapshot,labels,cp,clean:Legacy.clean,done,count,summary,create,join,online,apply,view,questionText:Legacy.questionText,defaults,allowance,guessCost,guessPenalty:(s,used)=>isNew(s)?0:Legacy.guessPenalty(s,used),rules,migrate,contractVersion:'fineplay-whole-version/1.3.2',fpContractVersion:FP_CONTRACT};
+ return {labels,cp,clean:Legacy.clean,done,count,summary,create,join,online,apply,view,questionText:Legacy.questionText,defaults,allowance,guessCost,guessPenalty:(s,used)=>isNew(s)?0:Legacy.guessPenalty(s,used),rules,migrate,contractVersion:'fineplay-whole-version/1.2.1'};
 
 });

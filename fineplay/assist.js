@@ -9,6 +9,7 @@
   const row=r=>({number:Number.isInteger(r.n)?r.n:null,kind:r.kind==='guess'?'guess':'question',text:text(r.text),answer:answerNames[r.answer]||'',...(r.answer==='personal'?{answerLabel:text(r.answerLabel)||'おれのなかではそう'}:{}),by:names.get(r.asker)||'参加者'});
   const topic=(h,current)=>{
    const visible=!v.locked&&(!current||finished(v)||v.playMode!=='competitive');
+   if(!current&&visible)h=R.resolveSnapshot(v,h);
    const entries=visible?list(h.entries):[],ids=new Set(entries.map(r=>r.id));
    return {round:Number.isInteger(h.round)?h.round:null,scope:text(h.scope),phase:current?text(v.phase):text(h.phase)||'revealed',reveal:visible&&(current?finished(v):true)?text(h.reveal):'',hints:list(h.hints).filter(x=>typeof x==='string'),entries:entries.map(row),comments:visible?list(h.comments).filter(c=>ids.has(c.entryId)).map(c=>({question:entries.find(r=>r.id===c.entryId)?.n??null,by:names.get(c.author)||'参加者',quotedEvidence:text(c.text)})):[],discussion:!v.locked?list(h.discussion).map(c=>({by:names.get(c.author)||'参加者',quotedEvidence:text(c.text)})):[]};
   };
