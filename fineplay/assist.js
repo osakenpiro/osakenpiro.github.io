@@ -83,15 +83,15 @@
  function lifelinePanel(){
   if(!eligible())return '';
   const icons={search:'⌕',aiHint:'✧',attribute:'◇',custom:'＋'},r=state.rules||{},a=state.allowance||{},pending=list(state.freeAnswerRequests).some(x=>x.status==='pending');
-  const balance=state.wallet?.balance??a.balance;
+  const balance=state.wallet?.available??state.wallet?.balance??a.balance;
   const buttons=list(r.lifelines).filter(x=>x.enabled).map(x=>`<button type="button" class="assist-lifeline" data-assist-lifeline="${e(x.id)}"${typeof balance==='number'&&x.cost>balance?' disabled':disabled()}><span aria-hidden="true">${icons[x.id]||'＋'}</span>${e(x.label)} <small>−${e(x.cost)}</small></button>`).join('');
-  return `<details id="assist-lifeline-panel"><summary>✧ お助け</summary><div class="assist-wallet"><span>持ち点 <strong>${e(balance??'—')}</strong></span><span>無料解答 <strong>${e(a.freeLeft??'—')}</strong></span><span>追加の権利 <strong>${e(a.grantedFree??0)}</strong></span></div><div class="assist-lifelines">${buttons}</div><div class="assist-actions">${control('assist-free-request',pending?'おねがい中':'おねがい','quiet',!pending&&!(a.grantedFree>0)&&a.freeLeft===0)}</div>${list(state.lifelineRequests).map(x=>`<div class="assist-review"><b>${e(x.label)}</b> <span class="assist-status">${x.status==='resolved'?'回答済み':'お願い中'}</span>${x.text?`<p>${e(x.text)}</p>`:''}${x.public?'<small class="assist-muted">公式公開ヒント</small>':''}<div class="assist-actions">${x.slot==='search'?`<button type="button" data-assist-search="${e(x.id)}" class="quiet">⌕ 検索を開く</button>`:x.slot==='aiHint'?'<button type="button" data-assist-prompt class="quiet">✧ AI予想をコピー</button>':''}</div></div>`).join('')}</details>`;
+  return `<details id="assist-lifeline-panel"><summary>✧ お助け</summary><div class="assist-wallet"><span>利用可能 <strong>${e(balance??'—')}</strong></span><span>無料解答 <strong>${e(a.freeLeft??'—')}</strong></span><span>追加の権利 <strong>${e(a.grantedFree??0)}</strong></span></div><div class="assist-lifelines">${buttons}</div><div class="assist-actions">${control('assist-free-request',pending?'おねがい中':'おねがい','quiet',!pending&&!(a.grantedFree>0)&&a.freeLeft===0)}</div>${list(state.lifelineRequests).map(x=>`<div class="assist-review"><b>${e(x.label)}</b> <span class="assist-status">${({pending:'お願い中',resolved:x.charged?'回答済み':'受取中',cancelled:'取り消し済み',rejected:'断られました',expired:'終了'})[x.status]||x.status}</span>${x.text?`<p>${e(x.text)}</p>`:''}${x.public?'<small class="assist-muted">公式公開ヒント</small>':''}<div class="assist-actions">${x.paymentVersion===2&&x.payment==='reserved'?`<button type="button" data-assist-cancel="${e(x.id)}" class="quiet"${disabled()}>取り消す</button>`:''}${x.slot==='search'?`<button type="button" data-assist-search="${e(x.id)}" class="quiet">⌕ 検索を開く</button>`:x.slot==='aiHint'?'<button type="button" data-assist-prompt class="quiet">✧ AI予想をコピー</button>':''}</div></div>`).join('')}</details>`;
  }
  function inbox(){
   if(!presenter()||state.rulesSchema!==2||state.phase!=='playing')return '';
   const hypotheses=list(state.hypothesisInbox),requests=list(state.lifelineRequests).filter(x=>x.status==='pending'),free=list(state.freeAnswerRequests).filter(x=>x.status==='pending');
   if(!hypotheses.length&&!requests.length&&!free.length)return '';
-  return `<details id="assist-host-panel"><summary>◇ 届いたお願い <span class="assist-muted">出題者だけ</span></summary>${hypotheses.map(h=>`<div class="assist-review"><small>${e(personName(h.actor))}の仮説 · 公式ヒントとは別</small><div class="assist-badges"><span class="assist-badge${statusOf(h)==='wrong'?' is-no':''}">${e(h.text)} <small>${statusOf(h)==='wrong'?'✕ 違う':statusOf(h)==='confirmed'?'出題者確認':'未確認'}</small></span></div>${statusOf(h)==='unreviewed'||statusOf(h)==='submitted'?`<div class="assist-actions"><button type="button" data-assist-review="${e(h.id)}" data-verdict="wrong" class="quiet"${disabled()}>✕ 違う</button><button type="button" data-assist-review="${e(h.id)}" data-verdict="confirmed" class="quiet"${disabled()}>確認した</button></div>`:''}</div>`).join('')}${free.map(x=>`<div class="assist-review"><b>${e(personName(x.actor))}</b> · 無料解答のお願い<div class="assist-actions"><button type="button" data-assist-grant="${e(x.id)}" class="quiet"${disabled()}>しょうがないなあ · 1回</button></div></div>`).join('')}${requests.map(x=>`<div class="assist-review"><b>${e(personName(x.actor))}</b> · ${e(x.label)}<div class="assist-actions"><button type="button" data-assist-resolve="${e(x.id)}" class="quiet"${disabled()}>答える</button></div></div>`).join('')}</details>`;
+  return `<details id="assist-host-panel"><summary>◇ 届いたお願い <span class="assist-muted">出題者だけ</span></summary>${hypotheses.map(h=>`<div class="assist-review"><small>${e(personName(h.actor))}の仮説 · 公式ヒントとは別</small><div class="assist-badges"><span class="assist-badge${statusOf(h)==='wrong'?' is-no':''}">${e(h.text)} <small>${statusOf(h)==='wrong'?'✕ 違う':statusOf(h)==='confirmed'?'出題者確認':'未確認'}</small></span></div>${statusOf(h)==='unreviewed'||statusOf(h)==='submitted'?`<div class="assist-actions"><button type="button" data-assist-review="${e(h.id)}" data-verdict="wrong" class="quiet"${disabled()}>✕ 違う</button><button type="button" data-assist-review="${e(h.id)}" data-verdict="confirmed" class="quiet"${disabled()}>確認した</button></div>`:''}</div>`).join('')}${free.map(x=>`<div class="assist-review"><b>${e(personName(x.actor))}</b> · 無料解答のお願い<div class="assist-actions"><button type="button" data-assist-grant="${e(x.id)}" class="quiet"${disabled()}>しょうがないなあ · 1回</button></div></div>`).join('')}${requests.map(x=>`<div class="assist-review"><b>${e(personName(x.actor))}</b> · ${e(x.label)}<div class="assist-actions"><button type="button" data-assist-resolve="${e(x.id)}" class="quiet"${disabled()}>答える</button><button type="button" data-assist-reject="${e(x.id)}" class="quiet"${disabled()}>断る</button></div></div>`).join('')}</details>`;
  }
  function tools(){return `<section class="panel fp-assist" aria-label="推理の道具"><div class="assist-copybar"><span class="assist-kicker">推理の道具</span><button type="button" id="assist-public-copy" class="quiet">▤ 公開情報</button><button type="button" id="assist-ai-copy" class="quiet">✧ AI予想をコピー</button></div>${hypothesisPanel()}${lifelinePanel()}${inbox()}</section>`;}
  function searchDialog(){
@@ -148,10 +148,22 @@
   onClick('#assist-free-request',()=>{if(eligible()&&canSend()&&state.allowance?.freeLeft===0&&!(state.allowance?.grantedFree>0)&&!list(state.freeAnswerRequests).some(x=>x.status==='pending'))send('requestFreeAnswer');});
   onClick('[data-assist-grant]',node=>{if(presenter()&&canSend())send('grantFreeAnswer',{requestId:node.dataset.assistGrant});});
   onClick('[data-assist-resolve]',node=>resolveDialog(node.dataset.assistResolve));
+  onClick('[data-assist-cancel]',node=>{if(eligible()&&canSend())send('cancelLifeline',{requestId:node.dataset.assistCancel});});
+  onClick('[data-assist-reject]',node=>{if(presenter()&&canSend())send('rejectLifeline',{requestId:node.dataset.assistReject});});
   onClick('[data-assist-search]',searchDialog);onClick('[data-assist-prompt]',()=>preview(true));
   onClick('#assist-personal-answer',()=>{if(presenter()&&canSend()&&state.pending?.kind==='question')send('answer',{pendingId:state.pending.id,answer:'personal'});});
   onClick('#assist-discussion-new',()=>discussionDialog());onClick('[data-assist-stamp]',node=>discussionDialog(stamps[Number(node.dataset.assistStamp)]));
  }
+
+ // A reply is billed only after its actor has actually received this projection.
+ let receiptTimer=null;
+ function scheduleReceipts(){
+  if(receiptTimer!==null)return;
+  const pending=()=>list(state?.lifelineRequests).find(q=>q.actor===me&&q.paymentVersion===2&&q.status==='resolved'&&q.payment==='reserved'&&!q.charged);
+  if(!eligible()||state.phase!=='playing'||!pending())return;
+  receiptTimer=setTimeout(()=>{receiptTimer=null;if(!ready||!state||state.locked||state.phase!=='playing'||!eligible())return;if(busy){scheduleReceipts();return;}const q=pending();if(!q)return;send('receiveLifeline',{requestId:q.id});scheduleReceipts();},250);
+ }
+
  bind=()=>{priorBind();bindAssist();};
  render=()=>{
   const focus=document.activeElement,focusId=focus?.id?.startsWith('assist-')?focus.id:'',start=focus?.selectionStart,end=focus?.selectionEnd;
@@ -164,6 +176,7 @@
   if(scroll!==undefined&&document.querySelector('.assist-hypotheses'))document.querySelector('.assist-hypotheses').scrollTop=scroll;
   const box=document.querySelector('#assist-copy-text');if(box)box.value=box.closest('.assist-dialog')?.dataset.prompt==='true'?predictionPrompt(state):JSON.stringify(publicSnapshot(state),null,2);
   const phase=document.querySelector('#assist-copy-phase');if(phase&&state)phase.textContent=copyPhase();
+  scheduleReceipts();
  };
  window.FPAssist=Object.freeze({publicSnapshot,predictionPrompt,preview});
  render();

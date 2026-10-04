@@ -170,6 +170,9 @@ const Legacy=(()=>{
   // No frozen/deployed schema1 base had hypothesis drafts. This also removes
   // drafts stored by the provisional 1.0/1.1 preview engine on restore.
   s.hypotheses=s.hypotheses.filter(h=>h.submitted===true);
+  // Existing requests were paid at send time. Never reserve or debit them again.
+  for(const q of s.lifelineRequests)if(q.paymentVersion===undefined){q.paymentVersion=1;q.payment='charged';q.charged=true;}
+  if(done(s))releaseLifelines(s);
   for(const [key,receipt]of Object.entries(s.actionReceipts)){const a=JSON.parse(receipt);if(a.type==='deleteHypothesis'||(a.type==='hypothesis'&&!s.hypotheses.some(h=>h.id===a.id&&h.text===a.text)))delete s.actionReceipts[key];}
   if(!s.completedScores){const hs=s.history||[];s.completedScores={fromRound:hs[0]?.round||Math.max(1,s.round),totals:{}};for(const h of hs)for(const p of h.players||[])if(!p.spectator)s.completedScores.totals[p.id]=cents((s.completedScores.totals[p.id]||0)+(p.score||0));}
   if(!s.awardCoverage)s.awardCoverage={fromRound:Math.max(1,s.round+(s.rulesSchema===1?1:0)),partial:s.round>0};
@@ -220,10 +223,18 @@ const Legacy=(()=>{
   for(const e of s.entries.filter(e=>e.answer==='correct'))credit(s,e.asker,'correct',s.rules.correctPoints);
   for(const [v,taps]of Object.entries(s.applause))credit(s,s.presenter,'applause:'+v,taps*s.rules.applausePoints);
  }
- function spend(s,id,cost){const w=ensureWallet(s,id);must(w.balance>=cost,'持ち点が足りません。無料の解答をお願いできます。');w.balance=cents(w.balance-cost);w.spent=cents(w.spent+cost);}
+ const held=q=>q.paymentVersion===2&&q.payment==='reserved'&&q.charged===false&&['pending','resolved'].includes(q.status);
+ function reserved(s,id){return cents(s.lifelineRequests.filter(q=>q.actor===id&&held(q)).reduce((sum,q)=>sum+q.cost,0));}
+ function available(s,id){return Math.max(0,cents((s.wallets[id]?.balance??s.rules.initialPoints)-reserved(s,id)));}
+ function releaseLifelines(s){for(const q of s.lifelineRequests)if(held(q)){q.status='expired';q.payment='released';}}
+ // A funded reservation remains an obligation if a later FP withdrawal reduces
+ // the wallet. Charge the confirmed receipt through the existing debt ledger;
+ // new paid operations still cannot use those held or revoked points.
+ function chargeLifeline(s,q){const w=ensureWallet(s,q.actor),net=cents(w.balance-(w.debt||0)-q.cost);w.balance=Math.max(0,net);w.debt=Math.max(0,-net);w.spent=cents(w.spent+q.cost);q.payment='charged';q.charged=true;q.receivedRev=s.rev+1;}
+ function spend(s,id,cost){const w=ensureWallet(s,id);must(available(s,id)>=cost,'持ち点が足りません。無料の解答をお願いできます。');w.balance=cents(w.balance-cost);w.spent=cents(w.spent+cost);}
  function guessCost(s,attempt){if(!isNew(s))return Legacy.guessCost(s,attempt);return attempt<=s.rules.freeGuessQuota?0:s.rules.guessCost;}
  function allowance(s,id){if(!isNew(s))return {...Legacy.allowance(s,id),grantedFree:0};const used=s.guessUsed[id]||0,quotaUsed=s.guessQuotaUsed[id]||0,grantedFree=s.freeAnswers[id]||0,nextCost=grantedFree>0?0:guessCost(s,quotaUsed+1),balance=s.wallets[id]?.balance??s.rules.initialPoints,left=s.rules.limit==='count'?Math.max(0,s.rules.attempts-used):null;
-  return {used,nextCost,freeLeft:Math.max(0,s.rules.freeGuessQuota-quotaUsed),grantedFree,left,balance,canGuess:eligible(s,id)&&(grantedFree>0||left===null||left>0)&&balance>=nextCost};
+  return {used,nextCost,freeLeft:Math.max(0,s.rules.freeGuessQuota-quotaUsed),grantedFree,left,balance,reserved:reserved(s,id),available:available(s,id),canGuess:eligible(s,id)&&(grantedFree>0||left===null||left>0)&&available(s,id)>=nextCost};
  }
  function cycleAwards(c){const categories=[['fineplayReceived','stars'],['applauseReceived','count'],['questions',null],['correct',null],['combos',null]],out=[];for(const [key,metric]of categories){const value=id=>metric?c.totals[id]?.[key]?.[metric]||0:c.totals[id]?.[key]||0,best=Math.max(0,...c.order.map(value));if(best>0)out.push({code:key,metric:metric||'count',value:best,playerIds:c.order.filter(id=>value(id)===best)});}return out;}
  function finishCycle(s){const c=s.cycle;if(!c||c.status!=='active'||c.roster.some(id=>!c.completed.includes(id)&&!c.skipped.some(x=>x.playerId===id)))return;
@@ -232,7 +243,7 @@ const Legacy=(()=>{
  }
  function finalize(s){
   if(!done(s)||s.finalizedRoundIds.includes(s.roundId))return;
-  syncWallet(s);const snap={...summary(s),rulesSchema:s.rulesSchema,...(automatic(s)?{fpRuleVersion:s.fpRuleVersion,fpRoster:cp(s.fpRoster),presenter:s.presenter,problemHonors:honors(s)}:{}),finalized:true,cutoffRev:s.rev,scope:s.scope,reveal:s.reveal,playMode:s.playMode,entries:cp(s.entries),comments:cp(s.comments),discussion:cp(s.discussion)};
+  releaseLifelines(s);syncWallet(s);const snap={...summary(s),rulesSchema:s.rulesSchema,...(automatic(s)?{fpRuleVersion:s.fpRuleVersion,fpRoster:cp(s.fpRoster),presenter:s.presenter,problemHonors:honors(s)}:{}),finalized:true,cutoffRev:s.rev,scope:s.scope,reveal:s.reveal,playMode:s.playMode,entries:cp(s.entries),comments:cp(s.comments),discussion:cp(s.discussion)};
   for(const p of snap.players.filter(p=>!p.spectator)){
    s.completedScores.totals[p.id]=cents((s.completedScores.totals[p.id]||0)+p.score);
    if(isNew(s)){if(!own(s.awardTotals,p.id))s.awardTotals[p.id]=emptyCategories();addCategories(s.awardTotals[p.id],p);}
@@ -276,7 +287,7 @@ const Legacy=(()=>{
    must((s.phase==='playing'||done(s))&&unlocked(s,actor),'質問開始後にリアクションできます。');must(['clap','heart','thanks'].includes(a.reaction)&&typeof a.value==='boolean','リアクションを選んでください。');
    const entryId=a.entryId??null;if(entryId!==null){const e=s.entries.find(e=>e.id===entryId);must(e&&see(s,actor,e),'この質問にはリアクションできません。');}
    n.reactions=n.reactions.filter(x=>!(x.actor===actor&&x.entryId===entryId&&x.reaction===a.reaction));if(a.value)n.reactions.push({entryId,reaction:a.reaction,actor});
-  }else if(['hypothesis','submitHypotheses','reviewHypothesis','requestFreeAnswer','grantFreeAnswer','useLifeline','resolveLifeline','discussion'].includes(a.type)){
+  }else if(['hypothesis','submitHypotheses','reviewHypothesis','requestFreeAnswer','grantFreeAnswer','useLifeline','resolveLifeline','receiveLifeline','cancelLifeline','rejectLifeline','discussion'].includes(a.type)){
    must(isNew(s),'新しいお助けは次のお題から使えます。');
    if(a.type==='discussion'){
     must((s.phase==='playing'||done(s))&&unlocked(s,actor),'質問開始後にコメントできます。');must(n.discussion.length<300,'コメントは300件までです。');n.discussion.push({id:a.id,author:actor,text:Legacy.clean(a.text,200,true),seq:n.rev+1});
@@ -287,7 +298,15 @@ const Legacy=(()=>{
     }else if(a.type==='grantFreeAnswer'){
      must(presenter,'出題者だけが無料の解答を許可できます。');const q=n.freeAnswerRequests.find(q=>q.id===a.requestId);must(q,'お願いが見つかりません。');if(q.status==='pending'){q.status='granted';n.freeAnswers[q.actor]=(n.freeAnswers[q.actor]||0)+1;}
     }else if(a.type==='resolveLifeline'){
-     must(presenter,'お助けへの回答は出題者が行います。');const q=n.lifelineRequests.find(q=>q.id===a.requestId);must(q&&q.status==='pending','このお助けは回答済みです。');must(a.public===undefined||typeof a.public==='boolean','公開設定が不正です。');q.text=Legacy.clean(a.text,200,true);q.status='resolved';q.public=a.public===true;if(q.public&&!n.publicHelpHints.includes(q.text))n.publicHelpHints.push(q.text);
+     must(presenter,'お助けへの回答は出題者が行います。');const q=n.lifelineRequests.find(q=>q.id===a.requestId);must(q,'要求が見つかりません。');must(a.public===undefined||typeof a.public==='boolean','公開設定が不正です。');const text=Legacy.clean(a.text,200,true),publicReply=a.public===true;
+     if(q.status==='resolved')must(q.text===text&&q.public===publicReply,'返答済みの内容は変更できません。');
+     else{must(q.status==='pending','この道具の要求は終了しています。');q.text=text;q.status='resolved';q.public=publicReply;if(q.public&&!n.publicHelpHints.includes(q.text))n.publicHelpHints.push(q.text);}
+    }else if(a.type==='receiveLifeline'){
+     const q=n.lifelineRequests.find(q=>q.id===a.requestId);must(q&&q.actor===actor&&eligible(s,actor),'自分が要求した返答だけ受け取れます。');must(q.status==='resolved','返答を待ってください。');
+     if(q.paymentVersion===2&&q.payment!=='charged'){must(held(q),'この要求の確保は終了しています。');chargeLifeline(n,q);}
+    }else if(a.type==='cancelLifeline'||a.type==='rejectLifeline'){
+     const q=n.lifelineRequests.find(q=>q.id===a.requestId);must(q,'要求が見つかりません。');must(a.type==='rejectLifeline'?presenter:q.actor===actor&&eligible(s,actor),'要求者の取消、または出題者の拒否が必要です。');const status=a.type==='rejectLifeline'?'rejected':'cancelled';
+     if(q.status!==status){must(q.status==='pending'||held(q),'この要求は終了しています。');q.status=status;if(q.paymentVersion===2)q.payment='released';}
     }else{
      must(eligible(s,actor),'質問者だけがお助け・属性を検討できます。');
      if(a.type==='hypothesis'){
@@ -309,7 +328,7 @@ const Legacy=(()=>{
      }else if(a.type==='requestFreeAnswer'){
       must(!n.freeAnswerRequests.some(q=>q.actor===actor&&q.status==='pending')&&!(n.freeAnswers[actor]>0),'お願い済み、または無料の解答が残っています。');must(n.freeAnswerRequests.length<120,'お願いの上限です。');n.freeAnswerRequests.push({id:a.id,actor,status:'pending'});
      }else if(a.type==='useLifeline'){
-      const slot=s.rules.lifelines.find(x=>x.id===a.slot);must(slot?.enabled,'このお助けは利用できません。');must(n.lifelineRequests.length<120,'お助けの上限です。');spend(n,actor,slot.cost);n.lifelineRequests.push({id:a.id,actor,slot:slot.id,label:slot.label,cost:slot.cost,status:'pending',text:'',public:false});
+      const slot=s.rules.lifelines.find(x=>x.id===a.slot);must(slot?.enabled,'このお助けは利用できません。');must(n.lifelineRequests.length<120,'お助けの上限です。');must(!n.lifelineRequests.some(q=>q.id===a.id),'道具の要求IDが重複しています。');must(available(n,actor)>=slot.cost,'利用可能な持ち点が足りません。');n.lifelineRequests.push({id:a.id,actor,slot:slot.id,label:slot.label,cost:slot.cost,status:'pending',text:'',public:false,paymentVersion:2,payment:'reserved',charged:false});
      }
     }
    }
@@ -338,7 +357,7 @@ if(a.stars!==undefined){must(Number.isInteger(a.stars)&&a.stars>=0&&a.stars<=3,'
    if(a.type==='undo'&&n.pending){const e=s.entries.at(-1);n.pending.rewardId=e.rewardId||e.id;if(e.fpRoster)n.pending.fpRoster=cp(e.fpRoster);}
    if(a.type==='answer'){const e=n.entries.at(-1);if(e){e.answerLabel=e.answer==='personal'?s.rules.customAnswerLabel||labels.personal:labels[e.answer];if(s.pending?.rewardId)e.rewardId=s.pending.rewardId;}}
   }
-  syncWallet(n);if(n.finalizedRoundIds.includes(n.roundId)&&['comment','discussion','react'].includes(a.type))saveThread(n);n.actionReceipts[key]=fingerprint;n.rev=s.rev+1;return n;
+  if(done(n))releaseLifelines(n);syncWallet(n);if(n.finalizedRoundIds.includes(n.roundId)&&['comment','discussion','react'].includes(a.type))saveThread(n);n.actionReceipts[key]=fingerprint;n.rev=s.rev+1;return n;
  }
  function lifetimeScores(s,viewer){if(!unlocked(s,viewer))return null;const totals=cp(s.completedScores.totals),include=isNew(s)&&((s.playMode==='cooperative'&&s.mode==='live')||done(s));if(include&&!s.finalizedRoundIds.includes(s.roundId))for(const p of summary(s).players.filter(p=>!p.spectator))totals[p.id]=cents((totals[p.id]||0)+p.score);
   return {scope:include?'lifetime-live':'finalized',fromRound:s.completedScores.fromRound,players:s.players.map(p=>({id:p.id,total:totals[p.id]||0}))};
@@ -392,7 +411,7 @@ if(a.stars!==undefined){must(Number.isInteger(a.stars)&&a.stars>=0&&a.stars<=3,'
   if(viewer===s.presenter)v.hypothesisInbox=s.hypotheses.filter(h=>h.submitted).map(cp);
   v.freeAnswerRequests=locked?[]:s.freeAnswerRequests.filter(q=>q.actor===viewer||viewer===s.presenter).map(cp);
   v.lifelineRequests=locked?[]:s.lifelineRequests.filter(q=>q.actor===viewer||viewer===s.presenter).map(cp);
-  if(!locked&&isNew(s))v.wallet={balance:s.wallets[viewer]?.balance??s.rules.initialPoints,spent:s.wallets[viewer]?.spent||0,...(automatic(s)?{debt:s.wallets[viewer]?.debt||0}:{})};
+  if(!locked&&isNew(s))v.wallet={balance:s.wallets[viewer]?.balance??s.rules.initialPoints,spent:s.wallets[viewer]?.spent||0,reserved:reserved(s,viewer),available:available(s,viewer),...(automatic(s)?{debt:s.wallets[viewer]?.debt||0}:{})};
   v.lastFinalized=locked?null:publicSnapshot(s.lastFinalized);v.cycleResult=locked?null:cp(s.cycleResult);
   v.cycle=s.cycle?{id:s.cycle.id,roster:cp(s.cycle.roster),completed:cp(s.cycle.completed),skipped:cp(s.cycle.skipped),pending:s.cycle.roster.filter(id=>!s.cycle.completed.includes(id)&&!s.cycle.skipped.some(x=>x.playerId===id)),status:s.cycle.status}:null;
   v.awardTotals=locked?null:cp(s.awardTotals);v.achievementTotals=locked?null:cp(s.achievementTotals);v.awardCoverage=cp(s.awardCoverage);v.lifetimeScoreTotals=lifetimeScores(s,viewer);
