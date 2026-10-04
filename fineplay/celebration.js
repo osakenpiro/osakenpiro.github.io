@@ -179,7 +179,8 @@
    const advanced=new Set(events.filter(e=>!seen.has(e.eventId)).map(e=>targetKey(e.target))),normalEvents=[];
    for(const[key,n]of nextNormals){const previous=normals.get(key);if(previous&&n.stars>previous.stars&&!advanced.has(key))normalEvents.push({eventId:'fp-normal:'+JSON.stringify([n.target.roundId,n.target.scope,n.target.rewardId,v.rev]),target:n.target,visibleEffect:'normal',stars:Math.min(3,n.stars-previous.stars)});}
    const nextApplause=Number.isSafeInteger(v.applause?.total)&&v.applause.total>=0&&v.applause.total<=1200?v.applause.total:0;
-   const applauseEvents=(v.phase==='solved'||v.phase==='passed')&&applauseTotal<100&&nextApplause>=100?[{eventId:'fp-hundred:'+JSON.stringify([v.roundId]),target:v.problem.honors.target,visibleEffect:'hundred'}]:[];
+   const applauseEvents=[];
+   if((v.phase==='solved'||v.phase==='passed')&&nextApplause>applauseTotal){const hundred=applauseTotal<100&&nextApplause>=100;applauseEvents.push({eventId:hundred?'fp-hundred:'+JSON.stringify([v.roundId]):'fp-applause:'+JSON.stringify([v.roundId,v.applauseId,v.rev]),target:v.problem.honors.target,visibleEffect:hundred?'hundred':'normal'});}
    applauseTotal=nextApplause;normals=nextNormals;
    for(const e of [...events,...normalEvents,...applauseEvents]){
     if(seen.has(e.eventId))continue;

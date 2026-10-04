@@ -38,3 +38,6 @@ html.fineplay-layout-active{scroll-behavior:auto}
 .layout-tools:has(.layout-wallet-reserved)>h2{margin-bottom:34px}
 
 [data-button-kind=caution]{border:2px solid #bea25c;background:#f5ecd2;color:#745e28;font-weight:650}[data-button-kind=caution]::before{content:"◉";margin-right:6px}
+
+/* An open choice group must outrank the following sibling button. */
+.layout-preview .attrs-fp-palette[open]{z-index:110}
