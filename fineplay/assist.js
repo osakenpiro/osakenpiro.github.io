@@ -44,6 +44,8 @@
  const statusOf=h=>h.submitted===false?'draft':h.verdict||h.status||'unreviewed';
  const editable=h=>statusOf(h)==='draft';
  const personName=id=>list(state?.players).find(p=>p.id===id)?.name||'参加者';
+ // Delivered reply data stays undisplayed until its receipt charge is confirmed.
+ const replyVisible=q=>q.status==='resolved'&&(q.paymentVersion!==2||(q.payment==='charged'&&q.charged===true));
  function syncDrafts(){
   const key='fineplay:assist:drafts:v1:'+encodeURIComponent(JSON.stringify([typeof room==='string'?room:'',me,state.roundId]));
   if(key!==draftKey){draftKey=key;selected.clear();privateDrafts=[];try{const saved=JSON.parse(localStorage.getItem(key)||'[]');privateDrafts=list(saved).filter(h=>typeof h.id==='string'&&typeof h.text==='string'&&h.text.trim()&&h.text.length<=100).slice(0,24).map(h=>({id:h.id,text:h.text,serverId:typeof h.serverId==='string'?h.serverId:null}));}catch{}}
@@ -85,7 +87,7 @@
   const icons={search:'⌕',aiHint:'✧',attribute:'◇',custom:'＋'},r=state.rules||{},a=state.allowance||{},pending=list(state.freeAnswerRequests).some(x=>x.status==='pending');
   const balance=state.wallet?.available??state.wallet?.balance??a.balance;
   const buttons=list(r.lifelines).filter(x=>x.enabled).map(x=>`<button type="button" class="assist-lifeline" data-assist-lifeline="${e(x.id)}"${typeof balance==='number'&&x.cost>balance?' disabled':disabled()}><span aria-hidden="true">${icons[x.id]||'＋'}</span>${e(x.label)} <small>−${e(x.cost)}</small></button>`).join('');
-  return `<details id="assist-lifeline-panel"><summary>✧ お助け</summary><div class="assist-wallet"><span>利用可能 <strong>${e(balance??'—')}</strong></span><span>無料解答 <strong>${e(a.freeLeft??'—')}</strong></span><span>追加の権利 <strong>${e(a.grantedFree??0)}</strong></span></div><div class="assist-lifelines">${buttons}</div><div class="assist-actions">${control('assist-free-request',pending?'おねがい中':'おねがい','quiet',!pending&&!(a.grantedFree>0)&&a.freeLeft===0)}</div>${list(state.lifelineRequests).map(x=>`<div class="assist-review"><b>${e(x.label)}</b> <span class="assist-status">${({pending:'お願い中',resolved:x.charged?'回答済み':'受取中',cancelled:'取り消し済み',rejected:'断られました',expired:'終了'})[x.status]||x.status}</span>${x.text?`<p>${e(x.text)}</p>`:''}${x.public?'<small class="assist-muted">公式公開ヒント</small>':''}<div class="assist-actions">${x.paymentVersion===2&&x.payment==='reserved'?`<button type="button" data-assist-cancel="${e(x.id)}" class="quiet"${disabled()}>取り消す</button>`:''}${x.slot==='search'?`<button type="button" data-assist-search="${e(x.id)}" class="quiet">⌕ 検索を開く</button>`:x.slot==='aiHint'?'<button type="button" data-assist-prompt class="quiet">✧ AI予想をコピー</button>':''}</div></div>`).join('')}</details>`;
+  return `<details id="assist-lifeline-panel"><summary>✧ お助け</summary><div class="assist-wallet"><span>利用可能 <strong>${e(balance??'—')}</strong></span><span>無料解答 <strong>${e(a.freeLeft??'—')}</strong></span><span>追加の権利 <strong>${e(a.grantedFree??0)}</strong></span></div><div class="assist-lifelines">${buttons}</div><div class="assist-actions">${control('assist-free-request',pending?'おねがい中':'おねがい','quiet',!pending&&!(a.grantedFree>0)&&a.freeLeft===0)}</div>${list(state.lifelineRequests).map(x=>`<div class="assist-review"><b>${e(x.label)}</b> <span class="assist-status">${({pending:'お願い中',resolved:x.charged?'回答済み':'受取中',cancelled:'取り消し済み',rejected:'断られました',expired:'終了'})[x.status]||x.status}</span>${x.text&&replyVisible(x)?`<p>${e(x.text)}</p>`:''}${x.public&&replyVisible(x)?'<small class="assist-muted">公式公開ヒント</small>':''}<div class="assist-actions">${x.status==='pending'&&x.paymentVersion===2&&x.payment==='reserved'?`<button type="button" data-assist-cancel="${e(x.id)}" class="quiet"${disabled()}>取り消す</button>`:''}${x.slot==='search'?`<button type="button" data-assist-search="${e(x.id)}" class="quiet">⌕ 検索を開く</button>`:x.slot==='aiHint'?'<button type="button" data-assist-prompt class="quiet">✧ AI予想をコピー</button>':''}</div></div>`).join('')}</details>`;
  }
  function inbox(){
   if(!presenter()||state.rulesSchema!==2||state.phase!=='playing')return '';
@@ -148,7 +150,7 @@
   onClick('#assist-free-request',()=>{if(eligible()&&canSend()&&state.allowance?.freeLeft===0&&!(state.allowance?.grantedFree>0)&&!list(state.freeAnswerRequests).some(x=>x.status==='pending'))send('requestFreeAnswer');});
   onClick('[data-assist-grant]',node=>{if(presenter()&&canSend())send('grantFreeAnswer',{requestId:node.dataset.assistGrant});});
   onClick('[data-assist-resolve]',node=>resolveDialog(node.dataset.assistResolve));
-  onClick('[data-assist-cancel]',node=>{if(eligible()&&canSend())send('cancelLifeline',{requestId:node.dataset.assistCancel});});
+  onClick('[data-assist-cancel]',node=>{const q=list(state?.lifelineRequests).find(q=>q.id===node.dataset.assistCancel);if(eligible()&&canSend()&&q?.status==='pending')send('cancelLifeline',{requestId:q.id});});
   onClick('[data-assist-reject]',node=>{if(presenter()&&canSend())send('rejectLifeline',{requestId:node.dataset.assistReject});});
   onClick('[data-assist-search]',searchDialog);onClick('[data-assist-prompt]',()=>preview(true));
   onClick('#assist-personal-answer',()=>{if(presenter()&&canSend()&&state.pending?.kind==='question')send('answer',{pendingId:state.pending.id,answer:'personal'});});
@@ -161,7 +163,7 @@
   if(receiptTimer!==null)return;
   const pending=()=>list(state?.lifelineRequests).find(q=>q.actor===me&&q.paymentVersion===2&&q.status==='resolved'&&q.payment==='reserved'&&!q.charged);
   if(!eligible()||state.phase!=='playing'||!pending())return;
-  receiptTimer=setTimeout(()=>{receiptTimer=null;if(!ready||!state||state.locked||state.phase!=='playing'||!eligible())return;if(busy){scheduleReceipts();return;}const q=pending();if(!q)return;send('receiveLifeline',{requestId:q.id});scheduleReceipts();},250);
+  receiptTimer=setTimeout(()=>{receiptTimer=null;if(!ready||!state||state.locked||state.phase!=='playing'||!eligible())return;if(busy){scheduleReceipts();return;}const q=pending();if(!q)return;send('receiveLifeline',{requestId:q.id,text:q.text,public:q.public});scheduleReceipts();},250);
  }
 
  bind=()=>{priorBind();bindAssist();};

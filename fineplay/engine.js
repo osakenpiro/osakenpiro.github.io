@@ -172,6 +172,12 @@ const Legacy=(()=>{
   s.hypotheses=s.hypotheses.filter(h=>h.submitted===true);
   // Existing requests were paid at send time. Never reserve or debit them again.
   for(const q of s.lifelineRequests)if(q.paymentVersion===undefined){q.paymentVersion=1;q.payment='charged';q.charged=true;}
+  // Earlier receipt billing exposed public replies before requester receipt.
+  // Preserve paid/legacy hints, but withdraw unpaid offers before projection.
+  const unpaidHints=new Set(s.lifelineRequests.filter(q=>q.paymentVersion===2&&!q.charged&&q.public).map(q=>q.text));
+  const paidHints=new Set(s.lifelineRequests.filter(q=>q.charged&&q.public&&q.status==='resolved').map(q=>q.text));
+  s.publicHelpHints=s.publicHelpHints.filter(h=>!unpaidHints.has(h)||paidHints.has(h));
+  for(const q of s.lifelineRequests)if(q.paymentVersion===2&&q.payment==='released'){q.text='';q.public=false;}
   if(done(s))releaseLifelines(s);
   for(const [key,receipt]of Object.entries(s.actionReceipts)){const a=JSON.parse(receipt);if(a.type==='deleteHypothesis'||(a.type==='hypothesis'&&!s.hypotheses.some(h=>h.id===a.id&&h.text===a.text)))delete s.actionReceipts[key];}
   if(!s.completedScores){const hs=s.history||[];s.completedScores={fromRound:hs[0]?.round||Math.max(1,s.round),totals:{}};for(const h of hs)for(const p of h.players||[])if(!p.spectator)s.completedScores.totals[p.id]=cents((s.completedScores.totals[p.id]||0)+(p.score||0));}
@@ -226,7 +232,7 @@ const Legacy=(()=>{
  const held=q=>q.paymentVersion===2&&q.payment==='reserved'&&q.charged===false&&['pending','resolved'].includes(q.status);
  function reserved(s,id){return cents(s.lifelineRequests.filter(q=>q.actor===id&&held(q)).reduce((sum,q)=>sum+q.cost,0));}
  function available(s,id){return Math.max(0,cents((s.wallets[id]?.balance??s.rules.initialPoints)-reserved(s,id)));}
- function releaseLifelines(s){for(const q of s.lifelineRequests)if(held(q)){q.status='expired';q.payment='released';}}
+ function releaseLifelines(s){for(const q of s.lifelineRequests)if(held(q)){q.status='expired';q.payment='released';q.text='';q.public=false;}}
  // A funded reservation remains an obligation if a later FP withdrawal reduces
  // the wallet. Charge the confirmed receipt through the existing debt ledger;
  // new paid operations still cannot use those held or revoked points.
@@ -300,13 +306,14 @@ const Legacy=(()=>{
     }else if(a.type==='resolveLifeline'){
      must(presenter,'お助けへの回答は出題者が行います。');const q=n.lifelineRequests.find(q=>q.id===a.requestId);must(q,'要求が見つかりません。');must(a.public===undefined||typeof a.public==='boolean','公開設定が不正です。');const text=Legacy.clean(a.text,200,true),publicReply=a.public===true;
      if(q.status==='resolved')must(q.text===text&&q.public===publicReply,'返答済みの内容は変更できません。');
-     else{must(q.status==='pending','この道具の要求は終了しています。');q.text=text;q.status='resolved';q.public=publicReply;if(q.public&&!n.publicHelpHints.includes(q.text))n.publicHelpHints.push(q.text);}
+     else{must(q.status==='pending','この道具の要求は終了しています。');q.text=text;q.status='resolved';q.public=publicReply;if(q.public&&q.charged&&!n.publicHelpHints.includes(q.text))n.publicHelpHints.push(q.text);}
     }else if(a.type==='receiveLifeline'){
      const q=n.lifelineRequests.find(q=>q.id===a.requestId);must(q&&q.actor===actor&&eligible(s,actor),'自分が要求した返答だけ受け取れます。');must(q.status==='resolved','返答を待ってください。');
-     if(q.paymentVersion===2&&q.payment!=='charged'){must(held(q),'この要求の確保は終了しています。');chargeLifeline(n,q);}
+     if(q.paymentVersion===2&&q.payment!=='charged'){must(held(q),'この要求の確保は終了しています。');must(a.text===q.text&&a.public===q.public,'受け取った返答の内容を確認できません。');chargeLifeline(n,q);}
+     if(q.public&&!n.publicHelpHints.includes(q.text))n.publicHelpHints.push(q.text);
     }else if(a.type==='cancelLifeline'||a.type==='rejectLifeline'){
      const q=n.lifelineRequests.find(q=>q.id===a.requestId);must(q,'要求が見つかりません。');must(a.type==='rejectLifeline'?presenter:q.actor===actor&&eligible(s,actor),'要求者の取消、または出題者の拒否が必要です。');const status=a.type==='rejectLifeline'?'rejected':'cancelled';
-     if(q.status!==status){must(q.status==='pending'||held(q),'この要求は終了しています。');q.status=status;if(q.paymentVersion===2)q.payment='released';}
+     if(q.status!==status){must(q.status==='pending'||held(q),'この要求は終了しています。');q.status=status;if(q.paymentVersion===2){q.payment='released';q.text='';q.public=false;}}
     }else{
      must(eligible(s,actor),'質問者だけがお助け・属性を検討できます。');
      if(a.type==='hypothesis'){
