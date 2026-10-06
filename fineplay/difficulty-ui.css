@@ -1,0 +1,6 @@
+.difficulty-requests,.difficulty-actual-field{padding:12px 0;display:grid;gap:8px;min-width:0}
+.difficulty-requests{border-top:1px solid currentColor;margin-top:16px}
+.difficulty-requests h3,.difficulty-requests p{margin:0;overflow-wrap:anywhere}
+.difficulty-actual-field select,.difficulty-requests select{width:100%;max-width:100%;min-height:44px;font:inherit}
+.difficulty-actual-field button{min-height:44px;justify-self:start}
+.difficulty-actual-field :focus-visible,.difficulty-requests :focus-visible{outline:2px solid currentColor;outline-offset:3px}

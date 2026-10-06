@@ -101,6 +101,8 @@ const Legacy=(()=>{
  'use strict';
  const cp=Legacy.cp, must=(ok,message)=>{if(!ok)throw new Error(message);}, person=(s,id)=>s.players.find(p=>p.id===id);
  const isNew=s=>s.rulesSchema===2, done=Legacy.done, own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
+ const difficultyLabels={easy:'やさしめ',normal:'ふつう',hard:'むずかしめ',expert:'超むずかしめ'};
+ const difficultyActions=['requestDifficulty','setDifficulty','publishDifficulty','retractDifficulty'];
  const participant=(s,id)=>(s.roundPlayers||[]).includes(id)&&person(s,id)?.role==='player';
  const unlocked=(s,id)=>person(s,id)?.role!=='spectator'||(s.unlocked||[]).includes(id);
  const eligible=(s,id)=>participant(s,id)&&id!==s.presenter;
@@ -162,6 +164,7 @@ const Legacy=(()=>{
  function addCategories(to,x){for(const k of ['questions','guesses','correct','combos','score'])to[k]=cents((to[k]||0)+(x[k]||0));for(const k of ['fineplayReceived','applauseReceived'])for(const [key,value]of Object.entries(x[k]||{}))to[k][key]=cents((to[k][key]||0)+value);return to;}
  function migrate(input){
   const s=cp(input);must(s&&s.version===3&&Array.isArray(s.players),'保存された部屋の形式を確認してください。');
+  if(!s.difficulty)s.difficulty={epoch:s.round||0,requests:[],value:null,published:false};
   if(!s.rulesSchema)s.rulesSchema=1;
   s.rules=s.rules||cp(Legacy.defaults);s.roundPlayers=s.roundPlayers||s.players.filter(p=>p.role!=='spectator').map(p=>p.id);
   if(!s.guessQuotaUsed)s.guessQuotaUsed=cp(s.guessUsed||{});
@@ -264,6 +267,12 @@ const Legacy=(()=>{
  function apply(input,actor,a){
   must(a&&typeof a==='object'&&typeof a.id==='string'&&a.id.length>=8&&a.id.length<=80,'操作データが不正です。');
   let s=migrate(input);const key=actor+':'+a.id,fingerprint=canonical(a);
+  // Check the topic/phase before replay receipts, including after reconnect.
+  if(difficultyActions.includes(a.type)){
+   must(person(s,actor)?.online&&a.roundId===s.roundId&&a.difficultyEpoch===s.difficulty.epoch&&a.phase===s.phase,'お題・段階が変わりました。画面を確認してください。');
+   must(a.type==='requestDifficulty'?s.phase==='preparing':['preparing','playing'].includes(s.phase),'この段階では難易度を変更できません。');
+   must(a.type==='requestDifficulty'?eligible(s,actor):actor===s.presenter,'難易度を操作する権限がありません。');
+  }
   if(own(s.actionReceipts,key)){must(s.actionReceipts[key]===fingerprint,'同じ操作IDの内容が変わりました。');return s;}
   must(person(s,actor)?.online,'接続を確認してください。');must(a.roundId===s.roundId,'お題が変わりました。画面を確認してください。');
   must(a.type!=='deleteHypothesis'&&!(a.type==='hypothesis'&&a.hypothesisId!==undefined),'未提出の仮説は端末内で編集してください。選んだ仮説だけ提出できます。');
@@ -271,7 +280,22 @@ const Legacy=(()=>{
   must(Object.keys(s.actionReceipts).length<12000||['start','finalize'].includes(a.type),'操作数の上限です。次のお題へ進んでください。');
   if(automatic(s)&&['ask','undo'].includes(a.type))must(!Object.values(s.actionReceipts).some(receipt=>{const prior=JSON.parse(receipt);return prior.id===a.id&&['ask','undo'].includes(prior.type);}),'Question action IDs must be unique across participants.');
   const presenter=actor===s.presenter,owner=actor===s.owner,n=cp(s);syncWallet(n);
-  if(a.type==='finalize'){
+  if(difficultyActions.includes(a.type)){
+   if(a.type==='requestDifficulty'){
+    for(const field of ['actor','requesterId','playerId'])must(a[field]===undefined||a[field]===actor,'自分の希望だけ変更できます。');
+    must(a.value===null||(typeof a.value==='string'&&own(difficultyLabels,a.value)),'難易度を選んでください。');
+    n.difficulty.requests=n.difficulty.requests.filter(q=>q.actor!==actor);
+    if(a.value!==null)n.difficulty.requests.push({actor,value:a.value});
+   }else if(a.type==='setDifficulty'){
+    must(a.value===null||(typeof a.value==='string'&&own(difficultyLabels,a.value)),'難易度を選んでください。');
+    if(a.value!==n.difficulty.value)n.difficulty.published=false;
+    n.difficulty.value=a.value;
+   }else{
+    must(s.phase==='playing','難易度の公開・撤回は開始後にできます。');
+    must(a.type!=='publishDifficulty'||n.difficulty.value!==null,'難易度は未設定です。');
+    n.difficulty.published=a.type==='publishDifficulty';
+   }
+  }else if(a.type==='finalize'){
    must((owner||presenter)&&done(s),'作成者か出題者が答え合わせ後に確定できます。');finalize(n);
   }else if(a.type==='start'){
    must(owner,'部屋を作った人が開始してください。');must(s.phase==='lobby'||done(s),'先に今のお題を終えてください。');finalize(n);
@@ -283,6 +307,7 @@ const Legacy=(()=>{
    const r=rules(a.rules),secretAnswer=Legacy.clean(a.secretAnswer??'',200);must(!secretAnswer||actor===a.presenter,'答えを登録できるのは出題者だけです。');must(['live','sealed'].includes(a.mode),'FinePlayの発表を選んでください。');const playMode=a.playMode||'cooperative';must(['cooperative','competitive'].includes(playMode),'協力か対戦を選んでください。');
    Object.assign(n,{rulesSchema:2,fpRuleVersion:FP_RULE,fpRoster:players.map(p=>p.id),rules:r,round:s.round+1,roundId:a.id,roundPlayers:players.map(p=>p.id),nextPlayers:n.nextPlayers.filter(id=>person(n,id)?.role==='spectator'),presenter:a.presenter,scope:Legacy.clean(a.scope??'',80)||'なんでも',mode:a.mode,playMode,phase:secretAnswer?'playing':'preparing',pending:null,entries:[],secretAnswer,attributes:[],hints:[],publicHelpHints:[],comments:[],combos:[],unlocked:[],guessUsed:{},guessQuotaUsed:{},problemRatings:{},applause:{},applauseId:'',reveal:'',hypotheses:[],freeAnswerRequests:[],lifelineRequests:[],discussion:[],reactions:[],freeAnswers:{},walletCredits:{}});
    // Keep start receipts across one boundary; older commands fail roundId validation.
+   n.difficulty={epoch:s.difficulty.epoch+1,requests:[],value:null,published:false};
    n.actionReceipts={};for(const [k,v]of Object.entries(s.actionReceipts))if(JSON.parse(v).type==='start'&&JSON.parse(v).id===s.roundId)n.actionReceipts[k]=v;
    for(const p of players)ensureWallet(n,p.id);
   }else if(a.type==='cycleSkip'){
@@ -364,6 +389,7 @@ if(a.stars!==undefined){must(Number.isInteger(a.stars)&&a.stars>=0&&a.stars<=3,'
    if(a.type==='undo'&&n.pending){const e=s.entries.at(-1);n.pending.rewardId=e.rewardId||e.id;if(e.fpRoster)n.pending.fpRoster=cp(e.fpRoster);}
    if(a.type==='answer'){const e=n.entries.at(-1);if(e){e.answerLabel=e.answer==='personal'?s.rules.customAnswerLabel||labels.personal:labels[e.answer];if(s.pending?.rewardId)e.rewardId=s.pending.rewardId;}}
   }
+  if(a.type!=='start'&&n.phase!==s.phase)n.difficulty.epoch++;
   if(done(n))releaseLifelines(n);syncWallet(n);if(n.finalizedRoundIds.includes(n.roundId)&&['comment','discussion','react'].includes(a.type))saveThread(n);n.actionReceipts[key]=fingerprint;n.rev=s.rev+1;return n;
  }
  function lifetimeScores(s,viewer){if(!unlocked(s,viewer))return null;const totals=cp(s.completedScores.totals),include=isNew(s)&&((s.playMode==='cooperative'&&s.mode==='live')||done(s));if(include&&!s.finalizedRoundIds.includes(s.roundId))for(const p of summary(s).players.filter(p=>!p.spectator))totals[p.id]=cents((totals[p.id]||0)+p.score);
@@ -413,7 +439,10 @@ if(a.stars!==undefined){must(Number.isInteger(a.stars)&&a.stars>=0&&a.stars<=3,'
   v.discussion=locked?[]:cp(s.discussion);
   v.reactions=locked?[]:reactionView(s.reactions,viewer,new Set(v.entries.map(e=>e.id)));
   v.finalization=v.finalized?{roundId:s.roundId,cutoffRev:s.lastFinalized?.roundId===s.roundId?s.lastFinalized.cutoffRev:null}:null;
-  v.hints=[...v.hints,...cp(s.publicHelpHints)];v.hintCount=v.hints.length;
+  v.difficultyEpoch=s.difficulty.epoch;
+  if(s.phase==='preparing')v.difficultyRequests=s.difficulty.requests.filter(q=>participant(s,q.actor)&&q.actor!==s.presenter&&(viewer===s.presenter||q.actor===viewer)).map(cp);
+  if(viewer===s.presenter&&!done(s))v.difficultyPrivate={value:s.difficulty.value,published:s.difficulty.published};
+  v.hints=[...v.hints,...cp(s.publicHelpHints),...(s.difficulty.published&&s.difficulty.value!==null?['難易度: '+difficultyLabels[s.difficulty.value]]:[])];v.hintCount=v.hints.length;
   v.hypotheses=locked?[]:s.hypotheses.filter(h=>h.actor===viewer).map(cp);
   if(viewer===s.presenter)v.hypothesisInbox=s.hypotheses.filter(h=>h.submitted).map(cp);
   v.freeAnswerRequests=locked?[]:s.freeAnswerRequests.filter(q=>q.actor===viewer||viewer===s.presenter).map(cp);

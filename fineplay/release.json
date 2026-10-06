@@ -1,0 +1,14 @@
+{
+  "version": "r2-20261006",
+  "released_at": "2026-10-06T22:20:29.194027+09:00",
+  "previous_commit": "e88499c18ff98d6f30fd148f91893cd8efbb510e",
+  "previous_tag": "fineplay-pre-r2-20261006",
+  "acceptance": "public review",
+  "features": [
+    "crystal-question-window",
+    "difficulty-request",
+    "presenter-difficulty",
+    "six-event-sound-controls",
+    "recorded-cheer-and-applause"
+  ]
+}

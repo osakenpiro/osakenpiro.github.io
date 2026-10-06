@@ -1,0 +1,22 @@
+.fp-sound-bar {display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin:0 0 14px;min-width:0;}
+.fp-sound-bar button {min-height:44px;padding:8px 14px;border-radius:22px;color:#214b39;background:#f4f7ec;border:1px solid #b4c8ab;font-size:13px;}
+.fp-sound-bar [aria-checked=true] {background:#214b39;color:#f6f5de;}
+.fp-sound-summary {font-size:11px;color:#49604d;max-width:28em;overflow-wrap:anywhere;}
+#fp-sound-dialog {box-sizing:border-box;width:540px;max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);padding:24px;background:#0e352b;color:#f0f5e9;border:1px solid #a6c8a3;box-shadow:inset 0 1px 0 #e2e3ab70,0 24px 80px #001b25aa;border-radius:20px;overflow:auto;overscroll-behavior:contain;color-scheme:dark;}
+#fp-sound-dialog::backdrop {background:#041d18ae;backdrop-filter:blur(5px);}
+#fp-sound-dialog header {display:flex;justify-content:space-between;gap:12px;align-items:center;}
+#fp-sound-dialog h2 {font-size:22px;margin:0;color:#f4f3de;}
+#fp-sound-dialog h3 {font-size:14px;margin:24px 0 8px;color:#e7e4bb;}
+#fp-sound-dialog p {font-size:12px;line-height:1.7;color:#c3d8c7;overflow-wrap:anywhere;}
+#fp-sound-dialog button {font:inherit;color:#e7f0df;background:#204b3d;border:1px solid #82a78a;border-radius:10px;min-height:44px;padding:8px 12px;cursor:pointer;}
+#fp-sound-dialog button:disabled,.fp-sound-bar button:disabled {opacity:.55;cursor:default;}
+.fp-sound-volume {display:flex;align-items:center;justify-content:space-between;font-size:14px;margin-top:18px;color:#e8eedf;}
+#fp-sound-dialog input[type=range] {width:100%;min-height:44px;margin:0;padding:0;accent-color:#bbd694;background:transparent;}
+.fp-sound-event {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;border-bottom:1px solid #c9d7a924;padding:8px 0;}
+#fp-sound-dialog .fp-sound-switch {display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:10px;align-items:center;border-color:transparent;background:transparent;text-align:left;padding:5px 2px;min-width:0;font-size:14px;}
+.fp-sound-switch img {display:block;width:48px;height:48px;}
+.fp-sound-pill {font-size:10px;padding:4px 7px;border-radius:20px;border:1px solid #708d7a;background:#102b24;color:#c5d1c8;}
+[aria-checked=true] .fp-sound-pill {background:#cadca7;color:#17392b;border-color:#d9e7bc;}
+.fp-sound-bar :focus-visible,#fp-sound-dialog :focus-visible {outline:3px solid #dbb860;outline-offset:3px;}
+#fp-sound-dialog .fp-sound-help {margin-bottom:0;}
+@media(max-width:420px){#fp-sound-dialog{padding:16px;}.fp-sound-event{gap:6px;}#fp-sound-dialog .fp-sound-switch{grid-template-columns:38px minmax(0,1fr) auto;gap:6px;font-size:12px;}.fp-sound-switch img{width:38px;height:38px;}#fp-sound-dialog .fp-sound-preview{font-size:12px;padding:8px;}.fp-sound-summary{flex-basis:100%;}.fp-sound-bar{justify-content:flex-start;}}

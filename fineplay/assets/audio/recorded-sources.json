@@ -1,0 +1,36 @@
+[
+  {
+    "kind": "correct",
+    "title": "Cheers",
+    "author": "Nocturnal_Vanguard / AuraVoice",
+    "source_page": "https://opengameart.org/content/cheers-0",
+    "download_url": "https://opengameart.org/sites/default/files/cheers_1.ogg",
+    "license": "CC0 1.0",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "license_evidence": "correct-license.html",
+    "source_sha256": "10d9f614307127a8c2b2b129e9a291b6071c8fc91f1fed4916f78ad47c956b25",
+    "path": "assets/audio/correct.wav",
+    "sha256": "51706aa6624da46e06e7e094891bc774c860adc6499281acd1abc08b47e965ec",
+    "duration_seconds": 1.85,
+    "peak": 0.82,
+    "processing": "Mono PCM16 24kHz; leading excerpt; 15ms fade-in and 180ms fade-out; peak normalized to 0.82",
+    "review": "BROWSER_DECODE_AND_HUMAN_LISTENING_PENDING"
+  },
+  {
+    "kind": "applause",
+    "title": "Well Done",
+    "author": "qubodup",
+    "source_page": "https://opengameart.org/content/well-done",
+    "download_url": "https://opengameart.org/sites/default/files/Well%20Done%20CCBY3.flac",
+    "license": "CC0 1.0",
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "license_evidence": "applause-license.html",
+    "source_sha256": "41e7646fc7ff5ffd66947bda50a07f194683318b23cb193d57c1650a5ec4953b",
+    "path": "assets/audio/applause.wav",
+    "sha256": "c9a15d8a3ce085dba072c5b73324c34bdc05cb12f1c72123df9a81895b23e972",
+    "duration_seconds": 1.15,
+    "peak": 0.82,
+    "processing": "Mono PCM16 24kHz; leading excerpt; 15ms fade-in and 180ms fade-out; peak normalized to 0.82",
+    "review": "BROWSER_DECODE_AND_HUMAN_LISTENING_PENDING"
+  }
+]

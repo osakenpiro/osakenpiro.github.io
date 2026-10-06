@@ -47,23 +47,20 @@
   document.body.append(layer);return layer;
  }
  function create({admitHonor,readAudioPreferences,playSound,announce}={}){
-  let live=false,paused=false,disposed=false,active=null,activeHonor=null,pending=null,coalesceTimer=null,expiryTimer=null,lastSound=-Infinity;
+  let live=false,paused=false,disposed=false,active=null,activeHonor=null,pending=null,coalesceTimer=null,expiryTimer=null;
   const seen=new Set(),media=window.matchMedia('(prefers-reduced-motion: reduce)'),rank={normal:0,super:1,ultra:2,hundred:3};
   const stats={accepted:0,rejected:0,duplicate:0,coalesced:0,shown:0,sound:0,audioUnavailable:0};
   const validString=x=>typeof x==='string'&&x.length>0&&x.length<=256;
   const validTarget=t=>validString(t)||(t&&['question','topic'].includes(t.scope)&&validString(t.roundId)&&validString(t.rewardId)&&validString(t.recipientId)&&(t.scope==='topic'?t.entryId===null:validString(t.entryId)));
   function clear(){if(coalesceTimer!==null)clearTimeout(coalesceTimer);if(expiryTimer!==null)clearTimeout(expiryTimer);coalesceTimer=expiryTimer=null;pending=null;active?._stop?.();active?.remove();active=activeHonor=null;}
-  function audio(tier){
-   if(typeof readAudioPreferences!=='function'||typeof playSound!=='function'||performance.now()-lastSound<1500)return;
-   try{const p=readAudioPreferences();if(p?.enabled!==true||p.muted!==false||!Number.isFinite(p.volume)||p.volume<=0||p.volume>1)return;
-    lastSound=performance.now();const result=playSound({tier,volume:p.volume});stats.sound++;if(result&&typeof result.catch==='function')result.catch(()=>{stats.audioUnavailable++;});
-   }catch{stats.audioUnavailable++;}
+  function audio(honor){
+   if(typeof playSound!=='function'||!['fineplay','applause'].includes(honor.kind))return;
+   try{const result=playSound({kind:honor.kind,eventId:honor.eventId,roundId:honor.target.roundId,tier:honor.visibleEffect});if(result!==false)stats.sound++;if(result&&typeof result.catch==='function')result.catch(()=>{stats.audioUnavailable++;});}catch{stats.audioUnavailable++;}
   }
   function flush(){
    coalesceTimer=null;if(!live||disposed||document.hidden||!pending){pending=null;return;}
    const honor=pending;pending=null;activeHonor=honor;active=render(honor,media.matches);stats.shown++;
    try{announce?.(honor.visibleEffect==='ultra'?'Ultra FinePlay!':honor.visibleEffect==='super'?'Super FinePlay!':'FinePlay!');}catch{}
-   audio(honor.visibleEffect);
    expiryTimer=setTimeout(()=>{expiryTimer=null;active?._stop?.();active?.remove();active=activeHonor=null;if(pending&&live&&!disposed&&!document.hidden)coalesceTimer=setTimeout(flush,100);},active?._lifetime||(media.matches?1000:honor.visibleEffect==='normal'?850:1350));
   }
   function dispatchHonor(honor){
@@ -72,21 +69,23 @@
    if(seen.has(honor.eventId)){stats.duplicate++;return false;}
    // Fail closed at the bounded dedupe capacity; never evict an ID and replay it.
    if(seen.size>=12000){stats.rejected++;return false;}seen.add(honor.eventId);stats.accepted++;
-   const t=honor.target,safe={eventId:honor.eventId,target:typeof t==='string'?t:{scope:t.scope,roundId:t.roundId,rewardId:t.rewardId,entryId:t.entryId,recipientId:t.recipientId},visibleEffect:honor.visibleEffect,stars:honor.stars};
+   audio(honor);
+   const t=honor.target,safe={kind:honor.kind,eventId:honor.eventId,target:typeof t==='string'?t:{scope:t.scope,roundId:t.roundId,rewardId:t.rewardId,entryId:t.entryId,recipientId:t.recipientId},visibleEffect:honor.visibleEffect,stars:honor.stars};
    if(pending){stats.coalesced++;if(rank[safe.visibleEffect]>=rank[pending.visibleEffect])pending=safe;}else pending=safe;
    if(!active&&coalesceTimer===null)coalesceTimer=setTimeout(flush,90);return true;
   }
   // Admission may pause during a same-connection state transfer. Already
   // admitted public motion (including its pending cue) keeps its original clock.
-  function pauseAdmission(){paused=true;}
+  function pauseAdmission(){paused=true;window.FPSound?.stopAll();}
   function cancelWhere(test){
    if(typeof test!=='function')return;
+   if((pending&&test(pending))||(activeHonor&&test(activeHonor)))window.FPSound?.stopAll();
    if(pending&&test(pending))pending=null;
    if(activeHonor&&test(activeHonor)){if(expiryTimer!==null)clearTimeout(expiryTimer);expiryTimer=null;active?._stop?.();active?.remove();active=activeHonor=null;}
    if(!pending&&coalesceTimer!==null){clearTimeout(coalesceTimer);coalesceTimer=null;}
    if(pending&&!active&&coalesceTimer===null&&live&&!disposed&&!document.hidden)coalesceTimer=setTimeout(flush,100);
   }
-  function suspend(){live=false;paused=false;clear();}
+  function suspend(){if(live)window.FPSound?.stopAll();live=false;paused=false;clear();}
   function resume(){if(!disposed){live=true;paused=false;}}
   function resetBaseline(){suspend();seen.clear();}
   function visibility(){if(document.hidden)suspend();}
@@ -119,7 +118,7 @@
    if(!h||!sameTarget(h.target,t)||e.contractVersion!==v.fpContractVersion||e.reveal!=='public'||!['super','ultra'].includes(e.stage)||!Number.isInteger(e.donorCount)||!Number.isInteger(e.eligibleDonorCount)||e.eligibleDonorCount<2||e.eligibleDonorCount>11||e.donorCount<2||e.donorCount>e.eligibleDonorCount||e.donorCount!==h.donorCount||e.eligibleDonorCount!==h.eligibleDonorCount||e.totalBonus!==h.bonusPoints)return null;
    if(e.stage==='super'?!(Number.isInteger(e.threshold)&&e.threshold>=2&&e.threshold<=e.donorCount&&e.amount===5&&h.super===true):!(e.threshold===e.eligibleDonorCount&&e.donorCount===e.eligibleDonorCount&&e.amount===20&&h.ultra===true))return null;
    if(e.id!=='fp1:'+JSON.stringify([t.roundId,t.scope,t.rewardId,e.stage,e.threshold])||ids.has(e.id)||e.id.length>1024)return null;
-   ids.add(e.id);result.push({eventId:e.id,target:{scope:t.scope,roundId:t.roundId,rewardId:t.rewardId,entryId:t.entryId,recipientId:t.recipientId},visibleEffect:e.stage});
+   ids.add(e.id);result.push({kind:'fineplay',eventId:e.id,target:{scope:t.scope,roundId:t.roundId,rewardId:t.rewardId,entryId:t.entryId,recipientId:t.recipientId},visibleEffect:e.stage});
   }
   return result;
  }
@@ -177,17 +176,17 @@
    if(!pub){normals=nextNormals;effects.suspend();return {status:'private',accepted:0};}
    effects.resume();let accepted=0;
    const advanced=new Set(events.filter(e=>!seen.has(e.eventId)).map(e=>targetKey(e.target))),normalEvents=[];
-   for(const[key,n]of nextNormals){const previous=normals.get(key);if(previous&&n.stars>previous.stars&&!advanced.has(key))normalEvents.push({eventId:'fp-normal:'+JSON.stringify([n.target.roundId,n.target.scope,n.target.rewardId,v.rev]),target:n.target,visibleEffect:'normal',stars:Math.min(3,n.stars-previous.stars)});}
+   for(const[key,n]of nextNormals){const previous=normals.get(key);if(previous&&n.stars>previous.stars&&!advanced.has(key))normalEvents.push({kind:'fineplay',eventId:'fp-normal:'+JSON.stringify([n.target.roundId,n.target.scope,n.target.rewardId,v.rev]),target:n.target,visibleEffect:'normal',stars:Math.min(3,n.stars-previous.stars)});}
    const nextApplause=Number.isSafeInteger(v.applause?.total)&&v.applause.total>=0&&v.applause.total<=1200?v.applause.total:0;
    const applauseEvents=[];
-   if((v.phase==='solved'||v.phase==='passed')&&nextApplause>applauseTotal){const hundred=applauseTotal<100&&nextApplause>=100;applauseEvents.push({eventId:hundred?'fp-hundred:'+JSON.stringify([v.roundId]):'fp-applause:'+JSON.stringify([v.roundId,v.applauseId,v.rev]),target:v.problem.honors.target,visibleEffect:hundred?'hundred':'normal'});}
+   if((v.phase==='solved'||v.phase==='passed')&&nextApplause>applauseTotal){const hundred=applauseTotal<100&&nextApplause>=100;applauseEvents.push({kind:'applause',eventId:hundred?'fp-hundred:'+JSON.stringify([v.roundId]):'fp-applause:'+JSON.stringify([v.roundId,v.applauseId,v.rev]),target:v.problem.honors.target,visibleEffect:hundred?'hundred':'normal'});}
    applauseTotal=nextApplause;normals=nextNormals;
    for(const e of [...events,...normalEvents,...applauseEvents]){
     if(seen.has(e.eventId))continue;
     if(seen.size>=12000){effects.suspend();needsBaseline=true;stats.invalid++;return {status:'capacity',accepted};}
     seen.add(e.eventId);
     // Only the normalized command from this confirmed view can pass admission.
-    admitted={eventId:e.eventId,target:e.target,visibleEffect:e.visibleEffect,...(e.stars?{stars:e.stars}:{})};
+    admitted={kind:e.kind,eventId:e.eventId,target:e.target,visibleEffect:e.visibleEffect,...(e.stars?{stars:e.stars}:{})};
     if(effects.dispatchHonor(admitted)){accepted++;stats.events++;if(e.visibleEffect==='normal')stats.normalEvents++;}admitted=null;
    }
    return {status:'live',accepted};

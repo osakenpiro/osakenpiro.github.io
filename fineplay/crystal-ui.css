@@ -1,0 +1,72 @@
+/* B-inspired crystal perimeter. Scope is the existing active game, not the site. */
+.fp-crystal .layout-action {
+  --crystal-ink: #f2f8eb;
+  position: relative;
+  background: linear-gradient(135deg, #194e43ed, #0b3029f5 62%, #235749df) !important;
+  border: 1px solid #92c8a9 !important;
+  border-radius: 22px !important;
+  box-shadow: inset 0 0 0 3px #c9e4b612, inset 0 1px 0 #ecf8d795, 0 10px 28px #133c3022 !important;
+  padding: clamp(14px, 2.2vw, 26px) !important;
+  color: var(--crystal-ink);
+  overflow: visible;
+}
+.fp-crystal .layout-action::before {
+  content: ''; position: absolute; pointer-events: none; inset: 6px;
+  border: 1px solid #c2dba92b; border-top-color: #dfd69880;
+  border-radius: 17px;
+}
+.fp-crystal .layout-action .fp-card {
+  position: relative; margin: 0 0 20px; padding: clamp(18px, 3vw, 30px);
+  background: linear-gradient(115deg, #103e32, #092b24 80%);
+  border: 1px solid #91c5a36b; border-radius: 15px;
+  box-shadow: inset 0 1px 0 #d9ebbd61, 0 0 18px #8bddb008;
+  color: #f5f8ec; overflow-wrap: anywhere;
+}
+.fp-crystal .layout-action .fp-card h2 {
+  color: #f5f8ec; font-size: clamp(24px, 2.5vw, 34px);
+  line-height: 1.7; letter-spacing: .035em; margin: 18px 0 22px;
+  text-wrap: pretty;
+}
+.fp-crystal .layout-action .fp-card-head {color: #c8dfcb; flex-wrap: wrap; gap: 7px;}
+.fp-crystal .layout-action .fp-card-head b {color: #e4efdc;}
+.fp-crystal .layout-action .answers button {color: #294c3d;}
+.fp-crystal .layout-action .answers button.no {color: #a4514c;}
+.fp-crystal .layout-action {order: -1; margin-top: 0 !important; margin-bottom: 20px !important;}
+.fp-crystal .layout-action .fp-qno {color: #ece5b7; background: #c9dcad14; margin-left: auto;}
+.fp-crystal .layout-action .fp-card-foot {border-color: #adc79c40; padding-top: 16px;}
+.fp-crystal .layout-action .answer-chip {font-size: 18px; padding: 8px 22px; color: #eff7e5; background: #315d42; border: 1px solid #bacb8e;}
+.fp-crystal .layout-action .crystal-wait {color: #c9d7cc; font-size: 13px; margin: 0; border-top: 1px solid #b4c7a538; padding-top: 14px;}
+.fp-crystal .layout-action :is(.wait-label,form label,.answer-title,.fp-answered-by) {color: #e1eadc;}
+.fp-crystal .layout-action .wait-label {background: transparent; border-color: #a8c29c40;}
+.fp-crystal .layout-action form label small {color: #b8d0bc;}
+.fp-crystal .layout-action input {background: #082c24; border-color: #8bb997; color: #f1f7eb; min-width: 0;}
+.fp-crystal .layout-action input::placeholder {color: #b7c9bd;}
+.fp-crystal .layout-action #ask {background: #dce8bf; color: #163f31; border-color: #e2e8bc;}
+.fp-crystal .layout-action :focus-visible {outline: 3px solid #f1d889; outline-offset: 3px;}
+.fp-crystal .layout-action .answers {padding-inline: 0;}
+.fp-crystal .layout-action :is(.row,.fp-card-head,.fp-card-foot) {min-width: 0;}
+.fp-crystal .layout-action .fp-card::before,.fp-crystal .layout-action .fp-card::after {display: none;}
+@supports (backdrop-filter: blur(8px)) {.fp-crystal .layout-action {backdrop-filter: blur(8px);}}
+@supports not (backdrop-filter: blur(8px)) {.fp-crystal .layout-action {background: #123d31 !important;}}
+@media(min-width:1100px) {
+  .fp-crystal .layout-preview .play-grid {grid-template-columns: minmax(0,1fr) 350px;}
+  .fp-crystal .presentation-history {grid-column: 2; grid-row: 1 / span 3;}
+  .fp-crystal .presentation-history .compact-clue>summary {display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px;}
+  .fp-crystal .presentation-history .compact-clue>summary .clue-main {grid-column:2;min-width:0;}
+  .fp-crystal .presentation-history .compact-clue>summary .clue-text {font-size:16px;min-width:0;}
+  .fp-crystal .presentation-history .compact-clue>summary :is(.answer-chip,.layout-history-fp) {grid-column:2;justify-self:start;}
+  .fp-crystal .presentation-history .layout-history-fp {margin-left:auto !important;}
+  .fp-crystal .reference-column {grid-column: 1; display: grid; grid-template-columns: 1fr 1fr;}
+}
+@media(max-width:800px) {
+  .fp-crystal .layout-preview .play-grid {display: flex; flex-direction: column;}
+  .fp-crystal :is(.game-column,.presentation-history,.reference-column) {width: 100%; min-width: 0;}
+  .fp-crystal .presentation-history {order: 1;}
+  .fp-crystal .reference-column {order: 2;}
+}
+@media(max-width:390px) {
+  .fp-crystal .layout-action .fp-card {padding: 16px;}
+  .fp-crystal .layout-action .answers {grid-template-columns: repeat(3,minmax(0,1fr));}
+  .fp-crystal .layout-action .answers button {min-width: 0;}
+}
+@media(prefers-reduced-motion:reduce) {.fp-crystal .layout-action,.fp-crystal .layout-action * {animation: none !important; transition: none !important;}}
