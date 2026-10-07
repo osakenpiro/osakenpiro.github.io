@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 240">
+ <defs><linearGradient id="gold" x2=".5" y2="1"><stop stop-color="#fff0b7"/><stop offset=".4" stop-color="#c6a55d"/><stop offset="1" stop-color="#756030"/></linearGradient><linearGradient id="enamel" x2=".8" y2="1"><stop stop-color="#a4b993"/><stop offset=".55" stop-color="#39624d"/><stop offset="1" stop-color="#16382c"/></linearGradient></defs>
+ <path d="M126 115Q143 103 151 101Q155 82 183 80Q215 81 229 100Q251 101 264 115Q198 138 126 115Z" fill="url(#enamel)" stroke="#d3bd7c" stroke-width="3"/>
+ <path d="M130 116Q194 132 260 116M152 102Q187 114 229 101" fill="none" stroke="url(#gold)" stroke-width="5"/>
+ <path d="M179 81L179 72Q166 60 184 52Q203 59 189 72L191 81Z" fill="url(#gold)" stroke="#eed79a" stroke-width="2"/>
+ <path d="M184 57L189 63L184 68L180 63Z" fill="#eaf1c9"/>
+</svg>

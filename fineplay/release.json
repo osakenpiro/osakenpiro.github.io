@@ -1,14 +1,10 @@
 {
-  "version": "r2-20261006",
-  "released_at": "2026-10-06T22:20:29.194027+09:00",
-  "previous_commit": "e88499c18ff98d6f30fd148f91893cd8efbb510e",
-  "previous_tag": "fineplay-pre-r2-20261006",
-  "acceptance": "public review",
+  "release": "r3-20261007",
+  "based_on": "8fabe71f73df0536969e047a2c7d97242eba4e48",
+  "previous_fineplay_tree": "1bb46bdbf2bc93d5eaa6ca7011cdb3df3eed7858",
   "features": [
-    "crystal-question-window",
-    "difficulty-request",
-    "presenter-difficulty",
-    "six-event-sound-controls",
-    "recorded-cheer-and-applause"
-  ]
+    "horizontal-player-hud",
+    "magic-lamp-verdict"
+  ],
+  "release_note": "Player HUD and magic lamp reveal. Existing scoring and audio preferences preserved."
 }

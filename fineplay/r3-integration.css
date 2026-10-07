@@ -1,0 +1,19 @@
+/* R3 bounded overrides: retain the R2 question stage and visual hierarchy. */
+.r3-hud-host { min-width:0; max-width:100%; margin:16px 0; }
+.r3-hud-toolbar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:0 8px 8px; font-size:12px; }
+.r3-hud-toolbar button { min-height:44px; font-size:12px; }
+.r3-hud-host .fp-hud-heading { padding-top:10px; }
+.r3-hud-host .fp-hud-list { padding-top:16px; padding-bottom:8px; }
+.r3-hud-host .fp-hud-player { grid-template-rows:48px 22px 2.8em 22px 28px 8px auto; }
+.r3-hud-host .fp-hud-portrait { width:40px; height:40px; }
+.r3-hud-host .fp-hud-avatar { width:32px; height:32px; }
+.r3-hud-host .fp-hud-monogram { white-space:nowrap; font-size:17px; }
+.r3-hud-host .fp-hud-foot { padding-top:6px; padding-bottom:8px; }
+.r3-hud-host .fp-hud-actions:has(.r3-member-status:empty) { padding-top:0; }
+.r3-member-status { font-size:10px; }
+.r3-lamp-host { max-width:100%; min-width:0; margin:8px 0 16px; }
+.r3-lamp-host .fp-lamp { margin-inline:auto; }
+.r3-lamp-result .answer-reveal,.r3-lamp-result .result-magic { display:none; }
+.r3-reveal-pending .applause-panel { visibility:hidden; }
+.r3-awaiting-reveal > h2,.r3-awaiting-reveal > .eyebrow { visibility:hidden; }
+@media(max-width:680px) { .r3-hud-host .fp-hud-player { flex-basis:132px; min-width:max(132px,var(--hud-score-width,0px)); } }
