@@ -1,109 +1,28 @@
 {
   "schema_version": "0.1",
   "publisher": "osakenpiro",
-  "generated_at": "2026-10-09",
+  "generated_at": "2026-10-08",
   "policy": "https://osakenpiro.github.io/service-directory/#policy",
   "services": [
     {
-      "id": "fudocho",
-      "name": "腐土帖",
-      "description": "削除せず、沈めて掘り出せる腐葉土型メモツール。",
-      "category": "記録・習慣",
+      "id": "asobiba",
+      "name": "あそびば",
+      "description": "論理・確率・音・分類などを題材にした8つのインタラクティブ展示。",
+      "category": "学び・遊び",
       "tags": [
-        "メモ",
-        "知識管理",
-        "腐葉土"
+        "体験",
+        "Boolean→Float"
       ],
-      "url": "https://osakenpiro.github.io/fudocho/",
-      "source_path": "fudocho/index.html",
+      "url": "https://osakenpiro.github.io/asobiba/",
+      "source_path": "asobiba/index.html",
       "commercial_relation": "none",
       "source": "seed",
       "state": "active",
       "first_seen_at": "2026-10-09",
-      "last_checked_at": "2026-10-09",
-      "last_success_at": "2026-10-09",
+      "last_checked_at": "2026-10-08",
+      "last_success_at": "2026-10-08",
       "failures": 0,
-      "reason": "初期確認：公開ページを閲覧可能"
-    },
-    {
-      "id": "fuwakka",
-      "name": "フワッカ",
-      "description": "タスクを0〜100%の進捗で管理する、二択ではないTodo。",
-      "category": "記録・習慣",
-      "tags": [
-        "Todo",
-        "進捗"
-      ],
-      "url": "https://osakenpiro.github.io/fuwakka/",
-      "source_path": "fuwakka/index.html",
-      "commercial_relation": "none",
-      "source": "seed",
-      "state": "active",
-      "first_seen_at": "2026-10-09",
-      "last_checked_at": "2026-10-09",
-      "last_success_at": "2026-10-09",
-      "failures": 0,
-      "reason": "初期確認：公開ページを閲覧可能"
-    },
-    {
-      "id": "nandometer",
-      "name": "何度メーター",
-      "description": "迷いの要素を重みづけして、今の確信度を可視化する。",
-      "category": "意思決定",
-      "tags": [
-        "選択",
-        "確信度"
-      ],
-      "url": "https://osakenpiro.github.io/nandometer/",
-      "source_path": "nandometer/index.html",
-      "commercial_relation": "none",
-      "source": "seed",
-      "state": "active",
-      "first_seen_at": "2026-10-09",
-      "last_checked_at": "2026-10-09",
-      "last_success_at": "2026-10-09",
-      "failures": 0,
-      "reason": "初期確認：公開ページを閲覧可能"
-    },
-    {
-      "id": "hakarigoto",
-      "name": "はかりごと",
-      "description": "二択の悩みを複数の評価軸と重みで測る意思決定ツール。",
-      "category": "意思決定",
-      "tags": [
-        "比較",
-        "意思決定"
-      ],
-      "url": "https://osakenpiro.github.io/hakarigoto/",
-      "source_path": "hakarigoto/index.html",
-      "commercial_relation": "none",
-      "source": "seed",
-      "state": "active",
-      "first_seen_at": "2026-10-09",
-      "last_checked_at": "2026-10-09",
-      "last_success_at": "2026-10-09",
-      "failures": 0,
-      "reason": "初期確認：公開ページを閲覧可能"
-    },
-    {
-      "id": "furiko",
-      "name": "フリコ",
-      "description": "YESかNOかだけではなく、選択肢を引く力の強さで迷いを考える。",
-      "category": "意思決定",
-      "tags": [
-        "迷い",
-        "振り子"
-      ],
-      "url": "https://osakenpiro.github.io/furiko/",
-      "source_path": "furiko/index.html",
-      "commercial_relation": "none",
-      "source": "seed",
-      "state": "active",
-      "first_seen_at": "2026-10-09",
-      "last_checked_at": "2026-10-09",
-      "last_success_at": "2026-10-09",
-      "failures": 0,
-      "reason": "初期確認：公開ページを閲覧可能"
+      "reason": "HTTP 200確認"
     },
     {
       "id": "buntai-hakari",
@@ -120,50 +39,10 @@
       "source": "seed",
       "state": "active",
       "first_seen_at": "2026-10-09",
-      "last_checked_at": "2026-10-09",
-      "last_success_at": "2026-10-09",
+      "last_checked_at": "2026-10-08",
+      "last_success_at": "2026-10-08",
       "failures": 0,
-      "reason": "初期確認：公開ページを閲覧可能"
-    },
-    {
-      "id": "mitsuami",
-      "name": "三つ編み",
-      "description": "名前の候補を音韻・意味・構造の三方向から評価する命名ツール。",
-      "category": "文章・創作",
-      "tags": [
-        "命名",
-        "音韻"
-      ],
-      "url": "https://osakenpiro.github.io/mitsuami/",
-      "source_path": "mitsuami/index.html",
-      "commercial_relation": "none",
-      "source": "seed",
-      "state": "active",
-      "first_seen_at": "2026-10-09",
-      "last_checked_at": "2026-10-09",
-      "last_success_at": "2026-10-09",
-      "failures": 0,
-      "reason": "初期確認：公開ページを閲覧可能"
-    },
-    {
-      "id": "asobiba",
-      "name": "あそびば",
-      "description": "論理・確率・音・分類などを題材にした8つのインタラクティブ展示。",
-      "category": "学び・遊び",
-      "tags": [
-        "体験",
-        "Boolean→Float"
-      ],
-      "url": "https://osakenpiro.github.io/asobiba/",
-      "source_path": "asobiba/index.html",
-      "commercial_relation": "none",
-      "source": "seed",
-      "state": "active",
-      "first_seen_at": "2026-10-09",
-      "last_checked_at": "2026-10-09",
-      "last_success_at": "2026-10-09",
-      "failures": 0,
-      "reason": "初期確認：公開ページを閲覧可能"
+      "reason": "HTTP 200確認"
     },
     {
       "id": "ecosystem-checker",
@@ -180,10 +59,131 @@
       "source": "seed",
       "state": "active",
       "first_seen_at": "2026-10-09",
-      "last_checked_at": "2026-10-09",
-      "last_success_at": "2026-10-09",
+      "last_checked_at": "2026-10-08",
+      "last_success_at": "2026-10-08",
       "failures": 0,
-      "reason": "初期確認：公開ページを閲覧可能"
+      "reason": "HTTP 200確認"
+    },
+    {
+      "id": "fudocho",
+      "name": "腐土帖",
+      "description": "削除せず、沈めて掘り出せる腐葉土型メモツール。",
+      "category": "記録・習慣",
+      "tags": [
+        "メモ",
+        "知識管理",
+        "腐葉土"
+      ],
+      "url": "https://osakenpiro.github.io/fudocho/",
+      "source_path": "fudocho/index.html",
+      "commercial_relation": "none",
+      "source": "seed",
+      "state": "active",
+      "first_seen_at": "2026-10-09",
+      "last_checked_at": "2026-10-08",
+      "last_success_at": "2026-10-08",
+      "failures": 0,
+      "reason": "HTTP 200確認"
+    },
+    {
+      "id": "furiko",
+      "name": "フリコ",
+      "description": "YESかNOかだけではなく、選択肢を引く力の強さで迷いを考える。",
+      "category": "意思決定",
+      "tags": [
+        "迷い",
+        "振り子"
+      ],
+      "url": "https://osakenpiro.github.io/furiko/",
+      "source_path": "furiko/index.html",
+      "commercial_relation": "none",
+      "source": "seed",
+      "state": "active",
+      "first_seen_at": "2026-10-09",
+      "last_checked_at": "2026-10-08",
+      "last_success_at": "2026-10-08",
+      "failures": 0,
+      "reason": "HTTP 200確認"
+    },
+    {
+      "id": "fuwakka",
+      "name": "フワッカ",
+      "description": "タスクを0〜100%の進捗で管理する、二択ではないTodo。",
+      "category": "記録・習慣",
+      "tags": [
+        "Todo",
+        "進捗"
+      ],
+      "url": "https://osakenpiro.github.io/fuwakka/",
+      "source_path": "fuwakka/index.html",
+      "commercial_relation": "none",
+      "source": "seed",
+      "state": "active",
+      "first_seen_at": "2026-10-09",
+      "last_checked_at": "2026-10-08",
+      "last_success_at": "2026-10-08",
+      "failures": 0,
+      "reason": "HTTP 200確認"
+    },
+    {
+      "id": "hakarigoto",
+      "name": "はかりごと",
+      "description": "二択の悩みを複数の評価軸と重みで測る意思決定ツール。",
+      "category": "意思決定",
+      "tags": [
+        "比較",
+        "意思決定"
+      ],
+      "url": "https://osakenpiro.github.io/hakarigoto/",
+      "source_path": "hakarigoto/index.html",
+      "commercial_relation": "none",
+      "source": "seed",
+      "state": "active",
+      "first_seen_at": "2026-10-09",
+      "last_checked_at": "2026-10-08",
+      "last_success_at": "2026-10-08",
+      "failures": 0,
+      "reason": "HTTP 200確認"
+    },
+    {
+      "id": "mitsuami",
+      "name": "三つ編み",
+      "description": "名前の候補を音韻・意味・構造の三方向から評価する命名ツール。",
+      "category": "文章・創作",
+      "tags": [
+        "命名",
+        "音韻"
+      ],
+      "url": "https://osakenpiro.github.io/mitsuami/",
+      "source_path": "mitsuami/index.html",
+      "commercial_relation": "none",
+      "source": "seed",
+      "state": "active",
+      "first_seen_at": "2026-10-09",
+      "last_checked_at": "2026-10-08",
+      "last_success_at": "2026-10-08",
+      "failures": 0,
+      "reason": "HTTP 200確認"
+    },
+    {
+      "id": "nandometer",
+      "name": "何度メーター",
+      "description": "迷いの要素を重みづけして、今の確信度を可視化する。",
+      "category": "意思決定",
+      "tags": [
+        "選択",
+        "確信度"
+      ],
+      "url": "https://osakenpiro.github.io/nandometer/",
+      "source_path": "nandometer/index.html",
+      "commercial_relation": "none",
+      "source": "seed",
+      "state": "active",
+      "first_seen_at": "2026-10-09",
+      "last_checked_at": "2026-10-08",
+      "last_success_at": "2026-10-08",
+      "failures": 0,
+      "reason": "HTTP 200確認"
     }
   ]
 }
