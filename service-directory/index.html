@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="osakenpiro サービス名鑑。公開Webサービスを用途から探す、電話帳と四季報のあいだの小さな索引。掲載状態も記録します。">
+<link rel="canonical" href="https://osakenpiro.github.io/service-directory/">
+<title>サービス名鑑 — osakenpiro</title>
+<style>
+:root{--paper:#f7f4ec;--ink:#202d2c;--muted:#66706b;--line:#cbd1cb;--sea:#245e5b;--light:#e6eeea}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",system-ui,sans-serif;line-height:1.7}
+a{color:inherit;text-underline-offset:3px}
+.wrap{width:min(1120px,calc(100% - 36px));margin:auto}
+.utility{border-bottom:1px solid var(--ink);padding:12px 0;font-size:11px;letter-spacing:.13em;display:flex;justify-content:space-between;gap:12px}
+.utility a{text-decoration:none}
+.hero{border-bottom:4px double var(--ink);padding:52px 0 42px}
+.eyebrow{color:var(--sea);font-family:ui-monospace,monospace;letter-spacing:.18em;font-size:12px;font-weight:700}
+h1,h2,h3{font-family:"Yu Mincho","Hiragino Mincho ProN",serif;font-weight:700}
+h1{font-size:clamp(39px,7vw,77px);line-height:1.2;letter-spacing:.1em;margin:18px 0 22px}
+.lead{font-size:clamp(15px,1.9vw,19px);max-width:720px;margin:0}
+.hero-note{font-size:12px;color:var(--muted);margin-top:22px}
+.stamp{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.1em;border:1px solid var(--ink);padding:4px 8px;display:inline-block;margin-left:10px;vertical-align:middle}
+.counters{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--ink)}
+.counter{padding:24px 14px 22px;border-right:1px solid var(--line)}
+.counter:first-child{padding-left:0}.counter:last-child{border-right:0}
+.counter small{color:var(--muted);font-size:12px;display:block}
+.counter strong{font-family:Georgia,serif;font-size:clamp(28px,4vw,46px);font-weight:400;line-height:1.3;display:block}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 255px;gap:44px;padding:43px 0 78px}
+.heading{display:flex;justify-content:space-between;gap:15px;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:10px}
+h2{font-size:clamp(23px,3.3vw,32px);margin:0}
+.edition{font-family:ui-monospace,monospace;color:var(--muted);font-size:11px}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin:20px 0 11px}
+input,select{width:100%;font:inherit;background:#fffdfa;border:1px solid var(--line);border-radius:3px;padding:11px;min-width:0;color:var(--ink)}
+input:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #378c89;outline-offset:2px}
+.result{color:var(--muted);font-size:12px;margin:6px 0 18px}
+.entry{display:grid;grid-template-columns:42px minmax(0,1fr);gap:12px;border-bottom:1px solid var(--line);padding:22px 0}
+.ordinal{font-family:Georgia,serif;font-size:26px;color:#96a5a0;line-height:1.2}
+.entry-top{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.entry h3{font-size:23px;margin:0;line-height:1.5}
+.entry p{font-size:13px;margin:10px 0 12px}
+.badge{font-size:10px;border:1px solid var(--line);padding:2px 8px;border-radius:2px;letter-spacing:.04em;white-space:nowrap}
+.badge.active{background:#e0efe8;color:#166443;border-color:#acd5c3}
+.badge.watch{background:#fff0c9;color:#805d00}
+.badge.hidden,.badge.retired{background:#ebe8e4;color:#676360}
+.meta{display:flex;gap:7px 13px;flex-wrap:wrap;color:var(--muted);font-size:11px;margin:8px 0}
+.tag{border-bottom:1px dotted var(--line)}
+.go{display:inline-block;background:var(--sea);color:#fff;text-decoration:none;padding:8px 15px;font-size:12px;font-weight:700;min-width:125px;text-align:center;margin-top:7px;border-radius:2px}
+.go:hover{background:#123a3c}
+.go.off{pointer-events:none;background:#ddd;color:#666}
+.empty{padding:40px 10px;text-align:center;color:var(--muted)}
+.side h2{font-size:20px;border-bottom:2px solid var(--ink);padding-bottom:10px}
+.side p,.side li{font-size:12px;color:var(--muted);line-height:1.9}
+.side ol{padding-left:20px}.side section{margin-bottom:35px}
+.side .fact{font-size:12px;color:var(--ink);padding:12px;background:var(--light)}
+.small-heading{font-family:ui-monospace,monospace;font-size:10px;color:var(--sea);letter-spacing:.15em;font-weight:700}
+footer{background:#1b3032;color:#e9eee9;padding:32px 0;font-size:12px}
+footer a{color:#fff}
+.footer-grid{display:flex;justify-content:space-between;gap:22px;flex-wrap:wrap}
+footer p{max-width:720px;margin:0}
+@media(max-width:790px){.layout{display:block}.side{border-top:2px solid var(--ink);padding-top:26px;margin-top:32px}.filters{grid-template-columns:1fr 1fr}.filters input{grid-column:1/-1}}
+@media(max-width:450px){.wrap{width:calc(100% - 28px)}.hero{padding:37px 0}.counter{padding:15px 9px}.entry{grid-template-columns:30px 1fr;gap:8px}.entry h3{font-size:20px}}
+</style>
+<script defer src="./app.js"></script>
+</head>
+<body>
+<div class="wrap">
+<header class="utility"><span>OSAKENPIRO ／ SERVICE DIRECTORY</span><nav><a href="/">玄関へ</a>　/　<a href="/works/">全成果物へ</a></nav></header>
+<section class="hero">
+<div class="eyebrow">INTERNET SERVICE LEDGER / VOL. 001</div>
+<h1>サービス名鑑<span class="stamp">試刊号</span></h1>
+<p class="lead">生まれて、育って、消えていく。<br>インターネットのサービスを、広告ではなく記録と索引でつなぐ。まずは osakenpiro が作ったものから。</p>
+<p class="hero-note">電話帳の探しやすさ × 四季報の記録性。掲載は品質保証でもランキングでもありません。</p>
+</section>
+<section class="counters" aria-label="台帳統計">
+<div class="counter"><small>収録件数</small><strong id="count-all">—</strong></div>
+<div class="counter"><small>掲載中</small><strong id="count-active">—</strong></div>
+<div class="counter"><small>観測・非掲載</small><strong id="count-other">—</strong></div>
+</section>
+<div class="layout">
+<main>
+<div class="heading"><h2>サービス索引</h2><div class="edition">OSAKENPIRO EDITION 2026</div></div>
+<div class="filters" role="search">
+<input type="search" id="search" aria-label="サービスを検索" placeholder="名前・用途・キーワードで探す…">
+<select id="category" aria-label="カテゴリー"><option value="all">すべての分野</option></select>
+<select id="state" aria-label="掲載状態"><option value="active">掲載中</option><option value="all">全履歴</option><option value="watch">観測中</option><option value="hidden">非掲載</option><option value="retired">終了申告</option></select>
+</div>
+<p class="result" id="result" role="status">名鑑を読み込んでいます…</p>
+<div id="entries" aria-live="polite"></div>
+</main>
+<aside class="side" id="policy">
+<section><div class="small-heading">HOW IT WORKS</div><h2>掲載のものさし</h2>
+<ol><li>運営元と公式URLが確かめられる。</li><li>実際に使える公開ページがある。</li><li>用途が短く説明できる。</li><li>自動確認で状態を更新する。</li><li>停止や終了も履歴として残す。</li></ol>
+<div class="fact">1回の通信失敗では消しません。3回連続の失敗で通常表示から外し、復旧後に戻します。</div>
+</section>
+<section><div class="small-heading">EDITORIAL NOTE</div><h2>選ぶのは誰？</h2>
+<p>初版の収録範囲は、運営者本人が管理する公開サービスに限定しています。URLが存在することと、サービスの品質を推薦することは別の話です。</p>
+<p>ロボットによるアクセス確認は、使えることを保証しません。終了の断定には運営者による明示的な根拠が必要です。</p>
+</section>
+<section><div class="small-heading">FUTURE CONNECTION</div><h2>3Sとの関係</h2>
+<p>将来は、本人が許可した目標や興味から、理由のわかるサービス推薦につなぐ構想があります。この名鑑は個人ステータスを取得せず、追跡もしません。</p>
+</section>
+</aside>
+</div>
+</div>
+<footer><div class="wrap footer-grid"><p>© osakenpiro — Service Directory / これは広告枠ではありません。将来、広告・アフィリエイト等の収益関係がある項目は明示します。推薦順位と収益関係は分離します。</p><a href="https://github.com/osakenpiro/osakenpiro.github.io/tree/main/service-directory">仕様と掲載ルール ↗</a></div></footer>
+</body></html>

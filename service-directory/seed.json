@@ -1,0 +1,125 @@
+{
+  "schema_version": "0.1",
+  "publisher": "osakenpiro",
+  "scope": "first-party",
+  "services": [
+    {
+      "id": "fudocho",
+      "name": "腐土帖",
+      "description": "削除せず、沈めて掘り出せる腐葉土型メモツール。",
+      "category": "記録・習慣",
+      "tags": [
+        "メモ",
+        "知識管理",
+        "腐葉土"
+      ],
+      "url": "https://osakenpiro.github.io/fudocho/",
+      "source_path": "fudocho/index.html",
+      "commercial_relation": "none"
+    },
+    {
+      "id": "fuwakka",
+      "name": "フワッカ",
+      "description": "タスクを0〜100%の進捗で管理する、二択ではないTodo。",
+      "category": "記録・習慣",
+      "tags": [
+        "Todo",
+        "進捗"
+      ],
+      "url": "https://osakenpiro.github.io/fuwakka/",
+      "source_path": "fuwakka/index.html",
+      "commercial_relation": "none"
+    },
+    {
+      "id": "nandometer",
+      "name": "何度メーター",
+      "description": "迷いの要素を重みづけして、今の確信度を可視化する。",
+      "category": "意思決定",
+      "tags": [
+        "選択",
+        "確信度"
+      ],
+      "url": "https://osakenpiro.github.io/nandometer/",
+      "source_path": "nandometer/index.html",
+      "commercial_relation": "none"
+    },
+    {
+      "id": "hakarigoto",
+      "name": "はかりごと",
+      "description": "二択の悩みを複数の評価軸と重みで測る意思決定ツール。",
+      "category": "意思決定",
+      "tags": [
+        "比較",
+        "意思決定"
+      ],
+      "url": "https://osakenpiro.github.io/hakarigoto/",
+      "source_path": "hakarigoto/index.html",
+      "commercial_relation": "none"
+    },
+    {
+      "id": "furiko",
+      "name": "フリコ",
+      "description": "YESかNOかだけではなく、選択肢を引く力の強さで迷いを考える。",
+      "category": "意思決定",
+      "tags": [
+        "迷い",
+        "振り子"
+      ],
+      "url": "https://osakenpiro.github.io/furiko/",
+      "source_path": "furiko/index.html",
+      "commercial_relation": "none"
+    },
+    {
+      "id": "buntai-hakari",
+      "name": "文体測り",
+      "description": "原稿の読点率・文長・視点リークなどを計測する文章チェッカー。",
+      "category": "文章・創作",
+      "tags": [
+        "執筆",
+        "文章校正"
+      ],
+      "url": "https://osakenpiro.github.io/buntai-hakari/",
+      "source_path": "buntai-hakari/index.html",
+      "commercial_relation": "none"
+    },
+    {
+      "id": "mitsuami",
+      "name": "三つ編み",
+      "description": "名前の候補を音韻・意味・構造の三方向から評価する命名ツール。",
+      "category": "文章・創作",
+      "tags": [
+        "命名",
+        "音韻"
+      ],
+      "url": "https://osakenpiro.github.io/mitsuami/",
+      "source_path": "mitsuami/index.html",
+      "commercial_relation": "none"
+    },
+    {
+      "id": "asobiba",
+      "name": "あそびば",
+      "description": "論理・確率・音・分類などを題材にした8つのインタラクティブ展示。",
+      "category": "学び・遊び",
+      "tags": [
+        "体験",
+        "Boolean→Float"
+      ],
+      "url": "https://osakenpiro.github.io/asobiba/",
+      "source_path": "asobiba/index.html",
+      "commercial_relation": "none"
+    },
+    {
+      "id": "ecosystem-checker",
+      "name": "生態系チェッカー",
+      "description": "AIツールの組み合わせから構築できる創作・制作環境を確認する。",
+      "category": "AI・開発",
+      "tags": [
+        "AI",
+        "環境診断"
+      ],
+      "url": "https://osakenpiro.github.io/ecosystem-checker/",
+      "source_path": "ecosystem-checker/index.html",
+      "commercial_relation": "none"
+    }
+  ]
+}
