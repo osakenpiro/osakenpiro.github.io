@@ -5,7 +5,8 @@ from __future__ import annotations
 import argparse
 import json
 import re
-from datetime import datetime, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.error import HTTPError, URLError
@@ -19,7 +20,7 @@ CATALOG = FOLDER / "catalog.json"
 HOST = "osakenpiro.github.io"
 SLUG = re.compile(r"^[a-z0-9][a-z0-9-]{1,48}$")
 CATEGORIES = {"記録・習慣", "意思決定", "文章・創作", "学び・遊び", "AI・開発", "ゲーム", "その他"}
-TODAY = datetime.now(timezone.utc).date().isoformat()
+TODAY = datetime.now(ZoneInfo("Asia/Tokyo")).date().isoformat()
 
 
 class PageMeta(HTMLParser):
