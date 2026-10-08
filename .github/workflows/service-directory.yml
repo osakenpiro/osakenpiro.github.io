@@ -29,6 +29,10 @@ jobs:
           python-version: "3.12"
       - name: Validate first-party records and opt-outs
         run: python service-directory/sync.py --dry-run --no-network
+      - name: Check browser code syntax
+        run: node --check service-directory/app.js
+      - name: Test lifecycle without network
+        run: python -m unittest discover -s service-directory -p 'test_*.py' -v
   refresh:
     if: github.event_name != 'pull_request'
     needs: validate
