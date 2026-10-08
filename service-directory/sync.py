@@ -142,11 +142,11 @@ def run():
         entry["last_checked_at"] = old.get("last_checked_at")
         entry["last_success_at"] = old.get("last_success_at")
         entry["failures"] = old.get("failures", 0)
-        if not valid:
+        if item.get("retired") is True and (valid or sid in previous):
+            entry.update(state="retired", reason="運営者による終了申告")
+        elif not valid:
             invalid.append(sid + ": " + detail)
             entry.update(state="hidden", reason=detail)
-        elif item.get("retired") is True:
-            entry.update(state="retired", reason="運営者による終了申告")
         elif opts.no_network:
             entry.update(state=old.get("state", "watch"), reason=old.get("reason", "未確認"))
         else:
@@ -166,7 +166,10 @@ def run():
     # Deregistration is a visibility change, never historical erasure.
     for sid, old in previous.items():
         if sid not in output:
-            output[sid] = dict(old, state="hidden", reason="登録元指定なし（終了断定ではありません）")
+            if old.get("state") == "retired":
+                output[sid] = old  # Explicit retirement remains a historical fact.
+            else:
+                output[sid] = dict(old, state="hidden", reason="登録元指定なし（終了断定ではありません）")
 
     result = {
         "schema_version": "0.1",
