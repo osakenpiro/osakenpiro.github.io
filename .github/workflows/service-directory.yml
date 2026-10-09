@@ -33,6 +33,12 @@ jobs:
         run: node --check service-directory/app.js
       - name: Test lifecycle without network
         run: python -m unittest discover -s service-directory -p 'test_*.py' -v
+      - name: Check dictionary browser modules
+        run: |
+          node --check service-directory/dictionary-providers.mjs
+          node --check service-directory/dictionary-ui.mjs
+      - name: Test external dictionary source isolation
+        run: node --test service-directory/test_dictionary.mjs
   refresh:
     if: github.event_name != 'pull_request'
     needs: validate

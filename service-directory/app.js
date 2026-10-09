@@ -28,7 +28,17 @@
     }).sort(function(a,b){return a.name.localeCompare(b.name,"ja");});
     $("result").textContent=matched.length+" 件表示 / "+records.length+" 件を記録";
     const target=$("entries");target.replaceChildren();
-    if(!matched.length){add(target,el("p","empty","この条件で見つかる記録はありません。"));return;}
+    if(!matched.length){
+      add(target,el("p","empty","この条件で見つかる記録はありません。"));
+      // Prefill a different dictionary, but NEVER transmit the query automatically.
+      const link=add(target,el("a","dictionary-jump","外部辞書で探す ↓"));
+      link.href="#external-dictionary";
+      link.addEventListener("click",function(){
+        const external=document.getElementById("dictionary-query");
+        if(external && q.length>=2) external.value=$("search").value.trim().slice(0,80);
+      });
+      return;
+    }
     matched.forEach(function(r,i){
       const row=add(target,el("article","entry"));
       add(row,el("div","ordinal",String(i+1).padStart(2,"0")));
