@@ -56,3 +56,35 @@ CIの成功・実際のURL確認・自動コミットの実行については、
 ## 世界版へ進む条件
 
 第三者登録を始める前に、ドメイン・運営主体の検証、変更/削除の訂正依頼、苦情・通報、著作権・商標、掲載責任、広告表示、データ再利用ライセンス、オープンスキーマを設計する。現段階では世界のサービスを勝手にクロールして登録しない。
+
+
+## 外部辞書の参照（2026-10-09 / v0.2）
+
+- **Wikidata 接続実装**: /service-directory/ 下部の「外部辞書を引く」欄から公開 API `wbsearchentities` をユーザーの検索操作時に呼び出す。
+- 入力した検索語句以外は送らない。3S/UUU の個人 status、閲覧履歴、ID、認証情報などを送信しない。Cookie 付き認証はしない。
+- `origin=*` を付けた Wikimedia Action API の公開CORSを利用。秘密鍵・OAuth・有料API・外部プロキシは不要。
+- 返却された Wikidata Q-ID と表示名・説明のみ取り扱い、リンクは安全な Wikidata のURLをQ-IDから構築する。
+- 辞書のヒットは**未審査の参照候補**。サービスでもない一般項目が含まれ得るし、HTTP動作確認・推薦・公式サイト認証・広告掲載を意味しない。
+- 第一者 `seed.json` / `catalog.json` の自動更新ロジックは変更しない。外部辞書検索の結果はこの台帳に勝手に追加・永続保存しない。
+- 出典を常時表示し、Wikidata項目へ直接移動可能。Wikidataの構造化データはCC0。外部辞書の可用性は保証しない。
+- 利用者がフォームを送信した時だけ API 呼び出し。ページを開くだけ・サンプル語を選択するだけでは外部通信しない。検索失敗時は Wikidata 自身の検索へ誘導。
+
+### 辞書アダプター契約
+
+`dictionary-providers.mjs` が辞書のURL構築・取得・正規化を提供し、`dictionary-ui.mjs` が表示を担当する。将来のアダプターも同じルールを満たすこと。
+
+| フィールド | 内容 |
+| --- | --- |
+| `provider`, `sourceId`, `referenceURL` | 必須の出典識別子と原典リンク |
+| `name`, `description` | プレーンテキスト（HTML/任意URLを信用せず表示） |
+| `provenance` | `external-dictionary` 固定。自前審査済みレコードと分離 |
+| `verified` | デフォルト false（辞書への掲載 != 運営確認） |
+| `contentLicense` | データ利用条件と帰属を明示 |
+
+**将来の複数辞書**:
+- Product Hunt: GraphQL API / API Key。公式ドキュメントが商用利用を原則禁止しているため、事業用は許諾取得まで接続しない。 https://www.producthunt.com/v2/docs
+- G2: 公式APIとDeveloper Portalあり、権限・価格・利用規約・収益関連の条件を別途確認。 https://partner.g2.com/developer
+- App Store: Apple Search APIはアプリ専用の候補。公式APIの呼び出し上限や表示規約、静的ページからのCORS制約を先に調べる。無許可のJSONPスクリプト実行やプロキシを避け、必要になれば鍵やログの扱いを設計した安全な中継を審査する。 https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/
+- AlternativeTo: 一般公開APIの利用可能性は未確認。スクレイピングや丸写しはしない。
+
+辞書ごとの検索意味・収録範囲・更新頻度・ライセンスは異なるので、複数辞書の件数を合算して「世界の全サービス数」とはしない。将来の3S推薦は本人の明示同意と推薦根拠・収益開示を独立ゲートにする。
