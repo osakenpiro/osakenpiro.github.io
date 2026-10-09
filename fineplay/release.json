@@ -1,27 +1,25 @@
 {
-  "release": "r4-20261009",
-  "based_on": "a3f75742cbd9aa754e5dc26d0b327efc9f0199b9",
-  "previous_fineplay_commit": "76710d26d1f87920ec0ec19da4cff5b43b3de2c7",
-  "previous_fineplay_tree": "afcbd6787d5927dee236982b7b5c1547bc10bd6f",
-  "rollback_ref": "fineplay-pre-r4-20261009",
-  "release_date": "2026-10-09",
+  "release": "r5-local-candidate-20261010",
+  "status": "local-only-unpublished",
+  "based_on": "f671dfafa341e4b7ddf188ae7630b901f3fabe43",
+  "rollback_ref": "rollback/fineplay-r4-20261009",
+  "published_baseline": "r4-20261009",
+  "candidate_date_jst": "2026-10-10",
   "features": [
-    "earned-score-piles",
-    "in-play-cumulative-score",
-    "ultra-achievement",
-    "wide-following-history",
-    "history-copy",
-    "question-adjacent-tools",
-    "stable-100-applause",
-    "synchronized-verdict",
-    "scope-suggestions",
-    "earned-points-feedback",
-    "version-history"
+    "normal-fp-hands-per-point",
+    "persistent-correct-points",
+    "readable-history",
+    "tools-score-or-tile-comparison",
+    "demo-applause-tenth-comparison",
+    "approved-direction-lamp-body-lid-smoke-atlas"
   ],
   "remaining": [
-    "finished-lamp-illustration",
+    "tools-placement-undecided",
+    "applause-ratio-or-absolute-undecided",
+    "applause-production-adoption-undecided",
     "account-lifetime-records",
-    "whole-session-awards"
+    "whole-session-awards",
+    "lamp-implementation-taste-review"
   ],
-  "release_note": "獲得の山、途中の総合点、正解時の加点、カテゴリ候補と履歴の使いやすさを更新。"
+  "release_note": "未公開のローカル候補。正式な採点・通信処理は公開R4のまま。本人が再添付したランプ原画から透過パーツを素材化。"
 }

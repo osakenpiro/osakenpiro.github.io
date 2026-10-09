@@ -20,6 +20,13 @@ function foregroundDraw(t){f.clearRect(0,0,W,H);particles=particles.filter(p=>t-
  function resize(){const ratio=Math.min(devicePixelRatio||1,2);front.width=Math.round(innerWidth*ratio);front.height=Math.round(innerHeight*ratio);H=innerHeight/(innerWidth/W);f.setTransform(front.width/W,0,0,front.width/W,0,0);}
  resize();
  const kind=honor.visibleEffect;
+ // The public normal-increase payload already supplies a 1 / 2 / 3 point
+ // delta. Use that exact unit in the receipt; preserve the canvas artwork.
+ if(kind==='normal'&&honor.kind==='fineplay'&&window.FinePlayCelebration){
+  const chip=document.createElement('div');chip.className='fp-celebration-chip';
+  chip.append(window.FinePlayCelebration.createIcon({tier:'normal',stars:honor.stars||1}));
+  const label=document.createElement('span');label.textContent='FINEPLAY! +'+(honor.stars||1)+'点';chip.append(label);layer.append(chip);
+ }
  if(staticOnly)add({kind:'quiet',effect:kind,life:1000,x:360,y:H*.46});
  else if(kind==='normal'){stamp(360,H*.53,.78,0,random(-55,55));stamp(220,H*.62,.50,120,-65);stamp(500,H*.64,.45,250,55);confetti(7,.55)}
  else if(kind==='super'){stamp(350,H*.53,1.05,0,-60,'star');stamp(487,H*.605,.75,130,84,'star');stamp(209,H*.633,.62,255,-65,'star');crowd(4,.8);confetti(54,.85)}

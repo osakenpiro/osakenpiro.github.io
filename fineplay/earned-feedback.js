@@ -60,13 +60,18 @@ if(typeof window!=='undefined')(()=>{
     for(const card of document.querySelectorAll('.fp-hud-player')){
       const id=card.dataset.playerId;let slot=card.querySelector('.earned-recent');
       if(!slot){slot=make('div','earned-recent');slot.setAttribute('role','status');slot.setAttribute('aria-live','polite');card.querySelector('.fp-hud-score').after(slot);}
-      const text=[...recent.values()].filter(r=>r.recipient===id&&r.until>Date.now()).map(r=>FPEarned.labels[r.reason]+' '+signed(r.amount)).join(' · ');
+      const personal=rows.filter(r=>r.recipient===id);
+      const correctPoints=personal.filter(r=>r.reason==='correct').reduce((n,r)=>n+r.amount,0);
+      const transient=[...recent.values()].filter(r=>r.recipient===id&&r.until>Date.now()).map(r=>FPEarned.labels[r.reason]+' '+signed(r.amount)).join(' · ');
+      // Readback survives the short notification, but is always rebuilt from
+      // the allowed current projection. Undo/private views remove it at once.
+      const text=transient||(correctPoints>0?'正解で '+signed(correctPoints)+' 獲得':'');
       if(slot.textContent!==text)slot.textContent=text;
-      card.classList.toggle('earned-highlight',!!text);
+      slot.classList.toggle('earned-correct-persistent',!transient&&correctPoints>0);
+      card.classList.toggle('earned-highlight',!!transient);
       card.querySelector('.earned-topic')?.remove();
       const current=v.scoreTotals?.scope==='current'?v.scoreTotals.players.find(p=>p.id===id)?.total:v.result?.players.find(p=>p.id===id)?.score;
       const topic=make('small','earned-topic',Number.isFinite(current)?'このお題 '+current+'点':'このお題の点は終了後に公開');slot.after(topic);
-      const personal=rows.filter(r=>r.recipient===id);
       let detail=card.querySelector('.earned-readback');
       if(!detail){detail=make('details','earned-readback');detail.append(make('summary','','このお題の得点内訳'));card.append(detail);}
       const signature=JSON.stringify(personal);
@@ -77,7 +82,7 @@ if(typeof window!=='undefined')(()=>{
     }
     document.querySelector('#earned-correct')?.remove();
     const correct=rows.filter(r=>r.reason==='correct');if(correct.length&&document.querySelector('.result')){const badge=make('div','earned-correct');badge.id='earned-correct';for(const r of correct)badge.append(make('p','',(v.players.find(p=>p.id===r.recipient)?.name||'プレイヤー')+' · 正解！ '+signed(r.amount)));document.querySelector('.result').append(badge);}
-    clearTimeout(timer);if([...recent.values()].some(r=>r.until>Date.now()))timer=setTimeout(()=>{for(const e of document.querySelectorAll('.earned-recent'))e.textContent='';for(const e of document.querySelectorAll('.earned-highlight'))e.classList.remove('earned-highlight');},4500);
+    clearTimeout(timer);if([...recent.values()].some(r=>r.until>Date.now()))timer=setTimeout(paint,4500);
   }
   render=()=>{prior();if(window.FPR3?.anticipating())return;scopeUI();paint();};
   document.addEventListener('visibilitychange',()=>{connected=false;recent.clear();});

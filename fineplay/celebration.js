@@ -10,6 +10,14 @@
   const icon=svgNode('svg',{viewBox:'0 0 96 96',class:'fp-celebration-icon','data-tier':tier,focusable:'false',fill:'none',stroke:'currentColor','stroke-width':tier==='super'?4:6,'stroke-linejoin':'round','stroke-linecap':'round'});
   if(label){icon.setAttribute('role','img');const title=svgNode('title');title.textContent=label;icon.append(title);}else icon.setAttribute('aria-hidden','true');
   if(tier==='super'){icon.append(svgNode('path',{d:'M48 7Q55 41 89 48Q55 55 48 89Q41 55 7 48Q41 41 48 7Z',fill:'#c7a34a'}));return icon;}
+  if(tier==='normal'){
+   const scale=stars===1?1:stars===2?.86:.78;
+   for(let i=0;i<stars;i++){
+    const unit=svgNode('g',{'data-normal-point':i+1,transform:`translate(${i*12} ${i*8}) scale(${scale})`});
+    unit.append(svgNode('path',{d:hand,fill:'#fffaf0'}),svgNode('path',{d:'M29 43Q34 49 38 44M38 44Q43 49 48 42M38 59Q47 52 56 57'}));icon.append(unit);
+   }
+   return icon;
+  }
   icon.append(svgNode('path',{d:hand,fill:'#fffaf0'}),svgNode('path',{d:'M29 43Q34 49 38 44M38 44Q43 49 48 42M38 59Q47 52 56 57'}));
   if(tier!=='normal'){
    icon.append(svgNode('path',{d:'M10 58Q7 78 24 88M70 69Q80 61 88 43','stroke-width':3}));
@@ -31,7 +39,7 @@
  function render(honor,staticOnly){
   if(window.FinePlayMotion)return window.FinePlayMotion.create(honor,staticOnly);
   const tier=honor.visibleEffect,layer=document.createElement('div');layer.className='fp-celebration-layer';layer.dataset.tier=tier;layer.dataset.static=String(staticOnly);layer.setAttribute('aria-hidden','true');
-  const chip=document.createElement('div');chip.className='fp-celebration-chip';chip.append(createIcon({tier,stars:honor.stars||1}));const label=document.createElement('span');label.textContent=tier==='ultra'?'ULTRA FINEPLAY!':tier==='super'?'SUPER FINEPLAY!':'FINEPLAY!';chip.append(label);layer.append(chip);
+  const chip=document.createElement('div');chip.className='fp-celebration-chip';chip.append(createIcon({tier,stars:honor.stars||1}));const label=document.createElement('span');label.textContent=tier==='ultra'?'ULTRA FINEPLAY!':tier==='super'?'SUPER FINEPLAY!':'FINEPLAY!'+(tier==='normal'&&honor.kind==='fineplay'?' +'+(honor.stars||1)+'点':'');chip.append(label);layer.append(chip);
   if(tier!=='normal'&&!staticOnly){
    for(let i=0;i<4;i++){const beam=document.createElement('i');beam.className='fp-celebration-light';beam.style.left=`${10+i*25}%`;beam.style.transform=`rotate(${i%2?25:-25}deg)`;layer.append(beam);}
    layer.append(crowd(tier));

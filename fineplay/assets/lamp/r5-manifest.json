@@ -1,0 +1,16 @@
+{
+  "version": "fineplay-lamp-atlas/1",
+  "enabled": true,
+  "noText": true,
+  "transparent": true,
+  "width": 900,
+  "height": 600,
+  "atlas": "assets/lamp/r5/atlas.png",
+  "atlasWidth": 1536,
+  "atlasHeight": 1024,
+  "parts": {
+    "body": { "clip": [0, 0, 940, 512], "x": 0, "y": 0, "scale": 1 },
+    "lid": { "clip": [950, 0, 586, 512], "x": -700, "y": -118, "scale": 1 },
+    "smoke": { "clip": [0, 512, 940, 512], "x": 125, "y": -405, "scale": 0.65 }
+  }
+}
