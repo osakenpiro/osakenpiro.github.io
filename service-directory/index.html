@@ -60,8 +60,33 @@ footer a{color:#fff}
 footer p{max-width:720px;margin:0}
 @media(max-width:790px){.layout{display:block}.side{border-top:2px solid var(--ink);padding-top:26px;margin-top:32px}.filters{grid-template-columns:1fr 1fr}.filters input{grid-column:1/-1}}
 @media(max-width:450px){.wrap{width:calc(100% - 28px)}.hero{padding:37px 0}.counter{padding:15px 9px}.entry{grid-template-columns:30px 1fr;gap:8px}.entry h3{font-size:20px}}
+
+/* External dictionary: separate from the curated first-party ledger. */
+.dictionary{margin-top:66px;padding-top:25px;border-top:4px double var(--ink)}
+.dictionary-heading{display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:13px;margin-top:7px}
+.dictionary-intro{font-size:13px;color:var(--muted);line-height:1.9;margin:17px 0 22px}
+.dictionary-form{display:block}
+.dictionary-form label{display:block;font-size:12px;font-weight:700;margin-bottom:8px}
+.dictionary-form-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.dictionary-form-row button{font:inherit;font-weight:700;font-size:12px;color:#fff;background:var(--sea);border:1px solid var(--sea);border-radius:3px;padding:9px 18px;cursor:pointer}
+.dictionary-form-row button:hover{background:#133e3d}
+.dictionary-form-row button:disabled{opacity:.55;cursor:wait}
+.dictionary-examples{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:11px 0 18px;font-size:12px;color:var(--muted)}
+.dictionary-examples button{border:1px solid var(--line);color:var(--sea);background:transparent;border-radius:999px;font:inherit;font-size:11px;padding:3px 9px;cursor:pointer}
+.dictionary-examples button:hover{border-color:var(--sea)}
+.dictionary-privacy{font-size:11px;line-height:1.8;color:var(--muted);background:var(--light);padding:11px 13px}
+.dictionary-hit{padding:16px 0 19px;border-bottom:1px solid var(--line)}
+.dictionary-hit-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.dictionary-hit h3{margin:0;font-size:20px}
+.dictionary-hit p{font-size:13px;margin:8px 0}
+.dictionary-hit-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-bottom:10px}
+.dictionary-open{font-size:12px;font-weight:700;color:var(--sea)}
+.dictionary-source{font-size:12px;color:var(--muted);margin-top:12px}
+@media(max-width:520px){.dictionary-form-row{grid-template-columns:1fr}.dictionary-form-row button{padding:12px}.dictionary{margin-top:46px}}
+
 </style>
 <script defer src="./app.js"></script>
+<script type="module" src="./dictionary-ui.mjs"></script>
 </head>
 <body>
 <div class="wrap">
@@ -87,6 +112,29 @@ footer p{max-width:720px;margin:0}
 </div>
 <p class="result" id="result" role="status">名鑑を読み込んでいます…</p>
 <div id="entries" aria-live="polite"></div>
+
+<section class="dictionary" id="external-dictionary" aria-labelledby="dictionary-title">
+<div class="small-heading">REFERENCE DESK / DICTIONARY LOOKUP</div>
+<div class="dictionary-heading"><h2 id="dictionary-title">外部辞書を引く</h2><span class="badge">Wikidata API 接続</span></div>
+<p class="dictionary-intro">この名鑑にまだ載っていないものも、既存の辞書から探せます。まずは名前で検索。辞書の検索結果は<strong>掲載・推薦・稼働確認とは別</strong>です。</p>
+<form id="dictionary-form" class="dictionary-form" action="https://www.wikidata.org/w/index.php" method="get" target="_blank">
+<label for="dictionary-query">調べたいサービスやソフトウェアの名前</label>
+<div class="dictionary-form-row">
+<input id="dictionary-query" name="search" type="search" placeholder="例：Notion、Blender、Spotify" minlength="2" maxlength="80" autocomplete="off">
+<button type="submit" id="dictionary-submit">外部辞書を引く →</button>
+</div>
+</form>
+<div class="dictionary-examples" aria-label="検索語句の例">
+<span>例：</span>
+<button type="button" data-dictionary-example="Notion">Notion</button>
+<button type="button" data-dictionary-example="Blender">Blender</button>
+<button type="button" data-dictionary-example="Spotify">Spotify</button>
+</div>
+<p class="dictionary-privacy">※ 検索ボタンを押したときだけ<strong>入力した検索語句</strong>をWikidataへ送ります。3Sの個人ステータス・閲覧履歴・認証情報は送信しません。Wikidataは一般的な事典のため、サービス以外の項目も混ざります。</p>
+<p id="dictionary-status" role="status" aria-live="polite" class="result">検索はまだ行っていません。</p>
+<div id="dictionary-results"></div>
+<p id="dictionary-source" class="dictionary-source"></p>
+</section>
 </main>
 <aside class="side" id="policy">
 <section><div class="small-heading">HOW IT WORKS</div><h2>掲載のものさし</h2>
@@ -96,6 +144,10 @@ footer p{max-width:720px;margin:0}
 <section><div class="small-heading">EDITORIAL NOTE</div><h2>選ぶのは誰？</h2>
 <p>初版の収録範囲は、運営者本人が管理する公開サービスに限定しています。URLが存在することと、サービスの品質を推薦することは別の話です。</p>
 <p>ロボットによるアクセス確認は、使えることを保証しません。終了の断定には運営者による明示的な根拠が必要です。</p>
+</section>
+<section><div class="small-heading">REFERENCE SOURCES</div><h2>参照先の扱い</h2>
+<p>最初の外部辞書は<a href="https://www.wikidata.org/" target="_blank" rel="noopener noreferrer">Wikidata</a>。公開データを必要なときだけ調べます。別の辞書を接続しても、出典は残し、掲載審査とは混ぜません。</p>
+<p>Product Hunt・G2など条件付きのAPIは、利用許諾や費用・収益関係を確認してから接続を判断します。</p>
 </section>
 <section><div class="small-heading">FUTURE CONNECTION</div><h2>3Sとの関係</h2>
 <p>将来は、本人が許可した目標や興味から、理由のわかるサービス推薦につなぐ構想があります。この名鑑は個人ステータスを取得せず、追跡もしません。</p>
