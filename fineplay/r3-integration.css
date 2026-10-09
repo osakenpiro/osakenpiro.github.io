@@ -4,7 +4,7 @@
 .r3-hud-toolbar button { min-height:44px; font-size:12px; }
 .r3-hud-host .fp-hud-heading { padding-top:10px; }
 .r3-hud-host .fp-hud-list { padding-top:16px; padding-bottom:8px; }
-.r3-hud-host .fp-hud-player { grid-template-rows:48px 22px 2.8em 22px 28px 8px auto; }
+.r3-hud-host .fp-hud-player { grid-template-rows:48px 22px 2.8em 22px 88px 32px auto auto; }
 .r3-hud-host .fp-hud-portrait { width:40px; height:40px; }
 .r3-hud-host .fp-hud-avatar { width:32px; height:32px; }
 .r3-hud-host .fp-hud-monogram { white-space:nowrap; font-size:17px; }

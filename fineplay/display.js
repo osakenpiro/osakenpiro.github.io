@@ -1,7 +1,7 @@
 /* Display-only proposal. Read the existing role-filtered view; never raw game state. */
 (()=>{'use strict';
  const LINK='<span aria-hidden="true">↔</span>',EXPAND='<span aria-hidden="true">⤢</span>';
- const tutorialRole=demo&&['asker','genie'].includes(new URLSearchParams(location.search).get('role'));
+ const tutorialRole=demo&&new URLSearchParams(location.search).get('role')==='genie';
  const fmt=n=>String(Math.round(n*100)/100);
  const dialog=document.createElement('dialog');dialog.id='display-dialog';dialog.setAttribute('aria-labelledby','display-title');document.body.append(dialog);
  let mode='',first='',second='',large=true,returnTo=null,dialogKey='',scoreKey='',previous=new Map(),pulses=new Map(),dockScroll=0;

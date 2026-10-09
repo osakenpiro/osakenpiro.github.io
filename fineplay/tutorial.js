@@ -3,7 +3,8 @@
 (() => {
  'use strict';
  const role=new URLSearchParams(location.search).get('role');
- if(!demo||!['asker','genie'].includes(role))return;
+ // The asker entry now uses the normal game UI with explicit solo partners.
+ if(!demo||role!=='genie')return;
  const previousBind=bind, presenter='demo-presenter', asker='demo-asker-a', friend='demo-asker-b';
  const samples=[['雨の日に使うもの？','yes'],['使うときに、開くもの？','yes'],['食べられるもの？','no']];
  const incoming=['人が作ったもの？','雨の日に使うもの？','使うときに、開くもの？'];

@@ -1,6 +1,6 @@
 /* Shared final UI glue: engine projections remain the source of score and achievements. */
 (()=>{'use strict';
- const previousRender=render,knownAchievements={firstQuestion:'はじめの質問',fineplay:'FinePlay獲得',superFineplay:'Super獲得',correctGuess:'正解！',tenQuestionsOrFewer:'10問以内の正解',hundredApplause:'100拍手をもらった'},themes={fine:{label:'FinePlay!',icon:HAND},hot:{label:'熱盛!!',icon:'<span class="praise-symbol" aria-hidden="true">♨</span>'},rare:{label:'珍プレー!!',icon:'<span class="praise-symbol" aria-hidden="true">✧</span>'}};
+ const previousRender=render,knownAchievements={firstQuestion:'はじめの質問',fineplay:'FinePlay獲得',superFineplay:'Super獲得',ultraFineplay:'Ultra FinePlay獲得',correctGuess:'正解！',tenQuestionsOrFewer:'10問以内の正解',hundredApplause:'100拍手をもらった'},themes={fine:{label:'FinePlay!',icon:HAND},hot:{label:'熱盛!!',icon:'<span class="praise-symbol" aria-hidden="true">♨</span>'},rare:{label:'珍プレー!!',icon:'<span class="praise-symbol" aria-hidden="true">✧</span>'}};
  let achievementKey='',seeded=false,previousCodes=new Set();const pulses=new Map();
  const fmt=n=>String(Math.round(Number(n||0)*100)/100);
 

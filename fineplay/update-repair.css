@@ -1,0 +1,63 @@
+/* Bounded R4 readability/stability repairs; keep paper, forest and crystal theme. */
+.layout-preview #history .compact-clue>summary .clue-main{grid-column:2;grid-row:1}
+.layout-preview #history .compact-clue>summary .answer-chip{grid-column:3;grid-row:1}
+.layout-preview #history .compact-clue>summary .layout-history-fp{grid-column:4;grid-row:1;margin:0!important;justify-self:end}
+.layout-preview #history .attrs-fp-trigger{width:44px!important;min-width:44px;min-height:44px;height:44px;padding:2px;gap:0;flex-direction:column}
+.layout-preview #history .attrs-fp-trigger .layout-fp-hand{width:23px;height:23px}
+.layout-preview #history .attrs-fp-trigger .layout-fp-button-label{display:none}
+.layout-preview #history .attrs-fp-trigger .layout-fp-meter{height:10px;line-height:10px}
+.layout-preview #history .attrs-fp-trigger .layout-fp-mark{width:10px;height:10px}
+.layout-preview #history .attrs-fp-trigger .layout-fp-state-icon{width:10px;height:10px}
+@media(min-width:1100px){
+  .layout-preview.presentation-active .play-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(390px,44%);gap:18px}
+}
+.layout-preview #history.presentation-history .section-head{margin:0 0 4px;gap:8px}
+.layout-preview #history.presentation-history .section-head h2{font-size:16px;line-height:1.4}
+.layout-preview #history.presentation-history .display-history-tools,.layout-preview #history.presentation-history .layout-preview #history.presentation-history-nav,.repair-copybar{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:3px 0}
+.layout-preview #history.presentation-history button,.layout-preview #history.presentation-history input,.layout-preview #history.presentation-history select{min-height:40px;font-size:13px;padding:5px 9px}
+.layout-preview #history.presentation-history .history-filters{margin:4px 0;gap:5px}
+.layout-preview #history.presentation-history .history-list{height:calc(100dvh - 300px);max-height:650px;min-height:260px}
+.layout-preview #history.presentation-history.presentation-long .history-list{height:calc(100dvh - 300px)}
+.layout-preview #history.presentation-history .history-item{padding:0;margin:0 0 4px;border-radius:9px}
+.layout-preview #history.presentation-history .history-item>summary{padding:7px 6px;gap:6px;grid-template-columns:24px minmax(0,1fr) auto 40px;align-items:center}
+.layout-preview #history.presentation-history .clue-main{gap:2px;min-width:0}
+.layout-preview #history.presentation-history .clue-text{font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+.layout-preview #history.presentation-history .clue-main small{font-size:11px;line-height:1.4}
+.layout-preview #history.presentation-history .presentation-fp-mark{font-size:11px;margin:0;line-height:1.3}
+.layout-preview #history.presentation-history .presentation-fp-mark[aria-hidden=true]{display:none}
+.layout-preview #history.presentation-history .history-number{font-size:12px}
+.layout-preview #history.presentation-history .answer-chip{font-size:12px;padding:3px 6px;white-space:normal;max-width:85px}
+.layout-preview #history.presentation-history .history-quick-fp{width:40px;min-height:40px;padding:6px;justify-content:center}
+.layout-preview #history.presentation-history .history-quick-fp .hand{width:25px;height:25px}
+.layout-preview #history.presentation-history .history-quick-fp>span{display:none}
+.layout-preview #history.presentation-history .presentation-thread{padding:2px 8px;margin:0 0 4px}
+.layout-preview #history.presentation-history .presentation-thread p{font-size:13px;line-height:1.5;margin:3px 0}
+.layout-preview #history.presentation-history .presentation-thread small{font-size:11px}
+#display-dialog{width:min(1180px,96vw);max-width:96vw}
+.fp-assist{margin:10px 0;padding:12px}
+.fp-assist .assist-lifelines{gap:6px}
+.fp-assist .assist-lifeline{min-height:44px;font-size:13px;padding:8px}
+.presentation-active .repair-applause{width:min(100%,450px);height:112px;min-height:112px;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 2px 8px #24463822!important;background:#244638!important;font-size:18px}
+.presentation-active .repair-applause .hand{width:42px;height:42px;flex:0 0 42px;transform:none!important;filter:none!important}
+.presentation-active .repair-applause strong{font-size:20px;font-weight:650;transform:none!important;line-height:1.4;white-space:nowrap}
+.repair-applause #tap-count{display:inline-block;width:9ch;font:600 14px/1.4 ui-monospace,monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+.presentation-active .repair-applause.presentation-climax:after{display:none}
+.repair-applause:active{background:#355b44!important}
+.r3-reveal-pending .r3-lamp-host{position:relative;z-index:2}
+@media(max-width:680px){
+  .rail nav #repair-updates{display:inline-flex;min-height:44px;align-items:center}
+  .rail nav{flex-wrap:wrap;justify-content:flex-end}
+  .layout-preview #history.presentation-history button,.layout-preview #history.presentation-history input,.layout-preview #history.presentation-history select{min-height:44px}
+  .layout-preview #history.presentation-history .history-list,.layout-preview #history.presentation-history.presentation-long .history-list{height:480px;max-height:65dvh}
+  .layout-preview #history.presentation-history .history-item>summary{grid-template-columns:22px minmax(0,1fr) auto 44px}
+  .layout-preview #history.presentation-history .history-quick-fp{width:44px;min-height:44px}
+  .presentation-active .repair-applause{gap:7px}
+  .presentation-active .repair-applause strong{font-size:18px}
+}
+@media(prefers-reduced-motion:reduce){.repair-applause,.repair-applause *{animation:none!important;transition:none!important}}
+
+/* R04: visual flex order must agree with the bound-node DOM placement. */
+.layout-preview .game-column>#layout-tools{order:-1;margin:0 0 16px;padding:12px 16px}
+.layout-preview .game-column>#layout-tools>h2{margin:0 0 8px}
+.layout-preview .game-column>#layout-tools .assist-lifeline{min-height:60px;padding:6px}
+.layout-preview .game-column>#layout-tools .layout-wallet{top:12px}

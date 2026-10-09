@@ -1,1 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="jade" x2=".8" y2="1"><stop stop-color="#91ca9c"/><stop offset=".48" stop-color="#327964"/><stop offset="1" stop-color="#154737"/></linearGradient><linearGradient id="gold" x2=".7" y2="1"><stop stop-color="#f6e5aa"/><stop offset=".5" stop-color="#d7b565"/><stop offset="1" stop-color="#92723b"/></linearGradient><linearGradient id="rose" x2=".8" y2="1"><stop stop-color="#d7977e"/><stop offset="1" stop-color="#8b4d4c"/></linearGradient><linearGradient id="skin" x2=".7" y2="1"><stop stop-color="#ffe6b4"/><stop offset="1" stop-color="#c79460"/></linearGradient></defs><g stroke="#d6cf92" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round"><g transform="rotate(-17 32 34)"><path d="M30 53 18 38 11 27q-2-5 2-6 3-1 5 3l5 8-9-17q-2-5 2-6 3-1 5 4l8 15-5-17q-1-5 3-5 3 0 4 4l5 17 1-12q0-5 4-4 3 0 3 5v21l6-5q4-3 6 0 2 3-2 7L42 54Z" fill="url(#gold)"/><path d="m28 53-8-13-5-12q-1-4 2-5 3 0 5 4l5 9-4-15q-1-5 3-5 3 0 4 5l5 15 5-8q3-4 6-1 2 2-1 6l-3 9-3 11Z" fill="url(#skin)"/></g><path d="m47 9 3-5m2 13 7-1M11 45l-6 2" stroke="#f0df9d" stroke-width="2"/></g><path d="m8 9 1 3 3 1-3 1-1 3-1-3-3-1 3-1Z" fill="#e5d89a" opacity=".8"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>拍手 — 重なる二つの手</title>
+  <g stroke="#244638" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <!-- Rear hand: a quiet paper silhouette, separated by the dark contour. -->
+    <path d="M34 53 23 39 13 22Q11 18 14 17 17 16 19 20L27 32 20 14Q19 10 22 9 25 8 27 13L33 28 30 11Q29 7 33 7 36 7 37 11L41 29 42 19Q42 15 45 16 48 16 48 20V37L53 33Q56 31 58 34 59 36 56 40L46 54Z" fill="#e5ebda"/>
+    <!-- Front hand: fewer, wider finger shapes remain readable at HUD size. -->
+    <path d="M21 57 13 45 6 30Q4 26 7 25 10 24 12 28L19 40 13 22Q12 18 15 17 18 16 20 21L26 36 23 19Q22 15 26 15 29 15 30 19L34 36 36 26Q37 22 40 23 43 24 42 28L40 42 46 37Q49 34 52 37 54 39 50 43L38 57Z" fill="#fffaf0"/>
+    <path d="M26 48Q31 43 37 45" fill="none"/>
+    <path d="M10 12 7 8M47 8 49 4M54 19 59 17" fill="none" stroke="#ae873f"/>
+  </g>
+</svg>

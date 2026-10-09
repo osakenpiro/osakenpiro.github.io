@@ -1,10 +1,27 @@
 {
-  "release": "r3-20261007",
-  "based_on": "8fabe71f73df0536969e047a2c7d97242eba4e48",
-  "previous_fineplay_tree": "1bb46bdbf2bc93d5eaa6ca7011cdb3df3eed7858",
+  "release": "r4-20261009",
+  "based_on": "a3f75742cbd9aa754e5dc26d0b327efc9f0199b9",
+  "previous_fineplay_commit": "76710d26d1f87920ec0ec19da4cff5b43b3de2c7",
+  "previous_fineplay_tree": "afcbd6787d5927dee236982b7b5c1547bc10bd6f",
+  "rollback_ref": "fineplay-pre-r4-20261009",
+  "release_date": "2026-10-09",
   "features": [
-    "horizontal-player-hud",
-    "magic-lamp-verdict"
+    "earned-score-piles",
+    "in-play-cumulative-score",
+    "ultra-achievement",
+    "wide-following-history",
+    "history-copy",
+    "question-adjacent-tools",
+    "stable-100-applause",
+    "synchronized-verdict",
+    "scope-suggestions",
+    "earned-points-feedback",
+    "version-history"
   ],
-  "release_note": "Player HUD and magic lamp reveal. Existing scoring and audio preferences preserved."
+  "remaining": [
+    "finished-lamp-illustration",
+    "account-lifetime-records",
+    "whole-session-awards"
+  ],
+  "release_note": "獲得の山、途中の総合点、正解時の加点、カテゴリ候補と履歴の使いやすさを更新。"
 }

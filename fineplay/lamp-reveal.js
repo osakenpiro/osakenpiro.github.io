@@ -59,6 +59,7 @@
           notify('onReveal', run.event);
         } else {
           state('incorrect-settle'); status.textContent = '不正解。ランプはまだ開きません。';
+          notify('onReveal', run.event);
         }
       }
       if (active !== run) return; // A callback may cancel, destroy, or start a new event.

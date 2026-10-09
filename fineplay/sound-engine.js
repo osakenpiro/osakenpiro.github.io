@@ -77,6 +77,8 @@
   const epoch=generation,localEpoch=kindEpoch[cue.kind];let b;
   try{b=await bufferFor(cue.kind,cue.tier||'normal');}catch(e){if(epoch===generation){audioError=e.message||'ASSET_FAILED';notify();}return false;}
   if(epoch!==generation||localEpoch!==kindEpoch[cue.kind]||!allowed(cue.kind,preview)||voices.size>=2)return false;
+  // Merge audio only: acknowledged applause counts and commands are untouched.
+  if(cue.kind==='applause'&&[...voices].some(v=>v.kind==='applause'))return false;
   let voice=null;
   try{
    const source=ctx.createBufferSource(),gain=ctx.createGain(),v={source,gain,kind:cue.kind};voice=v;

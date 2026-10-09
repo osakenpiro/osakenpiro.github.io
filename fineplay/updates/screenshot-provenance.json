@@ -1,0 +1,32 @@
+[
+  {
+    "path": "screenshots/r3-1366.png",
+    "description": "R3 preserved baseline 76710d26d1f87920ec0ec19da4cff5b43b3de2c7; local engine fixture; prior R4 evidence",
+    "sha256": "6f3bdb2fd9ae4a584311ab2eecb01f2fa79c9ddb36e93737c00601121345af38"
+  },
+  {
+    "path": "screenshots/r4-pile-1366.png",
+    "description": "Original R4 local score-pile candidate, prior actual Chrome capture; synthetic users",
+    "sha256": "4fa0d5bb1b1cdcf4c5471bf61c4190286812a25b1150e4d6bce08974fd8ce3ad"
+  },
+  {
+    "path": "screenshots/r4-repair-1366.png",
+    "description": "Current repaired source; installed Chrome 1366x900; synthetic 35-question game",
+    "sha256": "c0cf7bbb9cf4bd435c1c8100d719c69c44a8c7efebc12eb16f4dae33f2fdd2e4"
+  },
+  {
+    "path": "screenshots/r4-repair-390.png",
+    "description": "Current repaired source; installed Chrome 390x844; synthetic 35-question game",
+    "sha256": "8b10e4ce51c5357dfb310f8a571f010f43e1ff877355ed0c2121c21242a0f0af"
+  },
+  {
+    "path": "screenshots/r4-earned-1366.png",
+    "description": "Release candidate Chrome 1366px actual ordinary answer button, authoritative synthetic engine; no live room",
+    "sha256": "dff1125c76846aa59a78f0a04901edf9d5980118726ae4deae6721f019365078"
+  },
+  {
+    "path": "screenshots/r4-earned-390.png",
+    "description": "Release candidate Chrome 390px actual ordinary answer button, authoritative synthetic engine; no live room",
+    "sha256": "76586a25737dc1a1787ae712102bc336ec60dc2e80024f77b1ab9fb482623b46"
+  }
+]

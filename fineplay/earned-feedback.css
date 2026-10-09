@@ -1,0 +1,18 @@
+.scope-suggestions{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.scope-suggestions button{min-height:44px;padding:7px 12px;font-size:13px}
+.scope-suggestions button[aria-pressed=true]{background:#294c3d;color:#fffaf0;border-color:#294c3d}
+.scope-help{display:block;margin-bottom:16px;color:#53664d}
+.earned-recent{height:42px;line-height:20px;font-size:12px;font-weight:700;color:#355737;overflow:auto;max-width:100%;overflow-wrap:anywhere}
+.fp-player-hud .fp-hud-player{grid-template-rows:68px 24px 2.9em 24px 88px 34px 42px 30px auto auto auto}
+.fp-player-hud .earned-recent{grid-row:7}
+.fp-player-hud .earned-topic{grid-row:8}
+.fp-player-hud .fp-hud-awards{grid-row:9}
+.fp-player-hud .earned-readback{grid-row:10}
+.fp-player-hud .fp-hud-actions{grid-row:11}
+.earned-highlight .fp-hud-score{background:#f3e8c7;border-radius:5px;box-shadow:0 0 0 3px #b99c5140}
+.earned-topic{display:block;font-size:11px;color:#556b57;min-height:30px}
+.earned-readback{font-size:11px;margin-top:5px;text-align:left}
+.earned-readback summary{cursor:pointer;min-height:32px}
+.earned-readback div{padding:3px 0}
+.earned-correct{border:3px solid #355737;border-radius:12px;background:#f5efd9;color:#294c3d;padding:10px 16px;margin:12px 0}
+.earned-correct p{font-size:20px;font-weight:700;margin:3px 0}

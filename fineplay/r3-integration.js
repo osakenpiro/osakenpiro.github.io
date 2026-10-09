@@ -7,7 +7,9 @@
     return e;
   };
   function projectHUD(v, selfId, connected) {
-    const scores = new Map(!v.locked && v.scoreTotals ? v.scoreTotals.players.map(p => [p.id, p.total]) : []);
+    const totals = window.FPScorePile.totals(v);
+    const scores = new Map(totals ? totals.players.map(p => [p.id, p.total]) : []);
+    const awards = window.FPScorePile.project(v);
     // The engine admits any eligible questioner. cycle.pending is the presenter
     // rotation, NOT a sequential question turn. Never invent a questioner here.
     const presenter = v.players.find(p => p.id === v.presenter);
@@ -16,12 +18,12 @@
       players: v.players.map(p => ({id:p.id, name:p.name,
         role:p.id === v.presenter ? 'genie' : p.role === 'spectator' ? 'spectator' : 'player',
         ...(p.id === v.presenter ? {avatarUrl:'assets/genie-face.png'} : {}),
-        score:scores.get(p.id), scoreVisible:Number.isFinite(scores.get(p.id))})),
+        score:scores.get(p.id), scoreVisible:Number.isFinite(scores.get(p.id)), awards:awards[p.id]})),
       activePlayerId:answering ? v.presenter : null,
       activeLabel:answering ? (v.pending.kind === 'guess' ? '判定してください' : '回答してください') : '', selfId
     };
   }
-  const key = () => state ? JSON.stringify([room,state.roundId,me,state.locked,state.hidden,state.presenter,state.role,state.spectator]) : '';
+  const key = () => state ? JSON.stringify([room,state.roundId,me,state.locked,state.presenter,state.role,state.spectator]) : '';
   const host = node('div','r3-lamp-host'); host.id = 'r3-lamp';
   const hudHost = node('section','r3-hud-host'); hudHost.id = 'r3-hud';
   const toolbar = node('div','r3-hud-toolbar');
@@ -29,6 +31,8 @@
   const cards = node('div','r3-hud-cards'); hudHost.append(toolbar,cards);
   let hud = null, current = null, lamp = null, identity = '', revision = -1;
   const consumed = new Set();
+  let lastView = null, lastKey = '', lastReady = false, rendering = false;
+  const anticipating = () => !!current && !current.revealed && valid(current);
   function valid(run) {
     if (!run || !state || !ready || document.hidden || state.locked || state.hidden || key() !== run.identity || state.rev < run.rev) return false;
     const e = state.entries.find(e => e.id === run.entryId);
@@ -36,7 +40,7 @@
       (run.event.outcome !== 'correct' || (state.phase === 'solved' && state.entries.at(-1)?.id === e.id));
   }
   function paintResult() {
-    document.body.classList.toggle('r3-reveal-pending',!!current && current.event.outcome === 'correct' && !current.revealed);
+    document.body.classList.toggle('r3-reveal-pending',anticipating());
     const result = document.querySelector('.result');
     if (!result) return;
     result.classList.toggle('r3-lamp-result', !!current && current.event.outcome === 'correct');
@@ -57,7 +61,9 @@
         const run = current;
         if (run?.event !== event && run?.event.eventId !== event.eventId) return;
         if (!valid(run)) { cancel(); return; }
-        run.revealed = true; paintResult(); run.sound('correct', event.eventId);
+        run.revealed = true; paintResult();
+        render();
+        if (event.outcome === 'correct' && valid(run)) run.sound('correct', event.eventId);
       },
       onComplete(event) {
         const run = current;
@@ -86,8 +92,8 @@
     if (!members || !state) { hudHost.remove(); return; }
     const snapshot = projectHUD(state,me,ready);
     if (hud) hud.update(snapshot); else hud = window.FPPlayerHUD.mount(cards,snapshot);
-    const scope = state.scoreTotals?.scope, from = state.scoreTotals?.fromRound || 1;
-    caption.textContent = state.locked || !state.scoreTotals ? '得点は未公開' : scope === 'confirmed' ? '確定点'+(from>1?'（第'+from+'題〜）':'') : '現在点';
+    const totals = window.FPScorePile.totals(state), scope = totals?.scope, from = totals?.fromRound || 1;
+    caption.textContent = !totals ? '得点は未公開' : (state.lifetimeScoreTotals ? 'この部屋の累積点' : scope === 'current' ? 'このお題の現在点' : '確定累積点') + (['confirmed','finalized'].includes(scope) ? ' · 確定分' : ' · 今のお題を含む') + (from>1?'（第'+from+'題〜）':'');
     for (const e of [...toolbar.children]) if (e !== caption) e.remove();
     // Move bound nodes instead of recreating commands or widening permissions.
     for (const control of members.querySelectorAll('button,select,input')) toolbar.append(control);
@@ -107,7 +113,8 @@
   }
   function paintLamp() {
     if (!current) return;
-    const target = current.event.outcome === 'correct' ? document.querySelector('.result') : document.querySelector('.fp-scene,.scene');
+    // Identical placement for both unrevealed outcomes; keep the previous public UI.
+    const target = !current.revealed ? document.querySelector('.game-column') : current.event.outcome === 'correct' ? document.querySelector('.result') : document.querySelector('.fp-scene,.scene');
     if (target) target.prepend(host);
     // A subsequent question should not retain a stale incorrect verdict card.
     if (current.complete && current.event.outcome === 'incorrect' && state.pending) cancel();
@@ -118,19 +125,43 @@
     }
     paintResult();
   }
+  function paintApplauseIcon() {
+    // One applause asset across the earned pile, sound settings and tap control.
+    // Preserve the existing controls, listeners, accessible labels and praise text.
+    for (const target of document.querySelectorAll('#applause-tap,.applause-panel h2')) {
+      target.querySelectorAll('.hand,.praise-symbol,.r4-applause-icon').forEach(icon => icon.remove());
+      const icon = node('img', 'hand r4-applause-icon');
+      icon.src = 'assets/sound-icons/applause.svg'; icon.alt = '';
+      icon.setAttribute('aria-hidden', 'true'); target.prepend(icon);
+    }
+  }
   const previousRender = render;
   render = () => {
     const focused = document.activeElement;
     const restoreFocus = hudHost.contains(focused) || host.contains(focused);
     const x = scrollX, y = scrollY, list = cards.querySelector('.fp-hud-list'), left = list?.scrollLeft || 0;
-    sync(); host.remove(); hudHost.remove(); previousRender(); paintHUD(); paintLamp();
+    sync();
+    if (state && ready && lastReady && !document.hidden && !state.locked && !state.hidden && lastView && lastKey === key() && lastView.phase === 'playing' && state.rev > lastView.rev) {
+      const e = state.entries.find(e => e.kind === 'guess' && (e.answer === 'correct' && state.phase === 'solved' && state.entries.at(-1)?.id === e.id || e.answer === 'incorrect' && lastView.pending?.id === e.id) && !lastView.entries.some(p => p.id === e.id));
+      if (e) verdict(e.answer,'answer:'+e.id,(kind,eventId) => window.FPSound?.enqueue({kind,eventId,roundId:state.roundId}));
+    }
+    if (anticipating()) { paintLamp(); return; }
+    host.remove(); hudHost.remove(); rendering = true;
+    try { previousRender(); } finally { rendering = false; }
+    paintHUD(); paintLamp(); paintApplauseIcon(); lastView = state; lastKey = key(); lastReady = ready;
     if (list) list.scrollLeft = left;
     const focusTarget = focused?.isConnected ? focused : focused?.id ? document.getElementById(focused.id) : null;
     if (restoreFocus && focusTarget && !focusTarget.hidden) focusTarget.focus({preventScroll:true});
     scrollTo(x,y);
   };
-  document.addEventListener('visibilitychange', () => { if (document.hidden) cancel(); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) { cancel(); lastView = null; } else render(); });
   window.addEventListener('pagehide', cancel);
-  window.FPR3 = Object.freeze({verdict,cancel,projectHUD});
+  // Block stale gameplay controls while the DOM intentionally shows the previous view.
+  document.addEventListener('click', e => {
+    if (anticipating() && !host.contains(e.target) && e.target.closest('button,a,summary')) { e.preventDefault(); e.stopImmediatePropagation(); }
+  }, true);
+  document.addEventListener('submit', e => { if (anticipating()) { e.preventDefault(); e.stopImmediatePropagation(); } }, true);
+  window.FPR3 = Object.freeze({verdict,cancel:() => { if (!rendering || !current || !valid(current)) cancel(); },projectHUD,anticipating,
+    presentationView:v => anticipating() && v === state ? lastView : v});
   render();
 })();

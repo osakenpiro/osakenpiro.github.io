@@ -4,6 +4,7 @@
  const list=x=>Array.isArray(x)?x:[],text=x=>typeof x==='string'?x:'',finished=v=>['solved','passed'].includes(v?.phase);
  const answerNames={yes:'はい',no:'いいえ',partly:'部分的にそう',probably:'たぶんそう',probablyNot:'たぶん違う',unknown:'わからない',correct:'正解！',incorrect:'不正解',personal:'主観Yes'};
  function publicSnapshot(v){
+  v=window.FPR3?.presentationView(v)||v;
   if(!v||typeof v!=='object')return {game:'FINEPLAY',scope:'',phase:'unavailable',visibility:'public-only',topics:[]};
   const names=new Map(list(v.players).map(p=>[p.id,text(p.name)]));
   const row=r=>({number:Number.isInteger(r.n)?r.n:null,kind:r.kind==='guess'?'guess':'question',text:text(r.text),answer:answerNames[r.answer]||'',...(r.answer==='personal'?{answerLabel:text(r.answerLabel)||'おれのなかではそう'}:{}),by:names.get(r.asker)||'参加者'});
@@ -39,7 +40,7 @@
   document.querySelector('#assist-copy-text').focus();
  }
  const presenter=()=>me===state?.presenter;
- const copyPhase=()=>`${finished(state)&&!state.locked?'正解公開後':'正解公開前'} · ${state.scope||'なんでも'} · 公開情報のみ`;
+ const copyPhase=()=>`${publicSnapshot(state).afterReveal?'正解公開後':'正解公開前'} · ${state.scope||'なんでも'} · 公開情報のみ`;
  const eligible=()=>state?.phase==='playing'&&!state.spectator&&!presenter()&&state.rulesSchema===2;
  const statusOf=h=>h.submitted===false?'draft':h.verdict||h.status||'unreviewed';
  const editable=h=>statusOf(h)==='draft';

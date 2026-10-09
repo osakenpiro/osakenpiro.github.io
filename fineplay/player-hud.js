@@ -44,7 +44,8 @@
       // Short-circuit before even reading a hidden score; never cache the input object.
       const score = p.scoreVisible === true ? p.score : null;
       return {id: p.id, name: text(p.name), role: p.role, avatarUrl: avatarURL(p.avatarUrl),
-        score: Number.isFinite(score) ? score : null};
+        score: Number.isFinite(score) ? score : null,
+        awards: Number.isFinite(score) ? window.FPScorePile.normalize(p.awards) : null};
     });
     return {players, activePlayerId: snapshot.activePlayerId, activeLabel: text(snapshot.activeLabel), selfId: snapshot.selfId};
   }
@@ -86,22 +87,21 @@
       const name = el('b', 'fp-hud-name');
       const role = el('span', 'fp-hud-role');
       const score = el('span', 'fp-hud-score');
-      const track = el('span', 'fp-hud-track');
-      track.setAttribute('aria-hidden', 'true');
-      const bar = el('span', 'fp-hud-bar');
-      track.append(bar);
+      const pile = el('div', 'fp-hud-pile');
+      pile.setAttribute('aria-hidden', 'true');
+      const detail = el('details', 'fp-hud-awards');
+      const summary = el('summary', 'fp-hud-awards-summary');
+      const breakdown = el('div', 'fp-hud-breakdown');
+      detail.append(summary, breakdown);
       // Integrator-owned DOM: update never clears this slot. No extra snapshot fields.
       const actions = el('div', 'fp-hud-actions');
       actions.dataset.fpHudActions = id;
-      card.append(portrait, turn, name, role, score, track, actions);
-      return {card, portrait, monogram, img, turn, name, role, score, track, bar, actions, avatar: null};
+      card.append(portrait, turn, name, role, pile, score, detail, actions);
+      return {card, portrait, monogram, img, turn, name, role, score, pile, detail, summary, breakdown, actions, avatar: null, awardKey: null};
     }
     function paint(s) {
       const visible = s.players.filter(p => p.score !== null);
-      const extent = Math.max(0, ...visible.map(p => Math.abs(p.score)));
-      const scale = extent || 1;
-      // Keep long exact numbers on one line, widening every card equally so bars
-      // still have the same physical scale. Hidden values never affect geometry.
+      // Exact totals remain the comparison anchor. Hidden values never size cards.
       const digits = Math.max(0, ...visible.map(p => String(p.score).length));
       root.style.setProperty('--hud-score-width', (digits > 6 ? digits * 14 + 64 : 0) + 'px');
       const ids = new Set(s.players.map(p => p.id));
@@ -129,13 +129,40 @@
         row.score.textContent = known ? String(Object.is(p.score, -0) ? 0 : p.score) + ' 点' : '未公開';
         row.score.setAttribute('aria-label', known ? '得点 ' + row.score.textContent : '得点は未公開');
         row.card.classList.toggle('is-score-hidden', !known);
-        row.track.hidden = !known;
-        row.bar.style.width = known ? (Math.abs(p.score) / scale * 50) + '%' : '0%';
-        row.bar.style.left = known && p.score < 0 ? (50 - Math.abs(p.score) / scale * 50) + '%' : '50%';
-        row.bar.classList.toggle('is-negative', known && p.score < 0);
+        const awardKey = JSON.stringify(p.awards);
+        row.detail.hidden = !known || !p.awards;
+        if (row.detail.hidden) row.detail.open = false;
+        if (row.awardKey !== awardKey) {
+          row.awardKey = awardKey;
+          row.pile.replaceChildren(); row.breakdown.replaceChildren();
+          if (p.awards) {
+            const {icons, remaining} = window.FPScorePile.layout(p.awards);
+            const positions = [[-20,0,-16],[9,1,13],[-3,10,-5],[25,6,19],[-28,16,-23],[0,25,7],[22,23,-12],[-16,33,15],[12,39,-9],[-4,47,5]];
+            icons.forEach((type, index) => {
+              const token = el('span', 'fp-hud-earned'); token.dataset.awardType = type;
+              const [x,y,r] = icons.length === 1 ? [0,0,-7] : positions[index];
+              token.style.cssText = `--pile-x:${x}px;--pile-y:${y}px;--pile-r:${r}deg;z-index:${index + 1}`;
+              if (type === 'applause') {
+                const img = el('img', 'fp-hud-applause'); img.src = 'assets/sound-icons/applause.svg'; img.alt = ''; token.append(img);
+              } else token.append(window.FinePlayCelebration.createIcon({tier:type}));
+              row.pile.append(token);
+            });
+            const suffix = p.awards.partial ? ' · 記録分' : '';
+            row.summary.textContent = (remaining > 0 ? '+' + remaining + '個 · 内訳' : '獲得の内訳') + suffix;
+            row.summary.setAttribute('aria-label', (p.name || 'この人') + 'の獲得内訳' + suffix);
+            for (const [type, count] of Object.entries(p.awards.counts)) {
+              const line = el('span', '', window.FPScorePile.labels[type] + ' × ' + count);
+              row.breakdown.append(line);
+            }
+            row.breakdown.append(el('small', '', 'FinePlayは受けた評価、拍手は回数。Super / Ultraは獲得記録の件数（現ルールでは達成した対象数）。点数とは異なります。'));
+            if (p.awards.partial) row.breakdown.append(el('small', '', '古いお題の獲得内訳は含まれない場合があります。'));
+            if (!icons.length) row.pile.append(el('small', 'fp-hud-pile-empty', p.awards.partial ? '記録分の獲得なし' : '獲得はこれから'));
+          }
+        }
+        if (!p.awards) row.pile.replaceChildren(el('small', 'fp-hud-pile-empty', known ? '内訳の記録なし' : ''));
       });
       count.textContent = s.players.length + '人';
-      scaleText.textContent = !visible.length ? '得点は公開後に表示' : extent === 0 ? '公開得点は全員 0 点' : '共通目盛 −' + extent + ' / 0 / +' + extent + ' 点';
+      scaleText.textContent = !visible.length ? '得点は公開後に表示' : '山は獲得の種類 · 合計には正解・コンボ点も含みます';
       const active = s.players.find(p => p.id === s.activePlayerId && p.role !== 'spectator');
       const message = active ? (active.name || '名前未設定') + ' · ' + (s.activeLabel || '出番') : '出番の指定なし';
       if (status.textContent !== message) status.textContent = message;
