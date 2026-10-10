@@ -52,11 +52,15 @@
   function spreadPile(card) {
     const pile = direct(card, '.fp-hud-pile'); if (!pile) return;
     const icons = [...pile.querySelectorAll('.fp-hud-earned')];
+    const positions = [[.38,0,-18],[.57,2,16],[.71,1,-11],[.21,0,25],[.79,5,-21],
+      [.43,3,12],[.63,6,-26],[.29,7,20],[.52,8,-9],[.73,9,17]];
     icons.forEach((icon, index) => {
-      // A bounded representative pile spreads across the available right side.
-      // Preserve the original type, asset, stacking order and subtle rotation.
-      icon.style.setProperty('--r5-pile-offset', icons.length === 1 ? '.5' : String(index / (icons.length - 1)));
-      icon.style.setProperty('--r5-pile-rise', (index % 3) * 4 + 'px');
+      // Stable, uneven landings keep the same public pile legible after renders.
+      const [offset, rise, rotation] = icons.length === 1 ? [.5,0,-12] : positions[index];
+      icon.style.setProperty('--r5-pile-offset', String(offset));
+      icon.style.setProperty('--r5-pile-rise', rise + 'px');
+      icon.style.setProperty('--pile-r', rotation + 'deg');
+      icon.style.setProperty('--pile-drift', (index % 2 ? 8 : -10) + 'px');
     });
     // A hidden section may retain its old summary DOM across a privacy change.
     // Only a currently visible public award section can supply a remainder.

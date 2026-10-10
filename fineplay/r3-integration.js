@@ -6,7 +6,7 @@
     if (text !== undefined) e.textContent = text;
     return e;
   };
-  function projectHUD(v, selfId, connected) {
+  function projectHUD(v, selfId, connected, motionContext = {}) {
     const totals = window.FPScorePile.totals(v);
     const scores = new Map(totals ? totals.players.map(p => [p.id, p.total]) : []);
     const awards = window.FPScorePile.project(v);
@@ -20,7 +20,9 @@
         ...(p.id === v.presenter ? {avatarUrl:'assets/genie-face.png'} : {}),
         score:scores.get(p.id), scoreVisible:Number.isFinite(scores.get(p.id)), awards:awards[p.id]})),
       activePlayerId:answering ? v.presenter : null,
-      activeLabel:answering ? (v.pending.kind === 'guess' ? '判定してください' : '回答してください') : '', selfId
+      activeLabel:answering ? (v.pending.kind === 'guess' ? '判定してください' : '回答してください') : '', selfId,
+      motion:{key:JSON.stringify([v.owner,v.roundId,selfId,v.role,!!v.spectator,v.locked,v.hidden,v.mode,v.playMode,motionContext.epoch || 0]),
+        revision:v.rev, enabled:connected && !v.locked && !v.hidden && !document.hidden, transient:motionContext.transient === true}
     };
   }
   const key = () => state ? JSON.stringify([room,state.roundId,me,state.locked,state.presenter,state.role,state.spectator]) : '';
@@ -29,7 +31,7 @@
   const toolbar = node('div','r3-hud-toolbar');
   const caption = node('span','r3-score-caption'); toolbar.append(caption);
   const cards = node('div','r3-hud-cards'); hudHost.append(toolbar,cards);
-  let hud = null, current = null, lamp = null, identity = '', revision = -1;
+  let hud = null, current = null, lamp = null, identity = '', revision = -1, hudConnection = null, hudConnectionEpoch = 0;
   const consumed = new Set();
   let lastView = null, lastKey = '', lastReady = false, rendering = false;
   const anticipating = () => !!current && !current.revealed && valid(current);
@@ -90,7 +92,11 @@
   function paintHUD() {
     const members = document.querySelector('.members');
     if (!members || !state) { hudHost.remove(); return; }
-    const snapshot = projectHUD(state,me,ready);
+    const live = owner ? peer : conn, replaced = !!hudConnection && live !== hudConnection;
+    if (replaced) hudConnectionEpoch++;
+    if (live) hudConnection = live;
+    const transient = !demo && !owner && !ready && !replaced && !connecting && !error && conn?.open === true && stateReceiver?.status === 'syncing';
+    const snapshot = projectHUD(state,me,ready,{transient,epoch:hudConnectionEpoch});
     if (hud) hud.update(snapshot); else hud = window.FPPlayerHUD.mount(cards,snapshot);
     const totals = window.FPScorePile.totals(state), scope = totals?.scope, from = totals?.fromRound || 1;
     caption.textContent = !totals ? '得点は未公開' : (state.lifetimeScoreTotals ? 'この部屋の累積点' : scope === 'current' ? 'このお題の現在点' : '確定累積点') + (['confirmed','finalized'].includes(scope) ? ' · 確定分' : ' · 今のお題を含む') + (from>1?'（第'+from+'題〜）':'');

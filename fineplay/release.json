@@ -17,7 +17,9 @@
     "main-topic-vote-and-live-status",
     "screenshot-version-gallery",
     "isolated-archive-solo-0.6-0.5-0.4",
-    "arbitrary-time-public-result-display-and-copy"
+    "arbitrary-time-public-result-display-and-copy",
+    "falling-irregular-fineplay-point-pile",
+    "flying-stamps-linked-to-public-normal-point-increase"
   ],
   "remaining": [
     "applause-ratio-or-absolute-undecided",
@@ -38,5 +40,6 @@
   "gameplay_baseline": "r5-20261010",
   "publication_authority": "user-directive-20261010-r6-publish",
   "archive_play_mode": "isolated-solo-only",
-  "accepted_gallery_commit": "428b43ccbd45bd46480bf7b8bd64539fd71752b7"
+  "accepted_gallery_commit": "428b43ccbd45bd46480bf7b8bd64539fd71752b7",
+  "presentation_revision": "r6-motion-20261010"
 }

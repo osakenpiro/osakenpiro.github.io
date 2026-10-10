@@ -19,7 +19,8 @@ function foregroundDraw(t){f.clearRect(0,0,W,H);particles=particles.filter(p=>t-
 
  function resize(){const ratio=Math.min(devicePixelRatio||1,2);front.width=Math.round(innerWidth*ratio);front.height=Math.round(innerHeight*ratio);H=innerHeight/(innerWidth/W);f.setTransform(front.width/W,0,0,front.width/W,0,0);}
  resize();
- const kind=honor.visibleEffect;
+ const kind=honor.visibleEffect,stars=honor.kind==='fineplay'&&Number.isInteger(honor.stars)&&honor.stars>=1&&honor.stars<=3?honor.stars:null;
+ if(stars!==null)layer.dataset.normalStars=String(stars);
  // The public normal-increase payload already supplies a 1 / 2 / 3 point
  // delta. Use that exact unit in the receipt; preserve the canvas artwork.
  if(kind==='normal'&&honor.kind==='fineplay'&&window.FinePlayCelebration){
@@ -28,14 +29,15 @@ function foregroundDraw(t){f.clearRect(0,0,W,H);particles=particles.filter(p=>t-
   const label=document.createElement('span');label.textContent='FINEPLAY! +'+(honor.stars||1)+'点';chip.append(label);layer.append(chip);
  }
  if(staticOnly)add({kind:'quiet',effect:kind,life:1000,x:360,y:H*.46});
- else if(kind==='normal'){stamp(360,H*.53,.78,0,random(-55,55));stamp(220,H*.62,.50,120,-65);stamp(500,H*.64,.45,250,55);confetti(7,.55)}
- else if(kind==='super'){stamp(350,H*.53,1.05,0,-60,'star');stamp(487,H*.605,.75,130,84,'star');stamp(209,H*.633,.62,255,-65,'star');crowd(4,.8);confetti(54,.85)}
- else{stamp(360,H*.55,1.42);stamp(183,H*.615,.85,175,-85);stamp(529,H*.627,.86,320,73);stamp(291,H*.746,.64,440,-69);stamp(485,H*.782,.58,555,47);crowd(6,1.05);confetti(kind==='hundred'?125:98,1.06);add({kind:'ring',x:360,y:H*.568,life:850})}
+ else if(kind==='normal'){const count=stars??3;stamp(360,H*.53,.78,0,random(-55,55));if(count>=2)stamp(220,H*.62,.50,120,-65);if(count>=3)stamp(500,H*.64,.45,250,55);confetti(7,.55)}
+ else if(kind==='super'){const count=stars??3;stamp(350,H*.53,1.05,0,-60,'star');if(count>=2)stamp(487,H*.605,.75,130,84,'star');if(count>=3)stamp(209,H*.633,.62,255,-65,'star');crowd(4,.8);confetti(54,.85)}
+ else{const count=kind==='ultra'?(stars??5):5;stamp(360,H*.55,1.42);if(count>=2)stamp(183,H*.615,.85,175,-85);if(count>=3)stamp(529,H*.627,.86,320,73);if(count>=4)stamp(291,H*.746,.64,440,-69);if(count>=5)stamp(485,H*.782,.58,555,47);crowd(6,1.05);confetti(kind==='hundred'?125:98,1.06);add({kind:'ring',x:360,y:H*.568,life:850})}
+ layer.dataset.stampCount=String(particles.filter(p=>p.kind==='stamp').length);
  // The foreground must not paint over editable text, including the lower edge
  // after scroll, resize, focus changes or a remote render replaces the input.
  function protect(){const sx=front.width/innerWidth,sy=front.height/innerHeight,rects=[];f.save();f.setTransform(1,0,0,1,0,0);for(const e of document.querySelectorAll('input,textarea,select,[contenteditable="true"],.modal button,.attrs-fp-palette[open] .attrs-fp-options')){const r=e.getBoundingClientRect();if(r.width&&r.height&&r.bottom>0&&r.top<innerHeight){const a={x:r.left-8,y:r.top-8,w:r.width+16,h:r.height+16};f.clearRect(a.x*sx,a.y*sy,a.w*sx,a.h*sy);rects.push(a)}}f.restore();layer._protectedRects=rects;}
  function frame(t){if(!layer.isConnected)return;foregroundDraw(t);protect();frames++;layer.dataset.frames=String(frames);layer.dataset.elapsed=String(Math.round(t-started));layer.dataset.active=String(particles.length);layer.dataset.clock=String(t);layer.dataset.monotonic=String(t>=last);last=t;raf=requestAnimationFrame(frame)}
- layer._stop=()=>{cancelAnimationFrame(raf);window.removeEventListener('resize',resize)};layer._reduce=()=>{particles=[{kind:'quiet',effect:kind,life:1000,x:360,y:H*.46,start:performance.now()}];layer.dataset.static='true'};
+ layer._stop=()=>{cancelAnimationFrame(raf);window.removeEventListener('resize',resize)};layer._reduce=()=>{particles=[{kind:'quiet',effect:kind,life:1000,x:360,y:H*.46,start:performance.now()}];layer.dataset.static='true';layer.dataset.stampCount='0'};
  layer._lifetime=staticOnly?1000:2900;window.addEventListener('resize',resize);raf=requestAnimationFrame(frame);return layer;
 }
 window.FinePlayMotion=Object.freeze({create});})();
