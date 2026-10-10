@@ -23,9 +23,9 @@
     "account-lifetime-records",
     "whole-session-awards",
     "lamp-implementation-taste-review",
-    "score-placement-undecided",
-    "super-direct-five-or-R4-automatic-clarification"
+    "score-placement-undecided"
   ],
-  "release_note": "未公開のローカル再調整候補。道具はメイン内を採用。右Fineplayボタン・縦圧縮・横長得点候補・左メニュー開閉・手描きランプを調整。採点・通信はR4維持、Superの直接5点方式は本人への確認中。",
-  "candidate_revision": "visual-layout-2"
+  "release_note": "未公開のローカル再調整候補。道具はメイン内を採用。右Fineplayボタン・縦圧縮・横長得点候補・左メニュー開閉・手描きランプを調整。他参加者の評価でSuper、全員でUltraの自動判定を継続。採点・通信はR4維持。",
+  "candidate_revision": "visual-layout-2",
+  "confirmed_super_ultra": "other participants also Fineplay => SuperFineplay; all eligible participants => Ultra"
 }
