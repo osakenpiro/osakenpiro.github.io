@@ -9,17 +9,23 @@
     "normal-fp-hands-per-point",
     "persistent-correct-points",
     "readable-history",
-    "tools-score-or-tile-comparison",
     "demo-applause-tenth-comparison",
-    "approved-direction-lamp-body-lid-smoke-atlas"
+    "history-fineplay-over-edge-badge",
+    "one-to-three-star-rating-controls",
+    "compact-main-tools",
+    "compact-or-wide-top-scores-comparison",
+    "collapsible-desktop-sidebar",
+    "illustrated-lamp-cloud-and-raised-answer"
   ],
   "remaining": [
-    "tools-placement-undecided",
     "applause-ratio-or-absolute-undecided",
     "applause-production-adoption-undecided",
     "account-lifetime-records",
     "whole-session-awards",
-    "lamp-implementation-taste-review"
+    "lamp-implementation-taste-review",
+    "score-placement-undecided",
+    "super-direct-five-or-R4-automatic-clarification"
   ],
-  "release_note": "未公開のローカル候補。正式な採点・通信処理は公開R4のまま。本人が再添付したランプ原画から透過パーツを素材化。"
+  "release_note": "未公開のローカル再調整候補。道具はメイン内を採用。右Fineplayボタン・縦圧縮・横長得点候補・左メニュー開閉・手描きランプを調整。採点・通信はR4維持、Superの直接5点方式は本人への確認中。",
+  "candidate_revision": "visual-layout-2"
 }

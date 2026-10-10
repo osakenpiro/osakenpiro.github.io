@@ -84,6 +84,37 @@
   max-width: 100%;
 }
 
+/* The history action deliberately straddles the card edge. Keep its label
+   inside the button, and leave a gutter inside the scrolling history. */
+.r5-layout-candidate.layout-preview #history.presentation-history summary > .layout-history-fp {
+  position: relative;
+  inset-inline-end: -22px;
+  z-index: 2;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .layout-history-fp > .attrs-fp-trigger {
+  box-sizing: border-box;
+  width: 72px !important;
+  min-width: 72px;
+  max-width: 72px;
+  height: 64px;
+  min-height: 64px;
+  padding: 4px 6px;
+  flex-direction: column;
+  gap: 2px;
+  border-radius: 13px;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .layout-history-fp .layout-fp-button-label {
+  display: block;
+  font: 650 11px/14px system-ui, sans-serif;
+  white-space: nowrap;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .layout-history-fp .layout-fp-meter:empty {
+  display: none;
+}
+
 .r5-layout-candidate.layout-preview #history.presentation-history .presentation-popular > summary::after {
   content: none;
 }
@@ -117,8 +148,28 @@
 }
 
 .r5-layout-candidate.layout-preview #history.presentation-history .history-list {
-  padding: 2px 7px 4px 2px;
+  padding: 2px 18px 4px 2px;
   scrollbar-gutter: stable;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history {
+  container-name: r5-history;
+  container-type: inline-size;
+}
+
+/* A desktop history column can also be narrow. Give its question the full
+   row rather than squeezing it between answer and evaluation controls. */
+@container r5-history (max-width: 580px) {
+  .r5-layout-candidate.layout-preview #history.presentation-history .compact-clue > summary {
+    grid-template-columns: 28px minmax(0, 1fr) max-content;
+    grid-template-areas: "number question question" ". answer fineplay" ". awards awards";
+    gap: 10px 12px;
+  }
+
+  .r5-layout-candidate.layout-preview #history.presentation-history summary > .answer-chip {
+    align-self: center;
+    margin: 0;
+  }
 }
 
 /* Score placement follows the complete R4 member-score HUD. */
@@ -253,7 +304,11 @@
   }
 
   .r5-layout-candidate.layout-preview #history.presentation-history .history-list {
-    padding-right: 3px;
+    padding-right: 18px;
+  }
+
+  .r5-layout-candidate.layout-preview #history.presentation-history summary > .layout-history-fp {
+    inset-inline-end: -14px;
   }
 
   .r5-layout-candidate .layout-action > .r5-tools-main .assist-lifelines {

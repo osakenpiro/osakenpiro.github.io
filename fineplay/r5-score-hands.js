@@ -21,16 +21,27 @@ if(typeof window!=='undefined')(()=>{
     const label='通常FinePlay '+count.points+'点・手'+count.points+'個'+(count.remaining?'（代表'+count.shown+'個と残り'+count.remaining+'個）':'');
     group.setAttribute('aria-label',label);group.title=label;return group;
   }
-  function paintVotes(){
-    for(const option of document.querySelectorAll('[data-presentation-star]')){
-      const value=option.dataset.presentationStar;if(!/^[123]$/.test(value))continue;
-      const group=hands(Number(value),'r5-vote-hands');
-      group.setAttribute('aria-hidden','true');option.replaceChildren(group);
-      option.setAttribute('aria-label',value+'点 FinePlay・手'+value+'個');
+  function paintHistoryLabels(pointRule){
+    for(const trigger of document.querySelectorAll('#history .layout-history-fp > .attrs-fp-trigger')){
+      const copy=trigger.querySelector('.layout-fp-button-label');if(copy)copy.textContent='Fineplay';
+      const meter=trigger.querySelector('.layout-fp-meter');if(meter){meter.textContent='';meter.hidden=true;}
+      const mine=Number(trigger.dataset.myStars),label=trigger.getAttribute('aria-label');
+      if(label){
+        const unit=pointRule?'点':'つ星';
+        let next=label.replace(/・選択済み [123](?:点|つ星)/g,'');
+        if(Number.isInteger(mine)&&mine>=0&&mine<=3)next=next.replace(/現在[0-3](?:点|つ星)/g,'現在'+mine+unit);
+        if(mine>=1&&mine<=3)next+='・選択済み '+mine+unit;
+        trigger.setAttribute('aria-label',next);trigger.title=next;
+      }
     }
+  }
+  function paintVotes(){
+    // Keep the R4 one / two / three star choices and their command semantics.
+    // Hands represent earned points and the already selected badge only.
     for(const trigger of document.querySelectorAll('.attrs-fp-trigger[data-my-stars]')){
       const mine=Number(trigger.dataset.myStars),meter=trigger.querySelector('.layout-fp-meter');
-      if(meter)meter.textContent=mine?'あなたの評価 '+mine+'点':'評価を選ぶ';
+      const history=!!trigger.closest('#history .layout-history-fp');
+      if(!history&&meter)meter.textContent=mine?'あなたの評価 '+mine+'点':'評価を選ぶ';
       if(mine>=1&&mine<=3){
         const hand=trigger.querySelector(':scope>.layout-fp-hand');
         if(hand){const group=hands(mine,'r5-selected-hands');group.setAttribute('aria-hidden','true');group.querySelector('.r5-hand-points')?.remove();hand.replaceWith(group);}
@@ -41,9 +52,13 @@ if(typeof window!=='undefined')(()=>{
   }
   function paint(){
     document.querySelectorAll('[data-r5-normal-hands]').forEach(e=>e.remove());
+    if(!state||state.locked)return;
+    // The visible history label is a UI choice in every rule version. Legacy
+    // selection values remain stars; only the point rule changes hand units.
+    paintHistoryLabels(state.fpRuleVersion==='distinct-donors/1');
     // Legacy rooms can have a configurable star multiplier. Their existing
     // controls must not be relabelled as one point per hand.
-    if(!state||state.locked||state.fpRuleVersion!=='distinct-donors/1')return;
+    if(state.fpRuleVersion!=='distinct-donors/1')return;
     paintVotes();
     if(state.hidden)return;
     // Only projected public honors can supply received point counts. Own

@@ -3,7 +3,7 @@
   'use strict';
 
   const previousRender = render;
-  const placement = new URLSearchParams(location.search).get('r5tools') === 'tile' ? 'tile' : 'score';
+  const placement = new URLSearchParams(location.search).get('r5tools') === 'score' ? 'score' : 'tile';
 
   function paint() {
     const active = !!state && state.phase !== 'lobby';

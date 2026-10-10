@@ -65,7 +65,7 @@
     const aura = make('div', 'fp-lamp-aura');
     const puff = make('div', 'fp-lamp-puff');
     for (let i = 0; i < 5; i++) puff.appendChild(make('i', 'fp-lamp-cloud'));
-    let rasterSmoke = null;
+    let rasterSmokes = [];
     const vessel = make('div', 'fp-lamp-vessel');
     for (const part of ['body', 'lid']) {
       const img = make('img', 'fp-lamp-' + part); img.src = asset(part + '.svg'); img.alt = '';
@@ -75,8 +75,9 @@
     const status = make('p', 'fp-lamp-status', '答えは、ランプの中に。');
     status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite'); status.setAttribute('aria-atomic', 'true');
     const answer = make('p', 'fp-lamp-answer'); answer.hidden = true;
+    const answerSpace = make('div', 'fp-lamp-answer-space'); answerSpace.appendChild(answer);
     const skip = make('button', 'fp-lamp-skip', '演出をスキップ'); skip.type = 'button'; skip.hidden = true;
-    root.append(art, status, answer, skip); container.appendChild(root);
+    root.append(answerSpace, art, status, skip); container.appendChild(root);
     const media = window.matchMedia?.('(prefers-reduced-motion: reduce)');
     let active = null, dead = false, round = null;
     const assetController = new AbortController();
@@ -85,10 +86,10 @@
     function restoreFallback() {
       if (dead) return;
       vessel.replaceChildren(...fallbackImages);
-      rasterSmoke?.remove(); rasterSmoke = null;
+      rasterSmokes.forEach(smoke => smoke.remove()); rasterSmokes = [];
       delete root.dataset.assetPack; root.dataset.assetStatus = 'r4-fallback';
     }
-    const hideRasterSmoke = hidden => rasterSmoke?.toggleAttribute('hidden', hidden);
+    const hideRasterSmoke = hidden => rasterSmokes.forEach(smoke => smoke.toggleAttribute('hidden', hidden));
     function atlasPart(pack, part, url) {
       const ns = 'http://www.w3.org/2000/svg', placement = pack.parts[part];
       const svg = doc.createElementNS(ns, 'svg'); svg.setAttribute('class', 'fp-lamp-' + part);
@@ -142,8 +143,20 @@
       } else [body, lid, smoke] = await Promise.all(['body', 'lid', 'smoke'].map(part => loadRasterPart(pack, part)));
       if (dead) return;
       for (const img of [body, lid, smoke]) img.addEventListener('error', restoreFallback, { once: true });
-      smoke.toggleAttribute('hidden', root.dataset.outcome !== 'correct'); rasterSmoke = smoke;
-      vessel.replaceChildren(body, lid); puff.appendChild(smoke);
+      const layers = pack.version === ATLAS_VERSION ? ['back', 'main', 'front'].map(layer => {
+        const node = layer === 'main' ? smoke : atlasPart(pack, 'smoke', new URL(pack.atlas, scriptURL).href);
+        node.classList.add('fp-lamp-smoke-' + layer); return node;
+      }) : ['back', 'main', 'front'].map(layer => {
+        const node = layer === 'main' ? smoke : smoke.cloneNode(true);
+        node.classList.remove('fp-lamp-smoke-back', 'fp-lamp-smoke-main', 'fp-lamp-smoke-front');
+        node.classList.add('fp-lamp-smoke-' + layer); return node;
+      });
+      for (const node of layers) {
+        node.toggleAttribute('hidden', root.dataset.outcome !== 'correct');
+        node.addEventListener('error', restoreFallback, { once: true });
+      }
+      rasterSmokes = layers;
+      vessel.replaceChildren(body, lid); puff.append(...layers);
       root.dataset.assetPack = pack.version; root.dataset.assetStatus = pack.version === ATLAS_VERSION ? 'r5-atlas' : 'r5-raster';
     }).catch(() => restoreFallback());
     const seen = new Map(), retired = new Set();

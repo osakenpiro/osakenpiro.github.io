@@ -5,12 +5,12 @@
   "transparent": true,
   "width": 900,
   "height": 600,
-  "atlas": "assets/lamp/r5/atlas.png",
+  "atlas": "assets/lamp/r5/atlas-illustrated.png",
   "atlasWidth": 1536,
   "atlasHeight": 1024,
   "parts": {
-    "body": { "clip": [0, 0, 940, 512], "x": 0, "y": 0, "scale": 1 },
-    "lid": { "clip": [950, 0, 586, 512], "x": -700, "y": -118, "scale": 1 },
-    "smoke": { "clip": [0, 512, 940, 512], "x": 125, "y": -405, "scale": 0.65 }
+    "body": { "clip": [0, 0, 1040, 500], "x": 33, "y": 129, "scale": 0.82 },
+    "lid": { "clip": [1040, 0, 496, 500], "x": -427, "y": -35, "scale": 0.72 },
+    "smoke": { "clip": [0, 500, 1040, 524], "x": 64, "y": -383, "scale": 0.65 }
   }
 }
