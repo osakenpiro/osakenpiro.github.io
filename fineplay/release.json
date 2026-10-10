@@ -1,7 +1,7 @@
 {
-  "release": "r5-20261010",
-  "based_on": "f671dfafa341e4b7ddf188ae7630b901f3fabe43",
-  "rollback_ref": "rollback/fineplay-r4-20261009",
+  "release": "r6-20261010",
+  "based_on": "88ff9b257c62115f21b259f31ac2ecba85bf3574",
+  "rollback_ref": "rollback/fineplay-r5-before-r6-20261010",
   "features": [
     "normal-fp-hands-per-point",
     "persistent-correct-points",
@@ -14,7 +14,10 @@
     "illustrated-lamp-cloud-and-raised-answer",
     "wide-top-scores-with-player-details",
     "compact-history-options",
-    "main-topic-vote-and-live-status"
+    "main-topic-vote-and-live-status",
+    "screenshot-version-gallery",
+    "isolated-archive-solo-0.6-0.5-0.4",
+    "arbitrary-time-public-result-display-and-copy"
   ],
   "remaining": [
     "applause-ratio-or-absolute-undecided",
@@ -23,13 +26,17 @@
     "whole-session-awards",
     "two-player-ultra-minimum-donor-exception-unconfirmed"
   ],
-  "release_note": "上部横長の総合点を、左の人物・詳細と右の獲得の山・数字に圧縮。履歴操作をまとめ、左リストを開閉可能に。出題へのFineplayと状態表示をメインへ集約。水彩ランプ・煙・上に出る答えを採用。採点・通信はR4を保持。",
-  "candidate_revision": "compact-wide-release",
+  "release_note": "R5の得点・履歴・水彩ランプ・採点と通信を保持。更新履歴を実画面で紹介し、0.6・0.5・0.4系の隔離したひとり体験を追加。途中でも公開リザルトを表示・コピーできるように。",
+  "candidate_revision": "r6-gallery-and-public-results",
   "confirmed_super_ultra": "other participants also Fineplay => SuperFineplay; all eligible participants => Ultra",
   "release_date": "2026-10-10",
   "previous_fineplay_commit": "f671dfafa341e4b7ddf188ae7630b901f3fabe43",
   "accepted_layout": "wide top scores; main tools; illustrated lamp",
-  "rollback_baseline": "r4-20261009",
-  "rollback_commit": "f671dfafa341e4b7ddf188ae7630b901f3fabe43",
-  "rollback_subtree": "fineplay/"
+  "rollback_baseline": "r5-20261010",
+  "rollback_commit": "88ff9b257c62115f21b259f31ac2ecba85bf3574",
+  "rollback_subtree": "fineplay/",
+  "gameplay_baseline": "r5-20261010",
+  "publication_authority": "user-directive-20261010-r6-publish",
+  "archive_play_mode": "isolated-solo-only",
+  "accepted_gallery_commit": "428b43ccbd45bd46480bf7b8bd64539fd71752b7"
 }

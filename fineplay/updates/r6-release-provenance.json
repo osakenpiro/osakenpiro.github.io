@@ -1,0 +1,38 @@
+{
+  "release": "r6-20261010",
+  "gameplay_baseline": "r5-20261010",
+  "gallery_baseline_commit": "428b43ccbd45bd46480bf7b8bd64539fd71752b7",
+  "result_sources_sha256": {
+    "index.html": "98ccf43166fe7043e5adb34457bacb24fb5817128c3cbc79630a2173cfddd887",
+    "result-report.js": "0cf923e9d5f72862e5058ef92d4849dd82fbbf0fca23c4e8c1d7d4aac3665de2",
+    "result-report-ui.js": "a43580210b05fbac7ddbda955a9fcf308038d4d4ba1f3d66becf771807a3baf4",
+    "result-report.css": "a307cfae7ae400c9e94b8d4477c25de5ba041e221403e60ff0025234c612bad9"
+  },
+  "screenshots": [
+    {
+      "path": "screenshots/r6-result-1366.png",
+      "sha256": "f823b10dbfe3a15cc6114b2249e4ccd8b43f1bc3a02e865b93d91529e3a63f25",
+      "viewport_width": 1366,
+      "source": "Parent Chromium real local demo operation; existing result extension 37-check run",
+      "capture_commit": null,
+      "capture_commit_limit": "The browser run did not record a commit at screenshot time. The accepted four source hashes and existing test log are preserved in Task381.",
+      "synthetic": true
+    },
+    {
+      "path": "screenshots/r6-result-390.png",
+      "sha256": "f920dc77272ededdf0391523162e1fe14703612448bdda53083b4692cb1c13b8",
+      "viewport_width": 390,
+      "source": "Parent Chromium real local demo operation; existing result extension 37-check run",
+      "capture_commit": null,
+      "capture_commit_limit": "The browser run did not record a commit at screenshot time. The accepted four source hashes and existing test log are preserved in Task381.",
+      "synthetic": true
+    }
+  ],
+  "validation_return": "https://github.com/osakenpiro/claude-shared/issues/381#issuecomment-6094848049",
+  "independent_qa_return": "https://github.com/osakenpiro/claude-shared/issues/506#issuecomment-6094848192",
+  "limits": [
+    "390px is a desktop viewport, not a physical phone",
+    "Existing QA own browser remains NOT_RUN; parent execution was independently audited",
+    "No live room or personal account data in these captures"
+  ]
+}
