@@ -30,7 +30,7 @@
   "candidate_revision": "r6-gallery-and-public-results",
   "confirmed_super_ultra": "other participants also Fineplay => SuperFineplay; all eligible participants => Ultra",
   "release_date": "2026-10-10",
-  "previous_fineplay_commit": "f671dfafa341e4b7ddf188ae7630b901f3fabe43",
+  "previous_fineplay_commit": "57443db07269a5b9916089882033c190defad3a5",
   "accepted_layout": "wide top scores; main tools; illustrated lamp",
   "rollback_baseline": "r5-20261010",
   "rollback_commit": "88ff9b257c62115f21b259f31ac2ecba85bf3574",
