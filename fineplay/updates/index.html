@@ -1,47 +1,49 @@
 <!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#20372e">
-  <meta name="referrer" content="no-referrer">
-  <meta name="robots" content="noindex,follow">
-  <title>更新履歴 | FINEPLAY</title>
-  <meta name="description" content="FINEPLAYに加わった機能と、遊びやすくしたところ。公開済みの更新と、次回アップデートをまとめています。">
-  <link rel="icon" type="image/svg+xml" href="../assets/fineplay-hand.svg">
-  <link rel="stylesheet" href="../landing.css?v=whole20261003a">
-  <link rel="stylesheet" href="updates.css?v=history20261003a">
-<style>.repair-version{margin:22px 0;padding:22px;border:1px solid #cbd3c5;border-radius:14px;background:#fffdf7}.repair-version p{font-size:14px;line-height:1.8;margin:12px 0}.repair-version img{max-width:100%;height:auto;border:1px solid #cbd3c5}.repair-version figure{margin:18px 0;max-height:560px;overflow:auto}.repair-version figcaption{font-size:12px}.repair-version code{overflow-wrap:anywhere}.repair-version details img{max-width:390px;width:100%}</style></head>
-<body>
-<a class="skip" href="#main">本文へ</a>
-<div class="wrap updates-wrap">
-  <header class="mast">
-    <a class="brand" href="../home/" aria-label="FINEPLAY 紹介ページ"><img src="../assets/fineplay-hand.svg" width="32" height="34" alt="">FINE<span>PLAY</span></a>
-    <nav aria-label="メイン"><a href="../guide/">遊び方</a><a class="btn small" href="https://osakenpiro.github.io/fineplay/" target="_blank" rel="noopener">公開中のゲーム ↗</a></nav>
-  </header>
-  <main id="main" tabindex="-1">
-    <section class="updates-head" aria-labelledby="page-title">
-      <div><p class="eyebrow">いい質問に、拍手。</p><h1 id="page-title">更新履歴</h1><p class="updates-lead">加わった機能と、遊びやすくしたところ。<br>FINEPLAYのこれまでと、次のアップデートをまとめています。</p></div>
-      <a class="current-release" href="#release-r5"><span>現在の公開版</span><strong>R5 · 20261010</strong><span>いちばん新しい更新を見る ↓</span></a>
-    </section>
-    <nav class="toc" aria-label="このページ"><a href="#next">次回アップデート</a><a href="#published">公開済みの更新</a></nav>
-
-    <section class="next-release" id="next" aria-labelledby="next-title">
-      <div class="release-meta"><span class="release-status pending">未公開</span><span class="release-date">公開日未定</span></div>
-      <h2 id="next-title">次回アップデート</h2>
-      <p class="pending-note">今後の対応：完成版ランプイラスト、セッション全体の表彰、登録ユーザーの通算記録。これらは今回のR4には含まれません。</p>
-    </section>
-
-    <section class="section" id="version-records"><h2>バージョン別の画面と状態</h2><p>画像は匿名の架空メンバーによる実ブラウザ画面です。実プレイヤーの部屋には接続していません。</p>
-<article class="repair-version" id="release-r5"><span class="release-status published">公開版 · 2026年10月10日</span><h3>r5-20261010 · 広く使える推理の卓</h3><p>得点表をメイン・履歴の上に横長で配置。左にプレイヤーと詳細、右に獲得アイコンと総合点をまとめ、縦の長さを圧縮しました。通常の獲得は点数分の手、評価は☆1〜3、Ultraの星と拍手を継続。</p><p>履歴の検索・絞込・順序・コピーなどを「表示・操作」にまとめました。PCでは左上の「左リストをたたむ」で画面を広げ、☰で再表示できます。道具は小型のメイン内タイル。質問者のお題評価と「質問できます」などの状態もメインにまとまります。</p><p>ランプは森のアートに合わせた水彩イラストへ。煙が膨らみ、答えがランプから上に浮き出ます。Super・Ultraの自動判定、現在の採点、正解の発表・スキップ・音設定を保持しています。</p><p>拍手1/10は検証候補のまま。正式な拍手得点、アカウント通算、全セッション表彰、2人卓のUltra条件は今回変更していません。</p><figure><img src="screenshots/r5-1366.png" alt="R5の横長得点と圧縮した履歴、1366px幅"><figcaption>架空の35問、同じ採点エンジンでの実ブラウザ検証画面。</figcaption></figure><details><summary>390px幅の実画面</summary><img loading="lazy" src="screenshots/r5-390.png" alt="R5のスマートフォン幅、390px"></details><p><a href="../?demo=1">R5をひとりで体験する</a></p></article>
-<article class="repair-version" id="r5-local-candidate"><span class="release-status pending">未公開 · ローカル検証候補</span><h3>R5候補 · 2026年10月10日・見た目再調整</h3><p>通常FinePlayは☆1〜3で評価し、獲得した点数分の手を積みます。履歴右ボタンは「Fineplay」を内側に収め、カードの右枠へ重ねました。Ultraの星と拍手を継続。</p><p>道具は小型のメイン内タイルを採用。メインと得点表の縦を圧縮し、上部横長の得点案も比較できます。左メニューの開閉を追加しました。</p><p>ランプを画面に合う水彩イラストへ描き直し、三層の煙と、ランプから上に浮き出る答えを実装。正誤の公開時刻・スキップ・動きを減らす設定を保ちます。</p><p>当時の未決：得点表の最終位置、拍手1/10の解釈・正式採用・端数、ランプの見た目の最終確認。他の参加者もFineplayしたらSuper、全員でUltraの自動判定を継続。採点は公開R4を保持しています。当時の公開版はR4です。</p><p><a href="../?demo=1&amp;r5tools=tile&amp;r5scores=compact">縦を縮める得点表</a> ／ <a href="../?demo=1&amp;r5tools=tile&amp;r5scores=wide">上部横長の得点表</a> ／ <a href="../?demo=1&amp;r5tools=tile&amp;r5scores=wide&amp;r5applause=tenth">拍手1/10比較</a></p></article>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#20372e"><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex,follow">
+<title>更新履歴 | FINEPLAY</title><meta name="description" content="画面で振り返るFINEPLAY。最新R5の改善と、0.6・0.5・0.4系の更新記録。">
+<link rel="icon" type="image/svg+xml" href="../assets/fineplay-hand.svg"><link rel="stylesheet" href="../landing.css?v=whole20261003a"><link rel="stylesheet" href="updates.css?v=gallery20261010"><link rel="stylesheet" href="gallery.css?v=gallery20261010"></head>
+<body><a class="skip" href="#main">本文へ</a><div class="wrap updates-wrap">
+<header class="mast"><a class="brand" href="../home/" aria-label="FINEPLAY 紹介ページ"><img src="../assets/fineplay-hand.svg" width="30" height="32" alt="">FINE<span>PLAY</span></a><nav aria-label="メイン"><a href="../guide/">遊び方</a><a class="btn main small" href="../">最新版で遊ぶ</a></nav></header>
+<main id="main" tabindex="-1"><section class="gallery-heading"><p class="eyebrow">FINEPLAY / RELEASE NOTES</p><h1>少しずつ、<br>いい卓になっていく。</h1><p>画面で振り返る、FINEPLAYの更新履歴。</p></section>
+<nav class="toc" aria-label="このページ"><a href="#current">最新 R5</a><a href="#archives">過去の3バージョン</a><a href="#history">詳しい更新記録</a></nav>
+<article class="latest-feature" id="current" aria-labelledby="current-title"><div class="feature-copy"><p class="release-status published">現在の公開版 · 2026.10.10</p><p class="release-number">R5</p><h2 id="current-title">得点も、推理も。<br>卓をひろく使おう。</h2><p>みんなの得点を上にまとめ、質問と履歴に広い場所を。必要な道具も、質問のすぐそばへ。</p><ol class="feature-list"><li><strong>総合点と獲得アイコンを横一列に</strong><span>人ごとの得点が、ひと目でわかります。</span></li><li><strong>履歴の操作をひとまとめに</strong><span>検索・コピーは「表示・操作」から。</span></li><li><strong>推理の道具は質問のそばに</strong><span>小さなタイルから、すぐに使えます。</span></li></ol><a class="btn main current-play" href="../">最新版 R5 で遊ぶ →</a><p class="fineprint">r5-20261010 · いつものゲームはこちら</p></div>
+<figure class="main-capture"><a href="screenshots/r5-1366.png" target="_blank" rel="noopener" aria-label="R5の実画面を全体表示（新しいタブ）"><div class="capture-window"><img src="screenshots/r5-1366.png" width="1366" height="1727" alt="R5の実画面。上に横長の総合点、左に質問と推理の道具、右に圧縮した履歴。"></div></a><figcaption>R5 · 1366px幅で撮影した実ブラウザ画面の上部。<br>体験用の架空メンバー・35問。画像を開くと全体を見られます。</figcaption></figure></article>
+<section class="detail-strip" aria-labelledby="detail-title"><div><p class="eyebrow">UPDATE IN FOCUS</p><h2 id="detail-title">獲得した手と総合点を、いっしょに。</h2><p>通常FinePlayは点数分の手を表示。Ultraの星も残し、数字と並べて見られるようにしました。</p></div><figure><div class="score-crop"><img src="screenshots/r5-1366.png" alt="R5得点部分の拡大。手のアイコンとUltraの星、その下に総合30点と7点。"></div><figcaption>上の実画像をCSSで切り抜き。元画像の x=208, y=158, 幅=1136, 高さ=207px。内容の描き足しなし。</figcaption></figure></section>
+<details class="provenance"><summary>実画面の出典・スマートフォン表示</summary><p>R5製品コミット（引継ぎ記録）：<code>57443db07269a5b9916089882033c190defad3a5</code>。配送された画像のSHA-256を既存の出典表と照合しています。今回新たにゲームを撮影した画像ではありません。元の撮影日時・撮影時チェックアウトの直接証跡は未収録です。</p><p>撮影元：ローカルChromium、R4採点エンジンの検証コマンドによる35問の架空データ。実プレイヤーの部屋には接続していません。画面内に旧来の「0.6」表記が残っていますが、この画像はR5の検証記録であり、0.6系の保存版画像には流用していません。</p><figure class="mobile-capture"><img loading="lazy" src="screenshots/r5-390.png" alt="R5を390px幅で撮影したスマートフォン表示の実画面。"><figcaption>撮影時の表示領域390×900px／全ページ画像。今回のギャラリー自体は390×844pxで別途検証。</figcaption></figure><p><a href="screenshot-provenance.json">既存画像の出典・SHA-256</a> · <a href="gallery-provenance.json">今回の表示範囲・出典と未確認事項</a></p></details>
+<section class="archive-section" id="archives" aria-labelledby="archives-title"><div class="section-heading"><div><p class="eyebrow">PREVIOUS VERSIONS</p><h2 id="archives-title">これまでの3バージョン</h2></div><p>旧版への入口は、この更新ページに。<br>ふだん遊ぶときは、最新のR5をどうぞ。</p></div><p class="archive-notice">0.6・0.5・0.4系は当時の実コードを保存したひとり体験版です。通信対戦・実部屋への参加は安全のため無効化しています。旧版には当時の機能・不具合が残ります。</p><div class="family-grid"><article class="family-card" data-family="0.6" aria-labelledby="family-0.6">
+ <div class="family-meta"><span class="family-number">0.6<small>系</small></span><span>OLD CLIENT<br>2026.10.03</span></div>
+ <h3 id="family-0.6">いい質問を、みんなで称える。</h3><p>星と拍手、推理の道具、広い履歴。一巡の結果を振り返れるように。</p>
+ <figure class="archive-capture"><a href="screenshots/archive-0.6-feature-1366.png" target="_blank" rel="noopener noreferrer" aria-label="0.6系の実画面を拡大（新しいタブ）"><img src="screenshots/archive-0.6-feature-1366.png" width="804" height="434" alt="保存版0.6の実ゲーム画面。6択の回答と魔人役の手番。"></a><figcaption>保存版0.6の実画面：6択の回答と魔人役の手番。推理の道具・FinePlayは下の追加画面に掲載。実際のEdgeで撮影（台本の相手・通信なし）。<br>出典コミット：<code>b3de6178f93c</code></figcaption></figure><details class="archive-extended"><summary>0.6の新しい推理の道具・FinePlayを見る</summary><a href="screenshots/archive-0.6-tools-and-fineplay-1366.png" target="_blank" rel="noopener noreferrer" aria-label="0.6系の推理の道具・FinePlayの実画面を拡大"><img loading="lazy" src="screenshots/archive-0.6-tools-and-fineplay-1366.png" width="1366" height="1715" alt="保存版0.6の実ゲーム画面。質問役の横に推理の道具、質問の下にFinePlayの拍手操作、履歴に星評価を表示。"></a><p class="fineprint">保存版0.6の質問役で実際に一問進めて撮影。架空の台本の相手で、通信対戦なし。画像を開くと全体を拡大できます。</p></details><details class="archive-mobile"><summary>スマホ幅の実画面も見る</summary><a href="screenshots/archive-0.6-feature-390.png" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="screenshots/archive-0.6-feature-390.png" alt="保存版0.6を390pxの画面幅で撮影した実ゲーム画面" width="364" height="523"></a></details>
+ <p class="patch-note">保存版：0.6（0.6系）。原本に安全用の通信遮断・保存領域分離のみ追加。</p>
+ <p class="archive-state" id="state-0.6">ひとり体験版を開きます。通信対戦・既存の部屋への参加はできません。</p>
+ <a class="archive-play" href="../versions/0.6/" target="_blank" rel="noopener noreferrer" aria-describedby="state-0.6">このバージョンで遊ぶ <span>↗</span><small>0.6系 · 保存版0.6／ひとり体験 · 新しいタブ</small></a>
+ </article>
+<article class="family-card" data-family="0.5" aria-labelledby="family-0.5">
+ <div class="family-meta"><span class="family-number">0.5<small>系</small></span><span>OLD CLIENT<br>2026.09.30 — 10.02</span></div>
+ <h3 id="family-0.5">遊び方を選び、答えやすく。</h3><p>協力・対戦と採点ルールを選択。回答ボタンや設定を整理しました。</p>
+ <figure class="archive-capture"><a href="screenshots/archive-0.5-feature-1366.png" target="_blank" rel="noopener noreferrer" aria-label="0.5系の実画面を拡大（新しいタブ）"><img src="screenshots/archive-0.5-feature-1366.png" width="802" height="436" alt="保存版0.5.2の実ゲーム画面。部分的にそうを含む6択と整理された回答操作。"></a><figcaption>保存版0.5.2の実画面：部分的にそうを含む6択と整理された回答操作。実際のEdgeで撮影（台本の相手・通信なし）。<br>出典コミット：<code>be3821847a35</code></figcaption></figure><details class="archive-mobile"><summary>スマホ幅の実画面も見る</summary><a href="screenshots/archive-0.5-feature-390.png" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="screenshots/archive-0.5-feature-390.png" alt="保存版0.5.2を390pxの画面幅で撮影した実ゲーム画面" width="364" height="506"></a></details>
+ <p class="patch-note">保存版：0.5.2（0.5系）。原本に安全用の通信遮断・保存領域分離のみ追加。</p>
+ <p class="archive-state" id="state-0.5">ひとり体験版を開きます。通信対戦・既存の部屋への参加はできません。</p>
+ <a class="archive-play" href="../versions/0.5/" target="_blank" rel="noopener noreferrer" aria-describedby="state-0.5">このバージョンで遊ぶ <span>↗</span><small>0.5系 · 保存版0.5.2／ひとり体験 · 新しいタブ</small></a>
+ </article>
+<article class="family-card" data-family="0.4" aria-labelledby="family-0.4">
+ <div class="family-meta"><span class="family-number">0.4<small>系</small></span><span>OLD CLIENT<br>2026.09.21 — 09.28</span></div>
+ <h3 id="family-0.4">森のまじんと、最初の一問。</h3><p>手番と役ごとの操作を見やすく。ひとり体験を答え合わせまで進められるように。</p>
+ <figure class="archive-capture"><a href="screenshots/archive-0.4-feature-1366.png" target="_blank" rel="noopener noreferrer" aria-label="0.4系の実画面を拡大（新しいタブ）"><img src="screenshots/archive-0.4-feature-1366.png" width="802" height="436" alt="保存版0.4.1の実ゲーム画面。森のまじんと5択で進める当時の手番。"></a><figcaption>保存版0.4.1の実画面：森のまじんと5択で進める当時の手番。実際のEdgeで撮影（台本の相手・通信なし）。<br>出典コミット：<code>b76e186d433d</code></figcaption></figure><details class="archive-mobile"><summary>スマホ幅の実画面も見る</summary><a href="screenshots/archive-0.4-feature-390.png" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="screenshots/archive-0.4-feature-390.png" alt="保存版0.4.1を390pxの画面幅で撮影した実ゲーム画面" width="364" height="476"></a></details>
+ <p class="patch-note">保存版：0.4.1（0.4系）。原本に安全用の通信遮断・保存領域分離のみ追加。</p>
+ <p class="archive-state" id="state-0.4">ひとり体験版を開きます。通信対戦・既存の部屋への参加はできません。</p>
+ <a class="archive-play" href="../versions/0.4/" target="_blank" rel="noopener noreferrer" aria-describedby="state-0.4">このバージョンで遊ぶ <span>↗</span><small>0.4系 · 保存版0.4.1／ひとり体験 · 新しいタブ</small></a>
+ </article></div><p class="fineprint">小数点1位ごとに1つの入口です。0.5.1／0.5.2は0.5系、0.4.1は0.4系に含まれます。R3・R4・R5は別のリリース記録として保持しています。</p></section>
+<section class="history-section" id="history"><p class="eyebrow">RELEASE ARCHIVE</p><h2>詳しい更新記録</h2><p>公開済みの更新と、当時の検証候補を区別して残しています。</p><details class="history-details"><summary>R5・R4・R3ほかの画面と当時の状態</summary><p class="archive-notice">以下は以前の記録です。「候補」「未決」はその時点の状態を示します。現在の公開版はR5です。比較候補の名称は記録として残し、現在のゲームを旧候補として開くリンクは外しています。</p><section class="section" id="version-records"><h2>バージョン別の画面と状態</h2><p>画像は匿名の架空メンバーによる実ブラウザ画面です。実プレイヤーの部屋には接続していません。</p>
+<article class="repair-version" id="release-r5"><span class="release-status published">公開版 · 2026年10月10日</span><h3>r5-20261010 · 広く使える推理の卓</h3><p>得点表をメイン・履歴の上に横長で配置。左にプレイヤーと詳細、右に獲得アイコンと総合点をまとめ、縦の長さを圧縮しました。通常の獲得は点数分の手、評価は☆1〜3、Ultraの星と拍手を継続。</p><p>履歴の検索・絞込・順序・コピーなどを「表示・操作」にまとめました。PCでは左上の「左リストをたたむ」で画面を広げ、☰で再表示できます。道具は小型のメイン内タイル。質問者のお題評価と「質問できます」などの状態もメインにまとまります。</p><p>ランプは森のアートに合わせた水彩イラストへ。煙が膨らみ、答えがランプから上に浮き出ます。Super・Ultraの自動判定、現在の採点、正解の発表・スキップ・音設定を保持しています。</p><p>拍手1/10は検証候補のまま。正式な拍手得点、アカウント通算、全セッション表彰、2人卓のUltra条件は今回変更していません。</p><figure><img src="screenshots/r5-1366.png" alt="R5の横長得点と圧縮した履歴、1366px幅"><figcaption>架空の35問、同じ採点エンジンでの実ブラウザ検証画面。</figcaption></figure><details><summary>390px幅の実画面</summary><img loading="lazy" src="screenshots/r5-390.png" alt="R5のスマートフォン幅、390px"></details><p><span class="historical-label">R5をひとりで体験する（当時の比較名）</span></p></article>
+<article class="repair-version" id="r5-local-candidate"><span class="release-status pending">未公開 · ローカル検証候補</span><h3>R5候補 · 2026年10月10日・見た目再調整</h3><p>通常FinePlayは☆1〜3で評価し、獲得した点数分の手を積みます。履歴右ボタンは「Fineplay」を内側に収め、カードの右枠へ重ねました。Ultraの星と拍手を継続。</p><p>道具は小型のメイン内タイルを採用。メインと得点表の縦を圧縮し、上部横長の得点案も比較できます。左メニューの開閉を追加しました。</p><p>ランプを画面に合う水彩イラストへ描き直し、三層の煙と、ランプから上に浮き出る答えを実装。正誤の公開時刻・スキップ・動きを減らす設定を保ちます。</p><p>当時の未決：得点表の最終位置、拍手1/10の解釈・正式採用・端数、ランプの見た目の最終確認。他の参加者もFineplayしたらSuper、全員でUltraの自動判定を継続。採点は公開R4を保持しています。当時の公開版はR4です。</p><p><span class="historical-label">縦を縮める得点表（当時の比較名）</span> ／ <span class="historical-label">上部横長の得点表（当時の比較名）</span> ／ <span class="historical-label">拍手1/10比較（当時の比較名）</span></p></article>
 <article class="repair-version" id="release-r4"><span class="release-status published">公開済み · 2026年10月9日</span><h3>r4-20261009 · 獲得が見える卓</h3><p>プレイヤーごとの累積点と、本当に獲得したFinePlay・Super・Ultra・拍手を重なる山で表示。お題を進めても累積点を引き継ぎます。</p><p>得点は「誰が・なぜ・何点」を表示。正解の点数は実際のルールに従い、ランプが開いてから合計と一緒に現れます。拍手はひとつのお知らせにまとめます。</p><p>お題の範囲に9つの候補を追加。自由入力もそのまま使えます。質問直下に推理の道具を配置し、広い履歴・コピー・100回の拍手操作を保ちました。</p><figure><img src="screenshots/r4-earned-1366.png" alt="R4の正解得点表示、実ブラウザ1366px"><figcaption>匿名の検証用メンバー、実際のエンジン判定後。正解点は設定に応じて変わります。</figcaption></figure><details><summary>390px幅の得点表示</summary><img loading="lazy" src="screenshots/r4-earned-390.png" alt="R4の得点通知、実ブラウザ390px"></details><p>未実装：新しい完成版ランプイラスト、アカウント通算、部屋の終了条件と全セッション表彰。過去版の保存記録は以下に残しています。</p></article><article class="repair-version" id="repair-r4"><span class="release-status pending">未公開 · レビュー候補</span><h3>R4 修復候補 · r4-repair-local-20261009</h3><p>部屋の累積点と獲得の山を引継ぎ、Ultra実績を表示。履歴を広げて圧縮し、最新追従・コピー・お助けを整理。拍手の形を安定させ、ランプの発表待ちを同期。</p><p>ソース：既存R4ローカルソース＋FP-UPDATE-REPAIR-20261009-01。公開コミットなし。Human Taste未承認。</p><figure><img loading="lazy" src="screenshots/r4-repair-1366.png" alt="修復候補の実画面、1366px幅"><figcaption>修復候補のChrome実画面、1366×900・架空の35問。右の履歴は350→約500px、一覧内の完全表示は3→9問。</figcaption></figure><details><summary>390px幅の実画面</summary><img loading="lazy" src="screenshots/r4-repair-390.png" alt="修復候補のスマートフォン幅の実画面"></details><p>未完：アカウント通算、部屋終了・セッション表彰の定義、承認済みの新ランプ画。クラウド修正との照合は別途。</p></article>
 <article class="repair-version"><span class="release-status pending">未公開 · 保存候補</span><h3>R4 · score-pile / solo</h3><p>横並びのプレイヤーの下に、実際の獲得種類を重ねる山。正確な合計と内訳。簡潔な拍手アイコン、ローカルの獲得体験。</p><p>ソース：同じTask #381の修復前R4。公開コミットなし。</p><figure><img loading="lazy" src="screenshots/r4-pile-1366.png" alt="修復前R4の獲得の山の実画面"><figcaption>先行R4で保存したChrome実画面。エンジンを使った架空の検証データ。</figcaption></figure><p>既知の旧問題：累積点の表示範囲、Ultra表示抜け、ランプ中の先行表示。</p></article>
 <article class="repair-version" id="public-r3"><span class="release-status published">以前の公開版 · 保存済み</span><h3>R3 · r3-20261007</h3><p>紙色・深緑・森と魔人、横並びプレイヤー、ランプの答え合わせ。この保存版にはR4の獲得の山はありません。</p><p>保存された公開基準：<code>76710d26d1f87920ec0ec19da4cff5b43b3de2c7</code></p><figure><img loading="lazy" src="screenshots/r3-1366.png" alt="保存したR3ソースで動かした実画面"><figcaption>保存済みR3ソースをローカルで動かしたChrome実画面。公開中の実プレイヤーを撮影したものではありません。</figcaption></figure></article>
 <article class="repair-version"><span class="release-status published">受入済みの過去版</span><h3>R2</h3><p>FinePlayの自動認定、部屋の累積点、実績・一巡の表彰、紙と森の主要画面。</p><p>参照：<code>e0351368a8f328ee6759a6c2e0f98159ee17b74e</code>。この作業範囲には一致するR2ソース・画面がなく、画像は未収録です。公開日時はここでは再確認していません。</p></article>
-<article class="repair-version"><span class="release-status published">過去の公開版</span><h3>0.6</h3><p>星・拍手100回、推理の道具、コピー、広い履歴、一巡の表彰。下の当時の更新記録を保持しています。</p><p>一致する当時のソース参照・プレイ画像はこの作業範囲で未確認です。別バージョンの画像で代用していません。</p></article>
+<article class="repair-version"><span class="release-status published">過去の公開版</span><h3>0.6</h3><p>星・拍手100回、推理の道具、コピー、広い履歴、一巡の表彰。下の当時の更新記録を保持しています。</p><p>0.6系のGit原本を安全に隔離した保存版で実際に遊び、PC・スマホ幅の実画面を撮影しました。上の0.6系カードで閲覧できます。実プレイヤーの部屋は撮影していません。</p></article>
 <article class="repair-version"><h3>元に戻す準備</h3><p>修復前と修復候補の全ソース・画像をZIPとSHA-256一覧で保存し、作業用コピーだけで復元を試します。旧公開版の全ファイルを保存し、隔離コピーで復元を確認済みです。部屋の得点データやリポジトリ全体を巻き戻す機能ではありません。</p><p>公開画面に管理用の復元ボタンはありません。</p></article></section>
-<section class="published-section" id="published" aria-labelledby="published-title">
+</details><details class="history-details"><summary>0.6以前のパッチごとの更新記録</summary><section class="published-section" id="published" aria-labelledby="published-title">
       <div class="section-heading"><h2 id="published-title">公開済みの更新</h2><p>主な機能追加・改善・修正</p></div>
       <div class="release-timeline">
         <!-- 新しい公開済みの更新は、この先頭にarticleを追加します。 -->
@@ -101,8 +103,6 @@
         </article>
       </div>
     </section>
-  </main>
-  <footer class="foot"><p>FINEPLAY · Friends Preview<br>日付は日本時間。主な更新をまとめています。</p><nav aria-label="関連ページ"><a href="../home/">紹介ページ</a><a href="../guide/">遊び方</a><a href="https://osakenpiro.github.io/fineplay/" target="_blank" rel="noopener">公開中のゲーム ↗</a><a href="#page-title">ページの先頭へ ↑</a></nav></footer>
-</div>
-</body>
-</html>
+</details></section>
+<aside class="next-note"><h2>これからのこと</h2><p>拍手の得点調整、アカウント通算、全セッション表彰などは別途検討中です。この履歴ページの追加で、現在の採点やプレイ内容は変わりません。</p></aside></main>
+<footer class="foot"><p>FINEPLAY · Friends Preview<br>日付は日本時間。</p><nav aria-label="関連ページ"><a href="../home/">紹介ページ</a><a href="../guide/">遊び方</a><a href="../">最新版で遊ぶ</a><a href="#main">先頭へ ↑</a></nav></footer></div></body></html>
