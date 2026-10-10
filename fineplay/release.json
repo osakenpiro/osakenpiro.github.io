@@ -1,10 +1,7 @@
 {
-  "release": "r5-local-candidate-20261010",
-  "status": "local-only-unpublished",
+  "release": "r5-20261010",
   "based_on": "f671dfafa341e4b7ddf188ae7630b901f3fabe43",
   "rollback_ref": "rollback/fineplay-r4-20261009",
-  "published_baseline": "r4-20261009",
-  "candidate_date_jst": "2026-10-10",
   "features": [
     "normal-fp-hands-per-point",
     "persistent-correct-points",
@@ -13,19 +10,26 @@
     "history-fineplay-over-edge-badge",
     "one-to-three-star-rating-controls",
     "compact-main-tools",
-    "compact-or-wide-top-scores-comparison",
     "collapsible-desktop-sidebar",
-    "illustrated-lamp-cloud-and-raised-answer"
+    "illustrated-lamp-cloud-and-raised-answer",
+    "wide-top-scores-with-player-details",
+    "compact-history-options",
+    "main-topic-vote-and-live-status"
   ],
   "remaining": [
     "applause-ratio-or-absolute-undecided",
     "applause-production-adoption-undecided",
     "account-lifetime-records",
     "whole-session-awards",
-    "lamp-implementation-taste-review",
-    "score-placement-undecided"
+    "two-player-ultra-minimum-donor-exception-unconfirmed"
   ],
-  "release_note": "未公開のローカル再調整候補。道具はメイン内を採用。右Fineplayボタン・縦圧縮・横長得点候補・左メニュー開閉・手描きランプを調整。他参加者の評価でSuper、全員でUltraの自動判定を継続。採点・通信はR4維持。",
-  "candidate_revision": "visual-layout-2",
-  "confirmed_super_ultra": "other participants also Fineplay => SuperFineplay; all eligible participants => Ultra"
+  "release_note": "上部横長の総合点を、左の人物・詳細と右の獲得の山・数字に圧縮。履歴操作をまとめ、左リストを開閉可能に。出題へのFineplayと状態表示をメインへ集約。水彩ランプ・煙・上に出る答えを採用。採点・通信はR4を保持。",
+  "candidate_revision": "compact-wide-release",
+  "confirmed_super_ultra": "other participants also Fineplay => SuperFineplay; all eligible participants => Ultra",
+  "release_date": "2026-10-10",
+  "previous_fineplay_commit": "f671dfafa341e4b7ddf188ae7630b901f3fabe43",
+  "accepted_layout": "wide top scores; main tools; illustrated lamp",
+  "rollback_baseline": "r4-20261009",
+  "rollback_commit": "f671dfafa341e4b7ddf188ae7630b901f3fabe43",
+  "rollback_subtree": "fineplay/"
 }

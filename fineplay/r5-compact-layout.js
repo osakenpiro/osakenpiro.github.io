@@ -1,9 +1,9 @@
-/* R5 density follow-up. Wide scores and decorative prompt omission are candidates. */
+/* R5 density: wide top scores, compact main tools and a collapsible left list. */
 (() => {
   'use strict';
 
   const previousRender = render;
-  const scorePlacement = new URLSearchParams(location.search).get('r5scores') === 'wide' ? 'wide' : 'compact';
+  const scorePlacement = new URLSearchParams(location.search).get('r5scores') === 'compact' ? 'compact' : 'wide';
   const sidebarPreference = 'fineplay:r5:sidebar-collapsed';
   const desktop = matchMedia('(min-width: 1181px)');
   let collapsed = false;
@@ -18,9 +18,9 @@
     if (!button) return;
     button.hidden = !desktop.matches;
     button.setAttribute('aria-expanded', String(!hidden));
-    button.setAttribute('aria-label', hidden ? 'サイドバーを表示' : 'サイドバーを隠す');
+    button.setAttribute('aria-label', hidden ? '左リストを開く' : '左リストをたたむ');
     button.title = button.getAttribute('aria-label');
-    button.textContent = hidden ? '☰' : '‹ メニュー';
+    button.textContent = hidden ? '☰' : '‹ 左リストをたたむ';
   }
 
   function sidebar() {
@@ -60,7 +60,7 @@
     if (!active) return;
 
     // This copy is decorative. Keep waiting/role/status messages intact.
-    // Its omission is a density candidate, not a new fixed game specification.
+    // Do not remove waiting, role or synchronization notices.
     for (const prompt of document.querySelectorAll('.layout-action > .wait-label')) {
       if (/^(何から、聞こう。|なにを、聞こう。)$/.test(prompt.textContent.trim())) prompt.remove();
     }

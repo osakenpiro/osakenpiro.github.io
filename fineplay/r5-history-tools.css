@@ -1,0 +1,153 @@
+/* The readable history rows and scrolling area remain unchanged. */
+.layout-preview #history.r5-history-tools-active .r5-history-header {
+  margin: 0 0 8px;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 3px 12px;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-top > h2 {
+  flex: none;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-top .presentation-history-nav {
+  flex: 1;
+  justify-content: flex-end;
+  gap: 4px 8px;
+  margin: 0;
+  font-size: 11px;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-top .presentation-history-nav > div {
+  gap: 2px 5px;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-top button,
+.layout-preview #history.r5-history-tools-active .r5-history-top a {
+  min-height: 36px;
+  padding: 5px 4px;
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-top [hidden] {
+  display: none !important;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-options {
+  margin: 1px 0 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-options > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 4px 0;
+  font-size: 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-options > summary::-webkit-details-marker {
+  display: none;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-options > summary::before {
+  content: '▸';
+  flex: none;
+  font-size: 10px;
+  color: #536d59;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-options[open] > summary::before {
+  content: '▾';
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-options > summary > span {
+  flex: none;
+  font-weight: 650;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-status {
+  margin-left: auto;
+  min-width: 0;
+  font-size: 10px;
+  color: #647468;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-options-body {
+  display: grid;
+  gap: 7px;
+  padding: 7px 0 12px;
+  border-top: 1px solid #dbe2d3;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-options-body > .section-head,
+.layout-preview #history.r5-history-tools-active .r5-history-options-body > .history-filters,
+.layout-preview #history.r5-history-tools-active .r5-history-options-body > .display-history-tools,
+.layout-preview #history.r5-history-tools-active .r5-history-options-body > .assist-copybar {
+  margin: 0;
+  min-width: 0;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-options-body > .section-head:empty {
+  display: none;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-options-body > .section-head {
+  justify-content: flex-start;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-options-body > .display-history-tools,
+.layout-preview #history.r5-history-tools-active .r5-history-options-body > .assist-copybar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: flex-start;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-options-body button {
+  min-height: 40px;
+  padding: 5px 9px;
+  font-size: 12px;
+}
+
+.layout-preview #history.r5-history-tools-active .r5-history-options > summary:focus-visible {
+  outline: 3px solid #9f772d;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (max-width: 680px) {
+  .layout-preview #history.r5-history-tools-active .r5-history-top {
+    gap: 0 8px;
+  }
+
+  .layout-preview #history.r5-history-tools-active .r5-history-top > h2 {
+    font-size: 15px;
+  }
+
+  .layout-preview #history.r5-history-tools-active .r5-history-top .presentation-history-nav {
+    gap: 2px 6px;
+  }
+
+  .layout-preview #history.r5-history-tools-active .r5-history-options-body button {
+    min-height: 44px;
+  }
+}
