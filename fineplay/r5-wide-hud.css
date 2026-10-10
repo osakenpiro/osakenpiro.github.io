@@ -41,14 +41,32 @@
   width: 100%;
   height: 52px;
   align-self: stretch;
+  overflow: hidden;
 }
 
 #r3-hud.r5-wide-hud .fp-hud-earned {
   width: 32px;
   height: 32px;
   left: calc((100% - 32px) * var(--r5-pile-offset, .5));
-  bottom: calc(7px + var(--r5-pile-rise, 0px));
-  transform: rotate(calc(var(--pile-r) * .4));
+  bottom: calc(4px + var(--r5-pile-rise, 0px));
+  transform: rotate(var(--pile-r));
+}
+
+#r3-hud.r5-wide-hud .fp-hud-falling {
+  animation: fp-hud-point-fall 780ms var(--pile-delay, 0ms) both;
+}
+
+@keyframes fp-hud-point-fall {
+  0% { opacity: 0; transform: translate(var(--pile-drift), -66px) rotate(calc(var(--pile-r) - 28deg)); }
+  12% { opacity: 1; }
+  68% { transform: translate(0, 2px) rotate(calc(var(--pile-r) + 8deg)); animation-timing-function: ease-out; }
+  82% { transform: translate(1px, -6px) rotate(calc(var(--pile-r) - 4deg)); }
+  94% { transform: translate(0, 1px) rotate(calc(var(--pile-r) + 2deg)); }
+  100% { opacity: 1; transform: translate(0, 0) rotate(var(--pile-r)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #r3-hud.r5-wide-hud .fp-hud-falling { animation: none; }
 }
 
 #r3-hud.r5-wide-hud .fp-hud-pile:has(.fp-hud-earned)::before {

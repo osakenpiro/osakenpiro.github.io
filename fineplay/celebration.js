@@ -139,7 +139,7 @@
    const t=h?.target;
    if(!t||t.scope!==scope||t.entryId!==entryId||t.recipientId!==recipientId||t.roundId!==v.roundId||!str(t.roundId)||!str(t.rewardId)||!str(t.recipientId)||(scope==='question'&&!str(t.entryId))||!Number.isInteger(h.eligibleDonorCount)||h.eligibleDonorCount<0||h.eligibleDonorCount>11||!Number.isInteger(h.donorCount)||h.donorCount<0||h.donorCount>h.eligibleDonorCount||!Number.isInteger(h.normalStars)||h.normalStars<h.donorCount||h.normalStars>3*h.donorCount||h.normalPoints!==h.normalStars)return false;
    const key=targetKey(t);if(result.has(key))return false;
-   result.set(key,{target:{scope:t.scope,roundId:t.roundId,rewardId:t.rewardId,entryId:t.entryId,recipientId:t.recipientId},stars:h.normalStars});return true;
+   result.set(key,{target:{scope:t.scope,roundId:t.roundId,rewardId:t.rewardId,entryId:t.entryId,recipientId:t.recipientId},stars:h.normalStars,donors:h.donorCount});return true;
   };
   if(!add(v.problem?.honors,'topic',null,v.presenter))return null;
   for(const e of v.entries)if(e.kind==='question'&&!add(e.honors,'question',e.id,e.asker))return null;
@@ -176,6 +176,7 @@
     identity=nextIdentity;revision=v.rev;wasPublic=pub;needsBaseline=false;currentIds=new Set(events.map(e=>e.eventId));normals=nextNormals;applauseTotal=Number.isSafeInteger(v.applause?.total)?v.applause.total:0;stats.baselines++;
     if(pub)effects.resume();return {status:'baseline',accepted:0};
    }
+   const singleRevision=v.rev===revision+1;
    identity=nextIdentity;revision=v.rev;wasPublic=pub;
    const nextIds=new Set(events.map(e=>e.eventId));
    const removed=new Set([...currentIds].filter(id=>!nextIds.has(id))),decreased=new Set([...normals].filter(([key,n])=>!nextNormals.has(key)||nextNormals.get(key).stars<n.stars).map(([key])=>key));
@@ -183,8 +184,13 @@
    currentIds=nextIds;
    if(!pub){normals=nextNormals;effects.suspend();return {status:'private',accepted:0};}
    effects.resume();let accepted=0;
-   const advanced=new Set(events.filter(e=>!seen.has(e.eventId)).map(e=>targetKey(e.target))),normalEvents=[];
-   for(const[key,n]of nextNormals){const previous=normals.get(key);if(previous&&n.stars>previous.stars&&!advanced.has(key))normalEvents.push({kind:'fineplay',eventId:'fp-normal:'+JSON.stringify([n.target.roundId,n.target.scope,n.target.rewardId,v.rev]),target:n.target,visibleEffect:'normal',stars:Math.min(3,n.stars-previous.stars)});}
+   const advanced=new Set(events.filter(e=>!seen.has(e.eventId)).map(e=>targetKey(e.target))),normalEvents=[],increments=new Map();
+   // Aggregates can cover several votes after a skipped revision. Only one
+   // changed ballot target in one consecutive revision identifies a single
+   // 1–3 point addition (or a 1–2 point increase to an existing ballot).
+   const changed=[...nextNormals].filter(([key,n])=>{const p=normals.get(key);return p&&(n.stars!==p.stars||n.donors!==p.donors);});
+   if(singleRevision&&changed.length===1){const[key,n]=changed[0],p=normals.get(key),delta=n.stars-p.stars,donors=n.donors-p.donors;if(Number.isInteger(delta)&&delta>=1&&((donors===1&&delta<=3)||(donors===0&&delta<=2)))increments.set(key,delta);}
+   for(const[key,stars]of increments){const n=nextNormals.get(key);if(!advanced.has(key))normalEvents.push({kind:'fineplay',eventId:'fp-normal:'+JSON.stringify([n.target.roundId,n.target.scope,n.target.rewardId,v.rev]),target:n.target,visibleEffect:'normal',stars});}
    const nextApplause=Number.isSafeInteger(v.applause?.total)&&v.applause.total>=0&&v.applause.total<=1200?v.applause.total:0;
    const applauseEvents=[];
    if((v.phase==='solved'||v.phase==='passed')&&nextApplause>applauseTotal){const hundred=applauseTotal<100&&nextApplause>=100;applauseEvents.push({kind:'applause',eventId:hundred?'fp-hundred:'+JSON.stringify([v.roundId]):'fp-applause:'+JSON.stringify([v.roundId,v.applauseId,v.rev]),target:v.problem.honors.target,visibleEffect:hundred?'hundred':'normal'});}
@@ -194,7 +200,8 @@
     if(seen.size>=12000){effects.suspend();needsBaseline=true;stats.invalid++;return {status:'capacity',accepted};}
     seen.add(e.eventId);
     // Only the normalized command from this confirmed view can pass admission.
-    admitted={kind:e.kind,eventId:e.eventId,target:e.target,visibleEffect:e.visibleEffect,...(e.stars?{stars:e.stars}:{})};
+    const stars=e.kind==='fineplay'?(e.stars||increments.get(targetKey(e.target))):undefined;
+    admitted={kind:e.kind,eventId:e.eventId,target:e.target,visibleEffect:e.visibleEffect,...(stars?{stars}:{})};
     if(effects.dispatchHonor(admitted)){accepted++;stats.events++;if(e.visibleEffect==='normal')stats.normalEvents++;}admitted=null;
    }
    return {status:'live',accepted};

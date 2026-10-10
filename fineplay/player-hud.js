@@ -47,7 +47,10 @@
         score: Number.isFinite(score) ? score : null,
         awards: Number.isFinite(score) ? window.FPScorePile.normalize(p.awards) : null};
     });
-    return {players, activePlayerId: snapshot.activePlayerId, activeLabel: text(snapshot.activeLabel), selfId: snapshot.selfId};
+    const motion = snapshot.motion;
+    return {players, activePlayerId: snapshot.activePlayerId, activeLabel: text(snapshot.activeLabel), selfId: snapshot.selfId,
+      motion: motion && typeof motion.key === 'string' && Number.isSafeInteger(motion.revision)
+        ? {key:motion.key, revision:motion.revision, enabled:motion.enabled === true, transient:motion.transient === true} : null};
   }
   function mount(container, snapshot) {
     if (!container || container.nodeType !== 1) throw new TypeError('HUD container must be an Element');
@@ -71,7 +74,8 @@
     root.append(head, list, foot);
     container.append(root);
     const cards = new Map();
-    let destroyed = false;
+    let destroyed = false, previousMotion = null, motionReady = false;
+    const fallStarts = new WeakMap(), reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     function makeCard(id) {
       const card = el('li', 'fp-hud-player');
       card.dataset.playerId = id;
@@ -97,9 +101,14 @@
       const actions = el('div', 'fp-hud-actions');
       actions.dataset.fpHudActions = id;
       card.append(portrait, turn, name, role, pile, score, detail, actions);
-      return {card, portrait, monogram, img, turn, name, role, score, pile, detail, summary, breakdown, actions, avatar: null, awardKey: null};
+      return {card, portrait, monogram, img, turn, name, role, score, pile, detail, summary, breakdown, actions, avatar: null, awardKey: null, awards: null};
     }
     function paint(s) {
+      const restoreMotionClock = !root.isConnected;
+      const transferPause = motionReady && s.motion?.transient && !s.motion.enabled &&
+        s.motion.key === previousMotion?.key && s.motion.revision === previousMotion.revision;
+      const liveIncrease = motionReady && s.motion?.enabled && !document.hidden &&
+        s.motion.key === previousMotion?.key && s.motion.revision > previousMotion.revision;
       const visible = s.players.filter(p => p.score !== null);
       // Exact totals remain the comparison anchor. Hidden values never size cards.
       const digits = Math.max(0, ...visible.map(p => String(p.score).length));
@@ -137,19 +146,52 @@
         if (row.detail.hidden) row.detail.open = false;
         if (row.awardKey !== awardKey) {
           row.awardKey = awardKey;
-          row.pile.replaceChildren(); row.breakdown.replaceChildren();
+          const before = row.awards;
+          row.awards = p.awards;
+          row.breakdown.replaceChildren();
           if (p.awards) {
             const {icons, remaining} = window.FPScorePile.layout(p.awards);
+            const normalIncrease = liveIncrease && before && before.normalUnit === 'point' && p.awards.normalUnit === 'point' &&
+              before.partial === p.awards.partial && before.legacyNormalEvaluations === p.awards.legacyNormalEvaluations &&
+              Object.keys(before.counts).every(type => p.awards.counts[type] >= before.counts[type])
+              ? Math.max(0, p.awards.counts.normal - before.counts.normal) : 0;
+            const normalShown = icons.filter(type => type === 'normal').length;
+            const freshCount = reducedMotion.matches ? 0 : Math.min(normalIncrease, normalShown);
+            const existing = new Map();
+            for (const token of row.pile.querySelectorAll('.fp-hud-earned')) {
+              const type = token.dataset.awardType;
+              if (!existing.has(type)) existing.set(type, []);
+              existing.get(type).push(token);
+            }
+            const nextTokens = [];
+            let normalIndex = 0, dropIndex = 0;
             const positions = [[-20,0,-16],[9,1,13],[-3,10,-5],[25,6,19],[-28,16,-23],[0,25,7],[22,23,-12],[-16,33,15],[12,39,-9],[-4,47,5]];
             icons.forEach((type, index) => {
-              const token = el('span', 'fp-hud-earned'); token.dataset.awardType = type;
+              let token = existing.get(type)?.shift();
+              const falling = type === 'normal' && normalIndex++ >= normalShown - freshCount;
+              if (falling) { token?.remove(); token = null; }
+              if (!token) {
+                token = el('span', 'fp-hud-earned'); token.dataset.awardType = type;
+                if (type === 'applause') {
+                  const img = el('img', 'fp-hud-applause'); img.src = 'assets/sound-icons/applause.svg'; img.alt = ''; token.append(img);
+                } else token.append(window.FinePlayCelebration.createIcon({tier:type}));
+              }
               const [x,y,r] = icons.length === 1 ? [0,0,-7] : positions[index];
               token.style.cssText = `--pile-x:${x}px;--pile-y:${y}px;--pile-r:${r}deg;z-index:${index + 1}`;
-              if (type === 'applause') {
-                const img = el('img', 'fp-hud-applause'); img.src = 'assets/sound-icons/applause.svg'; img.alt = ''; token.append(img);
-              } else token.append(window.FinePlayCelebration.createIcon({tier:type}));
-              row.pile.append(token);
+              if (falling) {
+                const delay = dropIndex++ * 65;
+                fallStarts.set(token, performance.now() + delay);
+                token.style.setProperty('--pile-delay', delay + 'ms');
+                token.classList.add('fp-hud-falling');
+                token.addEventListener('animationend', () => token.classList.remove('fp-hud-falling'), {once:true});
+              } else token.classList.remove('fp-hud-falling');
+              nextTokens.push(token);
             });
+            for (const child of [...row.pile.children]) if (!nextTokens.includes(child)) child.remove();
+            nextTokens.forEach((token, index) => {
+              if (row.pile.children[index] !== token) row.pile.insertBefore(token, row.pile.children[index] || null);
+            });
+            row.pile.dataset.normalDropCount = String(freshCount);
             const suffix = p.awards.partial ? ' · 記録分' : '';
             row.summary.textContent = (remaining > 0 ? 'ほか ' + remaining + '個 · 内訳' : '獲得の内訳') + suffix;
             row.summary.setAttribute('aria-label', (p.name || 'この人') + 'の獲得内訳' + suffix);
@@ -167,14 +209,31 @@
             if (!icons.length) row.pile.append(el('small', 'fp-hud-pile-empty', p.awards.partial ? '記録分の獲得なし' : '獲得はこれから'));
           }
         }
-        if (!p.awards) row.pile.replaceChildren(el('small', 'fp-hud-pile-empty', known ? '内訳の記録なし' : ''));
+        if (!p.awards) { row.pile.replaceChildren(el('small', 'fp-hud-pile-empty', known ? '内訳の記録なし' : '')); row.pile.dataset.normalDropCount = '0'; }
       });
       count.textContent = s.players.length + '人';
       scaleText.textContent = !visible.length ? '得点は公開後に表示' : '通常FinePlayは手1個＝1点 · 総合点には正解・コンボ・ボーナスも含みます';
       const active = s.players.find(p => p.id === s.activePlayerId && p.role !== 'spectator');
       const message = active ? (active.name || '名前未設定') + ' · ' + (s.activeLabel || '出番') : '出番の指定なし';
       if (status.textContent !== message) status.textContent = message;
+      // The parent moves this same HUD through a detached fragment on render.
+      // Restore its original clock rather than replaying the CSS drop on attach.
+      for (const token of root.querySelectorAll('.fp-hud-falling')) {
+        const start = fallStarts.get(token), now = performance.now();
+        if (reducedMotion.matches || start === undefined || now - start >= 780) token.classList.remove('fp-hud-falling');
+        else if (restoreMotionClock) token.style.setProperty('--pile-delay', (start - now) + 'ms');
+      }
+      if (!transferPause) {
+        previousMotion = s.motion;
+        motionReady = s.motion?.enabled === true && !document.hidden;
+      }
     }
+    const onVisibility = () => {
+      if (!document.hidden) return;
+      motionReady = false;
+      root.querySelectorAll('.fp-hud-falling').forEach(token => token.classList.remove('fp-hud-falling'));
+    };
+    document.addEventListener('visibilitychange', onVisibility);
     const onKey = e => {
       if (e.target !== list || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
       e.preventDefault();
@@ -183,7 +242,7 @@
     list.addEventListener('keydown', onKey);
     const api = {
       update(next) { if (!destroyed) { current = project(next); paint(current); } },
-      destroy() { if (destroyed) return; destroyed = true; list.removeEventListener('keydown', onKey); root.remove(); cards.clear(); current = null; if (mounts.get(container) === api) mounts.delete(container); }
+      destroy() { if (destroyed) return; destroyed = true; list.removeEventListener('keydown', onKey); document.removeEventListener('visibilitychange', onVisibility); root.remove(); cards.clear(); current = null; if (mounts.get(container) === api) mounts.delete(container); }
     };
     paint(current); mounts.set(container, api); return api;
   }
