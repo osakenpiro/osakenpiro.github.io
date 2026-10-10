@@ -1,7 +1,7 @@
 {
   "schema_version": "0.1",
   "publisher": "osakenpiro",
-  "generated_at": "2026-10-09",
+  "generated_at": "2026-10-10",
   "policy": "https://osakenpiro.github.io/service-directory/#policy",
   "services": [
     {
@@ -19,8 +19,8 @@
       "source": "seed",
       "state": "active",
       "first_seen_at": "2026-10-09",
-      "last_checked_at": "2026-10-09",
-      "last_success_at": "2026-10-09",
+      "last_checked_at": "2026-10-10",
+      "last_success_at": "2026-10-10",
       "failures": 0,
       "reason": "HTTP 200確認"
     },
@@ -39,8 +39,8 @@
       "source": "seed",
       "state": "active",
       "first_seen_at": "2026-10-09",
-      "last_checked_at": "2026-10-09",
-      "last_success_at": "2026-10-09",
+      "last_checked_at": "2026-10-10",
+      "last_success_at": "2026-10-10",
       "failures": 0,
       "reason": "HTTP 200確認"
     },
@@ -59,8 +59,8 @@
       "source": "seed",
       "state": "active",
       "first_seen_at": "2026-10-09",
-      "last_checked_at": "2026-10-09",
-      "last_success_at": "2026-10-09",
+      "last_checked_at": "2026-10-10",
+      "last_success_at": "2026-10-10",
       "failures": 0,
       "reason": "HTTP 200確認"
     },
@@ -80,8 +80,8 @@
       "source": "seed",
       "state": "active",
       "first_seen_at": "2026-10-09",
-      "last_checked_at": "2026-10-09",
-      "last_success_at": "2026-10-09",
+      "last_checked_at": "2026-10-10",
+      "last_success_at": "2026-10-10",
       "failures": 0,
       "reason": "HTTP 200確認"
     },
@@ -100,8 +100,8 @@
       "source": "seed",
       "state": "active",
       "first_seen_at": "2026-10-09",
-      "last_checked_at": "2026-10-09",
-      "last_success_at": "2026-10-09",
+      "last_checked_at": "2026-10-10",
+      "last_success_at": "2026-10-10",
       "failures": 0,
       "reason": "HTTP 200確認"
     },
@@ -120,8 +120,8 @@
       "source": "seed",
       "state": "active",
       "first_seen_at": "2026-10-09",
-      "last_checked_at": "2026-10-09",
-      "last_success_at": "2026-10-09",
+      "last_checked_at": "2026-10-10",
+      "last_success_at": "2026-10-10",
       "failures": 0,
       "reason": "HTTP 200確認"
     },
@@ -140,8 +140,8 @@
       "source": "seed",
       "state": "active",
       "first_seen_at": "2026-10-09",
-      "last_checked_at": "2026-10-09",
-      "last_success_at": "2026-10-09",
+      "last_checked_at": "2026-10-10",
+      "last_success_at": "2026-10-10",
       "failures": 0,
       "reason": "HTTP 200確認"
     },
@@ -160,8 +160,8 @@
       "source": "seed",
       "state": "active",
       "first_seen_at": "2026-10-09",
-      "last_checked_at": "2026-10-09",
-      "last_success_at": "2026-10-09",
+      "last_checked_at": "2026-10-10",
+      "last_success_at": "2026-10-10",
       "failures": 0,
       "reason": "HTTP 200確認"
     },
@@ -180,8 +180,8 @@
       "source": "seed",
       "state": "active",
       "first_seen_at": "2026-10-09",
-      "last_checked_at": "2026-10-09",
-      "last_success_at": "2026-10-09",
+      "last_checked_at": "2026-10-10",
+      "last_success_at": "2026-10-10",
       "failures": 0,
       "reason": "HTTP 200確認"
     }
