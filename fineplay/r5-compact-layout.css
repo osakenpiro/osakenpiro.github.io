@@ -1,0 +1,352 @@
+/* Density retains the complete R4 score/readback and bound controls. */
+.r5-compact-active.layout-preview .layout-action {
+  padding: 16px !important;
+  margin-bottom: 14px !important;
+}
+
+.r5-compact-active.layout-preview .layout-action .fp-card {
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+
+.r5-compact-active.layout-preview .layout-action .fp-card h2 {
+  font-size: clamp(22px, 2vw, 28px);
+  line-height: 1.55;
+  margin: 10px 0 12px;
+}
+
+.r5-compact-active.layout-preview .layout-action .fp-card-foot {
+  margin-top: 8px;
+  padding-top: 10px;
+}
+
+.r5-compact-active.layout-preview .layout-action .answer-chip {
+  font-size: 15px;
+  padding: 5px 15px;
+}
+
+.r5-compact-active.layout-preview .layout-action #question-form > label {
+  margin-top: 7px;
+  margin-bottom: 5px;
+}
+
+.r5-compact-active.layout-preview .layout-action #question-form .row {
+  margin-top: 8px;
+  gap: 7px;
+}
+
+.r5-compact-active.layout-preview .layout-action #ask,
+.r5-compact-active.layout-preview .layout-action #guess {
+  min-height: 46px;
+  padding-block: 7px;
+}
+
+.r5-compact-active.layout-preview .layout-action > .r5-tools-main {
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.r5-compact-active.layout-preview .layout-action > .r5-tools-main > h2 {
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.r5-compact-active.layout-preview .layout-action > .r5-tools-main .layout-wallet {
+  top: 10px;
+  font-size: 12px;
+}
+
+.r5-compact-active.layout-preview .layout-action > .r5-tools-main .layout-wallet svg {
+  width: 17px;
+  height: 17px;
+}
+
+.r5-compact-active.layout-preview .layout-action > .r5-tools-main .assist-lifelines {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.r5-compact-active.layout-preview .layout-action > .r5-tools-main .assist-lifeline {
+  min-height: 64px;
+  padding: 6px 4px;
+  gap: 3px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.r5-compact-active.layout-preview .layout-action > .r5-tools-main .assist-lifeline > span {
+  font-size: 19px;
+}
+
+.r5-compact-active.layout-preview .layout-action > .r5-tools-main .assist-lifeline svg {
+  width: 19px;
+  height: 19px;
+}
+
+.r5-compact-active.layout-preview .layout-action > .r5-tools-main .assist-lifeline > small {
+  font-size: 9px;
+}
+
+.r5-compact-active.layout-preview .layout-action > .r5-tools-main:has(.layout-wallet-reserved) > h2 {
+  margin-bottom: 17px;
+}
+
+/* Auto-sized rows remove unused space without omitting score/award controls. */
+.r5-compact-active #r3-hud {
+  margin: 10px 0;
+}
+
+.r5-compact-active #r3-hud .r3-hud-toolbar {
+  font-size: 11px;
+  margin: 0 6px 5px;
+}
+
+.r5-compact-active #r3-hud .fp-hud-heading {
+  padding: 10px 12px 0;
+}
+
+.r5-compact-active #r3-hud .fp-hud-title {
+  font-size: 14px;
+}
+
+.r5-compact-active #r3-hud .fp-hud-list {
+  padding: 12px 6px 6px;
+}
+
+.r5-compact-active #r3-hud .fp-hud-player {
+  flex-basis: 174px;
+  min-width: max(174px, calc(var(--hud-score-width, 0px) + 70px));
+  grid-template-columns: 64px minmax(0, 1fr);
+  grid-template-rows: auto;
+  grid-template-areas:
+    "portrait name"
+    "portrait role"
+    "turn turn"
+    "pile score"
+    "recent recent"
+    "topic topic"
+    "awards awards"
+    "readback readback"
+    "actions actions";
+  align-content: start;
+  gap: 3px 5px;
+  padding: 6px 9px;
+}
+
+.r5-compact-active #r3-hud .fp-hud-portrait {
+  grid-area: portrait;
+  width: 34px;
+  height: 34px;
+}
+
+.r5-compact-active #r3-hud .fp-hud-avatar {
+  width: 28px;
+  height: 28px;
+}
+
+.r5-compact-active #r3-hud .fp-hud-name {
+  grid-area: name;
+  align-self: end;
+  text-align: left;
+  font-size: 12px;
+}
+
+.r5-compact-active #r3-hud .fp-hud-role {
+  grid-area: role;
+  align-self: start;
+  text-align: left;
+  width: 100%;
+  font-size: 10px;
+}
+
+.r5-compact-active #r3-hud .fp-hud-turn {
+  grid-area: turn;
+  font-size: 10px;
+}
+
+.r5-compact-active #r3-hud .fp-hud-turn:empty,
+.r5-compact-active #r3-hud .earned-recent:empty,
+.r5-compact-active #r3-hud .fp-hud-actions:has(> .r3-member-status:only-child:empty):not(:has(button, a, input, select, textarea, [tabindex])) {
+  display: none;
+}
+
+.r5-compact-active #r3-hud .fp-hud-pile {
+  grid-area: pile;
+  width: 64px;
+  height: 62px;
+  align-self: center;
+}
+
+.r5-compact-active #r3-hud .fp-hud-earned {
+  width: 28px;
+  height: 28px;
+  left: calc(50% - 14px);
+  bottom: calc(2px + var(--pile-y) * .65);
+  transform: translateX(calc(var(--pile-x) * .6)) rotate(var(--pile-r));
+}
+
+.r5-compact-active #r3-hud .fp-hud-pile:has(.fp-hud-earned)::before {
+  width: 62px;
+  left: 1px;
+}
+
+.r5-compact-active #r3-hud .fp-hud-pile-empty {
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.r5-compact-active #r3-hud .fp-hud-score {
+  grid-area: score;
+  align-self: center;
+  font-size: 20px;
+}
+
+.r5-compact-active #r3-hud .fp-hud-total-label {
+  display: block;
+  margin: 0 0 3px;
+}
+
+.r5-compact-active #r3-hud .earned-recent {
+  grid-area: recent;
+  height: auto;
+  min-height: 0;
+  max-height: 42px;
+  line-height: 1.5;
+  font-size: 11px;
+}
+
+.r5-compact-active #r3-hud .earned-topic {
+  grid-area: topic;
+  min-height: 0;
+  font-size: 10px;
+}
+
+.r5-compact-active #r3-hud .fp-hud-awards {
+  grid-area: awards;
+}
+
+.r5-compact-active #r3-hud .earned-readback {
+  grid-area: readback;
+  margin-top: 0;
+  width: 100%;
+}
+
+.r5-compact-active #r3-hud .fp-hud-awards-summary,
+.r5-compact-active #r3-hud .earned-readback > summary {
+  min-height: 30px;
+  padding: 5px 0;
+}
+
+.r5-compact-active #r3-hud .fp-hud-actions {
+  grid-area: actions;
+  padding-top: 0;
+}
+
+.r5-compact-active #r3-hud .fp-hud-foot {
+  padding: 6px 12px;
+  font-size: 10px;
+}
+
+/* Wide top is the adopted layout; explicit compact URLs remain compatible. */
+.r5-scores-wide-active .play-grid > #r3-hud {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  order: -1;
+  width: 100%;
+  margin: 0;
+}
+
+.r5-scores-wide-active .play-grid > .game-column {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.r5-scores-wide-active.layout-preview #history.presentation-history {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.r5-scores-wide-active .play-grid > .reference-column {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.r5-scores-wide-active .play-grid > .r5-wide-score-tools {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  order: -1;
+}
+
+.r5-scores-wide-active[data-r5-tools-placement="score"] .play-grid > .game-column,
+.r5-scores-wide-active[data-r5-tools-placement="score"].layout-preview #history.presentation-history {
+  grid-row: 3;
+}
+
+.r5-scores-wide-active[data-r5-tools-placement="score"] .play-grid > .reference-column {
+  grid-row: 4;
+}
+
+/* Existing rail controls keep their original DOM and handlers. */
+.r5-sidebar-content {
+  display: contents;
+}
+
+.r5-sidebar-content[hidden] {
+  display: none !important;
+}
+
+#r5-sidebar-toggle[hidden] {
+  display: none !important;
+}
+
+#r5-sidebar-toggle {
+  flex: none;
+  width: 100%;
+  min-height: 44px;
+  margin: -9px 0 10px;
+  padding: 5px 7px;
+  border: 1px solid #668973;
+  border-radius: 8px;
+  background: #284d3b;
+  color: #f7f5ed;
+  font-size: 12px;
+}
+
+#r5-sidebar-toggle:focus-visible {
+  outline: 3px solid #f1d889;
+  outline-offset: 2px;
+}
+
+@media (min-width: 1181px) {
+  .r5-sidebar-collapsed.turn-ui-040 .app-shell {
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+
+  .r5-sidebar-collapsed.turn-ui-040 .rail {
+    padding: 20px 8px 0;
+  }
+
+  .r5-sidebar-collapsed #r5-sidebar-toggle {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 680px) {
+  .r5-compact-active.layout-preview .layout-action {
+    padding: 13px !important;
+  }
+
+  .r5-compact-active.layout-preview .layout-action .fp-card {
+    padding: 12px;
+  }
+
+  .r5-compact-active.layout-preview .layout-action .fp-card h2 {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 340px) {
+  .r5-compact-active.layout-preview .layout-action > .r5-tools-main .assist-lifelines {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

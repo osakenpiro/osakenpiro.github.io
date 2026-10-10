@@ -1,0 +1,14 @@
+.r5-applause-candidate{margin:18px 0;padding:20px;border:1px dashed #b2a77d;border-radius:16px;background:#fffdf6;color:#293d34;box-shadow:0 3px 12px #173b2a08;overflow:hidden}
+.r5-applause-candidate h2{font-size:19px;margin:8px 0 10px}
+.r5-applause-badge{display:inline-block;padding:4px 9px;border-radius:6px;background:#eee7cb;color:#67562c;font-size:11px;font-weight:700;letter-spacing:.05em}
+.r5-applause-explainer,.r5-applause-rates{font-size:13px;line-height:1.65;margin:10px 0}
+.r5-applause-rates{font-weight:700}
+.r5-applause-table-wrap{overflow-x:auto;margin:14px 0}
+.r5-applause-table{width:100%;border-collapse:collapse;font-size:13px;text-align:left}
+.r5-applause-table caption{text-align:left;font-weight:700;font-size:12px;margin-bottom:8px}
+.r5-applause-table th,.r5-applause-table td{padding:9px 8px;border-bottom:1px solid #e1e6d9;vertical-align:top;overflow-wrap:anywhere}
+.r5-applause-table thead th{font-size:11px;color:#687263;background:#f3f3e9}
+.r5-applause-table th:first-child{width:40%}
+.r5-applause-candidate-value{font-weight:800;color:#537047;font-variant-numeric:tabular-nums}
+.r5-applause-note,.r5-applause-pending{display:block;font-size:11px;line-height:1.7;color:#68705d;margin:10px 0 0}
+@media(max-width:600px){.r5-applause-candidate{padding:15px 12px;margin:14px 0}.r5-applause-table{font-size:12px}.r5-applause-table th,.r5-applause-table td{padding:8px 6px}}

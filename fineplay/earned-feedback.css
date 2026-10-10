@@ -3,6 +3,7 @@
 .scope-suggestions button[aria-pressed=true]{background:#294c3d;color:#fffaf0;border-color:#294c3d}
 .scope-help{display:block;margin-bottom:16px;color:#53664d}
 .earned-recent{height:42px;line-height:20px;font-size:12px;font-weight:700;color:#355737;overflow:auto;max-width:100%;overflow-wrap:anywhere}
+.earned-correct-persistent{color:#315b43;font-size:13px;font-weight:750}
 .fp-player-hud .fp-hud-player{grid-template-rows:68px 24px 2.9em 24px 88px 34px 42px 30px auto auto auto}
 .fp-player-hud .earned-recent{grid-row:7}
 .fp-player-hud .earned-topic{grid-row:8}

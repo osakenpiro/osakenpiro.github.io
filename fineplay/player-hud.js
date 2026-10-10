@@ -126,8 +126,11 @@
         row.role.textContent = roles[p.role] + (p.id === s.selfId ? ' · あなた' : '');
         row.turn.textContent = active ? (s.activeLabel || '出番') : '';
         const known = p.score !== null;
-        row.score.textContent = known ? String(Object.is(p.score, -0) ? 0 : p.score) + ' 点' : '未公開';
-        row.score.setAttribute('aria-label', known ? '得点 ' + row.score.textContent : '得点は未公開');
+        row.score.replaceChildren();
+        if (known) row.score.append(el('small', 'fp-hud-total-label', '総合'),
+          document.createTextNode(String(Object.is(p.score, -0) ? 0 : p.score) + ' 点'));
+        else row.score.textContent = '未公開';
+        row.score.setAttribute('aria-label', known ? '総合点 ' + String(Object.is(p.score, -0) ? 0 : p.score) + ' 点' : '得点は未公開');
         row.card.classList.toggle('is-score-hidden', !known);
         const awardKey = JSON.stringify(p.awards);
         row.detail.hidden = !known || !p.awards;
@@ -148,13 +151,18 @@
               row.pile.append(token);
             });
             const suffix = p.awards.partial ? ' · 記録分' : '';
-            row.summary.textContent = (remaining > 0 ? '+' + remaining + '個 · 内訳' : '獲得の内訳') + suffix;
+            row.summary.textContent = (remaining > 0 ? 'ほか ' + remaining + '個 · 内訳' : '獲得の内訳') + suffix;
             row.summary.setAttribute('aria-label', (p.name || 'この人') + 'の獲得内訳' + suffix);
             for (const [type, count] of Object.entries(p.awards.counts)) {
-              const line = el('span', '', window.FPScorePile.labels[type] + ' × ' + count);
+              const label = type === 'normal' ? (p.awards.normalUnit === 'evaluation' ? '通常FinePlay（旧記録の評価数）' : '通常FinePlay点（手1個＝1点）') : window.FPScorePile.labels[type];
+              const line = el('span', '', label + ' × ' + count);
               row.breakdown.append(line);
             }
-            row.breakdown.append(el('small', '', 'FinePlayは受けた評価、拍手は回数。Super / Ultraは獲得記録の件数（現ルールでは達成した対象数）。点数とは異なります。'));
+            row.breakdown.append(el('small', '', p.awards.normalUnit === 'evaluation'
+              ? 'この旧記録は通常FinePlayの点数がないため、評価数を表示しています。点数への換算は行っていません。'
+              : '通常FinePlayは1点につき手1個。拍手は回数、Super / Ultraは獲得記録の件数（現ルールでは達成した対象数）です。'));
+            if (remaining > 0) row.breakdown.append(el('small', '', '山は代表の10個。ほか ' + remaining + '個を含む全数は上の内訳で確認できます。'));
+            if (p.awards.legacyNormalEvaluations) row.breakdown.append(el('small', '', '旧記録の通常FinePlay評価 ' + p.awards.legacyNormalEvaluations + '件は、点数が不明のため手の山に合算していません。'));
             if (p.awards.partial) row.breakdown.append(el('small', '', '古いお題の獲得内訳は含まれない場合があります。'));
             if (!icons.length) row.pile.append(el('small', 'fp-hud-pile-empty', p.awards.partial ? '記録分の獲得なし' : '獲得はこれから'));
           }
@@ -162,7 +170,7 @@
         if (!p.awards) row.pile.replaceChildren(el('small', 'fp-hud-pile-empty', known ? '内訳の記録なし' : ''));
       });
       count.textContent = s.players.length + '人';
-      scaleText.textContent = !visible.length ? '得点は公開後に表示' : '山は獲得の種類 · 合計には正解・コンボ点も含みます';
+      scaleText.textContent = !visible.length ? '得点は公開後に表示' : '通常FinePlayは手1個＝1点 · 総合点には正解・コンボ・ボーナスも含みます';
       const active = s.players.find(p => p.id === s.activePlayerId && p.role !== 'spectator');
       const message = active ? (active.name || '名前未設定') + ' · ' + (s.activeLabel || '出番') : '出番の指定なし';
       if (status.textContent !== message) status.textContent = message;

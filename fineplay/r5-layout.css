@@ -1,0 +1,332 @@
+/* R5 candidates only. The R4 search, order, unread and action nodes remain. */
+.r5-layout-candidate .play-grid,
+.r5-layout-candidate .game-column,
+.r5-layout-candidate .reference-column,
+.r5-layout-candidate.layout-preview #history.presentation-history {
+  min-width: 0;
+}
+
+/* Separate question, answer and evaluation into their own grid cells. */
+.r5-layout-candidate.layout-preview #history.presentation-history .compact-clue {
+  display: block;
+  padding: 17px 12px;
+  border-top: 1px solid #dce2d3;
+  border-radius: 9px;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .compact-clue > summary {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) minmax(70px, 110px) max-content;
+  grid-template-areas: "number question answer fineplay" ". awards awards fineplay";
+  align-items: start;
+  gap: 10px 14px;
+  min-height: 56px;
+  padding: 0;
+  list-style: none;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .compact-clue > summary::-webkit-details-marker {
+  display: none;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .history-number {
+  grid-area: number;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  margin: 2px 0 0;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .clue-main {
+  grid-area: question;
+  min-width: 0;
+  gap: 6px;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .clue-text {
+  font-size: 17px;
+  line-height: 1.75;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .clue-main > small {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history summary > .r5-normal-hands {
+  grid-area: awards;
+  justify-self: start;
+  max-width: 100%;
+  margin: 0;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history summary > .answer-chip {
+  grid-area: answer;
+  justify-self: start;
+  max-width: 100%;
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history summary > .layout-history-fp,
+.r5-layout-candidate.layout-preview #history.presentation-history summary > .layout-q-fp-readonly {
+  grid-area: fineplay;
+  align-self: start;
+  justify-self: end;
+  position: static;
+  transform: none;
+  margin: 0 !important;
+  max-width: 100%;
+}
+
+/* The history action deliberately straddles the card edge. Keep its label
+   inside the button, and leave a gutter inside the scrolling history. */
+.r5-layout-candidate.layout-preview #history.presentation-history summary > .layout-history-fp {
+  position: relative;
+  inset-inline-end: -22px;
+  z-index: 2;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .layout-history-fp > .attrs-fp-trigger {
+  box-sizing: border-box;
+  width: 72px !important;
+  min-width: 72px;
+  max-width: 72px;
+  height: 64px;
+  min-height: 64px;
+  padding: 4px 6px;
+  flex-direction: column;
+  gap: 2px;
+  border-radius: 13px;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .layout-history-fp .layout-fp-button-label {
+  display: block;
+  font: 650 11px/14px system-ui, sans-serif;
+  white-space: nowrap;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .layout-history-fp .layout-fp-meter:empty {
+  display: none;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .presentation-popular > summary::after {
+  content: none;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .clue-detail {
+  padding: 14px 0 4px 46px;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .clue-detail .row,
+.r5-layout-candidate.layout-preview #history.presentation-history .presentation-stars {
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .presentation-thread {
+  margin: 0 0 8px 46px;
+  padding: 6px 0 6px 14px;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .history-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(110px, 155px);
+  gap: 8px;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .history-filters input,
+.r5-layout-candidate.layout-preview #history.presentation-history .history-filters select {
+  width: 100%;
+  min-height: 44px;
+  font-size: 12px;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history .history-list {
+  padding: 2px 18px 4px 2px;
+  scrollbar-gutter: stable;
+}
+
+.r5-layout-candidate.layout-preview #history.presentation-history {
+  container-name: r5-history;
+  container-type: inline-size;
+}
+
+/* A desktop history column can also be narrow. Give its question the full
+   row rather than squeezing it between answer and evaluation controls. */
+@container r5-history (max-width: 580px) {
+  .r5-layout-candidate.layout-preview #history.presentation-history .compact-clue > summary {
+    grid-template-columns: 28px minmax(0, 1fr) max-content;
+    grid-template-areas: "number question question" ". answer fineplay" ". awards awards";
+    gap: 10px 12px;
+  }
+
+  .r5-layout-candidate.layout-preview #history.presentation-history summary > .answer-chip {
+    align-self: center;
+    margin: 0;
+  }
+}
+
+/* Score placement follows the complete R4 member-score HUD. */
+.r5-layout-candidate.layout-preview .game-column > #layout-tools {
+  order: 0;
+  width: 100%;
+  margin: 0 0 16px;
+  padding: 18px 20px;
+}
+
+.r5-layout-candidate.layout-preview .game-column > #layout-tools .assist-lifelines {
+  grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+}
+
+.r5-layout-candidate.layout-preview .game-column > #layout-tools .layout-wallet {
+  top: 18px;
+}
+
+.r5-layout-candidate.layout-preview .game-column > #layout-tools .assist-lifeline {
+  min-height: 88px;
+}
+
+/* Main-window placement: the same bound buttons become a broad tile row. */
+.r5-layout-candidate .layout-action > #layout-tools.r5-tools-main {
+  margin-top: 14px;
+  padding: 16px 0 0;
+  border: 0;
+  border-top: 1px solid #92bba6;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #f3f6e9;
+}
+
+.r5-layout-candidate .layout-action > .r5-tools-main > h2 {
+  margin: 0 90px 12px 0;
+  font-size: 14px;
+}
+
+.r5-layout-candidate .layout-action > .r5-tools-main .layout-wallet {
+  top: 16px;
+  right: 0;
+  color: #e1d3a4;
+}
+
+.r5-layout-candidate .layout-action > .r5-tools-main .layout-wallet-reserved {
+  color: #e1d3a4;
+}
+
+.r5-layout-candidate .layout-action > .r5-tools-main .assist-review > .assist-muted {
+  color: #cbdcce;
+}
+
+.r5-layout-candidate .layout-action > .r5-tools-main .assist-lifelines {
+  grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+  gap: 8px;
+}
+
+.r5-layout-candidate .layout-action > .r5-tools-main .assist-lifeline {
+  min-height: 92px;
+  padding: 10px 7px;
+  font-size: 12px;
+  color: #294c3d;
+}
+
+.r5-layout-candidate .layout-action > .r5-tools-main:has(.layout-wallet-reserved) > h2 {
+  margin-bottom: 26px;
+}
+
+/* Intermediate width and 200% zoom use the same readable stacked history. */
+@media (max-width: 1050px) {
+  .r5-layout-candidate.layout-preview #history.presentation-history .compact-clue > summary {
+    grid-template-columns: 28px minmax(0, 1fr) max-content;
+    grid-template-areas: "number question question" ". answer fineplay" ". awards awards";
+    gap: 10px 12px;
+  }
+
+  .r5-layout-candidate.layout-preview #history.presentation-history summary > .answer-chip {
+    align-self: center;
+    margin: 0;
+  }
+
+  .r5-layout-candidate.layout-preview #history.presentation-history .clue-detail {
+    padding-left: 40px;
+  }
+
+  .r5-layout-candidate.layout-preview #history.presentation-history .presentation-thread {
+    margin-left: 40px;
+  }
+}
+
+@media (max-width: 680px) {
+  .r5-layout-candidate .reference-column {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .r5-layout-candidate.layout-preview #history.presentation-history {
+    padding: 18px 14px;
+  }
+
+  .r5-layout-candidate.layout-preview #history.presentation-history .compact-clue {
+    padding: 15px 4px;
+  }
+
+  .r5-layout-candidate.layout-preview #history.presentation-history .compact-clue > summary {
+    gap: 9px 8px;
+  }
+
+  .r5-layout-candidate.layout-preview #history.presentation-history .clue-text {
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  .r5-layout-candidate.layout-preview #history.presentation-history .clue-detail {
+    padding-left: 36px;
+  }
+
+  .r5-layout-candidate.layout-preview #history.presentation-history .presentation-thread {
+    margin-left: 36px;
+    padding-left: 10px;
+  }
+
+  .r5-layout-candidate.layout-preview #history.presentation-history .history-filters {
+    grid-template-columns: minmax(0, 1fr) 110px;
+  }
+
+  .r5-layout-candidate.layout-preview #history.presentation-history .presentation-history-nav {
+    gap: 6px 10px;
+    font-size: 11px;
+  }
+
+  .r5-layout-candidate.layout-preview #history.presentation-history .history-list {
+    padding-right: 18px;
+  }
+
+  .r5-layout-candidate.layout-preview #history.presentation-history summary > .layout-history-fp {
+    inset-inline-end: -14px;
+  }
+
+  .r5-layout-candidate .layout-action > .r5-tools-main .assist-lifelines {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .r5-layout-candidate.layout-preview .game-column > #layout-tools .assist-lifeline {
+    min-height: 96px;
+  }
+}
+
+@media (max-width: 340px) {
+  .r5-layout-candidate.layout-preview #history.presentation-history .history-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .r5-layout-candidate.layout-preview #history.presentation-history .compact-clue > summary {
+    grid-template-columns: 28px minmax(0, 1fr);
+    grid-template-areas: "number question" ". answer" ". fineplay" ". awards";
+  }
+}

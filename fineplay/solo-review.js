@@ -24,7 +24,7 @@
     host.id = 'solo-review'; host.className = 'panel';
     host.style.cssText = 'border:2px solid #244638;margin:14px 0;padding:16px;min-width:0';
     const done = R.done(state), rated = game.problemRatings || {}, ds = donors();
-    host.innerHTML = `<span class="eyebrow">R4 · ひとり体験</span><h2>ひとりで、獲得を試す</h2>
+    host.innerHTML = `<span class="eyebrow">R5 · ひとり体験</span><h2>ひとりで、獲得を試す</h2>
       <p>架空の相手を操作します。お題への評価・拍手は <b>${esc(person(state.presenter))}</b> の山に届きます。Superは2人からの評価で自動獲得。3人の卓では全員評価のUltraも付きます。</p>
       <div class="row" style="flex-wrap:wrap">
       ${button('solo-fine','① FinePlayを送る','primary',!!rated[ds[0]])}

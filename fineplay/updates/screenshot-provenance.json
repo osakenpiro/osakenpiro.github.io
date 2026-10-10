@@ -28,5 +28,15 @@
     "path": "screenshots/r4-earned-390.png",
     "description": "Release candidate Chrome 390px actual ordinary answer button, authoritative synthetic engine; no live room",
     "sha256": "76586a25737dc1a1787ae712102bc336ec60dc2e80024f77b1ab9fb482623b46"
+  },
+  {
+    "path": "screenshots/r5-1366.png",
+    "description": "R5 final integrated Chromium 1366x900; synthetic 35-question R4-engine commands; wide score HUD, compact history and main status; no live room",
+    "sha256": "fc9fa3a3819de0fa3930eb8026ebccc62ae06a4c8804dd1a42f79b724553d0e8"
+  },
+  {
+    "path": "screenshots/r5-390.png",
+    "description": "R5 final integrated Chromium 390x900; synthetic 35-question R4-engine commands; wide score HUD, compact history and main status; no live room",
+    "sha256": "51961390bf3ab2b67a214110207493358377bf415e6be1a38539f8c0ca5b0394"
   }
 ]
