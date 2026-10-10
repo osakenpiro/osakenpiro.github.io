@@ -1,0 +1,101 @@
+{
+  "baseline_head": "88ff9b257c62115f21b259f31ac2ecba85bf3574",
+  "r5_product_commit": "57443db07269a5b9916089882033c190defad3a5",
+  "source_commit_evidence": "MASTER-HANDOFF.md; object absent from shallow local clone; local release.json confirms r5-20261010",
+  "r4_product_commit": "f671dfafa341e4b7ddf188ae7630b901f3fabe43",
+  "r3_source_commit": "76710d26d1f87920ec0ec19da4cff5b43b3de2c7",
+  "capture_origin": "R5 inherited real browser captures and R6 three family genuine Windows Edge sandboxed test captures. Both sources distinguished; older original R5 capture timing remains unknown.",
+  "capture_time": null,
+  "source_checkout_at_capture": "Not independently reconstructable from delivered evidence",
+  "r5_image_ui_label": "Image retains legacy 0.6 footer; not historical 0.6 evidence",
+  "crops": [
+    {
+      "source": "screenshots/r5-1366.png",
+      "kind": "CSS viewport, no altered image file",
+      "selector": ".capture-window",
+      "region": "top of image; visible height depends on viewport"
+    },
+    {
+      "source": "screenshots/r5-1366.png",
+      "kind": "CSS viewport, no altered image file",
+      "selector": ".score-crop",
+      "x": 208,
+      "y": 158,
+      "width": 1136,
+      "height": 207
+    }
+  ],
+  "families": [
+    {
+      "family": "0.6",
+      "recorded_patch": "0.6",
+      "provisional_source_candidates": "b3de6178f93c57d0ab8f0dfac63ed3b1a5759631",
+      "verified_source_commit": "b3de6178f93c57d0ab8f0dfac63ed3b1a5759631",
+      "screenshot": "screenshots/archive-0.6-feature-1366.png",
+      "state": "PARENT_LOCAL_BROWSER_REAL_PLAY_PASS_INDEPENDENT_QA_PENDING",
+      "route": "../versions/0.6/",
+      "playable_verified": true,
+      "mobile_screenshot": "screenshots/archive-0.6-feature-390.png",
+      "screenshot_sha256": "c4306d43b3082a55bc23dd46a6c2924988adbfc490adbb367108d8899dcdb7b3",
+      "mobile_screenshot_sha256": "56c6b88f3226d85f782d9a3074c5f2002782220e59dac2fe3499920254563d31",
+      "multiplayer": "disabled",
+      "validation": "FP-O local Edge 1366/390 actual questions, answers, guess-correct, genie answers; independent QA pending",
+      "additional_proof_screenshot": "screenshots/archive-0.6-tools-and-fineplay-1366.png",
+      "additional_proof_screenshot_sha256": "8941f51fe75acbc89e6f619e30d03d312a2a4a38ab0cf1090a8c9bbb51b072e6",
+      "additional_proof_source": "../integration/evidence/played-0.6-asker-1366.png (real Edge parent actual question/answer run; may be reviewed independently)",
+      "image_truthfulness": "Primary 0.6 thumbnail shows six-answer historical genie turn, not all 0.6 features. Supplemental real playable screenshot visibly proves FinePlay and assist tools. All explanatory claims tied to actually visible screenshots."
+    },
+    {
+      "family": "0.5",
+      "recorded_patch": "0.5.2",
+      "provisional_source_candidates": "01101319ec40c7397c1399c3d60724f8ace82ea6 / alternate be3821847a35bde62bcafb9d76c15804e45e4cae",
+      "verified_source_commit": "be3821847a35bde62bcafb9d76c15804e45e4cae",
+      "screenshot": "screenshots/archive-0.5-feature-1366.png",
+      "state": "PARENT_LOCAL_BROWSER_REAL_PLAY_PASS_INDEPENDENT_QA_PENDING",
+      "route": "../versions/0.5/",
+      "playable_verified": true,
+      "mobile_screenshot": "screenshots/archive-0.5-feature-390.png",
+      "screenshot_sha256": "c2154f8efa8e85d5b1b22a2ce7c3506ab1aba03bcd07bee4ec0d068081213fa1",
+      "mobile_screenshot_sha256": "7e169f7269728588faffdba760cca0572d1f4b10404cf95f24a0d99fddc004cc",
+      "multiplayer": "disabled",
+      "validation": "FP-O local Edge 1366/390 actual questions, answers, guess-correct, genie answers; independent QA pending"
+    },
+    {
+      "family": "0.4",
+      "recorded_patch": "0.4.1",
+      "provisional_source_candidates": "b76e186d433d27b8842ac339870d70e0f2706076",
+      "verified_source_commit": "b76e186d433d27b8842ac339870d70e0f2706076",
+      "screenshot": "screenshots/archive-0.4-feature-1366.png",
+      "state": "PARENT_LOCAL_BROWSER_REAL_PLAY_PASS_INDEPENDENT_QA_PENDING",
+      "route": "../versions/0.4/",
+      "playable_verified": true,
+      "mobile_screenshot": "screenshots/archive-0.4-feature-390.png",
+      "screenshot_sha256": "1f48dd2b662672c538d7f51ff3e1b07ae58a49d113aab08fcf6c50a375cbf4d9",
+      "mobile_screenshot_sha256": "39d45bcf91ab4cae381de2e559bd8896aad5705d8a41099872c727b3d0868544",
+      "multiplayer": "disabled",
+      "validation": "FP-O local Edge 1366/390 actual questions, answers, guess-correct, genie answers; independent QA pending"
+    }
+  ],
+  "release_ready": false,
+  "archived_captures": {
+    "captured_utc": "2026-10-10T03:35:50.489Z",
+    "source_manifest": "FP-O integration/evidence/archive-feature-capture-manifest.json",
+    "browser": {
+      "engine": "Microsoft Edge",
+      "sandbox": true,
+      "version": "155.0.4283.45"
+    },
+    "description": "Element screenshots (selector .tutorial-scene) from real historical local-only scripted-genie gameplay. No rendered mock or other version substituted.",
+    "source_limited_to": "local browser; not proof of deployed web, real multiplayer, or independent QA"
+  },
+  "parent_browser_qa": "integration/evidence/combined-real-play.json",
+  "screenshot_creation_test": "integration/evidence/archive-feature-capture-manifest.json",
+  "current_r5_modified": false,
+  "independent_qa": "REVISION_AFTER_INITIAL_HOLD; RE-RUN_REQUIRED",
+  "production_published": false,
+  "parent_qa_issues_fixed": [
+    "archive browser tab now includes actual saved patch via archive-only bootstrap; original engine scripts unchanged",
+    "0.6 misleading image caption aligned to primary image and added real full question-role proof image",
+    "outdated historical 0.6 image unconfirmed text replaced with accurate source-provenance statement"
+  ]
+}

@@ -1,0 +1,21 @@
+/* FinePlay celebration: transient foreground decoration; no application selectors. */
+.fp-celebration-icon{display:inline-block;width:1.6em;height:1.6em;vertical-align:middle;overflow:visible;color:var(--fp-celebration-ink,#294c3d)}
+.fp-celebration-icon[data-tier="super"]{color:var(--fp-celebration-gold,#ac7731)}
+.fp-celebration-icon[data-tier="ultra"]{color:var(--fp-celebration-ultra,#794587)}
+.fp-celebration-layer,.fp-celebration-layer *{pointer-events:none!important;user-select:none}
+.fp-celebration-layer{position:fixed;inset:0;z-index:2147483000;overflow:hidden;contain:layout paint style;isolation:isolate}
+.fp-celebration-crowd{position:absolute;bottom:-7px;left:0;width:100%;height:clamp(68px,14vh,126px);overflow:visible;opacity:0;animation:fp-celebration-crowd 1300ms ease-out both}
+.fp-celebration-layer[data-tier="ultra"] .fp-celebration-crowd{height:clamp(88px,18vh,166px)}
+.fp-celebration-light{position:absolute;bottom:-20%;width:10%;height:42%;background:linear-gradient(0deg,#d3ad5925,transparent);transform-origin:bottom;filter:blur(12px);opacity:.65}
+.fp-celebration-layer[data-tier="ultra"] .fp-celebration-light{background:linear-gradient(0deg,#d891cf30,transparent)}
+.fp-celebration-chip{position:absolute;left:50%;top:max(12px,env(safe-area-inset-top));display:flex;align-items:center;gap:9px;max-width:calc(100% - 28px);padding:8px 16px;border:1px solid #d3ad59;border-radius:100px;background:#fffaf0f2;color:#294c3d;box-shadow:0 5px 18px #183a2920;font:700 clamp(13px,2.8vw,17px)/1.2 system-ui,sans-serif;white-space:nowrap;transform:translateX(-50%);animation:fp-celebration-chip 1300ms ease-out both}
+.fp-celebration-chip .fp-celebration-icon{width:36px;height:36px;flex:none}
+.fp-celebration-layer[data-tier="ultra"] .fp-celebration-chip{border-color:#a170ac}
+.fp-celebration-particle{position:absolute;left:var(--x);top:var(--y);width:5px;height:10px;border-radius:1px;background:var(--color);opacity:0;animation:fp-celebration-confetti 1200ms cubic-bezier(.12,.48,.43,1) both;animation-delay:var(--delay)}
+.fp-celebration-layer[data-tier="normal"] .fp-celebration-chip{animation-duration:850ms}
+.fp-celebration-layer[data-static="true"] .fp-celebration-chip{animation:none}
+.fp-celebration-layer[data-static="true"] .fp-celebration-crowd,.fp-celebration-layer[data-static="true"] .fp-celebration-light,.fp-celebration-layer[data-static="true"] .fp-celebration-particle{display:none}
+@keyframes fp-celebration-crowd{0%{opacity:0;transform:translateY(65%)}18%,68%{opacity:.92;transform:translateY(0)}100%{opacity:0;transform:translateY(40%)}}
+@keyframes fp-celebration-chip{0%{opacity:0;transform:translate(-50%,-7px) scale(.96)}16%,70%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-4px)}}
+@keyframes fp-celebration-confetti{0%{opacity:0;transform:translate(0,12px) rotate(0)}12%{opacity:.95}78%{opacity:.8}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--spin))}}
+@media(prefers-reduced-motion:reduce){.fp-celebration-layer .fp-celebration-chip{animation:none}.fp-celebration-layer .fp-celebration-crowd,.fp-celebration-layer .fp-celebration-light,.fp-celebration-layer .fp-celebration-particle{display:none}}

@@ -1,0 +1,9 @@
+/* Scoped to guided practice; the approved game palette and illustrations stay. */
+.tutorial-bar{flex-wrap:wrap}.tutorial-bar a{margin-left:auto;font-size:12px}.tutorial-bar button{padding:7px 10px;font-size:12px;min-height:40px}
+.tutorial-contract{font-size:12px;line-height:1.7;margin:0 0 16px;color:var(--muted,#596a60)}.tutorial-contract b{font-weight:650}
+.tutorial-scene .fp-turn{gap:10px}.tutorial-scene .fp-note{display:block;margin-top:3px}.tutorial-scene select{width:100%;min-height:48px;font-size:16px;margin-bottom:10px}
+.tutorial-scene #guess{margin-top:10px}.tutorial-hint{margin-top:8px;font-size:12px}.tutorial-hint summary{min-height:44px;padding:10px 0;cursor:pointer}.tutorial-hint p{margin-top:0}
+.tutorial-clap{border-top:1px solid var(--line,#dce3d3);padding-top:14px;margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.tutorial-clap p{flex:1;margin:0;font-size:13px}.tutorial-clap .vote{width:auto}.tutorial-clap small{color:var(--muted,#596a60)}
+.tutorial-real{margin:16px 0 0;line-height:1.7}.tutorial-result .row{justify-content:center;margin-block:16px}.tutorial-result a{text-decoration:none}.tutorial-result .small{max-width:520px;margin:12px auto;line-height:1.9}
+#tutorial-guess-form .row{margin-top:16px}#tutorial-guess-form input{font-size:16px}
+@media(max-width:440px){.tutorial-bar b{font-size:12px}.tutorial-bar a{font-size:11px}.tutorial-contract{font-size:11px}.tutorial-clap{gap:8px}.tutorial-clap .vote{width:100%}.tutorial-result .row .btn{width:100%;min-height:46px}.tutorial-result .small{font-size:12px}}
