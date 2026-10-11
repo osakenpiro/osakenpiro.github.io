@@ -1,6 +1,9 @@
 /* Artwork/motion port from received revision-manifest; game state remains authoritative. */
 (()=>{'use strict';
-const hand=new Image(),sign=new Image();hand.src='assets/motion/hand.png';sign.src='assets/motion/fineplay-sign.svg';
+const hand=new Image(),sign=new Image();
+// Lossless encoding retains every RGBA pixel; keep the published PNG fallback.
+hand.onerror=()=>{hand.onerror=null;hand.src='assets/motion/hand.png';};
+hand.src='assets/motion/hand.webp';sign.src='assets/motion/fineplay-sign.svg';
 const GOLD='#c7a34a',random=(a,z)=>a+Math.random()*(z-a),clamp=(x,a=0,z=1)=>Math.max(a,Math.min(z,x));
 function diamond(c,x,y,s,color){c.save();c.translate(x,y);c.fillStyle=color;c.beginPath();c.moveTo(0,-s);c.bezierCurveTo(s*.21,-s*.21,s*.21,-s*.21,s,0);c.bezierCurveTo(s*.21,s*.21,s*.21,s*.21,0,s);c.bezierCurveTo(-s*.21,s*.21,-s*.21,s*.21,-s,0);c.bezierCurveTo(-s*.21,-s*.21,-s*.21,-s*.21,0,-s);c.fill();c.restore()}
 

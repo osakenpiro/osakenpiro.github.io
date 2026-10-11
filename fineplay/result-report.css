@@ -19,3 +19,13 @@
   #modal:has(#r6-result-report) { padding: 14px; }
   .r6-result-trigger { padding-inline: 8px; }
 }
+
+/* Product preparation: concise summary, same public projection and copy text. */
+.r6-result-section { border-top: 1px solid #d5dec9; padding-top: 6px; margin-top: 12px; }
+.r6-result-section > summary { cursor: pointer; min-height: 44px; padding: 8px 0; line-height: 1.5; }
+.r6-result-section > summary span { display: block; color: #52664e; font-size: .8rem; padding-left: 16px; }
+.r6-result-section-body { margin-top: 4px; }
+.r6-result-section > summary:focus-visible { outline: 3px solid #719360; outline-offset: 3px; border-radius: 5px; }
+.r6-result-footer { position: sticky; bottom: -20px; padding: 12px 0; background: #fbfbf4; border-top: 1px solid #d5dec9; }
+.r6-result-footer button, .r6-result-heading button { min-height: 44px; }
+@media (max-width: 480px) { .r6-result-footer { bottom: -14px; } }

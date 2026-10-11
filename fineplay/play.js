@@ -5,6 +5,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const demo=new URLSearchParams(location.search).get('demo')==='1';
 const validRoom=s=>/^[a-f0-9-]{36}$/.test(s||'');
 const V=3,P='fineplay:online:v3:',HAND='<img class="hand" src="assets/fineplay-hand.svg" alt="">';
+const recovery=FPRecovery.createStorage({storage:()=>sessionStorage,prefix:P});let restoreBlocked=false;
 let room=demo?'':new URLSearchParams(location.hash.slice(1)).get('r')||'',owner=false,me='',name='',token='',peer=null,conn=null,state=null,game=null,credentials={},joinRole='player',channels=new Map(),seen=new Map();
 const stateSenders=new Map(),stateSync=new Map();let stateReceiver=null;
 let ready=false,busy=false,connecting=false,retryTimer=null,connectTimer=null,commandTimer=null,inflight=null,lastSeen=0,attempts=0,draft='',status='待機中',error='',filter='all',search='',order='old',renderRound='',renderCount=0,newHistory=false;
@@ -12,8 +13,25 @@ function on(id,fn){const e=$('#'+id);if(e)e.onclick=fn;}
 function toast(t){$('#toast').textContent=t;$('#toast').hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').hidden=true,5000);}
 function modal(html){$('#modal').innerHTML=html;$('#modal').showModal();on('modal-close',closeModal);}
 function closeModal(){if($('#modal').open)$('#modal').close();}
-function load(k){try{return JSON.parse(sessionStorage.getItem(P+k)||'null');}catch{return null;}}
-function persist(){if(demo)return;try{if(owner&&game)sessionStorage.setItem(P+'owner:'+room,JSON.stringify({game,credentials,name,me}));else if(room&&token)sessionStorage.setItem(P+'guest:'+room,JSON.stringify({name,token,role:joinRole}));}catch{toast('このブラウザでは復帰用の保存ができません。タブを開いたまま遊んでください。');}}
+function persist(){
+ if(demo||restoreBlocked)return;const before=recovery.inspect().status;
+ if(owner&&game)recovery.write('owner:'+room,{game,credentials,name,me});
+ else if(room&&token)recovery.write('guest:'+room,{name,token,role:joinRole});
+ if(recovery.inspect().status==='unavailable'&&before!=='unavailable')toast('復帰情報を保存できません。このタブを閉じずに遊んでください。');
+}
+function blockRestore(key){recovery.block(key);restoreBlocked=true;ready=false;state=null;game=null;owner=false;token='';me='';name='';error='';status='復帰を確認';render();}
+function paintRecovery(){
+ $('#recovery-status')?.remove();if(demo){document.body.dataset.saveHealth='demo';return;}
+ const health=recovery.inspect().status;document.body.dataset.saveHealth=health;if(health==='unknown')return;
+ const note=document.createElement('section');note.id='recovery-status';note.dataset.saveHealth=health;note.className=health==='saved'?'small':'callout';note.setAttribute('role','status');
+ if(health==='blocked'){
+  note.textContent='このタブの復帰情報を読み込めません。元のデータは残しています。再読み込みを試すか、別の卓を作ってください。';
+  const reload=document.createElement('button');reload.id='recovery-reload';reload.textContent='再読み込み';reload.onclick=()=>location.reload();
+  const fresh=document.createElement('a');fresh.id='recovery-new-room';fresh.href='./';fresh.textContent='別の卓を作る';note.append(' ',reload,' ',fresh);
+  const submit=$('#entry-form button');if(submit)submit.disabled=true;
+ }else note.textContent=health==='saved'?'復帰情報：保存済み（このタブ）':'復帰情報を保存できません。このタブを閉じずに遊んでください。';
+ $('.fp-top')?.after(note);if(!note.isConnected)$('.top')?.after(note);if(!note.isConnected)$('#main')?.prepend(note);
+}
 function sendRaw(c,m){try{if(!c?.open)return false;c.send(m);return true;}catch{return false;}}
 function sendData(c,m){if(m?.type==='state'){const sender=stateSenders.get(c);if(sender){sender.offer(m.state);return true;}return false;}return sendRaw(c,m);}
 function synchronizationBlocked(){return owner&&[...stateSync.values()].some(s=>s.status==='failed');}
@@ -49,18 +67,11 @@ function resetPeer(){
 }
 function retryLater(){if(demo||owner||retryTimer||attempts>=3)return;retryTimer=setTimeout(()=>{retryTimer=null;if(!ready){attempts++;connect(false);}},3500);}
 function networkError(text){connecting=false;ready=false;busy=false;status='接続を確認';error=text;render();retryLater();}
-let peerLibrary=null;
-function ensurePeer(){
- if(window.Peer)return Promise.resolve();
- if(!peerLibrary)peerLibrary=new Promise((resolve,reject)=>{
-  const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js';s.crossOrigin='anonymous';
-  const timer=setTimeout(()=>reject(new Error('通信ライブラリの読込がタイムアウトしました。')),12000);
-  s.onload=()=>{clearTimeout(timer);resolve();};s.onerror=()=>{clearTimeout(timer);peerLibrary=null;reject(new Error('通信ライブラリを読み込めません。'));};document.head.appendChild(s);
- });return peerLibrary;
-}
+const peerLibrary=FPRecovery.createPeerLoader({scope:window,doc:document});
+function ensurePeer(){return peerLibrary.ensure();}
 async function connect(asOwner){
- if(demo||connecting)return;resetPeer();owner=asOwner;connecting=true;error='';status=owner?'部屋を開いています':'参加しています';render();
- try{await ensurePeer();}catch(e){networkError(e.message+' ページを再読み込みするか、ひとり体験をご利用ください。');return;}
+ if(demo||restoreBlocked||connecting)return;resetPeer();owner=asOwner;connecting=true;error='';status=owner?'部屋を開いています':'参加しています';render();
+ try{await ensurePeer();}catch(e){networkError(e.message+' 「再接続」で読み込みを試せます。ひとり体験も利用できます。');return;}
  if(!connecting)return;
  peer=owner?new Peer('fineplay-v3-'+room,{debug:0}):new Peer({debug:0});const current=peer;
  connectTimer=setTimeout(()=>{if(peer===current&&!ready)networkError('接続に時間がかかっています。作成者のタブと回線を確認してください。');},20000);
@@ -113,7 +124,7 @@ const avatar=(p,i)=>`<span class="avatar a${i%4}" aria-hidden="true">${['✦','�
 function rail(){return `<aside class="rail"><a class="logo" href="home/" ${state?'target="_blank" rel="noopener"':''}>${HAND}<span>FINEPLAY<small>いい質問に、拍手。</small></span></a><nav aria-label="メニュー"><a class="selected" href="${demo?'?demo=1':'#main'}">${demo?'ひとり体験':'ゲームの卓'}</a><a href="guide/" target="_blank" rel="noopener">遊び方 ↗</a><button id="feedback">感想・不具合を伝える</button>${!demo?'<a href="?demo=1" target="_blank" rel="noopener">一人で画面を試す ↗</a>':'<a href="./" target="_blank" rel="noopener">本番の部屋をつくる ↗</a>'}</nav><div class="rail-copy">どんな質問から、<br>答えに近づこう。</div><img class="grove" src="assets/grove.svg" alt="星の帽子をかぶった小さなまじんが、森のランタンのそばで手を振っている"><span class="version">FRIENDS PREVIEW · 0.3</span></aside>`;}
 function demoBar(){return `<section class="demo-bar"><div><b>ひとり体験</b><span>架空メンバー・この端末だけ。オンライン対戦ではありません。</span></div><div class="row"><button id="demo-answer">出題者を試す</button><button id="demo-ask">質問者を試す</button><button id="demo-result">リザルトを見る</button><button id="demo-reset">最初から</button></div></section>`;}
 function header(){return `<header class="top"><div><span class="eyebrow">${state?'ROUND '+String(state.round).padStart(2,'0'):'PLAY WITH YOUR FRIENDS'}</span><h1>${state?esc(state.scope):'いつもの通話に、ひとつの謎を。'}</h1><p>${state?`出題：${esc(person(state.presenter))}　／　${state.mode==='sealed'?'FinePlayは終了後に発表':'FinePlayはその場で'}`:'人が出題、みんなで推理。音声はDiscordのまま。'}</p></div><div class="status"><span class="online-dot ${ready?'on':''}"></span>${demo?'ローカル体験':esc(status)}</div></header>`;}
-function intro(){return `<section class="entry"><div class="entry-art"><img src="assets/grove.svg" alt="森のまじん"><div><span class="eyebrow">GOOD QUESTION, GOOD COMPANY.</span><h2>その一問に、<br>拍手。</h2><p>当てるまでの遠回りだって、<br>みんなでなら、いい時間。</p></div></div><div class="panel entry-form"><span class="eyebrow">${room?'JOIN YOUR FRIENDS':'MAKE A ROOM'}</span><h2>${room?'仲間の卓に入る':'今日の卓をつくる'}</h2><p>2〜12人・登録なし。作成者はPC推奨です。</p>${!room?'<p class="entry-rule-preview">卓をつくった後にルールを選べます。<br><b>カジュアル</b>：加点あり・解答は無制限で無料。<br><b>デッド</b>：加点あり・解答に減点や制限。</p>':''}<form id="entry-form"><label for="nickname">呼ばれたい名前</label><input id="nickname" maxlength="24" required value="${esc(name)}" placeholder="ニックネーム" autocomplete="nickname"><button class="primary wide" ${connecting?'disabled':''}>${connecting?'接続しています…':room?'この卓に参加する →':'部屋をつくる →'}</button></form><div class="entry-demo"><b>今、一人でも大丈夫。</b><p>実際の操作画面で、回答・履歴・結果を試せます。</p><a class="btn" href="?demo=1">ひとりで画面を試す →</a></div><p class="small">招待URLを知る人が入室できます。仲間だけに共有してください。作成者はタブを開いたままに。</p></div></section>`;}
+function intro(){return `<section class="entry"><div class="entry-art"><img src="assets/grove.svg" alt="森のまじん"><div><span class="eyebrow">GOOD QUESTION, GOOD COMPANY.</span><h2>その一問に、<br>拍手。</h2><p>当てるまでの遠回りだって、<br>みんなでなら、いい時間。</p></div></div><div class="panel entry-form"><span class="eyebrow">${room?'JOIN YOUR FRIENDS':'MAKE A ROOM'}</span><h2>${room?'仲間の卓に入る':'今日の卓をつくる'}</h2><p>2〜12人・登録なし。作成者はPC推奨です。</p>${!room?'<p class="entry-rule-preview">卓をつくった後にルールを選べます。<br><b>カジュアル</b>：加点あり・解答の回数上限なし。<br><b>デッド</b>：解答の回数上限を調整。<br>どちらも無料枠の後は持ち点を使います。</p>':''}<form id="entry-form"><label for="nickname">呼ばれたい名前</label><input id="nickname" maxlength="24" required value="${esc(name)}" placeholder="ニックネーム" autocomplete="nickname"><button class="primary wide" ${connecting?'disabled':''}>${connecting?'接続しています…':room?'この卓に参加する →':'部屋をつくる →'}</button></form><div class="entry-demo"><b>今、一人でも大丈夫。</b><p>実際の操作画面で、回答・履歴・結果を試せます。</p><a class="btn" href="?demo=1">ひとりで画面を試す →</a></div><p class="small">招待URLを知る人が入室できます。仲間だけに共有してください。作成者はタブを開いたままに。</p></div></section>`;}
 function settings(){
  const next=state.players.filter(p=>p.online);let selected=state.presenter;if(state.round)selected=next[(next.findIndex(p=>p.id===state.presenter)+1)%next.length]?.id;
  return `<label for="presenter">出題する人</label><select id="presenter">${next.map(p=>`<option value="${esc(p.id)}" ${p.id===selected?'selected':''}>${esc(p.name)}</option>`).join('')}</select><label for="scope">お題の範囲</label><input id="scope" maxlength="80" value="${esc(state.scope)}"><label for="play-mode">遊び方</label><select id="play-mode"><option value="cooperative">協力 — 質問と回答をみんなで共有</option><option value="competitive" ${state.playMode==='competitive'?'selected':''}>対戦 — 自分の質問と回答だけを見る</option></select><label for="mode">FinePlayの発表</label><select id="mode"><option value="live">その場で拍手</option><option value="sealed" ${state.mode==='sealed'?'selected':''}>答え合わせの後</option></select><div id="initial-answer-row" ${selected===me?'':'hidden'}><label for="initial-answer">お題の答え <small>任意・終了まで非公開</small></label><input id="initial-answer" type="password" maxlength="200" autocomplete="off" ${selected===me?'':'disabled'}></div><p class="small">答えが未入力なら、出題者の準備画面へ進みます。</p>${button('start',state.round?'次のお題を用意する →':'このメンバーで始める →','primary wide',next.length<2)}`;
@@ -154,7 +165,7 @@ function render(){
  bind();bindSettings();if($('#initial-answer-row')&&$('#presenter')){$('#initial-answer-row').hidden=$('#presenter').value!==me;$('#initial-answer').disabled=$('#presenter').value!==me;}
  const newList=$('.history-list');if(newList){if(!sameRound||nearEnd){newList.scrollTop=order==='old'?newList.scrollHeight:0;}else newList.scrollTop=scroll;}
  if(focused&&$('#'+focused)&&['INPUT','TEXTAREA'].includes($('#'+focused).tagName)){const el=$('#'+focused);el.focus({preventScroll:true});try{el.setSelectionRange(selection,selection);}catch{}}
- renderRound=state?.roundId||'';renderCount=state?.entries.length||0;queueMicrotask(paintSynchronization);
+ renderRound=state?.roundId||'';renderCount=state?.entries.length||0;queueMicrotask(paintSynchronization);queueMicrotask(paintRecovery);
 }
 function inviteURL(){return location.origin+location.pathname+'#r='+room;}
 async function copy(text,title='コピーしてDiscordへ'){
@@ -166,7 +177,16 @@ function feedback(){modal(`<h2>触ってくれて、ありがとう。</h2><p>�
 function startRound(){send('start',{presenter:$('#presenter').value,scope:$('#scope').value,mode:$('#mode').value,playMode:$('#play-mode').value,secretAnswer:$('#presenter').value===me?$('#initial-answer').value:''});}
 function bind(){
  on('feedback',feedback);on('feedback-bottom',feedback);
- if($('#entry-form'))$('#entry-form').onsubmit=e=>{e.preventDefault();try{name=R.clean($('#nickname').value,24,true);}catch(err){toast(err.message);return;}if(room){joinRole=$('#join-role')?.value||'player';token=load('guest:'+room)?.token||uid();persist();connect(false);}else{room=uid();me=uid();owner=true;game=R.create(me,name);state=R.view(game,me);credentials={};history.replaceState(null,'','#r='+room);persist();connect(true);}};
+ if($('#entry-form'))$('#entry-form').onsubmit=e=>{
+  e.preventDefault();if(restoreBlocked)return;
+  try{name=R.clean($('#nickname').value,24,true);}catch(err){toast(err.message);return;}
+  if(room){
+   joinRole=$('#join-role')?.value||'player';const cached=recovery.read('guest:'+room);
+   if(cached.status==='invalid'){blockRestore('guest:'+room);return;}
+   if(cached.status==='ok'){try{token=FPRecovery.restoreGuest(cached.value,{rules:R,validToken:validRoom}).token;}catch{blockRestore('guest:'+room);return;}}
+   else token=uid();persist();connect(false);
+  }else{room=uid();me=uid();owner=true;game=R.create(me,name);state=R.view(game,me);credentials={};history.replaceState(null,'','#r='+room);persist();connect(true);}
+ };
  on('retry',()=>{attempts=0;connect(owner);});on('start',startRound);on('copylink',()=>copy(inviteURL()));
  if($('#prepare-form'))$('#prepare-form').onsubmit=e=>{e.preventDefault();send('begin',{text:$('#prepare-answer').value});};
  on('problem-vote',()=>send('voteProblem',{value:!state.problem.myVote}));
@@ -201,11 +221,21 @@ function showDemoResult(){
  if(game.pending)demoApply(me,'cancel',{pendingId:game.pending.id});
  demoApply(game.players.find(p=>p.id!==me).id,'ask',{kind:'guess',text:'傘'});demoApply(me,'answer',{pendingId:game.pending.id,answer:'correct'});broadcast();
 }
-if(demo){seedDemo();if(new URLSearchParams(location.search).get('screen')==='result')showDemoResult();}
-else{
+function restoreOnline(){
  if(room&&!validRoom(room)){error='招待リンクの形式が正しくありません。';room='';}
- const saved=room?load('owner:'+room):null,guest=room?load('guest:'+room):null;
- if(saved?.game?.version===V&&Array.isArray(saved.game.players)&&saved.game.players.some(p=>p.id===saved.me)){
-  owner=true;game=R.migrate(saved.game);credentials=saved.credentials||{};name=saved.name;me=saved.me;game.players.forEach(p=>p.online=p.id===me);state=R.view(game,me);render();connect(true);
- }else if(guest&&validRoom(guest.token)){name=guest.name;token=guest.token;joinRole=guest.role||'player';render();connect(false);}else render();
+ if(!room){render();return;}
+ const saved=recovery.read('owner:'+room);
+ if(saved.status==='invalid'){blockRestore('owner:'+room);return;}
+ if(saved.status==='ok'){
+  let restored;try{restored=FPRecovery.restoreOwner(saved.value,{rules:R,version:V,validToken:validRoom});}catch{blockRestore('owner:'+room);return;}
+  owner=true;game=restored.game;credentials=restored.credentials;name=restored.name;me=restored.me;game.players.forEach(p=>p.online=p.id===me);state=R.view(game,me);render();connect(true);return;
+ }
+ const guest=recovery.read('guest:'+room);
+ if(guest.status==='invalid'){blockRestore('guest:'+room);return;}
+ if(guest.status==='ok'){
+  let restored;try{restored=FPRecovery.restoreGuest(guest.value,{rules:R,validToken:validRoom});}catch{blockRestore('guest:'+room);return;}
+  name=restored.name;token=restored.token;joinRole=restored.role;render();connect(false);return;
+ }
+ render();
 }
+if(demo){seedDemo();if(new URLSearchParams(location.search).get('screen')==='result')showDemoResult();}else restoreOnline();

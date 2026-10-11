@@ -10,7 +10,15 @@
   };
   const points = n => n === null ? '未公開' : Number(n).toLocaleString('ja-JP',{maximumFractionDigits:2}) + '点';
   const table = (players, ranked = false) => players.length ? `<div class="r6-result-table-wrap"><table class="r6-result-table"><thead><tr>${ranked ? '<th scope="col">順位</th>' : ''}<th scope="col">メンバー</th><th scope="col">得点</th></tr></thead><tbody>${players.map(p => `<tr>${ranked ? `<td>${p.rank ?? '—'}位</td>` : ''}<th scope="row">${esc(p.name)}</th><td>${esc(points(p.score))}</td></tr>`).join('')}</tbody></table></div>` : '<p class="small">公開できる得点はまだありません。</p>';
-  const content = r => `${r.room ? `<section><h3>${esc(r.room.label)}</h3><p class="small">${esc(r.room.note)}</p>${table(r.room.players)}</section>` : ''}<section><h3>お題 ${r.round.number ?? ''} · ${esc(r.round.status)}</h3><p>${esc(r.round.scope)}</p><p class="small">${r.round.questions !== null && r.round.guesses !== null ? `質問 ${r.round.questions}・解答 ${r.round.guesses}` : `質問・解答の合計 ${r.round.progress ?? '—'}`}</p>${r.round.answer ? `<details class="r6-result-answer"><summary>公開された答えを見る</summary><p>${esc(r.round.answer)}</p></details>` : ''}<p class="small">${esc(r.round.note)}</p>${table(r.round.players)}</section><section><h3>${r.cycle ? esc(r.cycle.label) : '一巡の結果'}</h3>${r.cycle ? `<p class="small">全${r.cycle.rounds}題 · 確定</p>${table(r.cycle.players,true)}${r.cycle.awards.map(a => `<p><strong>${esc(a.label)}</strong> ${esc(a.names.join('・'))}</p>`).join('')}` : `<p class="small">${esc(r.cycleNote)}</p>`}</section>`;
+  const progress = r => r.round.questions !== null && r.round.guesses !== null ? `質問 ${r.round.questions}・解答 ${r.round.guesses}` : `質問・解答の合計 ${r.round.progress ?? '—'}`;
+  const content = r => `${r.room ? `<section><h3>${esc(r.room.label)}</h3><p class="small">${esc(r.room.note)}</p>${table(r.room.players)}</section>` : ''}
+    <details class="r6-result-section" data-result-section="round" ${r.room ? '' : 'open'}>
+      <summary><strong>お題 ${r.round.number ?? ''} · ${esc(r.round.status)}</strong><span>${esc(progress(r))} · 内訳</span></summary>
+      <div class="r6-result-section-body"><p>${esc(r.round.scope)}</p>
+        ${r.round.answer ? `<details class="r6-result-answer"><summary>公開された答えを見る</summary><p>${esc(r.round.answer)}</p></details>` : ''}
+        <p class="small">${esc(r.round.note)}</p>${table(r.round.players)}</div>
+    </details>
+    <section><h3>${r.cycle ? esc(r.cycle.label) : '一巡の結果'}</h3>${r.cycle ? `<p class="small">全${r.cycle.rounds}題 · 確定</p>${table(r.cycle.players,true)}${r.cycle.awards.map(a => `<p><strong>${esc(a.label)}</strong> ${esc(a.names.join('・'))}</p>`).join('')}` : `<p class="small">${esc(r.cycleNote)}</p>`}</section>`;
 
   function refresh() {
     const dialog = document.getElementById('modal');
@@ -28,8 +36,12 @@
       return;
     }
     const opened = body.querySelector('.r6-result-answer')?.open;
+    const sections = new Map([...body.querySelectorAll('[data-result-section]')].map(d => [d.dataset.resultSection, d.open]));
+    const focused = document.activeElement?.closest('[data-result-section]')?.dataset.resultSection;
     body.innerHTML = content(r);
+    for (const d of body.querySelectorAll('[data-result-section]')) if (sections.has(d.dataset.resultSection)) d.open = sections.get(d.dataset.resultSection);
     if (opened && body.querySelector('.r6-result-answer')) body.querySelector('.r6-result-answer').open = true;
+    if (focused) body.querySelector('[data-result-section="' + focused + '"] > summary')?.focus({preventScroll:true});
     preview.value = window.FPResultReport.format(r);
     root.querySelector('[data-result-time]').textContent = '集計時点：' + r.at;
     button.disabled = false;
