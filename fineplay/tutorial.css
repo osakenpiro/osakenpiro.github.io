@@ -7,3 +7,36 @@
 .tutorial-real{margin:16px 0 0;line-height:1.7}.tutorial-result .row{justify-content:center;margin-block:16px}.tutorial-result a{text-decoration:none}.tutorial-result .small{max-width:520px;margin:12px auto;line-height:1.9}
 #tutorial-guess-form .row{margin-top:16px}#tutorial-guess-form input{font-size:16px}
 @media(max-width:440px){.tutorial-bar b{font-size:12px}.tutorial-bar a{font-size:11px}.tutorial-contract{font-size:11px}.tutorial-clap{gap:8px}.tutorial-clap .vote{width:100%}.tutorial-result .row .btn{width:100%;min-height:46px}.tutorial-result .small{font-size:12px}}
+
+/* Guided asker controls sit inside the current R5/R6 scene and result. */
+.tutorial-asker-guided .tutorial-practice{margin:0 0 10px;padding:0;border:0;border-radius:0;background:transparent;color:#294c3d;text-align:left}
+.tutorial-asker-guided .tutorial-practice>strong{font-size:12px;line-height:1.4;color:#294c3d}
+.tutorial-asker-guided #tutorial-practice-status{font-size:13px;line-height:1.5;margin:0;color:#294c3d;min-height:0}
+.tutorial-asker-guided .tutorial-practice .tutorial-contract{margin:4px 0 0;font-size:11px;line-height:1.5;color:#53694e;min-height:0}
+.tutorial-asker-guided .tutorial-hint{margin-top:0;text-align:left;font-size:12px;color:#294c3d}
+.tutorial-asker-guided .tutorial-hint summary{min-height:44px;line-height:1.4;padding:12px 0;color:#294c3d}
+.tutorial-asker-guided .tutorial-hint p{margin:0 0 8px;font-size:12px;line-height:1.5;color:#294c3d;min-height:0}
+.fp-crystal .tutorial-asker-guided .fp-scene .tutorial-practice :is(strong,#tutorial-practice-status,.tutorial-contract,.tutorial-hint,.tutorial-hint summary,.tutorial-hint p){color:#e1eadc}
+.tutorial-asker-guided #tutorial-question{width:100%;max-width:100%;min-height:46px;font-size:16px;margin:6px 0 10px;background:#fafbf5;color:#234633;border:1px solid #a8bf99;border-radius:10px;color-scheme:light}
+.tutorial-asker-guided #tutorial-question option{background:#fafbf5;color:#234633}
+.tutorial-asker-guided .tutorial-room-actions{margin-top:12px;justify-content:center;flex-wrap:wrap}
+.tutorial-asker-guided .tutorial-room-actions .btn{min-height:44px;text-decoration:none}
+.tutorial-asker-guided #question-form #ask[hidden]{display:none}
+/* Keep the first action reachable on desktop and tablet as well as phones. */
+.tutorial-asker-guided.r5-compact-active.layout-preview .layout-action .fp-card{min-height:0;padding:10px 12px;margin-bottom:8px}
+.tutorial-asker-guided.r5-compact-active.layout-preview .layout-action .fp-card .fp-card-head{min-height:0;gap:6px}
+.tutorial-asker-guided.r5-compact-active.layout-preview .layout-action .fp-card .fp-face.sm{width:36px;height:36px}
+.tutorial-asker-guided.r5-compact-active.layout-preview .layout-action .fp-card h2{font-size:clamp(22px,2vw,26px);line-height:1.4;margin:5px 0 6px}
+.tutorial-asker-guided.r5-compact-active.layout-preview .layout-action .fp-card-foot{margin-top:4px;padding-top:6px}
+.tutorial-asker-guided.r5-compact-active.layout-preview .layout-action .fp-card:has(.grade-actions:empty){display:grid;grid-template-columns:minmax(0,1fr) max-content;align-items:center;gap:4px 8px}
+.tutorial-asker-guided.r5-compact-active.layout-preview .layout-action .fp-card:has(.grade-actions:empty) .fp-card-head{grid-column:1 / -1}
+.tutorial-asker-guided.r5-compact-active.layout-preview .layout-action .fp-card:has(.grade-actions:empty) h2{margin:0}
+.tutorial-asker-guided.r5-compact-active.layout-preview .layout-action .fp-card:has(.grade-actions:empty) .fp-card-foot{margin:0;padding:0;border:0}
+.tutorial-asker-guided .tutorial-practice{display:grid;grid-template-columns:minmax(0,1fr) max-content;align-items:center;gap:2px 8px}
+.tutorial-asker-guided .tutorial-practice>strong{grid-column:1;grid-row:1}
+.tutorial-asker-guided #tutorial-practice-status{grid-column:1 / -1;grid-row:2}
+.tutorial-asker-guided .tutorial-practice>.tutorial-hint{grid-column:2;grid-row:1}
+.tutorial-asker-guided .tutorial-practice>.tutorial-hint[open]{grid-column:1 / -1;grid-row:3}
+.tutorial-asker-guided .tutorial-practice>:is(.tutorial-contract,.tutorial-room-actions){grid-column:1 / -1}
+@media(min-width:681px){.tutorial-asker-guided #tutorial-question{margin-bottom:2px}}
+@media(max-width:440px){.tutorial-asker-guided .tutorial-practice{margin-bottom:8px}.tutorial-asker-guided .tutorial-room-actions .btn{width:100%}}

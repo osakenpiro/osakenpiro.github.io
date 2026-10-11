@@ -1,7 +1,8 @@
 /* Local synthetic partners, using only existing engine commands. No transport. */
 (() => {
   'use strict';
-  if (!demo || new URLSearchParams(location.search).get('role') === 'genie') return;
+  const practiceRole = new URLSearchParams(location.search).get('role');
+  if (!demo || practiceRole === 'genie' || practiceRole === 'asker') return;
   const firstAsker = () => game.players.find(p => p.id !== game.presenter && p.role === 'player').id;
   const donors = () => game.fpRoster.filter(id => id !== game.presenter);
   let notice = 'まず FinePlay → もう1人から評価。そのあと答え合わせ → 拍手を試せます。';

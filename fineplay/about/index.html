@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#20372e">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex,follow">
+  <title>データと接続 | FINEPLAY</title>
+  <meta name="description" content="FINEPLAYで共有する情報、端末への保存、接続の仕組み、困ったときの確認先。">
+  <link rel="icon" type="image/svg+xml" href="../assets/fineplay-hand.svg">
+  <link rel="stylesheet" href="../landing.css?v=whole20261003a">
+  <style>
+    .about-wrap{max-width:900px}.mast{flex-wrap:wrap}.about-main{padding-bottom:12px}.about-main .chapter{scroll-margin-top:24px}.about-main ul{padding-left:22px;font-size:14px}.about-main li{padding:4px 0}.about-main .notice{margin-bottom:24px}.storage-list{margin:18px 0;font-size:14px}.storage-list dt{font-weight:700;margin-top:18px}.storage-list dd{margin:5px 0 0}.about-main .actions{margin:20px 0 28px}
+  </style>
+</head>
+<body>
+<a class="skip" href="#main">本文へ</a>
+<div class="wrap about-wrap">
+  <header class="mast">
+    <a class="brand" href="../home/" aria-label="FINEPLAY 紹介ページ">FINE<span>PLAY</span></a>
+    <nav aria-label="メイン"><a href="../guide/">遊び方</a><a class="btn small" href="../">遊ぶ →</a></nav>
+  </header>
+  <main id="main" tabindex="-1" class="about-main">
+    <section class="guide-head" aria-labelledby="page-title">
+      <div class="eyebrow">BEFORE YOU PLAY</div>
+      <h1 id="page-title">データと接続。</h1>
+      <p>仲間と安心して一卓を囲むために、共有する情報と、部屋を続けるための条件をまとめました。</p>
+    </section>
+    <nav class="toc" aria-label="このページの内容"><a href="#connection">部屋の接続</a><a href="#sharing">共有する情報</a><a href="#storage">端末への保存</a><a href="#feedback">感想・不具合</a></nav>
+    <section id="connection" class="chapter" aria-labelledby="connection-title">
+      <h2 id="connection-title">部屋を作った人が、卓を支えます。</h2>
+      <p>2〜12人で、Discordなどの通話と一緒に遊びます。FINEPLAYに通話機能はなく、音声の録音・文字起こしもしません。</p>
+      <div class="notice"><b>作成者は、元のタブを開いたままに。</b>作成者のブラウザが進行と参加者への情報配信を管理します。出題者を交代しても、この役割は移りません。タブを閉じたり端末が休止すると、進行が止まります。</div>
+      <p>途中で止まったら、まず作成者が元のタブでオンラインか確認し、参加者は参加していたタブで「再接続」を試してください。同じタブの再読み込みには復帰用の保存を使いますが、閉じた部屋の復元は保証していません。</p>
+      <p>接続にはPeerJS・WebRTCと外部の接続サービスを使います。回線やブラウザの状態、外部サービスの状況によって接続できない場合があります。</p>
+      <p>ひとり体験は台本と架空の参加者で、この端末だけで動きます。本番の部屋には参加せず、オンライン接続の確認にはなりません。</p>
+    </section>
+    <section id="sharing" class="chapter" aria-labelledby="sharing-title">
+      <h2 id="sharing-title">共有する情報と、自分だけのメモ。</h2>
+      <ul>
+        <li><b>名前、質問、回答、コメント、FinePlay、拍手：</b>部屋の作成者へ送り、遊び方と役割に応じて参加者の画面に表示します。対戦中の質問・回答は本人向けに表示し、答え合わせで全員分を公開します。</li>
+        <li><b>出題者の答えメモ・未公開の属性：</b>公開するまで他の参加者の画面には表示しません。正誤は人が判定します。進行データは部屋の作成者のブラウザが管理するため、作成者に対する秘密を保証する仕組みではありません。</li>
+        <li><b>答えの仮説：</b>自分の端末に保存します。提出を確定したものだけを出題者へ送り、判定は本人に返します。</li>
+        <li><b>終了後発表にした評価：</b>発表まで画面には表示しませんが、作成者のブラウザは評価を保持します。秘密投票を保証する仕組みではありません。</li>
+      </ul>
+      <p>招待URLを知る人は入室できます。登録や本人認証はありません。リンクは仲間だけに送り、個人情報や他のサービスのパスワードを質問・コメントに書かないでください。</p>
+      <p>「AI相談」は、確認した公開情報をコピーし、自分で外部のAIに渡す操作です。自動送信・自動回答はしません。検索も自分で入力して外部ページを開きます。外部へ渡す内容を確認してください。</p>
+    </section>
+    <section id="storage" class="chapter" aria-labelledby="storage-title">
+      <h2 id="storage-title">保存は、このブラウザに。</h2>
+      <dl class="storage-list">
+        <dt>部屋の進行・参加の復帰用情報</dt>
+        <dd>同じタブでの再読み込みに備えて保存します。作成者の保存には進行データ、参加者の保存には参加情報が含まれます。サーバー上のプレイ履歴や、別端末へ引き継ぐアカウント保存はありません。</dd>
+        <dt>自分の仮説・音や表示の設定</dt>
+        <dd>このブラウザに保存し、次に開いたときに使います。他の参加者や別の端末には同期しません。</dd>
+        <dt>結果・履歴・感想のコピー</dt>
+        <dd>コピーした情報は、自分で貼り付けた先へ渡ります。名前や質問の内容を確認し、共有してよい範囲だけを送ってください。</dd>
+      </dl>
+      <p>保存できない設定やプライベートブラウズでは、復帰や設定の保持ができない場合があります。残したい結果は終了前にコピーしてください。</p>
+      <p>端末の保存を消したいときは、ブラウザのサイトデータを削除します。FINEPLAYと同じサイトの他の保存情報も消える場合があります。プレイ中に消すと復帰できなくなることがあるので、終了してから行ってください。参加者がコピーした情報までは削除できません。</p>
+    </section>
+    <section id="feedback" class="chapter" aria-labelledby="feedback-title">
+      <h2 id="feedback-title">感想や不具合を伝える。</h2>
+      <p>ゲームの「感想・不具合」でメモをコピーし、紹介してくれた人へ、いつもの連絡手段で送ってください。アプリから自動送信はしません。</p>
+      <p>端末・ブラウザ、何をしたか、どうなったかを添えると確認しやすくなります。招待URL、個人情報、未公開の答えは書かないでください。</p>
+      <div class="actions"><a class="btn" href="../guide/#trouble">困ったときの手引き →</a><a class="btn main" href="../?demo=1&amp;role=asker">ひとりで試す →</a></div>
+    </section>
+  </main>
+  <footer class="foot"><p>FINEPLAY · 1.0に向けた開発版</p><nav aria-label="関連ページ"><a href="../home/">紹介ページ</a><a href="../guide/">遊び方</a><a href="../updates/">更新履歴</a></nav></footer>
+</div>
+</body>
+</html>

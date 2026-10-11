@@ -1,0 +1,29 @@
+{
+  "candidate_commit": "19ac786fe2a332bbfb3e9ac531825915a13e6ec9",
+  "capture_day": "2026-10-10",
+  "release_day": "2026-10-11",
+  "capture_scope": "Actual local mother Edge candidate interaction; screenshots predate release metadata only. Not physical phone or real multiplayer.",
+  "images": [
+    {
+      "path": "screenshots/quality-a-first-1366.png",
+      "sha256": "1ef62a0debed694a9fac0608ca43cb1c2622a1a7245181c047d3b8ac97a7db36",
+      "width": 1366,
+      "height": 900,
+      "source": "quality A candidate; actual Microsoft Edge scripted practice captured 2026-10-10; synthetic participants",
+      "physical_phone": false,
+      "real_p2p": false
+    },
+    {
+      "path": "screenshots/quality-a-first-390.png",
+      "sha256": "205afa54d17270e1e82f412bd10b3ce4defa6b0799a5747dbf5e9c1733f64c64",
+      "width": 390,
+      "height": 844,
+      "source": "quality A candidate; actual Microsoft Edge scripted practice captured 2026-10-10; synthetic participants",
+      "physical_phone": false,
+      "real_p2p": false
+    }
+  ],
+  "baseline_commit": "4b8aaa5f59cd3d3da5372499800baf4418e7645e",
+  "independent_local_qa": "18 browser scenarios / 12 copy-parity cases; limits in Task381",
+  "canonical": "https://github.com/osakenpiro/claude-shared/issues/381#issuecomment-6098024196"
+}

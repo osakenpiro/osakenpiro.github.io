@@ -1,0 +1,226 @@
+/* Product-quality phone layout. Keep the public score HUD above the main tile;
+   shrink spacing and disclose navigation without replacing bound game controls. */
+.v1-mobile-nav-toggle,
+.v1-mobile-hud-hint { display: none; }
+.v1-mobile-hud-hint[hidden] { display: none !important; }
+
+@media (max-width: 640px) {
+  .turn-ui-040 .rail.v1-mobile-nav-ready {
+    position: relative;
+    align-items: center;
+    min-height: 60px;
+    padding: 8px 13px;
+    overflow: visible;
+    z-index: 20;
+  }
+
+  .v1-mobile-nav-ready .logo { min-height: 44px; }
+  .v1-mobile-nav-ready .v1-mobile-nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 84px;
+    min-height: 44px;
+    padding: 6px 10px;
+    margin-left: auto;
+    border: 1px solid #6b8b77;
+    border-radius: 9px;
+    background: #284d3b;
+    color: #fffaf0;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .v1-mobile-nav-toggle::after { content: " ▾"; }
+  .v1-mobile-nav-toggle[aria-expanded="true"]::after { content: " ▴"; }
+  .v1-mobile-nav-toggle:focus-visible { outline-color: #f1d889; }
+
+  .turn-ui-040 .rail.v1-mobile-nav-ready nav {
+    display: none;
+    position: absolute;
+    top: calc(100% - 1px);
+    inset-inline: 0;
+    margin: 0;
+    padding: 8px 13px 12px;
+    gap: 6px;
+    background: #193d2f;
+    box-shadow: 0 8px 12px #0b271d2e;
+    border-bottom: 1px solid #6b8b77;
+    border-radius: 0 0 12px 12px;
+  }
+
+  .turn-ui-040 .rail.v1-mobile-nav-open nav { display: grid; }
+  .turn-ui-040 .rail.v1-mobile-nav-ready nav :is(a, button) {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    max-width: none;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .turn-ui-040 .workspace { padding: 8px 11px 0; }
+  .fp-sound-bar { gap: 6px; margin-bottom: 6px; }
+  .fp-sound-bar button { min-height: 44px; padding: 6px 12px; font-size: 12px; }
+  .fp-sound-bar .fp-sound-summary:empty { display: none; }
+  .turn-ui-040 .compact-demo { min-height: 44px; margin-bottom: 8px; padding: 4px 9px; }
+  .compact-demo .demo-options > summary { min-height: 36px; display: flex; align-items: center; }
+  .demo-options > .row { top: 40px; }
+
+  .r5-scores-wide-active.layout-preview .play-grid { gap: 12px; }
+  .r5-compact-active #r3-hud .r3-hud-toolbar { font-size: 10px; margin-bottom: 3px; }
+  .r5-compact-active #r3-hud .fp-hud-heading {
+    align-items: center;
+    gap: 7px;
+    padding: 2px 10px 0;
+    min-height: 44px;
+  }
+  .r5-compact-active #r3-hud .fp-hud-title { font-size: 12px; letter-spacing: 0; }
+  #r3-hud .fp-hud-count { font-size: 10px; white-space: nowrap; }
+  #r3-hud .r6-result-trigger { min-height: 44px; padding: 5px 7px; font-size: 11px; }
+  #r3-hud .v1-mobile-hud-hint {
+    display: inline;
+    margin-left: auto;
+    font-size: 9px;
+    line-height: 1.4;
+    color: #52624e;
+    white-space: nowrap;
+  }
+  #r3-hud.r5-wide-hud .fp-hud-list { padding: 5px 5px 6px; scrollbar-gutter: stable; }
+  #r3-hud.r5-wide-hud .fp-hud-player {
+    flex: 1 0 calc((100% - 10px) / 2);
+    min-width: max(164px, calc(var(--hud-score-width, 0px) + 60px));
+    grid-template-columns: 44px minmax(0, 1fr);
+    grid-template-rows: auto 40px 44px auto auto auto;
+    gap: 2px 6px;
+    padding: 4px 8px;
+  }
+  #r3-hud.r5-wide-hud .fp-hud-name { font-size: 12px; line-height: 1.4; }
+  #r3-hud.r5-wide-hud .fp-hud-portrait { width: 34px; height: 34px; }
+  #r3-hud.r5-wide-hud .fp-hud-avatar { width: 28px; height: 28px; }
+  #r3-hud.r5-wide-hud .fp-hud-pile { height: 40px; }
+  #r3-hud.r5-wide-hud .r5-hud-detail-toggle { min-height: 44px; }
+  #r3-hud.r5-wide-hud .fp-hud-score { font-size: 20px; }
+  .r5-compact-active #r3-hud .fp-hud-foot {
+    gap: 1px 8px;
+    padding: 5px 10px;
+    font-size: 9px;
+    line-height: 1.5;
+  }
+  #r3-hud .fp-hud-scale { flex: 1 1 100%; }
+
+  .r5-compact-active.layout-preview .layout-action {
+    padding: 12px !important;
+    margin-bottom: 10px !important;
+  }
+  .r5-main-status-active.layout-preview .layout-action > .r5-main-header {
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    gap: 6px;
+  }
+  .r5-main-status-active.layout-preview .r5-main-header > #layout-status { flex-basis: 125px; }
+  .r5-main-status-active .r5-main-header .layout-status-main h2 { font-size: 16px; }
+  .r5-main-status-active .r5-main-header .layout-status-main { flex-basis: 110px; }
+  .r5-main-status-active .r5-main-topic-vote { gap: 4px; }
+  .r5-main-status-active .r5-main-topic-vote .attrs-fp-trigger { min-width: 96px; min-height: 44px; }
+
+  .r5-compact-active.layout-preview .layout-action .fp-card { padding: 10px; margin-bottom: 8px; }
+  .r5-compact-active.layout-preview .layout-action .fp-card h2 {
+    font-size: 20px;
+    line-height: 1.45;
+    margin: 6px 0 8px;
+  }
+  .r5-compact-active.layout-preview .layout-action .fp-card .fp-card-head { gap: 6px; font-size: 11px; }
+  .r5-compact-active.layout-preview .layout-action .fp-card .fp-face.sm { width: 30px; height: 30px; }
+  .r5-compact-active.layout-preview .layout-action .fp-card-foot { margin-top: 6px; padding-top: 7px; }
+  .r5-compact-active.layout-preview .layout-action .answer-chip { font-size: 13px; padding: 4px 12px; }
+  .r5-compact-active.layout-preview .layout-action #question-form > label {
+    font-size: 12px;
+    line-height: 1.5;
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+  .r5-compact-active.layout-preview .layout-action #question { min-height: 44px; padding: 9px 10px; font-size: 16px; line-height: 1.5; }
+  .r5-compact-active.layout-preview .layout-action #question-form .row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+    gap: 7px;
+    margin-top: 7px;
+  }
+  .r5-compact-active.layout-preview .layout-action :is(#ask, #guess) {
+    min-width: 0;
+    width: 100%;
+    min-height: 54px;
+    padding: 7px 6px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .r5-compact-active.layout-preview .layout-action .layout-free-request { grid-column: 1 / -1; min-height: 44px; }
+  .r5-compact-active.layout-preview .layout-action > .r5-tools-main { margin-top: 8px; padding-top: 8px; }
+  .r5-compact-active.layout-preview .layout-action > .r5-tools-main > h2 { margin-bottom: 6px; }
+  .r5-compact-active.layout-preview .layout-action > .r5-tools-main .assist-lifeline { min-height: 60px; }
+
+  /* The scripted practice has a short last clue and a longer instruction.
+     Show both without spending an entire phone screen on duplicated chrome. */
+  .tutorial-asker-guided.r5-compact-active.layout-preview .layout-action .fp-card:has(.grade-actions:empty) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) max-content;
+    align-items: center;
+    gap: 4px 8px;
+    padding: 8px;
+  }
+  .tutorial-asker-guided.r5-compact-active.layout-preview .layout-action .fp-card:has(.grade-actions:empty) .fp-card-head {
+    grid-column: 1 / -1;
+    font-size: 10px;
+  }
+  .tutorial-asker-guided.r5-compact-active.layout-preview .layout-action .fp-card:has(.grade-actions:empty) .fp-face.sm {
+    width: 24px;
+    height: 24px;
+  }
+  .tutorial-asker-guided.r5-compact-active.layout-preview .layout-action .fp-card:has(.grade-actions:empty) h2 {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.4;
+  }
+  .tutorial-asker-guided.r5-compact-active.layout-preview .layout-action .fp-card:has(.grade-actions:empty) .fp-card-foot {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .tutorial-asker-guided .tutorial-practice {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) max-content;
+    align-items: center;
+    gap: 2px 8px;
+    padding: 6px 9px;
+    margin-bottom: 8px;
+  }
+  .tutorial-asker-guided .tutorial-practice > strong { grid-column: 1; grid-row: 1; font-size: 12px; }
+  .tutorial-asker-guided #tutorial-practice-status {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 2px 0;
+  }
+  .tutorial-asker-guided .tutorial-practice > .tutorial-contract { grid-column: 1 / -1; margin: 0; font-size: 11px; }
+  .tutorial-asker-guided .tutorial-practice > .tutorial-hint { grid-column: 2; grid-row: 1; margin: 0; }
+  .tutorial-asker-guided .tutorial-practice > .tutorial-hint[open] { grid-column: 1 / -1; grid-row: 3; }
+  .tutorial-asker-guided .tutorial-hint > summary { min-height: 44px; padding: 10px 0; font-size: 11px; }
+  .tutorial-asker-guided #tutorial-question { min-height: 44px; margin: 0 0 3px; font-size: 16px; }
+  .tutorial-asker-guided.layout-preview #history.presentation-history .history-list {
+    height: auto;
+    min-height: 0;
+    max-height: 65dvh;
+  }
+}
+
+@media (max-width: 360px) {
+  #r3-hud .v1-mobile-hud-hint { font-size: 8px; }
+  .r5-compact-active #r3-hud .fp-hud-heading { gap: 5px; padding-inline: 8px; }
+  #r3-hud.r5-wide-hud .fp-hud-player { min-width: max(150px, calc(var(--hud-score-width, 0px) + 60px)); }
+  .r5-main-status-active.layout-preview .r5-main-header > #layout-status { flex-basis: 105px; }
+  .r5-main-status-active .r5-main-vote-label { font-size: 10px; }
+  .r5-main-status-active .r5-main-topic-vote .attrs-fp-trigger { min-width: 88px; }
+}
