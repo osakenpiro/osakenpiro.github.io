@@ -276,6 +276,16 @@ const Legacy=(()=>{
   if(own(s.actionReceipts,key)){must(s.actionReceipts[key]===fingerprint,'同じ操作IDの内容が変わりました。');return s;}
   must(person(s,actor)?.online,'接続を確認してください。');must(a.roundId===s.roundId,'お題が変わりました。画面を確認してください。');
   must(a.type!=='deleteHypothesis'&&!(a.type==='hypothesis'&&a.hypothesisId!==undefined),'未提出の仮説は端末内で編集してください。選んだ仮説だけ提出できます。');
+  if(a.type==='profile'){
+   must(Object.keys(a).every(k=>['id','roundId','type','name','icon'].includes(k)),'自分の名前とアイコンだけ変更できます。');
+   must(Object.keys(s.actionReceipts).length<12000,'操作数の上限です。次のお題へ進んでください。');
+   const nextName=Legacy.clean(a.name,24,true),icons=['default','leaf','moon','lantern','flower','bird','gem'];
+   must(icons.includes(a.icon),'用意されたアイコンを選んでください。');
+   must(!s.players.some(p=>p.id!==actor&&p.name===nextName),'その名前は参加済みです。別の名前を使ってください。');
+   const n=cp(s),p=person(n,actor);p.name=nextName;
+   if(a.icon==='default')delete p.icon;else p.icon=a.icon;
+   n.actionReceipts[key]=fingerprint;n.rev++;return n;
+  }
   must(!s.finalizedRoundIds.includes(s.roundId)||['start','finalize','role','joinNext','cycleSkip','unlock','comment','discussion','react'].includes(a.type),'このお題は得点確定済みです。拍手・評価の受付は終了しました。');
   must(Object.keys(s.actionReceipts).length<12000||['start','finalize'].includes(a.type),'操作数の上限です。次のお題へ進んでください。');
   if(automatic(s)&&['ask','undo'].includes(a.type))must(!Object.values(s.actionReceipts).some(receipt=>{const prior=JSON.parse(receipt);return prior.id===a.id&&['ask','undo'].includes(prior.type);}),'Question action IDs must be unique across participants.');

@@ -1,0 +1,37 @@
+/* Scoped, compact save controls. */
+.fp-save-panel{margin:12px 0;border:1px solid #d6deca;border-radius:12px;background:#fafbf4;color:#254d3b;min-width:0}
+.fp-save-panel>summary{padding:9px 12px;font-size:13px;font-weight:700;cursor:pointer;min-height:42px;box-sizing:border-box}
+.fp-save-panel[open]>summary{border-bottom:1px solid #e0e5d5}
+.fp-save-panel-body{padding:10px 12px;min-width:0}
+.fp-save-panel .fp-save-description,.fp-save-dialog .fp-save-description{font-size:12px;line-height:1.65;color:#5b6f60;margin:7px 0 10px;overflow-wrap:anywhere}
+.fp-save-panel label,.fp-save-dialog label{display:block;font-size:12px;font-weight:700;margin:10px 0 5px}
+.fp-save-panel input,.fp-save-panel textarea,.fp-save-panel select,.fp-save-dialog input,.fp-save-dialog textarea{box-sizing:border-box;width:100%;max-width:100%;min-width:0;border:1px solid #cfd9c5;border-radius:8px;background:#fffefa;color:#254d3b;padding:9px;font:inherit;font-size:14px}
+.fp-save-panel input[type=file]{font-size:12px;overflow:hidden}
+.fp-save-panel textarea,.fp-save-dialog textarea{resize:vertical;max-height:220px;overflow-wrap:anywhere;word-break:break-all}
+.fp-save-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fp-save-panel button,.fp-save-dialog button,.fp-save-dialog a.btn{min-height:42px;padding:8px 12px;max-width:100%;white-space:normal;overflow-wrap:anywhere}
+.fp-save-panel :is(button,input,select,textarea,summary):focus-visible,.fp-save-dialog :is(button,input,textarea,a,summary):focus-visible{outline:3px solid #ae904a;outline-offset:3px}
+.fp-save-notice{font-size:12px;line-height:1.6;margin:0;padding:0 12px;color:#526f5c;overflow-wrap:anywhere}
+.fp-save-notice:not(:empty){padding-top:5px;padding-bottom:10px}
+.fp-save-notice.is-error{color:#934638}
+.fp-save-import,.fp-save-seats,.fp-save-code{margin-top:10px;border-top:1px solid #e0e5d5;padding-top:5px}
+.fp-save-import>summary,.fp-save-seats>summary,.fp-save-code>summary{cursor:pointer;font-size:12px;font-weight:700;padding:8px 0;min-height:36px;box-sizing:border-box}
+.fp-save-record{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;align-items:center;padding:8px 0;border-bottom:1px solid #e0e5d5}
+.fp-save-record>span{font-size:12px;font-weight:700;overflow-wrap:anywhere}
+.fp-save-record>small{font-size:11px;color:#6b7d6e;overflow-wrap:anywhere}
+.fp-save-record>button{grid-column:2;grid-row:1/3;font-size:12px}
+.fp-save-dialog{width:min(470px,calc(100vw - 28px));max-width:calc(100vw - 28px);max-height:calc(100dvh - 32px);box-sizing:border-box;overflow:auto;padding:16px;border:1px solid #a8b894;border-radius:16px;background:#fafbf4;color:#254d3b;box-shadow:0 14px 50px #183b2b40}
+.fp-save-dialog::backdrop{background:#15382b88}
+.fp-save-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.fp-save-dialog-head h2{font-size:18px;line-height:1.45;margin:0;overflow-wrap:anywhere}
+.fp-save-dialog-head button{flex-shrink:0;font-size:12px}
+.fp-save-dialog-body{min-width:0}
+.fp-save-dialog-body>p{font-size:14px;line-height:1.7}
+.fp-save-dialog .fp-save-notice{padding-left:0;padding-right:0}
+.fp-save-meta{display:grid;grid-template-columns:auto minmax(0,1fr);gap:7px 12px;font-size:13px;margin:8px 0 14px}
+.fp-save-meta dt{color:#6b7d6e}.fp-save-meta dd{margin:0;overflow-wrap:anywhere}
+.fp-save-dialog a.btn{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;text-decoration:none}
+.fp-save-code label{font-weight:400}
+.fp-save-code button{margin-top:8px}
+.fp-save-dialog [hidden],.fp-save-panel [hidden]{display:none!important}
+@media(max-width:440px){.fp-save-panel{margin:8px 0}.fp-save-panel-body{padding:9px}.fp-save-dialog{padding:13px;max-height:calc(100dvh - 20px)}.fp-save-actions>button{flex:1 1 120px}.fp-save-dialog-head h2{font-size:16px}.fp-save-meta{gap:7px 9px}.fp-save-record{grid-template-columns:minmax(0,1fr)}.fp-save-record>button{grid-column:1;grid-row:auto;justify-self:start}.fp-save-panel button,.fp-save-dialog button,.fp-save-dialog a.btn{min-height:44px}}

@@ -46,7 +46,8 @@
   const p=state.players.find(p=>p.id===id);
   if(!p)return '';
   const i=state.players.indexOf(p),genie=id===state.presenter,turn=actors().includes(id);
-  return `<span class="fp-face ${cls}${turn?' is-turn':''}${p.online?'':' is-off'}">${genie?`<img src="${FACE}" alt="">`:`<span class="fp-mark a${i%4}">${glyph[i%4]}</span>`}<span class="fp-role ${genie?'genie':'ask'}" aria-hidden="true">${genie?'魔':'？'}</span></span>`;
+  const custom=window.FPLocalProfile?.iconURL(p.icon);
+  return `<span data-face-player-id="${esc(id)}" class="fp-face ${cls}${turn?' is-turn':''}${p.online?'':' is-off'}">${custom?`<img src="${custom}" alt="">`:genie?`<img src="${FACE}" alt="">`:`<span class="fp-mark a${i%4}">${glyph[i%4]}</span>`}<span class="fp-role ${genie?'genie':'ask'}" aria-hidden="true">${genie?'魔':'？'}</span></span>`;
  }
  function voteButton(e,variant){
   const self=e.asker===me,n=e.n||state.entries.indexOf(e)+1;

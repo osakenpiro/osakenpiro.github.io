@@ -17,7 +17,7 @@
     return {
       players: v.players.map(p => ({id:p.id, name:p.name,
         role:p.id === v.presenter ? 'genie' : p.role === 'spectator' ? 'spectator' : 'player',
-        ...(p.id === v.presenter ? {avatarUrl:'assets/genie-face.png'} : {}),
+        ...(window.FPLocalProfile?.iconURL(p.icon)?{avatarUrl:window.FPLocalProfile.iconURL(p.icon)}:p.id===v.presenter?{avatarUrl:'assets/genie-face.png'}:{}),
         score:scores.get(p.id), scoreVisible:Number.isFinite(scores.get(p.id)), awards:awards[p.id]})),
       activePlayerId:answering ? v.presenter : null,
       activeLabel:answering ? (v.pending.kind === 'guess' ? '判定してください' : '回答してください') : '', selfId,

@@ -8,15 +8,17 @@ const V=3,P='fineplay:online:v3:',HAND='<img class="hand" src="assets/fineplay-h
 const recovery=FPRecovery.createStorage({storage:()=>sessionStorage,prefix:P});let restoreBlocked=false;
 let room=demo?'':new URLSearchParams(location.hash.slice(1)).get('r')||'',owner=false,me='',name='',token='',peer=null,conn=null,state=null,game=null,credentials={},joinRole='player',channels=new Map(),seen=new Map();
 const stateSenders=new Map(),stateSync=new Map();let stateReceiver=null;
+let recoveryOnly=false,expectedRecoveryPlayer='',recoveryProbeTimer=null;
 let ready=false,busy=false,connecting=false,retryTimer=null,connectTimer=null,commandTimer=null,inflight=null,lastSeen=0,attempts=0,draft='',status='待機中',error='',filter='all',search='',order='old',renderRound='',renderCount=0,newHistory=false;
 function on(id,fn){const e=$('#'+id);if(e)e.onclick=fn;}
 function toast(t){$('#toast').textContent=t;$('#toast').hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').hidden=true,5000);}
 function modal(html){$('#modal').innerHTML=html;$('#modal').showModal();on('modal-close',closeModal);}
 function closeModal(){if($('#modal').open)$('#modal').close();}
 function persist(){
- if(demo||restoreBlocked)return;const before=recovery.inspect().status;
+ if(demo||restoreBlocked)return;if(owner&&game)name=game.players.find(p=>p.id===me)?.name||name;const before=recovery.inspect().status;
  if(owner&&game)recovery.write('owner:'+room,{game,credentials,name,me});
  else if(room&&token)recovery.write('guest:'+room,{name,token,role:joinRole});
+ window.FPSaveSession?.capture();
  if(recovery.inspect().status==='unavailable'&&before!=='unavailable')toast('復帰情報を保存できません。このタブを閉じずに遊んでください。');
 }
 function blockRestore(key){recovery.block(key);restoreBlocked=true;ready=false;state=null;game=null;owner=false;token='';me='';name='';error='';status='復帰を確認';render();}
@@ -28,7 +30,7 @@ function paintRecovery(){
   note.textContent='このタブの復帰情報を読み込めません。元のデータは残しています。再読み込みを試すか、別の卓を作ってください。';
   const reload=document.createElement('button');reload.id='recovery-reload';reload.textContent='再読み込み';reload.onclick=()=>location.reload();
   const fresh=document.createElement('a');fresh.id='recovery-new-room';fresh.href='./';fresh.textContent='別の卓を作る';note.append(' ',reload,' ',fresh);
-  const submit=$('#entry-form button');if(submit)submit.disabled=true;
+  const submit=$('#entry-form button:not([type="button"])');if(submit)submit.disabled=true;
  }else note.textContent=health==='saved'?'復帰情報：保存済み（このタブ）':'復帰情報を保存できません。このタブを閉じずに遊んでください。';
  $('.fp-top')?.after(note);if(!note.isConnected)$('.top')?.after(note);if(!note.isConnected)$('#main')?.prepend(note);
 }
@@ -43,7 +45,7 @@ function paintSynchronization(){
  if(!demo&&!owner&&!ready&&stateReceiver&&stateReceiver.status!=='ok'){const dot=$('.online-dot');dot?.classList.remove('on');}
 }
 function guestSyncStatus(s){if(s.status==='ok')return;ready=false;busy=false;status=s.status==='failed'?'接続あり・状態同期に失敗':'状態を同期中';error=s.status==='failed'?'接続はありますが、状態がそろっていません。再送を待つか、再接続してください。':'';render();}
-function acceptSyncedState(next,fresh=true){clearTimeout(connectTimer);state=next;me=state.you;ready=fresh;connecting=false;attempts=0;error='';status=fresh?'オンライン':'状態を同期中';lastSeen=Date.now();persist();render();}
+function acceptSyncedState(next,fresh=true){if(recoveryOnly&&expectedRecoveryPlayer&&next.you!==expectedRecoveryPlayer){attempts=3;networkError('保存した席と接続先が一致しません。復帰情報を確認してください。');conn?.close();return;}clearTimeout(connectTimer);state=next;me=state.you;const seat=state.players.find(p=>p.id===me);if(seat){name=seat.name;joinRole=seat.role;}ready=fresh;connecting=false;attempts=0;error='';status=fresh?'オンライン':'状態を同期中';lastSeen=Date.now();persist();render();}
 function broadcast(){persist();state=R.view(game,me);render();if(!demo)for(const [id,c] of channels)sendData(c,{type:'state',state:R.view(game,id)});}
 function processCommand(actor,a,c){
  if(!a||typeof a.id!=='string'||a.id.length>80)return;
@@ -51,15 +53,17 @@ function processCommand(actor,a,c){
  let ack;try{if(synchronizationBlocked())throw new Error("状態同期が止まっています。作成者の再送を待ってください。");game=R.apply(game,actor,a);ack={type:'ack',id:a.id,ok:true};}catch(e){ack={type:'ack',id:a.id,ok:false,error:e.message};}
  seen.set(key,ack);if(seen.size>1500)seen.delete(seen.keys().next().value);
  if(c)sendData(c,ack);else{busy=false;if(ack.ok){if(a.type==='ask')draft='';closeModal();}else toast(ack.error);}
+ if(a.type==='profile'&&!c)window.FPProfileUI?.roomResult({status:ack.ok?'confirmed':'rejected',playerId:actor,name:a.name,icon:a.icon,error:ack.error,roomId:room});
  if(ack.ok)broadcast();else if(!c)render();
 }
 function send(type,extra={}){
  if(!ready||busy||!state)return;if(synchronizationBlocked()){toast('状態同期が止まっています。進行を止めて状態を再送してください。');return;}const a={...extra,type,id:uid(),roundId:state.roundId};
  if(demo||owner){processCommand(me,a,null);return;}
- busy=true;inflight={id:a.id,type};sendData(conn,{type:'command',action:a});render();clearTimeout(commandTimer);
- commandTimer=setTimeout(()=>{busy=false;inflight=null;toast('操作の確認が届きません。履歴を確認してから再操作してください。');render();},9000);
+ busy=true;inflight={id:a.id,type,profile:type==='profile'?{playerId:me,name:a.name,icon:a.icon}:null};sendData(conn,{type:'command',action:a});render();clearTimeout(commandTimer);
+ commandTimer=setTimeout(()=>{if(inflight?.profile)window.FPProfileUI?.roomResult({...inflight.profile,status:'unconfirmed',roomId:room});busy=false;inflight=null;toast('操作の確認が届きません。履歴を確認してから再操作してください。');render();},9000);
 }
 function resetPeer(){
+ clearTimeout(recoveryProbeTimer);recoveryProbeTimer=null;
  clearTimeout(retryTimer);retryTimer=null;clearTimeout(connectTimer);clearTimeout(commandTimer);inflight=null;busy=false;
  const old=peer;peer=null;conn=null;if(old){old.removeAllListeners();old.destroy();}
  for(const sender of stateSenders.values())sender.close();stateSenders.clear();stateSync.clear();stateReceiver?.close();stateReceiver=null;channels.clear();ready=false;connecting=false;
@@ -82,14 +86,16 @@ async function connect(asOwner){
   if(owner){clearTimeout(connectTimer);connecting=false;ready=true;attempts=0;status='オンライン';error='';broadcast();return;}
   const c=current.connect('fineplay-v3-'+room,{serialization:'json',reliable:true});conn=c;
   stateReceiver=new FPStateWire.Receiver({send:m=>sendRaw(c,m),onState:acceptSyncedState,onStatus:guestSyncStatus,revision:state?.rev??-1});
-  c.on('open',()=>sendData(c,{type:'hello',version:V,wire:FPStateWire.VERSION,token,name,role:joinRole}));
+  const hello=()=>sendData(c,{type:'hello',version:V,wire:FPStateWire.VERSION,token,name,role:joinRole,recoveryOnly,icon:window.FPLocalProfile?.load()?.icon||'default'});
+  c.on('open',()=>{if(!recoveryOnly){hello();return;}sendData(c,{type:'recovery-probe',version:V,wire:FPStateWire.VERSION});recoveryProbeTimer=setTimeout(()=>{attempts=3;networkError('この卓は保存した席への復帰にまだ対応していません。作成者に確認してください。');c.close();},6000);});
   c.on('data',m=>{
    if(c!==conn||!m||typeof m!=='object')return;
+   if(m.type==='recovery-capability'&&recoveryOnly&&m.version===1){clearTimeout(recoveryProbeTimer);recoveryProbeTimer=null;hello();return;}
    if(stateReceiver.receive(m))return;
    if(m.type==='state'){attempts=3;networkError('卓の通信版が異なります。プレイ終了後に全員で再読み込みしてください。');c.close();}
    else if(m.type==='pulse'){lastSeen=Date.now();if(m.wire!==FPStateWire.VERSION){attempts=3;networkError('卓の通信版が異なります。全員で再読み込みしてください。');c.close();return;}stateReceiver.expect(m.rev);sendData(c,{type:'pong'});}
    else if(m.type==='sync-error'){stateReceiver.fail(m.reason||'send');}
-   else if(m.type==='ack'&&inflight?.id===m.id){const kind=inflight.type;inflight=null;clearTimeout(commandTimer);busy=false;if(m.ok){if(kind==='ask')draft='';closeModal();}else toast(m.error);render();}
+   else if(m.type==='ack'&&inflight?.id===m.id){const kind=inflight.type,profileResult=inflight.profile;inflight=null;clearTimeout(commandTimer);busy=false;if(m.ok){if(kind==='ask')draft='';closeModal();}else toast(m.error);if(profileResult)window.FPProfileUI?.roomResult({...profileResult,status:m.ok?'confirmed':'rejected',error:m.error,roomId:room});render();}
    else if(m.type==='rejected'){attempts=3;networkError(String(m.error));c.close();}
   });
   c.on('close',()=>{if(c===conn)stateReceiver?.close();if(c===conn)networkError(error||'作成者との接続が切れました。元のタブで復帰を待っています。');});
@@ -99,19 +105,23 @@ async function connect(asOwner){
 }
 function acceptConnection(c){
  let pid=null,last=0,burst=0;const timer=setTimeout(()=>{if(!pid)c.close();},12000);
+ const rtc=c.peerConnection,transportChanged=()=>{if(c.open&&['failed','closed'].includes(rtc?.connectionState))c.close();};
+ rtc?.addEventListener?.('connectionstatechange',transportChanged);
  c.on('data',m=>{
   if(!m||typeof m!=='object')return;
   try{if(JSON.stringify(m).length>4000){c.close();return;}}catch{return;}
   const now=Date.now();if(now-last>1000){last=now;burst=0;}if(++burst>25){c.close();return;}
-  if(!pid){if(m.type!=='hello'||!validRoom(m.token))return;
+  if(!pid){if(m.type==='recovery-probe'&&m.version===V&&m.wire===FPStateWire.VERSION){sendRaw(c,{type:'recovery-capability',version:1});return;}if(m.type!=='hello'||!validRoom(m.token))return;
    if(m.version!==V||m.wire!==FPStateWire.VERSION){sendData(c,{type:'rejected',error:'アプリの版が異なります。プレイ終了後に全員で再読み込みし、新しい卓に参加してください。'});setTimeout(()=>c.close(),300);return;}
-   try{if(credentials[m.token]){pid=credentials[m.token];game=R.online(game,pid,true);}else{pid=uid();game=R.join(game,pid,m.name,m.role||'player');credentials[m.token]=pid;}
+   try{if(m.recoveryOnly===true&&!credentials[m.token])throw new Error('保存した席を確認できません。元の復帰情報は残しています。');
+    if(credentials[m.token]){const known=credentials[m.token];const active=channels.get(known),stale=active&&['failed','closed'].includes(active.peerConnection?.connectionState);if(m.recoveryOnly===true&&active?.open&&!stale)throw new Error('この席は別のタブで接続中です。元のタブを閉じてから再接続してください。');if(stale)active.close();pid=known;game=R.online(game,pid,true);}
+    else{const icons=['default','leaf','moon','lantern','flower','bird','gem'];if(m.icon!==undefined&&!icons.includes(m.icon))throw new Error('アイコンを確認してください。');pid=uid();game=R.join(game,pid,m.name,m.role||'player');if(m.icon&&m.icon!=='default')game.players.find(p=>p.id===pid).icon=m.icon;credentials[m.token]=pid;}
     clearTimeout(timer);const old=channels.get(pid);channels.set(pid,c);stateSenders.set(c,new FPStateWire.Sender({send:m=>sendRaw(c,m),buffered:()=>c.dataChannel?.bufferedAmount||0,onStatus:s=>{stateSync.set(c,s);render();}}));if(old&&old!==c)old.close();broadcast();
    }catch(e){pid=null;sendData(c,{type:'rejected',error:e.message});setTimeout(()=>c.close(),300);}return;
   }
   if(channels.get(pid)!==c)return;if(m.type==='state-ack')stateSenders.get(c)?.acknowledge(m);else if(m.type==='state-resync'&&m.wire===FPStateWire.VERSION)stateSenders.get(c)?.resync(R.view(game,pid));else if(m.type==='command')processCommand(pid,m.action,c);
  });
- c.on('close',()=>{clearTimeout(timer);stateSenders.get(c)?.close();stateSenders.delete(c);stateSync.delete(c);if(pid&&channels.get(pid)===c){channels.delete(pid);game=R.online(game,pid,false);broadcast();}});c.on('error',()=>{if(pid&&channels.get(pid)===c)stateSenders.get(c)?.fail('send',game.rev);});
+ c.on('close',()=>{rtc?.removeEventListener?.('connectionstatechange',transportChanged);clearTimeout(timer);stateSenders.get(c)?.close();stateSenders.delete(c);stateSync.delete(c);if(pid&&channels.get(pid)===c){channels.delete(pid);game=R.online(game,pid,false);broadcast();}});c.on('error',()=>{if(pid&&channels.get(pid)===c)stateSenders.get(c)?.fail('send',game.rev);});
 }
 setInterval(()=>{if(demo)return;if(owner&&ready){for(const c of channels.values())sendData(c,{type:'pulse',wire:FPStateWire.VERSION,rev:game.rev});}else if(conn?.open&&lastSeen&&Date.now()-lastSeen>20000){networkError('作成者からの応答を待っています。');conn?.close();}},4000);
 window.addEventListener('online',()=>{attempts=0;if(!demo&&!ready&&room&&name)connect(owner);});
@@ -165,7 +175,7 @@ function render(){
  bind();bindSettings();if($('#initial-answer-row')&&$('#presenter')){$('#initial-answer-row').hidden=$('#presenter').value!==me;$('#initial-answer').disabled=$('#presenter').value!==me;}
  const newList=$('.history-list');if(newList){if(!sameRound||nearEnd){newList.scrollTop=order==='old'?newList.scrollHeight:0;}else newList.scrollTop=scroll;}
  if(focused&&$('#'+focused)&&['INPUT','TEXTAREA'].includes($('#'+focused).tagName)){const el=$('#'+focused);el.focus({preventScroll:true});try{el.setSelectionRange(selection,selection);}catch{}}
- renderRound=state?.roundId||'';renderCount=state?.entries.length||0;queueMicrotask(paintSynchronization);queueMicrotask(paintRecovery);
+ renderRound=state?.roundId||'';renderCount=state?.entries.length||0;queueMicrotask(paintSynchronization);queueMicrotask(paintRecovery);queueMicrotask(()=>{window.FPProfileUI?.paint();window.FPSaveUI?.paint();});
 }
 function inviteURL(){return location.origin+location.pathname+'#r='+room;}
 async function copy(text,title='コピーしてDiscordへ'){
@@ -185,7 +195,7 @@ function bind(){
    if(cached.status==='invalid'){blockRestore('guest:'+room);return;}
    if(cached.status==='ok'){try{token=FPRecovery.restoreGuest(cached.value,{rules:R,validToken:validRoom}).token;}catch{blockRestore('guest:'+room);return;}}
    else token=uid();persist();connect(false);
-  }else{room=uid();me=uid();owner=true;game=R.create(me,name);state=R.view(game,me);credentials={};history.replaceState(null,'','#r='+room);persist();connect(true);}
+  }else{room=uid();me=uid();owner=true;game=R.create(me,name);const icon=window.FPLocalProfile?.load()?.icon;if(icon&&icon!=='default')game.players[0].icon=icon;state=R.view(game,me);credentials={};history.replaceState(null,'','#r='+room);persist();connect(true);}
  };
  on('retry',()=>{attempts=0;connect(owner);});on('start',startRound);on('copylink',()=>copy(inviteURL()));
  if($('#prepare-form'))$('#prepare-form').onsubmit=e=>{e.preventDefault();send('begin',{text:$('#prepare-answer').value});};

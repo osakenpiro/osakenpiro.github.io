@@ -3,6 +3,51 @@
   'use strict';
   const previousRender = render;
   let trigger = null;
+  const audienceStates = new WeakMap();
+  const audienceText = r => window.FPAudienceResult?.format(r) || '';
+  const audienceSection = () => window.FPAudienceResult ? '<section class="r6-result-audience"><h3>この遊びを紹介する</h3><p class="small">名前や答えを入れずに、今回のお題の数字を共有できます。</p><details class="r6-result-copy-preview"><summary>紹介用のテキストを確認</summary><textarea id="r6-audience-text" readonly rows="6" aria-label="名前と答えを含まない紹介用の結果" placeholder="お題が終わると、紹介用の結果を作れます。"></textarea></details><div class="r6-audience-actions"><button id="r6-audience-copy" type="button" class="quiet">紹介用の結果をコピー</button><span id="r6-audience-status" class="small" role="status"></span></div></section>' : '';
+  function refreshAudience(root, report) {
+    const preview = root.querySelector('#r6-audience-text');
+    const button = root.querySelector('#r6-audience-copy');
+    if (!preview || !button) return null;
+    let record = audienceStates.get(root);
+    if (!record) { record = {value:'',revision:0,pending:null}; audienceStates.set(root, record); }
+    const value = audienceText(report);
+    if (value !== record.value) {
+      record.value = value; record.revision++;
+      root.querySelector('#r6-audience-status').textContent = '';
+    }
+    preview.value = value;
+    button.disabled = !value || !!record.pending;
+    return record;
+  }
+  async function copyAudience(root) {
+    if (!root || document.getElementById('r6-result-report') !== root || document.getElementById('modal')?.open === false) return;
+    const record = refreshAudience(root, current());
+    if (!record?.value || record.pending) return;
+    const operation = {value:record.value,revision:record.revision};
+    record.pending = operation;
+    root.querySelector('#r6-audience-status').textContent = '';
+    refreshAudience(root, current());
+    const stillCurrent = () => {
+      if (document.getElementById('r6-result-report') !== root || document.getElementById('modal')?.open === false) return false;
+      refreshAudience(root, current());
+      return record.pending === operation && record.revision === operation.revision;
+    };
+    try {
+      await navigator.clipboard.writeText(operation.value);
+      if (stillCurrent()) root.querySelector('#r6-audience-status').textContent = '紹介用の結果をコピーしました';
+    } catch {
+      if (stillCurrent()) {
+        const preview = root.querySelector('#r6-audience-text');
+        preview.closest('details').open = true; preview.focus(); preview.select();
+        root.querySelector('#r6-audience-status').textContent = 'テキストを選択しました。コピーして共有できます。';
+      }
+    } finally {
+      if (record.pending === operation) record.pending = null;
+      if (document.getElementById('r6-result-report') === root) refreshAudience(root, current());
+    }
+  }
   const current = () => {
     if (!ready || window.FPR3?.anticipating()) return null;
     const v = window.FPR3 ? window.FPR3.presentationView(state) : state;
@@ -28,6 +73,7 @@
     const body = root.querySelector('[data-result-body]');
     const preview = root.querySelector('#r6-result-text');
     const button = root.querySelector('#r6-result-copy');
+    refreshAudience(root, r);
     // Clear stale answer/score immediately on undo, viewer/phase changes or reveal.
     if (!r) {
       body.textContent = !ready ? '接続を確認してください。リザルトは最新の状態を受信してから表示します。' : '現在、公開できるリザルトはありません。';
@@ -48,8 +94,11 @@
   }
   function open() {
     if (!current()) return;
-    modal('<section id="r6-result-report"><div class="r6-result-heading"><div><h2>リザルト</h2><p class="small" data-result-time></p></div><button id="modal-close" type="button" class="quiet">閉じる</button></div><p class="small">今の部屋の記録。表示・コピーだけで、プレイは続けられます。</p><div data-result-body></div><details class="r6-result-copy-preview"><summary>共有するテキストを確認</summary><textarea id="r6-result-text" readonly rows="9" aria-label="共有するリザルト"></textarea></details><div class="r6-result-footer"><button id="r6-result-copy" type="button" class="primary">リザルトをコピー</button><span id="r6-result-copy-status" role="status"></span></div></section>');
+    modal('<section id="r6-result-report"><div class="r6-result-heading"><div><h2>リザルト</h2><p class="small" data-result-time></p></div><button id="modal-close" type="button" class="quiet">閉じる</button></div><p class="small">今の部屋の記録。表示・コピーだけで、プレイは続けられます。</p><div data-result-body></div>' + audienceSection() + '<details class="r6-result-copy-preview"><summary>部屋内の記録を確認（名前・公開済みの答えを含む）</summary><textarea id="r6-result-text" readonly rows="9" aria-label="部屋内のリザルト"></textarea></details><div class="r6-result-footer"><button id="r6-result-copy" type="button" class="primary">部屋の記録をコピー</button><span id="r6-result-copy-status" role="status"></span></div></section>');
     refresh();
+    const audienceButton = document.getElementById('r6-audience-copy');
+    const audienceRoot = document.getElementById('r6-result-report');
+    if (audienceButton) audienceButton.onclick = () => copyAudience(audienceRoot);
     document.getElementById('r6-result-copy').onclick = async () => {
       refresh();
       const r = current();
